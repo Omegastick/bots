@@ -1,8 +1,15 @@
+"""
+Agent models.
+"""
 import torch
 import torch.nn.functional as F
 
 
 class MLPExtractor(torch.nn.Module):
+    """
+    Feature extractor using a multi-layer perceptron to determine features.
+    """
+
     def __init__(self, input_size, output_size):
         super().__init__()
         self.layer_1 = torch.nn.Linear(input_size, 128)
@@ -20,6 +27,10 @@ class MLPExtractor(torch.nn.Module):
 
 
 class Model(torch.nn.Module):
+    """
+    Default neural network model used by agents.
+    """
+
     def __init__(
         self,
         inputs,
@@ -55,31 +66,12 @@ class Model(torch.nn.Module):
         return value, raw_probs
 
     def act(self, x):
+        """
+        Get the predicted value, action probabilities and the log probabilities
+        of an observation.
+        """
         value, raw_probs = self(x)
-        probs = [F.softmax(raw_prob) for raw_prob in raw_probs]
-        log_probs = [F.log_softmax(raw_prob) for raw_prob in raw_probs]
+        probs = [F.softmax(raw_prob, dim=0) for raw_prob in raw_probs]
+        log_probs = [F.log_softmax(raw_prob, dim=0) for raw_prob in raw_probs]
+
         return value, probs, log_probs
-
-
-if __name__ == '__main__':
-    inputs = [5, 3]
-    outputs = [2, 10]
-    model = Model(inputs, outputs, ['mlp', 'mlp'])
-
-    optimizer = torch.optim.Adam(model.parameters())
-
-    for _ in range(1000):
-        observation = [torch.rand(5), torch.rand(3)]
-        value, probs, log_probs = model.act(observation)
-        reward = sum([prob[0] for prob in probs])
-
-        print(probs)
-
-        value_loss = (reward - value).pow(2)
-        # print(f"{value_loss}")
-
-        actor_loss = -sum([log_prob[0] for log_prob in log_probs])
-
-        optimizer.zero_grad()
-        (value_loss + actor_loss).backward()
-        optimizer.step()
