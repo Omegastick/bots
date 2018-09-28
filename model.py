@@ -1,8 +1,42 @@
 """
 Agent models.
 """
+from typing import List, Tuple
+import numpy as np
 import torch
 import torch.nn.functional as F
+
+
+def normalized_columns_initializer(weights, std=1.0):
+    """
+    Normalises each layer's weights when initialising.
+    Based on: https://github.com/ikostrikov/pytorch-a3c/blob/master/model.py
+    """
+    out = torch.randn(weights.size())
+    out *= std / torch.sqrt(out.pow(2).sum(1, keepdim=True))
+    return out
+
+
+def weights_init(module):
+    """
+    Weight initialisation function magic.
+    Based on: https://github.com/ikostrikov/pytorch-a3c/blob/master/model.py
+    """
+    classname = module.__class__.__name__
+    if classname.find('Conv') != -1:
+        weight_shape = list(module.weight.data.size())
+        fan_in = np.prod(weight_shape[1:4])
+        fan_out = np.prod(weight_shape[2:4]) * weight_shape[0]
+        w_bound = np.sqrt(6. / (fan_in + fan_out))
+        module.weight.data.uniform_(-w_bound, w_bound)
+        module.bias.data.fill_(0)
+    elif classname.find('Linear') != -1:
+        weight_shape = list(module.weight.data.size())
+        fan_in = weight_shape[1]
+        fan_out = weight_shape[0]
+        w_bound = np.sqrt(6. / (fan_in + fan_out))
+        module.weight.data.uniform_(-w_bound, w_bound)
+        module.bias.data.fill_(0)
 
 
 class MLPExtractor(torch.nn.Module):
@@ -33,9 +67,9 @@ class Model(torch.nn.Module):
 
     def __init__(
         self,
-        inputs,
-        outputs,
-        feature_extractors
+        inputs: List[int],
+        outputs: List[int],
+        feature_extractors: List[str]
     ):
         super().__init__()
         self.feature_extractors = torch.nn.ModuleList()
@@ -56,16 +90,32 @@ class Model(torch.nn.Module):
         for output in outputs:
             self.actors.append(torch.nn.Linear(self.feature_size, output))
 
-    def forward(self, x):
+        self.apply(weights_init)
+
+        for actor in self.actors:
+            actor.weight.data = normalized_columns_initializer(
+                actor.weight.data, 0.01)
+            actor.bias.data.fill_(0)
+        self.critic.weight.data = normalized_columns_initializer(
+            self.critic.weight.data, 1.0)
+        self.critic.bias.data.fill_(0)
+
+    def forward(
+        self,
+        x: List[torch.Tensor]
+    ) -> Tuple[torch.Tensor, torch.Tensor]:
         features = [extractor(x[i]) for i, extractor in enumerate(
             self.feature_extractors)]
-        x = torch.cat(features)
+        x = torch.cat(features, dim=-1)
         x = F.relu(x)
         value = self.critic(x)
         raw_probs = [actor(x) for actor in self.actors]
         return value, raw_probs
 
-    def act(self, x):
+    def act(
+        self,
+        x: List[torch.Tensor]
+    ) -> Tuple[torch.Tensor, torch.Tensor, torch.Tensor]:
         """
         Get the predicted value, action probabilities and the log probabilities
         of an observation.

@@ -39,12 +39,14 @@ def test_model_prob_dimensions(model):
     constructor.
     """
     observation = [torch.Tensor([1, 2, 3]), torch.Tensor([1, 2, 3, 4, 5, 6])]
-    _, probs, _ = model.act(observation)
+    _, probs, log_probs = model.act(observation)
 
     expected = [2, 10]
     dimensions = [len(x) for x in probs]
+    log_dimensions = [len(x) for x in log_probs]
 
     assert dimensions == expected
+    assert log_dimensions == expected
 
 
 def test_model_backprop(model):
@@ -80,3 +82,33 @@ def test_probs_add_to_1(model):
     observation = [torch.Tensor([1, 2, 3]), torch.Tensor([1, 2, 3, 4, 5, 6])]
     _, probs, _ = model.act(observation)
     assert pytest.approx(1, probs[0].sum().item())
+
+
+def test_model_outputs_correct_shape_for_multiple_timestep_batches(model):
+    """
+    When passing multiple timesteps through forward() at once, the output
+    should return multiple timesteps correctly processed.
+    """
+    observation = [torch.Tensor([1, 2, 3]), torch.Tensor([1, 2, 3, 4, 5, 6])]
+    observation = [torch.stack([x, x]) for x in observation]
+    _, output = model(observation)
+
+    assert output[0].shape == (2, 2)
+    assert output[1].shape == (2, 10)
+
+
+# def test_evaluate_actions_output_shape(model):
+#     """
+#     When passed a training batch of observations and actions, the model should
+#     output the values and log probabilities of the actions in the correct
+#     dimensions.
+#     """
+#     observation = [torch.Tensor([1, 2, 3]), torch.Tensor([1, 2, 3, 4, 5, 6])]
+#     observations = [torch.stack([x, x, x, x, x]) for x in observation]
+#     actions = [0, 0, 1, 1, 0]
+#     values, log_probs = model.evaluate_actions(observation, actions)
+
+#     expected = (1, 5)
+
+#     assert values.shape == expected
+#     assert log_probs.shape == expected
