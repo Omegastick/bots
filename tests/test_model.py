@@ -95,20 +95,3 @@ def test_model_outputs_correct_shape_for_multiple_timestep_batches(model):
 
     assert output[0].shape == (2, 2)
     assert output[1].shape == (2, 10)
-
-
-# def test_evaluate_actions_output_shape(model):
-#     """
-#     When passed a training batch of observations and actions, the model should
-#     output the values and log probabilities of the actions in the correct
-#     dimensions.
-#     """
-#     observation = [torch.Tensor([1, 2, 3]), torch.Tensor([1, 2, 3, 4, 5, 6])]
-#     observations = [torch.stack([x, x, x, x, x]) for x in observation]
-#     actions = [0, 0, 1, 1, 0]
-#     values, log_probs = model.evaluate_actions(observation, actions)
-
-#     expected = (1, 5)
-
-#     assert values.shape == expected
-#     assert log_probs.shape == expected

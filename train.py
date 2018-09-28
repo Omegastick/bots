@@ -3,7 +3,6 @@ Code to support training a model.
 """
 from typing import NamedTuple, List, Tuple
 import torch
-import pytest
 
 from model import Model
 
@@ -55,10 +54,6 @@ class TrainingSession(object):
 
         self.optimizer = torch.optim.RMSprop(
             self.model.parameters(), lr=hyperparams.learning_rate)
-
-        # self.models = [
-        #     Model(model.inputs, model.outputs, model.feature_extractors)
-        #     for _ in range(contexts)]
 
     def get_action(
         self,
@@ -125,7 +120,6 @@ class TrainingSession(object):
             gae = 0
             real_value = values[-1]
 
-            # pytest.set_trace()
             for i in reversed(range(len(log_probs))):
                 real_value = (self.hyperparams.discount_factor * real_value
                               + rewards[i])
@@ -144,9 +138,6 @@ class TrainingSession(object):
                 actor_loss = (actor_loss
                               - (log_probs[i] * gae).sum()
                               - entropies[i] * self.hyperparams.entropy_coef)
-                # pytest.set_trace()
-                # actor_loss -= ((advantage * log_probs[i]).sum()
-                #                - entropies[i] * self.hyperparams.entropy_coef)
 
             total_actor_loss += actor_loss
             total_critic_loss += critic_loss
