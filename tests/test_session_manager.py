@@ -7,9 +7,9 @@ import torch
 import pytest
 from pytest_mock import mocker
 
-from ..session_manager import SessionManager
-from ..model import ModelSpecification
-from ..train import TrainingSession, HyperParams
+from bots.session_manager import SessionManager
+from bots.model import ModelSpecification
+from bots.train import TrainingSession, HyperParams
 
 
 @pytest.fixture()

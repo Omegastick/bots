@@ -4,8 +4,8 @@ Inference session.
 from typing import List, Tuple
 import torch
 
-from model import Model
-from train import ModelSpecification
+from .model import Model
+from .train import ModelSpecification
 
 
 class InferenceSession:

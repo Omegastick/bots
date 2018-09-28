@@ -4,7 +4,7 @@ Code to support training a model.
 from typing import NamedTuple, List, Tuple
 import torch
 
-from model import Model, ModelSpecification
+from .model import Model, ModelSpecification
 
 
 class HyperParams(NamedTuple):

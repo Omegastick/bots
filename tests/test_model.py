@@ -5,7 +5,7 @@ Tests for model.py.
 import pytest
 import torch
 
-from ..model import Model
+from bots.model import Model
 
 
 @pytest.fixture

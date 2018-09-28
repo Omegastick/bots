@@ -6,9 +6,9 @@ import os
 import pytest
 import torch
 
-from ..infer import InferenceSession
-from ..train import TrainingSession, HyperParams
-from ..model import ModelSpecification
+from bots.infer import InferenceSession
+from bots.train import TrainingSession, HyperParams
+from bots.model import ModelSpecification
 
 
 @pytest.fixture

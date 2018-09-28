@@ -3,9 +3,9 @@ Interface between the frontend and sessions.
 """
 from typing import Dict, Union
 
-from model import ModelSpecification
-from train import TrainingSession, HyperParams
-from infer import InferenceSession
+from .model import ModelSpecification
+from .train import TrainingSession, HyperParams
+from .infer import InferenceSession
 
 
 class SessionManager:
