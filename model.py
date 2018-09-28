@@ -7,7 +7,10 @@ import torch
 import torch.nn.functional as F
 
 
-def normalized_columns_initializer(weights, std=1.0):
+def normalized_columns_initializer(
+    weights: torch.Tensor,
+    std: float = 1.
+) -> None:
     """
     Normalises each layer's weights when initialising.
     Based on: https://github.com/ikostrikov/pytorch-a3c/blob/master/model.py
@@ -17,7 +20,7 @@ def normalized_columns_initializer(weights, std=1.0):
     return out
 
 
-def weights_init(module):
+def weights_init(module: torch.nn.Module) -> torch.Tensor:
     """
     Weight initialisation function magic.
     Based on: https://github.com/ikostrikov/pytorch-a3c/blob/master/model.py
@@ -50,7 +53,7 @@ class MLPExtractor(torch.nn.Module):
         self.layer_2 = torch.nn.Linear(128, 128)
         self.layer_3 = torch.nn.Linear(128, output_size)
 
-    def forward(self, x):
+    def forward(self, x: torch.Tensor) -> torch.Tensor:
         x = self.layer_1(x)
         x = F.relu(x)
         x = self.layer_2(x)

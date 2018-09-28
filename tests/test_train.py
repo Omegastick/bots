@@ -19,10 +19,11 @@ def session():
     hyperparams:
         learning_rate: 0.0001
         batch_size: 20
-        entropy_coef: 0.1
+        entropy_coef: 0.001
         discount_factor: 0.8
     contexts: 1
     """
+    torch.manual_seed(1)
     model = ModelSpecification(
         inputs=[2, 3],
         outputs=[3, 4],
@@ -31,7 +32,7 @@ def session():
     hyperparams = HyperParams(
         learning_rate=0.0001,
         batch_size=20,
-        entropy_coef=0.1,
+        entropy_coef=0.001,
         discount_factor=0.8
     )
     return TrainingSession(model, hyperparams, 1)

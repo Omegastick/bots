@@ -77,7 +77,7 @@ class TrainingSession(object):
 
         return actions, value
 
-    def give_reward(self, reward: float, context: int):
+    def give_reward(self, reward: float, context: int) -> None:
         """
         Assign a reward to the last action performed.
         """
@@ -94,7 +94,7 @@ class TrainingSession(object):
                     >= self.hyperparams.batch_size):
                 self.train()
 
-    def train(self, final: bool = False):
+    def train(self, final: bool = False) -> None:
         """
         Train on a batch of data.
         """
@@ -152,3 +152,9 @@ class TrainingSession(object):
         self.values = [[] for _ in range(self.contexts)]
         self.entropies = [[] for _ in range(self.contexts)]
         self.latest_observations = [None for _ in range(self.contexts)]
+
+    def save_model(
+        self,
+        path: str
+    ) -> None:
+        pass
