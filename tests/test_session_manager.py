@@ -3,13 +3,14 @@ Tests for session manager.
 """
 #pylint: disable=W0621
 import os
-import torch
+import numpy as np
 import pytest
-from pytest_mock import mocker, MockFixture
+from pytest_mock import mocker, MockFixture  # pylint: disable=W0611
 
 from bots.session_manager import SessionManager
 from bots.model import ModelSpecification
 from bots.train import TrainingSession, HyperParams
+from bots.infer import InferenceSession
 
 
 @pytest.fixture()
@@ -54,9 +55,8 @@ def test_start_inference_session_instantiates_inference_session(
         training_session = TrainingSession(model, HyperParams(), 1)
         path = './test.pth'
         training_session.save_model(path)
-        session_manager.start_inference_session(
-            session_id=0, model=model, path=path)
-        assert isinstance(session_manager.sessions[0], TrainingSession)
+        session_manager.start_inference_session(0, model, path, 1)
+        assert isinstance(session_manager.sessions[0], InferenceSession)
     finally:
         os.remove(path)
 
@@ -69,39 +69,40 @@ def test_get_action_calls_correct_session(
     Calling get_action on a specified session should call the right session.
     """
     try:
-        session_manager.start_training_session(
-            0, model, HyperParams(), 1, True)
+        session_manager.start_training_session(0, model, HyperParams(), 1,
+                                               True)
         path = './test.pth'
         session_manager.sessions[0].save_model(path)
-        session_manager.start_inference_session(
-            session_id=1, model=model, path=path)
+        session_manager.start_inference_session(1, model, path, 1)
 
         mocker.spy(session_manager.sessions[0], 'get_action')
         mocker.spy(session_manager.sessions[1], 'get_action')
 
-        inputs = [torch.Tensor([1]), torch.Tensor([1, 2])]
+        inputs = [np.array([1]), np.array([1, 2])]
         session_manager.get_action(0, inputs, 0)
-        assert session_manager.sessions[0].call_count == 1
+        assert session_manager.sessions[0].get_action.call_count == 1
 
+        inputs = [np.array([1]), np.array([1, 2])]
         session_manager.get_action(1, inputs, 0)
-        assert session_manager.sessions[1].call_count == 1
+        assert session_manager.sessions[1].get_action.call_count == 1
     finally:
         os.remove(path)
 
 
 def test_give_reward_calls_correct_session(
         session_manager: SessionManager,
-        model: ModelSpecification):
+        model: ModelSpecification,
+        mocker: MockFixture):
     """
     Calling give_reward on a session should call the right session.
     """
     session_manager.start_training_session(0, model, HyperParams(), 1, True)
     session_manager.start_training_session(1, model, HyperParams(), 1, True)
 
-    mocker.patch.object(session_manager.sessions[0].give_reward)
-    mocker.patch.object(session_manager.sessions[1].give_reward)
+    mocker.patch.object(session_manager.sessions[0], 'give_reward')
+    mocker.patch.object(session_manager.sessions[1], 'give_reward')
 
-    session_manager.give_reward(0, 1.5)
+    session_manager.give_reward(0, 1.5, 0)
 
-    assert session_manager.sessions[0].call_count == 1
-    assert session_manager.sessions[1].call_count == 0
+    assert session_manager.sessions[0].give_reward.call_count == 1
+    assert session_manager.sessions[1].give_reward.call_count == 0
