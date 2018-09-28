@@ -5,7 +5,7 @@ Tests for model.py.
 import pytest
 import torch
 
-from bots.model import Model
+from bots.model import Model, ModelSpecification
 
 
 @pytest.fixture
@@ -19,7 +19,7 @@ def model():
     return Model([3, 6], [2, 10], ['mlp', 'mlp'])
 
 
-def test_model_raw_prob_dimensions(model):
+def test_model_raw_prob_dimensions(model: ModelSpecification):
     """
     The outputted raw probabilities should match dimensions specified in the
     constructor.
@@ -33,7 +33,7 @@ def test_model_raw_prob_dimensions(model):
     assert dimensions == expected
 
 
-def test_model_prob_dimensions(model):
+def test_model_prob_dimensions(model: ModelSpecification):
     """
     The outputted probabilities should match dimensions specified in the
     constructor.
@@ -49,7 +49,7 @@ def test_model_prob_dimensions(model):
     assert log_dimensions == expected
 
 
-def test_model_backprop(model):
+def test_model_backprop(model: ModelSpecification):
     """
     When backprop and an optimizer is used, the model should train.
     """
@@ -75,7 +75,7 @@ def test_model_backprop(model):
     assert abs(starting_reward - starting_value) > abs(reward - value)
 
 
-def test_probs_add_to_1(model):
+def test_probs_add_to_1(model: ModelSpecification):
     """
     The probabilities outputted by model.act() should add to 1.
     """
@@ -84,7 +84,8 @@ def test_probs_add_to_1(model):
     assert pytest.approx(1, probs[0].sum().item())
 
 
-def test_model_outputs_correct_shape_for_multiple_timestep_batches(model):
+def test_model_outputs_correct_shape_for_multiple_timestep_batches(
+        model: ModelSpecification):
     """
     When passing multiple timesteps through forward() at once, the output
     should return multiple timesteps correctly processed.

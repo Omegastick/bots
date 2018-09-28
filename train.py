@@ -47,10 +47,9 @@ class TrainingSession:
             self.model.parameters(), lr=hyperparams.learning_rate)
 
     def get_action(
-        self,
-        inputs: List[torch.Tensor],
-        context: int
-    ) -> Tuple[List[int], torch.Tensor]:
+            self,
+            inputs: List[torch.Tensor],
+            context: int) -> Tuple[List[int], torch.Tensor]:
         """
         Given an observation, get an action and the value of the observation
         from one of the models being trained.
@@ -68,7 +67,7 @@ class TrainingSession:
 
         return actions, value
 
-    def give_reward(self, reward: float, context: int) -> None:
+    def give_reward(self, reward: float, context: int):
         """
         Assign a reward to the last action performed.
         """
@@ -85,7 +84,7 @@ class TrainingSession:
                     >= self.hyperparams.batch_size):
                 self.train()
 
-    def train(self, final: bool = False) -> None:
+    def train(self, final: bool = False):
         """
         Train on a batch of data.
         """
@@ -144,10 +143,7 @@ class TrainingSession:
         self.entropies = [[] for _ in range(self.contexts)]
         self.latest_observations = [None for _ in range(self.contexts)]
 
-    def save_model(
-        self,
-        path: str
-    ) -> None:
+    def save_model(self, path: str):
         """
         Saves the current model to disk.
         """

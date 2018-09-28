@@ -17,9 +17,8 @@ class ModelSpecification(NamedTuple):
 
 
 def normalized_columns_initializer(
-    weights: torch.Tensor,
-    std: float = 1.
-) -> None:
+        weights: torch.Tensor,
+        std: float = 1.):
     """
     Normalises each layer's weights when initialising.
     Based on: https://github.com/ikostrikov/pytorch-a3c/blob/master/model.py
@@ -78,11 +77,10 @@ class Model(torch.nn.Module):
     """
 
     def __init__(
-        self,
-        inputs: List[int],
-        outputs: List[int],
-        feature_extractors: List[str]
-    ):
+            self,
+            inputs: List[int],
+            outputs: List[int],
+            feature_extractors: List[str]):
         super().__init__()
         self.feature_extractors = torch.nn.ModuleList()
         for i, extractor in enumerate(feature_extractors):
@@ -113,9 +111,8 @@ class Model(torch.nn.Module):
         self.critic.bias.data.fill_(0)
 
     def forward(
-        self,
-        x: List[torch.Tensor]
-    ) -> Tuple[torch.Tensor, torch.Tensor]:
+            self,
+            x: List[torch.Tensor]) -> Tuple[torch.Tensor, torch.Tensor]:
         features = [extractor(x[i]) for i, extractor in enumerate(
             self.feature_extractors)]
         x = torch.cat(features, dim=-1)
@@ -125,9 +122,9 @@ class Model(torch.nn.Module):
         return value, raw_probs
 
     def act(
-        self,
-        x: List[torch.Tensor]
-    ) -> Tuple[torch.Tensor, torch.Tensor, torch.Tensor]:
+            self,
+            x: List[torch.Tensor]) -> Tuple[torch.Tensor, torch.Tensor,
+                                            torch.Tensor]:
         """
         Get the predicted value, action probabilities and the log probabilities
         of an observation.

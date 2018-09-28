@@ -5,7 +5,7 @@ Tests for session manager.
 import os
 import torch
 import pytest
-from pytest_mock import mocker
+from pytest_mock import mocker, MockFixture
 
 from bots.session_manager import SessionManager
 from bots.model import ModelSpecification
@@ -34,8 +34,7 @@ def model():
 
 def test_start_training_session_instantiates_training_session(
         session_manager: SessionManager,
-        model: ModelSpecification
-):
+        model: ModelSpecification):
     """
     After starting a session, the session manager should contain a training
     session.
@@ -46,8 +45,7 @@ def test_start_training_session_instantiates_training_session(
 
 def test_start_inference_session_instantiates_inference_session(
         session_manager: SessionManager,
-        model: ModelSpecification
-):
+        model: ModelSpecification):
     """
     After starting a session, the session manager should contain a training
     session.
@@ -64,9 +62,9 @@ def test_start_inference_session_instantiates_inference_session(
 
 
 def test_get_action_calls_correct_session(
-    session_manager: SessionManager,
-    model: ModelSpecification
-):
+        session_manager: SessionManager,
+        model: ModelSpecification,
+        mocker: MockFixture):
     """
     Calling get_action on a specified session should call the right session.
     """
@@ -92,9 +90,8 @@ def test_get_action_calls_correct_session(
 
 
 def test_give_reward_calls_correct_session(
-    session_manager: SessionManager,
-    model: ModelSpecification
-):
+        session_manager: SessionManager,
+        model: ModelSpecification):
     """
     Calling give_reward on a session should call the right session.
     """

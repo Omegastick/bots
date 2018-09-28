@@ -9,17 +9,22 @@ from .infer import InferenceSession
 
 
 class SessionManager:
+    """
+    Manages training and inference sessions.
+    """
     def __init__(self):
         self.sessions: Dict[int, Union[TrainingSession, InferenceSession]] = {}
 
     def start_training_session(
-        self,
-        session_id: int,
-        model: ModelSpecification,
-        hyperparams: HyperParams,
-        contexts: int,
-        auto_train: bool
-    ) -> None:
+            self,
+            session_id: int,
+            model: ModelSpecification,
+            hyperparams: HyperParams,
+            contexts: int,
+            auto_train: bool):
+        """
+        Begins a training session.
+        """
         assert session_id not in self.sessions, \
             f"Session with that ID already exists"
         session = TrainingSession(model, hyperparams, contexts, auto_train)

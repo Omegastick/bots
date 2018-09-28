@@ -26,10 +26,9 @@ class InferenceSession:
         self.model.load_state_dict(torch.load(model_path))
 
     def get_action(
-        self,
-        inputs: List[torch.Tensor],
-        context: int
-    ) -> Tuple[List[int], torch.Tensor]:
+            self,
+            inputs: List[torch.Tensor],
+            context: int) -> Tuple[List[int], torch.Tensor]:
         """
         Given an observation, get an action and the value of the observation
         from one of the models being trained.

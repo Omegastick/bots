@@ -42,6 +42,7 @@ def session():
 
     os.remove(model_path)
 
+
 def test_get_action_returns_correct_number_of_actions(
         session: InferenceSession):
     """
