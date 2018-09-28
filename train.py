@@ -4,16 +4,7 @@ Code to support training a model.
 from typing import NamedTuple, List, Tuple
 import torch
 
-from model import Model
-
-
-class ModelSpecification(NamedTuple):
-    """
-    Named tuple for specifying a model to be created later.
-    """
-    inputs: List[int]
-    outputs: List[int]
-    feature_extractors: List[str]
+from model import Model, ModelSpecification
 
 
 class HyperParams(NamedTuple):
@@ -27,7 +18,7 @@ class HyperParams(NamedTuple):
     entropy_coef: float = 0.001
 
 
-class TrainingSession(object):
+class TrainingSession:
     """
     Manages a training session for an agent.
     """
@@ -157,4 +148,7 @@ class TrainingSession(object):
         self,
         path: str
     ) -> None:
-        pass
+        """
+        Saves the current model to disk.
+        """
+        torch.save(self.model.state_dict(), path)

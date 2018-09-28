@@ -5,7 +5,8 @@ Tests for train.py.
 import pytest
 import torch
 
-from ..train import TrainingSession, ModelSpecification, HyperParams
+from ..train import TrainingSession, HyperParams
+from ..model import ModelSpecification
 
 
 @pytest.fixture

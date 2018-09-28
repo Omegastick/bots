@@ -1,10 +1,19 @@
 """
 Agent models.
 """
-from typing import List, Tuple
+from typing import List, Tuple, NamedTuple
 import numpy as np
 import torch
 import torch.nn.functional as F
+
+
+class ModelSpecification(NamedTuple):
+    """
+    Named tuple for specifying a model to be created later.
+    """
+    inputs: List[int]
+    outputs: List[int]
+    feature_extractors: List[str]
 
 
 def normalized_columns_initializer(
