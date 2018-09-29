@@ -2,7 +2,6 @@
 Session manager
 """
 from typing import Dict, Union, List
-import numpy as np
 import torch
 
 from .model import ModelSpecification
@@ -50,13 +49,13 @@ class SessionManager:
     def get_action(
             self,
             session_id: int,
-            inputs: List[np.ndarray],
+            inputs: List[list],
             context: int):
         """
         Get an action from a session.
         """
         for i, _input in enumerate(inputs):
-            inputs[i] = torch.from_numpy(_input).float()
+            inputs[i] = torch.Tensor(_input).float()
         return self.sessions[session_id].get_action(inputs, context)
 
     def give_reward(self, session_id: int, reward: float, context: int):
