@@ -16,6 +16,7 @@ class HyperParams(NamedTuple):
     discount_factor: float = 0.99
     gae: float = 1.
     entropy_coef: float = 0.001
+    max_grad_norm: float = 0.5
 
 
 class TrainingSession:
@@ -135,6 +136,10 @@ class TrainingSession:
         loss = total_actor_loss + total_critic_loss
 
         loss.backward()
+
+        torch.nn.utils.clip_grad_norm_(self.model.parameters(),
+                                       self.hyperparams.max_grad_norm)
+
         self.optimizer.step()
 
         self.rewards = [[] for _ in range(self.contexts)]

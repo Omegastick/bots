@@ -4,7 +4,6 @@ Command handler
 
 from typing import NamedTuple, Any
 import rapidjson
-import numpy as np
 
 from .session_manager import SessionManager
 from .model import ModelSpecification
@@ -124,7 +123,9 @@ class CommandHandler:
         """
         try:
             obj = rapidjson.loads(json)
-        except ValueError:
+        except ValueError as exception:
+            print(json)
+            print(exception)
             raise BadJsonError
 
         if (
