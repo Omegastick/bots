@@ -3,6 +3,7 @@ Command handler
 """
 
 from typing import NamedTuple, Any
+import logging
 import rapidjson
 
 from .session_manager import SessionManager
@@ -124,8 +125,8 @@ class CommandHandler:
         try:
             obj = rapidjson.loads(json)
         except ValueError as exception:
-            print(json)
-            print(exception)
+            logging.warning(json)
+            logging.warning(exception)
             raise BadJsonError
 
         if (

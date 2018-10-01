@@ -3,6 +3,7 @@ Main script
 """
 import argparse
 import time
+import logging
 
 from training_server.session_manager import SessionManager
 from training_server.server import Server
@@ -14,6 +15,11 @@ def main():
     Hosts a ZeroMQ server and listens on it for commands to send to a
     SessionManager.
     """
+    logging.basicConfig(level=logging.DEBUG,
+                        format=('%(asctime)s %(name)s.%(funcName)s '
+                                '[%(levelname)s]: %(message)s'),
+                        datefmt='%Y%m%d %H:%M:%S')
+
     parser = argparse.ArgumentParser(description="Server for training agents.")
     parser.add_argument('--port', type=int, default=10201,
                         help="Port on which to host the server.")
@@ -23,7 +29,7 @@ def main():
     command_handler = CommandHandler(session_manager)
 
     server = Server(args.port)
-    print("Server started...")
+    logging.info("Server started...")
     server.send_message("Connection established...")
     server.get_message()
 
@@ -35,8 +41,8 @@ def main():
         server.send_message(response)
         cycle_counter += 1
         if time.time() - last_display_time > 1:
-            print("FPS: "
-                  f"{cycle_counter / (time.time() - last_display_time):.2f}")
+            logging.debug("FPS: %.2f",
+                          cycle_counter / (time.time() - last_display_time))
             last_display_time = time.time()
             cycle_counter = 0
 
