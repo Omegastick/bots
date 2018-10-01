@@ -250,5 +250,5 @@ def test_model_multiple_contexts_improve_training():
         multi_rewards.append(reward)
         multi_session.give_reward(reward, 0)
 
-    pytest.set_trace()
+    # pytest.set_trace()
     assert np.mean(multi_rewards) > np.mean(single_rewards)

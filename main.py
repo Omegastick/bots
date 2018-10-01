@@ -16,7 +16,7 @@ def main():
     SessionManager.
     """
     logging.basicConfig(level=logging.DEBUG,
-                        format=('%(asctime)s %(name)s.%(funcName)s '
+                        format=('%(asctime)s %(funcName)s '
                                 '[%(levelname)s]: %(message)s'),
                         datefmt='%Y%m%d %H:%M:%S')
 
@@ -31,7 +31,7 @@ def main():
     server = Server(args.port)
     logging.info("Server started...")
     server.send_message("Connection established...")
-    server.get_message()
+    logging.debug(server.get_message())
 
     cycle_counter = 0
     last_display_time = time.time()

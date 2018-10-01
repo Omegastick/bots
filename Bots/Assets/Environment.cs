@@ -22,21 +22,23 @@ public class Environment : MonoBehaviour {
 	}
 	
 	void Update () {
-        if (botTransform.localPosition.x > 2)
-        {
-            reward += 100;
-        }
         if (botTransform.localPosition.x < -2.5
             || botTransform.localPosition.x > 2.5
             || botTransform.localPosition.y < -2.5
             || botTransform.localPosition.y > 2.5)
         {
+            if (botTransform.localPosition.x > 2.5)
+            {
+                reward += 10;
+            } else
+            {
+                reward -= 10;
+            }
             Vector3 newPosition = new Vector3(0, 0, botTransform.localPosition.z);
             botTransform.localPosition = newPosition;
             botTransform.rotation = Quaternion.identity;
             botRigidBody.velocity = new Vector2(0, 0);
             botRigidBody.angularVelocity = 0;
-            reward -= 10;
         }
     }
 }

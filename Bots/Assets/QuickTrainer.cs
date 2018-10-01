@@ -7,16 +7,17 @@ using UnityEngine;
 public class QuickTrainer : MonoBehaviour
 {
 
-    public System.Collections.Generic.List<Environment> environments;
     public UnityEngine.UI.Text rewardText;
+    public float timeScale = 1;
     private NetMQ.Sockets.PairSocket client;
     private float lastActionTime;
     private List<float> rewards = new List<float>();
     private System.TimeSpan waitTime = new System.TimeSpan(0, 0, 0, 500);
-    public float timeScale = 1;
+    private Environment[] environments;
 
     private void Start()
     {
+        environments = FindObjectsOfType<Environment>();
         lastActionTime = Time.time;
         try
         {
@@ -38,21 +39,23 @@ public class QuickTrainer : MonoBehaviour
                 {
                     ["model"] = new JObject
                     {
-                        ["inputs"] = new JArray { 6 },
+                        ["inputs"] = new JArray { 7 },
                         ["outputs"] = new JArray { 5 },
                         ["feature_extractors"] = new JArray() { "mlp" }
                     },
                     ["hyperparams"] = new JObject
                     {
                         ["learning_rate"] = 0.0007,
-                        ["gae"] = 0.9,
-                        ["batch_size"] = 5,
+                        ["gae"] = 0.96,
+                        ["batch_size"] = 50,
                         ["entropy_coef"] = 0.0001,
-                        ["max_grad_norm"] = 2.0
+                        ["max_grad_norm"] = 50.0,
+                        ["discount_factor"] = 0.98,
+                        ["critic_coef"] = 0.2
                     },
                     ["session_id"] = 0,
                     ["training"] = true,
-                    ["contexts"] = 3,
+                    ["contexts"] = 11,
                     ["auto_train"] = true
                 },
                 ["id"] = 0
@@ -73,15 +76,17 @@ public class QuickTrainer : MonoBehaviour
     private void Update()
     {
         Time.timeScale = timeScale;
-        if (Time.time - lastActionTime > 0.5)
+        if (Time.time - lastActionTime > 0.1)
         {
             lastActionTime = Time.time;
 
-            for (int i = 0; i < environments.Count; i++)
+            for (int i = 0; i < environments.Count(); i++)
             {
                 var environment = environments[i];
                 //var rotation = ((environment.botTransform.rotation.eulerAngles.z % 360) / 180) - 1;
-                var rotation = environment.botTransform.localRotation.eulerAngles.z / 360;
+                var rotation = (Mathf.PI / 180) * environment.botTransform.localRotation.eulerAngles.z;
+                var rotationSin = Mathf.Sin(rotation);
+                var rotationCos = Mathf.Cos(rotation);
                 var xVelocity = environment.botRigidBody.velocity.x;
                 var yVelocity = environment.botRigidBody.velocity.y;
                 var aVelocity = environment.botRigidBody.angularVelocity / 100;
@@ -101,7 +106,7 @@ public class QuickTrainer : MonoBehaviour
                     ["method"] = "get_action",
                     ["param"] = new JObject
                     {
-                        ["inputs"] = new JArray { new JArray { rotation, xVelocity, yVelocity, aVelocity, position.x, position.y } },
+                        ["inputs"] = new JArray { new JArray { rotationSin, rotationCos, xVelocity, yVelocity, aVelocity, position.x, position.y } },
                         ["context"] = i,
                         ["session_id"] = 0
                     },

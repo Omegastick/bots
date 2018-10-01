@@ -1,6 +1,7 @@
 """
 Train
 """
+import logging
 from typing import NamedTuple, List, Tuple
 import torch
 
@@ -15,6 +16,7 @@ class HyperParams(NamedTuple):
     batch_size: int = 5
     discount_factor: float = 0.99
     gae: float = 1.
+    critic_coef: float = 0.5
     entropy_coef: float = 0.001
     max_grad_norm: float = 0.5
 
@@ -89,6 +91,7 @@ class TrainingSession:
         """
         Train on a batch of data.
         """
+        logging.debug("Training")
         total_actor_loss = 0
         total_critic_loss = 0
 
@@ -110,6 +113,10 @@ class TrainingSession:
             actor_loss = 0
             gae = 0
             real_value = values[-1]
+
+            # for reward in rewards:
+            #     if reward > 90:
+            #         import ipdb; ipdb.set_trace()
 
             for i in reversed(range(len(log_probs))):
                 real_value = (self.hyperparams.discount_factor * real_value
@@ -133,7 +140,8 @@ class TrainingSession:
             total_actor_loss += actor_loss
             total_critic_loss += critic_loss
 
-        loss = total_actor_loss + total_critic_loss
+        loss = total_actor_loss + (total_critic_loss
+                                   * self.hyperparams.critic_coef)
 
         loss.backward()
 
