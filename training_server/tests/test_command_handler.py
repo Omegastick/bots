@@ -262,6 +262,24 @@ def test_end_session_ends_session(
     assert session_manager.end_session.call_count == 1
 
 
+def test_close_connection_begins_waiting_for_next_connection(
+        command_handler: CommandHandler):
+    """
+    When receiving a close_connection message, the server should return a
+    response attempting to establish another connection.
+    """
+    request = """
+    {
+	    "jsonrpc": "2.0",
+	    "method": "close_connection",
+	    "param": []
+	}
+    """
+    response = command_handler.handle_command(request)
+
+    assert response == ('New connection')
+
+
 def test_error_response_on_malformed_command(command_handler: CommandHandler):
     """
     When receiving a bad (malformed) command, the correct error response should

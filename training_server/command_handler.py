@@ -2,7 +2,7 @@
 Command handler
 """
 
-from typing import NamedTuple, Any
+from typing import NamedTuple, Any, Optional
 import logging
 import rapidjson
 
@@ -25,7 +25,7 @@ class Command(NamedTuple):
     """
     action: str
     params: dict
-    id: int
+    id: Optional[int]
 
 
 class Response(NamedTuple):
@@ -80,11 +80,13 @@ class CommandHandler:
                 return self.give_reward(command)
             if command.action == "end_session":
                 return self.end_session(command)
+            if command.action == "close_connection":
+                return self.close_connection()
+
             # Method not found
             return ('{"jsonrpc":"2.0",'
                     '"error":{"code":-32601,"message":"Method not found"},'
                     f'"id":{command.id}}}')
-
         except KeyError:
             return BAD_REQUEST
 
@@ -105,15 +107,13 @@ class CommandHandler:
                 or "param" not in obj
                 or (not isinstance(obj["param"], list)
                     and not isinstance(obj["param"], dict))
-                or "id" not in obj
-                or not isinstance(obj["id"], int)
                 or "method" not in obj
                 or not isinstance(obj["method"], str)
         ):
             raise BadRequestError
 
         command = Command(
-            id=obj["id"],
+            id=obj.get("id", None),
             action=obj["method"],
             params=obj["param"]
         )
@@ -193,3 +193,9 @@ class CommandHandler:
         self.session_manager.end_session(params["session_id"])
         response = Response(result="OK", id=command.id)
         return self.create_response_json(response)
+
+    def close_connection(self) -> str:
+        """
+        Begins waiting for a new connection.
+        """
+        return "New connection"
