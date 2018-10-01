@@ -71,49 +71,19 @@ class CommandHandler:
         except BadJsonError:
             return PARSE_ERROR
 
-        params = command.params
         try:
             if command.action == "begin_session":
-                model = ModelSpecification(
-                    inputs=params["model"]["inputs"],
-                    outputs=params["model"]["outputs"],
-                    feature_extractors=params["model"]["feature_extractors"]
-                )
-                if params["training"]:
-                    hyperparams = HyperParams(**params["hyperparams"])
-                    self.session_manager.start_training_session(
-                        params["session_id"], model, hyperparams,
-                        params["contexts"], params["auto_train"]
-                    )
-                    response = Response(result="OK", id=command.id)
-                    return self.create_response_json(response)
-                else:
-                    self.session_manager.start_inference_session(
-                        params["session_id"], model, params["model_path"],
-                        params["contexts"]
-                    )
-                    response = Response(result="OK", id=command.id)
-                    return self.create_response_json(response)
-            elif command.action == "get_action":
-                actions, value = self.session_manager.get_action(
-                    params["session_id"], params["inputs"], params["context"])
-                value = value.item()
-                actions = [action.item() for action in actions]
-                response = Response(
-                    id=command.id,
-                    result={"actions": actions, "value": value}
-                )
-                return self.create_response_json(response)
-            elif command.action == "give_reward":
-                self.session_manager.give_reward(params["session_id"],
-                                                 params["reward"],
-                                                 params["context"])
-                response = Response(result="OK", id=command.id)
-                return self.create_response_json(response)
-            elif command.action == "end_session":
-                self.session_manager.end_session(params["session_id"])
-                response = Response(result="OK", id=command.id)
-                return self.create_response_json(response)
+                return self.begin_session(command)
+            if command.action == "get_action":
+                return self.get_action(command)
+            if command.action == "give_reward":
+                return self.give_reward(command)
+            if command.action == "end_session":
+                return self.end_session(command)
+            # Method not found
+            return ('{"jsonrpc":"2.0",'
+                    '"error":{"code":-32601,"message":"Method not found"},'
+                    f'"id":{command.id}}}')
 
         except KeyError:
             return BAD_REQUEST
@@ -162,3 +132,64 @@ class CommandHandler:
         json = rapidjson.dumps(obj)
 
         return json
+
+    def begin_session(self, command: Command) -> str:
+        """
+        Begins a new session.
+        """
+        params = command.params
+        model = ModelSpecification(
+            inputs=params["model"]["inputs"],
+            outputs=params["model"]["outputs"],
+            feature_extractors=params["model"]["feature_extractors"]
+        )
+        if params["training"]:
+            hyperparams = HyperParams(**params["hyperparams"])
+            self.session_manager.start_training_session(
+                params["session_id"], model, hyperparams,
+                params["contexts"], params["auto_train"]
+            )
+            response = Response(result="OK", id=command.id)
+            return self.create_response_json(response)
+        else:
+            self.session_manager.start_inference_session(
+                params["session_id"], model, params["model_path"],
+                params["contexts"]
+            )
+            response = Response(result="OK", id=command.id)
+            return self.create_response_json(response)
+
+    def get_action(self, command: Command) -> str:
+        """
+        Gets an action from a session.
+        """
+        params = command.params
+        actions, value = self.session_manager.get_action(
+            params["session_id"], params["inputs"], params["context"])
+        value = value.item()
+        actions = [action.item() for action in actions]
+        response = Response(
+            id=command.id,
+            result={"actions": actions, "value": value}
+        )
+        return self.create_response_json(response)
+
+    def give_reward(self, command: Command) -> str:
+        """
+        Gives a reward to an agent in a training session.
+        """
+        params = command.params
+        self.session_manager.give_reward(params["session_id"],
+                                         params["reward"],
+                                         params["context"])
+        response = Response(result="OK", id=command.id)
+        return self.create_response_json(response)
+
+    def end_session(self, command: Command) -> str:
+        """
+        Ends a session.
+        """
+        params = command.params
+        self.session_manager.end_session(params["session_id"])
+        response = Response(result="OK", id=command.id)
+        return self.create_response_json(response)

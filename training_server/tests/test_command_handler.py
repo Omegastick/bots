@@ -299,3 +299,25 @@ def test_error_response_on_bad_json(command_handler: CommandHandler):
     assert response == ('{"jsonrpc":"2.0",'
                         '"error":{"code":-32700,"message":"Parse error"},'
                         '"id":null}')
+
+
+def test_error_on_invalid_method(command_handler: CommandHandler):
+    """
+    When receiving a method that doesn't exist, the correct error response
+    should be returned.
+    """
+    json = """
+    {
+	    "jsonrpc": "2.0",
+	    "method": "asd",
+	    "param": {
+            "session_id": 0
+		},
+	    "id": 0
+	}
+    """
+    response = command_handler.handle_command(json)
+
+    assert response == ('{"jsonrpc":"2.0",'
+                        '"error":{"code":-32601,"message":"Method not found"},'
+                        '"id":0}')
