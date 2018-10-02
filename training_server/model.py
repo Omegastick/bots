@@ -121,6 +121,19 @@ class Model(torch.nn.Module):
         raw_probs = [actor(x) for actor in self.actors]
         return value, raw_probs
 
+    def get_value(
+            self,
+            x: List[torch.Tensor]) -> Tuple[torch.Tensor, torch.Tensor]:
+        """
+        Gets the predicted value for an observation.
+        """
+        features = [extractor(x[i]) for i, extractor in enumerate(
+            self.feature_extractors)]
+        x = torch.cat(features, dim=-1)
+        x = F.relu(x)
+        value = self.critic(x)
+        return value
+
     def act(
             self,
             x: List[torch.Tensor]) -> Tuple[torch.Tensor, torch.Tensor,

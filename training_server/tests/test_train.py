@@ -111,14 +111,16 @@ def session():
     contexts: 1
     """
     torch.manual_seed(1)
+    np.random.seed(1)
     model = ModelSpecification(
         inputs=[2, 3],
         outputs=[3, 4],
         feature_extractors=['mlp', 'mlp']
     )
     hyperparams = HyperParams(
-        learning_rate=0.0001,
+        learning_rate=0.001,
         batch_size=20,
+        minibatch_count=4, 
         entropy_coef=0.001,
         discount_factor=0.8
     )
@@ -235,7 +237,9 @@ def test_model_learns_simple_game():
 
     hyperparams = HyperParams(
         learning_rate=0.001,
-        batch_size=5,
+        batch_size=50,
+        minibatch_length=5,
+        minibatch_count=10,
         entropy_coef=0.0001,
         discount_factor=0.95,
         gae=0.96
@@ -245,7 +249,7 @@ def test_model_learns_simple_game():
     rewards = []
     environment = MultiContextGame()
 
-    for _ in range(10000):
+    for _ in range(1000):
         observation = torch.cat((environment.location,
                                  environment.reward_location))
         action, _ = session.get_action([observation], 0)
@@ -254,7 +258,7 @@ def test_model_learns_simple_game():
         rewards.append(reward)
         session.give_reward(reward, 0)
 
-    assert np.mean(rewards[:1000]) < np.mean(rewards[-1000:])
+    assert np.mean(rewards[:100]) < np.mean(rewards[-100:])
 
 
 @pytest.mark.training
@@ -271,7 +275,9 @@ def test_model_learns_with_multiple_contexts():
 
     hyperparams = HyperParams(
         learning_rate=0.001,
-        batch_size=5,
+        batch_size=50,
+        minibatch_length=5,
+        minibatch_count=10,
         entropy_coef=0.001,
         discount_factor=0.95,
         gae=0.96
@@ -281,7 +287,7 @@ def test_model_learns_with_multiple_contexts():
     rewards = []
     environments = [MultiContextGame() for _ in range(10)]
 
-    for i in range(10000):
+    for i in range(1000):
         observation = torch.cat((environments[i % 10].location,
                                  environments[i % 10].reward_location))
         action, _ = session.get_action([observation], i % 10)
@@ -290,7 +296,7 @@ def test_model_learns_with_multiple_contexts():
         rewards.append(reward)
         session.give_reward(reward, i % 10)
 
-    assert np.mean(rewards[:1000]) < np.mean(rewards[-1000:])
+    assert np.mean(rewards[:100]) < np.mean(rewards[-100:])
 
 
 @pytest.mark.training
@@ -309,6 +315,8 @@ def test_multiple_contexts_improve_training():
     hyperparams = HyperParams(
         learning_rate=0.001,
         batch_size=50,
+        minibatch_length=5,
+        minibatch_count=10,
         entropy_coef=0.001,
         discount_factor=0.95,
         gae=0.96
@@ -319,7 +327,7 @@ def test_multiple_contexts_improve_training():
     single_rewards = []
     single_environment = MultiContextGame()
 
-    for _ in range(10000):
+    for _ in range(1000):
         observation = torch.cat((single_environment.location,
                                  single_environment.reward_location))
         action, _ = single_session.get_action([observation], 0)
@@ -331,7 +339,9 @@ def test_multiple_contexts_improve_training():
     # Multiple contexts
     hyperparams = HyperParams(
         learning_rate=0.001,
-        batch_size=5,
+        batch_size=50,
+        minibatch_length=5,
+        minibatch_count=10,
         entropy_coef=0.001,
         discount_factor=0.95,
         gae=0.96
@@ -341,7 +351,7 @@ def test_multiple_contexts_improve_training():
     multi_rewards = []
     environments = [MultiContextGame() for _ in range(10)]
 
-    for i in range(10000):
+    for i in range(1000):
         observation = torch.cat((environments[i % 10].location,
                                  environments[i % 10].reward_location))
         action, _ = multi_session.get_action([observation], i % 10)
@@ -366,7 +376,9 @@ def test_model_learns_with_delayed_rewards():
 
     hyperparams = HyperParams(
         learning_rate=0.001,
-        batch_size=15,
+        batch_size=100,
+        minibatch_length=20,
+        minibatch_count=5,
         entropy_coef=0.0001,
         discount_factor=0.99,
         gae=0.96
@@ -376,7 +388,7 @@ def test_model_learns_with_delayed_rewards():
     rewards = []
     environment = DelayedRewardGame(delay=10)
 
-    for _ in range(10000):
+    for _ in range(1000):
         observation = torch.Tensor([1])
         action, _ = session.get_action([observation], 0)
         environment.act(action[0].item())
