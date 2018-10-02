@@ -2,6 +2,7 @@
 Tests for train.py
 """
 #pylint: disable=W0621
+import queue
 import pytest
 import torch
 import numpy as np
@@ -58,7 +59,7 @@ class MultiContextGame:
             self.reset()
             self.reward -= 1
 
-    def get_reward(self):
+    def get_reward(self) -> float:
         """
         Get a reward from the environment.
         If rewards aren't fetched, they accumulate.
@@ -66,6 +67,32 @@ class MultiContextGame:
         reward = self.reward
         self.reward = 0
         return reward
+
+
+class DelayedRewardGame:
+    """
+    A simple game where every turn the player is presented with two options.
+    If they pick the correct option (the same every turn) then N turns later
+    they get a reward.
+    Used to test that the agent learns from delayed rewards.
+    """
+
+    def __init__(self, delay: int = 10):
+        self.reward_queue = queue.Queue()
+        for _ in range(delay):
+            self.reward_queue.put(0)
+
+    def act(self, action: int):
+        """
+        Take an action.
+        """
+        self.reward_queue.put(action)
+
+    def get_reward(self) -> float:
+        """
+        Get a reward.
+        """
+        return self.reward_queue.get()
 
 
 @pytest.fixture
@@ -324,3 +351,37 @@ def test_multiple_contexts_improve_training():
         multi_session.give_reward(reward, i % 10)
 
     assert np.mean(multi_rewards) > np.mean(single_rewards)
+
+
+@pytest.mark.training
+def test_model_learns_with_delayed_rewards():
+    """
+    The model should be able to learn a simple game with delayed rewards.
+    """
+    model = ModelSpecification(
+        inputs=[1],
+        outputs=[2],
+        feature_extractors=['mlp']
+    )
+
+    hyperparams = HyperParams(
+        learning_rate=0.001,
+        batch_size=15,
+        entropy_coef=0.0001,
+        discount_factor=0.99,
+        gae=0.96
+    )
+
+    session = TrainingSession(model, hyperparams, 1)
+    rewards = []
+    environment = DelayedRewardGame(delay=10)
+
+    for _ in range(10000):
+        observation = torch.Tensor([1])
+        action, _ = session.get_action([observation], 0)
+        environment.act(action[0].item())
+        reward = environment.get_reward()
+        rewards.append(reward)
+        session.give_reward(reward, 0)
+
+    assert np.mean(rewards[:100]) < np.mean(rewards[-100:])
