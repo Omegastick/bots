@@ -27,8 +27,8 @@ class MultiContextGame:
         """
         Resets the game.
         """
-        self.location = torch.randint(-10, 10, (2,)) / 10
-        self.reward_location = torch.randint(-10, 10, (2,)) / 10
+        self.location = torch.randint(-2, 3, (2,)) / 2
+        self.reward_location = torch.randint(-2, 3, (2,)) / 2
 
     def move(self, direction: int):
         """
@@ -38,13 +38,13 @@ class MultiContextGame:
         game.
         """
         if direction == 0:
-            move_direction = torch.Tensor([0.1, 0.])
+            move_direction = torch.Tensor([0.5, 0.])
         elif direction == 1:
-            move_direction = torch.Tensor([-0.1, 0.])
+            move_direction = torch.Tensor([-0.5, 0.])
         elif direction == 2:
-            move_direction = torch.Tensor([0., 0.1])
+            move_direction = torch.Tensor([0., 0.5])
         elif direction == 3:
-            move_direction = torch.Tensor([0., -0.1])
+            move_direction = torch.Tensor([0., -0.5])
         else:
             move_direction = torch.Tensor([0., 0.])
 
@@ -54,10 +54,9 @@ class MultiContextGame:
             self.reward += 1
             self.reset()
 
-        for coordinate in self.location:
-            if coordinate > 1 or coordinate < -1:
-                self.reset()
-                self.reward -= -1
+        if (self.location < -1).any() or (self.location > 1).any():
+            self.reset()
+            self.reward -= 1
 
     def get_reward(self):
         """
@@ -196,12 +195,83 @@ def test_model_improves_when_trained_in_multiple_contexts():
 
 
 @pytest.mark.training
-def test_model_multiple_contexts_improve_training():
+def test_model_learns_simple_game():
+    """
+    The model should be able to learn a very simple game where it tries to
+    reach a goal.
+    """
+    model = ModelSpecification(
+        inputs=[4],
+        outputs=[4],
+        feature_extractors=['mlp']
+    )
+
+    hyperparams = HyperParams(
+        learning_rate=0.001,
+        batch_size=5,
+        entropy_coef=0.0001,
+        discount_factor=0.95,
+        gae=0.96
+    )
+
+    session = TrainingSession(model, hyperparams, 1)
+    rewards = []
+    environment = MultiContextGame()
+
+    for _ in range(10000):
+        observation = torch.cat((environment.location,
+                                 environment.reward_location))
+        action, _ = session.get_action([observation], 0)
+        environment.move(action[0].item())
+        reward = environment.get_reward()
+        rewards.append(reward)
+        session.give_reward(reward, 0)
+
+    assert np.mean(rewards[:1000]) < np.mean(rewards[-1000:])
+
+
+@pytest.mark.training
+def test_model_learns_with_multiple_contexts():
+    """
+    When multiple contexts are used, the model should still learn.
+    This doesn't check that the model learns faster than with a single context.
+    """
+    model = ModelSpecification(
+        inputs=[4],
+        outputs=[4],
+        feature_extractors=['mlp']
+    )
+
+    hyperparams = HyperParams(
+        learning_rate=0.001,
+        batch_size=5,
+        entropy_coef=0.001,
+        discount_factor=0.95,
+        gae=0.96
+    )
+    session = TrainingSession(model, hyperparams, 10)
+
+    rewards = []
+    environments = [MultiContextGame() for _ in range(10)]
+
+    for i in range(10000):
+        observation = torch.cat((environments[i % 10].location,
+                                 environments[i % 10].reward_location))
+        action, _ = session.get_action([observation], i % 10)
+        environments[i % 10].move(action[0].item())
+        reward = environments[i % 10].get_reward()
+        rewards.append(reward)
+        session.give_reward(reward, i % 10)
+
+    assert np.mean(rewards[:1000]) < np.mean(rewards[-1000:])
+
+
+@pytest.mark.training
+def test_multiple_contexts_improve_training():
     """
     When multiple contexts are used, the model should do better on some
     environments than with a single environment.
     """
-    # torch.manual_seed(1)
     model = ModelSpecification(
         inputs=[4],
         outputs=[4],
@@ -210,17 +280,19 @@ def test_model_multiple_contexts_improve_training():
 
     # Single context
     hyperparams = HyperParams(
-        learning_rate=0.0001,
-        batch_size=5,
+        learning_rate=0.001,
+        batch_size=50,
         entropy_coef=0.001,
-        discount_factor=0.95
+        discount_factor=0.95,
+        gae=0.96
     )
+
     single_session = TrainingSession(model, hyperparams, 1)
 
     single_rewards = []
     single_environment = MultiContextGame()
 
-    for _ in range(1000):
+    for _ in range(10000):
         observation = torch.cat((single_environment.location,
                                  single_environment.reward_location))
         action, _ = single_session.get_action([observation], 0)
@@ -234,21 +306,21 @@ def test_model_multiple_contexts_improve_training():
         learning_rate=0.001,
         batch_size=5,
         entropy_coef=0.001,
-        discount_factor=0.95
+        discount_factor=0.95,
+        gae=0.96
     )
     multi_session = TrainingSession(model, hyperparams, 10)
 
     multi_rewards = []
     environments = [MultiContextGame() for _ in range(10)]
 
-    for i in range(1000):
+    for i in range(10000):
         observation = torch.cat((environments[i % 10].location,
                                  environments[i % 10].reward_location))
-        action, _ = multi_session.get_action([observation], 0)
+        action, _ = multi_session.get_action([observation], i % 10)
         environments[i % 10].move(action[0].item())
         reward = environments[i % 10].get_reward()
         multi_rewards.append(reward)
-        multi_session.give_reward(reward, 0)
+        multi_session.give_reward(reward, i % 10)
 
-    # pytest.set_trace()
     assert np.mean(multi_rewards) > np.mean(single_rewards)
