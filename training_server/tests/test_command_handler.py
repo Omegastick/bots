@@ -10,6 +10,7 @@ from training_server.command_handler import CommandHandler, Command, Response
 from training_server.session_manager import SessionManager
 from training_server.model import ModelSpecification
 from training_server.train import HyperParams
+from .util import setup # pylint: disable=W0611
 
 
 @pytest.fixture()

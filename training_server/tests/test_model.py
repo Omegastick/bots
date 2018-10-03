@@ -6,6 +6,7 @@ import pytest
 import torch
 
 from training_server.model import Model, ModelSpecification
+from .util import setup # pylint: disable=W0611
 
 
 @pytest.fixture

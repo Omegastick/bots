@@ -25,6 +25,7 @@ class HyperParams(NamedTuple):
     entropy_coef: float = 0.001
     max_grad_norm: float = 0.5
     clip_factor: float = 0.2
+    use_gpu: bool = True
 
 
 class TrainingSession:
@@ -38,6 +39,10 @@ class TrainingSession:
             hyperparams: HyperParams,
             contexts: int,
             auto_train: bool = True):
+
+        if hyperparams.use_gpu:
+            torch.set_default_tensor_type('torch.cuda.FloatTensor')
+
         self.contexts = contexts
         self.hidden_states = torch.zeros(contexts, 128)
         self.hyperparams = hyperparams
@@ -51,6 +56,9 @@ class TrainingSession:
 
         self.model = Model(model.inputs, model.outputs,
                            model.feature_extractors)
+
+        if hyperparams.use_gpu:
+            self.model = self.model.cuda()
 
         self.optimizer = torch.optim.RMSprop(
             self.model.parameters(), lr=hyperparams.learning_rate)

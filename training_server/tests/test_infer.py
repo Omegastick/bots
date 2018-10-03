@@ -9,6 +9,7 @@ import torch
 from training_server.infer import InferenceSession
 from training_server.train import TrainingSession, HyperParams
 from training_server.model import ModelSpecification
+from .util import setup # pylint: disable=W0611
 
 
 @pytest.fixture

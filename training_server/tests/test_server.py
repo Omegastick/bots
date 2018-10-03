@@ -6,6 +6,7 @@ import pytest
 import zmq
 
 from training_server.server import Server
+from .util import setup # pylint: disable=W0611
 
 
 @pytest.fixture()

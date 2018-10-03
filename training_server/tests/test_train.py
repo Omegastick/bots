@@ -9,6 +9,7 @@ import numpy as np
 
 from training_server.train import TrainingSession, HyperParams
 from training_server.model import ModelSpecification
+from .util import setup # pylint: disable=W0611
 
 
 class MultiContextGame:
@@ -120,9 +121,10 @@ def session():
     hyperparams = HyperParams(
         learning_rate=0.001,
         batch_size=20,
-        minibatch_count=4, 
+        minibatch_count=4,
         entropy_coef=0.001,
-        discount_factor=0.8
+        discount_factor=0.8,
+        use_gpu=False
     )
     return TrainingSession(model, hyperparams, 1)
 
@@ -200,10 +202,15 @@ def test_model_improves_when_trained_in_multiple_contexts():
         feature_extractors=['mlp', 'mlp']
     )
     hyperparams = HyperParams(
-        learning_rate=0.0001,
-        batch_size=20,
-        entropy_coef=0.001,
-        discount_factor=0.8
+        learning_rate=0.001,
+        batch_size=10,
+        minibatch_length=7,
+        minibatch_count=2,
+        entropy_coef=0.0001,
+        discount_factor=0.95,
+        gae=0.96,
+        epochs=1,
+        use_gpu=False
     )
     session = TrainingSession(model, hyperparams, 3)
 
@@ -240,13 +247,14 @@ def test_model_learns_simple_game():
 
     hyperparams = HyperParams(
         learning_rate=0.003,
-        batch_size=50,
+        batch_size=20,
         minibatch_length=5,
         minibatch_count=10,
         entropy_coef=0.0001,
         discount_factor=0.95,
         gae=0.96,
-        epochs=3
+        epochs=3,
+        use_gpu=False
     )
 
     session = TrainingSession(model, hyperparams, 1)
@@ -281,13 +289,14 @@ def test_model_learns_with_multiple_contexts():
 
     hyperparams = HyperParams(
         learning_rate=0.001,
-        batch_size=50,
+        batch_size=20,
         minibatch_length=5,
         minibatch_count=10,
         entropy_coef=0.0001,
         discount_factor=0.95,
         gae=0.96,
-        epochs=3
+        epochs=3,
+        use_gpu=False
     )
     session = TrainingSession(model, hyperparams, 10)
 
@@ -327,7 +336,8 @@ def test_model_learns_with_delayed_rewards():
         minibatch_count=3,
         entropy_coef=0.0001,
         discount_factor=0.99,
-        gae=0.96
+        gae=0.96,
+        use_gpu=False
     )
 
     session = TrainingSession(model, hyperparams, 1)
