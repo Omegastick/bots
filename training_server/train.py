@@ -93,7 +93,7 @@ class TrainingSession:
                     >= self.hyperparams.batch_size):
                 self.train()
 
-    def train(self, final: bool = False):
+    def train(self):
         """
         Train on a batch of data.
         """
@@ -185,8 +185,8 @@ class TrainingSession:
         self.rewards = [[] for _ in range(self.contexts)]
         self.log_probs = [[] for _ in range(self.contexts)]
         self.values = [[] for _ in range(self.contexts)]
-        self.entropies = [[] for _ in range(self.contexts)]
-        self.latest_observations = [None for _ in range(self.contexts)]
+        self.observations = [[] for _ in range(self.contexts)]
+        self.actions = [[] for _ in range(self.contexts)]
 
     def save_model(self, path: str):
         """
