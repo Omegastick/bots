@@ -9,7 +9,6 @@ import numpy as np
 
 from training_server.train import TrainingSession, HyperParams
 from training_server.model import ModelSpecification
-from .util import setup  # pylint: disable=W0611
 
 
 class MultiContextGame:
@@ -350,6 +349,7 @@ def test_model_learns_with_delayed_rewards():
     assert np.mean(rewards[:100]) < np.mean(rewards[-100:])
 
 
+@pytest.mark.gpu
 @pytest.mark.training
 def test_model_learns_with_gpu():
     """
