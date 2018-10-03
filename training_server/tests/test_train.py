@@ -9,7 +9,7 @@ import numpy as np
 
 from training_server.train import TrainingSession, HyperParams
 from training_server.model import ModelSpecification
-from .util import setup # pylint: disable=W0611
+from .util import setup  # pylint: disable=W0611
 
 
 class MultiContextGame:
@@ -123,8 +123,7 @@ def session():
         batch_size=20,
         minibatch_count=4,
         entropy_coef=0.001,
-        discount_factor=0.8,
-        use_gpu=False
+        discount_factor=0.8
     )
     return TrainingSession(model, hyperparams, 1)
 
@@ -209,8 +208,7 @@ def test_model_improves_when_trained_in_multiple_contexts():
         entropy_coef=0.0001,
         discount_factor=0.95,
         gae=0.96,
-        epochs=1,
-        use_gpu=False
+        epochs=1
     )
     session = TrainingSession(model, hyperparams, 3)
 
@@ -253,8 +251,7 @@ def test_model_learns_simple_game():
         entropy_coef=0.0001,
         discount_factor=0.95,
         gae=0.96,
-        epochs=3,
-        use_gpu=False
+        epochs=3
     )
 
     session = TrainingSession(model, hyperparams, 1)
@@ -296,7 +293,6 @@ def test_model_learns_with_multiple_contexts():
         discount_factor=0.95,
         gae=0.96,
         epochs=3,
-        use_gpu=False
     )
     session = TrainingSession(model, hyperparams, 10)
 
@@ -336,8 +332,7 @@ def test_model_learns_with_delayed_rewards():
         minibatch_count=3,
         entropy_coef=0.0001,
         discount_factor=0.99,
-        gae=0.96,
-        use_gpu=False
+        gae=0.96
     )
 
     session = TrainingSession(model, hyperparams, 1)
@@ -348,6 +343,48 @@ def test_model_learns_with_delayed_rewards():
         observation = torch.Tensor([1])
         action, _ = session.get_action([observation], 0)
         environment.act(action[0].item())
+        reward = environment.get_reward()
+        rewards.append(reward)
+        session.give_reward(reward, 0)
+
+    assert np.mean(rewards[:100]) < np.mean(rewards[-100:])
+
+
+@pytest.mark.training
+def test_model_learns_with_gpu():
+    """
+    The model should be able to learn a very simple game where it tries to
+    reach a goal.
+    """
+    np.random.seed(1)
+    torch.manual_seed(1)
+    model = ModelSpecification(
+        inputs=[4],
+        outputs=[4],
+        feature_extractors=['mlp']
+    )
+
+    hyperparams = HyperParams(
+        learning_rate=0.003,
+        batch_size=20,
+        minibatch_length=5,
+        minibatch_count=10,
+        entropy_coef=0.0001,
+        discount_factor=0.95,
+        gae=0.96,
+        epochs=3,
+        use_gpu=True
+    )
+
+    session = TrainingSession(model, hyperparams, 1)
+    rewards = []
+    environment = MultiContextGame()
+
+    for _ in range(1000):
+        observation = torch.cat((environment.location,
+                                 environment.reward_location))
+        action, _ = session.get_action([observation], 0)
+        environment.move(action[0].item())
         reward = environment.get_reward()
         rewards.append(reward)
         session.give_reward(reward, 0)

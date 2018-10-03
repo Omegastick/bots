@@ -25,7 +25,7 @@ class HyperParams(NamedTuple):
     entropy_coef: float = 0.001
     max_grad_norm: float = 0.5
     clip_factor: float = 0.2
-    use_gpu: bool = True
+    use_gpu: bool = False
 
 
 class TrainingSession:
