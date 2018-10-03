@@ -29,7 +29,7 @@ public class Environment : MonoBehaviour {
         {
             if (botTransform.localPosition.x > 2.5)
             {
-                reward += 10;
+                reward += 100;
             } else
             {
                 reward -= 10;

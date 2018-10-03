@@ -99,7 +99,6 @@ class TrainingSession:
         """
         logging.debug("Training")
         for _ in range(self.hyperparams.epochs):
-            logging.debug("Batch")
             total_actor_loss = 0
             total_critic_loss = 0
             for context, starting_index in self._get_starting_indexes():
@@ -214,9 +213,3 @@ class TrainingSession:
                 indexes.append((context, index))
 
         return indexes
-
-
-def get_new_log_probs(log_probs, actions, i):
-    return torch.stack([
-        log_probs[x][actions[i][x]]
-        for x in range(len(actions[i]))])

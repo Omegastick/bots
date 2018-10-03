@@ -28,8 +28,8 @@ class MultiContextGame:
         """
         Resets the game.
         """
-        self.location = torch.randint(-2, 3, (2,)) / 2
-        self.reward_location = torch.randint(-2, 3, (2,)) / 2
+        self.location = torch.randint(-4, 5, (2,)) / 4
+        self.reward_location = torch.randint(-4, 5, (2,)) / 5
 
     def move(self, direction: int):
         """
@@ -39,13 +39,13 @@ class MultiContextGame:
         game.
         """
         if direction == 0:
-            move_direction = torch.Tensor([0.5, 0.])
+            move_direction = torch.Tensor([0.25, 0.])
         elif direction == 1:
-            move_direction = torch.Tensor([-0.5, 0.])
+            move_direction = torch.Tensor([-0.25, 0.])
         elif direction == 2:
-            move_direction = torch.Tensor([0., 0.5])
+            move_direction = torch.Tensor([0., 0.25])
         elif direction == 3:
-            move_direction = torch.Tensor([0., -0.5])
+            move_direction = torch.Tensor([0., -0.25])
         else:
             move_direction = torch.Tensor([0., 0.])
 
@@ -193,6 +193,7 @@ def test_model_improves_when_trained_in_multiple_contexts():
     only that it doesn't prevent training entirely.
     """
     torch.manual_seed(1)
+    np.random.seed(1)
     model = ModelSpecification(
         inputs=[2, 3],
         outputs=[3, 4],
@@ -229,6 +230,8 @@ def test_model_learns_simple_game():
     The model should be able to learn a very simple game where it tries to
     reach a goal.
     """
+    np.random.seed(1)
+    torch.manual_seed(1)
     model = ModelSpecification(
         inputs=[4],
         outputs=[4],
@@ -236,20 +239,21 @@ def test_model_learns_simple_game():
     )
 
     hyperparams = HyperParams(
-        learning_rate=0.001,
+        learning_rate=0.003,
         batch_size=50,
         minibatch_length=5,
         minibatch_count=10,
         entropy_coef=0.0001,
         discount_factor=0.95,
-        gae=0.96
+        gae=0.96,
+        epochs=3
     )
 
     session = TrainingSession(model, hyperparams, 1)
     rewards = []
     environment = MultiContextGame()
 
-    for _ in range(1000):
+    for _ in range(5000):
         observation = torch.cat((environment.location,
                                  environment.reward_location))
         action, _ = session.get_action([observation], 0)
@@ -267,6 +271,8 @@ def test_model_learns_with_multiple_contexts():
     When multiple contexts are used, the model should still learn.
     This doesn't check that the model learns faster than with a single context.
     """
+    torch.manual_seed(1)
+    np.random.seed(1)
     model = ModelSpecification(
         inputs=[4],
         outputs=[4],
@@ -278,16 +284,17 @@ def test_model_learns_with_multiple_contexts():
         batch_size=50,
         minibatch_length=5,
         minibatch_count=10,
-        entropy_coef=0.001,
+        entropy_coef=0.0001,
         discount_factor=0.95,
-        gae=0.96
+        gae=0.96,
+        epochs=1
     )
     session = TrainingSession(model, hyperparams, 10)
 
     rewards = []
     environments = [MultiContextGame() for _ in range(10)]
 
-    for i in range(1000):
+    for i in range(5000):
         observation = torch.cat((environments[i % 10].location,
                                  environments[i % 10].reward_location))
         action, _ = session.get_action([observation], i % 10)
@@ -305,6 +312,8 @@ def test_multiple_contexts_improve_training():
     When multiple contexts are used, the model should do better on some
     environments than with a single environment.
     """
+    torch.manual_seed(1)
+    np.random.seed(1)
     model = ModelSpecification(
         inputs=[4],
         outputs=[4],
@@ -317,9 +326,10 @@ def test_multiple_contexts_improve_training():
         batch_size=50,
         minibatch_length=5,
         minibatch_count=10,
-        entropy_coef=0.001,
+        entropy_coef=0.0001,
         discount_factor=0.95,
-        gae=0.96
+        gae=0.96,
+        epochs=1
     )
 
     single_session = TrainingSession(model, hyperparams, 1)
@@ -327,7 +337,7 @@ def test_multiple_contexts_improve_training():
     single_rewards = []
     single_environment = MultiContextGame()
 
-    for _ in range(1000):
+    for _ in range(5000):
         observation = torch.cat((single_environment.location,
                                  single_environment.reward_location))
         action, _ = single_session.get_action([observation], 0)
@@ -342,16 +352,17 @@ def test_multiple_contexts_improve_training():
         batch_size=50,
         minibatch_length=5,
         minibatch_count=10,
-        entropy_coef=0.001,
+        entropy_coef=0.0001,
         discount_factor=0.95,
-        gae=0.96
+        gae=0.96,
+        epochs=1
     )
     multi_session = TrainingSession(model, hyperparams, 10)
 
     multi_rewards = []
     environments = [MultiContextGame() for _ in range(10)]
 
-    for i in range(1000):
+    for i in range(5000):
         observation = torch.cat((environments[i % 10].location,
                                  environments[i % 10].reward_location))
         action, _ = multi_session.get_action([observation], i % 10)
@@ -368,6 +379,8 @@ def test_model_learns_with_delayed_rewards():
     """
     The model should be able to learn a simple game with delayed rewards.
     """
+    torch.manual_seed(1)
+    np.random.seed(1)
     model = ModelSpecification(
         inputs=[1],
         outputs=[2],
@@ -376,9 +389,9 @@ def test_model_learns_with_delayed_rewards():
 
     hyperparams = HyperParams(
         learning_rate=0.001,
-        batch_size=100,
+        batch_size=60,
         minibatch_length=20,
-        minibatch_count=5,
+        minibatch_count=3,
         entropy_coef=0.0001,
         discount_factor=0.99,
         gae=0.96
@@ -388,7 +401,7 @@ def test_model_learns_with_delayed_rewards():
     rewards = []
     environment = DelayedRewardGame(delay=10)
 
-    for _ in range(1000):
+    for _ in range(5000):
         observation = torch.Tensor([1])
         action, _ = session.get_action([observation], 0)
         environment.act(action[0].item())
