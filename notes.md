@@ -12,14 +12,34 @@ Flow
     observation: [[0.1, ..., 1.3], [0.5, ..., 1.2]]
   }
   ```
-- Trainer gets the observation from the Queue and gets the action from the server.
-- Trainer calls `Act(actions)` on Environment.agents[agentNumber].
+- In `FixedUpdate()`, the Trainer gets the observation from the Queue and gets the relevant action from the server.
+- Trainer calls `SendActions(agentNumber, actions)` on the Environment.
   `actions: [1, 5, 3]`
   - Agent converts action numbers into concrete ICommands.
   - Agent executes Commands.
-- During the `Update()` cycle, Environment
 - Trainer calls `GetReward(agentNumber)` on the Environment to get a reward.
 - Trainer sends the reward to the server.
 - If batch_size has been reached, Trainer tells {every Environment | someone else?} to `Pause()`.
   - Trainer calls `train()` on the server.
   - Trainer calls `UnPause()` on {every Environment | the other thing}.
+
+FixedUpdate() cycle tasks
+=========================
+- Agent puts an observation in the Trainer's Queue.
+- Agent does miscellaneous processing.
+  - If necessary, the Agent tells the Environment to `ChangeReward(agent, rewardDelta)`.
+- Projectiles check for hits.
+  - If a Projectile hits an Agent, calls `Hit(projectile)`.
+    - `Hit(projectile)` checks damage, status effects, etc.
+    - If necessary, the Agent tells the Environment to `ChangeReward(agent, rewardDelta)`.
+- Trainer processes Queue and gives all Agents their actions.
+  - Agents process actions as in 'Agent action Flow'
+
+Agent creation flow
+===================
+- Agent GameObject is instantiated with a tree of Modules.
+  - Each Module has a list of ModuleAttachments.
+    - Each ModuleAttachment has a location (relative to parent), a rotation (relative to parent) and an optional child Module.
+
+Agent action flow
+=================
