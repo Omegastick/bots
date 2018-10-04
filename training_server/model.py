@@ -112,7 +112,7 @@ class Model(torch.nn.Module):
 
     def forward(
             self,
-            x: List[torch.Tensor]) -> Tuple[torch.Tensor, torch.Tensor]:
+            x: List[torch.Tensor]) -> Tuple[torch.Tensor, List[torch.Tensor]]:
         features = [extractor(x[i]) for i, extractor in enumerate(
             self.feature_extractors)]
         x = torch.cat(features, dim=-1)

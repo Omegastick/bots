@@ -15,9 +15,11 @@ def setup():
     torch.manual_seed(1)
     np.random.seed(1)
 
+
 def pytest_addoption(parser):
     parser.addoption('--gpu', action='store_true', dest="gpu",
-                 default=False, help="enable gpu decorated tests")
+                     default=False, help="enable gpu decorated tests")
+
 
 def pytest_configure(config):
     if not config.option.gpu:
@@ -25,4 +27,4 @@ def pytest_configure(config):
             setattr(config.option, 'markexpr', 'not gpu')
         else:
             setattr(config.option, 'markexpr', (config.option.markexpr
-            + ' and not gpu'))
+                                                + ' and not gpu'))

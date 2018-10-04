@@ -122,7 +122,9 @@ def session():
         batch_size=20,
         minibatch_count=4,
         entropy_coef=0.001,
-        discount_factor=0.8
+        discount_factor=0.8,
+        clip_factor=0.1,
+        epochs=3
     )
     return TrainingSession(model, hyperparams, 1)
 
@@ -201,13 +203,14 @@ def test_model_improves_when_trained_in_multiple_contexts():
     )
     hyperparams = HyperParams(
         learning_rate=0.001,
-        batch_size=10,
-        minibatch_length=7,
+        batch_size=20,
+        minibatch_length=10,
         minibatch_count=2,
         entropy_coef=0.0001,
         discount_factor=0.95,
         gae=0.96,
-        epochs=1
+        epochs=2,
+        clip_factor=0.1
     )
     session = TrainingSession(model, hyperparams, 3)
 
@@ -372,8 +375,7 @@ def test_model_learns_with_gpu():
         entropy_coef=0.0001,
         discount_factor=0.95,
         gae=0.96,
-        epochs=3,
-        use_gpu=True
+        epochs=3
     )
 
     session = TrainingSession(model, hyperparams, 1)

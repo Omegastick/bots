@@ -114,7 +114,17 @@ class TrainingSession:
                 rewards = self.rewards[context][
                     starting_index:starting_index + minibatch_length]
                 observations = self.observations[context][
-                    starting_index:starting_index + minibatch_length + 1]
+                    starting_index:starting_index + minibatch_length + 5]
+                # This converts the observations into the right shape for
+                # processing them all at once:
+                # [
+                #    sensor_1: torch.Tensor([t_1, t_2, t_3, ...]),
+                #    sensor_2: torch.Tensor([t_1, t_2, t_3, ...])
+                # ]
+                observations = [
+                    torch.stack([
+                        observation[idx] for observation in observations])
+                    for idx, _ in enumerate(observations[0])]
                 old_log_probs = self.log_probs[context][
                     starting_index:starting_index + minibatch_length]
                 actions = self.actions[context][
@@ -123,16 +133,13 @@ class TrainingSession:
                 critic_loss = 0
                 actor_loss = 0
                 gae = 0
-                next_value = self.model.get_value(observations[-1])
-                real_value = next_value
-                values = []
+                values, raw_probs = self.model.forward(observations)
+                real_value = values[-1]
 
                 for i in reversed(range(minibatch_length)):
-                    value, raw_probs = self.model.forward(observations[i])
-                    values.append(value)
-                    probs = [F.softmax(raw_prob, dim=0)
+                    probs = [F.softmax(raw_prob[i], dim=0)
                              for raw_prob in raw_probs]
-                    log_probs = [F.log_softmax(raw_prob, dim=0)
+                    log_probs = [F.log_softmax(raw_prob[i], dim=0)
                                  for raw_prob in raw_probs]
                     entropy = -(torch.cat(log_probs)
                                 * torch.cat(probs)).sum(0, keepdim=True)
@@ -141,15 +148,14 @@ class TrainingSession:
                     real_value = (self.hyperparams.discount_factor * real_value
                                   + rewards[i])
                     # Advantage
-                    advantage = real_value - value
+                    advantage = real_value - values[i]
                     # Critic loss
                     critic_loss = critic_loss + 0.5 * advantage.pow(2)
                     # Difference between this value and the next value
                     value_delta = (rewards[i]
                                    + self.hyperparams.discount_factor
-                                   * next_value.data
-                                   - value.data)
-                    next_value = value
+                                   * values[i + 1].data
+                                   - values[i].data)
                     # Generalised Advantage Estimate
                     # When setting the GAE hyperparameter to a low value, the
                     # empirical advantage is ignored and instead the value
@@ -216,7 +222,7 @@ class TrainingSession:
                 index = np.random.randint(
                     0,
                     (len(self.rewards[context])
-                     - self.hyperparams.minibatch_length + 1)
+                     - (self.hyperparams.minibatch_length))
                 )
                 indexes.append((context, index))
 
