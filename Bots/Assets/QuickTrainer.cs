@@ -46,8 +46,8 @@ public class QuickTrainer : MonoBehaviour
                     ["hyperparams"] = new JObject
                     {
                         ["learning_rate"] = 0.0007,
-                        ["gae"] = 0.6,
-                        ["batch_size"] = 20,
+                        ["gae"] = 0.95,
+                        ["batch_size"] = 50,
                         ["minibatch_length"] = 5,
                         ["minibatch_count"] = 10,
                         ["entropy_coef"] = 0.0001,
