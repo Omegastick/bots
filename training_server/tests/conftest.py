@@ -21,4 +21,8 @@ def pytest_addoption(parser):
 
 def pytest_configure(config):
     if not config.option.gpu:
-        setattr(config.option, 'markexpr', 'not gpu')
+        if not config.option.markexpr:
+            setattr(config.option, 'markexpr', 'not gpu')
+        else:
+            setattr(config.option, 'markexpr', (config.option.markexpr
+            + ' and not gpu'))
