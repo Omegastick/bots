@@ -37,9 +37,8 @@ FixedUpdate() cycle tasks
 
 Agent creation flow
 ===================
-- Agent GameObject is instantiated with a tree of Modules.
+- Agent GameObject is instantiated with a tree of Modules (serialised somehow).
   - Each Module has a list of ModuleAttachments.
-    - Each ModuleAttachment has a location (relative to parent), a rotation (relative to parent) and an optional child Module.
-
-Agent action flow
-=================
+    - Each ModuleAttachment has a location (relative to parent), a rotation (relative to parent) and an optional child Module (with its own ModuleAttachment.
+  - In the Module's constructor it can make changes to its parent or the BaseModule.
+  - After all Modules are instantiated, the Agent traverses the tree of modules, registering any Actions and Sensors the Module has.
