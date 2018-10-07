@@ -1,22 +1,21 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 using SensorReadings;
-using Scripts.Actions;
+using Actions;
 
 namespace Scripts.Modules
 {
     public abstract class Module : MonoBehaviour
     {
-        public List<ModuleAttachment> moduleAttachments;
-        public List<Vector4> attachmentPoints;
-        public List<BaseAction> actions;
-        public virtual Module ParentModule { get; private set; }
+        public List<ModuleAttachment> ModuleAttachments { get; private set; }
+        public List<BaseAction> Actions { get; private set; }
+        public Module parentModule;
         public virtual Module RootModule
         {
             get
             {
-                return ParentModule.RootModule;
+                return parentModule.RootModule;
             }
         }
 
@@ -26,7 +25,21 @@ namespace Scripts.Modules
             {
                 modules = new List<Module>();
             }
-            throw new NotImplementedException();
+            modules.Add(this);
+            foreach (var moduleAttachment in ModuleAttachments)
+            {
+                if (moduleAttachment.child != null)
+                {
+                    moduleAttachment.child.GetChildren(modules);
+                }
+            }
+            return modules;
+        }
+
+        public virtual void Awake()
+        {
+            Actions = new List<BaseAction>();
+            ModuleAttachments = GetComponentsInChildren<ModuleAttachment>().ToList();
         }
 
         public abstract ISensorReading GetSensorReading();

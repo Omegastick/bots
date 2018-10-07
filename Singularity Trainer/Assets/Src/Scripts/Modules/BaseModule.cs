@@ -1,21 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using SensorReadings;
+﻿using SensorReadings;
 
 namespace Scripts.Modules
 {
     public class BaseModule : Module
     {
-        public override Module ParentModule
-        {
-            get
-            {
-                return null;
-            }
-        }
-
         public override Module RootModule
         {
             get
@@ -27,6 +15,12 @@ namespace Scripts.Modules
         public override ISensorReading GetSensorReading()
         {
             return null;
+        }
+
+        public override void Awake()
+        {
+            base.Awake();
+            parentModule = this;
         }
     }
 }

@@ -1,15 +1,13 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using SensorReadings;
+﻿using SensorReadings;
 using UnityEngine;
+using Actions;
 
 namespace Scripts.Modules
 {
-    public class GunModule: Module
+    public class GunModule: Module, Interfaces.IShootable
     {
         public GameObject projectile;
+        public Transform projectileSpawnPoint;
 
         public override ISensorReading GetSensorReading()
         {
@@ -18,7 +16,15 @@ namespace Scripts.Modules
 
         public void Shoot()
         {
-            throw new NotImplementedException();
+            Debug.Log(projectileSpawnPoint.position);
+            GameObject projectileObject = Instantiate(projectile, projectileSpawnPoint.position, projectileSpawnPoint.rotation);
+            projectileObject.GetComponent<Rigidbody2D>().AddRelativeForce(new Vector2(0, 1000));
+        }
+
+        public override void Awake()
+        {
+            base.Awake();
+            Actions.Add(new ShootAction(this));
         }
     }
 }
