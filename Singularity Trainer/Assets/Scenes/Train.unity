@@ -199,11 +199,11 @@ MonoBehaviour:
   volumeTrigger: {fileID: 519420032}
   volumeLayer:
     serializedVersion: 2
-    m_Bits: 4294967295
+    m_Bits: 0
   stopNaNPropagation: 1
   antialiasingMode: 2
   temporalAntialiasing:
-    jitterSpread: 0.23
+    jitterSpread: 0.75
     sharpness: 0.25
     stationaryBlending: 0.95
     motionBlending: 0.85

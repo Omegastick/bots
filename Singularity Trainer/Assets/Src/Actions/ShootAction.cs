@@ -3,7 +3,7 @@ using Scripts.Modules;
 
 namespace Actions
 {
-    public class ShootAction : BaseAction
+    public class ShootAction : Action
     {
         public ShootAction(Module parentModule) : base(parentModule)
         {
@@ -14,7 +14,6 @@ namespace Actions
         {
             if (Module is IShootable && action == 1)
             {
-                Module.print("Shooting");
                 (Module as IShootable).Shoot();
             }
         }

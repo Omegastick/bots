@@ -17,7 +17,7 @@ namespace Scripts.Modules
             return null;
         }
 
-        public override void Awake()
+        protected override void Awake()
         {
             base.Awake();
             parentModule = this;

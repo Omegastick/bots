@@ -1,21 +1,19 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using UnityEngine;
 using Observations;
 using Scripts.Modules;
-using Actions;
 
 namespace Scripts
 {
     public class Agent: MonoBehaviour
     {
         public List<Module> Modules { get; protected set; }
-        public List<BaseAction> Actions { get; protected set; }
+        public List<Actions.Action> Actions { get; protected set; }
 
         private void Awake()
         {
-            Actions = new List<BaseAction>();
+            Actions = new List<Actions.Action>();
             BaseModule baseModule = GetComponentInChildren<BaseModule>();
             Modules = baseModule.GetChildren();
             foreach (Module module in Modules)

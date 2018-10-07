@@ -8,6 +8,9 @@ namespace Scripts.Modules
     {
         public GameObject projectile;
         public Transform projectileSpawnPoint;
+        public float cooldownTime = 0.2f;
+
+        private float lastShotTime;
 
         public override ISensorReading GetSensorReading()
         {
@@ -16,14 +19,23 @@ namespace Scripts.Modules
 
         public void Shoot()
         {
-            GameObject projectileObject = Instantiate(projectile, projectileSpawnPoint.position, projectileSpawnPoint.rotation);
-            projectileObject.GetComponent<Rigidbody2D>().AddRelativeForce(new Vector2(0, 1000));
+            if (Time.time - lastShotTime > cooldownTime)
+            {
+                lastShotTime = Time.time;
+                GameObject projectileObject = Instantiate(projectile, projectileSpawnPoint.position, projectileSpawnPoint.rotation);
+                projectileObject.GetComponent<Rigidbody2D>().AddRelativeForce(new Vector2(0, 1000));
+            }
         }
 
-        public override void Awake()
+        protected override void Awake()
         {
             base.Awake();
             Actions.Add(new ShootAction(this));
+        }
+
+        private void Start()
+        {
+            lastShotTime = Time.time;
         }
     }
 }

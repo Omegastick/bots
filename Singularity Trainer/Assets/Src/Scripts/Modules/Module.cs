@@ -9,7 +9,7 @@ namespace Scripts.Modules
     public abstract class Module : MonoBehaviour
     {
         public List<ModuleAttachment> ModuleAttachments { get; private set; }
-        public List<BaseAction> Actions { get; private set; }
+        public List<Action> Actions { get; private set; }
         public Module parentModule;
         public virtual Module RootModule
         {
@@ -36,9 +36,9 @@ namespace Scripts.Modules
             return modules;
         }
 
-        public virtual void Awake()
+        protected virtual void Awake()
         {
-            Actions = new List<BaseAction>();
+            Actions = new List<Action>();
             ModuleAttachments = GetComponentsInChildren<ModuleAttachment>().ToList();
         }
 
