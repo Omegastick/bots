@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 namespace Scripts
@@ -9,15 +10,44 @@ namespace Scripts
 
         private void Update()
         {
-            if (Input.GetKeyDown(KeyCode.Space))
+            List<int> actions = Enumerable.Repeat(0, 9).ToList();
+            if (Input.GetKey(KeyCode.Alpha1))
             {
-                Debug.Log("Sending action");
-                agent.Act(new List<int> { 1 });
+                actions[0] = 1;
             }
-            else
+            if (Input.GetKey(KeyCode.Alpha2))
             {
-                agent.Act(new List<int> { 0 });
+                actions[1] = 1;
             }
+            if (Input.GetKey(KeyCode.Alpha3))
+            {
+                actions[2] = 1;
+            }
+            if (Input.GetKey(KeyCode.Alpha4))
+            {
+                actions[3] = 1;
+            }
+            if (Input.GetKey(KeyCode.Alpha5))
+            {
+                actions[4] = 1;
+            }
+            if (Input.GetKey(KeyCode.Alpha6))
+            {
+                actions[5] = 1;
+            }
+            if (Input.GetKey(KeyCode.Alpha7))
+            {
+                actions[6] = 1;
+            }
+            if (Input.GetKey(KeyCode.Alpha8))
+            {
+                actions[7] = 1;
+            }
+            if (Input.GetKey(KeyCode.Alpha9))
+            {
+                actions[8] = 1;
+            }
+            agent.Act(actions);
         }
     }
 }

@@ -29,11 +29,8 @@ namespace Scripts
 
         public void Act(List<int> actions)
         {
-            Debug.Log("Received actions");
             for (int i = 0; i < Actions.Count; i++)
             {
-                var debugString = "Sending action: " + actions[i];
-                Debug.Log(debugString);
                 Actions[i].Act(actions[i]);
             }
         }

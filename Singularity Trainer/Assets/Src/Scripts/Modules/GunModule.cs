@@ -16,7 +16,6 @@ namespace Scripts.Modules
 
         public void Shoot()
         {
-            Debug.Log(projectileSpawnPoint.position);
             GameObject projectileObject = Instantiate(projectile, projectileSpawnPoint.position, projectileSpawnPoint.rotation);
             projectileObject.GetComponent<Rigidbody2D>().AddRelativeForce(new Vector2(0, 1000));
         }
