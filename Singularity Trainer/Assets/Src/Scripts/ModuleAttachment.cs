@@ -7,5 +7,24 @@ namespace Scripts
     {
         public Module parent;
         public Module child;
+
+        private SpriteRenderer spriteRenderer;
+
+        private void Awake()
+        {
+            spriteRenderer = GetComponent<SpriteRenderer>();
+        }
+
+        private void Update()
+        {
+            if (Application.isPlaying)
+            {
+                spriteRenderer.enabled = false;
+            }
+            else
+            {
+                spriteRenderer.enabled = true;
+            }
+        }
     }
 }

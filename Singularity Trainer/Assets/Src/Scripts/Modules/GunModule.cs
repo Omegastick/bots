@@ -11,6 +11,7 @@ namespace Scripts.Modules
         public float cooldownTime = 0.2f;
 
         private float lastShotTime;
+        private Rigidbody2D rigidBody;
 
         public override ISensorReading GetSensorReading()
         {
@@ -22,8 +23,12 @@ namespace Scripts.Modules
             if (Time.time - lastShotTime > cooldownTime)
             {
                 lastShotTime = Time.time;
-                GameObject projectileObject = Instantiate(projectile, projectileSpawnPoint.position, projectileSpawnPoint.rotation);
-                projectileObject.GetComponent<Rigidbody2D>().AddRelativeForce(new Vector2(0, 1000));
+                GameObject projectileObject = Instantiate(projectile, projectileSpawnPoint.position, projectileSpawnPoint.rotation, transform);
+                projectileObject.GetComponent<Rigidbody2D>().AddRelativeForce(new Vector2(0, 500));
+                var forceDirection = transform.TransformDirection(new Vector2(0, -10));
+                var forceOrigin = transform.TransformPoint(new Vector2(0, 0));
+                rigidBody.AddForceAtPosition(forceDirection, forceOrigin);
+
             }
         }
 
@@ -31,6 +36,7 @@ namespace Scripts.Modules
         {
             base.Awake();
             Actions.Add(new ShootAction(this));
+            rigidBody = GetComponentInParent<Rigidbody2D>();
         }
 
         private void Start()
