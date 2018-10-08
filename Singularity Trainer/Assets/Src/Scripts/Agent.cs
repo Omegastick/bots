@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using Observations;
 using Scripts.Modules;
+using Training.Environments;
 
 namespace Scripts
 {
@@ -10,6 +11,7 @@ namespace Scripts
     {
         public List<Module> Modules { get; protected set; }
         public List<Actions.Action> Actions { get; protected set; }
+        public IEnvironment Environment { get; set; }
 
         private void Awake()
         {
