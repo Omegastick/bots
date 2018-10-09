@@ -110,39 +110,18 @@ class TrainingSession:
             total_actor_loss = 0
             total_critic_loss = 0
 
-            values = []
-            raw_probs = []
-            for context in range(self.contexts):
-                # This converts the observations into the right shape for
-                # processing them all at once:
-                # [
-                #    sensor_1: torch.Tensor([t_1, t_2, t_3, ...]),
-                #    sensor_2: torch.Tensor([t_1, t_2, t_3, ...])
-                # ]
-                observations = self.observations[context]
-                observations = [
-                    torch.stack([
-                        observation[idx] for observation in observations])
-                        for idx, _ in enumerate(observations[0])]
-
-                context_values, context_raw_probs = self.model.forward(
-                    observations)
-                values.append(context_values)
-                raw_probs.append(context_raw_probs)
+            # Get values and raw probabilities for each context
+            values, raw_probs = self._process_observations()
 
             for context, starting_index in self._get_starting_indexes():
                 minibatch_length = self.hyperparams.minibatch_length
+                # Prepare data
                 rewards = self.rewards[context][
                     starting_index:starting_index + minibatch_length]
                 old_log_probs = self.log_probs[context][
                     starting_index:starting_index + minibatch_length]
                 actions = self.actions[context][
                     starting_index:starting_index + minibatch_length]
-
-                critic_loss = 0
-                actor_loss = 0
-                gae = 0
-
                 minibatch_values = values[context][
                     starting_index:starting_index + minibatch_length + 1]
                 minibatch_raw_probs = []
@@ -151,6 +130,9 @@ class TrainingSession:
                         context_raw_probs[starting_index:
                                           starting_index + minibatch_length])
 
+                critic_loss = 0
+                actor_loss = 0
+                gae = 0
                 real_value = minibatch_values[-1]
 
                 for i in reversed(range(minibatch_length)):
@@ -244,3 +226,30 @@ class TrainingSession:
                 indexes.append((context, index))
 
         return indexes
+
+    def _process_observations(
+            self) -> Tuple[List[torch.Tensor], List[List[torch.Tensor]]]:
+        """
+        Does one model.forward() run for each context and gets the values and
+        raw_probabilities (before softmax) for each.
+        """
+        values = []
+        raw_probs = []
+        for context in range(self.contexts):
+            # This converts the observations into the right shape for
+            # processing them all at once:
+            # [
+            #    sensor_1: torch.Tensor([t_1, t_2, t_3, ...]),
+            #    sensor_2: torch.Tensor([t_1, t_2, t_3, ...])
+            # ]
+            observations = self.observations[context]
+            observations = [
+                torch.stack([
+                    observation[idx] for observation in observations])
+                for idx, _ in enumerate(observations[0])]
+
+            context_values, context_raw_probs = self.model.forward(
+                observations)
+            values.append(context_values)
+            raw_probs.append(context_raw_probs)
+        return values, raw_probs
