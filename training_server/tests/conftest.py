@@ -20,11 +20,17 @@ def setup():
 
 
 def pytest_addoption(parser):
+    """
+    Adds GPU option for testing GPU function.
+    """
     parser.addoption('--gpu', action='store_true', dest="gpu",
                      default=False, help="enable gpu decorated tests")
 
 
 def pytest_configure(config):
+    """
+    Adds functionality to GPU option.
+    """
     if not config.option.gpu:
         if not config.option.markexpr:
             setattr(config.option, 'markexpr', 'not gpu')
