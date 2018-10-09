@@ -80,8 +80,12 @@ class Model(torch.nn.Module):
             self,
             inputs: List[int],
             outputs: List[int],
-            feature_extractors: List[str]):
+            feature_extractors: List[str],
+            recurrent: bool = True,
+            hidden_size: int = 128):
         super().__init__()
+
+        # Feature extractors
         self.feature_extractors = torch.nn.ModuleList()
         for i, extractor in enumerate(feature_extractors):
             if extractor == 'mlp':
@@ -89,19 +93,30 @@ class Model(torch.nn.Module):
                 self.feature_extractors.append(
                     MLPExtractor(input_size, 32))
 
+        # Feature size
         temp_inputs = [torch.zeros(x) for x in inputs]
         temp_features = [self.feature_extractors[i](x)
                          for i, x in enumerate(temp_inputs)]
         self.feature_size = torch.cat(temp_features).shape[0]
 
+        self.hidden_size = hidden_size
+        if recurrent:
+            self.gru = torch.nn.GRUCell(self.feature_size, hidden_size)
+            torch.nn.init.orthogonal_(self.gru.weight_ih.data)
+            torch.nn.init.orthogonal_(self.gru.weight_hh.data)
+            self.gru.bias_ih.data.fill_(0)
+            self.gru.bias_hh.data.fill_(0)
+
+        # Critic
         self.critic = torch.nn.Linear(self.feature_size, 1)
 
+        # Actor
         self.actors = torch.nn.ModuleList()
         for output in outputs:
             self.actors.append(torch.nn.Linear(self.feature_size, output))
 
+        # Initialise weights
         self.apply(weights_init)
-
         for actor in self.actors:
             actor.weight.data = normalized_columns_initializer(
                 actor.weight.data, 0.01)
@@ -112,14 +127,15 @@ class Model(torch.nn.Module):
 
     def forward(
             self,
-            x: List[torch.Tensor]) -> Tuple[torch.Tensor, List[torch.Tensor]]:
+            x: List[torch.Tensor],
+            hidden_state: torch.Tensor) -> Tuple[torch.Tensor, List[torch.Tensor]]:
         features = [extractor(x[i]) for i, extractor in enumerate(
             self.feature_extractors)]
         x = torch.cat(features, dim=-1)
-        x = F.relu(x)
+        x = hidden_state = self.gru(x, hidden_state)
         value = self.critic(x)
         raw_probs = [actor(x) for actor in self.actors]
-        return value, raw_probs
+        return value, raw_probs, hidden_state
 
     def get_value(
             self,
