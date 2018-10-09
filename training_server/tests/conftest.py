@@ -1,6 +1,9 @@
 """
 Testing utilities.
 """
+# pylint: disable=wrong-import-position
+import os
+os.environ['OMP_NUM_THREADS'] = '1'
 import pytest
 import torch
 import numpy as np

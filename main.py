@@ -1,6 +1,9 @@
 """
 Main script
 """
+# pylint: disable=wrong-import-position
+import os
+os.environ['OMP_NUM_THREADS'] = '1'
 import argparse
 import time
 import logging
@@ -19,6 +22,8 @@ def main():
                         format=('%(asctime)s %(funcName)s '
                                 '[%(levelname)s]: %(message)s'),
                         datefmt='%Y%m%d %H:%M:%S')
+
+    os.environ['OMP_NUM_THREADS'] = '1'
 
     parser = argparse.ArgumentParser(description="Server for training agents.")
     parser.add_argument('--port', type=int, default=10201,
