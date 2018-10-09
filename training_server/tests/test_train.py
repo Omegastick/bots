@@ -181,7 +181,7 @@ def test_model_improves_when_trained_on_multiple_outputs(
         reward += 1 if action[1] == 2 else 0
         session.give_reward(reward, 0)
 
-    _, raw_probs = session.model(observation)
+    _, raw_probs, _ = session.model(observation)
 
     assert raw_probs[0][0][0] > starting_raw_probs[0][0][0]
     assert raw_probs[1][0][2] > starting_raw_probs[1][0][2]
@@ -203,13 +203,13 @@ def test_model_improves_when_trained_in_multiple_contexts():
     )
     hyperparams = HyperParams(
         learning_rate=0.001,
-        batch_size=20,
-        minibatch_length=10,
+        batch_size=10,
+        minibatch_length=5,
         minibatch_count=2,
         entropy_coef=0.0001,
         discount_factor=0.95,
         gae=0.96,
-        epochs=2,
+        epochs=3,
         clip_factor=0.1
     )
     session = TrainingSession(model, hyperparams, 3)
@@ -227,8 +227,8 @@ def test_model_improves_when_trained_in_multiple_contexts():
 
     _, raw_probs, _ = session.model(observation)
 
-    assert raw_probs[0][0] > starting_raw_probs[0][0]
-    assert raw_probs[1][2] > starting_raw_probs[1][2]
+    assert raw_probs[0][0][0] > starting_raw_probs[0][0][0]
+    assert raw_probs[1][0][2] > starting_raw_probs[1][0][2]
 
 
 @pytest.mark.training
@@ -291,25 +291,26 @@ def test_model_learns_with_multiple_contexts():
         learning_rate=0.001,
         batch_size=20,
         minibatch_length=5,
-        minibatch_count=10,
+        minibatch_count=4,
         entropy_coef=0.0001,
         discount_factor=0.95,
         gae=0.96,
-        epochs=3,
+        epochs=5,
+        clip_factor=0.1
     )
-    session = TrainingSession(model, hyperparams, 10)
+    session = TrainingSession(model, hyperparams, 5)
 
     rewards = []
-    environments = [MultiContextGame() for _ in range(10)]
+    environments = [MultiContextGame() for _ in range(5)]
 
     for i in range(1000):
-        observation = torch.cat((environments[i % 10].location,
-                                 environments[i % 10].reward_location))
-        action, _ = session.get_action([observation], i % 10)
-        environments[i % 10].move(action[0].item())
-        reward = environments[i % 10].get_reward()
+        observation = torch.cat((environments[i % 5].location,
+                                 environments[i % 5].reward_location))
+        action, _ = session.get_action([observation], i % 5)
+        environments[i % 5].move(action[0].item())
+        reward = environments[i % 5].get_reward()
         rewards.append(reward)
-        session.give_reward(reward, i % 10)
+        session.give_reward(reward, i % 5)
 
     # pytest.set_trace()
     assert np.mean(rewards[:100]) + 0.05 < np.mean(rewards[-100:])

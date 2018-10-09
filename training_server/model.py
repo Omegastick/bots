@@ -108,14 +108,12 @@ class Model(torch.nn.Module):
             self.gru.bias_hh.data.fill_(0)
 
         # Critic
-        # self.critic = torch.nn.Linear(self.hidden_size, 1)
-        self.critic = torch.nn.Linear(self.feature_size, 1)
+        self.critic = torch.nn.Linear(self.hidden_size, 1)
 
         # Actor
         self.actors = torch.nn.ModuleList()
         for output in outputs:
-            # self.actors.append(torch.nn.Linear(self.hidden_size, output))
-            self.actors.append(torch.nn.Linear(self.feature_size, output))
+            self.actors.append(torch.nn.Linear(self.hidden_size, output))
 
         # Initialise weights
         self.apply(weights_init)
@@ -139,7 +137,7 @@ class Model(torch.nn.Module):
         if hidden_state is not None:
             hidden_state = hidden_state.view(-1, self.hidden_size)
         # x = hidden_state = self.gru(x, hidden_state)
-        # x = hidden_state = self.gru(x)
+        x = hidden_state = self.gru(x)
         value = self.critic(x)
         raw_probs = [actor(x) for actor in self.actors]
         return value, raw_probs, hidden_state
