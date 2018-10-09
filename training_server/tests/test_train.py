@@ -392,3 +392,49 @@ def test_model_learns_with_gpu():
         session.give_reward(reward, 0)
 
     assert np.mean(rewards[:100]) < np.mean(rewards[-100:])
+
+
+@pytest.mark.training
+def test_lstm_learns_simple_pattern():
+    """
+    The model should be able to learn a very simple game where it has to pick
+    the option corresponding to the previous input.
+    Should require an lstm to learn.
+    """
+    np.random.seed(1)
+    torch.manual_seed(1)
+    model = ModelSpecification(
+        inputs=[2],
+        outputs=[2],
+        feature_extractors=['mlp']
+    )
+
+    hyperparams = HyperParams(
+        learning_rate=0.003,
+        batch_size=20,
+        minibatch_length=5,
+        minibatch_count=10,
+        entropy_coef=0.0001,
+        discount_factor=0.95,
+        gae=0.96,
+        epochs=3
+    )
+
+    session = TrainingSession(model, hyperparams, 1)
+    rewards = []
+
+    observations = {
+        0: torch.Tensor([1, 0]),
+        1: torch.Tensor([0, 1])
+    }
+    observation = observations[np.random.randint(0, 2)]
+
+    for _ in range(1000):
+        last_observation = observation
+        observation = observations[np.random.randint(0, 2)]
+        action, _ = session.get_action([observation], 0)
+        reward = (action[0] == last_observation.argmax()).float()
+        rewards.append(reward)
+        session.give_reward(reward, 0)
+
+    assert np.mean(rewards[-100:]) > 0.55
