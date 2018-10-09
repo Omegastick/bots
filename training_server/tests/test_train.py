@@ -142,7 +142,7 @@ def test_get_action_returns_correct_number_of_actions(
 
 
 @pytest.mark.training
-def test_model_improves_when_trained(session: TrainingSession):
+def test_model_improves_when_trained_basic(session: TrainingSession):
     """
     When trained on a very simple problem that rewards it for picking a
     particular output every time, the model should become more likely to pick
@@ -150,16 +150,16 @@ def test_model_improves_when_trained(session: TrainingSession):
     """
     observation = [torch.Tensor([1, 2]), torch.Tensor([1, 2, 3])]
 
-    _, starting_raw_probs = session.model(observation)
+    _, starting_raw_probs, _ = session.model(observation)
 
     for _ in range(100):
         action, _ = session.get_action(observation, 0)
         reward = 1 if action[0] == 0 else 0
         session.give_reward(reward, 0)
 
-    _, raw_probs = session.model(observation)
+    _, raw_probs, _ = session.model(observation)
 
-    assert raw_probs[0][0] > starting_raw_probs[0][0]
+    assert raw_probs[0][0][0] > starting_raw_probs[0][0][0]
 
 
 @pytest.mark.training
@@ -172,7 +172,7 @@ def test_model_improves_when_trained_on_multiple_outputs(
     """
     observation = [torch.Tensor([1, 2]), torch.Tensor([1, 2, 3])]
 
-    _, starting_raw_probs = session.model(observation)
+    _, starting_raw_probs, _ = session.model(observation)
 
     for _ in range(100):
         action, _ = session.get_action(observation, 0)
@@ -183,8 +183,8 @@ def test_model_improves_when_trained_on_multiple_outputs(
 
     _, raw_probs = session.model(observation)
 
-    assert raw_probs[0][0] > starting_raw_probs[0][0]
-    assert raw_probs[1][2] > starting_raw_probs[1][2]
+    assert raw_probs[0][0][0] > starting_raw_probs[0][0][0]
+    assert raw_probs[1][0][2] > starting_raw_probs[1][0][2]
 
 
 @pytest.mark.training
@@ -216,7 +216,7 @@ def test_model_improves_when_trained_in_multiple_contexts():
 
     observation = [torch.Tensor([1, 2]), torch.Tensor([1, 2, 3])]
 
-    _, starting_raw_probs = session.model(observation)
+    _, starting_raw_probs, _ = session.model(observation)
 
     for i in range(100):
         action, _ = session.get_action(observation, i % 3)
@@ -225,7 +225,7 @@ def test_model_improves_when_trained_in_multiple_contexts():
         reward += 1 if action[1] == 2 else 0
         session.give_reward(reward, i % 3)
 
-    _, raw_probs = session.model(observation)
+    _, raw_probs, _ = session.model(observation)
 
     assert raw_probs[0][0] > starting_raw_probs[0][0]
     assert raw_probs[1][2] > starting_raw_probs[1][2]
@@ -246,14 +246,15 @@ def test_model_learns_simple_game():
     )
 
     hyperparams = HyperParams(
-        learning_rate=0.003,
+        learning_rate=0.0001,
         batch_size=20,
         minibatch_length=5,
         minibatch_count=10,
         entropy_coef=0.0001,
         discount_factor=0.95,
         gae=0.96,
-        epochs=3
+        epochs=4,
+        clip_factor=0.1
     )
 
     session = TrainingSession(model, hyperparams, 1)
@@ -269,7 +270,7 @@ def test_model_learns_simple_game():
         rewards.append(reward)
         session.give_reward(reward, 0)
 
-    assert np.mean(rewards[:100]) < np.mean(rewards[-100:])
+    assert np.mean(rewards[:100]) + 0.05 < np.mean(rewards[-100:])
 
 
 @pytest.mark.training
@@ -311,7 +312,7 @@ def test_model_learns_with_multiple_contexts():
         session.give_reward(reward, i % 10)
 
     # pytest.set_trace()
-    assert np.mean(rewards[:100]) < np.mean(rewards[-100:])
+    assert np.mean(rewards[:100]) + 0.05 < np.mean(rewards[-100:])
 
 
 @pytest.mark.training
@@ -349,7 +350,7 @@ def test_model_learns_with_delayed_rewards():
         rewards.append(reward)
         session.give_reward(reward, 0)
 
-    assert np.mean(rewards[:100]) < np.mean(rewards[-100:])
+    assert np.mean(rewards[:100]) + 0.05 < np.mean(rewards[-100:])
 
 
 @pytest.mark.gpu
@@ -391,7 +392,7 @@ def test_model_learns_with_gpu():
         rewards.append(reward)
         session.give_reward(reward, 0)
 
-    assert np.mean(rewards[:100]) < np.mean(rewards[-100:])
+    assert np.mean(rewards[:100]) + 0.05 < np.mean(rewards[-100:])
 
 
 @pytest.mark.training
@@ -411,8 +412,8 @@ def test_lstm_learns_simple_pattern():
 
     hyperparams = HyperParams(
         learning_rate=0.003,
-        batch_size=20,
-        minibatch_length=5,
+        batch_size=10,
+        minibatch_length=3,
         minibatch_count=10,
         entropy_coef=0.0001,
         discount_factor=0.95,

@@ -83,7 +83,7 @@ def test_get_action_calls_correct_session(
         assert session_manager.sessions[0].get_action.call_count == 1
 
         inputs = [np.array([1]), np.array([1, 2])]
-        session_manager.get_action(1, inputs, 0)
+        session_manager.get_action(1, inputs)
         assert session_manager.sessions[1].get_action.call_count == 1
     finally:
         os.remove(path)

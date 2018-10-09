@@ -50,7 +50,7 @@ class SessionManager:
             self,
             session_id: int,
             inputs: List[list],
-            context: int):
+            context: int = None):
         """
         Get an action from a session.
         """

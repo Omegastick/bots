@@ -44,7 +44,6 @@ class TrainingSession:
             torch.set_default_tensor_type('torch.cuda.FloatTensor')
 
         self.contexts = contexts
-        self.hidden_states = torch.zeros(contexts, 128)
         self.hyperparams = hyperparams
         self.auto_train = auto_train
 
@@ -53,6 +52,10 @@ class TrainingSession:
         self.values = [[] for _ in range(contexts)]
         self.observations = [[] for _ in range(contexts)]
         self.actions = [[] for _ in range(contexts)]
+        self.hidden_states = [[] for _ in range(contexts)]
+
+        for context in range(self.contexts):
+            self.hidden_states[context].append(torch.zeros(1, 128))
 
         self.model = Model(model.inputs, model.outputs,
                            model.feature_extractors)
@@ -71,7 +74,8 @@ class TrainingSession:
         Given an observation, get an action and the value of the observation
         from one of the models being trained.
         """
-        value, probs, log_probs = self.model.act(inputs)
+        value, probs, log_probs, hidden_state = self.model.act(
+            inputs, self.hidden_states[context][-1])
 
         actions = [x.multinomial(num_samples=1) for x in probs]
 
@@ -81,6 +85,7 @@ class TrainingSession:
         self.values[context].append(value.detach())
         self.log_probs[context].append(torch.stack(log_prob).detach())
         self.actions[context].append(torch.stack(actions).detach())
+        self.hidden_states[context].append(hidden_state.detach())
 
         return actions, value
 
@@ -114,7 +119,9 @@ class TrainingSession:
                 rewards = self.rewards[context][
                     starting_index:starting_index + minibatch_length]
                 observations = self.observations[context][
-                    starting_index:starting_index + minibatch_length + 5]
+                    starting_index:starting_index + minibatch_length + 1]
+                hidden_states = torch.stack(self.hidden_states[context][
+                    starting_index:starting_index + minibatch_length + 1])
                 # This converts the observations into the right shape for
                 # processing them all at once:
                 # [
@@ -133,7 +140,8 @@ class TrainingSession:
                 critic_loss = 0
                 actor_loss = 0
                 gae = 0
-                values, raw_probs = self.model.forward(observations)
+                values, raw_probs, _ = self.model.forward(observations,
+                                                       hidden_states)
                 real_value = values[-1]
 
                 for i in reversed(range(minibatch_length)):
@@ -176,7 +184,7 @@ class TrainingSession:
                     new_log_probs = torch.stack([
                         log_probs[x][actions[i][x]]
                         for x in range(len(actions[i]))])
-                    ratio = torch.exp(new_log_probs - old_log_probs[i])
+                    ratio = torch.exp(new_log_probs - old_log_probs[i].detach())
                     surr_1 = ratio * gae
                     surr_2 = torch.clamp(ratio, 1 - clip, 1 + clip) * gae
                     actor_loss = (-torch.min(surr_1, surr_2).mean()

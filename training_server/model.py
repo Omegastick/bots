@@ -108,11 +108,13 @@ class Model(torch.nn.Module):
             self.gru.bias_hh.data.fill_(0)
 
         # Critic
+        # self.critic = torch.nn.Linear(self.hidden_size, 1)
         self.critic = torch.nn.Linear(self.feature_size, 1)
 
         # Actor
         self.actors = torch.nn.ModuleList()
         for output in outputs:
+            # self.actors.append(torch.nn.Linear(self.hidden_size, output))
             self.actors.append(torch.nn.Linear(self.feature_size, output))
 
         # Initialise weights
@@ -128,11 +130,16 @@ class Model(torch.nn.Module):
     def forward(
             self,
             x: List[torch.Tensor],
-            hidden_state: torch.Tensor) -> Tuple[torch.Tensor, List[torch.Tensor]]:
+            hidden_state: torch.Tensor = None) -> Tuple[torch.Tensor,
+                                                        List[torch.Tensor]]:
         features = [extractor(x[i]) for i, extractor in enumerate(
             self.feature_extractors)]
         x = torch.cat(features, dim=-1)
-        x = hidden_state = self.gru(x, hidden_state)
+        x = x.view(-1, self.feature_size)
+        if hidden_state is not None:
+            hidden_state = hidden_state.view(-1, self.hidden_size)
+        # x = hidden_state = self.gru(x, hidden_state)
+        # x = hidden_state = self.gru(x)
         value = self.critic(x)
         raw_probs = [actor(x) for actor in self.actors]
         return value, raw_probs, hidden_state
@@ -152,14 +159,19 @@ class Model(torch.nn.Module):
 
     def act(
             self,
-            x: List[torch.Tensor]) -> Tuple[torch.Tensor, torch.Tensor,
-                                            torch.Tensor]:
+            x: List[torch.Tensor],
+            hidden_state: torch.Tensor = None) -> Tuple[torch.Tensor,
+                                                        List[torch.Tensor],
+                                                        List[torch.Tensor],
+                                                        torch.Tensor]:
         """
         Get the predicted value, action probabilities and the log probabilities
         of an observation.
         """
-        value, raw_probs = self(x)
-        probs = [F.softmax(raw_prob, dim=0) for raw_prob in raw_probs]
-        log_probs = [F.log_softmax(raw_prob, dim=0) for raw_prob in raw_probs]
+        if hidden_state is None:
+            hidden_state = torch.zeros(1, 128)
+        value, raw_probs, hidden_state = self(x, hidden_state)
+        probs = [F.softmax(raw_prob, dim=1)[0] for raw_prob in raw_probs]
+        log_probs = [F.log_softmax(raw_prob, dim=1)[0] for raw_prob in raw_probs]
 
-        return value, probs, log_probs
+        return value, probs, log_probs, hidden_state
