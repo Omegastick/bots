@@ -294,7 +294,7 @@ def test_model_learns_with_multiple_contexts():
         entropy_coef=0.0001,
         discount_factor=0.95,
         gae=0.96,
-        epochs=3,
+        epochs=5,
     )
     session = TrainingSession(model, hyperparams, 10)
 
