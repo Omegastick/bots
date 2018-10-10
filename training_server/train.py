@@ -214,6 +214,9 @@ class TrainingSession:
         self.values = [[] for _ in range(self.contexts)]
         self.observations = [[] for _ in range(self.contexts)]
         self.actions = [[] for _ in range(self.contexts)]
+        self.hidden_states = [[] for _ in range(self.contexts)]
+        for context in range(self.contexts):
+            self.hidden_states[context].append(torch.zeros(1, 128))
 
     def save_model(self, path: str):
         """

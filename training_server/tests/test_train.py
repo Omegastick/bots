@@ -413,10 +413,9 @@ def test_lstm_learns_simple_pattern():
     )
 
     hyperparams = HyperParams(
-        learning_rate=0.0007,
-        batch_size=100,
-        minibatch_length=10,
-        minibatch_count=5,
+        learning_rate=0.001,
+        batch_size=12,
+        minibatch_length=4,
         entropy_coef=0.0001,
         discount_factor=0.1,
         gae=1.,
@@ -427,16 +426,12 @@ def test_lstm_learns_simple_pattern():
     session = TrainingSession(model, hyperparams, 1)
     rewards = []
 
-    observations = {
-        0: torch.Tensor([1, 0]),
-        1: torch.Tensor([0, 1])
-    }
-    observation = observations[np.random.randint(0, 2)]
+    observation = torch.Tensor([0, 1])
     actions = []
 
-    for _ in range(10000):
+    for _ in range(1000):
         last_observation = observation
-        observation = observations[np.random.randint(0, 2)]
+        observation = (observation + 1) % 2
         action, _ = session.get_action([observation], 0)
         reward = (action[0] == last_observation.argmax()).float()
         rewards.append(reward.item())
