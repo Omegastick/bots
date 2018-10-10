@@ -115,7 +115,8 @@ def session():
     model = ModelSpecification(
         inputs=[2, 3],
         outputs=[3, 4],
-        feature_extractors=['mlp', 'mlp']
+        feature_extractors=['mlp', 'mlp'],
+        recurrent=False
     )
     hyperparams = HyperParams(
         learning_rate=0.001,
@@ -243,7 +244,8 @@ def test_model_learns_simple_game():
     model = ModelSpecification(
         inputs=[4],
         outputs=[4],
-        feature_extractors=['mlp']
+        feature_extractors=['mlp'],
+        recurrent=False
     )
 
     hyperparams = HyperParams(
@@ -285,7 +287,8 @@ def test_model_learns_with_multiple_contexts():
     model = ModelSpecification(
         inputs=[4],
         outputs=[4],
-        feature_extractors=['mlp']
+        feature_extractors=['mlp'],
+        recurrent=False
     )
 
     hyperparams = HyperParams(
@@ -327,7 +330,8 @@ def test_model_learns_with_delayed_rewards():
     model = ModelSpecification(
         inputs=[1],
         outputs=[2],
-        feature_extractors=['mlp']
+        feature_extractors=['mlp'],
+        recurrent=False
     )
 
     hyperparams = HyperParams(
