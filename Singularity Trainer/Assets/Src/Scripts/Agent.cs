@@ -37,7 +37,12 @@ namespace Scripts
 
         public IObservation GetObservation()
         {
-            throw new NotImplementedException();
+            var observation = new LinearObservation();
+            foreach (var module in Modules)
+            {
+                observation.SensorReadings.Add(module.GetSensorReading());
+            }
+            return observation;
         }
     }
 }

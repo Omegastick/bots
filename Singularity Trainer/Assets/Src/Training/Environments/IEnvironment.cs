@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using Observations;
 
 namespace Training.Environments
 {

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using Scripts;
+using Training.Trainers;
 
 namespace Training.Environments
 {
@@ -9,6 +10,7 @@ namespace Training.Environments
     {
         private Agent agent;
         private float reward;
+        private ITrainer trainer;
 
         private void Awake()
         {
@@ -50,6 +52,11 @@ namespace Training.Environments
         public void UnPause()
         {
             throw new NotImplementedException();
+        }
+
+        private void FixedUpdate()
+        {
+            trainer.ObservationQueue.Enqueue(agent.GetObservation());
         }
     }
 }

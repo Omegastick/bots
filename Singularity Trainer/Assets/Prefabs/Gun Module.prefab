@@ -134,9 +134,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   parentModule: {fileID: 0}
-  projectile: {fileID: 1846045249550738, guid: f2a8d7ff1df551243a63e786b8a66c79, type: 3}
-  projectileSpawnPoint: {fileID: 362539402344680730}
-  cooldownTime: 0.5
+  projectile: {fileID: 0}
+  projectileSpawnPoint: {fileID: 0}
+  cooldownTime: 0.2
 --- !u!60 &362539402380651142
 PolygonCollider2D:
   m_ObjectHideFlags: 0
@@ -241,7 +241,7 @@ PrefabInstance:
         type: 3}
       propertyPath: parent
       value: 
-      objectReference: {fileID: 362539402380651136}
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 7faa49fc6bda23a4fbab8389d0d26308, type: 3}
 --- !u!1001 &482994352830147317
@@ -303,7 +303,7 @@ PrefabInstance:
         type: 3}
       propertyPath: parent
       value: 
-      objectReference: {fileID: 362539402380651136}
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 7faa49fc6bda23a4fbab8389d0d26308, type: 3}
 --- !u!1001 &7390407462441508395
@@ -365,6 +365,6 @@ PrefabInstance:
         type: 3}
       propertyPath: parent
       value: 
-      objectReference: {fileID: 362539402380651136}
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 7faa49fc6bda23a4fbab8389d0d26308, type: 3}
