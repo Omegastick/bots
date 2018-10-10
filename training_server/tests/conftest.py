@@ -14,7 +14,8 @@ def setup():
     """
     Initialises PyTorch, Numpy, and Cuda.
     """
-    torch.cuda.init()
+    if torch.cuda.is_available():
+        torch.cuda.init()
     torch.manual_seed(1)
     np.random.seed(1)
 
