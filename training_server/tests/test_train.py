@@ -295,9 +295,8 @@ def test_model_learns_with_multiple_contexts():
         learning_rate=0.003,
         batch_size=15,
         minibatch_length=5,
-        minibatch_count=4,
         entropy_coef=0.0001,
-        discount_factor=0.95,
+        discount_factor=0.9,
         gae=0.96,
         epochs=5,
         clip_factor=0.1
