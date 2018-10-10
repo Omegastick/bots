@@ -95,7 +95,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   parentModule: {fileID: 0}
-  rays: 10
+  rays: 21
   spread: 180
   range: 10
 --- !u!60 &7846096773659710687

@@ -12,6 +12,11 @@ namespace Training.Environments
 
         private void Awake()
         {
+            Target[] targets = GetComponentsInChildren<Target>();
+            foreach (var target in targets)
+            {
+                target.Environment = this;
+            }
             agent = GetComponentInChildren<Agent>();
             agent.Environment = this;
         }

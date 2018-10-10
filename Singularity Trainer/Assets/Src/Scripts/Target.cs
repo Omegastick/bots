@@ -5,7 +5,7 @@ namespace Scripts
 {
     public class Target : MonoBehaviour
     {
-        public IEnvironment Environment;
+        public IEnvironment Environment { get; set; }
 
         public void OnCollisionEnter2D(Collision2D collision)
         {
