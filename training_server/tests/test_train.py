@@ -199,12 +199,13 @@ def test_model_improves_when_trained_in_multiple_contexts():
     model = ModelSpecification(
         inputs=[2, 3],
         outputs=[3, 4],
-        feature_extractors=['mlp', 'mlp']
+        feature_extractors=['mlp', 'mlp'],
+        recurrent=False
     )
     hyperparams = HyperParams(
-        learning_rate=0.001,
-        batch_size=10,
-        minibatch_length=5,
+        learning_rate=0.0001,
+        batch_size=6,
+        minibatch_length=3,
         minibatch_count=2,
         entropy_coef=0.0001,
         discount_factor=0.95,
@@ -288,8 +289,8 @@ def test_model_learns_with_multiple_contexts():
     )
 
     hyperparams = HyperParams(
-        learning_rate=0.001,
-        batch_size=20,
+        learning_rate=0.003,
+        batch_size=15,
         minibatch_length=5,
         minibatch_count=4,
         entropy_coef=0.0001,
@@ -412,14 +413,15 @@ def test_lstm_learns_simple_pattern():
     )
 
     hyperparams = HyperParams(
-        learning_rate=0.003,
-        batch_size=10,
-        minibatch_length=3,
-        minibatch_count=10,
+        learning_rate=0.0007,
+        batch_size=100,
+        minibatch_length=10,
+        minibatch_count=5,
         entropy_coef=0.0001,
-        discount_factor=0.95,
-        gae=0.96,
-        epochs=3
+        discount_factor=0.1,
+        gae=1.,
+        epochs=6,
+        clip_factor=0.1
     )
 
     session = TrainingSession(model, hyperparams, 1)
@@ -430,13 +432,15 @@ def test_lstm_learns_simple_pattern():
         1: torch.Tensor([0, 1])
     }
     observation = observations[np.random.randint(0, 2)]
+    actions = []
 
-    for _ in range(1000):
+    for _ in range(10000):
         last_observation = observation
         observation = observations[np.random.randint(0, 2)]
         action, _ = session.get_action([observation], 0)
         reward = (action[0] == last_observation.argmax()).float()
-        rewards.append(reward)
+        rewards.append(reward.item())
+        actions.append(action[0].item())
         session.give_reward(reward, 0)
 
-    assert np.mean(rewards[-100:]) > 0.55
+    assert np.mean(rewards[-100:]) > 0.6

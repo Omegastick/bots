@@ -103,7 +103,7 @@ class TrainingSession:
 
         if self.auto_train:
             if (min([len(x) for x in self.rewards])
-                    >= self.hyperparams.batch_size):
+                    >= self.hyperparams.batch_size + 1):
                 self.train()
 
     def train(self):
@@ -112,8 +112,6 @@ class TrainingSession:
         """
         logging.debug("Training")
         for _ in range(self.hyperparams.epochs):
-            total_actor_loss = 0
-            total_critic_loss = 0
             for context, starting_index in self._get_starting_indexes():
                 minibatch_length = self.hyperparams.minibatch_length
                 rewards = self.rewards[context][
@@ -140,8 +138,12 @@ class TrainingSession:
                 critic_loss = 0
                 actor_loss = 0
                 gae = 0
-                values, raw_probs, _ = self.model.forward(observations,
-                                                       hidden_states)
+                values, raw_probs, new_hidden_states = self.model.forward(
+                    observations, hidden_states)
+                self.hidden_states[
+                    context][
+                        starting_index:starting_index + minibatch_length
+                ] = new_hidden_states.view(-1, 1, 128).detach()
                 real_value = values[-1]
 
                 for i in reversed(range(minibatch_length)):
@@ -184,25 +186,28 @@ class TrainingSession:
                     new_log_probs = torch.stack([
                         log_probs[x][actions[i][x]]
                         for x in range(len(actions[i]))])
-                    ratio = torch.exp(new_log_probs - old_log_probs[i].detach())
+                    ratio = torch.exp(
+                        new_log_probs - old_log_probs[i].detach())
                     surr_1 = ratio * gae
                     surr_2 = torch.clamp(ratio, 1 - clip, 1 + clip) * gae
                     actor_loss = (-torch.min(surr_1, surr_2).mean()
                                   - entropy * self.hyperparams.entropy_coef)
 
-                total_actor_loss += actor_loss
-                total_critic_loss += critic_loss
+                # total_actor_loss += actor_loss
+                # total_critic_loss += critic_loss
+                loss = actor_loss + (critic_loss
+                                     * self.hyperparams.critic_coef)
 
-            loss = total_actor_loss + (total_critic_loss
-                                       * self.hyperparams.critic_coef)
+                # loss = total_actor_loss + (total_critic_loss
+                #    * self.hyperparams.critic_coef)
 
-            self.optimizer.zero_grad()
-            loss.backward()
+                self.optimizer.zero_grad()
+                loss.backward()
 
-            torch.nn.utils.clip_grad_norm_(self.model.parameters(),
-                                           self.hyperparams.max_grad_norm)
+                torch.nn.utils.clip_grad_norm_(
+                    self.model.parameters(), self.hyperparams.max_grad_norm)
 
-            self.optimizer.step()
+                self.optimizer.step()
 
         self.rewards = [[] for _ in range(self.contexts)]
         self.log_probs = [[] for _ in range(self.contexts)]
@@ -224,14 +229,21 @@ class TrainingSession:
         Indexes are sampled uniformly between 0 and the number of timesteps
         observed for that context minus (minibatch_length + 1).
         """
+        original_indexes = np.arange(0,
+                                     self.hyperparams.batch_size,
+                                     self.hyperparams.minibatch_length)
         indexes = []
-        for _ in range(self.hyperparams.minibatch_count):
+        for index in original_indexes:
             for context in range(self.contexts):
-                index = np.random.randint(
-                    0,
-                    (len(self.rewards[context])
-                     - (self.hyperparams.minibatch_length))
-                )
                 indexes.append((context, index))
+
+            # for _ in range(self.hyperparams.minibatch_count):
+            #     for context in range(self.contexts):
+            #         index = np.random.randint(
+            #             0,
+            #             (len(self.rewards[context])
+            #              - (self.hyperparams.minibatch_length))
+            #         )
+            #         indexes.append((context, index))
 
         return indexes

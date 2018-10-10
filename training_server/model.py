@@ -14,6 +14,7 @@ class ModelSpecification(NamedTuple):
     inputs: List[int]
     outputs: List[int]
     feature_extractors: List[str]
+    recurrent: bool = True
 
 
 def normalized_columns_initializer(
@@ -100,12 +101,18 @@ class Model(torch.nn.Module):
         self.feature_size = torch.cat(temp_features).shape[0]
 
         self.hidden_size = hidden_size
+        self.recurrent = recurrent
         if recurrent:
             self.gru = torch.nn.GRUCell(self.feature_size, hidden_size)
-            torch.nn.init.orthogonal_(self.gru.weight_ih.data)
-            torch.nn.init.orthogonal_(self.gru.weight_hh.data)
+            # self.gru = torch.nn.Linear(self.feature_size, hidden_size)
+            # torch.nn.init.orthogonal_(self.gru.weight_ih.data)
+            # torch.nn.init.orthogonal_(self.gru.weight_hh.data)
             self.gru.bias_ih.data.fill_(0)
             self.gru.bias_hh.data.fill_(0)
+            # self.gru.bias.data.fill_(0)
+            # self.gru.weight.data = normalized_columns_initializer(
+            #     self.gru.weight.data, 1.0
+            # )
 
         # Critic
         self.critic = torch.nn.Linear(self.hidden_size, 1)
@@ -124,6 +131,11 @@ class Model(torch.nn.Module):
         self.critic.weight.data = normalized_columns_initializer(
             self.critic.weight.data, 1.0)
         self.critic.bias.data.fill_(0)
+        if recurrent:
+            self.gru.weight_ih.data = normalized_columns_initializer(
+            self.gru.weight_ih.data, 1.0)
+            self.gru.weight_hh.data = normalized_columns_initializer(
+            self.gru.weight_hh.data, 1.0)
 
     def forward(
             self,
@@ -136,8 +148,9 @@ class Model(torch.nn.Module):
         x = x.view(-1, self.feature_size)
         if hidden_state is not None:
             hidden_state = hidden_state.view(-1, self.hidden_size)
-        # x = hidden_state = self.gru(x, hidden_state)
-        x = hidden_state = self.gru(x)
+        if self.recurrent:
+            x = hidden_state = self.gru(x, hidden_state)
+            # x = hidden_state = self.gru(x)
         value = self.critic(x)
         raw_probs = [actor(x) for actor in self.actors]
         return value, raw_probs, hidden_state
