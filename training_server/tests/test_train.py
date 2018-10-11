@@ -119,7 +119,7 @@ def session():
         recurrent=False
     )
     hyperparams = HyperParams(
-        learning_rate=0.001,
+        learning_rate=0.0001,
         batch_size=20,
         minibatch_count=4,
         entropy_coef=0.001,
@@ -293,12 +293,12 @@ def test_model_learns_with_multiple_contexts():
 
     hyperparams = HyperParams(
         learning_rate=0.003,
-        batch_size=15,
+        batch_size=50,
         minibatch_length=5,
         entropy_coef=0.0001,
         discount_factor=0.9,
         gae=0.96,
-        epochs=5,
+        epochs=6,
         clip_factor=0.1
     )
     session = TrainingSession(model, hyperparams, 3)

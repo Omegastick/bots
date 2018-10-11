@@ -111,8 +111,8 @@ class TrainingSession:
         Train on a batch of data.
         """
         logging.debug("Training")
-        for _ in range(self.hyperparams.epochs):
-            for context, starting_index in self._get_starting_indexes():
+        for epoch in range(self.hyperparams.epochs):
+            for context, starting_index in self._get_starting_indexes(epoch):
                 minibatch_length = self.hyperparams.minibatch_length
                 rewards = self.rewards[context][
                     starting_index:starting_index + minibatch_length]
@@ -209,7 +209,6 @@ class TrainingSession:
         self.values = [[] for _ in range(self.contexts)]
         self.observations = [[] for _ in range(self.contexts)]
         self.actions = [[] for _ in range(self.contexts)]
-
         self.hidden_states = [[states[-1]] for states in self.hidden_states]
 
     def save_model(self, path: str):
@@ -218,7 +217,7 @@ class TrainingSession:
         """
         torch.save(self.model.state_dict(), path)
 
-    def _get_starting_indexes(self) -> List[Tuple[int, int]]:
+    def _get_starting_indexes(self, epoch) -> List[Tuple[int, int]]:
         """
         Gets the starting index for each minibatch.
         Returns a list of tuples in the form of (context, index)
@@ -229,18 +228,12 @@ class TrainingSession:
         original_indexes = np.arange(0,
                                      self.hyperparams.batch_size,
                                      self.hyperparams.minibatch_length)
+        if epoch % 2 == 1:
+            original_indexes = original_indexes[:-1]
         indexes = []
         for index in original_indexes:
+            if epoch % 2 == 1:
+                index += self.hyperparams.minibatch_length // 2
             for context in range(self.contexts):
                 indexes.append((context, index))
-
-            # for _ in range(self.hyperparams.minibatch_count):
-            #     for context in range(self.contexts):
-            #         index = np.random.randint(
-            #             0,
-            #             (len(self.rewards[context])
-            #              - (self.hyperparams.minibatch_length))
-            #         )
-            #         indexes.append((context, index))
-
         return indexes
