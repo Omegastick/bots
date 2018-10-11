@@ -114,38 +114,22 @@ class TrainingSession:
         for epoch in range(self.hyperparams.epochs):
             for context, starting_index in self._get_starting_indexes(epoch):
                 minibatch_length = self.hyperparams.minibatch_length
-                rewards = self.rewards[context][
-                    starting_index:starting_index + minibatch_length]
-                observations = self.observations[context][
-                    starting_index:starting_index + minibatch_length + 1]
-                hidden_states = torch.stack(self.hidden_states[context][
-                    starting_index:starting_index + minibatch_length + 1])
-                # This converts the observations into the right shape for
-                # processing them all at once:
-                # [
-                #    sensor_1: torch.Tensor([t_1, t_2, t_3, ...]),
-                #    sensor_2: torch.Tensor([t_1, t_2, t_3, ...])
-                # ]
-                observations = [
-                    torch.stack([
-                        observation[idx] for observation in observations])
-                    for idx, _ in enumerate(observations[0])]
-                old_log_probs = self.log_probs[context][
-                    starting_index:starting_index + minibatch_length]
-                actions = self.actions[context][
-                    starting_index:starting_index + minibatch_length]
+                # Get minibatch data from memory.
+                rewards, observations, hidden_states, old_log_probs, \
+                    actions = self._get_rollout(context, starting_index)
 
+                values, raw_probs, new_hidden_states = self.model.forward(
+                    observations, hidden_states)
+                self.hidden_states[context][starting_index:
+                                            starting_index + minibatch_length
+                                            ] = new_hidden_states.view(
+                                                -1, 1, 128).detach()
+
+                real_value = values[-1]
                 critic_loss = 0
                 actor_loss = 0
                 gae = 0
-                values, raw_probs, new_hidden_states = self.model.forward(
-                    observations, hidden_states)
-                self.hidden_states[
-                    context][
-                        starting_index:starting_index + minibatch_length
-                ] = new_hidden_states.view(-1, 1, 128).detach()
-                real_value = values[-1]
-
+                # We loop backward to make GAE easier to calculate
                 for i in reversed(range(minibatch_length)):
                     probs = [F.softmax(raw_prob[i], dim=0)
                              for raw_prob in raw_probs]
@@ -217,7 +201,7 @@ class TrainingSession:
         """
         torch.save(self.model.state_dict(), path)
 
-    def _get_starting_indexes(self, epoch) -> List[Tuple[int, int]]:
+    def _get_starting_indexes(self, epoch: int) -> List[Tuple[int, int]]:
         """
         Gets the starting index for each minibatch.
         Returns a list of tuples in the form of (context, index)
@@ -237,3 +221,31 @@ class TrainingSession:
             for context in range(self.contexts):
                 indexes.append((context, index))
         return indexes
+
+    def _get_rollout(self, context: int, starting_index: int
+                     ) -> Tuple[List, List, List, List, List]:
+        """
+        Gets the minibatch data from the batch.
+        """
+        minibatch_length = self.hyperparams.minibatch_length
+        rewards = self.rewards[context][
+            starting_index:starting_index + minibatch_length]
+        observations = self.observations[context][
+            starting_index:starting_index + minibatch_length + 1]
+        hidden_states = torch.stack(self.hidden_states[context][
+            starting_index:starting_index + minibatch_length + 1])
+        # This converts the observations into the right shape for
+        # processing them all at once:
+        # [
+        #    sensor_1: torch.Tensor([t_1, t_2, t_3, ...]),
+        #    sensor_2: torch.Tensor([t_1, t_2, t_3, ...])
+        # ]
+        observations = [
+            torch.stack([
+                observation[idx] for observation in observations])
+            for idx, _ in enumerate(observations[0])]
+        old_log_probs = self.log_probs[context][
+            starting_index:starting_index + minibatch_length]
+        actions = self.actions[context][
+            starting_index:starting_index + minibatch_length]
+        return rewards, observations, hidden_states, old_log_probs, actions
