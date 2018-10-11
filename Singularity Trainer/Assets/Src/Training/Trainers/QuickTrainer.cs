@@ -2,24 +2,29 @@
 using System.Linq;
 using NetMQ;
 using Newtonsoft.Json.Linq;
+using TMPro;
 using Training.Environments;
 using UnityEngine;
 using Observations;
+using UnityEngine.UI;
 
 namespace Training.Trainers
 {
     public class QuickTrainer : MonoBehaviour, ITrainer
     {
 
-        public UnityEngine.UI.Text rewardText;
+        public TextMeshProUGUI rewardText;
+        public TextMeshProUGUI valueText;
         private NetMQ.Sockets.PairSocket client;
-        private readonly System.TimeSpan waitTime = new System.TimeSpan(0, 0, 0, 1);
+        private readonly System.TimeSpan waitTime = new System.TimeSpan(0, 0, 0, 5);
         private List<IEnvironment> Environments { get; set; }
 
         public Queue<IObservation> ObservationQueue { get; set; }
+        private List<float> Rewards { get; set; }
 
         private void Awake()
         {
+            Rewards = new List<float>();
             ObservationQueue = new Queue<IObservation>();
             Environments = GetComponentsInChildren<IEnvironment>().ToList();
             foreach (var environment in Environments)
@@ -149,9 +154,16 @@ namespace Training.Trainers
                 var actionMessage = JObject.Parse(receivedMessage);
                 List<int> actions = actionMessage["result"]["actions"].ToObject<List<int>>();
                 float value = actionMessage["result"]["value"].ToObject<float>();
+                valueText.SetText(value.ToString());
                 observation.Environment.SendActions(observation.AgentNumber, actions);
 
                 var reward = observation.Environment.GetReward(observation.AgentNumber);
+                Rewards.Add(reward);
+                if (Rewards.Count > 1000)
+                {
+                    Rewards.RemoveAt(0);
+                }
+                rewardText.SetText(Rewards.Average().ToString());
 
                 var giveRewardRequest = new JObject
                 {

@@ -132,6 +132,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   parentModule: {fileID: 0}
   force: 10
+  thrustLength: 0.1
 --- !u!4 &5734891622508610817 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 4261330687467878, guid: 7faa49fc6bda23a4fbab8389d0d26308,

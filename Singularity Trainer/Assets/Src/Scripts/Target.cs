@@ -9,7 +9,7 @@ namespace Scripts
 
         public void OnCollisionEnter2D(Collision2D collision)
         {
-            if (Environment != null && collision.otherCollider.gameObject.GetComponent<Bullet>() != null)
+            if (Environment != null && collision.collider.gameObject.GetComponent<Bullet>() != null)
             {
                 Environment.ChangeReward(0, 1);
             }

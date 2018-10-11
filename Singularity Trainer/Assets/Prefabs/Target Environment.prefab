@@ -161,6 +161,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   rewardText: {fileID: 0}
+  valueText: {fileID: 0}
 --- !u!114 &5189175373087167596
 MonoBehaviour:
   m_ObjectHideFlags: 0
