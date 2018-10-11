@@ -17,7 +17,6 @@ class HyperParams(NamedTuple):
     learning_rate: float = 0.0001
     batch_size: int = 250
     minibatch_length: int = 5
-    minibatch_count: int = 50
     epochs: int = 5
     discount_factor: float = 0.99
     gae: float = 1.
@@ -120,6 +119,7 @@ class TrainingSession:
 
                 values, raw_probs, new_hidden_states = self.model.forward(
                     observations, hidden_states)
+                # Update hidden states in memory with new ones
                 self.hidden_states[context][starting_index:
                                             starting_index + minibatch_length
                                             ] = new_hidden_states.view(
@@ -148,8 +148,8 @@ class TrainingSession:
                     # Difference between this value and the next value
                     value_delta = (rewards[i]
                                    + self.hyperparams.discount_factor
-                                   * values[i + 1].data
-                                   - values[i].data)
+                                   * values[i + 1].detach()
+                                   - values[i].detach())
                     # Generalised Advantage Estimate
                     # When setting the GAE hyperparameter to a low value, the
                     # empirical advantage is ignored and instead the value
@@ -170,8 +170,7 @@ class TrainingSession:
                     new_log_probs = torch.stack([
                         log_probs[x][actions[i][x]]
                         for x in range(len(actions[i]))])
-                    ratio = torch.exp(
-                        new_log_probs - old_log_probs[i].detach())
+                    ratio = torch.exp(new_log_probs - old_log_probs[i])
                     surr_1 = ratio * gae
                     surr_2 = torch.clamp(ratio, 1 - clip, 1 + clip) * gae
                     actor_loss = (-torch.min(surr_1, surr_2).mean()
