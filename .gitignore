@@ -3,6 +3,7 @@
 .vscode/**
 .coverage
 .mypy_cache/**
+**/.cache
 
 */[Ll]ibrary/
 */[Tt]emp/
