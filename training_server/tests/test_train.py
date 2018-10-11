@@ -301,19 +301,19 @@ def test_model_learns_with_multiple_contexts():
         epochs=5,
         clip_factor=0.1
     )
-    session = TrainingSession(model, hyperparams, 5)
+    session = TrainingSession(model, hyperparams, 3)
 
     rewards = []
-    environments = [MultiContextGame() for _ in range(5)]
+    environments = [MultiContextGame() for _ in range(3)]
 
     for i in range(1000):
-        observation = torch.cat((environments[i % 5].location,
-                                 environments[i % 5].reward_location))
-        action, _ = session.get_action([observation], i % 5)
-        environments[i % 5].move(action[0].item())
-        reward = environments[i % 5].get_reward()
+        observation = torch.cat((environments[i % 3].location,
+                                 environments[i % 3].reward_location))
+        action, _ = session.get_action([observation], i % 3)
+        environments[i % 3].move(action[0].item())
+        reward = environments[i % 3].get_reward()
         rewards.append(reward)
-        session.give_reward(reward, i % 5)
+        session.give_reward(reward, i % 3)
 
     # pytest.set_trace()
     assert np.mean(rewards[:100]) + 0.05 < np.mean(rewards[-100:])
