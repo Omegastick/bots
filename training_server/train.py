@@ -193,13 +193,8 @@ class TrainingSession:
                     actor_loss = (-torch.min(surr_1, surr_2).mean()
                                   - entropy * self.hyperparams.entropy_coef)
 
-                # total_actor_loss += actor_loss
-                # total_critic_loss += critic_loss
                 loss = actor_loss + (critic_loss
                                      * self.hyperparams.critic_coef)
-
-                # loss = total_actor_loss + (total_critic_loss
-                #    * self.hyperparams.critic_coef)
 
                 self.optimizer.zero_grad()
                 loss.backward()
@@ -214,9 +209,8 @@ class TrainingSession:
         self.values = [[] for _ in range(self.contexts)]
         self.observations = [[] for _ in range(self.contexts)]
         self.actions = [[] for _ in range(self.contexts)]
-        self.hidden_states = [[] for _ in range(self.contexts)]
-        for context in range(self.contexts):
-            self.hidden_states[context].append(torch.zeros(1, 128))
+
+        self.hidden_states = [[states[-1]] for states in self.hidden_states]
 
     def save_model(self, path: str):
         """
