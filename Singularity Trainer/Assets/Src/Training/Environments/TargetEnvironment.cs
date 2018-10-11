@@ -1,8 +1,8 @@
-﻿using System;
+﻿using Scripts;
+using System;
 using System.Collections.Generic;
-using UnityEngine;
-using Scripts;
 using Training.Trainers;
+using UnityEngine;
 
 namespace Training.Environments
 {
@@ -10,10 +10,13 @@ namespace Training.Environments
     {
         private Agent agent;
         private float reward;
-        private ITrainer trainer;
+        public ITrainer Trainer { get; set; }
+
+        private float lastObservationTime;
 
         private void Awake()
         {
+            lastObservationTime = Time.time;
             Target[] targets = GetComponentsInChildren<Target>();
             foreach (var target in targets)
             {
@@ -56,7 +59,11 @@ namespace Training.Environments
 
         private void FixedUpdate()
         {
-            trainer.ObservationQueue.Enqueue(agent.GetObservation());
+            if (Time.time - lastObservationTime > 0.1)
+            {
+                lastObservationTime = Time.time;
+                Trainer.ObservationQueue.Enqueue(agent.GetObservation());
+            }
         }
     }
 }

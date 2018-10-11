@@ -17,11 +17,6 @@ namespace Scripts.Modules
             collider = GetComponent<PolygonCollider2D>();
         }
 
-        private void Update()
-        {
-            GetSensorReading();
-        }
-
         public override ISensorReading GetSensorReading()
         {
             collider.enabled = false;
@@ -32,7 +27,12 @@ namespace Scripts.Modules
                 RaycastHit2D hit = Physics2D.Raycast(transform.position, transform.rotation * direction, range);
                 if (hit != false)
                 {
+                    sensorReading.Data.Add(hit.distance / range);
                     Debug.DrawRay(transform.position, transform.rotation * direction * hit.distance);
+                }
+                else
+                {
+                    sensorReading.Data.Add(1f);
                 }
             }
             collider.enabled = true;

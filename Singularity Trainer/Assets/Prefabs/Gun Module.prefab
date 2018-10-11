@@ -134,8 +134,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   parentModule: {fileID: 0}
-  projectile: {fileID: 0}
-  projectileSpawnPoint: {fileID: 0}
+  projectile: {fileID: 1846045249550738, guid: f2a8d7ff1df551243a63e786b8a66c79, type: 3}
+  projectileSpawnPoint: {fileID: 362539402344680730}
   cooldownTime: 0.2
 --- !u!60 &362539402380651142
 PolygonCollider2D:

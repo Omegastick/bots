@@ -1,9 +1,10 @@
-﻿using NetMQ;
+﻿using System.Collections.Generic;
+using System.Linq;
+using NetMQ;
 using Newtonsoft.Json.Linq;
-using Observations;
-using System.Collections.Generic;
 using Training.Environments;
 using UnityEngine;
+using Observations;
 
 namespace Training.Trainers
 {
@@ -13,10 +14,19 @@ namespace Training.Trainers
         public UnityEngine.UI.Text rewardText;
         private NetMQ.Sockets.PairSocket client;
         private readonly System.TimeSpan waitTime = new System.TimeSpan(0, 0, 0, 1);
-        private IEnvironment[] environments;
+        private List<IEnvironment> Environments { get; set; }
 
         public Queue<IObservation> ObservationQueue { get; set; }
 
+        private void Awake()
+        {
+            ObservationQueue = new Queue<IObservation>();
+            Environments = GetComponentsInChildren<IEnvironment>().ToList();
+            foreach (var environment in Environments)
+            {
+                environment.Trainer = this;
+            }
+        }
 
         private void OnApplicationQuit()
         {
@@ -46,7 +56,6 @@ namespace Training.Trainers
 
         public void BeginTraining()
         {
-            environments = GetComponentsInChildren<IEnvironment>();
             try
             {
                 AsyncIO.ForceDotNet.Force();
@@ -68,22 +77,21 @@ namespace Training.Trainers
                         ["model"] = new JObject
                         {
                             ["inputs"] = new JArray { 21 },
-                            ["outputs"] = new JArray { 4 },
+                            ["outputs"] = new JArray { 2, 2, 2, 2 },
                             ["feature_extractors"] = new JArray() { "mlp" }
                         },
                         ["hyperparams"] = new JObject
                         {
                             ["learning_rate"] = 0.0007,
                             ["gae"] = 0.95,
-                            ["batch_size"] = 50,
-                            ["minibatch_length"] = 5,
-                            ["minibatch_count"] = 10,
+                            ["batch_size"] = 600,
+                            ["minibatch_length"] = 20,
                             ["entropy_coef"] = 0.0001,
                             ["max_grad_norm"] = 0.5,
-                            ["discount_factor"] = 0.92,
+                            ["discount_factor"] = 0.98,
                             ["critic_coef"] = 0.2,
                             ["epochs"] = 4,
-                            ["clip_factor"] = 0.2
+                            ["clip_factor"] = 0.1
                         },
                         ["session_id"] = 0,
                         ["training"] = true,
@@ -133,6 +141,7 @@ namespace Training.Trainers
                     ["id"] = 0
                 };
 
+                var x = getActionRequest.ToString();
                 client.TrySendFrame(waitTime, getActionRequest.ToString());
 
                 client.TryReceiveFrameString(waitTime, out string receivedMessage);

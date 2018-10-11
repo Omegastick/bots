@@ -12,6 +12,11 @@ namespace Observations
         public int AgentNumber { get; set; }
         public List<ISensorReading> SensorReadings { get; set; }
 
+        public LinearObservation()
+        {
+            SensorReadings = new List<ISensorReading>();
+        }
+
         public Array ToArray()
         {
             List<float> dataList = new List<float>();

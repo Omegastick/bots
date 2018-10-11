@@ -38,9 +38,14 @@ namespace Scripts
         public IObservation GetObservation()
         {
             var observation = new LinearObservation();
+            observation.Environment = Environment;
             foreach (var module in Modules)
             {
-                observation.SensorReadings.Add(module.GetSensorReading());
+                var sensorReading = module.GetSensorReading();
+                if (sensorReading != null)
+                {
+                    observation.SensorReadings.Add(sensorReading);
+                }
             }
             return observation;
         }
