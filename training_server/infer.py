@@ -19,7 +19,6 @@ class InferenceSession:
             model_path: str,
             contexts: int):
         self.contexts = contexts
-        self.hidden_states = torch.zeros(contexts, 128)
 
         self.model = Model(model.inputs, model.outputs,
                            model.feature_extractors)
@@ -28,14 +27,16 @@ class InferenceSession:
     def get_action(
             self,
             inputs: List[torch.Tensor],
-            context: int) -> Tuple[List[int], torch.Tensor]:
+            _: None = None,
+            hidden_state: torch.Tensor = None) -> Tuple[List[int], torch.Tensor]:
         """
         Given an observation, get an action and the value of the observation
         from one of the models being trained.
         """
-        _ = self.hidden_states[context]
-        value, probs, _ = self.model.act(inputs)
+        if hidden_state is None:
+            hidden_state = torch.zeros(1, 128)
+        value, probs, _, hidden_state = self.model.act(inputs, hidden_state)
 
         actions = [x.multinomial(num_samples=1) for x in probs]
 
-        return actions, value
+        return actions, value, hidden_state

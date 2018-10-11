@@ -44,7 +44,6 @@ class TrainingSession:
             torch.set_default_tensor_type('torch.cuda.FloatTensor')
 
         self.contexts = contexts
-        self.hidden_states = torch.zeros(contexts, 128)
         self.hyperparams = hyperparams
         self.auto_train = auto_train
 
@@ -53,6 +52,10 @@ class TrainingSession:
         self.values = [[] for _ in range(contexts)]
         self.observations = [[] for _ in range(contexts)]
         self.actions = [[] for _ in range(contexts)]
+        self.hidden_states = [[] for _ in range(contexts)]
+
+        for context in range(self.contexts):
+            self.hidden_states[context].append(torch.zeros(1, 128))
 
         self.model = Model(model.inputs, model.outputs,
                            model.feature_extractors)
@@ -71,7 +74,8 @@ class TrainingSession:
         Given an observation, get an action and the value of the observation
         from one of the models being trained.
         """
-        value, probs, log_probs = self.model.act(inputs)
+        value, probs, log_probs, hidden_state = self.model.act(
+            inputs, self.hidden_states[context][-1])
 
         actions = [x.multinomial(num_samples=1) for x in probs]
 
@@ -81,6 +85,7 @@ class TrainingSession:
         self.values[context].append(value.detach())
         self.log_probs[context].append(torch.stack(log_prob).detach())
         self.actions[context].append(torch.stack(actions).detach())
+        self.hidden_states[context].append(hidden_state.detach())
 
         return actions, value
 
@@ -98,7 +103,7 @@ class TrainingSession:
 
         if self.auto_train:
             if (min([len(x) for x in self.rewards])
-                    >= self.hyperparams.batch_size):
+                    >= self.hyperparams.batch_size + 1):
                 self.train()
 
     def train(self):
@@ -106,40 +111,46 @@ class TrainingSession:
         Train on a batch of data.
         """
         logging.debug("Training")
-        for _ in range(self.hyperparams.epochs):
-            total_actor_loss = 0
-            total_critic_loss = 0
-
-            # Get values and raw probabilities for each context
-            values, raw_probs = self._process_observations()
-
-            for context, starting_index in self._get_starting_indexes():
+        for epoch in range(self.hyperparams.epochs):
+            for context, starting_index in self._get_starting_indexes(epoch):
                 minibatch_length = self.hyperparams.minibatch_length
-                # Prepare data
                 rewards = self.rewards[context][
                     starting_index:starting_index + minibatch_length]
+                observations = self.observations[context][
+                    starting_index:starting_index + minibatch_length + 1]
+                hidden_states = torch.stack(self.hidden_states[context][
+                    starting_index:starting_index + minibatch_length + 1])
+                # This converts the observations into the right shape for
+                # processing them all at once:
+                # [
+                #    sensor_1: torch.Tensor([t_1, t_2, t_3, ...]),
+                #    sensor_2: torch.Tensor([t_1, t_2, t_3, ...])
+                # ]
+                observations = [
+                    torch.stack([
+                        observation[idx] for observation in observations])
+                    for idx, _ in enumerate(observations[0])]
                 old_log_probs = self.log_probs[context][
                     starting_index:starting_index + minibatch_length]
                 actions = self.actions[context][
                     starting_index:starting_index + minibatch_length]
-                minibatch_values = values[context][
-                    starting_index:starting_index + minibatch_length + 1]
-                minibatch_raw_probs = []
-                for context_raw_probs in raw_probs[context]:
-                    minibatch_raw_probs.append(
-                        context_raw_probs[starting_index:
-                                          starting_index + minibatch_length])
 
                 critic_loss = 0
                 actor_loss = 0
                 gae = 0
-                real_value = minibatch_values[-1]
+                values, raw_probs, new_hidden_states = self.model.forward(
+                    observations, hidden_states)
+                self.hidden_states[
+                    context][
+                        starting_index:starting_index + minibatch_length
+                ] = new_hidden_states.view(-1, 1, 128).detach()
+                real_value = values[-1]
 
                 for i in reversed(range(minibatch_length)):
                     probs = [F.softmax(raw_prob[i], dim=0)
-                             for raw_prob in minibatch_raw_probs]
+                             for raw_prob in raw_probs]
                     log_probs = [F.log_softmax(raw_prob[i], dim=0)
-                                 for raw_prob in minibatch_raw_probs]
+                                 for raw_prob in raw_probs]
                     entropy = -(torch.cat(log_probs)
                                 * torch.cat(probs)).sum(0, keepdim=True)
 
@@ -147,14 +158,14 @@ class TrainingSession:
                     real_value = (self.hyperparams.discount_factor * real_value
                                   + rewards[i])
                     # Advantage
-                    advantage = real_value - minibatch_values[i]
+                    advantage = real_value - values[i]
                     # Critic loss
                     critic_loss = critic_loss + 0.5 * advantage.pow(2)
                     # Difference between this value and the next value
                     value_delta = (rewards[i]
                                    + self.hyperparams.discount_factor
-                                   * minibatch_values[i + 1].data
-                                   - minibatch_values[i].data)
+                                   * values[i + 1].data
+                                   - values[i].data)
                     # Generalised Advantage Estimate
                     # When setting the GAE hyperparameter to a low value, the
                     # empirical advantage is ignored and instead the value
@@ -175,31 +186,30 @@ class TrainingSession:
                     new_log_probs = torch.stack([
                         log_probs[x][actions[i][x]]
                         for x in range(len(actions[i]))])
-                    ratio = torch.exp(new_log_probs - old_log_probs[i])
+                    ratio = torch.exp(
+                        new_log_probs - old_log_probs[i].detach())
                     surr_1 = ratio * gae
                     surr_2 = torch.clamp(ratio, 1 - clip, 1 + clip) * gae
                     actor_loss = (-torch.min(surr_1, surr_2).mean()
                                   - entropy * self.hyperparams.entropy_coef)
 
-                total_actor_loss += actor_loss
-                total_critic_loss += critic_loss
+                loss = actor_loss + (critic_loss
+                                     * self.hyperparams.critic_coef)
 
-            loss = total_actor_loss + (total_critic_loss
-                                       * self.hyperparams.critic_coef)
+                self.optimizer.zero_grad()
+                loss.backward()
 
-            self.optimizer.zero_grad()
-            loss.backward()
+                torch.nn.utils.clip_grad_norm_(
+                    self.model.parameters(), self.hyperparams.max_grad_norm)
 
-            torch.nn.utils.clip_grad_norm_(self.model.parameters(),
-                                           self.hyperparams.max_grad_norm)
-
-            self.optimizer.step()
+                self.optimizer.step()
 
         self.rewards = [[] for _ in range(self.contexts)]
         self.log_probs = [[] for _ in range(self.contexts)]
         self.values = [[] for _ in range(self.contexts)]
         self.observations = [[] for _ in range(self.contexts)]
         self.actions = [[] for _ in range(self.contexts)]
+        self.hidden_states = [[states[-1]] for states in self.hidden_states]
 
     def save_model(self, path: str):
         """
@@ -207,7 +217,7 @@ class TrainingSession:
         """
         torch.save(self.model.state_dict(), path)
 
-    def _get_starting_indexes(self) -> List[Tuple[int, int]]:
+    def _get_starting_indexes(self, epoch) -> List[Tuple[int, int]]:
         """
         Gets the starting index for each minibatch.
         Returns a list of tuples in the form of (context, index)
@@ -215,41 +225,15 @@ class TrainingSession:
         Indexes are sampled uniformly between 0 and the number of timesteps
         observed for that context minus (minibatch_length + 1).
         """
+        original_indexes = np.arange(0,
+                                     self.hyperparams.batch_size,
+                                     self.hyperparams.minibatch_length)
+        if epoch % 2 == 1:
+            original_indexes = original_indexes[:-1]
         indexes = []
-        for _ in range(self.hyperparams.minibatch_count):
+        for index in original_indexes:
+            if epoch % 2 == 1:
+                index += self.hyperparams.minibatch_length // 2
             for context in range(self.contexts):
-                index = np.random.randint(
-                    0,
-                    (len(self.rewards[context])
-                     - (self.hyperparams.minibatch_length))
-                )
                 indexes.append((context, index))
-
         return indexes
-
-    def _process_observations(
-            self) -> Tuple[List[torch.Tensor], List[List[torch.Tensor]]]:
-        """
-        Does one model.forward() run for each context and gets the values and
-        raw_probabilities (before softmax) for each.
-        """
-        values = []
-        raw_probs = []
-        for context in range(self.contexts):
-            # This converts the observations into the right shape for
-            # processing them all at once:
-            # [
-            #    sensor_1: torch.Tensor([t_1, t_2, t_3, ...]),
-            #    sensor_2: torch.Tensor([t_1, t_2, t_3, ...])
-            # ]
-            observations = self.observations[context]
-            observations = [
-                torch.stack([
-                    observation[idx] for observation in observations])
-                for idx, _ in enumerate(observations[0])]
-
-            context_values, context_raw_probs = self.model.forward(
-                observations)
-            values.append(context_values)
-            raw_probs.append(context_raw_probs)
-        return values, raw_probs
