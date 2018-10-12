@@ -16,20 +16,22 @@ namespace Training.Trainers
         public TextMeshProUGUI rewardText;
         public TextMeshProUGUI valueText;
         private NetMQ.Sockets.PairSocket client;
-        private readonly System.TimeSpan waitTime = new System.TimeSpan(0, 0, 0, 5);
-        private List<IEnvironment> Environments { get; set; }
+        private readonly System.TimeSpan waitTime = new System.TimeSpan(0, 0, 0, 10);
+        private Dictionary<IEnvironment, int> EnvironmentContexts { get; set; }
 
         public Queue<IObservation> ObservationQueue { get; set; }
         private List<float> Rewards { get; set; }
 
         private void Awake()
         {
+            EnvironmentContexts = new Dictionary<IEnvironment, int>();
             Rewards = new List<float>();
             ObservationQueue = new Queue<IObservation>();
-            Environments = GetComponentsInChildren<IEnvironment>().ToList();
-            foreach (var environment in Environments)
+            var environments = GetComponentsInChildren<IEnvironment>().ToList();
+            for (int i = 0; i < environments.Count; i++)
             {
-                environment.Trainer = this;
+                environments[i].Trainer = this;
+                EnvironmentContexts.Add(environments[i], i);
             }
         }
 
@@ -87,20 +89,20 @@ namespace Training.Trainers
                         },
                         ["hyperparams"] = new JObject
                         {
-                            ["learning_rate"] = 0.0007,
+                            ["learning_rate"] = 0.0003,
                             ["gae"] = 0.95,
-                            ["batch_size"] = 600,
+                            ["batch_size"] = 2400,
                             ["minibatch_length"] = 20,
                             ["entropy_coef"] = 0.0001,
                             ["max_grad_norm"] = 0.5,
                             ["discount_factor"] = 0.98,
-                            ["critic_coef"] = 0.2,
-                            ["epochs"] = 4,
+                            ["critic_coef"] = 0.1,
+                            ["epochs"] = 5,
                             ["clip_factor"] = 0.1
                         },
                         ["session_id"] = 0,
                         ["training"] = true,
-                        ["contexts"] = 1,
+                        ["contexts"] = 8,
                         ["auto_train"] = true
                     },
                     ["id"] = 0
@@ -140,7 +142,7 @@ namespace Training.Trainers
                     ["param"] = new JObject
                     {
                         ["inputs"] = new JArray { new JArray(observation.ToArray()) },
-                        ["context"] = observation.AgentNumber,
+                        ["context"] = EnvironmentContexts[observation.Environment],
                         ["session_id"] = 0
                     },
                     ["id"] = 0
@@ -172,7 +174,7 @@ namespace Training.Trainers
                     ["param"] = new JObject
                     {
                         ["reward"] = reward,
-                        ["context"] = observation.AgentNumber,
+                        ["context"] = EnvironmentContexts[observation.Environment],
                         ["session_id"] = 0
                     },
                     ["id"] = 0
