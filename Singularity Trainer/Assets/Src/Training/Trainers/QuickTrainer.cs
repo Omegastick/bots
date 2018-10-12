@@ -154,7 +154,7 @@ namespace Training.Trainers
                 var actionMessage = JObject.Parse(receivedMessage);
                 List<int> actions = actionMessage["result"]["actions"].ToObject<List<int>>();
                 float value = actionMessage["result"]["value"].ToObject<float>();
-                valueText.SetText(value.ToString());
+                //valueText.SetText(value.ToString());
                 observation.Environment.SendActions(observation.AgentNumber, actions);
 
                 var reward = observation.Environment.GetReward(observation.AgentNumber);
