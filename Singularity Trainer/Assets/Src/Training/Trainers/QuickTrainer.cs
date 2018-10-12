@@ -91,7 +91,7 @@ namespace Training.Trainers
                         {
                             ["learning_rate"] = 0.0003,
                             ["gae"] = 0.95,
-                            ["batch_size"] = 2400,
+                            ["batch_size"] = 1200,
                             ["minibatch_length"] = 20,
                             ["entropy_coef"] = 0.0001,
                             ["max_grad_norm"] = 0.5,
@@ -180,8 +180,8 @@ namespace Training.Trainers
                     ["id"] = 0
                 };
 
-                client.SendFrame(giveRewardRequest.ToString());
-                client.TryReceiveFrameString(waitTime, out receivedMessage);
+                client.TrySendFrame(waitTime, giveRewardRequest.ToString());
+                client.ReceiveFrameString();
             }
             ObservationQueue.Clear();
         }
