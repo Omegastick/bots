@@ -8,11 +8,13 @@ namespace Training.Environments
 {
     public class TargetEnvironment : MonoBehaviour, IEnvironment
     {
-        private Agent agent;
-        private float reward;
+        private Agent Agent { get; set; }
+        private float Reward { get; set; }
         public ITrainer Trainer { get; set; }
 
         private float lastObservationTime;
+        private Rigidbody2D AgentRigidBody { get; set; }
+        private ValueDisplay ValueDisplay { get; set; }
 
         private void Awake()
         {
@@ -22,8 +24,10 @@ namespace Training.Environments
             {
                 target.Environment = this;
             }
-            agent = GetComponentInChildren<Agent>();
-            agent.Environment = this;
+            Agent = GetComponentInChildren<Agent>();
+            Agent.Environment = this;
+            AgentRigidBody = Agent.GetComponent<Rigidbody2D>();
+            ValueDisplay = GetComponentInChildren<ValueDisplay>();
         }
 
         public void BeginTraining()
@@ -32,13 +36,19 @@ namespace Training.Environments
 
         public void ChangeReward(int agentNumber, float rewardDelta)
         {
-            reward += rewardDelta;
+            Reward += rewardDelta;
         }
 
         public float GetReward(int agentNumber)
         {
-            var tempReward = reward;
-            reward = 0;
+            if (Mathf.Abs(AgentRigidBody.angularVelocity) > 60)
+            {
+                Debug.Log(AgentRigidBody.angularVelocity);
+                Reward -= Mathf.Abs(AgentRigidBody.angularVelocity) / 360;
+            }
+
+            var tempReward = Reward;
+            Reward = 0;
             return tempReward;
         }
 
@@ -49,7 +59,7 @@ namespace Training.Environments
 
         public void SendActions(int agentNumber, List<int> actions)
         {
-            agent.Act(actions);
+            Agent.Act(actions);
         }
 
         public void UnPause()
@@ -62,8 +72,13 @@ namespace Training.Environments
             if (Time.time - lastObservationTime > 0.1)
             {
                 lastObservationTime = Time.time;
-                Trainer.ObservationQueue.Enqueue(agent.GetObservation());
+                Trainer.ObservationQueue.Enqueue(Agent.GetObservation());
             }
+        }
+
+        public void SetValue(int agentNumber, float value)
+        {
+            ValueDisplay.SetValue(value);
         }
     }
 }

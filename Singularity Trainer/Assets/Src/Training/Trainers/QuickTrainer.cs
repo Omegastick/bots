@@ -14,7 +14,6 @@ namespace Training.Trainers
     {
 
         public TextMeshProUGUI rewardText;
-        public TextMeshProUGUI valueText;
         private NetMQ.Sockets.PairSocket client;
         private readonly System.TimeSpan waitTime = new System.TimeSpan(0, 0, 0, 10);
         private Dictionary<IEnvironment, int> EnvironmentContexts { get; set; }
@@ -91,18 +90,18 @@ namespace Training.Trainers
                         {
                             ["learning_rate"] = 0.0003,
                             ["gae"] = 0.95,
-                            ["batch_size"] = 1200,
+                            ["batch_size"] = 600,
                             ["minibatch_length"] = 20,
                             ["entropy_coef"] = 0.0001,
                             ["max_grad_norm"] = 0.5,
                             ["discount_factor"] = 0.98,
-                            ["critic_coef"] = 0.1,
+                            ["critic_coef"] = 0.4,
                             ["epochs"] = 5,
-                            ["clip_factor"] = 0.1
+                            ["clip_factor"] = 0.2
                         },
                         ["session_id"] = 0,
                         ["training"] = true,
-                        ["contexts"] = 8,
+                        ["contexts"] = 4,
                         ["auto_train"] = true
                     },
                     ["id"] = 0
@@ -156,7 +155,7 @@ namespace Training.Trainers
                 var actionMessage = JObject.Parse(receivedMessage);
                 List<int> actions = actionMessage["result"]["actions"].ToObject<List<int>>();
                 float value = actionMessage["result"]["value"].ToObject<float>();
-                //valueText.SetText(value.ToString());
+                observation.Environment.SetValue(observation.AgentNumber, value);
                 observation.Environment.SendActions(observation.AgentNumber, actions);
 
                 var reward = observation.Environment.GetReward(observation.AgentNumber);

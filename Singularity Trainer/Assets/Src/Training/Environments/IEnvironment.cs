@@ -12,5 +12,6 @@ namespace Training.Environments
         void ChangeReward(int agentNumber, float rewardDelta);
         void Pause();
         void UnPause();
+        void SetValue(int agentNumber, float value);
     }
 }
