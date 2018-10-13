@@ -6,7 +6,7 @@ using TMPro;
 using Training.Environments;
 using UnityEngine;
 using Observations;
-using UnityEngine.UI;
+using Scripts;
 
 namespace Training.Trainers
 {
@@ -14,17 +14,19 @@ namespace Training.Trainers
     {
 
         public TextMeshProUGUI rewardText;
+        public Queue<IObservation> ObservationQueue { get; set; }
+        public float averageLength = 1000;
+
         private NetMQ.Sockets.PairSocket client;
         private readonly System.TimeSpan waitTime = new System.TimeSpan(0, 0, 0, 10);
         private Dictionary<IEnvironment, int> EnvironmentContexts { get; set; }
-
-        public Queue<IObservation> ObservationQueue { get; set; }
-        private List<float> Rewards { get; set; }
+        private float AverageReward { get; set; }
+        private Chart RewardChart { get; set; }
 
         private void Awake()
         {
             EnvironmentContexts = new Dictionary<IEnvironment, int>();
-            Rewards = new List<float>();
+            AverageReward = 0f;
             ObservationQueue = new Queue<IObservation>();
             var environments = GetComponentsInChildren<IEnvironment>().ToList();
             for (int i = 0; i < environments.Count; i++)
@@ -32,6 +34,7 @@ namespace Training.Trainers
                 environments[i].Trainer = this;
                 EnvironmentContexts.Add(environments[i], i);
             }
+            RewardChart = GetComponentInChildren<Chart>();
         }
 
         private void OnApplicationQuit()
@@ -90,14 +93,14 @@ namespace Training.Trainers
                         {
                             ["learning_rate"] = 0.0003,
                             ["gae"] = 0.95,
-                            ["batch_size"] = 600,
-                            ["minibatch_length"] = 20,
+                            ["batch_size"] = 160,
+                            ["minibatch_length"] = 8,
                             ["entropy_coef"] = 0.0001,
                             ["max_grad_norm"] = 0.5,
-                            ["discount_factor"] = 0.98,
-                            ["critic_coef"] = 0.4,
+                            ["discount_factor"] = 0.95,
+                            ["critic_coef"] = 0.5,
                             ["epochs"] = 5,
-                            ["clip_factor"] = 0.2
+                            ["clip_factor"] = 0.1
                         },
                         ["session_id"] = 0,
                         ["training"] = true,
@@ -159,12 +162,10 @@ namespace Training.Trainers
                 observation.Environment.SendActions(observation.AgentNumber, actions);
 
                 var reward = observation.Environment.GetReward(observation.AgentNumber);
-                Rewards.Add(reward);
-                if (Rewards.Count > 1000)
-                {
-                    Rewards.RemoveAt(0);
-                }
-                rewardText.SetText(Rewards.Average().ToString());
+                AverageReward -= AverageReward / averageLength;
+                AverageReward += reward / averageLength;
+                rewardText.SetText(AverageReward.ToString());
+                RewardChart.AddDataPoint(AverageReward);
 
                 var giveRewardRequest = new JObject
                 {

@@ -6,6 +6,7 @@ namespace Scripts
     public class TrainingManager : MonoBehaviour
     {
         public QuickTrainer trainer;
+        public float timeScale = 1;
 
         private void Start()
         {
@@ -15,6 +16,11 @@ namespace Scripts
         private void FixedUpdate()
         {
             trainer.Step();   
+        }
+
+        private void Update()
+        {
+            Time.timeScale = timeScale;
         }
     }
 }
