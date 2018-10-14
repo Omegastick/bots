@@ -225,6 +225,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   trainer: {fileID: 381780368}
+  timeScale: 1
 --- !u!4 &381780367
 Transform:
   m_ObjectHideFlags: 0
@@ -257,6 +258,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   rewardText: {fileID: 897434128}
+  averageLength: 10000
 --- !u!1001 &425039065
 PrefabInstance:
   m_ObjectHideFlags: 0

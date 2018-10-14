@@ -167,6 +167,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ac934028844a8de40bfa2a5556a2a508, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  moveTargetInterval: 10
+  agentResetInterval: 60
 --- !u!4 &4723896277950375666 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 400000, guid: 14dd7811f93e62b46bc5218cca8b715f,

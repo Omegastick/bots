@@ -8,19 +8,24 @@ namespace Training.Environments
 {
     public class TargetEnvironment : MonoBehaviour, IEnvironment
     {
-        private Agent Agent { get; set; }
-        private float Reward { get; set; }
+        public float moveTargetInterval = 10;
+        public float agentResetInterval = 60;
         public ITrainer Trainer { get; set; }
 
+        private Agent Agent { get; set; }
+        private float Reward { get; set; }
         private float lastObservationTime;
         private Rigidbody2D AgentRigidBody { get; set; }
         private ValueDisplay ValueDisplay { get; set; }
+        private float lastMoveTargetTime { get; set; }
+        private float lastAgentResetTime { get; set; }
+        private List<Target> Targets { get; set; }
 
         private void Awake()
         {
             lastObservationTime = Time.time;
-            Target[] targets = GetComponentsInChildren<Target>();
-            foreach (var target in targets)
+            Targets = new List<Target>(GetComponentsInChildren<Target>());
+            foreach (var target in Targets)
             {
                 target.Environment = this;
             }
@@ -79,6 +84,31 @@ namespace Training.Environments
         public void SetValue(int agentNumber, float value)
         {
             ValueDisplay.SetValue(value);
+        }
+
+        private void Update()
+        {
+            if (Time.time - lastMoveTargetTime > moveTargetInterval)
+            {
+                lastMoveTargetTime = Time.time;
+                foreach (var target in Targets)
+                {
+                    var rigidBody = target.GetComponent<Rigidbody2D>();
+                    var newPosition = new Vector3(UnityEngine.Random.Range(-8f, 8f), UnityEngine.Random.Range(-8f, 8f));
+                    var newWorldPosition = transform.TransformPoint(newPosition);
+                    rigidBody.position = newWorldPosition;
+                }
+            }
+
+            if (Time.time - lastAgentResetTime > agentResetInterval)
+            {
+                lastAgentResetTime = Time.time;
+
+                var rigidBody = Agent.GetComponent<Rigidbody2D>();
+                rigidBody.position = transform.TransformPoint(0, 0, 0);
+                rigidBody.velocity = Vector2.zero;
+                rigidBody.angularVelocity = 0;
+            }
         }
     }
 }

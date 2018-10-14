@@ -87,20 +87,21 @@ namespace Training.Trainers
                         {
                             ["inputs"] = new JArray { 21 },
                             ["outputs"] = new JArray { 2, 2, 2, 2 },
-                            ["feature_extractors"] = new JArray() { "mlp" }
+                            ["feature_extractors"] = new JArray() { "mlp" },
+                            ["recurrent"] = true
                         },
                         ["hyperparams"] = new JObject
                         {
                             ["learning_rate"] = 0.0003,
                             ["gae"] = 0.95,
-                            ["batch_size"] = 160,
-                            ["minibatch_length"] = 8,
+                            ["batch_size"] = 2400,
+                            ["minibatch_length"] = 10,
                             ["entropy_coef"] = 0.0001,
                             ["max_grad_norm"] = 0.5,
-                            ["discount_factor"] = 0.95,
+                            ["discount_factor"] = 0.92,
                             ["critic_coef"] = 0.5,
                             ["epochs"] = 5,
-                            ["clip_factor"] = 0.1
+                            ["clip_factor"] = 0.2
                         },
                         ["session_id"] = 0,
                         ["training"] = true,
