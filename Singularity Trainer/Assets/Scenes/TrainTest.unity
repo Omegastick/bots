@@ -258,7 +258,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   rewardText: {fileID: 897434128}
-  averageLength: 10000
+  averageLength: 2400
 --- !u!1001 &425039065
 PrefabInstance:
   m_ObjectHideFlags: 0

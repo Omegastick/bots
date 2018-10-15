@@ -18,7 +18,7 @@ namespace Training.Trainers
         public float averageLength = 1000;
 
         private NetMQ.Sockets.PairSocket client;
-        private readonly System.TimeSpan waitTime = new System.TimeSpan(0, 0, 0, 10);
+        private readonly System.TimeSpan waitTime = new System.TimeSpan(0, 0, 0, 20);
         private Dictionary<IEnvironment, int> EnvironmentContexts { get; set; }
         private float AverageReward { get; set; }
         private Chart RewardChart { get; set; }
@@ -92,16 +92,16 @@ namespace Training.Trainers
                         },
                         ["hyperparams"] = new JObject
                         {
-                            ["learning_rate"] = 0.0003,
-                            ["gae"] = 0.95,
-                            ["batch_size"] = 2400,
-                            ["minibatch_length"] = 10,
-                            ["entropy_coef"] = 0.0001,
+                            ["learning_rate"] = 0.0005,
+                            ["gae"] = 0.92,
+                            ["batch_size"] = 1200,
+                            ["minibatch_length"] = 120,
+                            ["entropy_coef"] = 0.0005,
                             ["max_grad_norm"] = 0.5,
-                            ["discount_factor"] = 0.92,
+                            ["discount_factor"] = 0.96,
                             ["critic_coef"] = 0.5,
-                            ["epochs"] = 5,
-                            ["clip_factor"] = 0.2
+                            ["epochs"] = 8,
+                            ["clip_factor"] = 0.1
                         },
                         ["session_id"] = 0,
                         ["training"] = true,

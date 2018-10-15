@@ -117,6 +117,9 @@ class TrainingSession:
                 rewards, observations, hidden_states, old_log_probs, \
                     actions = self._get_rollout(context, starting_index)
 
+                if 1 in rewards:
+                    import pytest; pytest.set_trace()
+
                 values, raw_probs, new_hidden_states = self.model.forward(
                     observations, hidden_states)
                 # Update hidden states in memory with new ones

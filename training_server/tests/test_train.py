@@ -95,6 +95,103 @@ class DelayedRewardGame:
         return self.reward_queue.get()
 
 
+class LongTermDependencyGame:
+    """
+    A game for testing whether the agent's RNN can learn long term
+    dependencies.
+    Consists of a long corridor like so:
+    ##############
+    #_##########G#
+    #S___________#
+    ############T#
+    ##############
+    Where is is the starting point, G is the goal (reward +1) and T is the trap
+    (reward -1). Each round, a tile above or below the starting point is
+    cleared at random, and that corresponds to which tile at the end of the
+    corridor is going to be the goal and which is the trap.
+    Each turn, the agent can pick a direction to move in (NESW) and gets an
+    observation of the 3x3 grid around itself.
+    """
+
+    def __init__(self, length):
+        self.length = length
+        self.map = np.ones((5, length + 2))
+        self.map[2, 1:-2] = 0
+        self.map[1:3, length] = 0
+        self.goal = []
+        self.position = []
+        self.goal = []
+        self.punishment = []
+        self.reward = 0.
+        self.reset()
+
+    def reset(self):
+        """
+        Reset the map and player.
+        """
+        self.map = np.ones((5, self.length + 2))
+        # Corridor
+        self.map[2, 1:-2] = 0
+        # T-junction
+        self.map[1:4, self.length] = 0
+        if np.random.rand() > 0.5:
+            self.goal = np.array([1, self.length])
+            self.map[1, 1] = 0
+            self.punishment = np.array([3, self.length])
+        else:
+            self.goal = np.array([3, self.length])
+            self.map[3, 1] = 0
+            self.punishment = np.array([1, self.length])
+
+        self.position = np.array([2, 1])
+
+    def act(self, action: int) -> torch.Tensor:
+        """
+        Take an action and get an observation.
+        Returns a 3x3 tensor of ones and zeros showing the area around the
+        player.
+        """
+        # Convert action to movement vector
+        if action == 0:
+            direction = [1, 0]
+        elif action == 1:
+            direction = [0, 1]
+        elif action == 2:
+            direction = [-1, 0]
+        else:
+            direction = [0, -1]
+
+        # If the location is valid, move
+        if self.map[tuple(self.position + direction)] == 0:
+            self.position = self.position + direction
+
+        # If the goal or trap is reached, reset the game and give a reward
+        if np.all(self.position == self.goal):
+            self.reward += 1
+            self.reset()
+        elif np.all(self.position == self.punishment):
+            self.reward -= 1
+            self.reset()
+
+    def get_observation(self):
+        """
+        Gets an observation of the environment.
+        """
+        observation = self.map[self.position[0] - 1:self.position[0] + 2,
+                               self.position[1] - 1:self.position[1] + 2]
+        observation = torch.from_numpy(observation)
+
+        return observation.contiguous().float()
+
+    def get_reward(self):
+        """
+        Get a reward from the environment.
+        """
+        reward = self.reward
+        self.reward = 0
+        return reward
+
+
 @pytest.fixture
 def session():
     """
@@ -312,7 +409,6 @@ def test_model_learns_with_multiple_contexts():
         rewards.append(reward)
         session.give_reward(reward, i % 3)
 
-    # pytest.set_trace()
     assert np.mean(rewards[:100]) + 0.05 < np.mean(rewards[-100:])
 
 
@@ -437,3 +533,44 @@ def test_lstm_learns_simple_pattern():
         session.give_reward(reward, 0)
 
     assert np.mean(rewards[-100:]) > 0.6
+
+
+@pytest.mark.training
+def test_rnn_learns_long_term_dependencies():
+    """
+    The model should be able to learn a game where it has to traverse a
+    corridor and take a turn at the end. Which way it should turn depends on
+    a feature at the start of the corridor.
+    """
+    np.random.seed(1)
+    torch.manual_seed(1)
+    model = ModelSpecification(
+        inputs=[9],
+        outputs=[4],
+        feature_extractors=['mlp']
+    )
+
+    hyperparams = HyperParams(
+        learning_rate=0.0007,
+        batch_size=200,
+        minibatch_length=20,
+        entropy_coef=0.0001,
+        discount_factor=0.9,
+        gae=1.,
+        epochs=4,
+        clip_factor=0.1
+    )
+
+    session = TrainingSession(model, hyperparams, 1)
+    environment = LongTermDependencyGame(3)
+    rewards = []
+
+    for _ in range(10000):
+        observation = environment.get_observation().view(-1)
+        actions, _ = session.get_action([observation], 0)
+        environment.act(actions[0])
+        reward = environment.get_reward()
+        rewards.append(reward)
+        session.give_reward(reward, 0)
+
+    assert np.mean(rewards[:100]) + 0.05 < np.mean(rewards[-100:])
