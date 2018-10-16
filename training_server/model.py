@@ -113,6 +113,8 @@ class Model(torch.nn.Module):
             # self.gru.weight.data = normalized_columns_initializer(
             #     self.gru.weight.data, 1.0
             # )
+        else:
+            self.hidden = torch.nn.Linear(self.feature_size, self.hidden_size)
 
         # Critic
         self.critic = torch.nn.Linear(self.hidden_size, 1)
@@ -133,9 +135,13 @@ class Model(torch.nn.Module):
         self.critic.bias.data.fill_(0)
         if recurrent:
             self.gru.weight_ih.data = normalized_columns_initializer(
-            self.gru.weight_ih.data, 1.0)
+                self.gru.weight_ih.data, 1.0)
             self.gru.weight_hh.data = normalized_columns_initializer(
-            self.gru.weight_hh.data, 1.0)
+                self.gru.weight_hh.data, 1.0)
+        else:
+            self.hidden.weight.data = normalized_columns_initializer(
+                self.hidden.weight.data, 0.01)
+            self.hidden.bias.data.fill_(0)
 
     def forward(
             self,
@@ -146,14 +152,33 @@ class Model(torch.nn.Module):
             self.feature_extractors)]
         x = torch.cat(features, dim=-1)
         x = x.view(-1, self.feature_size)
-        if hidden_state is not None:
-            hidden_state = hidden_state.view(-1, self.hidden_size)
         if self.recurrent:
-            x = hidden_state = self.gru(x, hidden_state)
-            # x = hidden_state = self.gru(x)
+            x, hidden_state = self._forward_rnn(x, hidden_state)
+            x = F.relu(x)
+        else:
+            x = self.hidden(x)
         value = self.critic(x)
         raw_probs = [actor(x) for actor in self.actors]
         return value, raw_probs, hidden_state
+
+    def _forward_rnn(
+            self,
+            x: torch.Tensor,
+            hidden_state: torch.Tensor) -> Tuple[torch.Tensor, torch.Tensor]:
+        if hidden_state is not None:
+            hidden_state = hidden_state.view(-1, self.hidden_size)
+        else:
+            hidden_state = torch.zeros(1, self.hidden_size)
+        if x.size(0) == hidden_state.size(0):
+            x = hidden_state = self.gru(x, hidden_state)
+        else:
+            assert hidden_state.size(0) == 1
+            hidden_states = []
+            for observation in x:
+                hidden_state = self.gru(observation.unsqueeze(0), hidden_state)
+                hidden_states.append(hidden_state)
+            x = torch.cat(hidden_states, dim=0)
+        return x, hidden_state
 
     def get_value(
             self,
@@ -183,6 +208,7 @@ class Model(torch.nn.Module):
             hidden_state = torch.zeros(1, 128)
         value, raw_probs, hidden_state = self(x, hidden_state)
         probs = [F.softmax(raw_prob, dim=1)[0] for raw_prob in raw_probs]
-        log_probs = [F.log_softmax(raw_prob, dim=1)[0] for raw_prob in raw_probs]
+        log_probs = [F.log_softmax(raw_prob, dim=1)[0]
+                     for raw_prob in raw_probs]
 
         return value, probs, log_probs, hidden_state

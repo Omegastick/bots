@@ -219,7 +219,7 @@ def session():
         learning_rate=0.0001,
         batch_size=20,
         entropy_coef=0.001,
-        discount_factor=0.8,
+        discount_factor=0.1,
         clip_factor=0.1,
         epochs=3
     )
@@ -344,11 +344,11 @@ def test_model_learns_simple_game():
     )
 
     hyperparams = HyperParams(
-        learning_rate=0.0001,
+        learning_rate=0.002,
         batch_size=20,
         minibatch_length=5,
-        entropy_coef=0.0001,
-        discount_factor=0.95,
+        entropy_coef=0.001,
+        discount_factor=0.9,
         gae=0.96,
         epochs=4,
         clip_factor=0.1
@@ -400,7 +400,7 @@ def test_model_learns_with_multiple_contexts():
     rewards = []
     environments = [MultiContextGame() for _ in range(3)]
 
-    for i in range(1000):
+    for i in range(2000):
         observation = torch.cat((environments[i % 3].location,
                                  environments[i % 3].reward_location))
         action, _ = session.get_action([observation], i % 3)
@@ -547,22 +547,23 @@ def test_rnn_learns_long_term_dependencies():
     model = ModelSpecification(
         inputs=[9],
         outputs=[4],
-        feature_extractors=['mlp']
+        feature_extractors=['mlp'],
+        recurrent=True
     )
 
     hyperparams = HyperParams(
-        learning_rate=0.0007,
-        batch_size=200,
+        learning_rate=0.001,
+        batch_size=100,
         minibatch_length=20,
-        entropy_coef=0.0001,
-        discount_factor=0.9,
-        gae=1.,
+        entropy_coef=0.001,
+        discount_factor=0.95,
+        gae=0.97,
         epochs=4,
-        clip_factor=0.1
+        clip_factor=0.2
     )
 
     session = TrainingSession(model, hyperparams, 1)
-    environment = LongTermDependencyGame(3)
+    environment = LongTermDependencyGame(4)
     rewards = []
 
     for _ in range(10000):

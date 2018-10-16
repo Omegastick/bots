@@ -57,7 +57,7 @@ class TrainingSession:
             self.hidden_states[context].append(torch.zeros(1, 128))
 
         self.model = Model(model.inputs, model.outputs,
-                           model.feature_extractors)
+                           model.feature_extractors, model.recurrent)
 
         if hyperparams.use_gpu:
             self.model = self.model.cuda()
@@ -73,8 +73,9 @@ class TrainingSession:
         Given an observation, get an action and the value of the observation
         from one of the models being trained.
         """
-        value, probs, log_probs, hidden_state = self.model.act(
-            inputs, self.hidden_states[context][-1])
+        with torch.no_grad():
+            value, probs, log_probs, hidden_state = self.model.act(
+                inputs, self.hidden_states[context][-1])
 
         actions = [x.multinomial(num_samples=1) for x in probs]
 
@@ -85,6 +86,7 @@ class TrainingSession:
         self.log_probs[context].append(torch.stack(log_prob).detach())
         self.actions[context].append(torch.stack(actions).detach())
         self.hidden_states[context].append(hidden_state.detach())
+        # self.hidden_states[context].append(torch.zeros(1, 128))
 
         return actions, value
 
@@ -117,16 +119,12 @@ class TrainingSession:
                 rewards, observations, hidden_states, old_log_probs, \
                     actions = self._get_rollout(context, starting_index)
 
-                if 1 in rewards:
-                    import pytest; pytest.set_trace()
-
-                values, raw_probs, new_hidden_states = self.model.forward(
+                values, raw_probs, new_hidden_state = self.model.forward(
                     observations, hidden_states)
                 # Update hidden states in memory with new ones
-                self.hidden_states[context][starting_index:
-                                            starting_index + minibatch_length
-                                            ] = new_hidden_states.view(
-                                                -1, 1, 128).detach()
+                self.hidden_states[context][
+                    starting_index
+                    + minibatch_length] = new_hidden_state.detach()
 
                 real_value = values[-1]
                 critic_loss = 0
@@ -216,6 +214,7 @@ class TrainingSession:
                                      self.hyperparams.minibatch_length)
         if epoch % 2 == 1:
             original_indexes = original_indexes[:-1]
+        original_indexes = np.random.permutation(original_indexes)
         indexes = []
         for index in original_indexes:
             if epoch % 2 == 1:
@@ -234,8 +233,7 @@ class TrainingSession:
             starting_index:starting_index + minibatch_length]
         observations = self.observations[context][
             starting_index:starting_index + minibatch_length + 1]
-        hidden_states = torch.stack(self.hidden_states[context][
-            starting_index:starting_index + minibatch_length + 1])
+        hidden_state = self.hidden_states[context][starting_index]
         # This converts the observations into the right shape for
         # processing them all at once:
         # [
@@ -250,4 +248,4 @@ class TrainingSession:
             starting_index:starting_index + minibatch_length]
         actions = self.actions[context][
             starting_index:starting_index + minibatch_length]
-        return rewards, observations, hidden_states, old_log_probs, actions
+        return rewards, observations, hidden_state, old_log_probs, actions
