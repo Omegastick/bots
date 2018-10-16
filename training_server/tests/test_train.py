@@ -52,7 +52,7 @@ class MultiContextGame:
         self.location += move_direction
 
         if torch.eq(self.location, self.reward_location).all():
-            self.reward += 1
+            self.reward += 4
             self.reset()
 
         if (self.location < -1).any() or (self.location > 1).any():
@@ -178,7 +178,7 @@ class LongTermDependencyGame:
         Gets an observation of the environment.
         """
         observation = self.map[self.position[0] - 1:self.position[0] + 2,
-                               self.position[1] - 1:self.position[1] + 2]
+                               self.position[1]]
         observation = torch.from_numpy(observation)
 
         return observation.contiguous().float()
@@ -189,7 +189,8 @@ class LongTermDependencyGame:
         """
         reward = self.reward
         self.reward = 0
-        return reward
+        done = True if reward != 0 else False
+        return reward, done
 
 
 @pytest.fixture
@@ -545,33 +546,36 @@ def test_rnn_learns_long_term_dependencies():
     np.random.seed(1)
     torch.manual_seed(1)
     model = ModelSpecification(
-        inputs=[9],
+        inputs=[3],
         outputs=[4],
         feature_extractors=['mlp'],
         recurrent=True
     )
 
     hyperparams = HyperParams(
-        learning_rate=0.001,
-        batch_size=100,
+        learning_rate=0.003,
+        batch_size=200,
         minibatch_length=20,
         entropy_coef=0.001,
         discount_factor=0.95,
-        gae=0.97,
-        epochs=4,
-        clip_factor=0.2
+        gae=0.98,
+        epochs=8,
+        clip_factor=0.2,
+        critic_coef=1.
     )
 
     session = TrainingSession(model, hyperparams, 1)
-    environment = LongTermDependencyGame(4)
+    environment = LongTermDependencyGame(3)
     rewards = []
 
-    for _ in range(10000):
+    for _ in range(3000):
+        if _ > 2000:
+            pytest.set_trace()
         observation = environment.get_observation().view(-1)
         actions, _ = session.get_action([observation], 0)
         environment.act(actions[0])
-        reward = environment.get_reward()
+        reward, done = environment.get_reward()
         rewards.append(reward)
-        session.give_reward(reward, 0)
+        session.give_reward(reward, 0, done)
 
     assert np.mean(rewards[:100]) + 0.05 < np.mean(rewards[-100:])

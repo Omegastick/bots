@@ -104,15 +104,6 @@ class Model(torch.nn.Module):
         self.recurrent = recurrent
         if recurrent:
             self.gru = torch.nn.GRUCell(self.feature_size, hidden_size)
-            # self.gru = torch.nn.Linear(self.feature_size, hidden_size)
-            # torch.nn.init.orthogonal_(self.gru.weight_ih.data)
-            # torch.nn.init.orthogonal_(self.gru.weight_hh.data)
-            self.gru.bias_ih.data.fill_(0)
-            self.gru.bias_hh.data.fill_(0)
-            # self.gru.bias.data.fill_(0)
-            # self.gru.weight.data = normalized_columns_initializer(
-            #     self.gru.weight.data, 1.0
-            # )
         else:
             self.hidden = torch.nn.Linear(self.feature_size, self.hidden_size)
 
@@ -134,10 +125,10 @@ class Model(torch.nn.Module):
             self.critic.weight.data, 1.0)
         self.critic.bias.data.fill_(0)
         if recurrent:
-            self.gru.weight_ih.data = normalized_columns_initializer(
-                self.gru.weight_ih.data, 1.0)
-            self.gru.weight_hh.data = normalized_columns_initializer(
-                self.gru.weight_hh.data, 1.0)
+            torch.nn.init.orthogonal_(self.gru.weight_ih.data)
+            torch.nn.init.orthogonal_(self.gru.weight_hh.data)
+            self.gru.bias_ih.data.fill_(0)
+            self.gru.bias_hh.data.fill_(0)
         else:
             self.hidden.weight.data = normalized_columns_initializer(
                 self.hidden.weight.data, 0.01)
@@ -146,15 +137,15 @@ class Model(torch.nn.Module):
     def forward(
             self,
             x: List[torch.Tensor],
-            hidden_state: torch.Tensor = None) -> Tuple[torch.Tensor,
-                                                        List[torch.Tensor]]:
+            hidden_state: torch.Tensor = None,
+            masks: torch.Tensor = None) -> Tuple[torch.Tensor,
+                                                 List[torch.Tensor]]:
         features = [extractor(x[i]) for i, extractor in enumerate(
             self.feature_extractors)]
         x = torch.cat(features, dim=-1)
         x = x.view(-1, self.feature_size)
         if self.recurrent:
-            x, hidden_state = self._forward_rnn(x, hidden_state)
-            x = F.relu(x)
+            x, hidden_state = self._forward_rnn(x, hidden_state, masks)
         else:
             x = self.hidden(x)
         value = self.critic(x)
@@ -164,21 +155,28 @@ class Model(torch.nn.Module):
     def _forward_rnn(
             self,
             x: torch.Tensor,
-            hidden_state: torch.Tensor) -> Tuple[torch.Tensor, torch.Tensor]:
+            hidden_state: torch.Tensor,
+            masks: torch.Tensor) -> Tuple[torch.Tensor, torch.Tensor]:
         if hidden_state is not None:
             hidden_state = hidden_state.view(-1, self.hidden_size)
         else:
             hidden_state = torch.zeros(1, self.hidden_size)
+
+        if masks is None:
+            masks = torch.ones(x.size(0))
+
         if x.size(0) == hidden_state.size(0):
-            x = hidden_state = self.gru(x, hidden_state)
+            x = hidden_state = self.gru(x, hidden_state * masks)
         else:
             assert hidden_state.size(0) == 1
             hidden_states = []
-            for observation in x:
-                hidden_state = self.gru(observation.unsqueeze(0), hidden_state)
+            for i, observation in enumerate(x):
+                hidden_state = self.gru(observation.unsqueeze(0),
+                                        hidden_state * masks[i])
+                hidden_state = F.relu(hidden_state)
                 hidden_states.append(hidden_state)
             x = torch.cat(hidden_states, dim=0)
-        return x, hidden_state
+        return x, x
 
     def get_value(
             self,

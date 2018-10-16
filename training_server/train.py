@@ -52,6 +52,7 @@ class TrainingSession:
         self.observations = [[] for _ in range(contexts)]
         self.actions = [[] for _ in range(contexts)]
         self.hidden_states = [[] for _ in range(contexts)]
+        self.masks = [[1] for _ in range(contexts)]
 
         for context in range(self.contexts):
             self.hidden_states[context].append(torch.zeros(1, 128))
@@ -75,7 +76,8 @@ class TrainingSession:
         """
         with torch.no_grad():
             value, probs, log_probs, hidden_state = self.model.act(
-                inputs, self.hidden_states[context][-1])
+                inputs,
+                self.hidden_states[context][-1] * self.masks[context][-1])
 
         actions = [x.multinomial(num_samples=1) for x in probs]
 
@@ -90,7 +92,7 @@ class TrainingSession:
 
         return actions, value
 
-    def give_reward(self, reward: float, context: int):
+    def give_reward(self, reward: float, context: int, done: bool = False):
         """
         Assign a reward to the last action performed.
         """
@@ -101,6 +103,7 @@ class TrainingSession:
                 f"{len(self.log_probs[context])} actions have been recorded.")
 
         self.rewards[context].append(reward)
+        self.masks[context].append(1 - done)
 
         if self.auto_train:
             if (min([len(x) for x in self.rewards])
@@ -117,14 +120,15 @@ class TrainingSession:
                 minibatch_length = self.hyperparams.minibatch_length
                 # Get minibatch data from memory.
                 rewards, observations, hidden_states, old_log_probs, \
-                    actions = self._get_rollout(context, starting_index)
+                    actions, masks = self._get_rollout(context, starting_index)
 
-                values, raw_probs, new_hidden_state = self.model.forward(
-                    observations, hidden_states)
+                values, raw_probs, new_hidden_states = self.model.forward(
+                    observations, hidden_states, masks)
                 # Update hidden states in memory with new ones
-                self.hidden_states[context][
-                    starting_index
-                    + minibatch_length] = new_hidden_state.detach()
+                if self.model.recurrent:
+                    self.hidden_states[context][
+                        starting_index:starting_index
+                        + minibatch_length] = new_hidden_states.detach()
 
                 real_value = values[-1]
                 critic_loss = 0
@@ -140,7 +144,9 @@ class TrainingSession:
                                 * torch.cat(probs)).sum(0, keepdim=True)
 
                     # Empirical value
-                    real_value = (self.hyperparams.discount_factor * real_value
+                    real_value = (real_value
+                                  * self.hyperparams.discount_factor
+                                  * masks[i]
                                   + rewards[i])
                     # Advantage
                     advantage = real_value - values[i]
@@ -194,6 +200,7 @@ class TrainingSession:
         self.observations = [[] for _ in range(self.contexts)]
         self.actions = [[] for _ in range(self.contexts)]
         self.hidden_states = [[states[-1]] for states in self.hidden_states]
+        self.masks = [[1] for _ in range(self.contexts)]
 
     def save_model(self, path: str):
         """
@@ -248,4 +255,7 @@ class TrainingSession:
             starting_index:starting_index + minibatch_length]
         actions = self.actions[context][
             starting_index:starting_index + minibatch_length]
-        return rewards, observations, hidden_state, old_log_probs, actions
+        masks = torch.Tensor(self.masks[context][
+            starting_index:starting_index + minibatch_length + 1])
+        return (rewards, observations, hidden_state, old_log_probs, actions,
+                masks)
