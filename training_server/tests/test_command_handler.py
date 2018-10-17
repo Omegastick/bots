@@ -339,3 +339,40 @@ def test_error_on_invalid_method(command_handler: CommandHandler):
     assert response == ('{"jsonrpc":"2.0",'
                         '"error":{"code":-32601,"message":"Method not found"},'
                         '"id":0}')
+
+
+def test_error_on_feature_extractors_dont_match_inputs(
+        command_handler: CommandHandler):
+    """
+    When receiving a begin_session command with a number of feature extractors
+    that don't match the number of inputs, an error should be returned.
+    """
+    json = """
+    {
+	    "jsonrpc": "2.0",
+	    "method": "begin_session",
+	    "param": {
+		    "model": {
+			    "inputs": [2, 4],
+			    "outputs": [2, 1],
+			    "feature_extractors": ["mlp"]
+			},
+			"hyperparams": {
+			    "learning_rate": 0.001,
+			    "gae": 0.9,
+			    "batch_size": 5
+			},
+            "session_id": 0,
+			"training": true,
+			"contexts": 1,
+            "auto_train": true
+		},
+	    "id": 0
+	}
+    """
+    response = command_handler.handle_command(json)
+
+    assert response == ('{"jsonrpc":"2.0",'
+                        '"error":{"code":-1000,'
+                        '"message":"Feature extractors don\'t match inputs"},'
+                        '"id":0}')

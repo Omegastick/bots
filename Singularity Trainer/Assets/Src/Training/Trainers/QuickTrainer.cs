@@ -1,12 +1,14 @@
-﻿using System.Collections.Generic;
-using System.Linq;
-using NetMQ;
+﻿using NetMQ;
+using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using Newtonsoft.Json.Serialization;
+using Observations;
+using Scripts;
+using System.Collections.Generic;
+using System.Linq;
 using TMPro;
 using Training.Environments;
 using UnityEngine;
-using Observations;
-using Scripts;
 
 namespace Training.Trainers
 {
@@ -85,23 +87,23 @@ namespace Training.Trainers
                     {
                         ["model"] = new JObject
                         {
-                            ["inputs"] = new JArray { 21 },
+                            ["inputs"] = new JArray { 3, 21 },
                             ["outputs"] = new JArray { 2, 2, 2, 2 },
-                            ["feature_extractors"] = new JArray() { "mlp" },
+                            ["feature_extractors"] = new JArray() { "mlp", "mlp" },
                             ["recurrent"] = true
                         },
                         ["hyperparams"] = new JObject
                         {
                             ["learning_rate"] = 0.0005,
                             ["gae"] = 0.92,
-                            ["batch_size"] = 1200,
-                            ["minibatch_length"] = 120,
+                            ["batch_size"] = 200,
+                            ["minibatch_length"] = 8,
                             ["entropy_coef"] = 0.0005,
                             ["max_grad_norm"] = 0.5,
-                            ["discount_factor"] = 0.96,
-                            ["critic_coef"] = 0.5,
-                            ["epochs"] = 8,
-                            ["clip_factor"] = 0.1
+                            ["discount_factor"] = 0.98,
+                            ["critic_coef"] = 1.0,
+                            ["epochs"] = 4,
+                            ["clip_factor"] = 0.2
                         },
                         ["session_id"] = 0,
                         ["training"] = true,
@@ -138,21 +140,30 @@ namespace Training.Trainers
             {
                 var environment = observation.Environment;
 
-                var getActionRequest = new JObject
+                DefaultContractResolver snakeCaseContractResolver = new DefaultContractResolver
                 {
-                    ["jsonrpc"] = "2.0",
-                    ["method"] = "get_action",
-                    ["param"] = new JObject
-                    {
-                        ["inputs"] = new JArray { new JArray(observation.ToArray()) },
-                        ["context"] = EnvironmentContexts[observation.Environment],
-                        ["session_id"] = 0
-                    },
-                    ["id"] = 0
+                    NamingStrategy = new SnakeCaseNamingStrategy()
                 };
 
-                var x = getActionRequest.ToString();
-                client.TrySendFrame(waitTime, getActionRequest.ToString());
+                var getActionRequest = new Request
+                {
+                    Jsonrpc = "2.0",
+                    Method = "get_action",
+                    Param = new Param
+                    {
+                        Inputs = observation.ToList(),
+                        Context = EnvironmentContexts[observation.Environment],
+                        SessionId = 0
+                    },
+                    Id = 0
+                };
+
+                var json = JsonConvert.SerializeObject(getActionRequest, new JsonSerializerSettings
+                {
+                    ContractResolver = snakeCaseContractResolver,
+                    Formatting = Formatting.Indented
+                });
+                client.TrySendFrame(waitTime, json);
 
                 client.TryReceiveFrameString(waitTime, out string receivedMessage);
 
@@ -186,5 +197,21 @@ namespace Training.Trainers
             }
             ObservationQueue.Clear();
         }
+    }
+
+
+    class Request
+    {
+        public string Jsonrpc { get; set; }
+        public string Method { get; set; }
+        public Param Param { get; set; }
+        public int Id { get; set; }
+    }
+
+    class Param
+    {
+        public List<float[]> Inputs { get; set; }
+        public int Context;
+        public int SessionId;
     }
 }

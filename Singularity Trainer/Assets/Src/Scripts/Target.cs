@@ -11,7 +11,7 @@ namespace Scripts
         {
             if (Environment != null && collision.collider.gameObject.GetComponent<Bullet>() != null)
             {
-                Environment.ChangeReward(0, 10);
+                Environment.ChangeReward(0, 50);
             }
         }
     }

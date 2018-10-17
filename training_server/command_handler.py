@@ -67,8 +67,10 @@ class CommandHandler:
         try:
             command = self.parse_json(command_json)
         except BadRequestError:
+            logging.debug(command_json)
             return BAD_REQUEST
         except BadJsonError:
+            logging.debug(command_json)
             return PARSE_ERROR
 
         try:
@@ -87,7 +89,9 @@ class CommandHandler:
             return ('{"jsonrpc":"2.0",'
                     '"error":{"code":-32601,"message":"Method not found"},'
                     f'"id":{command.id}}}')
-        except KeyError:
+        except KeyError as exception:
+            logging.debug(command_json)
+            logging.error(exception)
             return BAD_REQUEST
 
     def parse_json(self, json: str) -> Command:
@@ -143,6 +147,13 @@ class CommandHandler:
             outputs=params["model"]["outputs"],
             feature_extractors=params["model"]["feature_extractors"]
         )
+        # Inputs don't match feature extractors.
+        if len(model.inputs) != len(model.feature_extractors):
+            import ipdb; ipdb.set_trace()
+            return ('{"jsonrpc":"2.0",'
+                    '"error":{"code":-1000,'
+                    '"message":"Feature extractors don\'t match inputs"},'
+                    '"id":0}')
         if params["training"]:
             hyperparams = HyperParams(**params["hyperparams"])
             self.session_manager.start_training_session(

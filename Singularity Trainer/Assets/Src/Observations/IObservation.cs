@@ -11,6 +11,6 @@ namespace Observations
         int AgentNumber { get; set; }
         List<ISensorReading> SensorReadings { get; set; }
 
-        Array ToArray();
+        List<float[]> ToList();
     }
 }
