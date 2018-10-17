@@ -27,16 +27,14 @@ class InferenceSession:
     def get_action(
             self,
             inputs: List[torch.Tensor],
-            _: None = None,
-            hidden_state: torch.Tensor = None) -> Tuple[List[int], torch.Tensor]:
+            _: None = None) -> Tuple[List[int], torch.Tensor]:
         """
         Given an observation, get an action and the value of the observation
         from one of the models being trained.
         """
-        if hidden_state is None:
-            hidden_state = torch.zeros(1, 128)
-        value, probs, _, hidden_state = self.model.act(inputs, hidden_state)
+        with torch.no_grad():
+            value, probs, _ = self.model.act(inputs)
 
         actions = [x.multinomial(num_samples=1) for x in probs]
 
-        return actions, value, hidden_state
+        return actions, value

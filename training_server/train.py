@@ -51,14 +51,10 @@ class TrainingSession:
         self.values = [[] for _ in range(contexts)]
         self.observations = [[] for _ in range(contexts)]
         self.actions = [[] for _ in range(contexts)]
-        self.hidden_states = [[] for _ in range(contexts)]
         self.masks = [[1] for _ in range(contexts)]
 
-        for context in range(self.contexts):
-            self.hidden_states[context].append(torch.zeros(1, 128))
-
         self.model = Model(model.inputs, model.outputs,
-                           model.feature_extractors, model.recurrent)
+                           model.feature_extractors)
 
         if hyperparams.use_gpu:
             self.model = self.model.cuda()
@@ -75,9 +71,7 @@ class TrainingSession:
         from one of the models being trained.
         """
         with torch.no_grad():
-            value, probs, log_probs, hidden_state = self.model.act(
-                inputs,
-                self.hidden_states[context][-1] * self.masks[context][-1])
+            value, probs, log_probs = self.model.act(inputs)
 
         actions = [x.multinomial(num_samples=1) for x in probs]
 
@@ -87,8 +81,6 @@ class TrainingSession:
         self.values[context].append(value.detach())
         self.log_probs[context].append(torch.stack(log_prob).detach())
         self.actions[context].append(torch.stack(actions).detach())
-        self.hidden_states[context].append(hidden_state.detach())
-        # self.hidden_states[context].append(torch.zeros(1, 128))
 
         return actions, value
 
@@ -119,16 +111,10 @@ class TrainingSession:
             for context, starting_index in self._get_starting_indexes(epoch):
                 minibatch_length = self.hyperparams.minibatch_length
                 # Get minibatch data from memory.
-                rewards, observations, hidden_states, old_log_probs, \
+                rewards, observations, old_log_probs, \
                     actions, masks = self._get_rollout(context, starting_index)
 
-                values, raw_probs, new_hidden_states = self.model.forward(
-                    observations, hidden_states, masks)
-                # Update hidden states in memory with new ones
-                if self.model.recurrent:
-                    self.hidden_states[context][
-                        starting_index:starting_index
-                        + minibatch_length] = new_hidden_states.detach()
+                values, raw_probs = self.model.forward(observations)
 
                 real_value = values[-1]
                 critic_loss = 0
@@ -199,7 +185,6 @@ class TrainingSession:
         self.values = [[] for _ in range(self.contexts)]
         self.observations = [[] for _ in range(self.contexts)]
         self.actions = [[] for _ in range(self.contexts)]
-        self.hidden_states = [[states[-1]] for states in self.hidden_states]
         self.masks = [[1] for _ in range(self.contexts)]
 
     def save_model(self, path: str):
@@ -240,7 +225,6 @@ class TrainingSession:
             starting_index:starting_index + minibatch_length]
         observations = self.observations[context][
             starting_index:starting_index + minibatch_length + 1]
-        hidden_state = self.hidden_states[context][starting_index]
         # This converts the observations into the right shape for
         # processing them all at once:
         # [
@@ -257,5 +241,5 @@ class TrainingSession:
             starting_index:starting_index + minibatch_length]
         masks = torch.Tensor(self.masks[context][
             starting_index:starting_index + minibatch_length + 1])
-        return (rewards, observations, hidden_state, old_log_probs, actions,
+        return (rewards, observations, old_log_probs, actions,
                 masks)

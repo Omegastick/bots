@@ -14,7 +14,8 @@ class ModelSpecification(NamedTuple):
     inputs: List[int]
     outputs: List[int]
     feature_extractors: List[str]
-    recurrent: bool = True
+    recurrent: bool = True  # Currently deprecated.
+    # Will be reimplemented eventually.
 
 
 def normalized_columns_initializer(
@@ -81,9 +82,7 @@ class Model(torch.nn.Module):
             self,
             inputs: List[int],
             outputs: List[int],
-            feature_extractors: List[str],
-            recurrent: bool = True,
-            hidden_size: int = 128):
+            feature_extractors: List[str]):
         super().__init__()
 
         # Feature extractors
@@ -100,20 +99,13 @@ class Model(torch.nn.Module):
                          for i, x in enumerate(temp_inputs)]
         self.feature_size = torch.cat(temp_features).shape[0]
 
-        self.hidden_size = hidden_size
-        self.recurrent = recurrent
-        if recurrent:
-            self.gru = torch.nn.GRUCell(self.feature_size, hidden_size)
-        else:
-            self.hidden = torch.nn.Linear(self.feature_size, self.hidden_size)
-
         # Critic
-        self.critic = torch.nn.Linear(self.hidden_size, 1)
+        self.critic = torch.nn.Linear(self.feature_size, 1)
 
         # Actor
         self.actors = torch.nn.ModuleList()
         for output in outputs:
-            self.actors.append(torch.nn.Linear(self.hidden_size, output))
+            self.actors.append(torch.nn.Linear(self.feature_size, output))
 
         # Initialise weights
         self.apply(weights_init)
@@ -124,59 +116,18 @@ class Model(torch.nn.Module):
         self.critic.weight.data = normalized_columns_initializer(
             self.critic.weight.data, 1.0)
         self.critic.bias.data.fill_(0)
-        if recurrent:
-            torch.nn.init.orthogonal_(self.gru.weight_ih.data)
-            torch.nn.init.orthogonal_(self.gru.weight_hh.data)
-            self.gru.bias_ih.data.fill_(0)
-            self.gru.bias_hh.data.fill_(0)
-        else:
-            self.hidden.weight.data = normalized_columns_initializer(
-                self.hidden.weight.data, 0.01)
-            self.hidden.bias.data.fill_(0)
 
     def forward(
             self,
-            x: List[torch.Tensor],
-            hidden_state: torch.Tensor = None,
-            masks: torch.Tensor = None) -> Tuple[torch.Tensor,
-                                                 List[torch.Tensor]]:
+            x: List[torch.Tensor]) -> Tuple[torch.Tensor,
+                                            List[torch.Tensor]]:
         features = [extractor(x[i]) for i, extractor in enumerate(
             self.feature_extractors)]
         x = torch.cat(features, dim=-1)
         x = x.view(-1, self.feature_size)
-        if self.recurrent:
-            x, hidden_state = self._forward_rnn(x, hidden_state, masks)
-        else:
-            x = self.hidden(x)
         value = self.critic(x)
         raw_probs = [actor(x) for actor in self.actors]
-        return value, raw_probs, hidden_state
-
-    def _forward_rnn(
-            self,
-            x: torch.Tensor,
-            hidden_state: torch.Tensor,
-            masks: torch.Tensor) -> Tuple[torch.Tensor, torch.Tensor]:
-        if hidden_state is not None:
-            hidden_state = hidden_state.view(-1, self.hidden_size)
-        else:
-            hidden_state = torch.zeros(1, self.hidden_size)
-
-        if masks is None:
-            masks = torch.ones(x.size(0))
-
-        if x.size(0) == hidden_state.size(0):
-            x = hidden_state = self.gru(x, hidden_state * masks)
-        else:
-            assert hidden_state.size(0) == 1
-            hidden_states = []
-            for i, observation in enumerate(x):
-                hidden_state = self.gru(observation.unsqueeze(0),
-                                        hidden_state * masks[i])
-                hidden_state = F.relu(hidden_state)
-                hidden_states.append(hidden_state)
-            x = torch.cat(hidden_states, dim=0)
-        return x, x
+        return value, raw_probs
 
     def get_value(
             self,
@@ -193,20 +144,17 @@ class Model(torch.nn.Module):
 
     def act(
             self,
-            x: List[torch.Tensor],
-            hidden_state: torch.Tensor = None) -> Tuple[torch.Tensor,
-                                                        List[torch.Tensor],
-                                                        List[torch.Tensor],
-                                                        torch.Tensor]:
+            x: List[torch.Tensor]) -> Tuple[torch.Tensor,
+                                            List[torch.Tensor],
+                                            List[torch.Tensor],
+                                            torch.Tensor]:
         """
         Get the predicted value, action probabilities and the log probabilities
         of an observation.
         """
-        if hidden_state is None:
-            hidden_state = torch.zeros(1, 128)
-        value, raw_probs, hidden_state = self(x, hidden_state)
+        value, raw_probs = self(x)
         probs = [F.softmax(raw_prob, dim=1)[0] for raw_prob in raw_probs]
         log_probs = [F.log_softmax(raw_prob, dim=1)[0]
                      for raw_prob in raw_probs]
 
-        return value, probs, log_probs, hidden_state
+        return value, probs, log_probs

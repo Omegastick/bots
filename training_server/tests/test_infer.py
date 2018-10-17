@@ -50,6 +50,6 @@ def test_get_action_returns_correct_number_of_actions(
     outputs dimensions on the model.
     """
     observation = [torch.Tensor([1, 2]), torch.Tensor([1, 2, 3])]
-    actions, _, _ = session.get_action(observation, 0, torch.zeros(128))
+    actions, _ = session.get_action(observation, 0)
     expected = 2
     assert len(actions) == expected

@@ -248,14 +248,14 @@ def test_model_improves_when_trained_basic(session: TrainingSession):
     """
     observation = [torch.Tensor([1, 2]), torch.Tensor([1, 2, 3])]
 
-    _, starting_raw_probs, _ = session.model(observation)
+    _, starting_raw_probs = session.model(observation)
 
     for _ in range(100):
         action, _ = session.get_action(observation, 0)
         reward = 1 if action[0] == 0 else 0
         session.give_reward(reward, 0)
 
-    _, raw_probs, _ = session.model(observation)
+    _, raw_probs = session.model(observation)
 
     assert raw_probs[0][0][0] > starting_raw_probs[0][0][0]
 
@@ -270,7 +270,7 @@ def test_model_improves_when_trained_on_multiple_outputs(
     """
     observation = [torch.Tensor([1, 2]), torch.Tensor([1, 2, 3])]
 
-    _, starting_raw_probs, _ = session.model(observation)
+    _, starting_raw_probs = session.model(observation)
 
     for _ in range(100):
         action, _ = session.get_action(observation, 0)
@@ -279,7 +279,7 @@ def test_model_improves_when_trained_on_multiple_outputs(
         reward += 1 if action[1] == 2 else 0
         session.give_reward(reward, 0)
 
-    _, raw_probs, _ = session.model(observation)
+    _, raw_probs = session.model(observation)
 
     assert raw_probs[0][0][0] > starting_raw_probs[0][0][0]
     assert raw_probs[1][0][2] > starting_raw_probs[1][0][2]
@@ -305,7 +305,7 @@ def test_model_improves_when_trained_in_multiple_contexts():
         batch_size=6,
         minibatch_length=3,
         entropy_coef=0.0001,
-        discount_factor=0.95,
+        discount_factor=0.1,
         gae=0.96,
         epochs=3,
         clip_factor=0.1
@@ -314,7 +314,7 @@ def test_model_improves_when_trained_in_multiple_contexts():
 
     observation = [torch.Tensor([1, 2]), torch.Tensor([1, 2, 3])]
 
-    _, starting_raw_probs, _ = session.model(observation)
+    _, starting_raw_probs = session.model(observation)
 
     for i in range(100):
         action, _ = session.get_action(observation, i % 3)
@@ -323,7 +323,7 @@ def test_model_improves_when_trained_in_multiple_contexts():
         reward += 1 if action[1] == 2 else 0
         session.give_reward(reward, i % 3)
 
-    _, raw_probs, _ = session.model(observation)
+    _, raw_probs = session.model(observation)
 
     assert raw_probs[0][0][0] > starting_raw_probs[0][0][0]
     assert raw_probs[1][0][2] > starting_raw_probs[1][0][2]
@@ -345,13 +345,13 @@ def test_model_learns_simple_game():
     )
 
     hyperparams = HyperParams(
-        learning_rate=0.002,
+        learning_rate=0.001,
         batch_size=20,
-        minibatch_length=5,
+        minibatch_length=10,
         entropy_coef=0.001,
         discount_factor=0.9,
         gae=0.96,
-        epochs=4,
+        epochs=5,
         clip_factor=0.1
     )
 
@@ -387,13 +387,13 @@ def test_model_learns_with_multiple_contexts():
     )
 
     hyperparams = HyperParams(
-        learning_rate=0.003,
-        batch_size=50,
-        minibatch_length=5,
-        entropy_coef=0.0001,
+        learning_rate=0.001,
+        batch_size=20,
+        minibatch_length=10,
+        entropy_coef=0.001,
         discount_factor=0.9,
         gae=0.96,
-        epochs=6,
+        epochs=5,
         clip_factor=0.1
     )
     session = TrainingSession(model, hyperparams, 3)
@@ -431,9 +431,10 @@ def test_model_learns_with_delayed_rewards():
         learning_rate=0.001,
         batch_size=60,
         minibatch_length=20,
-        entropy_coef=0.0001,
-        discount_factor=0.99,
-        gae=0.96
+        entropy_coef=0.001,
+        discount_factor=0.97,
+        epochs=5,
+        gae=1.
     )
 
     session = TrainingSession(model, hyperparams, 1)
@@ -488,94 +489,5 @@ def test_model_learns_with_gpu():
         reward = environment.get_reward()
         rewards.append(reward)
         session.give_reward(reward, 0)
-
-    assert np.mean(rewards[:100]) + 0.05 < np.mean(rewards[-100:])
-
-
-@pytest.mark.training
-def test_lstm_learns_simple_pattern():
-    """
-    The model should be able to learn a very simple game where it has to pick
-    the option corresponding to the previous input.
-    Should require an lstm to learn.
-    """
-    np.random.seed(1)
-    torch.manual_seed(1)
-    model = ModelSpecification(
-        inputs=[2],
-        outputs=[2],
-        feature_extractors=['mlp']
-    )
-
-    hyperparams = HyperParams(
-        learning_rate=0.001,
-        batch_size=12,
-        minibatch_length=4,
-        entropy_coef=0.0001,
-        discount_factor=0.1,
-        gae=1.,
-        epochs=6,
-        clip_factor=0.1
-    )
-
-    session = TrainingSession(model, hyperparams, 1)
-    rewards = []
-
-    observation = torch.Tensor([0, 1])
-    actions = []
-
-    for _ in range(1000):
-        last_observation = observation
-        observation = (observation + 1) % 2
-        action, _ = session.get_action([observation], 0)
-        reward = (action[0] == last_observation.argmax()).float()
-        rewards.append(reward.item())
-        actions.append(action[0].item())
-        session.give_reward(reward, 0)
-
-    assert np.mean(rewards[-100:]) > 0.6
-
-
-@pytest.mark.training
-def test_rnn_learns_long_term_dependencies():
-    """
-    The model should be able to learn a game where it has to traverse a
-    corridor and take a turn at the end. Which way it should turn depends on
-    a feature at the start of the corridor.
-    """
-    np.random.seed(1)
-    torch.manual_seed(1)
-    model = ModelSpecification(
-        inputs=[3],
-        outputs=[4],
-        feature_extractors=['mlp'],
-        recurrent=True
-    )
-
-    hyperparams = HyperParams(
-        learning_rate=0.003,
-        batch_size=200,
-        minibatch_length=20,
-        entropy_coef=0.001,
-        discount_factor=0.95,
-        gae=0.98,
-        epochs=8,
-        clip_factor=0.2,
-        critic_coef=1.
-    )
-
-    session = TrainingSession(model, hyperparams, 1)
-    environment = LongTermDependencyGame(3)
-    rewards = []
-
-    for _ in range(3000):
-        if _ > 2000:
-            pytest.set_trace()
-        observation = environment.get_observation().view(-1)
-        actions, _ = session.get_action([observation], 0)
-        environment.act(actions[0])
-        reward, done = environment.get_reward()
-        rewards.append(reward)
-        session.give_reward(reward, 0, done)
 
     assert np.mean(rewards[:100]) + 0.05 < np.mean(rewards[-100:])
