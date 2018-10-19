@@ -145,7 +145,9 @@ class CommandHandler:
         model = ModelSpecification(
             inputs=params["model"]["inputs"],
             outputs=params["model"]["outputs"],
-            feature_extractors=params["model"]["feature_extractors"]
+            feature_extractors=params["model"]["feature_extractors"],
+            kernel_sizes=params["model"].get("kernel_sizes"),
+            kernel_strides=params["model"].get("kernel_strides")
         )
         # Inputs don't match feature extractors.
         if len(model.inputs) != len(model.feature_extractors):
@@ -157,15 +159,13 @@ class CommandHandler:
             hyperparams = HyperParams(**params["hyperparams"])
             self.session_manager.start_training_session(
                 params["session_id"], model, hyperparams,
-                params["contexts"], params["auto_train"]
-            )
+                params["contexts"], params["auto_train"])
             response = Response(result="OK", id=command.id)
             return self.create_response_json(response)
 
         self.session_manager.start_inference_session(
             params["session_id"], model, params["model_path"],
-            params["contexts"]
-        )
+            params["contexts"])
         response = Response(result="OK", id=command.id)
         return self.create_response_json(response)
 

@@ -21,7 +21,8 @@ class InferenceSession:
         self.contexts = contexts
 
         self.model = Model(model.inputs, model.outputs,
-                           model.feature_extractors)
+                           model.feature_extractors, model.kernel_sizes,
+                           model.kernel_strides)
         self.model.load_state_dict(torch.load(model_path))
 
     def get_action(

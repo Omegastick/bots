@@ -103,16 +103,18 @@ def test_cnn_model_output_shape():
     When using a model with CNN features, it should output the correct shape.
     """
     model = Model(
-        inputs=[3, [5, 6]],
+        inputs=[3, [1, 5, 6]],
         outputs=[3, 8],
-        feature_extractors=['mlp', 'cnn']
+        feature_extractors=['mlp', 'cnn'],
+        kernel_sizes=[3, 2, 1],
+        kernel_strides=[1, 1, 1]
     )
-    observation = [torch.Tensor([1, 2, 3]),
-                   torch.Tensor([1, 2, 3, 4, 5, 6],
+    observation = [torch.Tensor([[1, 2, 3]]),
+                   torch.Tensor([[[[1, 2, 3, 4, 5, 6],
                                 [1, 2, 3, 4, 5, 6],
                                 [1, 2, 3, 4, 5, 6],
                                 [1, 2, 3, 4, 5, 6],
-                                [1, 2, 3, 4, 5, 6])]
+                                [1, 2, 3, 4, 5, 6]]]])]
     _, raw_probs = model(observation)
 
     expected = [3, 8]

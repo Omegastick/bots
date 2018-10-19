@@ -502,10 +502,12 @@ def test_cnn_model_learns_simple_game():
     np.random.seed(1)
     torch.manual_seed(1)
     model = ModelSpecification(
-        inputs=[[5, 5]],
+        inputs=[[1, 5, 5]],
         outputs=[4],
         feature_extractors=['cnn'],
-        recurrent=False
+        recurrent=False,
+        kernel_sizes=[3, 2, 2],
+        kernel_strides=[1, 1, 1]
     )
 
     hyperparams = HyperParams(
@@ -524,13 +526,14 @@ def test_cnn_model_learns_simple_game():
     environment = MultiContextGame()
 
     def get_observation(environment: MultiContextGame) -> torch.Tensor:
-        observation = torch.zeros(5, 5)
+        observation = torch.zeros(1, 5, 5)
         player_location = (environment.location * 2) + 2
         reward_location = (environment.reward_location * 2) + 2
-        observation[player_location[0], player_location[1]] = 1
-        observation[reward_location[0], reward_location[1]] = -1
+        observation[0, int(player_location[0]), int(player_location[1])] = 1
+        observation[0, int(reward_location[0]), int(reward_location[1])] = -1
+        return observation
 
-    for _ in range(1000):
+    for _ in range(2000):
         observation = [get_observation(environment)]
         action, _ = session.get_action(observation, 0)
         environment.move(action[0].item())

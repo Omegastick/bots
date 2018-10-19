@@ -54,7 +54,8 @@ class TrainingSession:
         self.masks = [[1] for _ in range(contexts)]
 
         self.model = Model(model.inputs, model.outputs,
-                           model.feature_extractors)
+                           model.feature_extractors, model.kernel_sizes,
+                           model.kernel_strides)
 
         if hyperparams.use_gpu:
             self.model = self.model.cuda()
@@ -71,7 +72,8 @@ class TrainingSession:
         from one of the models being trained.
         """
         with torch.no_grad():
-            value, probs, log_probs = self.model.act(inputs)
+            value, probs, log_probs = self.model.act(
+                [x.unsqueeze(0) for x in inputs])
 
         actions = [x.multinomial(num_samples=1) for x in probs]
 

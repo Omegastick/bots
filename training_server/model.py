@@ -16,6 +16,8 @@ class ModelSpecification(NamedTuple):
     feature_extractors: List[str]
     recurrent: bool = True  # Currently deprecated.
     #                         Will be reimplemented eventually.
+    kernel_sizes: List[int] = [8, 4, 3]
+    kernel_strides: List[int] = [4, 2, 1]
 
 
 def normalized_columns_initializer(
@@ -73,6 +75,31 @@ class MLPExtractor(torch.nn.Module):
         return x
 
 
+class CNNExtractor(torch.nn.Module):
+    """
+    Feature extractor using a convolutional neural network to determine
+    features.
+    """
+
+    def __init__(self, input_shape, kernel_sizes, kernel_strides):
+        super().__init__()
+        self.layer_1 = torch.nn.Conv2d(
+            input_shape[0], 32, kernel_sizes[0], kernel_strides[0])
+        self.layer_2 = torch.nn.Conv2d(
+            32, 64, kernel_sizes[1], kernel_strides[1])
+        self.layer_3 = torch.nn.Conv2d(
+            64, 32, kernel_sizes[2], kernel_strides[2])
+
+    def forward(self, x: torch.Tensor) -> torch.Tensor:
+        x = self.layer_1(x)
+        x = F.relu(x)
+        x = self.layer_2(x)
+        x = F.relu(x)
+        x = self.layer_3(x)
+        x = F.relu(x)
+        return x.view(x.shape[0], -1)
+
+
 class Model(torch.nn.Module):
     """
     Default neural network model used by agents.
@@ -82,7 +109,9 @@ class Model(torch.nn.Module):
             self,
             inputs: List[int],
             outputs: List[int],
-            feature_extractors: List[str]):
+            feature_extractors: List[str],
+            kernel_sizes: List[int] = None,
+            kernel_strides: List[int] = None):
         super().__init__()
 
         # Feature extractors
@@ -90,14 +119,17 @@ class Model(torch.nn.Module):
         for i, extractor in enumerate(feature_extractors):
             if extractor == 'mlp':
                 input_size = inputs[i]
-                self.feature_extractors.append(
-                    MLPExtractor(input_size, 32))
+                self.feature_extractors.append(MLPExtractor(input_size, 32))
+            if extractor == 'cnn':
+                input_shape = inputs[i]
+                self.feature_extractors.append(CNNExtractor(
+                    input_shape, kernel_sizes, kernel_strides))
 
         # Feature size
-        temp_inputs = [torch.zeros(x) for x in inputs]
+        temp_inputs = [torch.zeros(x).unsqueeze(0) for x in inputs]
         temp_features = [self.feature_extractors[i](x)
                          for i, x in enumerate(temp_inputs)]
-        self.feature_size = torch.cat(temp_features).shape[0]
+        self.feature_size = torch.cat(temp_features, dim=1).shape[1]
 
         # Critic
         self.critic = torch.nn.Linear(self.feature_size, 1)

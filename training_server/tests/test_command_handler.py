@@ -392,9 +392,11 @@ def test_cnn_models_are_created_properly(command_handler: CommandHandler,
 	    "method": "begin_session",
 	    "param": {
 		    "model": {
-			    "inputs": [2, [3, 4]],
+			    "inputs": [2, [1, 10, 20]],
 			    "outputs": [2, 1],
-			    "feature_extractors": ["mlp", "mlp"]
+			    "feature_extractors": ["mlp", "cnn"],
+                "kernel_sizes": [2, 2, 1],
+                "kernel_strides": [1, 1, 1]
 			},
 			"hyperparams": {
 			    "learning_rate": 0.001,
@@ -411,6 +413,6 @@ def test_cnn_models_are_created_properly(command_handler: CommandHandler,
     """
     command_handler.handle_command(request)
 
-    model = session_manager.start_training_session.call_args_list[0][1]
+    model = session_manager.start_training_session.call_args_list[0][0][1]
 
-    assert model.inputs == [2, [3, 4]]
+    assert model.inputs == [2, [1, 10, 20]]
