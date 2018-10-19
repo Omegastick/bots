@@ -376,3 +376,41 @@ def test_error_on_feature_extractors_dont_match_inputs(
                         '"error":{"code":-1000,'
                         '"message":"Feature extractors don\'t match inputs"},'
                         '"id":0}')
+
+
+def test_cnn_models_are_created_properly(command_handler: CommandHandler,
+                                         session_manager: SessionManager,
+                                         mocker: MockFixture):
+    """
+    When recieving a command telling the handler to being a training session,
+    it should call the session manager and tell it to begin a training session.
+    """
+    mocker.spy(session_manager, 'start_training_session')
+    request = """
+    {
+	    "jsonrpc": "2.0",
+	    "method": "begin_session",
+	    "param": {
+		    "model": {
+			    "inputs": [2, [3, 4]],
+			    "outputs": [2, 1],
+			    "feature_extractors": ["mlp", "mlp"]
+			},
+			"hyperparams": {
+			    "learning_rate": 0.001,
+			    "gae": 0.9,
+			    "batch_size": 5
+			},
+            "session_id": 0,
+			"training": true,
+			"contexts": 1,
+            "auto_train": true
+		},
+	    "id": 0
+	}
+    """
+    command_handler.handle_command(request)
+
+    model = session_manager.start_training_session.call_args_list[0][1]
+
+    assert model.inputs == [2, [3, 4]]

@@ -149,7 +149,6 @@ class CommandHandler:
         )
         # Inputs don't match feature extractors.
         if len(model.inputs) != len(model.feature_extractors):
-            import ipdb; ipdb.set_trace()
             return ('{"jsonrpc":"2.0",'
                     '"error":{"code":-1000,'
                     '"message":"Feature extractors don\'t match inputs"},'
@@ -162,13 +161,13 @@ class CommandHandler:
             )
             response = Response(result="OK", id=command.id)
             return self.create_response_json(response)
-        else:
-            self.session_manager.start_inference_session(
-                params["session_id"], model, params["model_path"],
-                params["contexts"]
-            )
-            response = Response(result="OK", id=command.id)
-            return self.create_response_json(response)
+
+        self.session_manager.start_inference_session(
+            params["session_id"], model, params["model_path"],
+            params["contexts"]
+        )
+        response = Response(result="OK", id=command.id)
+        return self.create_response_json(response)
 
     def get_action(self, command: Command) -> str:
         """

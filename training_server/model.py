@@ -1,7 +1,7 @@
 """
 Agent models
 """
-from typing import List, Tuple, NamedTuple
+from typing import List, Tuple, NamedTuple, Union
 import numpy as np
 import torch
 import torch.nn.functional as F
@@ -11,11 +11,11 @@ class ModelSpecification(NamedTuple):
     """
     Named tuple for specifying a model to be created later.
     """
-    inputs: List[int]
+    inputs: List[Union[int, List[int]]]
     outputs: List[int]
     feature_extractors: List[str]
     recurrent: bool = True  # Currently deprecated.
-    # Will be reimplemented eventually.
+    #                         Will be reimplemented eventually.
 
 
 def normalized_columns_initializer(

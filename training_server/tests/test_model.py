@@ -5,7 +5,7 @@ Tests for model.py
 import pytest
 import torch
 
-from training_server.model import Model, ModelSpecification
+from training_server.model import Model
 
 
 @pytest.fixture
@@ -19,7 +19,7 @@ def model():
     return Model([3, 6], [2, 10], ['mlp', 'mlp'])
 
 
-def test_model_raw_prob_dimensions(model: ModelSpecification):
+def test_model_raw_prob_dimensions(model: Model):
     """
     The outputted raw probabilities should match dimensions specified in the
     constructor.
@@ -33,7 +33,7 @@ def test_model_raw_prob_dimensions(model: ModelSpecification):
     assert dimensions == expected
 
 
-def test_model_prob_dimensions(model: ModelSpecification):
+def test_model_prob_dimensions(model: Model):
     """
     The outputted probabilities should match dimensions specified in the
     constructor.
@@ -49,7 +49,7 @@ def test_model_prob_dimensions(model: ModelSpecification):
     assert log_dimensions == expected
 
 
-def test_model_backprop(model: ModelSpecification):
+def test_model_backprop(model: Model):
     """
     When backprop and an optimizer is used, the model should train.
     """
@@ -75,7 +75,7 @@ def test_model_backprop(model: ModelSpecification):
     assert abs(starting_reward - starting_value) > abs(reward - value)
 
 
-def test_probs_add_to_1(model: ModelSpecification):
+def test_probs_add_to_1(model: Model):
     """
     The probabilities outputted by model.act() should add to 1.
     """
@@ -85,7 +85,7 @@ def test_probs_add_to_1(model: ModelSpecification):
 
 
 def test_model_outputs_correct_shape_for_multiple_timestep_batches(
-        model: ModelSpecification):
+        model: Model):
     """
     When passing multiple timesteps through forward() at once, the output
     should return multiple timesteps correctly processed.
@@ -96,3 +96,26 @@ def test_model_outputs_correct_shape_for_multiple_timestep_batches(
 
     assert output[0].shape == (2, 2)
     assert output[1].shape == (2, 10)
+
+
+def test_cnn_model_output_shape():
+    """
+    When using a model with CNN features, it should output the correct shape.
+    """
+    model = Model(
+        inputs=[3, [5, 6]],
+        outputs=[3, 8],
+        feature_extractors=['mlp', 'cnn']
+    )
+    observation = [torch.Tensor([1, 2, 3]),
+                   torch.Tensor([1, 2, 3, 4, 5, 6],
+                                [1, 2, 3, 4, 5, 6],
+                                [1, 2, 3, 4, 5, 6],
+                                [1, 2, 3, 4, 5, 6],
+                                [1, 2, 3, 4, 5, 6])]
+    _, raw_probs = model(observation)
+
+    expected = [3, 8]
+    dimensions = [len(x[0]) for x in raw_probs]
+
+    assert dimensions == expected

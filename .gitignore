@@ -1,6 +1,6 @@
 **/__pycache__/
 **/.pytest_cache/
-.vscode/**
+**/.vscode/**
 .coverage
 .mypy_cache/**
 **/.cache

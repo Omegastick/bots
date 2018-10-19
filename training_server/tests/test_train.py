@@ -491,3 +491,51 @@ def test_model_learns_with_gpu():
         session.give_reward(reward, 0)
 
     assert np.mean(rewards[:100]) + 0.05 < np.mean(rewards[-100:])
+
+
+@pytest.mark.training
+def test_cnn_model_learns_simple_game():
+    """
+    The model should be able to learn a very simple game where it tries to
+    reach a goal.
+    """
+    np.random.seed(1)
+    torch.manual_seed(1)
+    model = ModelSpecification(
+        inputs=[[5, 5]],
+        outputs=[4],
+        feature_extractors=['cnn'],
+        recurrent=False
+    )
+
+    hyperparams = HyperParams(
+        learning_rate=0.001,
+        batch_size=20,
+        minibatch_length=10,
+        entropy_coef=0.001,
+        discount_factor=0.9,
+        gae=0.96,
+        epochs=5,
+        clip_factor=0.1
+    )
+
+    session = TrainingSession(model, hyperparams, 1)
+    rewards = []
+    environment = MultiContextGame()
+
+    def get_observation(environment: MultiContextGame) -> torch.Tensor:
+        observation = torch.zeros(5, 5)
+        player_location = (environment.location * 2) + 2
+        reward_location = (environment.reward_location * 2) + 2
+        observation[player_location[0], player_location[1]] = 1
+        observation[reward_location[0], reward_location[1]] = -1
+
+    for _ in range(1000):
+        observation = [get_observation(environment)]
+        action, _ = session.get_action(observation, 0)
+        environment.move(action[0].item())
+        reward = environment.get_reward()
+        rewards.append(reward)
+        session.give_reward(reward, 0)
+
+    assert np.mean(rewards[:100]) + 0.05 < np.mean(rewards[-100:])
