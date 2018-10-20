@@ -424,8 +424,8 @@ def test_cnn_observations_are_passed_correctly(
         session_manager: SessionManager,
         mocker: MockFixture):
     """
-    When receiving a command to get an action, it should call the get_action
-    fuction on the SessionManager.
+    When receiving a get_action command with a cnn observation, it should pass
+    the observation to the session_manager in the correct form.
     """
     session_manager.start_training_session(
         0, ModelSpecification(
@@ -462,3 +462,28 @@ def test_cnn_observations_are_passed_correctly(
     ]])]
 
     assert (observation[0] == expected[0]).all()
+
+
+def test_save_model_saves_model(
+        command_handler: CommandHandler,
+        session_manager: SessionManager,
+        mocker: MockFixture):
+    """
+    When recieving a save_model command, it should tell the session manager to
+    save the model.
+    """
+    mocker.patch.object(session_manager, 'save_model')
+    request = """
+    {
+	    "jsonrpc": "2.0",
+	    "method": "save_model",
+	    "param": {
+		    "path": "C:\\\\asd\\\\sdf\\\\dfg.model",
+            "session_id": 0
+		},
+	    "id": 0
+	}
+    """
+    command_handler.handle_command(request)
+
+    assert session_manager.save_model.call_count == 1

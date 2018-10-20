@@ -82,6 +82,8 @@ class CommandHandler:
                 return self.give_reward(command)
             if command.action == "end_session":
                 return self.end_session(command)
+            if command.action == "save_model":
+                return self.save_model(command)
             if command.action == "close_connection":
                 return self.close_connection()
 
@@ -201,6 +203,15 @@ class CommandHandler:
         """
         params = command.params
         self.session_manager.end_session(params["session_id"])
+        response = Response(result="OK", id=command.id)
+        return self.create_response_json(response)
+
+    def save_model(self, command: Command) -> str:
+        """
+        Saves a model.
+        """
+        params = command.params
+        self.session_manager.save_model(params["session_id"], params["path"])
         response = Response(result="OK", id=command.id)
         return self.create_response_json(response)
 
