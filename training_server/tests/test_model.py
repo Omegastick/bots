@@ -111,10 +111,10 @@ def test_cnn_model_output_shape():
     )
     observation = [torch.Tensor([[1, 2, 3]]),
                    torch.Tensor([[[[1, 2, 3, 4, 5, 6],
-                                [1, 2, 3, 4, 5, 6],
-                                [1, 2, 3, 4, 5, 6],
-                                [1, 2, 3, 4, 5, 6],
-                                [1, 2, 3, 4, 5, 6]]]])]
+                                   [1, 2, 3, 4, 5, 6],
+                                   [1, 2, 3, 4, 5, 6],
+                                   [1, 2, 3, 4, 5, 6],
+                                   [1, 2, 3, 4, 5, 6]]]])]
     _, raw_probs = model(observation)
 
     expected = [3, 8]

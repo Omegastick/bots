@@ -5,6 +5,7 @@ Tests for command_handler.py
 import os
 import pytest
 from pytest_mock import mocker, MockFixture  # pylint: disable=W0611
+import torch
 
 from training_server.command_handler import CommandHandler, Command, Response
 from training_server.session_manager import SessionManager
@@ -416,3 +417,48 @@ def test_cnn_models_are_created_properly(command_handler: CommandHandler,
     model = session_manager.start_training_session.call_args_list[0][0][1]
 
     assert model.inputs == [2, [1, 10, 20]]
+
+
+def test_cnn_observations_are_passed_correctly(
+        command_handler: CommandHandler,
+        session_manager: SessionManager,
+        mocker: MockFixture):
+    """
+    When receiving a command to get an action, it should call the get_action
+    fuction on the SessionManager.
+    """
+    session_manager.start_training_session(
+        0, ModelSpecification(
+            inputs=[[1, 3, 3]],
+            outputs=[1],
+            feature_extractors=['cnn'],
+            kernel_sizes=[1, 1, 1],
+            kernel_strides=[1, 1, 1]),
+        HyperParams(), 1, True)
+    mocker.spy(session_manager, 'get_action')
+    request = """
+    {
+	    "jsonrpc": "2.0",
+	    "method": "get_action",
+	    "param": {
+		    "inputs": [[
+                [1, 2, 3],
+                [1, 2, 3],
+                [1, 2, 3]
+            ]],
+            "context": 0,
+            "session_id": 0
+		},
+	    "id": 0
+	}
+    """
+    command_handler.handle_command(request)
+
+    observation = session_manager.get_action.call_args_list[0][0][1]
+    expected = [torch.Tensor([[
+        [1, 2, 3],
+        [1, 2, 3],
+        [1, 2, 3]
+    ]])]
+
+    assert (observation[0] == expected[0]).all()
