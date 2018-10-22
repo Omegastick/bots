@@ -142,11 +142,13 @@ class GiveRewardRequest(Request):
 
     def __init__(self,
                  reward: float,
+                 done: bool,
                  context: int,
                  session_id: int):
-        self.session_id = session_id
         self.reward = reward
+        self.done = done
         self.context = context
+        self.session_id = session_id
 
     def to_json(self) -> str:
         request = {
@@ -155,7 +157,8 @@ class GiveRewardRequest(Request):
             "param": {
                 "reward": self.reward,
                 "context": self.context,
-                "session_id": self.session_id
+                "session_id": self.session_id,
+                "done": self.done
             },
             "id": 0
         }

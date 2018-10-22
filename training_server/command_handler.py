@@ -193,7 +193,8 @@ class CommandHandler:
         params = command.params
         self.session_manager.give_reward(params["session_id"],
                                          params["reward"],
-                                         params["context"])
+                                         params["context"],
+                                         params["done"])
         response = Response(result="OK", id=command.id)
         return self.create_response_json(response)
 

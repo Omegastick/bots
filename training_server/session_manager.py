@@ -58,13 +58,18 @@ class SessionManager:
             inputs[i] = torch.Tensor(_input).float().unsqueeze(0)
         return self.sessions[session_id].get_action(inputs, context)
 
-    def give_reward(self, session_id: int, reward: float, context: int):
+    def give_reward(
+            self,
+            session_id: int,
+            reward: float,
+            context: int,
+            done: bool = False):
         """
         Gives a reward to an agent in a training session.
         """
         assert isinstance(self.sessions[session_id], TrainingSession), \
             "Can only give rewards to training sessions."
-        self.sessions[session_id].give_reward(reward, context)
+        self.sessions[session_id].give_reward(reward, context, done)
 
     def save_model(self, session_id: int, path: str):
         """
