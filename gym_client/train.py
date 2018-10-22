@@ -1,8 +1,8 @@
 """
 Contains a class that trains an agent.
 """
-
 import logging
+from time import time
 from baselines.common.cmd_util import make_vec_env
 from training_server.train import HyperParams
 from training_server.model import ModelSpecification
@@ -10,6 +10,9 @@ from training_server.model import ModelSpecification
 from gym_client.client import Client
 from gym_client.requests import (BeginTrainingSessionRequest, GetActionRequest,
                                  GiveRewardRequest)
+
+
+RUNNING_REWARD_HORIZON = 100
 
 
 class Trainer:
@@ -49,6 +52,7 @@ class Trainer:
         observations = self.env.reset()
 
         episode_rewards = [0. for _ in range(self.env.num_envs)]
+        running_reward = 0
 
         while current_frame < max_frames:
             # Get actions
@@ -76,6 +80,11 @@ class Trainer:
             for i, _ in enumerate(episode_rewards):
                 episode_rewards[i] += rewards[i]
                 if dones[i]:
-                    logging.info("Frame: %i - Reward: %f",
-                                 current_frame, episode_rewards[i])
+                    running_reward -= running_reward / RUNNING_REWARD_HORIZON
+                    running_reward += (episode_rewards[i]
+                                       / RUNNING_REWARD_HORIZON)
+                    logging.info("Frame: %i - Reward: %f - Average: %f",
+                                 current_frame,
+                                 episode_rewards[i],
+                                 running_reward)
                     episode_rewards[i] = 0
