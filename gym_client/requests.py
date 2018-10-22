@@ -1,13 +1,26 @@
 """
 Classes for building requests to send to the training server.
 """
+from abc import ABC, abstractmethod
 import numpy as np
 import rapidjson
 from training_server.model import ModelSpecification
 from training_server.train import HyperParams
 
 
-class BeginTrainingSessionRequest:
+class Request(ABC):
+    """
+    Base class for requests.
+    """
+    @abstractmethod
+    def to_json(self) -> str:
+        """
+        Creates the JSON for the request.
+        """
+        pass
+
+
+class BeginTrainingSessionRequest(Request):
     """
     Builds the JSON for a request to begin a training session.
     """
@@ -23,9 +36,6 @@ class BeginTrainingSessionRequest:
         self.session_id = session_id
 
     def to_json(self) -> str:
-        """
-        Creates the JSON for the request.
-        """
         request = {
             "jsonrpc": "2.0",
             "method": "begin_session",
@@ -42,7 +52,7 @@ class BeginTrainingSessionRequest:
         return rapidjson.dumps(request)
 
 
-class BeginInferenceSessionRequest:
+class BeginInferenceSessionRequest(Request):
     """
     Builds the JSON for a request to begin an inference session.
     """
@@ -58,9 +68,6 @@ class BeginInferenceSessionRequest:
         self.model_path = model_path
 
     def to_json(self) -> str:
-        """
-        Creates the JSON for the request.
-        """
         request = {
             "jsonrpc": "2.0",
             "method": "begin_session",
@@ -77,7 +84,7 @@ class BeginInferenceSessionRequest:
         return rapidjson.dumps(request)
 
 
-class SaveModelRequest:
+class SaveModelRequest(Request):
     """
     Builds the JSON for a request to save a model.
     """
@@ -89,9 +96,6 @@ class SaveModelRequest:
         self.path = path
 
     def to_json(self) -> str:
-        """
-        Creates the JSON for the request.
-        """
         request = {
             "jsonrpc": "2.0",
             "method": "save_model",
@@ -104,7 +108,7 @@ class SaveModelRequest:
         return rapidjson.dumps(request)
 
 
-class GetActionRequest:
+class GetActionRequest(Request):
     """
     Builds the JSON for a request to get an action.
     """
@@ -118,9 +122,6 @@ class GetActionRequest:
         self.context = context
 
     def to_json(self) -> str:
-        """
-        Creates the JSON for the request.
-        """
         request = {
             "jsonrpc": "2.0",
             "method": "get_action",
@@ -134,7 +135,7 @@ class GetActionRequest:
         return rapidjson.dumps(request)
 
 
-class GiveRewardRequest:
+class GiveRewardRequest(Request):
     """
     Builds the JSON for a request to give a reward to an agent.
     """
@@ -148,9 +149,6 @@ class GiveRewardRequest:
         self.context = context
 
     def to_json(self) -> str:
-        """
-        Creates the JSON for the request.
-        """
         request = {
             "jsonrpc": "2.0",
             "method": "give_reward",
