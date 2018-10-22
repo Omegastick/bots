@@ -2,7 +2,6 @@
 Contains a class that trains an agent.
 """
 import logging
-from time import time
 from baselines.common.cmd_util import make_vec_env
 from training_server.train import HyperParams
 from training_server.model import ModelSpecification
@@ -59,7 +58,7 @@ class Trainer:
             actions = []
             for i, observation in enumerate(observations):
                 get_action_request = GetActionRequest(
-                    [list(observation)], i, 0)
+                    [observation.tolist()], i, 0)
                 actions.append(
                     self.client.send_request(
                         get_action_request)["result"]["actions"][0])
@@ -70,7 +69,7 @@ class Trainer:
             # Give rewards
             for i, reward in enumerate(rewards):
                 give_reward_request = GiveRewardRequest(
-                    reward, bool(dones[i]), i, 0)
+                    float(reward), bool(dones[i]), i, 0)
                 self.client.send_request(give_reward_request)
 
             # Increment frame counter
