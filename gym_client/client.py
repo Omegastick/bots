@@ -16,6 +16,7 @@ class Client:
         context = zmq.Context()
         self.socket = context.socket(zmq.PAIR)
         self.socket.connect(url)
+        self.socket.send_string("Establishing connection...")
         logging.info(self.socket.recv_string())
 
     def send_request(self, request: Request) -> dict:
