@@ -6,6 +6,7 @@ import numpy as np
 import gym
 from baselines.common.cmd_util import make_vec_env
 from baselines.common.vec_env import VecEnvWrapper
+from baselines.common.vec_env.vec_frame_stack import VecFrameStack
 from training_server.train import HyperParams
 from training_server.model import ModelSpecification
 
@@ -39,6 +40,7 @@ class Trainer:
                 feature_extractors=["mlp"])
         elif env_type == 'atari':
             self.env = VecPytorchImageFormat(self.env)
+            self.env = VecFrameStack(self.env, 4)
             model_specification = ModelSpecification(
                 inputs=[list(self.env.observation_space.shape)],
                 outputs=[self.env.action_space.n],
