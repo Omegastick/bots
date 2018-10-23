@@ -56,7 +56,10 @@ def main():
 
     trainer = Trainer(hyperparams, args.num_environments, args.env_name,
                       args.env_type, client)
-    trainer.train(args.max_frames)
+    try:
+        trainer.train(args.max_frames)
+    finally:
+        trainer.end_session()
 
 
 if __name__ == '__main__':

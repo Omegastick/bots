@@ -163,3 +163,38 @@ class GiveRewardRequest(Request):
             "id": 0
         }
         return rapidjson.dumps(request)
+
+
+class EndSessionRequest(Request):
+    """
+    Builds the JSON for a request to end a session.
+    """
+
+    def __init__(self, session_id: int):
+        self.session_id = session_id
+
+    def to_json(self) -> str:
+        request = {
+            "jsonrpc": "2.0",
+            "method": "end_session",
+            "param": {
+                "session_id": self.session_id
+            },
+            "id": 0
+        }
+        return rapidjson.dumps(request)
+
+
+class CloseConnectionRequest(Request):
+    """
+    Builds the JSON for a request to close the connection.
+    """
+
+    def to_json(self) -> str:
+        request = {
+            "jsonrpc": "2.0",
+            "method": "close_connection",
+            "param": [],
+            "id": 0
+        }
+        return rapidjson.dumps(request)

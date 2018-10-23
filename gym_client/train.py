@@ -12,7 +12,8 @@ from training_server.model import ModelSpecification
 
 from gym_client.client import Client
 from gym_client.requests import (BeginTrainingSessionRequest, GetActionRequest,
-                                 GiveRewardRequest)
+                                 GiveRewardRequest, EndSessionRequest,
+                                 CloseConnectionRequest)
 
 
 RUNNING_REWARD_HORIZON = 10
@@ -100,8 +101,23 @@ class Trainer:
                                  running_reward)
                     episode_rewards[i] = 0
 
+    def end_session(self):
+        """
+        Tells the server that training has finished.
+        """
+        end_session_request = EndSessionRequest(0)
+        self.client.send_request(end_session_request)
+        close_connection_request = CloseConnectionRequest()
+        self.client.send_request(close_connection_request)
+
 
 class VecPytorchImageFormat(VecEnvWrapper):
+    """
+    Environment wrapper that reshapes the observations from
+    [env, width, height, channel] to [env, channel, width, height] (ie. PyTorch
+    format).
+    """
+
     def __init__(self, venv):
         super().__init__(venv)
         old_shape = self.observation_space.shape
