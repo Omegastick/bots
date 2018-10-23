@@ -2,7 +2,10 @@
 Contains a class that trains an agent.
 """
 import logging
+import numpy as np
+import gym
 from baselines.common.cmd_util import make_vec_env
+from baselines.common.vec_env import VecEnvWrapper
 from training_server.train import HyperParams
 from training_server.model import ModelSpecification
 
@@ -11,7 +14,7 @@ from gym_client.requests import (BeginTrainingSessionRequest, GetActionRequest,
                                  GiveRewardRequest)
 
 
-RUNNING_REWARD_HORIZON = 100
+RUNNING_REWARD_HORIZON = 10
 
 
 class Trainer:
@@ -34,6 +37,12 @@ class Trainer:
                 inputs=[self.env.observation_space.shape[0]],
                 outputs=[self.env.action_space.n],
                 feature_extractors=["mlp"])
+        elif env_type == 'atari':
+            self.env = VecPytorchImageFormat(self.env)
+            model_specification = ModelSpecification(
+                inputs=[list(self.env.observation_space.shape)],
+                outputs=[self.env.action_space.n],
+                feature_extractors=["cnn"])
         else:
             raise NotImplementedError()
 
@@ -87,3 +96,24 @@ class Trainer:
                                  episode_rewards[i],
                                  running_reward)
                     episode_rewards[i] = 0
+
+
+class VecPytorchImageFormat(VecEnvWrapper):
+    def __init__(self, venv):
+        super().__init__(venv)
+        old_shape = self.observation_space.shape
+        self.observation_space = gym.spaces.Box(
+            low=0.0,
+            high=1.0,
+            shape=(old_shape[-1], old_shape[0], old_shape[1]),
+            dtype=np.uint8)
+
+    def step_wait(self):
+        obs, rews, news, infos = self.venv.step_wait()
+        obs = obs.swapaxes(-1, -3)
+        return obs, rews, news, infos
+
+    def reset(self):
+        obs = self.venv.reset()
+        obs = obs.swapaxes(-1, -3)
+        return obs

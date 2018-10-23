@@ -94,6 +94,7 @@ class CommandHandler:
         except KeyError as exception:
             logging.debug(command_json)
             logging.error(exception)
+            import pdb; pdb.post_mortem()
             return BAD_REQUEST
 
     def parse_json(self, json: str) -> Command:

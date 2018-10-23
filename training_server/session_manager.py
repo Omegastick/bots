@@ -55,7 +55,7 @@ class SessionManager:
         Get an action from a session.
         """
         for i, _input in enumerate(inputs):
-            inputs[i] = torch.Tensor(_input).float().unsqueeze(0)
+            inputs[i] = torch.Tensor(_input).float()
         return self.sessions[session_id].get_action(inputs, context)
 
     def give_reward(

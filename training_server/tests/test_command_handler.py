@@ -442,11 +442,11 @@ def test_cnn_observations_are_passed_correctly(
 	    "jsonrpc": "2.0",
 	    "method": "get_action",
 	    "param": {
-		    "inputs": [[
+		    "inputs": [[[
                 [1, 2, 3],
                 [1, 2, 3],
                 [1, 2, 3]
-            ]],
+            ]]],
             "context": 0,
             "session_id": 0
 		},
