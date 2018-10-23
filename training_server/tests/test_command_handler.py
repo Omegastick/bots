@@ -226,6 +226,7 @@ def test_give_reward_gives_reward(
 	    "method": "give_reward",
 	    "param": {
 		    "reward": 1.0,
+            "done": true,
             "context": 0,
             "session_id": 0
 		},

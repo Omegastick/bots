@@ -51,7 +51,7 @@ class TrainingSession:
         self.values = [[] for _ in range(contexts)]
         self.observations = [[] for _ in range(contexts)]
         self.actions = [[] for _ in range(contexts)]
-        self.masks = [[1] for _ in range(contexts)]
+        self.masks = [[] for _ in range(contexts)]
 
         self.model = Model(model.inputs, model.outputs,
                            model.feature_extractors, model.kernel_sizes,
@@ -108,6 +108,7 @@ class TrainingSession:
         """
         Train on a batch of data.
         """
+        # import pdb; pdb.set_trace()
         logging.debug("Training")
         for epoch in range(self.hyperparams.epochs):
             for context, starting_index in self._get_starting_indexes(epoch):
@@ -144,6 +145,7 @@ class TrainingSession:
                     value_delta = (rewards[i]
                                    + self.hyperparams.discount_factor
                                    * values[i + 1].detach()
+                                   * masks[i]
                                    - values[i].detach())
                     # Generalised Advantage Estimate
                     # When setting the GAE hyperparameter to a low value, the
@@ -154,6 +156,7 @@ class TrainingSession:
                     gae = (gae
                            * self.hyperparams.discount_factor
                            * self.hyperparams.gae
+                           * masks[i]
                            + value_delta)
                     # PPO
                     clip = self.hyperparams.clip_factor
