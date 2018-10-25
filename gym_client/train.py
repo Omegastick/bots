@@ -77,7 +77,6 @@ class Trainer:
 
             # Step environments
             observations, rewards, dones, _ = self.env.step(actions)
-            rewards = np.clip(rewards, -1, 1)
 
             # Give rewards
             for i, reward in enumerate(rewards):
