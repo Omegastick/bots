@@ -2,9 +2,12 @@
 Agent models
 """
 from typing import List, Tuple, NamedTuple, Union
-import numpy as np
 import torch
+import torch.nn as nn
 import torch.nn.functional as F
+from a2c_ppo_acktr.model import NNBase
+from a2c_ppo_acktr.utils import init
+from a2c_ppo_acktr.distributions import Bernoulli
 
 
 class ModelSpecification(NamedTuple):
@@ -20,75 +23,194 @@ class ModelSpecification(NamedTuple):
     kernel_strides: List[int] = [4, 2, 1]
 
 
-def normalized_columns_initializer(
-        weights: torch.Tensor,
-        std: float = 1.):
+class CustomPolicy(nn.Module):
     """
-    Normalises each layer's weights when initialising.
-    Based on: https://github.com/ikostrikov/pytorch-a3c/blob/master/model.py
+    The policy portion of a reinforcement learning agent.
+    Can be customised in the constructor.
     """
-    out = torch.randn(weights.size())
-    out *= std / torch.sqrt(out.pow(2).sum(1, keepdim=True))
-    return out
+
+    def __init__(
+            self,
+            inputs: List[int],
+            outputs: int,
+            feature_extractors: List[str],
+            kernel_sizes: List[int] = None,
+            kernel_strides: List[int] = None,
+            recurrent=False,
+            hidden_size=128
+    ):
+        super().__init__()
+        self.base = CustomBase(inputs, feature_extractors,
+                               kernel_sizes, kernel_strides, recurrent,
+                               hidden_size)
+
+        self.dist = Bernoulli(self.base.output_size, outputs)
+
+    @property
+    def is_recurrent(self):
+        """
+        Whether or not the policy contains a recurrent cell.
+        """
+        return self.base.is_recurrent
+
+    @property
+    def recurrent_hidden_state_size(self):
+        """
+        Size of rnn_hx.
+        """
+        return self.base.recurrent_hidden_state_size
+
+    def forward(self, inputs, rnn_hxs, masks):
+        """
+        DO NOT USE.
+        Not implemented.
+        """
+        raise NotImplementedError
+
+    def act(self, inputs, rnn_hxs, masks, deterministic=False):
+        """
+        Get a value, action, log probabilities for the action and the hidden
+        states for the inputs given.
+        """
+        value, actor_features, rnn_hxs = self.base(inputs, rnn_hxs, masks)
+        dist = self.dist(actor_features)
+
+        if deterministic:
+            action = dist.mode()
+        else:
+            action = dist.sample()
+
+        action_log_probs = dist.log_probs(action)
+
+        return value, action, action_log_probs, rnn_hxs
+
+    def get_value(self, inputs, rnn_hxs, masks):
+        """
+        Get the value of a state.
+        """
+        value, _, _ = self.base(inputs, rnn_hxs, masks)
+        return value
+
+    def evaluate_actions(self, inputs, rnn_hxs, masks, action):
+        """
+        Given a set of states and actions, evaluate taking those action in
+        those states.
+        """
+        value, actor_features, rnn_hxs = self.base(inputs, rnn_hxs, masks)
+        dist = self.dist(actor_features)
+
+        action_log_probs = dist.log_probs(action)
+        dist_entropy = dist.entropy().mean()
+
+        return value, action_log_probs, dist_entropy, rnn_hxs
 
 
-def weights_init(module: torch.nn.Module) -> torch.Tensor:
+class CustomBase(NNBase):
     """
-    Weight initialisation function magic.
-    Based on: https://github.com/ikostrikov/pytorch-a3c/blob/master/model.py
+    Builds a set of feature extractors and allows for using them to process
+    images.
     """
-    classname = module.__class__.__name__
-    if classname.find('Conv') != -1:
-        weight_shape = list(module.weight.data.size())
-        fan_in = np.prod(weight_shape[1:4])
-        fan_out = np.prod(weight_shape[2:4]) * weight_shape[0]
-        w_bound = np.sqrt(6. / (fan_in + fan_out))
-        module.weight.data.uniform_(-w_bound, w_bound)
-        module.bias.data.fill_(0)
-    elif classname.find('Linear') != -1:
-        weight_shape = list(module.weight.data.size())
-        fan_in = weight_shape[1]
-        fan_out = weight_shape[0]
-        w_bound = np.sqrt(6. / (fan_in + fan_out))
-        module.weight.data.uniform_(-w_bound, w_bound)
-        module.bias.data.fill_(0)
+
+    def __init__(
+            self,
+            inputs: List[int],
+            feature_extractors: List[str],
+            kernel_sizes: List[int] = None,
+            kernel_strides: List[int] = None,
+            recurrent=False,
+            hidden_size=128
+    ):
+        super().__init__(recurrent, hidden_size, hidden_size)
+
+        def init_extractor(module):
+            return init(module,
+                        nn.init.orthogonal_,
+                        lambda x: nn.init.constant_(x, 0),
+                        nn.init.calculate_gain('relu'))
+
+        # Feature extractors
+        self.feature_extractors = nn.ModuleList()
+        for i, extractor in enumerate(feature_extractors):
+            if extractor == 'mlp':
+                input_size = inputs[i]
+                self.feature_extractors.append(
+                    MLPExtractor(input_size, 32, init_extractor))
+            if extractor == 'cnn':
+                input_shape = inputs[i]
+                self.feature_extractors.append(
+                    CNNExtractor(input_shape, kernel_sizes, kernel_strides,
+                                 init_extractor))
+
+        # Feature size
+        temp_inputs = [torch.zeros(x).unsqueeze(0) for x in inputs]
+        temp_features = [self.feature_extractors[i](x)
+                         for i, x in enumerate(temp_inputs)]
+        self.feature_size = torch.cat(temp_features, dim=1).shape[1]
+
+        self.linear = init_extractor(nn.Linear(self.feature_size, hidden_size))
+
+        def init_critic(module):
+            return init(module,
+                        nn.init.orthogonal_,
+                        lambda x: nn.init.constant_(x, 0))
+
+        self.critic_linear = init_critic(nn.Linear(hidden_size, 1))
+
+        self.train()
+
+    def forward(self, x, rnn_hxs=None, masks=None) -> Tuple[torch.Tensor,
+                                                            torch.Tensor,
+                                                            torch.Tensor]:
+        features = [extractor(x[i]) for i, extractor in enumerate(
+            self.feature_extractors)]
+        x = torch.cat(features, dim=-1)
+        x = x.view(-1, self.feature_size)
+        x = self.linear(x)
+        x = F.relu(x)
+
+        if self.is_recurrent:
+            x, rnn_hxs = self._forward_gru(x, rnn_hxs, masks)
+
+        return self.critic_linear(x), x, rnn_hxs
 
 
-class MLPExtractor(torch.nn.Module):
+class MLPExtractor(nn.Module):
     """
     Feature extractor using a multi-layer perceptron to determine features.
     """
 
-    def __init__(self, input_size, output_size):
+    def __init__(self, input_size, output_size, init_function):
         super().__init__()
-        self.layer_1 = torch.nn.Linear(input_size, 128)
-        self.layer_2 = torch.nn.Linear(128, 128)
-        self.layer_3 = torch.nn.Linear(128, output_size)
+        self.layer_1 = init_function(nn.Linear(input_size, 128))
+        self.layer_2 = init_function(nn.Linear(128, output_size))
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
         x = self.layer_1(x)
         x = F.relu(x)
         x = self.layer_2(x)
         x = F.relu(x)
-        x = self.layer_3(x)
-        x = F.relu(x)
         return x
 
 
-class CNNExtractor(torch.nn.Module):
+class CNNExtractor(nn.Module):
     """
     Feature extractor using a convolutional neural network to determine
     features.
     """
 
-    def __init__(self, input_shape, kernel_sizes, kernel_strides):
+    def __init__(
+            self,
+            input_shape,
+            kernel_sizes,
+            kernel_strides,
+            init_function):
         super().__init__()
-        self.layer_1 = torch.nn.Conv2d(
-            input_shape[0], 32, kernel_sizes[0], kernel_strides[0])
-        self.layer_2 = torch.nn.Conv2d(
-            32, 64, kernel_sizes[1], kernel_strides[1])
-        self.layer_3 = torch.nn.Conv2d(
-            64, 32, kernel_sizes[2], kernel_strides[2])
+        self.layer_1 = init_function(nn.Conv2d(
+            input_shape[0], 32, kernel_sizes[0], kernel_strides[0]))
+        self.layer_2 = init_function(nn.Conv2d(
+            32, 64, kernel_sizes[1], kernel_strides[1]))
+        self.layer_3 = init_function(nn.Conv2d(
+            64, 32, kernel_sizes[2], kernel_strides[2]))
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
         x = self.layer_1(x)
@@ -98,95 +220,3 @@ class CNNExtractor(torch.nn.Module):
         x = self.layer_3(x)
         x = F.relu(x)
         return x.view(x.shape[0], -1)
-
-
-class Model(torch.nn.Module):
-    """
-    Default neural network model used by agents.
-    """
-
-    def __init__(
-            self,
-            inputs: List[int],
-            outputs: List[int],
-            feature_extractors: List[str],
-            kernel_sizes: List[int] = None,
-            kernel_strides: List[int] = None):
-        super().__init__()
-
-        # Feature extractors
-        self.feature_extractors = torch.nn.ModuleList()
-        for i, extractor in enumerate(feature_extractors):
-            if extractor == 'mlp':
-                input_size = inputs[i]
-                self.feature_extractors.append(MLPExtractor(input_size, 32))
-            if extractor == 'cnn':
-                input_shape = inputs[i]
-                self.feature_extractors.append(CNNExtractor(
-                    input_shape, kernel_sizes, kernel_strides))
-
-        # Feature size
-        temp_inputs = [torch.zeros(x).unsqueeze(0) for x in inputs]
-        temp_features = [self.feature_extractors[i](x)
-                         for i, x in enumerate(temp_inputs)]
-        self.feature_size = torch.cat(temp_features, dim=1).shape[1]
-
-        # Critic
-        self.critic = torch.nn.Linear(self.feature_size, 1)
-
-        # Actor
-        self.actors = torch.nn.ModuleList()
-        for output in outputs:
-            self.actors.append(torch.nn.Linear(self.feature_size, output))
-
-        # Initialise weights
-        self.apply(weights_init)
-        for actor in self.actors:
-            actor.weight.data = normalized_columns_initializer(
-                actor.weight.data, 0.01)
-            actor.bias.data.fill_(0)
-        self.critic.weight.data = normalized_columns_initializer(
-            self.critic.weight.data, 1.0)
-        self.critic.bias.data.fill_(0)
-
-    def forward(
-            self,
-            x: List[torch.Tensor]) -> Tuple[torch.Tensor,
-                                            List[torch.Tensor]]:
-        features = [extractor(x[i]) for i, extractor in enumerate(
-            self.feature_extractors)]
-        x = torch.cat(features, dim=-1)
-        x = x.view(-1, self.feature_size)
-        value = self.critic(x)
-        raw_probs = [actor(x) for actor in self.actors]
-        return value, raw_probs
-
-    def get_value(
-            self,
-            x: List[torch.Tensor]) -> Tuple[torch.Tensor, torch.Tensor]:
-        """
-        Gets the predicted value for an observation.
-        """
-        features = [extractor(x[i]) for i, extractor in enumerate(
-            self.feature_extractors)]
-        x = torch.cat(features, dim=-1)
-        x = F.relu(x)
-        value = self.critic(x)
-        return value
-
-    def act(
-            self,
-            x: List[torch.Tensor]) -> Tuple[torch.Tensor,
-                                            List[torch.Tensor],
-                                            List[torch.Tensor],
-                                            torch.Tensor]:
-        """
-        Get the predicted value, action probabilities and the log probabilities
-        of an observation.
-        """
-        value, raw_probs = self(x)
-        probs = [F.softmax(raw_prob, dim=1)[0] for raw_prob in raw_probs]
-        log_probs = [F.log_softmax(raw_prob, dim=1)[0]
-                     for raw_prob in raw_probs]
-
-        return value, probs, log_probs
