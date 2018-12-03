@@ -1,15 +1,14 @@
 """
 Train
 """
-import logging
-from typing import NamedTuple, List, Tuple
+from typing import NamedTuple, Tuple
 from collections import deque
 import torch
-import torch.nn as nn
 import numpy as np
+from gym import spaces
+
 from a2c_ppo_acktr.algo import PPO
 from a2c_ppo_acktr.storage import RolloutStorage
-from gym import spaces
 
 from .model import CustomPolicy, ModelSpecification
 
@@ -20,9 +19,10 @@ class HyperParams(NamedTuple):
     """
     learning_rate: float = 0.0001
     batch_size: int = 250
-    num_minibatch = 32
+    num_minibatch: int = 32
     epochs: int = 5
     discount_factor: float = 0.99
+    use_gae: bool = True
     gae: float = 1.
     critic_coef: float = 0.5
     entropy_coef: float = 0.001
@@ -43,30 +43,30 @@ class TrainingSession:
             contexts: int
     ):
         torch.set_num_threads(1)
-        device = torch.device("cuda:0" if hyperparams.use_gpu else "cpu")
+        self.device = torch.device("cuda:0" if hyperparams.use_gpu else "cpu")
 
-        self.model = CustomPolicy(model.inputs, model.outputs,
-                                  model.feature_extractors, model.kernel_sizes,
-                                  model.kernel_strides, model.recurrent)
-        self.model.to(device)
+        self.hyperparams = hyperparams
+
+        self.model = CustomPolicy(model.inputs, model.outputs, model.recurrent)
+        self.model.to(self.device)
 
         self.agent = PPO(self.model, hyperparams.clip_factor,
                          hyperparams.epochs, hyperparams.num_minibatch,
                          hyperparams.critic_coef, hyperparams.entropy_coef,
-                         hyperparams.learning_rate, 1e-5,
-                         hyperparams.max_grad_norm)
+                         lr=hyperparams.learning_rate, eps=1e-8,
+                         max_grad_norm=hyperparams.max_grad_norm)
 
-        observation_spaces = []
-        for input_ in model.inputs:
-            if isinstance(input_, int):
-                observation_spaces.append(spaces.Box(input_))
-            else:
-                observation_spaces.append(spaces.Box(shape=input_))
         self.rollouts = RolloutStorage(hyperparams.batch_size, contexts,
-                                       spaces.Tuple(observation_spaces),
+                                       [model.inputs],
                                        spaces.MultiBinary(model.outputs), 128)
 
-        self.episode_rewards = deque(maxlen=10)
+        self.last_observations = None
+        self.last_hidden_states = None
+        self.last_actions = None
+        self.last_action_log_probs = None
+        self.last_values = None
+
+        self.step = 0
 
         # TrainingServer is a state machine
         # It has three states:
@@ -77,28 +77,73 @@ class TrainingSession:
         # - waiting_for_reward: Waiting to be sent a reward.
         #                       After sending an action, the agent expects a
         #                       reward.
-        #                       Upon receiving a reward, stores it/updates based
-        #                       on it and waits for an observation.
+        #                       Upon receiving a reward, stores it it and waits
+        #                       for an observation.
         # - start: We are waiting for an observation, but when we receive it we
         #          also haven't received a reward yet so can't do the normal
         #          processing.
-        self.state = "start"
+        self.state = 'start'
 
-    def get_action(
+    def get_actions(
             self,
-            inputs: List[torch.Tensor],
-            context: int) -> Tuple[List[int], torch.Tensor]:
+            obs: torch.Tensor
+    ) -> Tuple[torch.Tensor, torch.Tensor]:
         """
-        Given an observation, get an action and the value of the observation
-        from one of the models being trained.
+        Given a set of observations, get a list of actions and the values of
+        the observations from the TrainingSession's model.
         """
-        raise NotImplementedError()
+        if self.state == 'start':
+            self.rollouts.obs[0].copy_(obs)
+            self.rollouts.to(self.device)
+        elif self.state != 'waiting_for_observation':
+            raise ValueError("State should be 'start' or "
+                             "'waiting_for_observation', but instead is "
+                             f"{self.state}")
 
-    def give_reward(self, reward: float, context: int, done: bool = False):
+        self.last_observations = obs
+
+        with torch.no_grad():
+            (self.last_values, self.last_actions, self.last_action_log_probs,
+             self.last_hidden_states) = self.model.act(
+                 self.rollouts.obs[self.step],
+                 self.rollouts.recurrent_hidden_states[self.step],
+                 self.rollouts.masks[self.step])
+
+        self.state = 'waiting_for_reward'
+
+        return self.last_actions, self.last_values
+
+    def give_rewards(self, rewards: np.ndarray, dones: np.ndarray):
         """
-        Assign a reward to the last action performed.
+        Assign rewards to the last set of actions performed.
         """
-        raise NotImplementedError()
+        if self.state != 'waiting_for_reward':
+            raise ValueError("State should be 'waiting_for_reward', but "
+                             f"instead is {self.state}")
+
+        masks = torch.FloatTensor([[0.0] if done else [1.0]
+                                   for done in dones])
+
+        self.rollouts.insert(self.last_observations, self.last_hidden_states,
+                             self.last_actions, self.last_action_log_probs,
+                             self.last_values, rewards, masks)
+
+        self.step = (self.step + 1) % self.hyperparams.batch_size
+        if self.step == 0:
+            with torch.no_grad():
+                next_value = self.model.get_value(
+                    self.rollouts.obs[-1],
+                    self.rollouts.recurrent_hidden_states[-1],
+                    self.rollouts.masks[-1]).detach()
+
+            self.rollouts.compute_returns(next_value, self.hyperparams.use_gae,
+                                          self.hyperparams.discount_factor,
+                                          self.hyperparams.gae)
+
+            self.agent.update(self.rollouts)
+            self.rollouts.after_update()
+
+        self.state = 'waiting_for_observation'
 
     def save_model(self, path: str):
         """

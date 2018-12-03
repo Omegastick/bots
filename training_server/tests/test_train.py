@@ -3,6 +3,7 @@ Tests for train.py
 """
 #pylint: disable=W0621
 import queue
+from typing import List
 import pytest
 import torch
 import numpy as np
@@ -28,26 +29,27 @@ class MultiContextGame:
         """
         Resets the game.
         """
-        self.location = torch.randint(-2, 3, (2,)) / 2
-        self.reward_location = torch.randint(-2, 3, (2,)) / 2
+        self.location = torch.clamp(
+            torch.round(torch.randn(2) * 2) / 2, -1, 1)
+        self.reward_location = torch.clamp(
+            torch.round(torch.randn(2) * 2) / 2, -1, 1)
 
-    def move(self, direction: int):
+    def move(self, direction: List[int]):
         """
         Moves the player.
         If the player is out of bounds, reset the game.
         If the player is on the reward location, give a reward then reset the
         game.
         """
-        if direction == 0:
-            move_direction = torch.Tensor([0.5, 0.])
-        elif direction == 1:
-            move_direction = torch.Tensor([-0.5, 0.])
-        elif direction == 2:
-            move_direction = torch.Tensor([0., 0.5])
-        elif direction == 3:
-            move_direction = torch.Tensor([0., -0.5])
-        else:
-            move_direction = torch.Tensor([0., 0.])
+        move_direction = torch.Tensor([0., 0.])
+        if direction[0]:
+            move_direction += torch.Tensor([0.5, 0.])
+        if direction[1]:
+            move_direction += torch.Tensor([-0.5, 0.])
+        if direction[2]:
+            move_direction += torch.Tensor([0., 0.5])
+        if direction[3]:
+            move_direction += torch.Tensor([0., -0.5])
 
         self.location += move_direction
 
@@ -198,9 +200,8 @@ def session():
     """
     Returns a new training session:
     model:
-        inputs: 2, 3
-        outputs: 3, 4
-        features: mlp, mlp
+        inputs: 5
+        outputs: 3
     hyperparams:
         learning_rate: 0.0001
         batch_size: 20
@@ -211,32 +212,33 @@ def session():
     torch.manual_seed(1)
     np.random.seed(1)
     model = ModelSpecification(
-        inputs=[2, 3],
-        outputs=[3, 4],
-        feature_extractors=['mlp', 'mlp'],
+        inputs=5,
+        outputs=3,
         recurrent=False
     )
     hyperparams = HyperParams(
         learning_rate=0.0001,
         batch_size=20,
+        num_minibatch=4,
         entropy_coef=0.001,
         discount_factor=0.1,
-        clip_factor=0.1,
-        epochs=3
+        clip_factor=0.2,
+        epochs=3,
+        use_gae=False
     )
     return TrainingSession(model, hyperparams, 1)
 
 
-def test_get_action_returns_correct_number_of_actions(
+def test_get_actions_returns_correct_shape(
         session: TrainingSession):
     """
     The list returned by get_action should be the same length as the number of
     outputs dimensions on the model.
     """
-    observation = [torch.Tensor([1, 2]), torch.Tensor([1, 2, 3])]
-    actions, _ = session.get_action(observation, 0)
-    expected = 2
-    assert len(actions) == expected
+    observation = torch.Tensor([[1, 2, 3, 4, 5]])
+    actions, _ = session.get_actions(observation)
+
+    assert list(actions.shape) == [1, 3]
 
 
 @pytest.mark.training
@@ -246,18 +248,20 @@ def test_model_improves_when_trained_basic(session: TrainingSession):
     particular output every time, the model should become more likely to pick
     that output.
     """
-    observation = [torch.Tensor([1, 2]), torch.Tensor([1, 2, 3])]
+    observation = torch.Tensor([[1, 2, 3, 4, 5]])
 
-    _, starting_raw_probs = session.model(observation)
+    _, starting_features, _ = session.model.base(observation, None, None)
+    starting_probs = session.model.dist(starting_features).probs
 
     for _ in range(100):
-        action, _ = session.get_action(observation, 0)
-        reward = 1 if action[0] == 0 else 0
-        session.give_reward(reward, 0)
+        action, _ = session.get_actions(observation)
+        reward = 1 if action[0, 0] == 1 else 0
+        session.give_rewards(torch.Tensor([reward]), [0])
 
-    _, raw_probs = session.model(observation)
+    _, features, _ = session.model.base(observation, None, None)
+    probs = session.model.dist(features).probs
 
-    assert raw_probs[0][0][0] > starting_raw_probs[0][0][0]
+    assert probs[0][0] > starting_probs[0][0]
 
 
 @pytest.mark.training
@@ -268,21 +272,23 @@ def test_model_improves_when_trained_on_multiple_outputs(
     a particular set of outputs every time, the model should become more likely
     to pick those outputs.
     """
-    observation = [torch.Tensor([1, 2]), torch.Tensor([1, 2, 3])]
+    observation = torch.Tensor([[1, 2, 3, 4, 5]])
 
-    _, starting_raw_probs = session.model(observation)
+    _, starting_features, _ = session.model.base(observation, None, None)
+    starting_probs = session.model.dist(starting_features).probs
 
     for _ in range(100):
-        action, _ = session.get_action(observation, 0)
+        action, _ = session.get_actions(observation)
         reward = 0
-        reward += 1 if action[0] == 0 else 0
-        reward += 1 if action[1] == 2 else 0
-        session.give_reward(reward, 0)
+        reward += 1 if action[0, 0] == 1 else 0
+        reward += 1 if action[0, 1] == 0 else 0
+        session.give_rewards(torch.Tensor([reward]), [0])
 
-    _, raw_probs = session.model(observation)
+    _, features, _ = session.model.base(observation, None, None)
+    probs = session.model.dist(features).probs
 
-    assert raw_probs[0][0][0] > starting_raw_probs[0][0][0]
-    assert raw_probs[1][0][2] > starting_raw_probs[1][0][2]
+    assert probs[0][0] > starting_probs[0][0]
+    assert probs[0][1] < starting_probs[0][1]
 
 
 @pytest.mark.training
@@ -295,38 +301,38 @@ def test_model_improves_when_trained_in_multiple_contexts():
     torch.manual_seed(1)
     np.random.seed(1)
     model = ModelSpecification(
-        inputs=[2, 3],
-        outputs=[3, 4],
-        feature_extractors=['mlp', 'mlp'],
+        inputs=5,
+        outputs=3,
         recurrent=False
     )
     hyperparams = HyperParams(
         learning_rate=0.0001,
-        batch_size=6,
-        minibatch_length=3,
-        entropy_coef=0.0001,
+        batch_size=20,
+        num_minibatch=4,
+        entropy_coef=0.001,
         discount_factor=0.1,
-        gae=0.96,
+        clip_factor=0.2,
         epochs=3,
-        clip_factor=0.1
+        use_gae=False
     )
     session = TrainingSession(model, hyperparams, 3)
 
-    observation = [torch.Tensor([1, 2]), torch.Tensor([1, 2, 3])]
+    observation = torch.Tensor([1, 2, 3, 4, 5])
+    observation = torch.stack([observation, observation, observation]
+                              )
 
-    _, starting_raw_probs = session.model(observation)
+    _, starting_features, _ = session.model.base(observation, None, None)
+    starting_probs = session.model.dist(starting_features).probs
 
-    for i in range(100):
-        action, _ = session.get_action(observation, i % 3)
-        reward = 0
-        reward += 1 if action[0] == 0 else 0
-        reward += 1 if action[1] == 2 else 0
-        session.give_reward(reward, i % 3)
+    for _ in range(100):
+        action, _ = session.get_actions(observation)
+        reward = action[:, 0].unsqueeze(1)
+        session.give_rewards(reward, [0, 0, 0])
 
-    _, raw_probs = session.model(observation)
+    _, features, _ = session.model.base(observation, None, None)
+    probs = session.model.dist(features).probs
 
-    assert raw_probs[0][0][0] > starting_raw_probs[0][0][0]
-    assert raw_probs[1][0][2] > starting_raw_probs[1][0][2]
+    assert probs[0][0] > starting_probs[0][0]
 
 
 @pytest.mark.training
@@ -338,16 +344,15 @@ def test_model_learns_simple_game():
     np.random.seed(1)
     torch.manual_seed(1)
     model = ModelSpecification(
-        inputs=[4],
-        outputs=[4],
-        feature_extractors=['mlp'],
+        inputs=4,
+        outputs=4,
         recurrent=False
     )
 
     hyperparams = HyperParams(
         learning_rate=0.001,
         batch_size=20,
-        minibatch_length=10,
+        num_minibatch=2,
         entropy_coef=0.001,
         discount_factor=0.9,
         gae=0.96,
@@ -359,14 +364,14 @@ def test_model_learns_simple_game():
     rewards = []
     environment = MultiContextGame()
 
-    for _ in range(1000):
+    for _ in range(300):
         observation = torch.cat((environment.location,
                                  environment.reward_location))
-        action, _ = session.get_action([observation], 0)
-        environment.move(action[0].item())
+        action, _ = session.get_actions(observation)
+        environment.move(action[0])
         reward = environment.get_reward()
         rewards.append(reward)
-        session.give_reward(reward, 0)
+        session.give_rewards(torch.Tensor([reward]), [0])
 
     assert np.mean(rewards[:100]) + 0.05 < np.mean(rewards[-100:])
 
@@ -377,38 +382,40 @@ def test_model_learns_with_multiple_contexts():
     When multiple contexts are used, the model should still learn.
     This doesn't check that the model learns faster than with a single context.
     """
-    torch.manual_seed(1)
     np.random.seed(1)
+    torch.manual_seed(1)
     model = ModelSpecification(
-        inputs=[4],
-        outputs=[4],
-        feature_extractors=['mlp'],
+        inputs=4,
+        outputs=4,
         recurrent=False
     )
 
     hyperparams = HyperParams(
         learning_rate=0.001,
         batch_size=20,
-        minibatch_length=10,
+        num_minibatch=2,
         entropy_coef=0.001,
         discount_factor=0.9,
         gae=0.96,
         epochs=5,
         clip_factor=0.1
     )
-    session = TrainingSession(model, hyperparams, 3)
 
+    session = TrainingSession(model, hyperparams, 3)
     rewards = []
     environments = [MultiContextGame() for _ in range(3)]
 
-    for i in range(2000):
-        observation = torch.cat((environments[i % 3].location,
-                                 environments[i % 3].reward_location))
-        action, _ = session.get_action([observation], i % 3)
-        environments[i % 3].move(action[0].item())
-        reward = environments[i % 3].get_reward()
+    for _ in range(1000):
+        observation = torch.zeros((3, 4))
+        for i, environment in enumerate(environments):
+            observation[i] = (torch.cat((environment.location,
+                                         environment.reward_location)))
+        action, _ = session.get_actions(observation)
+        for i, environment in enumerate(environments):
+            environment.move(action[i])
+        reward = [[environment.get_reward()] for environment in environments]
         rewards.append(reward)
-        session.give_reward(reward, i % 3)
+        session.give_rewards(torch.Tensor(reward), [0, 0, 0])
 
     assert np.mean(rewards[:100]) + 0.05 < np.mean(rewards[-100:])
 
@@ -418,36 +425,36 @@ def test_model_learns_with_delayed_rewards():
     """
     The model should be able to learn a simple game with delayed rewards.
     """
-    torch.manual_seed(1)
     np.random.seed(1)
+    torch.manual_seed(1)
     model = ModelSpecification(
-        inputs=[1],
-        outputs=[2],
-        feature_extractors=['mlp'],
+        inputs=1,
+        outputs=1,
         recurrent=False
     )
 
     hyperparams = HyperParams(
         learning_rate=0.001,
-        batch_size=60,
-        minibatch_length=20,
+        batch_size=20,
+        num_minibatch=2,
         entropy_coef=0.001,
-        discount_factor=0.97,
-        epochs=5,
-        gae=1.
+        discount_factor=0.99,
+        gae=0.96,
+        epochs=3,
+        clip_factor=0.1
     )
 
     session = TrainingSession(model, hyperparams, 1)
     rewards = []
-    environment = DelayedRewardGame(delay=10)
+    environment = DelayedRewardGame(delay=8)
 
-    for _ in range(1000):
+    for _ in range(600):
         observation = torch.Tensor([1])
-        action, _ = session.get_action([observation], 0)
+        action, _ = session.get_actions(observation)
         environment.act(action[0].item())
         reward = environment.get_reward()
         rewards.append(reward)
-        session.give_reward(reward, 0)
+        session.give_rewards(torch.Tensor([reward]), [0])
 
     assert np.mean(rewards[:100]) + 0.05 < np.mean(rewards[-100:])
 
@@ -462,83 +469,34 @@ def test_model_learns_with_gpu():
     np.random.seed(1)
     torch.manual_seed(1)
     model = ModelSpecification(
-        inputs=[4],
-        outputs=[4],
-        feature_extractors=['mlp']
-    )
-
-    hyperparams = HyperParams(
-        learning_rate=0.003,
-        batch_size=20,
-        minibatch_length=5,
-        entropy_coef=0.0001,
-        discount_factor=0.95,
-        gae=0.96,
-        epochs=3
-    )
-
-    session = TrainingSession(model, hyperparams, 1)
-    rewards = []
-    environment = MultiContextGame()
-
-    for _ in range(1000):
-        observation = torch.cat((environment.location,
-                                 environment.reward_location))
-        action, _ = session.get_action([observation], 0)
-        environment.move(action[0].item())
-        reward = environment.get_reward()
-        rewards.append(reward)
-        session.give_reward(reward, 0)
-
-    assert np.mean(rewards[:100]) + 0.05 < np.mean(rewards[-100:])
-
-
-@pytest.mark.training
-def test_cnn_model_learns_simple_game():
-    """
-    The model should be able to learn a very simple game where it tries to
-    reach a goal.
-    """
-    np.random.seed(1)
-    torch.manual_seed(1)
-    model = ModelSpecification(
-        inputs=[[1, 5, 5]],
-        outputs=[4],
-        feature_extractors=['cnn'],
-        recurrent=False,
-        kernel_sizes=[3, 2, 2],
-        kernel_strides=[1, 1, 1]
+        inputs=4,
+        outputs=4,
+        recurrent=False
     )
 
     hyperparams = HyperParams(
         learning_rate=0.001,
         batch_size=20,
-        minibatch_length=10,
+        num_minibatch=2,
         entropy_coef=0.001,
         discount_factor=0.9,
         gae=0.96,
         epochs=5,
-        clip_factor=0.1
+        clip_factor=0.1,
+        use_gpu=True
     )
 
     session = TrainingSession(model, hyperparams, 1)
     rewards = []
     environment = MultiContextGame()
 
-    def get_observation(environment: MultiContextGame) -> torch.Tensor:
-        observation = torch.zeros(1, 5, 5)
-        player_location = (environment.location * 2) + 2
-        reward_location = (environment.reward_location * 2) + 2
-        observation[0, int(player_location[0]), int(player_location[1])] = 1
-        observation[0, int(reward_location[0]), int(reward_location[1])] = -1
-        return observation
-
-    for _ in range(2000):
-        observation = [get_observation(environment)]
-        action, _ = session.get_action(observation, 0)
-        environment.move(action[0].item())
+    for _ in range(300):
+        observation = torch.cat((environment.location,
+                                 environment.reward_location))
+        action, _ = session.get_actions(observation)
+        environment.move(action[0])
         reward = environment.get_reward()
         rewards.append(reward)
-        session.give_reward(reward, 0)
+        session.give_rewards(torch.Tensor([reward]), [0])
 
     assert np.mean(rewards[:100]) + 0.05 < np.mean(rewards[-100:])
