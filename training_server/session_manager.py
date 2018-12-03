@@ -65,6 +65,7 @@ class SessionManager:
         """
         assert isinstance(self.sessions[session_id], TrainingSession), \
             "Can only give rewards to training sessions."
+        rewards = torch.Tensor(rewards).unsqueeze(1)
         self.sessions[session_id].give_rewards(rewards, dones)
 
     def save_model(self, session_id: int, path: str):

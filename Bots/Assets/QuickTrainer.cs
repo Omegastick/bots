@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using NetMQ;
+using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using UnityEngine;
 
@@ -39,17 +40,15 @@ public class QuickTrainer : MonoBehaviour
                 {
                     ["model"] = new JObject
                     {
-                        ["inputs"] = new JArray { 7 },
-                        ["outputs"] = new JArray { 5 },
-                        ["feature_extractors"] = new JArray() { "mlp" }
+                        ["inputs"] = 7,
+                        ["outputs"] = 4
                     },
                     ["hyperparams"] = new JObject
                     {
                         ["learning_rate"] = 0.0007,
                         ["gae"] = 0.95,
                         ["batch_size"] = 50,
-                        ["minibatch_length"] = 5,
-                        ["minibatch_count"] = 10,
+                        ["num_minibatch"] = 5,
                         ["entropy_coef"] = 0.0001,
                         ["max_grad_norm"] = 0.5,
                         ["discount_factor"] = 0.92,
@@ -84,6 +83,8 @@ public class QuickTrainer : MonoBehaviour
         {
             lastActionTime = Time.time;
 
+            float[][] inputs = new float[environments.Count()][];
+
             for (int i = 0; i < environments.Count(); i++)
             {
                 var environment = environments[i];
@@ -104,79 +105,86 @@ public class QuickTrainer : MonoBehaviour
                     aVelocity = -Mathf.Log(Mathf.Abs(aVelocity));
                 }
 
-                var getActionRequest = new JObject
+                inputs[i] = new float[] { rotationSin, rotationCos, xVelocity, yVelocity, aVelocity, position.x, position.y };
+            }
+
+            var getActionRequest = new JObject
+            {
+                ["jsonrpc"] = "2.0",
+                ["method"] = "get_actions",
+                ["param"] = new JObject
                 {
-                    ["jsonrpc"] = "2.0",
-                    ["method"] = "get_action",
-                    ["param"] = new JObject
-                    {
-                        ["inputs"] = new JArray { new JArray { rotationSin, rotationCos, xVelocity, yVelocity, aVelocity, position.x, position.y } },
-                        ["context"] = i,
-                        ["session_id"] = 0
-                    },
-                    ["id"] = 0
-                };
+                    ["inputs"] = new JArray(inputs.Select(x => new JArray(x))),
+                    ["session_id"] = 0
+                },
+                ["id"] = 0
+            };
 
-                client.TrySendFrame(waitTime, getActionRequest.ToString());
+            client.TrySendFrame(waitTime, getActionRequest.ToString());
 
-                string receivedMessage;
-                client.TryReceiveFrameString(waitTime, out receivedMessage);
+            string receivedMessage;
+            client.TryReceiveFrameString(waitTime, out receivedMessage);
 
-                var actionMessage = JObject.Parse(receivedMessage);
-                int action = (int)actionMessage["result"]["actions"][0];
-                float value = (float)actionMessage["result"]["value"];
-                environment.valueText.text = value.ToString("F2");
+            var actionMessage = JObject.Parse(receivedMessage);
+            float[][] actions = JsonConvert.DeserializeObject<float[][]>(actionMessage["result"]["actions"].ToString());
+            float[] values = JsonConvert.DeserializeObject<float[]>(actionMessage["result"]["value"].ToString());
 
-                switch (action)
-                {
-                    case 0:
-                        environment.botController.movementController.MoveDirection = 1;
-                        environment.botController.movementController.RotateDirection = 0;
-                        break;
-                    case 1:
-                        environment.botController.movementController.MoveDirection = -1;
-                        environment.botController.movementController.RotateDirection = 0;
-                        break;
-                    case 2:
-                        environment.botController.movementController.MoveDirection = 0;
-                        environment.botController.movementController.RotateDirection = 1;
-                        break;
-                    case 3:
-                        environment.botController.movementController.MoveDirection = 0;
-                        environment.botController.movementController.RotateDirection = -1;
-                        break;
-                    case 4:
-                        environment.botController.movementController.MoveDirection = 0;
-                        environment.botController.movementController.RotateDirection = 0;
-                        break;
-                }
+            var timestep_rewards = new float[environments.Count()];
+            var dones = new float[environments.Count()];
+
+            for (int i = 0; i < environments.Count(); i++)
+            {
+                var environment = environments[i];
+                var action = actions[i];
+
+                environment.valueText.text = values[i].ToString("F2");
+
                 var reward = environment.reward;
-                if (action == 1)
+                if (action[0] == 1)
+                    environment.botController.movementController.MoveDirection += 1;
+                if (action[1] == 1)
                 {
+                    environment.botController.movementController.MoveDirection -= 1;
                     reward -= 0.1f;
                 }
+                if (action[2] == 1)
+                    environment.botController.movementController.RotateDirection += 1;
+                if (action[3] == 1)
+                    environment.botController.movementController.RotateDirection -= 1;
+
+                timestep_rewards[i] = reward;
                 rewards.Add(reward);
                 if (rewards.Count > 1000)
                 {
                     rewards.RemoveAt(0);
                 }
-                rewardText.text = rewards.Average().ToString("F2");
 
-                var giveRewardRequest = new JObject
+                if (reward > 0)
+                    dones[i] = 1;
+                else
+                    dones[i] = 0;
+            }
+
+            rewardText.text = rewards.Average().ToString("F2");
+
+            var giveRewardRequest = new JObject
+            {
+                ["jsonrpc"] = "2.0",
+                ["method"] = "give_rewards",
+                ["param"] = new JObject
                 {
-                    ["jsonrpc"] = "2.0",
-                    ["method"] = "give_reward",
-                    ["param"] = new JObject
-                    {
-                        ["reward"] = reward,
-                        ["context"] = i,
-                        ["session_id"] = 0
-                    },
-                    ["id"] = 0
-                };
+                    ["reward"] = new JArray(timestep_rewards),
+                    ["done"] = new JArray(dones),
+                    ["session_id"] = 0
+                },
+                ["id"] = 0
+            };
 
-                client.TrySendFrame(waitTime, giveRewardRequest.ToString());
-                client.TryReceiveFrameString(waitTime, out receivedMessage); 
+            client.TrySendFrame(waitTime, giveRewardRequest.ToString());
+            client.TryReceiveFrameString(waitTime, out receivedMessage);
+
+            foreach (var environment in environments)
+            {
                 environment.reward = 0;
             }
         }

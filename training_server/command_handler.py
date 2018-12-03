@@ -169,11 +169,11 @@ class CommandHandler:
         params = command.params
         actions, value = self.session_manager.get_actions(
             params["session_id"], params["inputs"])
-        value = value.item()
-        actions = [action.item() for action in actions]
+        values = value.view(-1).tolist()
+        actions = actions.tolist()
         response = Response(
             id=command.id,
-            result={"actions": actions, "value": value}
+            result={"actions": actions, "value": values}
         )
         return self.create_response_json(response)
 
