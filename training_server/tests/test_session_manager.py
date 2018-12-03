@@ -27,9 +27,9 @@ def model():
     Creates a ModelSpecification.
     """
     return ModelSpecification(
-        inputs=[1, 2],
-        outputs=[3, 4],
-        feature_extractors=['mlp', 'mlp']
+        inputs=2,
+        outputs=3,
+        recurrent=False
     )
 
 
@@ -40,7 +40,7 @@ def test_start_training_session_instantiates_training_session(
     After starting a session, the session manager should contain a training
     session.
     """
-    session_manager.start_training_session(0, model, HyperParams(), 1, True)
+    session_manager.start_training_session(0, model, HyperParams(), 1)
     assert isinstance(session_manager.sessions[0], TrainingSession)
 
 
@@ -61,51 +61,49 @@ def test_start_inference_session_instantiates_inference_session(
         os.remove(path)
 
 
-def test_get_action_calls_correct_session(
+def test_get_actions_calls_correct_session(
         session_manager: SessionManager,
         model: ModelSpecification,
         mocker: MockFixture):
     """
-    Calling get_action on a specified session should call the right session.
+    Calling get_actions on a specified session should call the right session.
     """
     try:
-        session_manager.start_training_session(0, model, HyperParams(), 1,
-                                               True)
+        session_manager.start_training_session(0, model, HyperParams(), 1)
         path = './test.pth'
         session_manager.sessions[0].save_model(path)
         session_manager.start_inference_session(1, model, path, 1)
 
-        mocker.spy(session_manager.sessions[0], 'get_action')
-        mocker.spy(session_manager.sessions[1], 'get_action')
+        mocker.spy(session_manager.sessions[0], 'get_actions')
+        mocker.spy(session_manager.sessions[1], 'get_actions')
 
-        inputs = [np.array([1]), np.array([1, 2])]
-        session_manager.get_action(0, inputs, 0)
-        assert session_manager.sessions[0].get_action.call_count == 1
+        inputs = [1, 2]
+        session_manager.get_actions(0, inputs)
+        assert session_manager.sessions[0].get_actions.call_count == 1
 
-        inputs = [np.array([1]), np.array([1, 2])]
-        session_manager.get_action(1, inputs)
-        assert session_manager.sessions[1].get_action.call_count == 1
+        session_manager.get_actions(1, inputs)
+        assert session_manager.sessions[1].get_actions.call_count == 1
     finally:
         os.remove(path)
 
 
-def test_give_reward_calls_correct_session(
+def test_give_rewards_calls_correct_session(
         session_manager: SessionManager,
         model: ModelSpecification,
         mocker: MockFixture):
     """
-    Calling give_reward on a session should call the right session.
+    Calling give_rewards on a session should call the right session.
     """
-    session_manager.start_training_session(0, model, HyperParams(), 1, True)
-    session_manager.start_training_session(1, model, HyperParams(), 1, True)
+    session_manager.start_training_session(0, model, HyperParams(), 1)
+    session_manager.start_training_session(1, model, HyperParams(), 1)
 
-    mocker.patch.object(session_manager.sessions[0], 'give_reward')
-    mocker.patch.object(session_manager.sessions[1], 'give_reward')
+    mocker.patch.object(session_manager.sessions[0], 'give_rewards')
+    mocker.patch.object(session_manager.sessions[1], 'give_rewards')
 
-    session_manager.give_reward(0, 1.5, 0)
+    session_manager.give_rewards(0, 1.5, 0)
 
-    assert session_manager.sessions[0].give_reward.call_count == 1
-    assert session_manager.sessions[1].give_reward.call_count == 0
+    assert session_manager.sessions[0].give_rewards.call_count == 1
+    assert session_manager.sessions[1].give_rewards.call_count == 0
 
 
 def test_save_model_calls_save_model(
@@ -116,7 +114,7 @@ def test_save_model_calls_save_model(
     When save_model is called, the relevant method on the correct session
     should be called.
     """
-    session_manager.start_training_session(0, model, HyperParams(), 1, True)
+    session_manager.start_training_session(0, model, HyperParams(), 1)
     mocker.patch.object(session_manager.sessions[0], 'save_model')
     session_manager.save_model(0, './test.pth')
 
@@ -129,7 +127,7 @@ def test_end_session_removes_session(
     """
     When calling end_session, the session should be removed.
     """
-    session_manager.start_training_session(0, model, HyperParams(), 1, True)
+    session_manager.start_training_session(0, model, HyperParams(), 1)
     session_manager.end_session(0)
 
     assert 0 not in session_manager.sessions

@@ -364,7 +364,7 @@ def test_model_learns_simple_game():
     rewards = []
     environment = MultiContextGame()
 
-    for _ in range(300):
+    for _ in range(1000):
         observation = torch.cat((environment.location,
                                  environment.reward_location))
         action, _ = session.get_actions(observation)
@@ -405,7 +405,7 @@ def test_model_learns_with_multiple_contexts():
     rewards = []
     environments = [MultiContextGame() for _ in range(3)]
 
-    for _ in range(1000):
+    for _ in range(300):
         observation = torch.zeros((3, 4))
         for i, environment in enumerate(environments):
             observation[i] = (torch.cat((environment.location,

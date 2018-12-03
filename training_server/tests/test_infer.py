@@ -16,9 +16,8 @@ def session():
     """
     Returns a new training session:
     model:
-        inputs: 2, 3
-        outputs: 3, 4
-        features: mlp, mlp
+        inputs: 2
+        outputs: 3
     hyperparams:
         learning_rate: 0.0001
         batch_size: 20
@@ -28,9 +27,8 @@ def session():
     """
     torch.manual_seed(1)
     model = ModelSpecification(
-        inputs=[2, 3],
-        outputs=[3, 4],
-        feature_extractors=['mlp', 'mlp']
+        inputs=2,
+        outputs=3
     )
 
     model_path = './test.pth'
@@ -49,7 +47,7 @@ def test_get_action_returns_correct_number_of_actions(
     The list returned by get_action should be the same length as the number of
     outputs dimensions on the model.
     """
-    observation = [torch.Tensor([1, 2]), torch.Tensor([1, 2, 3])]
-    actions, _ = session.get_action(observation, 0)
-    expected = 2
+    observation = torch.Tensor([1, 2])
+    actions, _ = session.get_actions(observation)
+    expected = 3
     assert len(actions) == expected

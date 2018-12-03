@@ -76,10 +76,10 @@ class CommandHandler:
         try:
             if command.action == "begin_session":
                 return self.begin_session(command)
-            if command.action == "get_action":
-                return self.get_action(command)
-            if command.action == "give_reward":
-                return self.give_reward(command)
+            if command.action == "get_actions":
+                return self.get_actions(command)
+            if command.action == "give_rewards":
+                return self.give_rewards(command)
             if command.action == "end_session":
                 return self.end_session(command)
             if command.action == "save_model":
@@ -147,22 +147,12 @@ class CommandHandler:
         params = command.params
         model = ModelSpecification(
             inputs=params["model"]["inputs"],
-            outputs=params["model"]["outputs"],
-            feature_extractors=params["model"]["feature_extractors"],
-            kernel_sizes=params["model"].get("kernel_sizes"),
-            kernel_strides=params["model"].get("kernel_strides")
+            outputs=params["model"]["outputs"]
         )
-        # Inputs don't match feature extractors.
-        if len(model.inputs) != len(model.feature_extractors):
-            return ('{"jsonrpc":"2.0",'
-                    '"error":{"code":-1000,'
-                    '"message":"Feature extractors don\'t match inputs"},'
-                    '"id":0}')
         if params["training"]:
             hyperparams = HyperParams(**params["hyperparams"])
             self.session_manager.start_training_session(
-                params["session_id"], model, hyperparams,
-                params["contexts"], params["auto_train"])
+                params["session_id"], model, hyperparams, params["contexts"])
             response = Response(result="OK", id=command.id)
             return self.create_response_json(response)
 
@@ -172,13 +162,13 @@ class CommandHandler:
         response = Response(result="OK", id=command.id)
         return self.create_response_json(response)
 
-    def get_action(self, command: Command) -> str:
+    def get_actions(self, command: Command) -> str:
         """
         Gets an action from a session.
         """
         params = command.params
-        actions, value = self.session_manager.get_action(
-            params["session_id"], params["inputs"], params["context"])
+        actions, value = self.session_manager.get_actions(
+            params["session_id"], params["inputs"])
         value = value.item()
         actions = [action.item() for action in actions]
         response = Response(
@@ -187,14 +177,13 @@ class CommandHandler:
         )
         return self.create_response_json(response)
 
-    def give_reward(self, command: Command) -> str:
+    def give_rewards(self, command: Command) -> str:
         """
         Gives a reward to an agent in a training session.
         """
         params = command.params
-        self.session_manager.give_reward(params["session_id"],
+        self.session_manager.give_rewards(params["session_id"],
                                          params["reward"],
-                                         params["context"],
                                          params["done"])
         response = Response(result="OK", id=command.id)
         return self.create_response_json(response)

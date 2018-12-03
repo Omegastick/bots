@@ -84,9 +84,8 @@ def test_begin_training_session_begins_training_session(
 	    "method": "begin_session",
 	    "param": {
 		    "model": {
-			    "inputs": [2, 4],
-			    "outputs": [2, 1],
-			    "feature_extractors": ["mlp", "mlp"]
+			    "inputs": 6,
+			    "outputs": 2
 			},
 			"hyperparams": {
 			    "learning_rate": 0.001,
@@ -118,9 +117,8 @@ def test_begin_training_session_returns_correct_json(
 	    "method": "begin_session",
 	    "param": {
 		    "model": {
-			    "inputs": [2, 4],
-			    "outputs": [2, 1],
-			    "feature_extractors": ["mlp", "mlp"]
+			    "inputs": 6,
+			    "outputs": 3
 			},
 			"hyperparams": {
 			    "learning_rate": 0.001,
@@ -153,7 +151,7 @@ def test_begin_inference_session_begins_inference_session(
     """
     try:
         session_manager.start_training_session(
-            0, ModelSpecification([1], [1], ['mlp']), HyperParams(), 1, True)
+            0, ModelSpecification(1, 1, False), HyperParams(), 1)
         session_manager.save_model(0, './test.pth')
         mocker.spy(session_manager, 'start_inference_session')
         request = """
@@ -162,9 +160,8 @@ def test_begin_inference_session_begins_inference_session(
             "method": "begin_session",
             "param": {
                 "model": {
-                    "inputs": [1],
-                    "outputs": [1],
-                    "feature_extractors": ["mlp"]
+                    "inputs": 1,
+                    "outputs": 1
                 },
                 "session_id": 1,
                 "model_path": "./test.pth",
@@ -181,23 +178,23 @@ def test_begin_inference_session_begins_inference_session(
         os.remove('./test.pth')
 
 
-def test_get_action_gets_action(
+def test_get_actions_gets_action(
         command_handler: CommandHandler,
         session_manager: SessionManager,
         mocker: MockFixture):
     """
-    When receiving a command to get an action, it should call the get_action
+    When receiving a command to get an action, it should call the get_actions
     fuction on the SessionManager.
     """
     session_manager.start_training_session(
-        0, ModelSpecification([1], [1], ['mlp']), HyperParams(), 1, True)
-    mocker.spy(session_manager, 'get_action')
+        0, ModelSpecification(2, 1, False), HyperParams(), 1)
+    mocker.spy(session_manager, 'get_actions')
     request = """
     {
 	    "jsonrpc": "2.0",
-	    "method": "get_action",
+	    "method": "get_actions",
 	    "param": {
-		    "inputs": [[0.1], [1.0]],
+		    "inputs": [0.1, 1.0],
             "context": 0,
             "session_id": 0
 		},
@@ -206,24 +203,24 @@ def test_get_action_gets_action(
     """
     command_handler.handle_command(request)
 
-    assert session_manager.get_action.call_count == 1
+    assert session_manager.get_actions.call_count == 1
 
 
-def test_give_reward_gives_reward(
+def test_give_rewards_gives_reward(
         command_handler: CommandHandler,
         session_manager: SessionManager,
         mocker: MockFixture):
     """
-    When receiving a command to give a reward, it should call the give_reward
+    When receiving a command to give a reward, it should call the give_rewards
     fuction on the SessionManager.
     """
     session_manager.start_training_session(
-        0, ModelSpecification([1], [1], ['mlp']), HyperParams(), 1, True)
-    mocker.patch.object(session_manager, 'give_reward')
+        0, ModelSpecification(1, 1,  False), HyperParams(), 1)
+    mocker.patch.object(session_manager, 'give_rewards')
     request = """
     {
 	    "jsonrpc": "2.0",
-	    "method": "give_reward",
+	    "method": "give_rewards",
 	    "param": {
 		    "reward": 1.0,
             "done": true,
@@ -235,7 +232,7 @@ def test_give_reward_gives_reward(
     """
     command_handler.handle_command(request)
 
-    assert session_manager.give_reward.call_count == 1
+    assert session_manager.give_rewards.call_count == 1
 
 
 def test_end_session_ends_session(
@@ -247,7 +244,7 @@ def test_end_session_ends_session(
     fuction on the SessionManager.
     """
     session_manager.start_training_session(
-        0, ModelSpecification([1], [1], ['mlp']), HyperParams(), 1, True)
+        0, ModelSpecification(1, 1, False), HyperParams(), 1)
     mocker.spy(session_manager, 'end_session')
     request = """
     {
@@ -341,128 +338,6 @@ def test_error_on_invalid_method(command_handler: CommandHandler):
     assert response == ('{"jsonrpc":"2.0",'
                         '"error":{"code":-32601,"message":"Method not found"},'
                         '"id":0}')
-
-
-def test_error_on_feature_extractors_dont_match_inputs(
-        command_handler: CommandHandler):
-    """
-    When receiving a begin_session command with a number of feature extractors
-    that don't match the number of inputs, an error should be returned.
-    """
-    json = """
-    {
-	    "jsonrpc": "2.0",
-	    "method": "begin_session",
-	    "param": {
-		    "model": {
-			    "inputs": [2, 4],
-			    "outputs": [2, 1],
-			    "feature_extractors": ["mlp"]
-			},
-			"hyperparams": {
-			    "learning_rate": 0.001,
-			    "gae": 0.9,
-			    "batch_size": 5
-			},
-            "session_id": 0,
-			"training": true,
-			"contexts": 1,
-            "auto_train": true
-		},
-	    "id": 0
-	}
-    """
-    response = command_handler.handle_command(json)
-
-    assert response == ('{"jsonrpc":"2.0",'
-                        '"error":{"code":-1000,'
-                        '"message":"Feature extractors don\'t match inputs"},'
-                        '"id":0}')
-
-
-def test_cnn_models_are_created_properly(command_handler: CommandHandler,
-                                         session_manager: SessionManager,
-                                         mocker: MockFixture):
-    """
-    When recieving a command telling the handler to being a training session,
-    it should call the session manager and tell it to begin a training session.
-    """
-    mocker.spy(session_manager, 'start_training_session')
-    request = """
-    {
-	    "jsonrpc": "2.0",
-	    "method": "begin_session",
-	    "param": {
-		    "model": {
-			    "inputs": [2, [1, 10, 20]],
-			    "outputs": [2, 1],
-			    "feature_extractors": ["mlp", "cnn"],
-                "kernel_sizes": [2, 2, 1],
-                "kernel_strides": [1, 1, 1]
-			},
-			"hyperparams": {
-			    "learning_rate": 0.001,
-			    "gae": 0.9,
-			    "batch_size": 5
-			},
-            "session_id": 0,
-			"training": true,
-			"contexts": 1,
-            "auto_train": true
-		},
-	    "id": 0
-	}
-    """
-    command_handler.handle_command(request)
-
-    model = session_manager.start_training_session.call_args_list[0][0][1]
-
-    assert model.inputs == [2, [1, 10, 20]]
-
-
-def test_cnn_observations_are_passed_correctly(
-        command_handler: CommandHandler,
-        session_manager: SessionManager,
-        mocker: MockFixture):
-    """
-    When receiving a get_action command with a cnn observation, it should pass
-    the observation to the session_manager in the correct form.
-    """
-    session_manager.start_training_session(
-        0, ModelSpecification(
-            inputs=[[1, 3, 3]],
-            outputs=[1],
-            feature_extractors=['cnn'],
-            kernel_sizes=[1, 1, 1],
-            kernel_strides=[1, 1, 1]),
-        HyperParams(), 1, True)
-    mocker.spy(session_manager, 'get_action')
-    request = """
-    {
-	    "jsonrpc": "2.0",
-	    "method": "get_action",
-	    "param": {
-		    "inputs": [[[
-                [1, 2, 3],
-                [1, 2, 3],
-                [1, 2, 3]
-            ]]],
-            "context": 0,
-            "session_id": 0
-		},
-	    "id": 0
-	}
-    """
-    command_handler.handle_command(request)
-
-    observation = session_manager.get_action.call_args_list[0][0][1]
-    expected = [torch.Tensor([[
-        [1, 2, 3],
-        [1, 2, 3],
-        [1, 2, 3]
-    ]])]
-
-    assert (observation[0] == expected[0]).all()
 
 
 def test_save_model_saves_model(

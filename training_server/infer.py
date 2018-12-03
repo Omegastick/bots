@@ -4,7 +4,7 @@ Inference session
 from typing import List, Tuple
 import torch
 
-from .model import Model
+from .model import CustomPolicy
 from .train import ModelSpecification
 
 
@@ -20,12 +20,10 @@ class InferenceSession:
             contexts: int):
         self.contexts = contexts
 
-        self.model = Model(model.inputs, model.outputs,
-                           model.feature_extractors, model.kernel_sizes,
-                           model.kernel_strides)
+        self.model = CustomPolicy(model.inputs, model.outputs, model.recurrent)
         self.model.load_state_dict(torch.load(model_path))
 
-    def get_action(
+    def get_actions(
             self,
             inputs: List[torch.Tensor],
             _: None = None) -> Tuple[List[int], torch.Tensor]:
@@ -34,8 +32,6 @@ class InferenceSession:
         from one of the models being trained.
         """
         with torch.no_grad():
-            value, probs, _ = self.model.act(inputs)
-
-        actions = [x.multinomial(num_samples=1) for x in probs]
+            value, actions, _, _ = self.model.act(inputs, None, None)
 
         return actions, value

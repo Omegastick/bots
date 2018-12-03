@@ -22,14 +22,13 @@ class SessionManager:
             session_id: int,
             model: ModelSpecification,
             hyperparams: HyperParams,
-            contexts: int,
-            auto_train: bool):
+            contexts: int):
         """
         Begins a training session.
         """
         assert session_id not in self.sessions, \
             "Session with that ID already exists"
-        session = TrainingSession(model, hyperparams, contexts, auto_train)
+        session = TrainingSession(model, hyperparams, contexts)
         self.sessions[session_id] = session
 
     def start_inference_session(
@@ -46,30 +45,27 @@ class SessionManager:
         session = InferenceSession(model, model_path, contexts)
         self.sessions[session_id] = session
 
-    def get_action(
+    def get_actions(
             self,
             session_id: int,
-            inputs: List[list],
-            context: int = None):
+            inputs: List[float]):
         """
         Get an action from a session.
         """
-        for i, _input in enumerate(inputs):
-            inputs[i] = torch.Tensor(_input).float()
-        return self.sessions[session_id].get_action(inputs, context)
+        inputs = torch.Tensor(inputs)
+        return self.sessions[session_id].get_actions(inputs)
 
-    def give_reward(
+    def give_rewards(
             self,
             session_id: int,
-            reward: float,
-            context: int,
-            done: bool = False):
+            rewards: List[float],
+            dones: List[float]):
         """
         Gives a reward to an agent in a training session.
         """
         assert isinstance(self.sessions[session_id], TrainingSession), \
             "Can only give rewards to training sessions."
-        self.sessions[session_id].give_reward(reward, context, done)
+        self.sessions[session_id].give_rewards(rewards, dones)
 
     def save_model(self, session_id: int, path: str):
         """
