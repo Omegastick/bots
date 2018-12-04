@@ -26,7 +26,7 @@ def main():
     parser.add_argument('--num_environments', type=int, default=16)
     parser.add_argument('--learning_rate', type=float, default=2.5e-4)
     parser.add_argument('--batch_size', type=int, default=128)
-    parser.add_argument('--minibatch_length', type=int, default=32)
+    parser.add_argument('--num_minibatch', type=int, default=4)
     parser.add_argument('--epochs', type=int, default=4)
     parser.add_argument('--discount_factor', type=float, default=0.99)
     parser.add_argument('--gae', type=float, default=0.95)
@@ -41,7 +41,7 @@ def main():
     hyperparams = HyperParams(
         learning_rate=args.learning_rate,
         batch_size=args.batch_size,
-        minibatch_length=args.minibatch_length,
+        num_minibatch=args.num_minibatch,
         epochs=args.epochs,
         discount_factor=args.discount_factor,
         gae=args.gae,
@@ -58,6 +58,9 @@ def main():
                       args.env_type, client)
     try:
         trainer.train(args.max_frames)
+    except Exception:
+        import pdb
+        pdb.post_mortem()
     finally:
         trainer.end_session()
 

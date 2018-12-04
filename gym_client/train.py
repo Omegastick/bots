@@ -4,16 +4,16 @@ Contains a class that trains an agent.
 import logging
 import numpy as np
 import gym
-# from baselines.common.cmd_util import make_vec_env
-# from baselines.common.vec_env import VecEnvWrapper
-# from baselines.common.vec_env.vec_frame_stack import VecFrameStack
+from baselines.common.cmd_util import make_vec_env
+from baselines.common.vec_env import VecEnvWrapper
+from baselines.common.vec_env.vec_frame_stack import VecFrameStack
 from training_server.train import HyperParams
 from training_server.model import ModelSpecification
 
 from gym_client.client import Client
-from gym_client.requests import (BeginTrainingSessionRequest, GetActionRequest,
-                                 GiveRewardRequest, EndSessionRequest,
-                                 CloseConnectionRequest)
+from gym_client.requests import (BeginTrainingSessionRequest,
+                                 GetActionsRequest, GiveRewardsRequest,
+                                 EndSessionRequest, CloseConnectionRequest)
 
 
 RUNNING_REWARD_HORIZON = 10
@@ -36,16 +36,8 @@ class Trainer:
 
         if env_type == 'linear':
             model_specification = ModelSpecification(
-                inputs=[self.env.observation_space.shape[0]],
-                outputs=[self.env.action_space.n],
-                feature_extractors=["mlp"])
-        elif env_type == 'atari':
-            self.env = VecPytorchImageFormat(self.env)
-            self.env = VecFrameStack(self.env, 4)
-            model_specification = ModelSpecification(
-                inputs=[list(self.env.observation_space.shape)],
-                outputs=[self.env.action_space.n],
-                feature_extractors=["cnn"])
+                inputs=self.env.observation_space.shape[0],
+                outputs=self.env.action_space.n)
         else:
             raise NotImplementedError()
 
@@ -67,22 +59,20 @@ class Trainer:
 
         while current_frame < max_frames:
             # Get actions
-            actions = []
-            for i, observation in enumerate(observations):
-                get_action_request = GetActionRequest(
-                    [observation.tolist()], i, 0)
-                actions.append(
-                    self.client.send_request(
-                        get_action_request)["result"]["actions"][0])
+            get_actions_request = GetActionsRequest(observations, 0)
+            actions = self.client.send_request(
+                get_actions_request)["result"]["actions"]
+            actions = [np.argmax(action) for action in actions]
 
             # Step environments
             observations, rewards, dones, _ = self.env.step(actions)
 
             # Give rewards
-            for i, reward in enumerate(rewards):
-                give_reward_request = GiveRewardRequest(
-                    float(reward), bool(dones[i]), i, 0)
-                self.client.send_request(give_reward_request)
+            give_reward_request = GiveRewardsRequest(
+                [float(reward) for reward in rewards],
+                [bool(done) for done in dones],
+                0)
+            self.client.send_request(give_reward_request)
 
             # Increment frame counter
             current_frame += self.env.num_envs

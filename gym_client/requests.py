@@ -2,6 +2,7 @@
 Classes for building requests to send to the training server.
 """
 from abc import ABC, abstractmethod
+from typing import List
 import numpy as np
 import rapidjson
 from training_server.model import ModelSpecification
@@ -45,7 +46,6 @@ class BeginTrainingSessionRequest(Request):
                 "session_id": self.session_id,
                 "training": True,
                 "contexts": self.contexts,
-                "auto_train": True
             },
             "id": 0
         }
@@ -74,9 +74,8 @@ class BeginInferenceSessionRequest(Request):
             "param": {
                 "model": self.model._asdict(),
                 "session_id": self.session_id,
-                "training": True,
+                "training": False,
                 "contexts": self.contexts,
-                "auto_train": True,
                 "model_path": self.model_path
             },
             "id": 0
@@ -108,26 +107,23 @@ class SaveModelRequest(Request):
         return rapidjson.dumps(request)
 
 
-class GetActionRequest(Request):
+class GetActionsRequest(Request):
     """
     Builds the JSON for a request to get an action.
     """
 
     def __init__(self,
                  observation: np.ndarray,
-                 context: int,
                  session_id: int):
         self.session_id = session_id
         self.observation = observation
-        self.context = context
 
     def to_json(self) -> str:
         request = {
             "jsonrpc": "2.0",
-            "method": "get_action",
+            "method": "get_actions",
             "param": {
-                "inputs": self.observation,
-                "context": self.context,
+                "inputs": self.observation.tolist(),
                 "session_id": self.session_id
             },
             "id": 0
@@ -135,28 +131,25 @@ class GetActionRequest(Request):
         return rapidjson.dumps(request)
 
 
-class GiveRewardRequest(Request):
+class GiveRewardsRequest(Request):
     """
     Builds the JSON for a request to give a reward to an agent.
     """
 
     def __init__(self,
-                 reward: float,
-                 done: bool,
-                 context: int,
+                 reward: List[float],
+                 done: List[bool],
                  session_id: int):
         self.reward = reward
         self.done = done
-        self.context = context
         self.session_id = session_id
 
     def to_json(self) -> str:
         request = {
             "jsonrpc": "2.0",
-            "method": "give_reward",
+            "method": "give_rewards",
             "param": {
                 "reward": self.reward,
-                "context": self.context,
                 "session_id": self.session_id,
                 "done": self.done
             },
