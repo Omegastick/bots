@@ -193,7 +193,7 @@ def test_get_actions_gets_action(
 	    "jsonrpc": "2.0",
 	    "method": "get_actions",
 	    "param": {
-		    "inputs": [0.1, 1.0],
+		    "inputs": [[0.1, 1.0]],
             "context": 0,
             "session_id": 0
 		},
@@ -221,7 +221,7 @@ def test_give_rewards_gives_reward(
 	    "jsonrpc": "2.0",
 	    "method": "give_rewards",
 	    "param": {
-		    "reward": 1.0,
+		    "reward": [1.0],
             "done": true,
             "context": 0,
             "session_id": 0
