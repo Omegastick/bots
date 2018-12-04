@@ -1,9 +1,9 @@
-﻿using System;
+﻿using System.Collections.Generic;
 
 namespace SensorReadings
 {
     public interface ISensorReading
     {
-        Array ToArray();
+        List<float> ToList();
     }
 }

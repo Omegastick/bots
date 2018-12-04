@@ -12,9 +12,9 @@ namespace SensorReadings
             Data = new List<float>();
         }
 
-        public Array ToArray()
+        public List<float> ToList()
         {
-            return Data.ToArray();
+            return Data;
         }
     }
 }

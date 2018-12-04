@@ -5,7 +5,7 @@ namespace Training.Trainers
 {
     public interface ITrainer
     {
-        Queue<IObservation> ObservationQueue { get; set; }
+        List<IObservation> ObservationQueue { get; set; }
 
         void BeginTraining();
         void EndTraining();

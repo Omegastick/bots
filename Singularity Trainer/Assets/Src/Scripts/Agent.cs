@@ -1,4 +1,4 @@
-﻿using System;
+﻿using System.Linq;
 using System.Collections.Generic;
 using UnityEngine;
 using Observations;
@@ -27,15 +27,15 @@ namespace Scripts
             }
         }
 
-        public void Act(List<int> inputs)
+        public void Act(List<bool> inputs)
         {
             int inputCounter = 0;
             foreach (var action in Actions)
             {
                 int actionInputCount = action.options;
-                var actionInputs = inputs.Skip(inputCounter).Take(actionInputCount);
+                var actionInputs = inputs.Skip(inputCounter).Take(actionInputCount).ToList();
                 inputCounter += actionInputCount;
-                Actions[i].Act(actionInputs);
+                action.Act(actionInputs);
             }
         }
 

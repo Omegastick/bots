@@ -148,7 +148,8 @@ class CommandHandler:
         params = command.params
         model = ModelSpecification(
             inputs=params["model"]["inputs"],
-            outputs=params["model"]["outputs"]
+            outputs=params["model"]["outputs"],
+            recurrent=params["model"]["recurrent"]
         )
         if params["training"]:
             hyperparams = HyperParams(**params["hyperparams"])

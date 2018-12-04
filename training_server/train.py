@@ -1,6 +1,7 @@
 """
 Train
 """
+import logging
 from typing import NamedTuple, Tuple, List
 import torch
 from gym import spaces
@@ -141,6 +142,7 @@ class TrainingSession:
                                           self.hyperparams.discount_factor,
                                           self.hyperparams.gae)
 
+            logging.info("Training...")
             self.agent.update(self.rollouts)
             self.rollouts.after_update()
 

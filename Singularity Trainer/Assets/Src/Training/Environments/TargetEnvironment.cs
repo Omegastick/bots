@@ -20,6 +20,7 @@ namespace Training.Environments
         private float lastMoveTargetTime { get; set; }
         private float lastAgentResetTime { get; set; }
         private List<Target> Targets { get; set; }
+        private bool Done { get; set; }
 
         private void Awake()
         {
@@ -33,6 +34,7 @@ namespace Training.Environments
             Agent.Environment = this;
             AgentRigidBody = Agent.GetComponent<Rigidbody2D>();
             ValueDisplay = GetComponentInChildren<ValueDisplay>();
+            Done = false;
         }
 
         public void BeginTraining()
@@ -44,7 +46,7 @@ namespace Training.Environments
             Reward += rewardDelta;
         }
 
-        public float GetReward(int agentNumber)
+        public Tuple<float, bool> GetReward(int agentNumber)
         {
             if (Mathf.Abs(AgentRigidBody.angularVelocity) > 60)
             {
@@ -54,7 +56,9 @@ namespace Training.Environments
 
             var tempReward = Reward;
             Reward = 0;
-            return tempReward;
+            var tempDone = Done;
+            Done = false;
+            return new Tuple<float, bool>(tempReward, tempDone);
         }
 
         public void Pause()
@@ -62,7 +66,7 @@ namespace Training.Environments
             throw new NotImplementedException();
         }
 
-        public void SendActions(int agentNumber, List<int> actions)
+        public void SendActions(int agentNumber, List<bool> actions)
         {
             Agent.Act(actions);
         }
@@ -77,7 +81,7 @@ namespace Training.Environments
             if (Time.time - lastObservationTime > 0.1)
             {
                 lastObservationTime = Time.time;
-                Trainer.ObservationQueue.Enqueue(Agent.GetObservation());
+                Trainer.ObservationQueue.Add(Agent.GetObservation());
             }
         }
 
@@ -108,6 +112,7 @@ namespace Training.Environments
                 rigidBody.position = transform.TransformPoint(0, 0, 0);
                 rigidBody.velocity = Vector2.zero;
                 rigidBody.angularVelocity = 0;
+                Done = true;
             }
         }
     }

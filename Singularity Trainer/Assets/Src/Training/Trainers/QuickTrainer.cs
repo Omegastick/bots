@@ -24,13 +24,15 @@ namespace Training.Trainers
         private Dictionary<IEnvironment, int> EnvironmentContexts { get; set; }
         private float AverageReward { get; set; }
         private Chart RewardChart { get; set; }
+        private int EnvironmentCount { get; set; }
 
         private void Awake()
         {
             EnvironmentContexts = new Dictionary<IEnvironment, int>();
             AverageReward = 0f;
-            ObservationQueue = new Queue<IObservation>();
+            ObservationQueue = new List<IObservation>();
             var environments = GetComponentsInChildren<IEnvironment>().ToList();
+            EnvironmentCount = environments.Count;
             for (int i = 0; i < environments.Count; i++)
             {
                 environments[i].Trainer = this;
@@ -93,16 +95,16 @@ namespace Training.Trainers
                         },
                         ["hyperparams"] = new JObject
                         {
-                            ["learning_rate"] = 0.0005,
-                            ["gae"] = 0.92,
-                            ["batch_size"] = 200,
-                            ["num_minibatch"] = 20,
+                            ["learning_rate"] = 0.0004,
+                            ["gae"] = 0.96,
+                            ["batch_size"] = 600,
+                            ["num_minibatch"] = 4,
                             ["entropy_coef"] = 0.0005,
                             ["max_grad_norm"] = 0.5,
-                            ["discount_factor"] = 0.98,
-                            ["critic_coef"] = 1.0,
+                            ["discount_factor"] = 0.99,
+                            ["critic_coef"] = 0.5,
                             ["epochs"] = 4,
-                            ["clip_factor"] = 0.2
+                            ["clip_factor"] = 0.1
                         },
                         ["session_id"] = 0,
                         ["training"] = true,
@@ -135,7 +137,12 @@ namespace Training.Trainers
 
         public void Step()
         {
-            ObservationQueue = ObservationQueue.OrderBy(o => EnvironmentContexts[o.Environment]);
+            if (ObservationQueue.Count < this.EnvironmentCount)
+            {
+                return;
+            }
+
+            ObservationQueue = ObservationQueue.OrderBy(o => EnvironmentContexts[o.Environment]).ToList();
 
             DefaultContractResolver snakeCaseContractResolver = new DefaultContractResolver
             {
@@ -146,9 +153,9 @@ namespace Training.Trainers
             {
                 Jsonrpc = "2.0",
                 Method = "get_actions",
-                Param = new Param
+                Param = new GetActionParam
                 {
-                    Inputs = ObservationQueue.Select(o => o.ToList()),
+                    Inputs = ObservationQueue.Select(o => o.ToList()).ToList(),
                     SessionId = 0
                 },
                 Id = 0
@@ -164,17 +171,20 @@ namespace Training.Trainers
             client.TryReceiveFrameString(waitTime, out string receivedMessage);
 
             var actionMessage = JObject.Parse(receivedMessage);
-            List<List<int>> actions = actionMessage["result"]["actions"].ToObject<List<List<int>>>();
-            float values = actionMessage["result"]["value"].ToObject<List<float>>();
-            List<float> rewards = new List<float>();
+            List<List<bool>> actions = actionMessage["result"]["actions"].ToObject<List<List<bool>>>();
+            List<float> values = actionMessage["result"]["value"].ToObject<List<float>>();
+            var rewards = new List<float>();
+            var dones = new List<bool>();
             for (int i = 0; i < ObservationQueue.Count; i++)
             {
                 var observation = ObservationQueue[i];
                 observation.Environment.SetValue(observation.AgentNumber, values[i]);
                 observation.Environment.SendActions(observation.AgentNumber, actions[i]);
 
-                var reward = observation.Environment.GetReward(observation.AgentNumber);
+                var rewardAndDone = observation.Environment.GetReward(observation.AgentNumber);
+                float reward = rewardAndDone.Item1;
                 rewards.Add(reward);
+                dones.Add(rewardAndDone.Item2);
                 AverageReward -= AverageReward / averageLength;
                 AverageReward += reward / averageLength;
             }
@@ -188,12 +198,13 @@ namespace Training.Trainers
                 Param = new GiveRewardParam
                 {
                     Reward = rewards,
+                    Done = dones,
                     SessionId = 0
                 },
                 Id = 0
             };
 
-            var json = JsonConvert.SerializeObject(getActionRequest, new JsonSerializerSettings
+            json = JsonConvert.SerializeObject(giveRewardRequest, new JsonSerializerSettings
             {
                 ContractResolver = snakeCaseContractResolver,
                 Formatting = Formatting.Indented
@@ -210,7 +221,7 @@ namespace Training.Trainers
     {
         public string Jsonrpc { get; set; }
         public string Method { get; set; }
-        public Param Param { get; set; }
+        public object Param { get; set; }
         public int Id { get; set; }
     }
 
@@ -223,6 +234,7 @@ namespace Training.Trainers
     class GiveRewardParam
     {
         public List<float> Reward;
+        public List<bool> Done;
         public int SessionId;
     }
 }

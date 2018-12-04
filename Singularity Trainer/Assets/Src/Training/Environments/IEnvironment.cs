@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using Training.Trainers;
 
 namespace Training.Environments
@@ -7,8 +8,8 @@ namespace Training.Environments
     {
         ITrainer Trainer { get; set; }
         void BeginTraining();
-        void SendActions(int agentNumber, List<int> actions);
-        float GetReward(int agentNumber);
+        void SendActions(int agentNumber, List<bool> actions);
+        Tuple<float, bool> GetReward(int agentNumber);
         void ChangeReward(int agentNumber, float rewardDelta);
         void Pause();
         void UnPause();

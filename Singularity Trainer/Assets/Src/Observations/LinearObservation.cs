@@ -19,7 +19,7 @@ namespace Observations
 
         public List<float> ToList()
         {
-            return SensorReadings.SelectMany(x => x).ToList();
+            return SensorReadings.SelectMany(x => x.ToList()).ToList();
         }
     }
 }
