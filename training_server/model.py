@@ -1,7 +1,8 @@
 """
 Agent models
 """
-from typing import List, NamedTuple
+from typing import List, NamedTuple, Tuple
+import torch
 import torch.nn as nn
 from a2c_ppo_acktr.model import MLPBase
 from a2c_ppo_acktr.distributions import Bernoulli
@@ -27,22 +28,21 @@ class CustomPolicy(nn.Module):
             inputs: int,
             outputs: int,
             recurrent=False,
-            hidden_size=128
-    ):
+            hidden_size=128):
         super().__init__()
         self.base = MLPBase(inputs, recurrent, hidden_size)
 
         self.dist = Bernoulli(self.base.output_size, outputs)
 
     @property
-    def is_recurrent(self):
+    def is_recurrent(self) -> bool:
         """
         Whether or not the policy contains a recurrent cell.
         """
         return self.base.is_recurrent
 
     @property
-    def recurrent_hidden_state_size(self):
+    def recurrent_hidden_state_size(self) -> int:
         """
         Size of rnn_hx.
         """
@@ -55,7 +55,13 @@ class CustomPolicy(nn.Module):
         """
         raise NotImplementedError
 
-    def act(self, inputs, rnn_hxs, masks, deterministic=False):
+    def act(
+        self,
+        inputs,
+        rnn_hxs,
+        masks,
+        deterministic=False) -> Tuple[torch.Tensor, torch.Tensor,
+                                      torch.Tensor, torch.Tensor]:
         """
         Get a value, action, log probabilities for the action and the hidden
         states for the inputs given.
@@ -79,7 +85,13 @@ class CustomPolicy(nn.Module):
         value, _, _ = self.base(inputs, rnn_hxs, masks)
         return value
 
-    def evaluate_actions(self, inputs, rnn_hxs, masks, action):
+    def evaluate_actions(
+            self,
+            inputs,
+            rnn_hxs,
+            masks,
+            action) -> Tuple[torch.Tensor, torch.Tensor,
+                             torch.Tensor, torch.Tensor]:
         """
         Given a set of states and actions, evaluate taking those action in
         those states.

@@ -2,7 +2,6 @@
 Session manager
 """
 from typing import Dict, Union, List
-import torch
 
 from .model import ModelSpecification
 from .train import TrainingSession, HyperParams

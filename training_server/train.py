@@ -3,7 +3,6 @@ Train
 """
 from typing import NamedTuple, Tuple, List
 import torch
-import numpy as np
 from gym import spaces
 
 from a2c_ppo_acktr.algo import PPO
