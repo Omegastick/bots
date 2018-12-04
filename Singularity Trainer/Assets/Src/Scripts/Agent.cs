@@ -27,11 +27,15 @@ namespace Scripts
             }
         }
 
-        public void Act(List<int> actions)
+        public void Act(List<int> inputs)
         {
-            for (int i = 0; i < Actions.Count; i++)
+            int inputCounter = 0;
+            foreach (var action in Actions)
             {
-                Actions[i].Act(actions[i]);
+                int actionInputCount = action.options;
+                var actionInputs = inputs.Skip(inputCounter).Take(actionInputCount);
+                inputCounter += actionInputCount;
+                Actions[i].Act(actionInputs);
             }
         }
 

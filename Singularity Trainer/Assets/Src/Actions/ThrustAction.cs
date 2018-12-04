@@ -10,9 +10,9 @@ namespace Actions
             options = 2;
         }
 
-        public override void Act(int action)
+        public override void Act(List<bool> actions)
         {
-            if (Module is IThrustable && action == 1)
+            if (Module is IThrustable && actions[0] == true)
             {
                 (Module as IThrustable).Thrust();
             }

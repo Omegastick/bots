@@ -7,12 +7,12 @@ namespace Actions
     {
         public ShootAction(Module parentModule) : base(parentModule)
         {
-            options = 2;
+            options = 1;
         }
 
-        public override void Act(int action)
+        public override void Act(List<bool> actions)
         {
-            if (Module is IShootable && action == 1)
+            if (Module is IShootable && actions[0] == true)
             {
                 (Module as IShootable).Shoot();
             }

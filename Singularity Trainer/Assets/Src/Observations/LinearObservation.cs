@@ -17,14 +17,9 @@ namespace Observations
             SensorReadings = new List<ISensorReading>();
         }
 
-        public List<float[]> ToList()
+        public List<float> ToList()
         {
-            List<float[]> dataList = new List<float[]>();
-            foreach (var sensorReading in SensorReadings)
-            {
-                dataList.Add((sensorReading.ToArray() as float[]));
-            }
-            return dataList;
+            return SensorReadings.SelectMany(x => x).ToList();
         }
     }
 }

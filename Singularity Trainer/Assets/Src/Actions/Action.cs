@@ -7,7 +7,7 @@ namespace Actions
         public Module Module { get; private set; }
         public int options;
 
-        public abstract void Act(int option);
+        public abstract void Act(List<bool> options);
 
         public Action(Module parentModule)
         {

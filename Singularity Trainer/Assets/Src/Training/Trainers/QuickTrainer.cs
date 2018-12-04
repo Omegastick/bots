@@ -16,7 +16,7 @@ namespace Training.Trainers
     {
 
         public TextMeshProUGUI rewardText;
-        public Queue<IObservation> ObservationQueue { get; set; }
+        public List<IObservation> ObservationQueue { get; set; }
         public float averageLength = 1000;
 
         private NetMQ.Sockets.PairSocket client;
@@ -54,7 +54,7 @@ namespace Training.Trainers
             var endSessionRequest = new JObject
             {
                 ["jsonrpc"] = "2.0",
-                ["method"] = "give_reward",
+                ["method"] = "end_session",
                 ["param"] = new JObject
                 {
                     ["session_id"] = 0
@@ -87,9 +87,8 @@ namespace Training.Trainers
                     {
                         ["model"] = new JObject
                         {
-                            ["inputs"] = new JArray { 3, 21 },
-                            ["outputs"] = new JArray { 2, 2, 2, 2 },
-                            ["feature_extractors"] = new JArray() { "mlp", "mlp" },
+                            ["inputs"] = 24,
+                            ["outputs"] = 4,
                             ["recurrent"] = true
                         },
                         ["hyperparams"] = new JObject
@@ -97,7 +96,7 @@ namespace Training.Trainers
                             ["learning_rate"] = 0.0005,
                             ["gae"] = 0.92,
                             ["batch_size"] = 200,
-                            ["minibatch_length"] = 8,
+                            ["num_minibatch"] = 20,
                             ["entropy_coef"] = 0.0005,
                             ["max_grad_norm"] = 0.5,
                             ["discount_factor"] = 0.98,
@@ -136,65 +135,72 @@ namespace Training.Trainers
 
         public void Step()
         {
-            foreach (var observation in ObservationQueue)
+            ObservationQueue = ObservationQueue.OrderBy(o => EnvironmentContexts[o.Environment]);
+
+            DefaultContractResolver snakeCaseContractResolver = new DefaultContractResolver
             {
-                var environment = observation.Environment;
+                NamingStrategy = new SnakeCaseNamingStrategy()
+            };
 
-                DefaultContractResolver snakeCaseContractResolver = new DefaultContractResolver
+            var getActionRequest = new Request
+            {
+                Jsonrpc = "2.0",
+                Method = "get_actions",
+                Param = new Param
                 {
-                    NamingStrategy = new SnakeCaseNamingStrategy()
-                };
+                    Inputs = ObservationQueue.Select(o => o.ToList()),
+                    SessionId = 0
+                },
+                Id = 0
+            };
 
-                var getActionRequest = new Request
-                {
-                    Jsonrpc = "2.0",
-                    Method = "get_action",
-                    Param = new Param
-                    {
-                        Inputs = observation.ToList(),
-                        Context = EnvironmentContexts[observation.Environment],
-                        SessionId = 0
-                    },
-                    Id = 0
-                };
+            var json = JsonConvert.SerializeObject(getActionRequest, new JsonSerializerSettings
+            {
+                ContractResolver = snakeCaseContractResolver,
+                Formatting = Formatting.Indented
+            });
+            client.TrySendFrame(waitTime, json);
 
-                var json = JsonConvert.SerializeObject(getActionRequest, new JsonSerializerSettings
-                {
-                    ContractResolver = snakeCaseContractResolver,
-                    Formatting = Formatting.Indented
-                });
-                client.TrySendFrame(waitTime, json);
+            client.TryReceiveFrameString(waitTime, out string receivedMessage);
 
-                client.TryReceiveFrameString(waitTime, out string receivedMessage);
-
-                var actionMessage = JObject.Parse(receivedMessage);
-                List<int> actions = actionMessage["result"]["actions"].ToObject<List<int>>();
-                float value = actionMessage["result"]["value"].ToObject<float>();
-                observation.Environment.SetValue(observation.AgentNumber, value);
-                observation.Environment.SendActions(observation.AgentNumber, actions);
+            var actionMessage = JObject.Parse(receivedMessage);
+            List<List<int>> actions = actionMessage["result"]["actions"].ToObject<List<List<int>>>();
+            float values = actionMessage["result"]["value"].ToObject<List<float>>();
+            List<float> rewards = new List<float>();
+            for (int i = 0; i < ObservationQueue.Count; i++)
+            {
+                var observation = ObservationQueue[i];
+                observation.Environment.SetValue(observation.AgentNumber, values[i]);
+                observation.Environment.SendActions(observation.AgentNumber, actions[i]);
 
                 var reward = observation.Environment.GetReward(observation.AgentNumber);
+                rewards.Add(reward);
                 AverageReward -= AverageReward / averageLength;
                 AverageReward += reward / averageLength;
-                rewardText.SetText(AverageReward.ToString());
-                RewardChart.AddDataPoint(AverageReward);
-
-                var giveRewardRequest = new JObject
-                {
-                    ["jsonrpc"] = "2.0",
-                    ["method"] = "give_reward",
-                    ["param"] = new JObject
-                    {
-                        ["reward"] = reward,
-                        ["context"] = EnvironmentContexts[observation.Environment],
-                        ["session_id"] = 0
-                    },
-                    ["id"] = 0
-                };
-
-                client.TrySendFrame(waitTime, giveRewardRequest.ToString());
-                client.ReceiveFrameString();
             }
+            rewardText.SetText(AverageReward.ToString());
+            RewardChart.AddDataPoint(AverageReward);
+
+            var giveRewardRequest = new Request
+            {
+                Jsonrpc = "2.0",
+                Method = "give_rewards",
+                Param = new GiveRewardParam
+                {
+                    Reward = rewards,
+                    SessionId = 0
+                },
+                Id = 0
+            };
+
+            var json = JsonConvert.SerializeObject(getActionRequest, new JsonSerializerSettings
+            {
+                ContractResolver = snakeCaseContractResolver,
+                Formatting = Formatting.Indented
+            });
+            client.TrySendFrame(waitTime, json);
+            client.ReceiveFrameString();
+
             ObservationQueue.Clear();
         }
     }
@@ -208,10 +214,15 @@ namespace Training.Trainers
         public int Id { get; set; }
     }
 
-    class Param
+    class GetActionParam
     {
-        public List<float[]> Inputs { get; set; }
-        public int Context;
+        public List<List<float>> Inputs { get; set; }
+        public int SessionId;
+    }
+
+    class GiveRewardParam
+    {
+        public List<float> Reward;
         public int SessionId;
     }
 }
