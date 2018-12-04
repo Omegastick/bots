@@ -31,6 +31,7 @@ class InferenceSession:
         Given an observation, get an action and the value of the observation
         from one of the models being trained.
         """
+        inputs = torch.Tensor(inputs)
         with torch.no_grad():
             value, actions, _, _ = self.model.act(inputs, None, None)
 

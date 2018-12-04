@@ -256,7 +256,7 @@ def test_model_improves_when_trained_basic(session: TrainingSession):
     for _ in range(100):
         action, _ = session.get_actions(observation)
         reward = 1 if action[0, 0] == 1 else 0
-        session.give_rewards(torch.Tensor([reward]), [0])
+        session.give_rewards([reward], [0])
 
     _, features, _ = session.model.base(observation, None, None)
     probs = session.model.dist(features).probs
@@ -326,7 +326,7 @@ def test_model_improves_when_trained_in_multiple_contexts():
 
     for _ in range(100):
         action, _ = session.get_actions(observation)
-        reward = action[:, 0].unsqueeze(1)
+        reward = action[:, 0]
         session.give_rewards(reward, [0, 0, 0])
 
     _, features, _ = session.model.base(observation, None, None)
@@ -371,7 +371,7 @@ def test_model_learns_simple_game():
         environment.move(action[0])
         reward = environment.get_reward()
         rewards.append(reward)
-        session.give_rewards(torch.Tensor([reward]), [0])
+        session.give_rewards([reward], [0])
 
     assert np.mean(rewards[:100]) + 0.05 < np.mean(rewards[-100:])
 
@@ -413,9 +413,9 @@ def test_model_learns_with_multiple_contexts():
         action, _ = session.get_actions(observation)
         for i, environment in enumerate(environments):
             environment.move(action[i])
-        reward = [[environment.get_reward()] for environment in environments]
+        reward = [environment.get_reward() for environment in environments]
         rewards.append(reward)
-        session.give_rewards(torch.Tensor(reward), [0, 0, 0])
+        session.give_rewards(reward, [0, 0, 0])
 
     assert np.mean(rewards[:100]) + 0.05 < np.mean(rewards[-100:])
 
@@ -449,12 +449,12 @@ def test_model_learns_with_delayed_rewards():
     environment = DelayedRewardGame(delay=8)
 
     for _ in range(600):
-        observation = torch.Tensor([1])
+        observation = [1]
         action, _ = session.get_actions(observation)
         environment.act(action[0].item())
         reward = environment.get_reward()
         rewards.append(reward)
-        session.give_rewards(torch.Tensor([reward]), [0])
+        session.give_rewards([reward], [0])
 
     assert np.mean(rewards[:100]) + 0.05 < np.mean(rewards[-100:])
 
@@ -497,7 +497,7 @@ def test_model_learns_with_gpu():
         environment.move(action[0])
         reward = environment.get_reward()
         rewards.append(reward)
-        session.give_rewards(torch.Tensor([reward]), [0])
+        session.give_rewards([reward], [0])
 
     assert np.mean(rewards[:100]) + 0.05 < np.mean(rewards[-100:])
 
@@ -540,6 +540,6 @@ def test_rnn_learns_simple_pattern():
         reward = (action == last_observation).float()
         rewards.append(int(reward))
         actions.append(action[0].item())
-        session.give_rewards(torch.Tensor([reward]), [0])
+        session.give_rewards([reward], [0])
 
     assert np.mean(rewards[-100:]) > 0.6

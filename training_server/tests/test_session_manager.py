@@ -76,7 +76,7 @@ def test_get_actions_calls_correct_session(
         mocker.spy(session_manager.sessions[0], 'get_actions')
         mocker.spy(session_manager.sessions[1], 'get_actions')
 
-        inputs = [1, 2]
+        inputs = [[1, 2]]
         session_manager.get_actions(0, inputs)
         assert session_manager.sessions[0].get_actions.call_count == 1
 

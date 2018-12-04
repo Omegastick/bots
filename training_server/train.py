@@ -1,7 +1,7 @@
 """
 Train
 """
-from typing import NamedTuple, Tuple
+from typing import NamedTuple, Tuple, List
 import torch
 import numpy as np
 from gym import spaces
@@ -85,12 +85,13 @@ class TrainingSession:
 
     def get_actions(
             self,
-            obs: torch.Tensor
+            obs: List[List[float]]
     ) -> Tuple[torch.Tensor, torch.Tensor]:
         """
         Given a set of observations, get a list of actions and the values of
         the observations from the TrainingSession's model.
         """
+        obs = torch.Tensor(obs)
         if self.state == 'start':
             self.rollouts.obs[0].copy_(obs)
             self.rollouts.to(self.device)
@@ -112,13 +113,15 @@ class TrainingSession:
 
         return self.last_actions, self.last_values
 
-    def give_rewards(self, rewards: np.ndarray, dones: np.ndarray):
+    def give_rewards(self, rewards: List[float], dones: List[float]):
         """
         Assign rewards to the last set of actions performed.
         """
         if self.state != 'waiting_for_reward':
             raise ValueError("State should be 'waiting_for_reward', but "
                              f"instead is {self.state}")
+
+        rewards = torch.Tensor(rewards).unsqueeze(1)
 
         masks = torch.FloatTensor([[0.0] if done else [1.0]
                                    for done in dones])
