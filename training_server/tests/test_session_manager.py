@@ -100,7 +100,7 @@ def test_give_rewards_calls_correct_session(
     mocker.patch.object(session_manager.sessions[0], 'give_rewards')
     mocker.patch.object(session_manager.sessions[1], 'give_rewards')
 
-    session_manager.give_rewards(0, 1.5, 0)
+    session_manager.give_rewards(0, [1.5], [0])
 
     assert session_manager.sessions[0].give_rewards.call_count == 1
     assert session_manager.sessions[1].give_rewards.call_count == 0
