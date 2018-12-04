@@ -1,12 +1,9 @@
 """
 Agent models
 """
-from typing import List, Tuple, NamedTuple, Union
-import torch
+from typing import List, NamedTuple
 import torch.nn as nn
-import torch.nn.functional as F
 from a2c_ppo_acktr.model import MLPBase
-from a2c_ppo_acktr.utils import init
 from a2c_ppo_acktr.distributions import Bernoulli
 
 

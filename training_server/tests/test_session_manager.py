@@ -3,7 +3,6 @@ Tests for session manager
 """
 #pylint: disable=W0621
 import os
-import numpy as np
 import pytest
 from pytest_mock import mocker, MockFixture  # pylint: disable=W0611
 

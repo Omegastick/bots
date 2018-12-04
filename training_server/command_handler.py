@@ -94,7 +94,8 @@ class CommandHandler:
         except KeyError as exception:
             logging.debug(command_json)
             logging.error(exception)
-            import pdb; pdb.post_mortem()
+            import pdb
+            pdb.post_mortem()
             return BAD_REQUEST
 
     def parse_json(self, json: str) -> Command:
@@ -183,8 +184,8 @@ class CommandHandler:
         """
         params = command.params
         self.session_manager.give_rewards(params["session_id"],
-                                         params["reward"],
-                                         params["done"])
+                                          params["reward"],
+                                          params["done"])
         response = Response(result="OK", id=command.id)
         return self.create_response_json(response)
 

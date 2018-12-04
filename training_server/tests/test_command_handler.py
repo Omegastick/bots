@@ -5,7 +5,6 @@ Tests for command_handler.py
 import os
 import pytest
 from pytest_mock import mocker, MockFixture  # pylint: disable=W0611
-import torch
 
 from training_server.command_handler import CommandHandler, Command, Response
 from training_server.session_manager import SessionManager
@@ -215,7 +214,7 @@ def test_give_rewards_gives_reward(
     fuction on the SessionManager.
     """
     session_manager.start_training_session(
-        0, ModelSpecification(1, 1,  False), HyperParams(), 1)
+        0, ModelSpecification(1, 1, False), HyperParams(), 1)
     mocker.patch.object(session_manager, 'give_rewards')
     request = """
     {

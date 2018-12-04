@@ -2,7 +2,6 @@
 Train
 """
 from typing import NamedTuple, Tuple
-from collections import deque
 import torch
 import numpy as np
 from gym import spaces
