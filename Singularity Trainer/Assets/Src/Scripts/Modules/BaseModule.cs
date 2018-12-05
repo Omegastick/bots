@@ -1,4 +1,5 @@
-﻿using SensorReadings;
+﻿using System;
+using SensorReadings;
 using UnityEngine;
 
 namespace Scripts.Modules
@@ -20,7 +21,7 @@ namespace Scripts.Modules
             LinearSensorReading sensorReading = new LinearSensorReading();
             float xVelocity = rigidBody.velocity.x;
             float yVelocity = rigidBody.velocity.y;
-            float angularVelocity = Mathf.Log(Mathf.Pow(rigidBody.angularVelocity + 1e-6f, 2));
+            float angularVelocity = (float)Math.Tanh(rigidBody.angularVelocity);
             if (rigidBody.angularVelocity < 0)
             {
                 angularVelocity *= -1;

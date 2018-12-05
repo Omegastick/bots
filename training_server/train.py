@@ -141,7 +141,7 @@ class TrainingSession:
             self.rollouts.compute_returns(next_value, self.hyperparams.use_gae,
                                           self.hyperparams.discount_factor,
                                           self.hyperparams.gae)
-
+            
             logging.info("Training...")
             self.agent.update(self.rollouts)
             self.rollouts.after_update()
