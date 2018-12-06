@@ -98,7 +98,7 @@ namespace Training.Trainers
                             ["learning_rate"] = 0.00025,
                             ["gae"] = 0.95,
                             ["batch_size"] = 128,
-                            ["num_minibatch"] = 2,
+                            ["num_minibatch"] = 4,
                             ["entropy_coef"] = 0.01,
                             ["max_grad_norm"] = 0.5,
                             ["discount_factor"] = 0.99,
@@ -108,8 +108,7 @@ namespace Training.Trainers
                         },
                         ["session_id"] = 0,
                         ["training"] = true,
-                        ["contexts"] = 4,
-                        ["auto_train"] = true
+                        ["contexts"] = 8
                     },
                     ["id"] = 0
                 };

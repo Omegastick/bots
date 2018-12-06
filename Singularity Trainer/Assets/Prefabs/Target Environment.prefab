@@ -1,8 +1,8 @@
 %YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
---- !u!4 &3008912516674891722 stripped
-Transform:
-  m_CorrespondingSourceObject: {fileID: 7291613440108386190, guid: dc1d1d474ac374241a8ec81c3ddc68c4,
+--- !u!224 &4685496161156392551 stripped
+RectTransform:
+  m_CorrespondingSourceObject: {fileID: 1006264075855011363, guid: dc1d1d474ac374241a8ec81c3ddc68c4,
     type: 3}
   m_PrefabInstance: {fileID: 5544157879021205572}
   m_PrefabAsset: {fileID: 0}
@@ -47,7 +47,7 @@ Transform:
   - {fileID: 7876165466284835116}
   - {fileID: 1967263156926947127}
   - {fileID: 4723896277950375666}
-  - {fileID: 3008912516674891722}
+  - {fileID: 4685496161156392551}
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -283,6 +283,21 @@ PrefabInstance:
         type: 3}
       propertyPath: memoryLength
       value: 100
+      objectReference: {fileID: 0}
+    - target: {fileID: 1006264075855011363, guid: dc1d1d474ac374241a8ec81c3ddc68c4,
+        type: 3}
+      propertyPath: m_RootOrder
+      value: 3
+      objectReference: {fileID: 0}
+    - target: {fileID: 1006264075855011363, guid: dc1d1d474ac374241a8ec81c3ddc68c4,
+        type: 3}
+      propertyPath: m_AnchoredPosition.x
+      value: 16.14
+      objectReference: {fileID: 0}
+    - target: {fileID: 1006264075855011363, guid: dc1d1d474ac374241a8ec81c3ddc68c4,
+        type: 3}
+      propertyPath: m_AnchoredPosition.y
+      value: -8.49
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: dc1d1d474ac374241a8ec81c3ddc68c4, type: 3}

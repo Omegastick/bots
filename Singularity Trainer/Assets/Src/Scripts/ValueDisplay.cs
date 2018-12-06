@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using UnityEngine;
+using TMPro;
 
 namespace Scripts
 {
@@ -9,6 +10,7 @@ namespace Scripts
         private Renderer Renderer { get; set; }
         public Color goodColor;
         public Color badColor;
+        public TextMeshProUGUI text;
 
         private List<float> Values { get; set; }
 
@@ -26,6 +28,7 @@ namespace Scripts
                 Values.RemoveAt(0);
             }
             UpdateColor();
+            text.SetText(value.ToString("F2"));
         }
 
         private void UpdateColor()
