@@ -141,9 +141,13 @@ class TrainingSession:
             self.rollouts.compute_returns(next_value, self.hyperparams.use_gae,
                                           self.hyperparams.discount_factor,
                                           self.hyperparams.gae)
-            
+
+            logging.info("---")
             logging.info("Training...")
-            self.agent.update(self.rollouts)
+            value_loss, action_loss, entropy = self.agent.update(self.rollouts)
+            logging.info("Action loss: %f", action_loss)
+            logging.info("Value loss: %f", value_loss)
+            logging.info("Entropy: %f", entropy)
             self.rollouts.after_update()
 
         self.state = 'waiting_for_observation'

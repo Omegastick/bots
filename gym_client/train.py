@@ -37,7 +37,8 @@ class Trainer:
         if env_type == 'linear':
             model_specification = ModelSpecification(
                 inputs=self.env.observation_space.shape[0],
-                outputs=self.env.action_space.n)
+                outputs=self.env.action_space.n,
+                recurrent=True)
         else:
             raise NotImplementedError()
 
