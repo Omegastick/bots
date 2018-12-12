@@ -3,6 +3,7 @@ Train
 """
 import logging
 from typing import NamedTuple, Tuple, List
+import numpy as np
 import torch
 from gym import spaces
 
@@ -10,6 +11,7 @@ from a2c_ppo_acktr.algo import PPO
 from a2c_ppo_acktr.storage import RolloutStorage
 
 from .model import CustomPolicy, ModelSpecification
+from .utils import RunningMeanStd
 
 
 class HyperParams(NamedTuple):
@@ -28,6 +30,7 @@ class HyperParams(NamedTuple):
     max_grad_norm: float = 0.5
     clip_factor: float = 0.2
     use_gpu: bool = False
+    normalize_rewards: bool = True
 
 
 class TrainingSession:
@@ -66,6 +69,11 @@ class TrainingSession:
         self.last_values = None
 
         self.step = 0
+
+        if hyperparams.normalize_rewards:
+            self.ret_rms = RunningMeanStd()
+            self.returns = np.zeros(contexts)
+            self.reward_clip = 10.
 
         # TrainingServer is a state machine
         # It has three states:
@@ -120,6 +128,17 @@ class TrainingSession:
         if self.state != 'waiting_for_reward':
             raise ValueError("State should be 'waiting_for_reward', but "
                              f"instead is {self.state}")
+
+        # Normalise rewards
+        if self.hyperparams.normalize_rewards:
+            self.returns = (self.returns
+                            * self.hyperparams.discount_factor
+                            + rewards)
+            self.ret_rms.update(self.returns)
+            rewards = np.clip(
+                rewards / np.sqrt(self.ret_rms.var + 1e-8),
+                -self.reward_clip,
+                self.reward_clip)
 
         rewards = torch.Tensor(rewards).unsqueeze(1)
 

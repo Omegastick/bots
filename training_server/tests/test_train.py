@@ -282,7 +282,7 @@ def test_model_improves_when_trained_on_multiple_outputs(
         reward = 0
         reward += 1 if action[0, 0] == 1 else 0
         reward += 1 if action[0, 1] == 0 else 0
-        session.give_rewards(torch.Tensor([reward]), [0])
+        session.give_rewards([reward], [0])
 
     _, features, _ = session.model.base(observation, None, None)
     probs = session.model.dist(features).probs
@@ -327,7 +327,7 @@ def test_model_improves_when_trained_in_multiple_contexts():
     for _ in range(100):
         action, _ = session.get_actions(observation)
         reward = action[:, 0]
-        session.give_rewards(reward, [0, 0, 0])
+        session.give_rewards(reward.tolist(), [0, 0, 0])
 
     _, features, _ = session.model.base(observation, None, None)
     probs = session.model.dist(features).probs

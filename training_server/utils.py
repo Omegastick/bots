@@ -19,8 +19,13 @@ class RunningMeanStd(object):
         """
         Update the running average.
         """
-        batch_mean = np.mean(x, axis=0)
-        batch_var = np.var(x, axis=0)
+        x = np.array(x, dtype=np.float64)
+        if x.size > 1:
+            batch_mean = np.mean(x, axis=0)
+            batch_var = np.var(x, axis=0)
+        else:
+            batch_mean = x
+            batch_var = 0
         batch_count = x.shape[0]
         self.update_from_moments(batch_mean, batch_var, batch_count)
 

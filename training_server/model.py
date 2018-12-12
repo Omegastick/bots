@@ -18,7 +18,7 @@ class ModelSpecification(NamedTuple):
     inputs: List[int]
     outputs: int
     recurrent: bool = False
-    normalize_observations: bool = False
+    normalize_observations: bool = True
 
 
 class CustomPolicy(nn.Module):

@@ -35,6 +35,8 @@ def main():
     parser.add_argument('--max_grad_norm', type=float, default=0.5)
     parser.add_argument('--clip_factor', type=float, default=0.2)
     parser.add_argument('--use_gpu', action='store_true', default=False)
+    parser.add_argument('--normalize_rewards', action='store_true',
+                        default=False)
 
     args = parser.parse_args()
 
@@ -49,7 +51,8 @@ def main():
         entropy_coef=args.entropy_coef,
         max_grad_norm=args.max_grad_norm,
         clip_factor=args.clip_factor,
-        use_gpu=args.use_gpu
+        use_gpu=args.use_gpu,
+        normalize_rewards=args.normalize_rewards
     )
 
     client = Client()
