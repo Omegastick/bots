@@ -149,7 +149,9 @@ class CommandHandler:
         model = ModelSpecification(
             inputs=params["model"]["inputs"],
             outputs=params["model"]["outputs"],
-            recurrent=params["model"]["recurrent"]
+            recurrent=params["model"].get("recurrent"),
+            normalize_observations=params["model"].get(
+                "normalize_observations")
         )
         if params["training"]:
             hyperparams = HyperParams(**params["hyperparams"])

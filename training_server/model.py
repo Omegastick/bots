@@ -2,10 +2,13 @@
 Agent models
 """
 from typing import List, NamedTuple, Tuple
+import numpy as np
 import torch
 import torch.nn as nn
 from a2c_ppo_acktr.model import MLPBase
 from a2c_ppo_acktr.distributions import Bernoulli
+
+from training_server.utils import RunningMeanStd
 
 
 class ModelSpecification(NamedTuple):
@@ -15,6 +18,7 @@ class ModelSpecification(NamedTuple):
     inputs: List[int]
     outputs: int
     recurrent: bool = False
+    normalize_observations: bool = False
 
 
 class CustomPolicy(nn.Module):
@@ -28,9 +32,18 @@ class CustomPolicy(nn.Module):
             inputs: int,
             outputs: int,
             recurrent=False,
-            hidden_size=128):
+            hidden_size=128,
+            normalize_observations=False):
         super().__init__()
         self.base = MLPBase(inputs, recurrent, hidden_size)
+
+        self.normalize_observations = normalize_observations
+        if self.normalize_observations:
+            self.obs_rms = RunningMeanStd(shape=(inputs,))
+            self.obs_clip = 10.
+
+        self.gamma = 0.99
+        self.epsilon = 1e-8
 
         self.dist = Bernoulli(self.base.output_size, outputs)
 
@@ -66,6 +79,15 @@ class CustomPolicy(nn.Module):
         Get a value, action, log probabilities for the action and the hidden
         states for the inputs given.
         """
+        # Normalise inputs
+        if self.normalize_observations:
+            self.obs_rms.update(inputs)
+            inputs = np.clip(
+                ((inputs - self.ob_rms.mean)
+                 / np.sqrt(self.ob_rms.var + self.epsilon)),
+                -self.obs_clip,
+                self.obs_clip)
+
         value, actor_features, rnn_hxs = self.base(inputs, rnn_hxs, masks)
         dist = self.dist(actor_features)
 

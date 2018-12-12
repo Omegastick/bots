@@ -38,7 +38,8 @@ class Trainer:
             model_specification = ModelSpecification(
                 inputs=self.env.observation_space.shape[0],
                 outputs=self.env.action_space.n,
-                recurrent=True)
+                recurrent=True,
+                normalize_observations=True)
         else:
             raise NotImplementedError()
 
