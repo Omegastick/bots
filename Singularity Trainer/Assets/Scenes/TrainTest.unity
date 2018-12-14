@@ -310,7 +310,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   trainer: {fileID: 381780368}
-  timeScale: 2
+  timeScale: 15
 --- !u!4 &381780367
 Transform:
   m_ObjectHideFlags: 0

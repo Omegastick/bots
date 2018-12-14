@@ -20,6 +20,11 @@ namespace Scripts
 
         private void Update()
         {
+            if (Input.GetKey(KeyCode.Space)) {
+                timeScale = 1;
+            } else {
+                timeScale = 15;
+            }
             Time.timeScale = timeScale;
         }
     }

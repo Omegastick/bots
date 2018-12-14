@@ -1,15 +1,14 @@
-﻿using System.Collections.Generic;
-using System.IO;
+﻿using System;
+using System.Collections.Generic;
+using System.Text;
 using System.Linq;
 using NetMQ;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
-using Newtonsoft.Json.Serialization;
 using Observations;
 using Scripts;
 using TMPro;
 using Training.Environments;
 using UnityEngine;
+using SimpleJSON;
 
 namespace Training.Trainers
 {
@@ -21,7 +20,7 @@ namespace Training.Trainers
         public List<IObservation> ObservationQueue { get; set; }
 
         private NetMQ.Sockets.PairSocket client;
-        private readonly System.TimeSpan waitTime = new System.TimeSpan(0, 0, 0, 20);
+        private readonly System.TimeSpan waitTime = new System.TimeSpan(0, 0, 0, 1);
         private Dictionary<IEnvironment, int> EnvironmentContexts { get; set; }
         private float AverageReward { get; set; }
         private Chart RewardChart { get; set; }
@@ -49,17 +48,8 @@ namespace Training.Trainers
 
         private void CleanUp()
         {
-            var endSessionRequest = new JObject
-            {
-                ["jsonrpc"] = "2.0",
-                ["method"] = "end_session",
-                ["param"] = new JObject
-                {
-                    ["session_id"] = 0
-                },
-                ["id"] = 0
-            };
-            client.TrySendFrame(waitTime, endSessionRequest.ToString());
+            string endSessionRequest = "{\"jsonrpc\":\"2.0\",\"method\":\"end_session\",\"param\":{\"session_id\":0},\"id\":0}";
+            client.TrySendFrame(waitTime, endSessionRequest);
             NetMQConfig.Cleanup(false);
         }
 
@@ -77,41 +67,41 @@ namespace Training.Trainers
 
                 client.TrySendFrame(waitTime, "Connection established...");
 
-                var sessionRequest = new JObject
+                var sessionRequest = @"
                 {
-                    ["jsonrpc"] = "2.0",
-                    ["method"] = "begin_session",
-                    ["param"] = new JObject
+                    ""jsonrpc"": ""2.0"",
+                    ""method"": ""begin_session"",
+                    ""param"":
                     {
-                        ["model"] = new JObject
+                        ""model"":
                         {
-                            ["inputs"] = 18,
-                            ["outputs"] = 4,
-                            ["recurrent"] = true,
-                            ["normalize_rewards"] = true
+                            ""inputs"": 18,
+                            ""outputs"": 4,
+                            ""recurrent"": true,
+                            ""normalize_rewards"": true
                         },
-                        ["hyperparams"] = new JObject
+                        ""hyperparams"":
                         {
-                            ["learning_rate"] = 0.0007,
-                            ["gae"] = 0.95,
-                            ["batch_size"] = 2048,
-                            ["num_minibatch"] = 8,
-                            ["entropy_coef"] = 0.001,
-                            ["max_grad_norm"] = 0.5,
-                            ["discount_factor"] = 0.9,
-                            ["critic_coef"] = 0.5,
-                            ["epochs"] = 4,
-                            ["clip_factor"] = 0.1,
-                            ["normalize_rewards"] = true
+                            ""learning_rate"": 0.0007,
+                            ""gae"": 0.95,
+                            ""batch_size"": 1024,
+                            ""num_minibatch"": 8,
+                            ""entropy_coef"": 0.001,
+                            ""max_grad_norm"": 0.5,
+                            ""discount_factor"": 0.9,
+                            ""critic_coef"": 0.5,
+                            ""epochs"": 4,
+                            ""clip_factor"": 0.1,
+                            ""normalize_rewards"": true
                         },
-                        ["session_id"] = 0,
-                        ["training"] = true,
-                        ["contexts"] = 8
+                        ""session_id"": 0,
+                        ""training"": true,
+                        ""contexts"": 8
                     },
-                    ["id"] = 0
-                };
+                    ""id"": 0
+                }";
 
-                client.TrySendFrame(waitTime, sessionRequest.ToString());
+                client.TrySendFrame(waitTime, sessionRequest);
 
                 client.TryReceiveFrameString(waitTime, out string receivedMessage);
                 Debug.Log(receivedMessage);
@@ -150,9 +140,20 @@ namespace Training.Trainers
 
             client.TryReceiveFrameString(waitTime, out string receivedMessage);
 
-            var actionMessage = JObject.Parse(receivedMessage);
-            List<List<bool>> actions = actionMessage["result"]["actions"].ToObject<List<List<bool>>>();
-            List<float> values = actionMessage["result"]["value"].ToObject<List<float>>();
+            var actionMessage = JSON.Parse(receivedMessage);
+            List<List<bool>> actions = new List<List<bool>>();
+            foreach (JSONArray agent in actionMessage["result"]["actions"])
+            {
+                List<bool> agentActions = new List<bool>();
+                foreach (JSONNode action in agent) {
+                    agentActions.Add(action.AsBool);
+                }
+                actions.Add(agentActions);
+            }
+            List<float> values = new List<float>();
+            foreach (JSONNode action in actionMessage["result"]["value"]) {
+                values.Add(action.AsFloat);
+            }
             var rewards = new List<float>();
             var dones = new List<int>();
             for (int i = 0; i < ObservationQueue.Count; i++)
@@ -196,8 +197,9 @@ namespace Training.Trainers
             {
                 stringBuilder.Append("[");
                 stringBuilder.Append(String.Join(",", agent));
-                stringBuilder.Append("]");
+                stringBuilder.Append("],");
             }
+            stringBuilder.Remove(stringBuilder.Length - 1, 1);
             stringBuilder.Append("],\"session_id\":0},\"id\":0}");
 
             return stringBuilder.ToString();

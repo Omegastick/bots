@@ -37,7 +37,7 @@ namespace Training.Environments
             Agent.Environment = this;
             AgentRigidBody = Agent.GetComponent<Rigidbody2D>();
             ValueDisplay = GetComponentInChildren<ValueDisplay>();
-            Done = false;
+            Done = 0;
         }
 
         public void BeginTraining() { }
@@ -53,7 +53,7 @@ namespace Training.Environments
             Reward = 0;
             var tempDone = Done;
             Done = 0;
-            return new Tuple<float, bool>(tempReward, tempDone);
+            return new Tuple<float, int>(tempReward, tempDone);
         }
 
         public void Pause()
