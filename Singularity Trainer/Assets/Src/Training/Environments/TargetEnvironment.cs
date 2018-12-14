@@ -23,7 +23,7 @@ namespace Training.Environments
         private float lastMoveTargetTime { get; set; }
         private float lastAgentResetTime { get; set; }
         private List<Target> Targets { get; set; }
-        private bool Done { get; set; }
+        private int Done { get; set; }
 
         private void Awake()
         {
@@ -47,12 +47,12 @@ namespace Training.Environments
             Reward += rewardDelta;
         }
 
-        public Tuple<float, bool> GetReward(int agentNumber)
+        public Tuple<float, int> GetReward(int agentNumber)
         {
             var tempReward = Reward;
             Reward = 0;
             var tempDone = Done;
-            Done = false;
+            Done = 0;
             return new Tuple<float, bool>(tempReward, tempDone);
         }
 
@@ -107,7 +107,7 @@ namespace Training.Environments
                 rigidBody.position = transform.TransformPoint(0, 0, 0);
                 rigidBody.velocity = Vector2.zero;
                 rigidBody.angularVelocity = 0;
-                Done = true;
+                Done = 1;
             }
         }
     }

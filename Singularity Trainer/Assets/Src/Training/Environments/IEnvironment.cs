@@ -9,7 +9,7 @@ namespace Training.Environments
         ITrainer Trainer { get; set; }
         void BeginTraining();
         void SendActions(int agentNumber, List<bool> actions);
-        Tuple<float, bool> GetReward(int agentNumber);
+        Tuple<float, int> GetReward(int agentNumber);
         void ChangeReward(int agentNumber, float rewardDelta);
         void Pause();
         void UnPause();

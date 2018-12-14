@@ -154,7 +154,7 @@ namespace Training.Trainers
             List<List<bool>> actions = actionMessage["result"]["actions"].ToObject<List<List<bool>>>();
             List<float> values = actionMessage["result"]["value"].ToObject<List<float>>();
             var rewards = new List<float>();
-            var dones = new List<bool>();
+            var dones = new List<int>();
             for (int i = 0; i < ObservationQueue.Count; i++)
             {
                 var observation = ObservationQueue[i];
@@ -186,11 +186,7 @@ namespace Training.Trainers
 
     class GetActionRequest
     {
-        public List<List<float>> Inputs
-        {
-            get;
-            set;
-        }
+        public List<List<float>> Inputs { get; set; }
 
         public string ToJson()
         {
@@ -202,8 +198,8 @@ namespace Training.Trainers
                 stringBuilder.Append(String.Join(",", agent));
                 stringBuilder.Append("]");
             }
-
             stringBuilder.Append("],\"session_id\":0},\"id\":0}");
+
             return stringBuilder.ToString();
         }
     }
@@ -212,51 +208,18 @@ namespace Training.Trainers
     class GiveRewardRequest
     {
         public List<float> Rewards { get; set; }
-        public List<bool> Dones { get; set; }
+        public List<int> Dones { get; set; }
 
         public string ToJson()
         {
-            StringWriter sw = new StringWriter();
-            JsonTextWriter writer = new JsonTextWriter(sw);
+            StringBuilder stringBuilder = new StringBuilder();
+            stringBuilder.Append("{\"jsonrpc\":\"2.0\",\"method\":\"give_rewards\",\"param\":{\"reward\":[");
+            stringBuilder.Append(String.Join(",", Rewards));
+            stringBuilder.Append("],\"done\":[");
+            stringBuilder.Append(String.Join(",", Dones));
+            stringBuilder.Append("],\"session_id\":0},\"id\":0}");
 
-            writer.WriteStartObject();
-
-            writer.WritePropertyName("jsonrpc");
-            writer.WriteValue("2.0");
-
-            writer.WritePropertyName("method");
-            writer.WriteValue("give_rewards");
-
-            writer.WritePropertyName("param");
-            writer.WriteStartObject();
-
-            writer.WritePropertyName("reward");
-            writer.WriteStartArray();
-            for (int i = 0; i < this.Rewards.Count; i++)
-            {
-                writer.WriteValue(this.Rewards[i]);
-            }
-            writer.WriteEndArray();
-
-            writer.WritePropertyName("done");
-            writer.WriteStartArray();
-            for (int i = 0; i < this.Rewards.Count; i++)
-            {
-                writer.WriteValue(this.Dones[i] ? 1 : 0);
-            }
-            writer.WriteEndArray();
-
-            writer.WritePropertyName("session_id");
-            writer.WriteValue(0);
-
-            writer.WriteEndObject();
-
-            writer.WritePropertyName("id");
-            writer.WriteValue(0);
-
-            writer.WriteEndObject();
-
-            return sw.ToString();
+            return stringBuilder.ToString();
         }
     }
 }
