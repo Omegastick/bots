@@ -186,50 +186,28 @@ namespace Training.Trainers
 
     class GetActionRequest
     {
-        public List<List<float>> Inputs { get; set; }
+        public List<List<float>> Inputs
+        {
+            get;
+            set;
+        }
+
         public string ToJson()
         {
-            StringWriter sw = new StringWriter();
-            JsonTextWriter writer = new JsonTextWriter(sw);
-
-            writer.WriteStartObject();
-
-            writer.WritePropertyName("jsonrpc");
-            writer.WriteValue("2.0");
-
-            writer.WritePropertyName("method");
-            writer.WriteValue("get_actions");
-
-            writer.WritePropertyName("param");
-            writer.WriteStartObject();
-
-            writer.WritePropertyName("inputs");
-            writer.WriteStartArray();
-            for (int i = 0; i < this.Inputs.Count; i++)
+            StringBuilder stringBuilder = new StringBuilder();
+            stringBuilder.Append("{\"jsonrpc\":\"2.0\",\"method\":\"get_actions\",\"param\":{\"inputs\":[");
+            foreach (List<float> agent in Inputs)
             {
-                List<float> inputs = this.Inputs[i];
-                writer.WriteStartArray();
-                for (int j = 0; j < inputs.Count; j++)
-                {
-                    writer.WriteValue(inputs[j]);
-                }
-                writer.WriteEndArray();
+                stringBuilder.Append("[");
+                stringBuilder.Append(String.Join(",", agent));
+                stringBuilder.Append("]");
             }
-            writer.WriteEndArray();
 
-            writer.WritePropertyName("session_id");
-            writer.WriteValue(0);
-
-            writer.WriteEndObject();
-
-            writer.WritePropertyName("id");
-            writer.WriteValue(0);
-
-            writer.WriteEndObject();
-
-            return sw.ToString();
+            stringBuilder.Append("],\"session_id\":0},\"id\":0}");
+            return stringBuilder.ToString();
         }
     }
+
 
     class GiveRewardRequest
     {
