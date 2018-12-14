@@ -167,7 +167,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ac934028844a8de40bfa2a5556a2a508, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  moveTargetInterval: 10
+  moveTargetInterval: 60
   agentResetInterval: 60
 --- !u!4 &4723896277950375666 stripped
 Transform:
@@ -298,6 +298,11 @@ PrefabInstance:
         type: 3}
       propertyPath: m_AnchoredPosition.y
       value: -8.49
+      objectReference: {fileID: 0}
+    - target: {fileID: 4640918265497197117, guid: dc1d1d474ac374241a8ec81c3ddc68c4,
+        type: 3}
+      propertyPath: m_isInputParsingRequired
+      value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: dc1d1d474ac374241a8ec81c3ddc68c4, type: 3}

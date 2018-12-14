@@ -194,7 +194,6 @@ def test_get_actions_gets_action(
 	    "method": "get_actions",
 	    "param": {
 		    "inputs": [[0.1, 1.0]],
-            "context": 0,
             "session_id": 0
 		},
 	    "id": 0

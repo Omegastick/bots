@@ -28,6 +28,7 @@ namespace Scripts.Modules
             }
             sensorReading.Data.AddRange(new float[] { xVelocity, yVelocity, angularVelocity });
             return sensorReading;
+            // return null;
         }
 
         protected override void Awake()

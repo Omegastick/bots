@@ -1,11 +1,12 @@
-﻿using NetMQ;
+﻿using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using NetMQ;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using Newtonsoft.Json.Serialization;
 using Observations;
 using Scripts;
-using System.Collections.Generic;
-using System.Linq;
 using TMPro;
 using Training.Environments;
 using UnityEngine;
@@ -55,13 +56,10 @@ namespace Training.Trainers
         {
             var endSessionRequest = new JObject
             {
-                ["jsonrpc"] = "2.0",
-                ["method"] = "end_session",
-                ["param"] = new JObject
+                ["jsonrpc"] = "2.0", ["method"] = "end_session", ["param"] = new JObject
                 {
-                    ["session_id"] = 0
-                },
-                ["id"] = 0
+                ["session_id"] = 0
+                }, ["id"] = 0
             };
             client.TrySendFrame(waitTime, endSessionRequest.ToString());
             NetMQConfig.Cleanup(false);
@@ -83,34 +81,16 @@ namespace Training.Trainers
 
                 var sessionRequest = new JObject
                 {
-                    ["jsonrpc"] = "2.0",
-                    ["method"] = "begin_session",
-                    ["param"] = new JObject
+                    ["jsonrpc"] = "2.0", ["method"] = "begin_session", ["param"] = new JObject
                     {
-                        ["model"] = new JObject
-                        {
-                            ["inputs"] = 24,
-                            ["outputs"] = 4,
-                            ["recurrent"] = true
-                        },
-                        ["hyperparams"] = new JObject
-                        {
-                            ["learning_rate"] = 0.00025,
-                            ["gae"] = 0.95,
-                            ["batch_size"] = 128,
-                            ["num_minibatch"] = 4,
-                            ["entropy_coef"] = 0.01,
-                            ["max_grad_norm"] = 0.5,
-                            ["discount_factor"] = 0.99,
-                            ["critic_coef"] = 0.5,
-                            ["epochs"] = 4,
-                            ["clip_factor"] = 0.1
-                        },
-                        ["session_id"] = 0,
-                        ["training"] = true,
-                        ["contexts"] = 8
-                    },
-                    ["id"] = 0
+                    ["model"] = new JObject
+                    {
+                    ["inputs"] = 18, ["outputs"] = 4, ["recurrent"] = true, ["normalize_rewards"] = true
+                    }, ["hyperparams"] = new JObject
+                    {
+                    ["learning_rate"] = 0.0007, ["gae"] = 0.95, ["batch_size"] = 2048, ["num_minibatch"] = 8, ["entropy_coef"] = 0.001, ["max_grad_norm"] = 0.5, ["discount_factor"] = 0.9, ["critic_coef"] = 0.5, ["epochs"] = 4, ["clip_factor"] = 0.1, ["normalize_rewards"] = true
+                    }, ["session_id"] = 0, ["training"] = true, ["contexts"] = 8
+                    }, ["id"] = 0
                 };
 
                 client.TrySendFrame(waitTime, sessionRequest.ToString());
@@ -136,7 +116,7 @@ namespace Training.Trainers
 
         public void Step()
         {
-            if (ObservationQueue.Count < this.EnvironmentCount)
+            if (ObservationQueue.Count < EnvironmentCount)
             {
                 return;
             }
@@ -148,24 +128,29 @@ namespace Training.Trainers
                 NamingStrategy = new SnakeCaseNamingStrategy()
             };
 
-            var getActionRequest = new Request
+            var getActionRequest = new GetActionRequest()
             {
-                Jsonrpc = "2.0",
-                Method = "get_actions",
-                Param = new GetActionParam
-                {
-                    Inputs = ObservationQueue.Select(o => o.ToList()).ToList(),
-                    SessionId = 0
-                },
-                Id = 0
+                Inputs = ObservationQueue.Select(o => o.ToList()).ToList()
             };
 
-            var json = JsonConvert.SerializeObject(getActionRequest, new JsonSerializerSettings
-            {
-                ContractResolver = snakeCaseContractResolver,
-                Formatting = Formatting.Indented
-            });
-            client.TrySendFrame(waitTime, json);
+            // var getActionRequest = new Request
+            // {
+            //     Jsonrpc = "2.0",
+            //     Method = "get_actions",
+            //     Param = new GetActionParam
+            //     {
+            //     Inputs = ObservationQueue.Select(o => o.ToList()).ToList(),
+            //     SessionId = 0
+            //     },
+            //     Id = 0
+            // };
+
+            // var json = JsonConvert.SerializeObject(getActionRequest, new JsonSerializerSettings
+            // {
+            //     ContractResolver = snakeCaseContractResolver,
+            //         Formatting = Formatting.None
+            // });
+            client.TrySendFrame(waitTime, getActionRequest.ToJson());
 
             client.TryReceiveFrameString(waitTime, out string receivedMessage);
 
@@ -190,31 +175,36 @@ namespace Training.Trainers
             rewardText.SetText(AverageReward.ToString());
             RewardChart.AddDataPoint(AverageReward);
 
-            var giveRewardRequest = new Request
+            var giveRewardRequest = new GiveRewardRequest()
             {
-                Jsonrpc = "2.0",
-                Method = "give_rewards",
-                Param = new GiveRewardParam
-                {
-                    Reward = rewards,
-                    Done = dones,
-                    SessionId = 0
-                },
-                Id = 0
+                Rewards = rewards,
+                    Dones = dones
             };
 
-            json = JsonConvert.SerializeObject(giveRewardRequest, new JsonSerializerSettings
-            {
-                ContractResolver = snakeCaseContractResolver,
-                Formatting = Formatting.Indented
-            });
-            client.TrySendFrame(waitTime, json);
+            // var giveRewardRequest = new Request
+            // {
+            //     Jsonrpc = "2.0",
+            //     Method = "give_rewards",
+            //     Param = new GiveRewardParam
+            //     {
+            //     Reward = rewards,
+            //     Done = dones,
+            //     SessionId = 0
+            //     },
+            //     Id = 0
+            // };
+
+            // var json = JsonConvert.SerializeObject(giveRewardRequest, new JsonSerializerSettings
+            // {
+            //     ContractResolver = snakeCaseContractResolver,
+            //         Formatting = Formatting.None
+            // });
+            client.TrySendFrame(waitTime, giveRewardRequest.ToJson());
             client.ReceiveFrameString();
 
             ObservationQueue.Clear();
         }
     }
-
 
     class Request
     {
@@ -235,5 +225,103 @@ namespace Training.Trainers
         public List<float> Reward;
         public List<bool> Done;
         public int SessionId;
+    }
+
+    class GetActionRequest
+    {
+        public List<List<float>> Inputs { get; set; }
+        public string ToJson()
+        {
+            StringWriter sw = new StringWriter();
+            JsonTextWriter writer = new JsonTextWriter(sw);
+
+            writer.WriteStartObject();
+
+            writer.WritePropertyName("jsonrpc");
+            writer.WriteValue("2.0");
+
+            writer.WritePropertyName("method");
+            writer.WriteValue("get_actions");
+
+            writer.WritePropertyName("param");
+            writer.WriteStartObject();
+
+            writer.WritePropertyName("inputs");
+            writer.WriteStartArray();
+            for (int i = 0; i < this.Inputs.Count; i++)
+            {
+                List<float> inputs = this.Inputs[i];
+                writer.WriteStartArray();
+                for (int j = 0; j < inputs.Count; j++)
+                {
+                    writer.WriteValue(inputs[j]);
+                }
+                writer.WriteEndArray();
+            }
+            writer.WriteEndArray();
+
+            writer.WritePropertyName("session_id");
+            writer.WriteValue(0);
+
+            writer.WriteEndObject();
+
+            writer.WritePropertyName("id");
+            writer.WriteValue(0);
+
+            writer.WriteEndObject();
+
+            return sw.ToString();
+        }
+    }
+
+    class GiveRewardRequest
+    {
+        public List<float> Rewards { get; set; }
+        public List<bool> Dones { get; set; }
+
+        public string ToJson()
+        {
+            StringWriter sw = new StringWriter();
+            JsonTextWriter writer = new JsonTextWriter(sw);
+
+            writer.WriteStartObject();
+
+            writer.WritePropertyName("jsonrpc");
+            writer.WriteValue("2.0");
+
+            writer.WritePropertyName("method");
+            writer.WriteValue("give_rewards");
+
+            writer.WritePropertyName("param");
+            writer.WriteStartObject();
+
+            writer.WritePropertyName("reward");
+            writer.WriteStartArray();
+            for (int i = 0; i < this.Rewards.Count; i++)
+            {
+                writer.WriteValue(this.Rewards[i]);
+            }
+            writer.WriteEndArray();
+
+            writer.WritePropertyName("done");
+            writer.WriteStartArray();
+            for (int i = 0; i < this.Rewards.Count; i++)
+            {
+                writer.WriteValue(this.Dones[i] ? 1 : 0);
+            }
+            writer.WriteEndArray();
+
+            writer.WritePropertyName("session_id");
+            writer.WriteValue(0);
+
+            writer.WriteEndObject();
+
+            writer.WritePropertyName("id");
+            writer.WriteValue(0);
+
+            writer.WriteEndObject();
+
+            return sw.ToString();
+        }
     }
 }

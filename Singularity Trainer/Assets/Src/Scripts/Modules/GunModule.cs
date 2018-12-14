@@ -4,7 +4,7 @@ using Actions;
 
 namespace Scripts.Modules
 {
-    public class GunModule: Module, Interfaces.IShootable
+    public class GunModule : Module, Interfaces.IShootable
     {
         public GameObject projectile;
         public Transform projectileSpawnPoint;
@@ -28,7 +28,6 @@ namespace Scripts.Modules
                 var forceDirection = transform.TransformDirection(new Vector2(0, -10));
                 var forceOrigin = transform.TransformPoint(new Vector2(0, 0));
                 rigidBody.AddForceAtPosition(forceDirection, forceOrigin);
-
             }
         }
 
