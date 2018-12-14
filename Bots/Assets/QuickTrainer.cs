@@ -195,11 +195,6 @@ public class QuickTrainer : MonoBehaviour
         CleanUp();
     }
 
-    private void OnDestroy()
-    {
-        CleanUp();
-    }
-
     private void CleanUp()
     {
         var endSessionRequest = new JObject

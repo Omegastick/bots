@@ -24,9 +24,6 @@ namespace Training.Environments
         private float lastAgentResetTime { get; set; }
         private List<Target> Targets { get; set; }
         private bool Done { get; set; }
-        private List<bool> State { get; set; }
-        private int StateCount { get; set; }
-        private System.Random Rng { get; set; }
 
         private void Awake()
         {
@@ -41,8 +38,6 @@ namespace Training.Environments
             AgentRigidBody = Agent.GetComponent<Rigidbody2D>();
             ValueDisplay = GetComponentInChildren<ValueDisplay>();
             Done = false;
-            State = new List<bool> { false, true, false, true };
-            Rng = new System.Random(this.GetInstanceID());
         }
 
         public void BeginTraining() { }
@@ -69,12 +64,6 @@ namespace Training.Environments
         public void SendActions(int agentNumber, List<bool> actions)
         {
             Agent.Act(actions);
-            // float reward = 0f;
-            // for (int i = 0; i < actions.Count; i++)
-            // {
-            //     reward += actions[i] == State[i % 2] ? 1 : -1;
-            // }
-            // ChangeReward(agentNumber, reward);
         }
 
         public void UnPause()
@@ -88,20 +77,6 @@ namespace Training.Environments
             {
                 lastObservationTime = Time.time;
                 Trainer.ObservationQueue.Add(Agent.GetObservation());
-                // for (int i = 0; i < State.Count; i++)
-                // {
-                //     if (Rng.NextDouble() < 0.05)
-                //     {
-                //         State[i] = !State[i];
-                //     }
-                // }
-                // var observation = new LinearObservation();
-                // observation.AgentNumber = 0;
-                // observation.Environment = this;
-                // var sensorReading = new LinearSensorReading();
-                // sensorReading.Data = State.Select(x => x ? 1f : -1f).ToList();
-                // observation.SensorReadings = new List<ISensorReading>() { sensorReading };
-                // Trainer.ObservationQueue.Add(observation);
             }
         }
 

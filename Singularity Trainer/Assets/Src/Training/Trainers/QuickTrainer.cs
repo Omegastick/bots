@@ -17,8 +17,8 @@ namespace Training.Trainers
     {
 
         public TextMeshProUGUI rewardText;
-        public List<IObservation> ObservationQueue { get; set; }
         public float averageLength = 1000;
+        public List<IObservation> ObservationQueue { get; set; }
 
         private NetMQ.Sockets.PairSocket client;
         private readonly System.TimeSpan waitTime = new System.TimeSpan(0, 0, 0, 20);
@@ -47,19 +47,17 @@ namespace Training.Trainers
             CleanUp();
         }
 
-        private void OnDestroy()
-        {
-            CleanUp();
-        }
-
         private void CleanUp()
         {
             var endSessionRequest = new JObject
             {
-                ["jsonrpc"] = "2.0", ["method"] = "end_session", ["param"] = new JObject
+                ["jsonrpc"] = "2.0",
+                ["method"] = "end_session",
+                ["param"] = new JObject
                 {
-                ["session_id"] = 0
-                }, ["id"] = 0
+                    ["session_id"] = 0
+                },
+                ["id"] = 0
             };
             client.TrySendFrame(waitTime, endSessionRequest.ToString());
             NetMQConfig.Cleanup(false);
@@ -81,16 +79,36 @@ namespace Training.Trainers
 
                 var sessionRequest = new JObject
                 {
-                    ["jsonrpc"] = "2.0", ["method"] = "begin_session", ["param"] = new JObject
+                    ["jsonrpc"] = "2.0",
+                    ["method"] = "begin_session",
+                    ["param"] = new JObject
                     {
-                    ["model"] = new JObject
-                    {
-                    ["inputs"] = 18, ["outputs"] = 4, ["recurrent"] = true, ["normalize_rewards"] = true
-                    }, ["hyperparams"] = new JObject
-                    {
-                    ["learning_rate"] = 0.0007, ["gae"] = 0.95, ["batch_size"] = 2048, ["num_minibatch"] = 8, ["entropy_coef"] = 0.001, ["max_grad_norm"] = 0.5, ["discount_factor"] = 0.9, ["critic_coef"] = 0.5, ["epochs"] = 4, ["clip_factor"] = 0.1, ["normalize_rewards"] = true
-                    }, ["session_id"] = 0, ["training"] = true, ["contexts"] = 8
-                    }, ["id"] = 0
+                        ["model"] = new JObject
+                        {
+                            ["inputs"] = 18,
+                            ["outputs"] = 4,
+                            ["recurrent"] = true,
+                            ["normalize_rewards"] = true
+                        },
+                        ["hyperparams"] = new JObject
+                        {
+                            ["learning_rate"] = 0.0007,
+                            ["gae"] = 0.95,
+                            ["batch_size"] = 2048,
+                            ["num_minibatch"] = 8,
+                            ["entropy_coef"] = 0.001,
+                            ["max_grad_norm"] = 0.5,
+                            ["discount_factor"] = 0.9,
+                            ["critic_coef"] = 0.5,
+                            ["epochs"] = 4,
+                            ["clip_factor"] = 0.1,
+                            ["normalize_rewards"] = true
+                        },
+                        ["session_id"] = 0,
+                        ["training"] = true,
+                        ["contexts"] = 8
+                    },
+                    ["id"] = 0
                 };
 
                 client.TrySendFrame(waitTime, sessionRequest.ToString());
@@ -123,33 +141,11 @@ namespace Training.Trainers
 
             ObservationQueue = ObservationQueue.OrderBy(o => EnvironmentContexts[o.Environment]).ToList();
 
-            DefaultContractResolver snakeCaseContractResolver = new DefaultContractResolver
-            {
-                NamingStrategy = new SnakeCaseNamingStrategy()
-            };
-
             var getActionRequest = new GetActionRequest()
             {
                 Inputs = ObservationQueue.Select(o => o.ToList()).ToList()
             };
 
-            // var getActionRequest = new Request
-            // {
-            //     Jsonrpc = "2.0",
-            //     Method = "get_actions",
-            //     Param = new GetActionParam
-            //     {
-            //     Inputs = ObservationQueue.Select(o => o.ToList()).ToList(),
-            //     SessionId = 0
-            //     },
-            //     Id = 0
-            // };
-
-            // var json = JsonConvert.SerializeObject(getActionRequest, new JsonSerializerSettings
-            // {
-            //     ContractResolver = snakeCaseContractResolver,
-            //         Formatting = Formatting.None
-            // });
             client.TrySendFrame(waitTime, getActionRequest.ToJson());
 
             client.TryReceiveFrameString(waitTime, out string receivedMessage);
@@ -178,53 +174,14 @@ namespace Training.Trainers
             var giveRewardRequest = new GiveRewardRequest()
             {
                 Rewards = rewards,
-                    Dones = dones
+                Dones = dones
             };
 
-            // var giveRewardRequest = new Request
-            // {
-            //     Jsonrpc = "2.0",
-            //     Method = "give_rewards",
-            //     Param = new GiveRewardParam
-            //     {
-            //     Reward = rewards,
-            //     Done = dones,
-            //     SessionId = 0
-            //     },
-            //     Id = 0
-            // };
-
-            // var json = JsonConvert.SerializeObject(giveRewardRequest, new JsonSerializerSettings
-            // {
-            //     ContractResolver = snakeCaseContractResolver,
-            //         Formatting = Formatting.None
-            // });
             client.TrySendFrame(waitTime, giveRewardRequest.ToJson());
             client.ReceiveFrameString();
 
             ObservationQueue.Clear();
         }
-    }
-
-    class Request
-    {
-        public string Jsonrpc { get; set; }
-        public string Method { get; set; }
-        public object Param { get; set; }
-        public int Id { get; set; }
-    }
-
-    class GetActionParam
-    {
-        public List<List<float>> Inputs { get; set; }
-        public int SessionId;
-    }
-
-    class GiveRewardParam
-    {
-        public List<float> Reward;
-        public List<bool> Done;
-        public int SessionId;
     }
 
     class GetActionRequest
