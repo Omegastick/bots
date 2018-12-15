@@ -81,11 +81,11 @@ namespace Training.Trainers
                         },
                         ""hyperparams"":
                         {
-                            ""learning_rate"": 0.0007,
+                            ""learning_rate"": 0.001,
                             ""gae"": 0.95,
                             ""batch_size"": 256,
                             ""num_minibatch"": 32,
-                            ""entropy_coef"": 0.001,
+                            ""entropy_coef"": 0.000001,
                             ""max_grad_norm"": 0.5,
                             ""discount_factor"": 0.95,
                             ""critic_coef"": 0.5,
@@ -95,7 +95,7 @@ namespace Training.Trainers
                         },
                         ""session_id"": 0,
                         ""training"": true,
-                        ""contexts"": 16
+                        ""contexts"": 32
                     },
                     ""id"": 0
                 }";
