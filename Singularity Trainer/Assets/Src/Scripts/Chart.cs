@@ -7,30 +7,37 @@ namespace Scripts
     public class Chart : MonoBehaviour
     {
         public int maxSize = 100;
+        public float smoothingWeight = 0.99f;
         public List<float> SmoothedData { get; private set; }
 
         private LineRenderer LineRenderer { get; set; }
-        private List<float> Data { get; set; }
+        private List<float> NewData { get; set; }
+        private float MaxPoint { get; set; }
+        private float MinPoint { get; set; }
 
         private void Awake()
         {
             LineRenderer = GetComponent<LineRenderer>();
-            Data = new List<float>();
+            NewData = new List<float>();
             SmoothedData = new List<float>();
+            MaxPoint = Mathf.NegativeInfinity;
+            MinPoint = Mathf.Infinity;
         }
 
         public void AddDataPoint(float dataPoint)
         {
-            Data.Add(dataPoint);
+            NewData.Add(dataPoint);
         }
 
         public void Update()
         {
-            if (Data.Count < 2)
+            if (SmoothedData.Count < 2 && NewData.Count < 2)
             {
                 return;
             }
-            SmoothedData = Smooth(Data, 0.99f);
+            MaxPoint = Mathf.Max(MaxPoint, NewData.Max());
+            MinPoint = Mathf.Min(MinPoint, NewData.Min());
+            SmoothNewData();
             List<float> selectedData;
             if (SmoothedData.Count > maxSize)
             {
@@ -46,15 +53,13 @@ namespace Scripts
                 selectedData = SmoothedData;
             }
 
-            var minValue = selectedData.Min();
-            var maxValue = selectedData.Max();
-            var range = maxValue - minValue;
+            var range = MaxPoint - MinPoint;
             if (range == 0)
             {
                 range = 1f;
             }
 
-            var normalisedData = selectedData.Select(d => (d - minValue) / range).ToList();
+            var normalisedData = selectedData.Select(d => (d - MinPoint) / range).ToList();
 
             List<Vector3> normalisedPoints = new List<Vector3>();
             for (int i = 0; i < selectedData.Count; i++)
@@ -66,20 +71,31 @@ namespace Scripts
                 };
                 normalisedPoints.Add(point);
             }
-            LineRenderer.positionCount = selectedData.Count;
+            LineRenderer.positionCount = normalisedPoints.Count;
             LineRenderer.SetPositions(normalisedPoints.ToArray());
         }
 
-        private static List<float> Smooth(List<float> data, float smoothingWeight)
+        private void SmoothNewData()
         {
-            var smoothedData = new List<float>();
-            float runningAverage = data[0];
-            foreach (float dataPoint in data)
+            if (NewData.Count < 2)
+            {
+                return;
+            }
+            float runningAverage;
+            if (SmoothedData.Count > 1)
+            {
+                runningAverage = SmoothedData.Last();
+            }
+            else
+            {
+                runningAverage = NewData[0];
+            }
+            foreach (float dataPoint in NewData)
             {
                 runningAverage = runningAverage * smoothingWeight + (1 - smoothingWeight) * dataPoint;
-                smoothedData.Add(runningAverage);
+                SmoothedData.Add(runningAverage);
             }
-            return smoothedData;
+            NewData.Clear();
         }
     }
 }
