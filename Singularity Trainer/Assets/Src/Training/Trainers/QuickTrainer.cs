@@ -81,14 +81,14 @@ namespace Training.Trainers
                         {
                             ""learning_rate"": 0.0007,
                             ""gae"": 0.95,
-                            ""batch_size"": 1024,
+                            ""batch_size"": 2048,
                             ""num_minibatch"": 8,
                             ""entropy_coef"": 0.001,
                             ""max_grad_norm"": 0.5,
-                            ""discount_factor"": 0.9,
+                            ""discount_factor"": 0.95,
                             ""critic_coef"": 0.5,
                             ""epochs"": 4,
-                            ""clip_factor"": 0.1,
+                            ""clip_factor"": 0.2,
                             ""normalize_rewards"": true
                         },
                         ""session_id"": 0,
