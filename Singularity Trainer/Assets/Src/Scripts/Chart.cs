@@ -7,7 +7,7 @@ namespace Scripts
     public class Chart : MonoBehaviour
     {
         public int maxSize = 100;
-        public float smoothingWeight = 0.999f;
+        public float smoothingWeight;
         public List<float> SmoothedData { get; private set; }
 
         private LineRenderer LineRenderer { get; set; }

@@ -347,7 +347,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   rewardText: {fileID: 897434128}
-  averageLength: 2400
 --- !u!1001 &425039065
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -1482,6 +1481,11 @@ PrefabInstance:
         type: 3}
       propertyPath: maxSize
       value: 200
+      objectReference: {fileID: 0}
+    - target: {fileID: 5436041285219869154, guid: d2f17cb9274653a4ebeef500001aafe1,
+        type: 3}
+      propertyPath: smoothingWeight
+      value: 0.9999
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: d2f17cb9274653a4ebeef500001aafe1, type: 3}

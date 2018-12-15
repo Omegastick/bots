@@ -152,3 +152,5 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d14278a753f3ddf43a4a3699aea86628, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  maxSize: 200
+  smoothingWeight: 0.9999

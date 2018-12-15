@@ -79,9 +79,9 @@ namespace Training.Trainers
                         },
                         ""hyperparams"":
                         {
-                            ""learning_rate"": 0.0007,
+                            ""learning_rate"": 0.001,
                             ""gae"": 0.95,
-                            ""batch_size"": 2048,
+                            ""batch_size"": 4096,
                             ""num_minibatch"": 8,
                             ""entropy_coef"": 0.001,
                             ""max_grad_norm"": 0.5,
