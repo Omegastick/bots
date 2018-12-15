@@ -7,7 +7,7 @@ namespace Scripts
     public class Chart : MonoBehaviour
     {
         public int maxSize = 100;
-        public float smoothingWeight = 0.99f;
+        public float smoothingWeight = 0.999f;
         public List<float> SmoothedData { get; private set; }
 
         private LineRenderer LineRenderer { get; set; }
@@ -35,8 +35,6 @@ namespace Scripts
             {
                 return;
             }
-            MaxPoint = Mathf.Max(MaxPoint, NewData.Max());
-            MinPoint = Mathf.Min(MinPoint, NewData.Min());
             SmoothNewData();
             List<float> selectedData;
             if (SmoothedData.Count > maxSize)
@@ -94,6 +92,8 @@ namespace Scripts
             {
                 runningAverage = runningAverage * smoothingWeight + (1 - smoothingWeight) * dataPoint;
                 SmoothedData.Add(runningAverage);
+                MaxPoint = Mathf.Max(MaxPoint, runningAverage);
+                MinPoint = Mathf.Min(MinPoint, runningAverage);
             }
             NewData.Clear();
         }
