@@ -16,20 +16,17 @@ namespace Training.Trainers
     {
 
         public TextMeshProUGUI rewardText;
-        public float averageLength = 1000;
         public List<IObservation> ObservationQueue { get; set; }
 
         private NetMQ.Sockets.PairSocket client;
         private readonly System.TimeSpan waitTime = new System.TimeSpan(0, 0, 0, 1);
         private Dictionary<IEnvironment, int> EnvironmentContexts { get; set; }
-        private float AverageReward { get; set; }
         private Chart RewardChart { get; set; }
         private int EnvironmentCount { get; set; }
 
         private void Awake()
         {
             EnvironmentContexts = new Dictionary<IEnvironment, int>();
-            AverageReward = 0f;
             ObservationQueue = new List<IObservation>();
             var environments = GetComponentsInChildren<IEnvironment>().ToList();
             EnvironmentCount = environments.Count;
@@ -166,11 +163,11 @@ namespace Training.Trainers
                 float reward = rewardAndDone.Item1;
                 rewards.Add(reward);
                 dones.Add(rewardAndDone.Item2);
-                AverageReward -= AverageReward / averageLength;
-                AverageReward += reward / averageLength;
+                RewardChart.AddDataPoint(reward);
             }
-            rewardText.SetText(AverageReward.ToString());
-            RewardChart.AddDataPoint(AverageReward);
+            if (RewardChart.SmoothedData.Count > 0) {
+                rewardText.SetText(RewardChart.SmoothedData.Last().ToString("F2"));
+            }
 
             var giveRewardRequest = new GiveRewardRequest()
             {

@@ -6,7 +6,8 @@ namespace Scripts
 {
     public class Chart : MonoBehaviour
     {
-        public int maxSize = 1000;
+        public int maxSize = 100;
+        public List<float> SmoothedData { get; private set; }
 
         private LineRenderer LineRenderer { get; set; }
         private List<float> Data { get; set; }
@@ -15,6 +16,7 @@ namespace Scripts
         {
             LineRenderer = GetComponent<LineRenderer>();
             Data = new List<float>();
+            SmoothedData = new List<float>();
         }
 
         public void AddDataPoint(float dataPoint)
@@ -24,23 +26,28 @@ namespace Scripts
 
         public void Update()
         {
+            if (Data.Count < 2)
+            {
+                return;
+            }
+            SmoothedData = Smooth(Data, 0.99f);
             List<float> selectedData;
-            if (Data.Count > maxSize)
+            if (SmoothedData.Count > maxSize)
             {
                 selectedData = new List<float>();
-                float stepSize = Data.Count / maxSize;
-                for (float i = 0; i < Data.Count; i += stepSize)
+                float stepSize = SmoothedData.Count / maxSize;
+                for (float i = 0; i < SmoothedData.Count; i += stepSize)
                 {
-                    selectedData.Add(Data[(int)i]);
+                    selectedData.Add(SmoothedData[(int)i]);
                 }
             }
             else
             {
-                selectedData = Data;
+                selectedData = SmoothedData;
             }
 
-            var minValue = Data.Min();
-            var maxValue = Data.Max();
+            var minValue = selectedData.Min();
+            var maxValue = selectedData.Max();
             var range = maxValue - minValue;
             if (range == 0)
             {
@@ -61,6 +68,18 @@ namespace Scripts
             }
             LineRenderer.positionCount = selectedData.Count;
             LineRenderer.SetPositions(normalisedPoints.ToArray());
+        }
+
+        private static List<float> Smooth(List<float> data, float smoothingWeight)
+        {
+            var smoothedData = new List<float>();
+            float runningAverage = data[0];
+            foreach (float dataPoint in data)
+            {
+                runningAverage = runningAverage * smoothingWeight + (1 - smoothingWeight) * dataPoint;
+                smoothedData.Add(runningAverage);
+            }
+            return smoothedData;
         }
     }
 }
