@@ -23,12 +23,14 @@ namespace Training.Trainers
         private Dictionary<IEnvironment, int> EnvironmentContexts { get; set; }
         private Chart RewardChart { get; set; }
         private int EnvironmentCount { get; set; }
+        private List<float> EpisodeRewards { get; set; }
 
         private void Awake()
         {
             EnvironmentContexts = new Dictionary<IEnvironment, int>();
             ObservationQueue = new List<IObservation>();
             var environments = GetComponentsInChildren<IEnvironment>().ToList();
+            EpisodeRewards = environments.Select(x => 0f).ToList();
             EnvironmentCount = environments.Count;
             for (int i = 0; i < environments.Count; i++)
             {
@@ -74,26 +76,26 @@ namespace Training.Trainers
                         {
                             ""inputs"": 18,
                             ""outputs"": 4,
-                            ""recurrent"": true,
+                            ""recurrent"": false,
                             ""normalize_rewards"": true
                         },
                         ""hyperparams"":
                         {
-                            ""learning_rate"": 0.001,
+                            ""learning_rate"": 0.0007,
                             ""gae"": 0.95,
-                            ""batch_size"": 4096,
-                            ""num_minibatch"": 8,
+                            ""batch_size"": 256,
+                            ""num_minibatch"": 32,
                             ""entropy_coef"": 0.001,
                             ""max_grad_norm"": 0.5,
                             ""discount_factor"": 0.95,
                             ""critic_coef"": 0.5,
-                            ""epochs"": 4,
+                            ""epochs"": 3,
                             ""clip_factor"": 0.2,
                             ""normalize_rewards"": true
                         },
                         ""session_id"": 0,
                         ""training"": true,
-                        ""contexts"": 8
+                        ""contexts"": 16
                     },
                     ""id"": 0
                 }";
@@ -142,13 +144,15 @@ namespace Training.Trainers
             foreach (JSONArray agent in actionMessage["result"]["actions"])
             {
                 List<bool> agentActions = new List<bool>();
-                foreach (JSONNode action in agent) {
+                foreach (JSONNode action in agent)
+                {
                     agentActions.Add(action.AsBool);
                 }
                 actions.Add(agentActions);
             }
             List<float> values = new List<float>();
-            foreach (JSONNode action in actionMessage["result"]["value"]) {
+            foreach (JSONNode action in actionMessage["result"]["value"])
+            {
                 values.Add(action.AsFloat);
             }
             var rewards = new List<float>();
@@ -161,11 +165,18 @@ namespace Training.Trainers
 
                 var rewardAndDone = observation.Environment.GetReward(observation.AgentNumber);
                 float reward = rewardAndDone.Item1;
+                int done = rewardAndDone.Item2;
                 rewards.Add(reward);
-                dones.Add(rewardAndDone.Item2);
-                RewardChart.AddDataPoint(reward);
+                dones.Add(done);
+                EpisodeRewards[i] += reward;
+                if (done == 1)
+                {
+                    RewardChart.AddDataPoint(EpisodeRewards[i]);
+                    EpisodeRewards[i] = 0;
+                }
             }
-            if (RewardChart.SmoothedData.Count > 0) {
+            if (RewardChart.SmoothedData.Count > 0)
+            {
                 rewardText.SetText(RewardChart.SmoothedData.Last().ToString("F2"));
             }
 

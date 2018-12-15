@@ -23,7 +23,7 @@ namespace Scripts
             if (Input.GetKey(KeyCode.Space)) {
                 timeScale = 1;
             } else {
-                timeScale = 15;
+                timeScale = 10;
             }
             Time.timeScale = timeScale;
         }
