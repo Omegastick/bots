@@ -125,7 +125,7 @@ class TrainingSession:
 
         self.state = 'waiting_for_reward'
 
-        self.increment_frame_counter()
+        self.track_fps()
 
         return self.last_actions, self.last_values
 
@@ -169,12 +169,15 @@ class TrainingSession:
                                           self.hyperparams.discount_factor,
                                           self.hyperparams.gae)
 
-            logging.info("---")
-            logging.info("Training...")
+            logging.debug("---")
+            logging.debug("Training...")
             value_loss, action_loss, entropy = self.agent.update(self.rollouts)
-            logging.info("Action loss: %f", action_loss)
-            logging.info("Value loss: %f", value_loss)
-            logging.info("Entropy: %f", entropy)
+            logging.debug("Action loss: %f", action_loss)
+            logging.debug("Value loss: %f", value_loss)
+            logging.debug("Entropy: %f", entropy)
+            action_dist = self.rollouts.actions.view(-1, 4).mean(dim=0)
+            action_dist_str = " ".join(format(x, ".2f") for x in action_dist)
+            logging.debug("Action distribution: %s", action_dist_str)
             self.rollouts.after_update()
 
         self.state = 'waiting_for_observation'
@@ -185,7 +188,7 @@ class TrainingSession:
         """
         torch.save(self.model.state_dict(), path)
 
-    def increment_frame_counter(self):
+    def track_fps(self):
         """
         Keeps track of the FPS.
         """
