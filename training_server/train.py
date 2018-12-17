@@ -2,6 +2,7 @@
 Train
 """
 import logging
+import time
 from typing import NamedTuple, Tuple, List
 import numpy as np
 import torch
@@ -70,6 +71,11 @@ class TrainingSession:
 
         self.step = 0
 
+        # Keeping track of FPS
+        self.fps_history = []
+        self.frame_counter = 0
+        self.last_fps_display_time = None
+
         if hyperparams.normalize_rewards:
             self.ret_rms = RunningMeanStd()
             self.returns = np.zeros(contexts)
@@ -118,6 +124,8 @@ class TrainingSession:
                  self.rollouts.masks[self.step])
 
         self.state = 'waiting_for_reward'
+
+        self.increment_frame_counter()
 
         return self.last_actions, self.last_values
 
@@ -176,3 +184,27 @@ class TrainingSession:
         Saves the current model to disk.
         """
         torch.save(self.model.state_dict(), path)
+
+    def increment_frame_counter(self):
+        """
+        Keeps track of the FPS.
+        """
+        # Initialize last display time
+        if self.last_fps_display_time is None:
+            self.last_fps_display_time = time.time()
+
+        self.frame_counter += 1
+
+        # If more than a second has passed, display the average FPS and reset
+        if time.time() - self.last_fps_display_time > 1:
+            fps = (self.frame_counter
+                   / (time.time() - self.last_fps_display_time))
+
+            self.fps_history.append(fps)
+            if len(self.fps_history) > 100:
+                self.fps_history.pop()
+
+            logging.debug("FPS: %.2f", np.mean(self.fps_history))
+
+            self.frame_counter = 0
+            self.last_fps_display_time = time.time()

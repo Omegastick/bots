@@ -38,18 +38,10 @@ def main():
     server.send_message("Connection established...")
     logging.debug(server.get_message())
 
-    cycle_counter = 0
-    last_display_time = time.time()
     while True:
         message = server.get_message()
         response = command_handler.handle_command(message)
         server.send_message(response)
-        cycle_counter += 1
-        if time.time() - last_display_time > 1:
-            logging.debug("FPS: %.2f",
-                          cycle_counter / (time.time() - last_display_time))
-            last_display_time = time.time()
-            cycle_counter = 0
 
 
 if __name__ == '__main__':
