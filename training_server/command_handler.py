@@ -94,9 +94,12 @@ class CommandHandler:
                 return self.close_connection()
 
             # Method not found
-            return ('{"api":"v1alpha1",'
-                    '"error":{"code":-32601,"message":"Method not found"},'
-                    f'"id":{command.id}}}')
+            return msgpack.packb(
+                {
+                    "api": "v1alpha1",
+                    "error": {"code": -32601, "message": "Method not found"},
+                    "id": command.id
+                })
         except KeyError as exception:
             logging.debug(command_msg)
             logging.error(exception)

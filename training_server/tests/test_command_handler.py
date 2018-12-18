@@ -323,9 +323,12 @@ def test_error_on_invalid_method(command_handler: CommandHandler):
     })
     response = command_handler.handle_command(message)
 
-    assert response == ('{"api":"v1alpha1",'
-                        '"error":{"code":-32601,"message":"Method not found"},'
-                        '"id":0}')
+    assert response == msgpack.packb(
+                {
+                    "api": "v1alpha1",
+                    "error": {"code": -32601, "message": "Method not found"},
+                    "id": 0
+                })
 
 
 def test_save_model_saves_model(
