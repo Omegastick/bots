@@ -72,9 +72,7 @@ class TrainingSession:
         self.step = 0
 
         # Keeping track of FPS
-        self.fps_history = []
-        self.frame_counter = 0
-        self.last_fps_display_time = None
+        self.fps_tracker = FpsTracker()
 
         if hyperparams.normalize_rewards:
             self.ret_rms = RunningMeanStd()
@@ -125,7 +123,7 @@ class TrainingSession:
 
         self.state = 'waiting_for_reward'
 
-        self.track_fps()
+        self.fps_tracker.next_frame()
 
         return self.last_actions, self.last_values
 
@@ -159,7 +157,7 @@ class TrainingSession:
 
         self.step = (self.step + 1) % self.hyperparams.batch_size
         if self.step == 0:
-            update_start_time = time.time()
+            self.fps_tracker.pause()
             with torch.no_grad():
                 next_value = self.model.get_value(
                     self.rollouts.obs[-1],
@@ -180,9 +178,8 @@ class TrainingSession:
             action_dist_str = " ".join(format(x, ".2f") for x in action_dist)
             logging.debug("Action distribution: %s", action_dist_str)
             self.rollouts.after_update()
-            update_time = time.time() - update_start_time
+            update_time = self.fps_tracker.unpause()
             logging.debug("Update took %.2fs", update_time)
-            self.last_fps_display_time += update_time
             logging.debug("---")
 
         self.state = 'waiting_for_observation'
@@ -193,10 +190,27 @@ class TrainingSession:
         """
         torch.save(self.model.state_dict(), path)
 
-    def track_fps(self):
+
+class FpsTracker:
+    """
+    Keeps track of the current FPS, and displays it periodically.
+    """
+
+    def __init__(self):
+        self.frame_counter = 0
+        self.last_fps_display_time = None
+        self.fps_history = []
+        self.paused = False
+        self.pause_time = None
+
+    def next_frame(self):
         """
-        Keeps track of the FPS.
+        Marks that a frame has passed.
+        If enough time has passed, displays the FPS.
         """
+        if self.paused:
+            return
+
         # Initialize last display time
         if self.last_fps_display_time is None:
             self.last_fps_display_time = time.time()
@@ -205,14 +219,44 @@ class TrainingSession:
 
         # If more than a second has passed, display the average FPS and reset
         if time.time() - self.last_fps_display_time > 1:
-            fps = (self.frame_counter
-                   / (time.time() - self.last_fps_display_time))
+            self.display_fps()
 
-            self.fps_history.append(fps)
-            if len(self.fps_history) > 100:
-                self.fps_history.pop()
+    def display_fps(self):
+        """
+        Outputs the FPS to the logger.
+        """
+        fps = (self.frame_counter
+               / (time.time() - self.last_fps_display_time))
 
-            logging.debug("FPS: %.2f", np.mean(self.fps_history))
+        self.fps_history.insert(0, fps)
+        if len(self.fps_history) > 10:
+            self.fps_history.pop()
 
-            self.frame_counter = 0
-            self.last_fps_display_time = time.time()
+        logging.debug("FPS: %.2f", np.mean(self.fps_history))
+
+        self.frame_counter = 0
+        self.last_fps_display_time = time.time()
+
+    def pause(self):
+        """
+        Pause the FPS timer.
+        """
+        if self.paused:
+            return
+
+        self.pause_time = time.time()
+        self.paused = True
+
+    def unpause(self):
+        """
+        Unpause the FPS timer.
+        """
+        if not self.paused:
+            return 0
+
+        self.paused = False
+        time_spend_paused = time.time() - self.pause_time
+
+        self.last_fps_display_time += time_spend_paused
+
+        return time_spend_paused
