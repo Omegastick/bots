@@ -6,7 +6,6 @@ import numpy as np
 import gym
 from baselines.common.cmd_util import make_vec_env
 from baselines.common.vec_env import VecEnvWrapper
-from baselines.common.vec_env.vec_frame_stack import VecFrameStack
 from training_server.train import HyperParams
 from training_server.model import ModelSpecification
 
@@ -86,7 +85,7 @@ class Trainer:
                     running_reward -= running_reward / RUNNING_REWARD_HORIZON
                     running_reward += (episode_rewards[i]
                                        / RUNNING_REWARD_HORIZON)
-                    logging.info("Frame: %i - Reward: %f - Average: %f",
+                    logging.info("Frame: %i - Reward: %.2f - Average: %.2f",
                                  current_frame,
                                  episode_rewards[i],
                                  running_reward)

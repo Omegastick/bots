@@ -47,5 +47,5 @@ def test_get_message_gets_message(
     """
     expected = "Test"
     client.send_string(expected)
-    message = server.get_message()
+    message = server.get_message().decode()
     assert message == expected

@@ -4,7 +4,7 @@ Classes for building requests to send to the training server.
 from abc import ABC, abstractmethod
 from typing import List
 import numpy as np
-import rapidjson
+import msgpack
 from training_server.model import ModelSpecification
 from training_server.train import HyperParams
 
@@ -14,7 +14,7 @@ class Request(ABC):
     Base class for requests.
     """
     @abstractmethod
-    def to_json(self) -> str:
+    def to_msg(self) -> bytes:
         """
         Creates the JSON for the request.
         """
@@ -36,9 +36,9 @@ class BeginTrainingSessionRequest(Request):
         self.contexts = contexts
         self.session_id = session_id
 
-    def to_json(self) -> str:
+    def to_msg(self) -> bytes:
         request = {
-            "jsonrpc": "2.0",
+            "api": "v1alpha1",
             "method": "begin_session",
             "param": {
                 "model": self.model._asdict(),
@@ -49,7 +49,7 @@ class BeginTrainingSessionRequest(Request):
             },
             "id": 0
         }
-        return rapidjson.dumps(request)
+        return msgpack.packb(request)
 
 
 class BeginInferenceSessionRequest(Request):
@@ -67,9 +67,9 @@ class BeginInferenceSessionRequest(Request):
         self.session_id = session_id
         self.model_path = model_path
 
-    def to_json(self) -> str:
+    def to_msg(self) -> bytes:
         request = {
-            "jsonrpc": "2.0",
+            "api": "v1alpha1",
             "method": "begin_session",
             "param": {
                 "model": self.model._asdict(),
@@ -80,7 +80,7 @@ class BeginInferenceSessionRequest(Request):
             },
             "id": 0
         }
-        return rapidjson.dumps(request)
+        return msgpack.packb(request)
 
 
 class SaveModelRequest(Request):
@@ -94,9 +94,9 @@ class SaveModelRequest(Request):
         self.session_id = session_id
         self.path = path
 
-    def to_json(self) -> str:
+    def to_msg(self) -> bytes:
         request = {
-            "jsonrpc": "2.0",
+            "api": "v1alpha1",
             "method": "save_model",
             "param": {
                 "path": self.path,
@@ -104,7 +104,7 @@ class SaveModelRequest(Request):
             },
             "id": 0
         }
-        return rapidjson.dumps(request)
+        return msgpack.packb(request)
 
 
 class GetActionsRequest(Request):
@@ -118,9 +118,9 @@ class GetActionsRequest(Request):
         self.session_id = session_id
         self.observation = observation
 
-    def to_json(self) -> str:
+    def to_msg(self) -> bytes:
         request = {
-            "jsonrpc": "2.0",
+            "api": "v1alpha1",
             "method": "get_actions",
             "param": {
                 "inputs": self.observation.tolist(),
@@ -128,7 +128,7 @@ class GetActionsRequest(Request):
             },
             "id": 0
         }
-        return rapidjson.dumps(request)
+        return msgpack.packb(request)
 
 
 class GiveRewardsRequest(Request):
@@ -137,25 +137,25 @@ class GiveRewardsRequest(Request):
     """
 
     def __init__(self,
-                 reward: List[float],
-                 done: List[bool],
+                 rewards: List[float],
+                 dones: List[bool],
                  session_id: int):
-        self.reward = reward
-        self.done = done
+        self.rewards = rewards
+        self.dones = dones
         self.session_id = session_id
 
-    def to_json(self) -> str:
+    def to_msg(self) -> bytes:
         request = {
-            "jsonrpc": "2.0",
+            "api": "v1alpha1",
             "method": "give_rewards",
             "param": {
-                "reward": self.reward,
-                "session_id": self.session_id,
-                "done": self.done
+                "rewards": self.rewards,
+                "dones": self.dones,
+                "session_id": self.session_id
             },
             "id": 0
         }
-        return rapidjson.dumps(request)
+        return msgpack.packb(request)
 
 
 class EndSessionRequest(Request):
@@ -166,16 +166,16 @@ class EndSessionRequest(Request):
     def __init__(self, session_id: int):
         self.session_id = session_id
 
-    def to_json(self) -> str:
+    def to_msg(self) -> bytes:
         request = {
-            "jsonrpc": "2.0",
+            "api": "v1alpha1",
             "method": "end_session",
             "param": {
                 "session_id": self.session_id
             },
             "id": 0
         }
-        return rapidjson.dumps(request)
+        return msgpack.packb(request)
 
 
 class CloseConnectionRequest(Request):
@@ -183,11 +183,11 @@ class CloseConnectionRequest(Request):
     Builds the JSON for a request to close the connection.
     """
 
-    def to_json(self) -> str:
+    def to_msg(self) -> bytes:
         request = {
-            "jsonrpc": "2.0",
+            "api": "v1alpha1",
             "method": "close_connection",
             "param": [],
             "id": 0
         }
-        return rapidjson.dumps(request)
+        return msgpack.packb(request)

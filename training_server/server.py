@@ -14,16 +14,19 @@ class Server:
         self.socket = context.socket(zmq.PAIR)
         self.socket.bind(f"tcp://*:{port}")
 
-    def get_message(self) -> str:
+    def get_message(self) -> bytes:
         """
         Gets a message from the client.
         Blocks until a message is received.
         """
         message = self.socket.recv()
-        return message.decode()
+        return message
 
-    def send_message(self, message: str):
+    def send_message(self, message: object):
         """
         Sends a message to the client.
         """
-        self.socket.send_string(message)
+        if isinstance(message, str):
+            self.socket.send_string(message)
+        else:
+            self.socket.send(message)

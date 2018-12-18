@@ -4,7 +4,7 @@ Client.
 import logging
 from requests import Request
 import zmq
-import rapidjson
+import msgpack
 
 
 class Client:
@@ -22,9 +22,9 @@ class Client:
     def send_request(self, request: Request) -> dict:
         """
         Sends a request to the server and gets the response.
-        Returns the received JSON object in dictionary form.
+        Returns the received message object in dictionary form.
         """
-        self.socket.send_string(request.to_json())
-        response_json = self.socket.recv_string()
-        response = rapidjson.loads(response_json)
+        self.socket.send(request.to_msg())
+        response_msg = self.socket.recv()
+        response = msgpack.unpackb(response_msg, raw=False)
         return response

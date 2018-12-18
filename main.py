@@ -36,7 +36,7 @@ def main():
     server = Server(args.port)
     logging.info("Server started...")
     server.send_message("Connection established...")
-    logging.debug(server.get_message())
+    logging.debug(server.get_message().decode())
 
     while True:
         message = server.get_message()
