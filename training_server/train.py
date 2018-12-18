@@ -159,6 +159,7 @@ class TrainingSession:
 
         self.step = (self.step + 1) % self.hyperparams.batch_size
         if self.step == 0:
+            update_start_time = time.time()
             with torch.no_grad():
                 next_value = self.model.get_value(
                     self.rollouts.obs[-1],
@@ -179,6 +180,10 @@ class TrainingSession:
             action_dist_str = " ".join(format(x, ".2f") for x in action_dist)
             logging.debug("Action distribution: %s", action_dist_str)
             self.rollouts.after_update()
+            update_time = time.time() - update_start_time
+            logging.debug("Update took %.2fs", update_time)
+            self.last_fps_display_time += update_time
+            logging.debug("---")
 
         self.state = 'waiting_for_observation'
 
