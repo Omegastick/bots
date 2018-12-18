@@ -4,19 +4,25 @@ Command handler
 
 from typing import NamedTuple, Any, Optional
 import logging
-import rapidjson
+import msgpack
 
 from .session_manager import SessionManager
 from .model import ModelSpecification
 from .train import HyperParams
 
-BAD_REQUEST = ('{"jsonrpc":"2.0",'
-               '"error":{"code":-32600,"message":"Invalid Request"},'
-               '"id":null}')
+BAD_REQUEST = msgpack.packb(
+    {
+        "api": "v1alpha1",
+        "error": {"code": -32600, "message": "Invalid request"},
+        "id": None
+    })
 
-PARSE_ERROR = ('{"jsonrpc":"2.0",'
-               '"error":{"code":-32700,"message":"Parse error"},'
-               '"id":null}')
+PARSE_ERROR = msgpack.packb(
+    {
+        "api": "v1alpha1",
+        "error": {"code": -32700, "message": "Parse error"},
+        "id": None
+    })
 
 
 class Command(NamedTuple):
@@ -43,7 +49,7 @@ class BadRequestError(Exception):
     pass
 
 
-class BadJsonError(Exception):
+class BadMessageError(Exception):
     """
     Exception for when there is malformed JSON in the request.
     """
@@ -58,19 +64,19 @@ class CommandHandler:
     def __init__(self, session_manager: SessionManager):
         self.session_manager = session_manager
 
-    def handle_command(self, command_json: str) -> str:
+    def handle_command(self, command_msg: bytes) -> bytes:
         """
         Receives a command in JSON-RPC format, handles it, then sends a
         response.
         """
         command: Command
         try:
-            command = self.parse_json(command_json)
+            command = self.parse(command_msg)
         except BadRequestError:
-            logging.debug(command_json)
+            logging.debug(command_msg)
             return BAD_REQUEST
-        except BadJsonError:
-            logging.debug(command_json)
+        except BadMessageError:
+            logging.debug(command_msg)
             return PARSE_ERROR
 
         try:
@@ -88,30 +94,30 @@ class CommandHandler:
                 return self.close_connection()
 
             # Method not found
-            return ('{"jsonrpc":"2.0",'
+            return ('{"api":"v1alpha1",'
                     '"error":{"code":-32601,"message":"Method not found"},'
                     f'"id":{command.id}}}')
         except KeyError as exception:
-            logging.debug(command_json)
+            logging.debug(command_msg)
             logging.error(exception)
             import pdb
             pdb.post_mortem()
             return BAD_REQUEST
 
-    def parse_json(self, json: str) -> Command:
+    def parse(self, message: str) -> Command:
         """
-        Converts JSON into a Command.
+        Converts message into a Command.
         """
         try:
-            obj = rapidjson.loads(json)
+            obj = msgpack.unpackb(message, raw=False)
         except ValueError as exception:
-            logging.warning(json)
+            logging.warning(message)
             logging.warning(exception)
-            raise BadJsonError
+            raise BadMessageError
 
         if (
-                "jsonrpc" not in obj
-                or obj["jsonrpc"] != "2.0"
+                "api" not in obj
+                or obj["api"] != "v1alpha1"
                 or "param" not in obj
                 or (not isinstance(obj["param"], list)
                     and not isinstance(obj["param"], dict))
@@ -128,18 +134,18 @@ class CommandHandler:
 
         return command
 
-    def create_response_json(self, response: Response) -> str:
+    def create_response(self, response: Response) -> str:
         """
-        Converts a Response to a JSON-RPC response.
+        Converts a Response to a valid API response.
         """
         obj = {
-            "jsonrpc": "2.0",
+            "api": "v1alpha1",
             "result": response.result,
             "id": response.id
         }
-        json = rapidjson.dumps(obj)
+        message = msgpack.packb(obj)
 
-        return json
+        return message
 
     def begin_session(self, command: Command) -> str:
         """
@@ -158,13 +164,13 @@ class CommandHandler:
             self.session_manager.start_training_session(
                 params["session_id"], model, hyperparams, params["contexts"])
             response = Response(result="OK", id=command.id)
-            return self.create_response_json(response)
+            return self.create_response(response)
 
         self.session_manager.start_inference_session(
             params["session_id"], model, params["model_path"],
             params["contexts"])
         response = Response(result="OK", id=command.id)
-        return self.create_response_json(response)
+        return self.create_response(response)
 
     def get_actions(self, command: Command) -> str:
         """
@@ -179,7 +185,7 @@ class CommandHandler:
             id=command.id,
             result={"actions": actions, "value": values}
         )
-        return self.create_response_json(response)
+        return self.create_response(response)
 
     def give_rewards(self, command: Command) -> str:
         """
@@ -187,10 +193,10 @@ class CommandHandler:
         """
         params = command.params
         self.session_manager.give_rewards(params["session_id"],
-                                          params["reward"],
-                                          params["done"])
+                                          params["rewards"],
+                                          params["dones"])
         response = Response(result="OK", id=command.id)
-        return self.create_response_json(response)
+        return self.create_response(response)
 
     def end_session(self, command: Command) -> str:
         """
@@ -199,7 +205,7 @@ class CommandHandler:
         params = command.params
         self.session_manager.end_session(params["session_id"])
         response = Response(result="OK", id=command.id)
-        return self.create_response_json(response)
+        return self.create_response(response)
 
     def save_model(self, command: Command) -> str:
         """
@@ -208,7 +214,7 @@ class CommandHandler:
         params = command.params
         self.session_manager.save_model(params["session_id"], params["path"])
         response = Response(result="OK", id=command.id)
-        return self.create_response_json(response)
+        return self.create_response(response)
 
     def close_connection(self) -> str:
         """
