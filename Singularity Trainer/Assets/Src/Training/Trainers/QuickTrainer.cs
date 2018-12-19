@@ -8,7 +8,7 @@ using Scripts;
 using TMPro;
 using Training.Environments;
 using UnityEngine;
-using SimpleJSON;
+using MessagePack;
 
 namespace Training.Trainers
 {
@@ -66,47 +66,45 @@ namespace Training.Trainers
 
                 client.TrySendFrame(waitTime, "Connection established...");
 
-                var sessionRequest = @"
+                var beginSessionRequest = new BeginSessionRequest
                 {
-                    ""jsonrpc"": ""2.0"",
-                    ""method"": ""begin_session"",
-                    ""param"":
+                    Param = new BeginSessionParams
                     {
-                        ""model"":
+                        Model = new ModelParams
                         {
-                            ""inputs"": 18,
-                            ""outputs"": 4,
-                            ""recurrent"": false,
-                            ""normalize_rewards"": true
+                            Inputs = 18,
+                            Outputs = 4,
+                            Recurrent = false,
+                            NormalizeInputs = true
                         },
-                        ""hyperparams"":
+                        Hyperparams = new HyperParams
                         {
-                            ""learning_rate"": 0.001,
-                            ""gae"": 0.95,
-                            ""batch_size"": 256,
-                            ""num_minibatch"": 32,
-                            ""entropy_coef"": 0.000001,
-                            ""max_grad_norm"": 0.5,
-                            ""discount_factor"": 0.95,
-                            ""critic_coef"": 0.5,
-                            ""epochs"": 3,
-                            ""clip_factor"": 0.2,
-                            ""normalize_rewards"": true
+                            LearningRate = 0.00004f,
+                            Gae = 0.95f,
+                            BatchSize = 256,
+                            NumMinibatch = 8,
+                            EntropyCoef = 0.00001f,
+                            MaxGradNorm = 0.5f,
+                            DiscountFactor = 0.95f,
+                            CriticCoef = 0.5f,
+                            Epochs = 3,
+                            ClipFactor = 0.2f,
+                            NormalizeRewards = true
                         },
-                        ""session_id"": 0,
-                        ""training"": true,
-                        ""contexts"": 32
-                    },
-                    ""id"": 0
-                }";
+                        SessionId = 0,
+                        Training = true,
+                        Contexts = 8
+                    }
+                };
 
-                client.TrySendFrame(waitTime, sessionRequest);
+                client.TrySendFrame(waitTime, MessagePackSerializer.Serialize<BeginSessionRequest>(beginSessionRequest));
 
                 client.TryReceiveFrameString(waitTime, out string receivedMessage);
                 Debug.Log(receivedMessage);
             }
-            catch
+            catch (Exception ex)
             {
+                Debug.LogError(ex);
                 CleanUp();
             }
         }
@@ -132,36 +130,26 @@ namespace Training.Trainers
 
             var getActionRequest = new GetActionRequest()
             {
-                Inputs = ObservationQueue.Select(o => o.ToList()).ToList()
+                Param = new GetActionParam
+                {
+                    Inputs = ObservationQueue.Select(o => o.ToList()).ToList(),
+                    SessionId = 0
+                },
+                Id = 0
             };
 
-            client.TrySendFrame(waitTime, getActionRequest.ToJson());
+            client.TrySendFrame(waitTime, MessagePackSerializer.Serialize<GetActionRequest>(getActionRequest));
 
-            client.TryReceiveFrameString(waitTime, out string receivedMessage);
+            client.TryReceiveFrameBytes(waitTime, out byte[] receivedMessage);
 
-            var actionMessage = JSON.Parse(receivedMessage);
-            List<List<bool>> actions = new List<List<bool>>();
-            foreach (JSONArray agent in actionMessage["result"]["actions"])
-            {
-                List<bool> agentActions = new List<bool>();
-                foreach (JSONNode action in agent)
-                {
-                    agentActions.Add(action.AsBool);
-                }
-                actions.Add(agentActions);
-            }
-            List<float> values = new List<float>();
-            foreach (JSONNode action in actionMessage["result"]["value"])
-            {
-                values.Add(action.AsFloat);
-            }
+            var getActionResponse = MessagePackSerializer.Deserialize<GetActionResponse>(receivedMessage);
             var rewards = new List<float>();
             var dones = new List<int>();
             for (int i = 0; i < ObservationQueue.Count; i++)
             {
                 var observation = ObservationQueue[i];
-                observation.Environment.SetValue(observation.AgentNumber, values[i]);
-                observation.Environment.SendActions(observation.AgentNumber, actions[i]);
+                observation.Environment.SetValue(observation.AgentNumber, getActionResponse.Result.Value[i]);
+                observation.Environment.SendActions(observation.AgentNumber, getActionResponse.Result.Actions[i]);
 
                 var rewardAndDone = observation.Environment.GetReward(observation.AgentNumber);
                 float reward = rewardAndDone.Item1;
@@ -180,56 +168,186 @@ namespace Training.Trainers
                 rewardText.SetText(RewardChart.SmoothedData.Last().ToString("F2"));
             }
 
-            var giveRewardRequest = new GiveRewardRequest()
+            var giveRewardRequest = new GiveRewardRequest
             {
-                Rewards = rewards,
-                Dones = dones
+                Param = new GiveRewardParams
+                {
+                    Rewards = rewards,
+                    Dones = dones
+                },
+                Id = 0
             };
 
-            client.TrySendFrame(waitTime, giveRewardRequest.ToJson());
-            client.ReceiveFrameString();
+            client.TrySendFrame(waitTime, MessagePackSerializer.Serialize<GiveRewardRequest>(giveRewardRequest));
+            client.ReceiveFrameBytes();
 
             ObservationQueue.Clear();
         }
     }
 
-    class GetActionRequest
+    [MessagePackObject]
+    abstract class Request
     {
-        public List<List<float>> Inputs { get; set; }
+        [Key("api")]
+        public string Api { get; set; } = "v1alpha1";
 
-        public string ToJson()
+        [Key("method")]
+        public string Method { get; set; }
+
+        [Key("id")]
+        public int Id { get; set; } = 0;
+    }
+
+    [MessagePackObject]
+    class GetActionRequest : Request
+    {
+        [Key("param")]
+        public GetActionParam Param { get; set; }
+
+        public GetActionRequest()
         {
-            StringBuilder stringBuilder = new StringBuilder();
-            stringBuilder.Append("{\"jsonrpc\":\"2.0\",\"method\":\"get_actions\",\"param\":{\"inputs\":[");
-            foreach (List<float> agent in Inputs)
-            {
-                stringBuilder.Append("[");
-                stringBuilder.Append(String.Join(",", agent));
-                stringBuilder.Append("],");
-            }
-            stringBuilder.Remove(stringBuilder.Length - 1, 1);
-            stringBuilder.Append("],\"session_id\":0},\"id\":0}");
-
-            return stringBuilder.ToString();
+            Method = "get_action";
         }
     }
 
-
-    class GiveRewardRequest
+    [MessagePackObject]
+    class GetActionParam
     {
+        [Key("inputs")]
+        public List<List<float>> Inputs { get; set; }
+
+        [Key("sessionId")]
+        public int SessionId { get; set; }
+    }
+
+    [MessagePackObject]
+    class GiveRewardRequest : Request
+    {
+        [Key("param")]
+        public GiveRewardParams Param { get; set; }
+
+        public GiveRewardRequest()
+        {
+            Method = "give_reward";
+        }
+    }
+
+    [MessagePackObject]
+    class GiveRewardParams
+    {
+        [Key("rewards")]
         public List<float> Rewards { get; set; }
+
+        [Key("dones")]
         public List<int> Dones { get; set; }
 
-        public string ToJson()
-        {
-            StringBuilder stringBuilder = new StringBuilder();
-            stringBuilder.Append("{\"jsonrpc\":\"2.0\",\"method\":\"give_rewards\",\"param\":{\"reward\":[");
-            stringBuilder.Append(String.Join(",", Rewards));
-            stringBuilder.Append("],\"done\":[");
-            stringBuilder.Append(String.Join(",", Dones));
-            stringBuilder.Append("],\"session_id\":0},\"id\":0}");
+        [Key("sessionId")]
+        public int SessionId { get; set; }
+    }
 
-            return stringBuilder.ToString();
-        }
+    [MessagePackObject]
+    abstract class Response
+    {
+        [Key("api")]
+        public string Api { get; set; }
+
+        [Key("id")]
+        public int Id { get; set; }
+    }
+
+    [MessagePackObject]
+    class GetActionResponse : Response
+    {
+        [Key("result")]
+        public GetActionResult Result { get; set; }
+    }
+
+    [MessagePackObject]
+    class GetActionResult
+    {
+        [Key("actions")]
+        public List<List<bool>> Actions { get; set; }
+
+        [Key("value")]
+        public List<float> Value { get; set; }
+    }
+
+    [MessagePackObject]
+    class BeginSessionRequest
+    {
+        [Key("param")]
+        public BeginSessionParams Param { get; set; }
+    }
+
+    [MessagePackObject]
+    class BeginSessionParams
+    {
+        [Key("model")]
+        public ModelParams Model { get; set; }
+
+        [Key("hyperparams")]
+        public HyperParams Hyperparams { get; set; }
+
+        [Key("session_id")]
+        public int SessionId { get; set; }
+
+        [Key("training")]
+        public bool Training { get; set; }
+
+        [Key("contexts")]
+        public int Contexts { get; set; }
+    }
+
+    [MessagePackObject]
+    class ModelParams
+    {
+        [Key("inputs")]
+        public int Inputs { get; set; }
+
+        [Key("outputs")]
+        public int Outputs { get; set; }
+
+        [Key("recurrent")]
+        public bool Recurrent { get; set; }
+
+        [Key("normalize_inputs")]
+        public bool NormalizeInputs { get; set; }
+    }
+
+    [MessagePackObject]
+    class HyperParams
+    {
+        [Key("learning_rate")]
+        public float LearningRate { get; set; }
+
+        [Key("gae")]
+        public float Gae { get; set; }
+
+        [Key("batch_size")]
+        public int BatchSize { get; set; }
+
+        [Key("num_minibatch")]
+        public int NumMinibatch { get; set; }
+
+        [Key("entropy_coef")]
+        public float EntropyCoef { get; set; }
+
+        [Key("max_grad_norm")]
+        public float MaxGradNorm { get; set; }
+
+        [Key("discount_factor")]
+        public float DiscountFactor { get; set; }
+
+        [Key("critic_coef")]
+        public float CriticCoef { get; set; }
+
+        [Key("epochs")]
+        public int Epochs { get; set; }
+
+        [Key("clip_factor")]
+        public float ClipFactor { get; set; }
+
+        [Key("normalize_rewards")]
+        public bool NormalizeRewards { get; set; }
     }
 }
