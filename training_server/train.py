@@ -141,10 +141,9 @@ class TrainingSession:
                             * self.hyperparams.discount_factor
                             + rewards)
             self.ret_rms.update(self.returns)
-            rewards = np.clip(
-                rewards / np.sqrt(self.ret_rms.var + 1e-8),
-                -self.reward_clip,
-                self.reward_clip)
+            rewards = np.clip(rewards / np.sqrt(self.ret_rms.var + 1e-8),
+                              -self.reward_clip,
+                              self.reward_clip)
 
         rewards = torch.Tensor(rewards).unsqueeze(1)
 
@@ -155,32 +154,10 @@ class TrainingSession:
                              self.last_actions, self.last_action_log_probs,
                              self.last_values, rewards, masks)
 
+        # If we've collected a whole batch of data, update
         self.step = (self.step + 1) % self.hyperparams.batch_size
         if self.step == 0:
-            self.fps_tracker.pause()
-            with torch.no_grad():
-                next_value = self.model.get_value(
-                    self.rollouts.obs[-1],
-                    self.rollouts.recurrent_hidden_states[-1],
-                    self.rollouts.masks[-1]).detach()
-
-            self.rollouts.compute_returns(next_value, self.hyperparams.use_gae,
-                                          self.hyperparams.discount_factor,
-                                          self.hyperparams.gae)
-
-            logging.debug("---")
-            logging.debug("Training...")
-            value_loss, action_loss, entropy = self.agent.update(self.rollouts)
-            logging.debug("Action loss: %+7.4f", action_loss)
-            logging.debug("Value loss: %+8.4f", value_loss)
-            logging.debug("Entropy: %11.4f", entropy)
-            action_dist = self.rollouts.actions.view(-1, 4).mean(dim=0)
-            action_dist_str = " ".join(format(x, ".2f") for x in action_dist)
-            logging.debug("Action distribution: %s", action_dist_str)
-            self.rollouts.after_update()
-            update_time = self.fps_tracker.unpause()
-            logging.debug("Update took %.2fs", update_time)
-            logging.debug("---")
+            self.update()
 
         self.state = 'waiting_for_observation'
 
@@ -189,6 +166,43 @@ class TrainingSession:
         Saves the current model to disk.
         """
         torch.save(self.model.state_dict(), path)
+
+    def update(self):
+        """
+        Update the agent based on the recorded data.
+        """
+        self.fps_tracker.pause()
+
+        logging.debug("---")
+        logging.debug("Training...")
+
+        # Calculate returns for batch
+        with torch.no_grad():
+            next_value = self.model.get_value(
+                self.rollouts.obs[-1],
+                self.rollouts.recurrent_hidden_states[-1],
+                self.rollouts.masks[-1]).detach()
+        self.rollouts.compute_returns(next_value, self.hyperparams.use_gae,
+                                      self.hyperparams.discount_factor,
+                                      self.hyperparams.gae)
+
+        # Update the agent
+        value_loss, action_loss, entropy = self.agent.update(self.rollouts)
+
+        action_dist = self.rollouts.actions.view(-1, 4).mean(dim=0)
+        action_dist_str = " ".join(format(x, ".2f") for x in action_dist)
+
+        # Reset the rollout storage
+        self.rollouts.after_update()
+
+        update_time = self.fps_tracker.unpause()
+
+        logging.debug("Action distribution: %s", action_dist_str)
+        logging.debug("Action loss: %+7.4f", action_loss)
+        logging.debug("Value loss: %+8.4f", value_loss)
+        logging.debug("Entropy: %11.4f", entropy)
+        logging.debug("Update took %.2fs", update_time)
+        logging.debug("---")
 
 
 class FpsTracker:
