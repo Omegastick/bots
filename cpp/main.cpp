@@ -1,53 +1,26 @@
-#include <iostream>
+#define ZMQ_STATIC
 #include <SFML/Graphics.hpp>
 #include <SFML/Window.hpp>
-#include <Box2d/Box2D.h>
+#include <sodium.h>
+#include <zmq.hpp>
 
-#include "box.h"
+#include "screen_manager.h"
+#include "test_screen.h"
 
 int main(int argc, const char *argv[])
 {
-    sf::RenderWindow window(sf::VideoMode(1920, 1080), "Woop", sf::Style::Default);
-    window.setFramerateLimit(60);
+    sf::RenderWindow window(sf::VideoMode(1920, 1080), "Singularity Trainer", sf::Style::Default);
+    window.setFramerateLimit(360);
 
     sf::Event event;
+    sf::Clock frameClock;
 
-    // World init
-    b2Vec2 gravity(0.0f, -9.8f);
-    b2World world(gravity);
+    zmq::context_t context;
 
-    // Ground
-    b2BodyDef groundBodyDef;
-    groundBodyDef.position.Set(0.0f, -10.0f);
-    b2Body *groundBody = world.CreateBody(&groundBodyDef);
-    b2PolygonShape groundBox;
-    groundBox.SetAsBox(50.0f, 10.0f);
-    groundBody->CreateFixture(&groundBox, 0.0f);
+    STrainer::TestScreen test_screen(window);
+    STrainer::ScreenManager::get_instance().show_screen(&test_screen);
 
-    // Box2D setup
-    float timeStep = 1.0f / 60.0f;
-    int velocityIterations = 6;
-    int positionIterations = 2;
-
-    // Ground sprite
-    sf::RectangleShape groundShape(sf::Vector2f(1000.0f, 200.0f));
-    groundShape.setOrigin(500.0f, 100.0f);
-    groundShape.setFillColor(sf::Color::Green);
-
-    b2Vec2 spriteOffset(-1920.0f / 10 / 2, -1080.0f / 10 / 2);
-    float rad2Deg = 180.0f / 3.1415f;
-
-    // Boxes
-    std::vector<Box> boxes;
-    for (int i = 0; i < 1000; i++)
-    {
-        b2Vec2 size(1.0f, 1.0f);
-        b2Vec2 position(0.0f, i * 3.0f);
-        Box box(size, position, world);
-        box.body->SetAngularVelocity(1.0f);
-        boxes.push_back(box);
-    }
-
+	frameClock.restart();
     while (window.isOpen())
     {
         /*
@@ -64,31 +37,15 @@ int main(int argc, const char *argv[])
         /*
          *  Update logic
          */
-        world.Step(timeStep, velocityIterations, positionIterations);
-
-        // Ground
-        b2Vec2 groundPosition = groundBody->GetPosition() + spriteOffset;
-        groundShape.setPosition(-groundPosition.x * 10, -groundPosition.y * 10);
-
-        // Box
-        for (auto &box : boxes)
-        {
-            b2Vec2 boxPosition = box.body->GetPosition() + spriteOffset;
-            box.shape.setPosition(-boxPosition.x * 10, -boxPosition.y * 10);
-            box.shape.setRotation(box.body->GetAngle() * rad2Deg);
-        }
+        STrainer::ScreenManager::get_instance().update(frameClock.getElapsedTime().asSeconds());
+        frameClock.restart();
 
         /*
          *  Draw
          */
         window.clear(sf::Color::Black);
 
-        for (const auto &box : boxes)
-        {
-            window.draw(box.shape);
-        }
-
-        window.draw(groundShape);
+        STrainer::ScreenManager::get_instance().draw(window);
 
         window.display();
     }
