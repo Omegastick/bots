@@ -1,4 +1,3 @@
-#define ZMQ_STATIC
 #include <SFML/Graphics.hpp>
 #include <SFML/Window.hpp>
 #include <sodium.h>
@@ -22,8 +21,11 @@ int main(int argc, const char *argv[])
 
     zmq::context_t context;
 
-    TestScreen test_screen(window);
-    ScreenManager::get_instance().show_screen(&test_screen);
+    ScreenManager screenManager;
+    ResourceManager resourceManager;
+
+    TestScreen test_screen(window, resourceManager);
+    screenManager.show_screen(&test_screen);
 
     frameClock.restart();
     while (window.isOpen())
@@ -42,7 +44,7 @@ int main(int argc, const char *argv[])
         /*
          *  Update logic
          */
-        ScreenManager::get_instance().update(frameClock.getElapsedTime().asSeconds());
+        screenManager.update(frameClock.getElapsedTime().asSeconds());
         frameClock.restart();
 
         /*
@@ -50,7 +52,7 @@ int main(int argc, const char *argv[])
          */
         window.clear(sf::Color::Black);
 
-        ScreenManager::get_instance().draw(window);
+        screenManager.draw(window);
 
         window.display();
     }

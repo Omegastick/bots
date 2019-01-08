@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.5.1)
 project(SingularityTrainer)
-set(CMAKE_CXX_STANDARD 11)
+set(CMAKE_CXX_STANDARD 14)
 set(CMAKE_BUILD_TYPE Debug)
 
 # Libraries
@@ -13,6 +13,7 @@ find_package(Box2D)
 
 # Includes
 include_directories(include)
+include_directories(src)
 
 # Executable
 file(GLOB SOURCES "src/**.cpp")
