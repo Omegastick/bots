@@ -4,9 +4,9 @@
 #include "iscreen.h"
 #include "screen_manager.h"
 
-namespace STrainer
+namespace SingularityTrainer
 {
-void ScreenManager::show_screen(STrainer::IScreen *screen)
+void ScreenManager::show_screen(SingularityTrainer::IScreen *screen)
 {
     screens_.push(screen);
 }

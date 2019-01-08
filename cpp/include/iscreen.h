@@ -2,15 +2,15 @@
 
 #include <SFML/Graphics.hpp>
 
-namespace STrainer
+namespace SingularityTrainer
 {
 class IScreen
 {
   public:
-	IScreen(){};
-	~IScreen(){};
+    IScreen(){};
+    ~IScreen(){};
 
-	virtual void draw(sf::RenderTarget &render_target) = 0;
-	virtual void update(float delta_time) = 0;
+    virtual void draw(sf::RenderTarget &render_target) = 0;
+    virtual void update(float delta_time) = 0;
 };
 }

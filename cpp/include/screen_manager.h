@@ -5,7 +5,7 @@
 
 #include "iscreen.h"
 
-namespace STrainer
+namespace SingularityTrainer
 {
 class ScreenManager
 {

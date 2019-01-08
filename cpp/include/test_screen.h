@@ -4,7 +4,7 @@
 
 #include "iscreen.h"
 
-namespace STrainer
+namespace SingularityTrainer
 {
 class TestScreen : public IScreen
 {

@@ -2,7 +2,7 @@
 
 #include "test_screen.h"
 
-namespace STrainer
+namespace SingularityTrainer
 {
 TestScreen::TestScreen(sf::RenderTarget &window)
 {

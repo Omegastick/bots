@@ -7,6 +7,8 @@
 #include "screen_manager.h"
 #include "test_screen.h"
 
+using namespace SingularityTrainer;
+
 int main(int argc, const char *argv[])
 {
     sf::ContextSettings settings;
@@ -20,8 +22,8 @@ int main(int argc, const char *argv[])
 
     zmq::context_t context;
 
-    STrainer::TestScreen test_screen(window);
-    STrainer::ScreenManager::get_instance().show_screen(&test_screen);
+    TestScreen test_screen(window);
+    ScreenManager::get_instance().show_screen(&test_screen);
 
     frameClock.restart();
     while (window.isOpen())
@@ -40,7 +42,7 @@ int main(int argc, const char *argv[])
         /*
          *  Update logic
          */
-        STrainer::ScreenManager::get_instance().update(frameClock.getElapsedTime().asSeconds());
+        ScreenManager::get_instance().update(frameClock.getElapsedTime().asSeconds());
         frameClock.restart();
 
         /*
@@ -48,7 +50,7 @@ int main(int argc, const char *argv[])
          */
         window.clear(sf::Color::Black);
 
-        STrainer::ScreenManager::get_instance().draw(window);
+        ScreenManager::get_instance().draw(window);
 
         window.display();
     }
