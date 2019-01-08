@@ -9,7 +9,10 @@
 
 int main(int argc, const char *argv[])
 {
-    sf::RenderWindow window(sf::VideoMode(1920, 1080), "Singularity Trainer", sf::Style::Default);
+    sf::ContextSettings settings;
+    settings.antialiasingLevel = 1;
+
+    sf::RenderWindow window(sf::VideoMode(1440, 900), "Singularity Trainer", sf::Style::Default, settings);
     window.setFramerateLimit(360);
 
     sf::Event event;
@@ -20,7 +23,7 @@ int main(int argc, const char *argv[])
     STrainer::TestScreen test_screen(window);
     STrainer::ScreenManager::get_instance().show_screen(&test_screen);
 
-	frameClock.restart();
+    frameClock.restart();
     while (window.isOpen())
     {
         /*

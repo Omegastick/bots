@@ -1,2 +1,0 @@
-build:
-	g++ *.cpp -g -o bin/test -IC:/SFML-2.5.1/include -IC:/Box2D/ -IC:/dev/libsodium-win64/include -IC:/dev/cppzmq -IC:/ProgramData/Anaconda3/Library/include -LC:/Box2D/Build/Box2D -LC:/SFML-2.5.1/lib -LC:/dev/libsodium-win64/lib -LC:/mingw64/lib -lsfml-graphics -lsfml-window -lsfml-system -lBox2D -lsodium -lzmq-mt-4_3_1
