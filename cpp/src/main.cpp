@@ -1,8 +1,8 @@
 #include <SFML/Graphics.hpp>
 #include <SFML/Window.hpp>
-#include <sodium.h>
-#include <zmq.hpp>
 
+#include "communicator.h"
+#include "requests.h"
 #include "screen_manager.h"
 #include "test_screen.h"
 
@@ -19,10 +19,17 @@ int main(int argc, const char *argv[])
     sf::Event event;
     sf::Clock frameClock;
 
-    zmq::context_t context;
-
     ScreenManager screenManager;
     ResourceManager resourceManager;
+    Communicator communicator("tcp://127.0.0.1:10201");
+
+    std::shared_ptr<GetActionsParam> param = std::make_shared<GetActionsParam>();
+    param->session_id = 3;
+    param->inputs = std::vector<std::vector<float>>{{0.1, 0.2, 0.3}, {0.4, 0.5, 0.6}, {0.7, 0.8, 0.9}};
+
+    Request<GetActionsParam> request("get_actions", param, 300);
+
+    communicator.send_request<GetActionsParam>(request);
 
     TestScreen test_screen(window, resourceManager);
     screenManager.show_screen(&test_screen);

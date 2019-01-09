@@ -5,7 +5,6 @@ Main script
 import os
 os.environ['OMP_NUM_THREADS'] = '1'
 import argparse
-import time
 import logging
 
 from training_server.session_manager import SessionManager
