@@ -2,17 +2,14 @@
 
 #include <SFML/Graphics.hpp>
 
-#include "idrawable.h"
-
 namespace SingularityTrainer
 {
-class IScreen : IDrawable
+class IDrawable
 {
   public:
-    IScreen(){};
-    ~IScreen(){};
+    IDrawable(){};
+    ~IDrawable(){};
 
     virtual void draw(sf::RenderTarget &render_target) = 0;
-    virtual void update(float delta_time) = 0;
 };
 }

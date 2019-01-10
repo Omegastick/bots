@@ -4,17 +4,19 @@
 #include "communicator.h"
 #include "requests.h"
 #include "screen_manager.h"
-#include "test_screen.h"
+#include "dummy_screen.h"
 
 using namespace SingularityTrainer;
 
 int main(int argc, const char *argv[])
 {
     sf::ContextSettings settings;
-    settings.antialiasingLevel = 1;
+    settings.antialiasingLevel = 0;
 
-    sf::RenderWindow window(sf::VideoMode(1440, 900), "Singularity Trainer", sf::Style::Default, settings);
+    sf::RenderWindow window(sf::VideoMode(1440, 810), "Singularity Trainer", sf::Style::Default, settings);
     window.setFramerateLimit(360);
+    sf::View view(sf::FloatRect(0, 0, 1920, 1080));
+    window.setView(view);
 
     sf::Event event;
     sf::Clock frameClock;
@@ -23,8 +25,8 @@ int main(int argc, const char *argv[])
     ResourceManager resource_manager;
     Communicator communicator("tcp://127.0.0.1:10201");
 
-    TestScreen test_screen(window, resource_manager, communicator);
-    screenManager.show_screen(&test_screen);
+    DummyScreen dummy_screen(window, resource_manager, communicator);
+    screenManager.show_screen(&dummy_screen);
 
     frameClock.restart();
     while (window.isOpen())
