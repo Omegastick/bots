@@ -11,13 +11,15 @@ namespace SingularityTrainer
 class Bot : IDrawable
 {
   public:
-    Bot(ResourceManager &resource_manager);
+    Bot(const std::shared_ptr<ResourceManager> resource_manager, b2World &world);
     ~Bot();
+    Bot(Bot&& other);
 
     void act(std::vector<bool> actions);
     void draw(sf::RenderTarget &render_target);
 
   private:
+    b2Body *body;
     b2BodyDef body_def;
     b2PolygonShape polygon_shape;
     b2FixtureDef fixture_def;

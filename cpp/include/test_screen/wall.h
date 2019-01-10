@@ -7,15 +7,17 @@
 
 namespace SingularityTrainer
 {
-class Wall
+class Wall : IDrawable
 {
   public:
-    Wall(float x, float y, float width, float height);
+    Wall(float x, float y, float width, float height, b2World &world);
     ~Wall();
+    Wall(Wall&& other);
 
     void draw(sf::RenderTarget &render_target);
 
   private:
+    b2Body *body;
     b2BodyDef body_def;
     b2PolygonShape polygon_shape;
     b2FixtureDef fixture_def;

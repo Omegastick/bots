@@ -4,7 +4,7 @@
 #include "communicator.h"
 #include "requests.h"
 #include "screen_manager.h"
-#include "dummy_screen.h"
+#include "test_screen/test_screen.h"
 
 using namespace SingularityTrainer;
 
@@ -21,12 +21,15 @@ int main(int argc, const char *argv[])
     sf::Event event;
     sf::Clock frameClock;
 
-    ScreenManager screenManager;
-    ResourceManager resource_manager;
-    Communicator communicator("tcp://127.0.0.1:10201");
+    ScreenManager screen_manager;
+    std::shared_ptr<ResourceManager> resource_manager = std::make_shared<ResourceManager>();
+    std::shared_ptr<Communicator> communicator = std::make_shared<Communicator>("tcp://127.0.0.1:10201");
 
-    DummyScreen dummy_screen(window, resource_manager, communicator);
-    screenManager.show_screen(&dummy_screen);
+    // std::shared_ptr<DummyScreen> dummy_screen = std::make_shared<DummyScreen>(resource_manager, communicator);
+    // screen_manager.show_screen(dummy_screen);
+
+    std::shared_ptr<TestScreen> test_screen = std::make_shared<TestScreen>(resource_manager, communicator, 1);
+    screen_manager.show_screen(test_screen);
 
     frameClock.restart();
     while (window.isOpen())
@@ -45,7 +48,7 @@ int main(int argc, const char *argv[])
         /*
          *  Update logic
          */
-        screenManager.update(frameClock.getElapsedTime().asSeconds());
+        screen_manager.update(frameClock.getElapsedTime().asSeconds());
         frameClock.restart();
 
         /*
@@ -53,7 +56,7 @@ int main(int argc, const char *argv[])
          */
         window.clear(sf::Color::Black);
 
-        screenManager.draw(window);
+        screen_manager.draw(window);
 
         window.display();
     }

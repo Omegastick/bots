@@ -16,7 +16,7 @@ include_directories(include)
 include_directories(src)
 
 # Executable
-file(GLOB SOURCES "src/**.cpp")
+file(GLOB_RECURSE SOURCES "src/**.cpp")
 add_executable(SingularityTrainer ${SOURCES})
 
 target_link_libraries(SingularityTrainer sfml-graphics sfml-window sfml-system cppzmq Box2D)

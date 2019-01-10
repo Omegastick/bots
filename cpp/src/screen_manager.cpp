@@ -1,12 +1,13 @@
 #include <SFML/Graphics.hpp>
 #include <stack>
+#include <memory>
 
 #include "iscreen.h"
 #include "screen_manager.h"
 
 namespace SingularityTrainer
 {
-void ScreenManager::show_screen(SingularityTrainer::IScreen *screen)
+void ScreenManager::show_screen(std::shared_ptr<IScreen> screen)
 {
     screens_.push(screen);
 }

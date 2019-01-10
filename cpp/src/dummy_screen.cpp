@@ -7,13 +7,13 @@
 
 namespace SingularityTrainer
 {
-DummyScreen::DummyScreen(sf::RenderTarget &window, ResourceManager &resource_manager, Communicator &communicator)
+DummyScreen::DummyScreen(std::shared_ptr<ResourceManager> resource_manager, std::shared_ptr<Communicator> communicator)
 {
-    resource_manager.load_texture("arrow", "cpp/assets/images/Arrow.png");
-    std::shared_ptr<sf::Texture> texture = resource_manager.texture_store.get("arrow");
+    resource_manager->load_texture("arrow", "cpp/assets/images/Arrow.png");
+    std::shared_ptr<sf::Texture> texture = resource_manager->texture_store.get("arrow");
     arrow = sf::Sprite(*texture);
-    arrow.setRotation(45.0f);
-    arrow.setOrigin(arrow.getLocalBounds().width / 2.0f, arrow.getLocalBounds().height / 2.0f);
+    arrow.setRotation(45.f);
+    arrow.setOrigin(arrow.getLocalBounds().width / 2.f, arrow.getLocalBounds().height / 2.f);
     arrow.setPosition(960.f, 540.f);
 
     // std::shared_ptr<BeginSessionParam> param = std::make_shared<BeginSessionParam>();

@@ -1,5 +1,6 @@
 #pragma once
 
+#include <memory>
 #include <SFML/Graphics.hpp>
 
 #include "iscreen.h"
@@ -11,7 +12,7 @@ namespace SingularityTrainer
 class DummyScreen : public IScreen
 {
   public:
-    DummyScreen(sf::RenderTarget &window, ResourceManager &resource_manager, Communicator &communicator);
+    DummyScreen(std::shared_ptr<ResourceManager> resource_manager, std::shared_ptr<Communicator> communicator);
     ~DummyScreen();
 
     void draw(sf::RenderTarget &render_target);

@@ -13,12 +13,12 @@ class ScreenManager
     ScreenManager() {}
     ~ScreenManager() {}
 
-    void show_screen(IScreen *screen);
+    void show_screen(std::shared_ptr<IScreen> screen);
     void close_screen();
     void update(float delta_time);
     void draw(sf::RenderTarget &render_target);
 
   private:
-    std::stack<IScreen *> screens_;
+    std::stack<std::shared_ptr<IScreen>> screens_;
 };
 }

@@ -1,9 +1,9 @@
 #pragma once
 
-#include <vector>
-#include <memory>
 #include <Box2D/Box2D.h>
 #include <SFML/Graphics.hpp>
+#include <memory>
+#include <vector>
 
 #include "idrawable.h"
 #include "test_screen/bot.h"
@@ -11,26 +11,29 @@
 
 namespace SingularityTrainer
 {
+struct StepInfo
+{
+    std::vector<float> observation;
+    float reward;
+    bool done;
+};
+
 class TestEnv : IDrawable
 {
   public:
-    TestEnv(float x, float y);
+    TestEnv(std::shared_ptr<ResourceManager> resource_manager, float x, float y, float scale);
     ~TestEnv();
+    TestEnv(TestEnv&& other);
 
     void draw(sf::RenderTarget &render_target);
-    std::unique_ptr<StepInfo> step(std::vector<bool> actions);
+    std::unique_ptr<StepInfo> step(std::vector<bool> &actions);
     void reset();
 
   private:
     sf::RenderTexture render_texture;
-    b2World world;
+    sf::Sprite sprite;
+    std::shared_ptr<b2World> world;
     std::unique_ptr<Bot> bot;
-    std::vector<std::unique_ptr<Wall>> walls;
-};
-
-struct StepInfo {
-    std::vector<float> observation;
-    float reward;
-    bool done;
+    std::vector<Wall> walls;
 };
 }
