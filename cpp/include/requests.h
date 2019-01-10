@@ -5,16 +5,18 @@
 
 namespace SingularityTrainer
 {
+const std::string API_VERSION = "v1alpha1";
+
 template <class T>
 struct Request
 {
     Request(const std::string &method, const std::shared_ptr<T> param, const int id)
     {
-        this->api = "v1alpha1";
+        this->api = API_VERSION;
         this->method = method;
         this->param = param;
         this->id = id;
-    };
+    }
 
     std::string api;
     std::string method;
@@ -41,7 +43,7 @@ struct HyperParams
 {
     float learning_rate;
     float gae;
-    float batch_size;
+    int batch_size;
     MSGPACK_DEFINE_MAP(learning_rate, gae, batch_size);
 };
 
@@ -68,5 +70,24 @@ struct EndSessionParams
 {
     int session_id;
     MSGPACK_DEFINE_MAP(session_id);
+};
+
+template <class T>
+struct Response
+{
+    std::string api;
+    T result;
+    int id;
+    MSGPACK_DEFINE_MAP(api, result, id);
+};
+
+typedef std::string BeginSessionResult;
+typedef std::string EndSessionResult;
+typedef std::string GiveRewardsResult;
+
+struct GetActionsResult {
+    std::shared_ptr<std::vector<std::vector<bool>>> actions;
+    std::shared_ptr<std::vector<float>> values;
+    MSGPACK_DEFINE_MAP(actions, values);
 };
 }

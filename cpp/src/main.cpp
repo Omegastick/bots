@@ -20,18 +20,10 @@ int main(int argc, const char *argv[])
     sf::Clock frameClock;
 
     ScreenManager screenManager;
-    ResourceManager resourceManager;
+    ResourceManager resource_manager;
     Communicator communicator("tcp://127.0.0.1:10201");
 
-    std::shared_ptr<GetActionsParam> param = std::make_shared<GetActionsParam>();
-    param->session_id = 3;
-    param->inputs = std::vector<std::vector<float>>{{0.1, 0.2, 0.3}, {0.4, 0.5, 0.6}, {0.7, 0.8, 0.9}};
-
-    Request<GetActionsParam> request("get_actions", param, 300);
-
-    communicator.send_request<GetActionsParam>(request);
-
-    TestScreen test_screen(window, resourceManager);
+    TestScreen test_screen(window, resource_manager, communicator);
     screenManager.show_screen(&test_screen);
 
     frameClock.restart();
