@@ -11,16 +11,20 @@ Bot::Bot(const std::shared_ptr<ResourceManager> resource_manager, b2World &world
     // Sprite
     sprite.setTexture(*resource_manager->texture_store.get("arrow"));
     sprite.setScale(0.25, 0.25);
-    sprite.setOrigin(sprite.getLocalBounds().width / 2.f, sprite.getLocalBounds().height / 2.f);
+    sprite.setOrigin(sprite.getLocalBounds().width / 2, sprite.getLocalBounds().height / 2);
 
     // Rigidbody
     body_def.type = b2_dynamicBody;
     body_def.position.Set(0, 0);
     body = world.CreateBody(&body_def);
-    polygon_shape.SetAsBox(0.5, 0.75);
+    b2Vec2 vertices[3];
+    vertices[0].Set(0, 0.375);
+    vertices[1].Set(-0.25, -0.375);
+    vertices[2].Set(0.25, -0.375);
+    polygon_shape.Set(vertices, 3);
     fixture_def.shape = &polygon_shape;
-    fixture_def.density = 1.0f;
-    fixture_def.friction = 1.0f;
+    fixture_def.density = 1.0;
+    fixture_def.friction = 1.0;
     body->CreateFixture(&fixture_def);
 }
 
