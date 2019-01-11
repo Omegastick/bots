@@ -50,8 +50,16 @@ void TestEnv::draw(sf::RenderTarget &render_target)
 
 std::unique_ptr<StepInfo> TestEnv::step(std::vector<bool> &actions)
 {
+    // Act
     bot->act(actions);
+
+    // Step simulation
     world->Step(1.f / 60.f, 6, 4);
-    return std::make_unique<StepInfo>();
+
+    // Return step information
+    std::unique_ptr<StepInfo> step_info = std::make_unique<StepInfo>();
+    step_info->observation = bot->get_observation();
+
+    return step_info;
 }
 }

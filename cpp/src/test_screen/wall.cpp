@@ -1,6 +1,8 @@
 #include <Box2D/Box2D.h>
 #include <SFML/Graphics.hpp>
 #include <memory>
+#include <string>
+#include <vector>
 
 #include "test_screen/wall.h"
 
@@ -21,6 +23,9 @@ Wall::Wall(float x, float y, float width, float height, b2World &world)
     fixture_def.density = 1.0f;
     fixture_def.friction = 1.0f;
     body->CreateFixture(&fixture_def);
+
+    // Labels
+    labels = std::vector<std::string>{"wall"};
 }
 
 Wall::~Wall() {}

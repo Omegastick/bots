@@ -12,7 +12,6 @@ add_executable(SingularityTrainer "")
 find_package(SFML 2.5 REQUIRED audio graphics window system)
 find_package(cppzmq)
 find_package(Box2D)
-
 target_link_libraries(SingularityTrainer sfml-graphics sfml-window sfml-system cppzmq Box2D)
 
 # Inlcudes

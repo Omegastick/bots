@@ -2,27 +2,28 @@
 
 #include <Box2D/Box2D.h>
 #include <SFML/Graphics.hpp>
+#include <string>
+#include <vector>
 
 #include "idrawable.h"
 #include "resource_manager.h"
+#include "test_screen/rigid_body.h"
 
 namespace SingularityTrainer
 {
-class Bot : IDrawable
+class Bot : public IDrawable, public RigidBody
 {
   public:
     Bot(const std::shared_ptr<ResourceManager> resource_manager, b2World &world);
     ~Bot();
-    Bot(Bot&& other);
+
+    std::vector<std::string> labels;
 
     void act(std::vector<bool> actions);
     void draw(sf::RenderTarget &render_target);
+    std::vector<float> get_observation();
 
   private:
-    b2Body *body;
-    b2BodyDef body_def;
-    b2PolygonShape polygon_shape;
-    b2FixtureDef fixture_def;
     sf::Sprite sprite;
 };
 }

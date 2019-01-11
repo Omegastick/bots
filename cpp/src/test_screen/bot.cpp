@@ -2,8 +2,11 @@
 #include <SFML/Graphics.hpp>
 #include <math.h>
 #include <memory>
+#include <string>
+#include <vector>
 
 #include "test_screen/bot.h"
+#include "test_screen/rigid_body.h"
 
 inline float rad_to_deg(float radians)
 {
@@ -32,6 +35,9 @@ Bot::Bot(const std::shared_ptr<ResourceManager> resource_manager, b2World &world
     fixture_def.density = 1.0;
     fixture_def.friction = 1.0;
     body->CreateFixture(&fixture_def);
+
+    // Labels
+    labels = std::vector<std::string>{"bot"};
 }
 
 Bot::~Bot() {}
@@ -63,5 +69,18 @@ void Bot::act(std::vector<bool> actions)
     {
         body->ApplyTorque(-0.01, true);
     }
+}
+
+std::vector<float> Bot::get_observation()
+{
+    std::vector<float> observation;
+
+    b2Vec2 position = body->GetPosition();
+    observation.push_back(position.x);
+    observation.push_back(position.y);
+
+    observation.push_back(body->GetAngle());
+
+    return observation;
 }
 }

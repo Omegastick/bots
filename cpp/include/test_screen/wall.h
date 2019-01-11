@@ -4,23 +4,20 @@
 #include <SFML/Graphics.hpp>
 
 #include "idrawable.h"
+#include "test_screen/rigid_body.h"
 
 namespace SingularityTrainer
 {
-class Wall : IDrawable
+class Wall : public IDrawable, public RigidBody
 {
   public:
     Wall(float x, float y, float width, float height, b2World &world);
     ~Wall();
-    Wall(Wall&& other);
+    Wall(Wall &&other);
 
     void draw(sf::RenderTarget &render_target);
 
   private:
-    b2Body *body;
-    b2BodyDef body_def;
-    b2PolygonShape polygon_shape;
-    b2FixtureDef fixture_def;
     sf::RectangleShape shape;
 };
 }
