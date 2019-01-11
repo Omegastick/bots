@@ -11,6 +11,9 @@ class RigidBody
   public:
     std::vector<std::string> labels;
 
+    virtual void begin_contact(RigidBody &other){};
+    virtual void end_contact(RigidBody &other){};
+
   protected:
     b2Body *body;
     b2BodyDef body_def;

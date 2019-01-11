@@ -34,6 +34,7 @@ class TestEnv : IDrawable
     sf::Sprite sprite;
     std::unique_ptr<b2World> world;
     std::unique_ptr<Bot> bot;
-    std::vector<Wall> walls;
+    std::vector<std::unique_ptr<Wall>> walls;
+    std::unique_ptr<b2ContactListener> contact_listener;
 };
 }

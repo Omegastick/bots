@@ -22,6 +22,7 @@ class Bot : public IDrawable, public RigidBody
     void act(std::vector<bool> actions);
     void draw(sf::RenderTarget &render_target);
     std::vector<float> get_observation();
+    virtual void begin_contact(RigidBody &other);
 
   private:
     sf::Sprite sprite;

@@ -4,6 +4,7 @@
 #include <memory>
 #include <string>
 #include <vector>
+#include <iostream>
 
 #include "test_screen/bot.h"
 #include "test_screen/rigid_body.h"
@@ -26,6 +27,7 @@ Bot::Bot(const std::shared_ptr<ResourceManager> resource_manager, b2World &world
     body_def.type = b2_dynamicBody;
     body_def.position.Set(0, 0);
     body = world.CreateBody(&body_def);
+    body->SetUserData(this);
     b2Vec2 vertices[3];
     vertices[0].Set(0, -0.7);
     vertices[1].Set(0.49, 0.74);
@@ -86,5 +88,10 @@ std::vector<float> Bot::get_observation()
     observation.push_back(body->GetAngle());
 
     return observation;
+}
+
+void Bot::begin_contact(RigidBody &other)
+{
+    std::cout << "Contact\n";
 }
 }
