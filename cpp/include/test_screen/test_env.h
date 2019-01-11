@@ -32,7 +32,7 @@ class TestEnv : IDrawable
   private:
     sf::RenderTexture render_texture;
     sf::Sprite sprite;
-    std::shared_ptr<b2World> world;
+    std::unique_ptr<b2World> world;
     std::unique_ptr<Bot> bot;
     std::vector<Wall> walls;
 };

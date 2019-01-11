@@ -20,6 +20,6 @@ class TestScreen : public IScreen
 
   private:
     std::shared_ptr<Communicator> communicator;
-    std::vector<TestEnv> environments;
+    std::vector<std::unique_ptr<TestEnv>> environments;
 };
 }

@@ -9,7 +9,7 @@ TestScreen::TestScreen(std::shared_ptr<ResourceManager> resource_manager, std::s
 {
     this->communicator = communicator;
     resource_manager->load_texture("arrow", "cpp/assets/images/Arrow.png");
-    environments.push_back(TestEnv(resource_manager, 460, 40, 1));
+    environments.push_back(std::make_unique<TestEnv>(resource_manager, 460, 40, 1));
 }
 
 TestScreen::~TestScreen(){};
@@ -18,8 +18,8 @@ void TestScreen::update(float delta_time)
 {
     for (auto &environment : environments)
     {
-        std::vector<bool> actions;
-        environment.step(actions);
+        std::vector<bool> actions{false, true, true, false};
+        environment->step(actions);
     }
 }
 
@@ -27,7 +27,7 @@ void TestScreen::draw(sf::RenderTarget &render_target)
 {
     for (auto &environment : environments)
     {
-        environment.draw(render_target);
+        environment->draw(render_target);
     }
 }
 }

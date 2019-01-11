@@ -10,7 +10,7 @@ Wall::Wall(float x, float y, float width, float height, b2World &world)
 {
     // Shape
     shape.setSize(sf::Vector2f(width * 100, height * 100));
-    shape.setPosition(sf::Vector2f(x * 100, y * 100));
+    shape.setPosition(x * 100, y * 100);
 
     // Rigidbody
     body_def.type = b2_staticBody;
