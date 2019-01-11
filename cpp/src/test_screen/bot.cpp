@@ -24,12 +24,12 @@ Bot::Bot(const std::shared_ptr<ResourceManager> resource_manager, b2World &world
 
     // Rigidbody
     body_def.type = b2_dynamicBody;
-    body_def.position.Set(1, 0);
+    body_def.position.Set(0, 0);
     body = world.CreateBody(&body_def);
     b2Vec2 vertices[3];
-    vertices[0].Set(0, -0.375);
-    vertices[1].Set(0.25, 0.375);
-    vertices[2].Set(-0.25, 0.375);
+    vertices[0].Set(0, -0.7);
+    vertices[1].Set(0.49, 0.74);
+    vertices[2].Set(-0.49, 0.74);
     polygon_shape.Set(vertices, 3);
     fixture_def.shape = &polygon_shape;
     fixture_def.density = 1.0;
@@ -55,11 +55,15 @@ void Bot::act(std::vector<bool> actions)
 {
     if (actions[0])
     {
-        body->ApplyForceToCenter(b2Vec2(0, 0.1), true);
+        float angle = body->GetAngle();
+        b2Vec2 force(std::sin(angle) * 0.1, std::cos(angle) * 0.1);
+        body->ApplyForceToCenter(force, true);
     }
     if (actions[1])
     {
-        body->ApplyForceToCenter(b2Vec2(0, -0.1), true);
+        float angle = body->GetAngle();
+        b2Vec2 force(std::sin(angle) * -0.1, std::cos(angle) * -0.1);
+        body->ApplyForceToCenter(force, true);
     }
     if (actions[2])
     {

@@ -16,9 +16,9 @@ Wall::Wall(float x, float y, float width, float height, b2World &world)
 
     // Rigidbody
     body_def.type = b2_staticBody;
-    body_def.position.Set(x + (width / 2.f), y + (height / 2.f));
+    body_def.position.Set(x + (width / 2), y + (height / 2));
     body = world.CreateBody(&body_def);
-    polygon_shape.SetAsBox(width, height);
+    polygon_shape.SetAsBox(width / 2, height / 2);
     fixture_def.shape = &polygon_shape;
     fixture_def.density = 1.0f;
     fixture_def.friction = 1.0f;

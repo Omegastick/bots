@@ -18,7 +18,7 @@ void TestScreen::update(float delta_time)
 {
     for (auto &environment : environments)
     {
-        std::vector<bool> actions{false, true, true, false};
+        std::vector<bool> actions{true, false, true, false};
         environment->step(actions);
     }
 }
