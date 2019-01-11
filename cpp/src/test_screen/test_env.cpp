@@ -28,7 +28,7 @@ TestEnv::TestEnv(std::shared_ptr<ResourceManager> resource_manager, float x, flo
     sprite.setPosition(x, y);
     sprite.setScale(scale, scale);
 
-    render_texture.setView(sf::View(sf::Vector2f(0, 0), sf::Vector2f(1000, 1000)));
+    render_texture.setView(sf::View(sf::Vector2f(0, 0), sf::Vector2f(10, 10)));
 }
 
 TestEnv::~TestEnv(){};
