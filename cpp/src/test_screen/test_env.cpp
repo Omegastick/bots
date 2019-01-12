@@ -18,11 +18,18 @@ class ContactListener : public b2ContactListener
 
         if (user_data_a && user_data_b)
         {
-            RigidBody *body_a = static_cast<RigidBody *>(user_data_a);
-            RigidBody *body_b = static_cast<RigidBody *>(user_data_b);
-            // body_a->begin_contact(*body_b);
-            // body_b->begin_contact(*body_a);
-            std::cout << "Hi\n";
+            RigidBody *bodies[2]{static_cast<RigidBody *>(user_data_a), static_cast<RigidBody *>(user_data_b)};
+            for (int i = 0; i < 2; i++)
+            {
+                RigidBody *body = bodies[i];
+                RigidBody *other = bodies[1 - i];
+
+                switch (body->parent_type)
+                {
+                case RigidBody::ParentTypes::Bot:
+                    static_cast<Bot *>(body->parent)->begin_contact(other);
+                }
+            }
         }
     }
 
@@ -33,10 +40,18 @@ class ContactListener : public b2ContactListener
 
         if (user_data_a && user_data_b)
         {
-            RigidBody *body_a = static_cast<RigidBody *>(user_data_a);
-            RigidBody *body_b = static_cast<RigidBody *>(user_data_b);
-            // body_a->end_contact(*body_b);
-            // body_b->end_contact(*body_a);
+            RigidBody *bodies[2]{static_cast<RigidBody *>(user_data_a), static_cast<RigidBody *>(user_data_b)};
+            for (int i = 0; i < 2; i++)
+            {
+                RigidBody *body = bodies[i];
+                RigidBody *other = bodies[1 - i];
+
+                switch (body->parent_type)
+                {
+                case RigidBody::ParentTypes::Bot:
+                    static_cast<Bot *>(body->parent)->end_contact(other);
+                }
+            }
         }
     }
 };

@@ -8,16 +8,16 @@
 
 namespace SingularityTrainer
 {
-class Wall : public IDrawable, public RigidBody
+class Wall : public IDrawable
 {
   public:
     Wall(float x, float y, float width, float height, b2World &world);
     ~Wall();
-    Wall(Wall &&other);
 
     void draw(sf::RenderTarget &render_target);
 
   private:
+    std::unique_ptr<RigidBody> rigid_body;
     sf::RectangleShape shape;
 };
 }

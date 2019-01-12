@@ -15,18 +15,10 @@ Wall::Wall(float x, float y, float width, float height, b2World &world)
     shape.setPosition(x, y);
 
     // Rigidbody
-    body_def.type = b2_staticBody;
-    body_def.position.Set(x + (width / 2), y + (height / 2));
-    body = world.CreateBody(&body_def);
-    body->SetUserData(this);
-    polygon_shape.SetAsBox(width / 2, height / 2);
-    fixture_def.shape = &polygon_shape;
-    fixture_def.density = 1.0f;
-    fixture_def.friction = 1.0f;
-    body->CreateFixture(&fixture_def);
-
-    // Labels
-    labels = std::vector<std::string>{"wall"};
+    b2PolygonShape rigid_body_shape;
+    rigid_body_shape.SetAsBox(width / 2, height / 2);
+    b2Vec2 position(x + (width / 2), y + (height / 2));
+    rigid_body = std::make_unique<RigidBody>(b2_staticBody, position, world, rigid_body_shape, this, RigidBody::ParentTypes::Wall);
 }
 
 Wall::~Wall() {}
