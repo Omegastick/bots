@@ -66,6 +66,9 @@ TestEnv::TestEnv(std::shared_ptr<ResourceManager> resource_manager, float x, flo
     // Bot
     bot = std::make_unique<Bot>(resource_manager, *world);
 
+    // Target
+    target = std::make_unique<Target>(4, 4, *world);
+
     // Walls
     walls.push_back(std::make_unique<Wall>(-5, -5, 10, 0.1, *world));
     walls.push_back(std::make_unique<Wall>(-5, -5, 0.1, 10, *world));
@@ -92,6 +95,7 @@ void TestEnv::draw(sf::RenderTarget &render_target)
     {
         wall->draw(render_texture);
     }
+    target->draw(render_texture);
     render_texture.display();
 
     // Draw temporary tecture onto window

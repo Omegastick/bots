@@ -8,6 +8,7 @@
 #include "idrawable.h"
 #include "test_screen/bot.h"
 #include "test_screen/wall.h"
+#include "test_screen/target.h"
 
 namespace SingularityTrainer
 {
@@ -34,6 +35,7 @@ class TestEnv : IDrawable
     sf::Sprite sprite;
     std::unique_ptr<b2World> world;
     std::unique_ptr<Bot> bot;
+    std::unique_ptr<Target> target;
     std::vector<std::unique_ptr<Wall>> walls;
     std::unique_ptr<b2ContactListener> contact_listener;
 };

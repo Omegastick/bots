@@ -12,7 +12,8 @@ class RigidBody
     enum ParentTypes
     {
         Bot,
-        Wall
+        Wall,
+        Target
     };
     void *parent;
     ParentTypes parent_type;
