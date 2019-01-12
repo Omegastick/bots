@@ -28,7 +28,7 @@ void Target::begin_contact(RigidBody *other)
     if (other->parent_type == RigidBody::ParentTypes::Bot)
     {
         environment.change_reward(1);
-        std::cout << "Reward: " << environment.reward << std::endl;
+        environment.set_done();
     }
 }
 

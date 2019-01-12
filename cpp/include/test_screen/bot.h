@@ -27,8 +27,9 @@ class Bot : public IDrawable, public ICollidable
     virtual void begin_contact(RigidBody *other);
     virtual void end_contact(RigidBody *other);
 
+    std::unique_ptr<RigidBody> rigid_body;
+
   private:
     sf::Sprite sprite;
-    std::unique_ptr<RigidBody> rigid_body;
 };
 }

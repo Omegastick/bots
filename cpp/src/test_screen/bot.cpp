@@ -41,22 +41,22 @@ void Bot::act(std::vector<bool> actions)
     if (actions[0])
     {
         float angle = rigid_body->body->GetAngle();
-        b2Vec2 force(std::sin(angle) * 0.1, std::cos(angle) * 0.1);
+        b2Vec2 force(std::sin(angle), std::cos(angle));
         rigid_body->body->ApplyForceToCenter(force, true);
     }
     if (actions[1])
     {
         float angle = rigid_body->body->GetAngle();
-        b2Vec2 force(std::sin(angle) * -0.1, std::cos(angle) * -0.1);
+        b2Vec2 force(std::sin(angle), std::cos(angle));
         rigid_body->body->ApplyForceToCenter(force, true);
     }
     if (actions[2])
     {
-        rigid_body->body->ApplyTorque(0.01, true);
+        rigid_body->body->ApplyTorque(0.1, true);
     }
     if (actions[3])
     {
-        rigid_body->body->ApplyTorque(-0.01, true);
+        rigid_body->body->ApplyTorque(-0.1, true);
     }
 }
 

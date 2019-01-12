@@ -14,7 +14,7 @@ int main(int argc, const char *argv[])
     settings.antialiasingLevel = 0;
 
     sf::RenderWindow window(sf::VideoMode(1440, 810), "Singularity Trainer", sf::Style::Default, settings);
-    window.setFramerateLimit(360);
+    window.setFramerateLimit(60);
     sf::View view(sf::FloatRect(0, 0, 1920, 1080));
     window.setView(view);
 

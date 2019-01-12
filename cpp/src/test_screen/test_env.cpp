@@ -29,7 +29,7 @@ class ContactListener : public b2ContactListener
                 case RigidBody::ParentTypes::Target:
                     static_cast<Target *>(body->parent)->begin_contact(other);
                     break;
-                } 
+                }
             }
         }
     }
@@ -128,6 +128,11 @@ std::unique_ptr<StepInfo> TestEnv::step(std::vector<bool> &actions)
     // Reset reward
     reward = 0;
 
+    if (done)
+    {
+        reset();
+    }
+
     return step_info;
 }
 
@@ -139,5 +144,16 @@ void TestEnv::change_reward(float reward_delta)
 void TestEnv::set_done()
 {
     done = true;
+}
+
+void TestEnv::reset()
+{
+    done = false;
+    reward = 0;
+
+    // Reset bot position
+    bot->rigid_body->body->SetTransform(b2Vec2_zero, 0);
+    bot->rigid_body->body->SetAngularVelocity(0);
+    bot->rigid_body->body->SetLinearVelocity(b2Vec2_zero);
 }
 }
