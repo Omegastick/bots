@@ -2,7 +2,7 @@
 
 namespace SingularityTrainer
 {
-Target::Target(float x, float y, b2World &world)
+Target::Target(float x, float y, b2World &world, TestEnv &env) : environment(env)
 {
     // Rigid body
     b2CircleShape rigid_body_shape;
@@ -21,5 +21,18 @@ Target::~Target(){};
 void Target::draw(sf::RenderTarget &render_target)
 {
     render_target.draw(shape);
+}
+
+void Target::begin_contact(RigidBody *other)
+{
+    if (other->parent_type == RigidBody::ParentTypes::Bot)
+    {
+        environment.change_reward(1);
+        std::cout << "Reward: " << environment.reward << std::endl;
+    }
+}
+
+void Target::end_contact(RigidBody *other)
+{
 }
 }

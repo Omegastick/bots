@@ -1,11 +1,5 @@
-#include <Box2D/Box2D.h>
-#include <SFML/Graphics.hpp>
-#include <iostream>
-#include <memory>
 
-#include "test_screen/bot.h"
 #include "test_screen/test_env.h"
-#include "test_screen/wall.h"
 
 namespace SingularityTrainer
 {
@@ -13,12 +7,15 @@ class ContactListener : public b2ContactListener
 {
     void BeginContact(b2Contact *contact)
     {
+        // Only collide if both objects are registered colliders
         void *user_data_a = contact->GetFixtureA()->GetBody()->GetUserData();
         void *user_data_b = contact->GetFixtureB()->GetBody()->GetUserData();
-
         if (user_data_a && user_data_b)
         {
+            // Cast the objects to RigidBodies
             RigidBody *bodies[2]{static_cast<RigidBody *>(user_data_a), static_cast<RigidBody *>(user_data_b)};
+
+            // Perform the same operation for both the bodies, with the opposite body being the "other"
             for (int i = 0; i < 2; i++)
             {
                 RigidBody *body = bodies[i];
@@ -28,7 +25,11 @@ class ContactListener : public b2ContactListener
                 {
                 case RigidBody::ParentTypes::Bot:
                     static_cast<Bot *>(body->parent)->begin_contact(other);
-                }
+                    break;
+                case RigidBody::ParentTypes::Target:
+                    static_cast<Target *>(body->parent)->begin_contact(other);
+                    break;
+                } 
             }
         }
     }
@@ -50,6 +51,10 @@ class ContactListener : public b2ContactListener
                 {
                 case RigidBody::ParentTypes::Bot:
                     static_cast<Bot *>(body->parent)->end_contact(other);
+                    break;
+                case RigidBody::ParentTypes::Target:
+                    static_cast<Target *>(body->parent)->end_contact(other);
+                    break;
                 }
             }
         }
@@ -67,7 +72,7 @@ TestEnv::TestEnv(std::shared_ptr<ResourceManager> resource_manager, float x, flo
     bot = std::make_unique<Bot>(resource_manager, *world);
 
     // Target
-    target = std::make_unique<Target>(4, 4, *world);
+    target = std::make_unique<Target>(4, 4, *world, *this);
 
     // Walls
     walls.push_back(std::make_unique<Wall>(-5, -5, 10, 0.1, *world));
@@ -80,8 +85,11 @@ TestEnv::TestEnv(std::shared_ptr<ResourceManager> resource_manager, float x, flo
     sprite.setTexture(render_texture.getTexture());
     sprite.setPosition(x, y);
     sprite.setScale(scale, scale);
-
     render_texture.setView(sf::View(sf::Vector2f(0, 0), sf::Vector2f(10, 10)));
+
+    // Training data
+    reward = 0;
+    done = false;
 }
 
 TestEnv::~TestEnv(){};
@@ -114,7 +122,22 @@ std::unique_ptr<StepInfo> TestEnv::step(std::vector<bool> &actions)
     // Return step information
     std::unique_ptr<StepInfo> step_info = std::make_unique<StepInfo>();
     step_info->observation = bot->get_observation();
+    step_info->reward = reward;
+    step_info->done = done;
+
+    // Reset reward
+    reward = 0;
 
     return step_info;
+}
+
+void TestEnv::change_reward(float reward_delta)
+{
+    reward += reward_delta;
+}
+
+void TestEnv::set_done()
+{
+    done = true;
 }
 }

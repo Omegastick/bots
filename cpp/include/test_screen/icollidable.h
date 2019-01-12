@@ -5,7 +5,7 @@
 namespace SingularityTrainer
 {
 class ICollidable {
-    virtual void begin_contact(void* other) = 0;
-    virtual void end_contact(void* other) = 0;
+    virtual void begin_contact(RigidBody* other) = 0;
+    virtual void end_contact(RigidBody* other) = 0;
 };
 }

@@ -1,11 +1,3 @@
-#include <Box2D/Box2D.h>
-#include <SFML/Graphics.hpp>
-#include <iostream>
-#include <math.h>
-#include <memory>
-#include <string>
-#include <vector>
-
 #include "test_screen/bot.h"
 #include "test_screen/rigid_body.h"
 
@@ -81,12 +73,6 @@ std::vector<float> Bot::get_observation()
     return observation;
 }
 
-void Bot::begin_contact(void *other)
-{
-    std::cout << "Contact\n";
-}
-void Bot::end_contact(void *other)
-{
-    std::cout << "End contact\n";
-}
+void Bot::begin_contact(RigidBody *other) {}
+void Bot::end_contact(RigidBody *other) {}
 }

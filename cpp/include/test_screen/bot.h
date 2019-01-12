@@ -2,6 +2,8 @@
 
 #include <Box2D/Box2D.h>
 #include <SFML/Graphics.hpp>
+#include <iostream>
+#include <math.h>
 #include <memory>
 #include <string>
 #include <vector>
@@ -22,8 +24,8 @@ class Bot : public IDrawable, public ICollidable
     void act(std::vector<bool> actions);
     void draw(sf::RenderTarget &render_target);
     std::vector<float> get_observation();
-    virtual void begin_contact(void *other);
-    virtual void end_contact(void *other);
+    virtual void begin_contact(RigidBody *other);
+    virtual void end_contact(RigidBody *other);
 
   private:
     sf::Sprite sprite;

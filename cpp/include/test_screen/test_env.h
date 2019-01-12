@@ -7,11 +7,13 @@
 
 #include "idrawable.h"
 #include "test_screen/bot.h"
-#include "test_screen/wall.h"
 #include "test_screen/target.h"
+#include "test_screen/wall.h"
 
 namespace SingularityTrainer
 {
+class Target;
+
 struct StepInfo
 {
     std::vector<float> observation;
@@ -24,11 +26,14 @@ class TestEnv : IDrawable
   public:
     TestEnv(std::shared_ptr<ResourceManager> resource_manager, float x, float y, float scale);
     ~TestEnv();
-    TestEnv(TestEnv&& other);
 
     void draw(sf::RenderTarget &render_target);
     std::unique_ptr<StepInfo> step(std::vector<bool> &actions);
     void reset();
+    void change_reward(float reward_delta);
+    void set_done();
+    
+    float reward;
 
   private:
     sf::RenderTexture render_texture;
@@ -38,5 +43,6 @@ class TestEnv : IDrawable
     std::unique_ptr<Target> target;
     std::vector<std::unique_ptr<Wall>> walls;
     std::unique_ptr<b2ContactListener> contact_listener;
+    bool done;
 };
 }
