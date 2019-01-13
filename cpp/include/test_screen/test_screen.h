@@ -5,7 +5,8 @@
 #include "communicator.h"
 #include "iscreen.h"
 #include "resource_manager.h"
-#include "test_env.h"
+#include "requests.h"
+#include "test_screen/test_env.h"
 
 namespace SingularityTrainer
 {
@@ -21,5 +22,6 @@ class TestScreen : public IScreen
   private:
     std::shared_ptr<Communicator> communicator;
     std::vector<std::unique_ptr<TestEnv>> environments;
+    std::vector<std::vector<float>> observations;
 };
 }

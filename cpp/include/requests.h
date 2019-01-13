@@ -10,13 +10,7 @@ const std::string API_VERSION = "v1alpha1";
 template <class T>
 struct Request
 {
-    Request(const std::string &method, const std::shared_ptr<T> param, const int id)
-    {
-        this->api = API_VERSION;
-        this->method = method;
-        this->param = param;
-        this->id = id;
-    }
+    Request(const std::string &method, const std::shared_ptr<T> param, const int id) : api(API_VERSION), method(method), param(param), id(id) {}
 
     std::string api;
     std::string method;
@@ -85,9 +79,10 @@ typedef std::string BeginSessionResult;
 typedef std::string EndSessionResult;
 typedef std::string GiveRewardsResult;
 
-struct GetActionsResult {
-    std::shared_ptr<std::vector<std::vector<bool>>> actions;
-    std::shared_ptr<std::vector<float>> values;
+struct GetActionsResult
+{
+    std::vector<std::vector<int>> actions;
+    std::vector<float> values;
     MSGPACK_DEFINE_MAP(actions, values);
 };
 }

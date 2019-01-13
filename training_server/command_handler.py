@@ -183,10 +183,11 @@ class CommandHandler:
         actions, value = self.session_manager.get_actions(
             params["session_id"], params["inputs"])
         values = value.view(-1).tolist()
-        actions = actions.tolist()
+        actions = actions.byte().tolist()
         response = Response(
             id=command.id,
-            result={"actions": actions, "value": values}
+            result={"actions": actions, "values": values}
+            # result={"actions": "Hello", "values": "I am Isaac"}
         )
         return self.create_response(response)
 

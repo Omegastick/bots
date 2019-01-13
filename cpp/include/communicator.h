@@ -20,7 +20,7 @@ class Communicator
     std::string get_raw_response();
 
     template <class T>
-    std::shared_ptr<Response<T>> get_response()
+    std::unique_ptr<Response<T>> get_response()
     {
         // Receive message
         zmq::message_t packed_msg;
@@ -29,9 +29,10 @@ class Communicator
         // Desrialize message
         msgpack::object_handle object_handle = msgpack::unpack(static_cast<char *>(packed_msg.data()), packed_msg.size());
         msgpack::object object = object_handle.get();
+        std::cout << object << std::endl;
 
         // Fill out response object
-        std::shared_ptr<Response<T>> response = std::make_shared<Response<T>>();
+        std::unique_ptr<Response<T>> response = std::make_unique<Response<T>>();
         object.convert(response);
 
         return response;

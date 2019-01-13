@@ -111,7 +111,7 @@ void TestEnv::draw(sf::RenderTarget &render_target)
     render_target.draw(sprite);
 }
 
-std::unique_ptr<StepInfo> TestEnv::step(std::vector<bool> &actions)
+std::unique_ptr<StepInfo> TestEnv::step(std::vector<int> &actions)
 {
     // Act
     bot->act(actions);
@@ -146,7 +146,7 @@ void TestEnv::set_done()
     done = true;
 }
 
-void TestEnv::reset()
+std::vector<float> TestEnv::reset()
 {
     done = false;
     reward = 0;
@@ -155,5 +155,7 @@ void TestEnv::reset()
     bot->rigid_body->body->SetTransform(b2Vec2_zero, 0);
     bot->rigid_body->body->SetAngularVelocity(0);
     bot->rigid_body->body->SetLinearVelocity(b2Vec2_zero);
+
+    return bot->get_observation();
 }
 }

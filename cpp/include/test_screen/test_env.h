@@ -28,12 +28,11 @@ class TestEnv : IDrawable
     ~TestEnv();
 
     void draw(sf::RenderTarget &render_target);
-    std::unique_ptr<StepInfo> step(std::vector<bool> &actions);
-    void reset();
+    std::unique_ptr<StepInfo> step(std::vector<int> &actions);
+    std::vector<float> reset();
     void change_reward(float reward_delta);
     void set_done();
-    
-    float reward;
+    std::vector<float> get_observation();
 
   private:
     sf::RenderTexture render_texture;
@@ -44,5 +43,6 @@ class TestEnv : IDrawable
     std::vector<std::unique_ptr<Wall>> walls;
     std::unique_ptr<b2ContactListener> contact_listener;
     bool done;
+    float reward;
 };
 }
