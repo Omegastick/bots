@@ -61,7 +61,8 @@ class ContactListener : public b2ContactListener
     }
 };
 
-TestEnv::TestEnv(std::shared_ptr<ResourceManager> resource_manager, float x, float y, float scale)
+TestEnv::TestEnv(std::shared_ptr<ResourceManager> resource_manager, float x, float y, float scale, int max_steps)
+    : max_steps(max_steps)
 {
     // Box2D world
     world = std::make_unique<b2World>(b2Vec2(0, 0));
@@ -89,6 +90,7 @@ TestEnv::TestEnv(std::shared_ptr<ResourceManager> resource_manager, float x, flo
 
     // Training data
     reward = 0;
+    step_counter = 0;
     done = false;
 }
 
@@ -117,7 +119,7 @@ std::unique_ptr<StepInfo> TestEnv::step(std::vector<int> &actions)
     bot->act(actions);
 
     // Step simulation
-    world->Step(1.f / 60.f, 6, 4);
+    world->Step(0.2, 6, 4);
 
     // Return step information
     std::unique_ptr<StepInfo> step_info = std::make_unique<StepInfo>();
@@ -128,7 +130,8 @@ std::unique_ptr<StepInfo> TestEnv::step(std::vector<int> &actions)
     // Reset reward
     reward = 0;
 
-    if (done)
+    step_counter++;
+    if (done || step_counter == max_steps)
     {
         reset();
     }
@@ -150,6 +153,7 @@ std::vector<float> TestEnv::reset()
 {
     done = false;
     reward = 0;
+    step_counter = 0;
 
     // Reset bot position
     bot->rigid_body->body->SetTransform(b2Vec2_zero, 0);

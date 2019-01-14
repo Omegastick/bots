@@ -6,7 +6,10 @@ TestScreen::TestScreen(std::shared_ptr<ResourceManager> resource_manager, std::s
 {
     this->communicator = communicator;
     resource_manager->load_texture("arrow", "cpp/assets/images/Arrow.png");
-    environments.push_back(std::make_unique<TestEnv>(resource_manager, 460, 40, 1));
+    for (int i = 0; i < env_count; ++i)
+    {
+        environments.push_back(std::make_unique<TestEnv>(resource_manager, 460, 40, 1, 100));
+    }
     observations.resize(env_count);
     for (int i = 0; i < environments.size(); ++i)
     {
@@ -14,16 +17,26 @@ TestScreen::TestScreen(std::shared_ptr<ResourceManager> resource_manager, std::s
     }
 
     // Init training session
-    Model model{3, 4};
+    Model model{3, 4, true, true};
     HyperParams hyperparams;
-    hyperparams.batch_size = 128;
-    hyperparams.gae = 0.9;
     hyperparams.learning_rate = 0.0001;
+    hyperparams.batch_size = 256;
+    hyperparams.num_minibatch = 4;
+    hyperparams.epochs = 3;
+    hyperparams.discount_factor = 0.99;
+    hyperparams.use_gae = true;
+    hyperparams.gae = 0.95;
+    hyperparams.critic_coef = 0.5;
+    hyperparams.entropy_coef = 0.01;
+    hyperparams.max_grad_norm = 0.5;
+    hyperparams.clip_factor = 0.2;
+    hyperparams.use_gpu = false;
+    hyperparams.normalize_rewards = true;
     std::shared_ptr<BeginSessionParam> begin_session_param = std::make_shared<BeginSessionParam>();
     begin_session_param->session_id = 0;
     begin_session_param->model = std::move(model);
     begin_session_param->hyperparams = std::move(hyperparams);
-    begin_session_param->contexts = 1;
+    begin_session_param->contexts = env_count;
     begin_session_param->auto_train = true;
     begin_session_param->training = true;
     begin_session_param->session_id = 0;
@@ -67,9 +80,10 @@ void TestScreen::update(float delta_time)
 
 void TestScreen::draw(sf::RenderTarget &render_target)
 {
-    for (auto &environment : environments)
-    {
-        environment->draw(render_target);
-    }
+    // for (auto &environment : environments)
+    // {
+    //     environment->draw(render_target);
+    // }
+    environments[0]->draw(render_target);
 }
 }

@@ -24,7 +24,7 @@ struct StepInfo
 class TestEnv : IDrawable
 {
   public:
-    TestEnv(std::shared_ptr<ResourceManager> resource_manager, float x, float y, float scale);
+    TestEnv(std::shared_ptr<ResourceManager> resource_manager, float x, float y, float scale, int max_steps);
     ~TestEnv();
 
     void draw(sf::RenderTarget &render_target);
@@ -44,5 +44,7 @@ class TestEnv : IDrawable
     std::unique_ptr<b2ContactListener> contact_listener;
     bool done;
     float reward;
+    int step_counter;
+    const int max_steps;
 };
 }

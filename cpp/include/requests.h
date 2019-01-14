@@ -30,15 +30,40 @@ struct Model
 {
     int inputs;
     int outputs;
-    MSGPACK_DEFINE_MAP(inputs, outputs);
+    bool recurrent;
+    bool normalize_observations;
+    MSGPACK_DEFINE_MAP(inputs, outputs, recurrent, normalize_observations);
 };
 
 struct HyperParams
 {
     float learning_rate;
-    float gae;
     int batch_size;
-    MSGPACK_DEFINE_MAP(learning_rate, gae, batch_size);
+    int num_minibatch;
+    int epochs;
+    float discount_factor;
+    bool use_gae;
+    float gae;
+    float critic_coef;
+    float entropy_coef;
+    float max_grad_norm;
+    float clip_factor;
+    bool use_gpu;
+    bool normalize_rewards;
+    MSGPACK_DEFINE_MAP(
+        learning_rate,
+        batch_size,
+        num_minibatch,
+        epochs,
+        discount_factor,
+        use_gae,
+        gae,
+        critic_coef,
+        entropy_coef,
+        max_grad_norm,
+        clip_factor,
+        use_gpu,
+        normalize_rewards);
 };
 
 struct BeginSessionParam
