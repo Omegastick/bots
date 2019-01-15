@@ -36,7 +36,7 @@ void Bot::draw(sf::RenderTarget &render_target)
     render_target.draw(sprite);
 }
 
-void Bot::act(std::vector<int> actions)
+void Bot::act(std::vector<int> &actions)
 {
     if (actions[0])
     {

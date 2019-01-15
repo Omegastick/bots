@@ -21,7 +21,7 @@ class Bot : public IDrawable, public ICollidable
     Bot(const std::shared_ptr<ResourceManager> resource_manager, b2World &world);
     ~Bot();
 
-    void act(std::vector<int> actions);
+    void act(std::vector<int> &actions);
     void draw(sf::RenderTarget &render_target);
     std::vector<float> get_observation();
     virtual void begin_contact(RigidBody *other);

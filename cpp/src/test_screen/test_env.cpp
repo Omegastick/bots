@@ -94,7 +94,17 @@ TestEnv::TestEnv(std::shared_ptr<ResourceManager> resource_manager, float x, flo
     done = false;
 }
 
-TestEnv::~TestEnv(){};
+TestEnv::~TestEnv()
+{
+    ThreadCommand command{Commands::Quit};
+    command_queue.emplace(std::move(command));
+    thread->join();
+};
+
+void TestEnv::start_thread()
+{
+    thread = new std::thread(&TestEnv::thread_loop, this);
+}
 
 void TestEnv::draw(sf::RenderTarget &render_target)
 {
@@ -113,30 +123,13 @@ void TestEnv::draw(sf::RenderTarget &render_target)
     render_target.draw(sprite);
 }
 
-std::unique_ptr<StepInfo> TestEnv::step(std::vector<int> &actions)
+std::future<std::unique_ptr<StepInfo>> TestEnv::step(std::vector<int> &actions)
 {
-    // Act
-    bot->act(actions);
-
-    // Step simulation
-    world->Step(0.2, 6, 4);
-
-    // Return step information
-    std::unique_ptr<StepInfo> step_info = std::make_unique<StepInfo>();
-    step_info->observation = bot->get_observation();
-    step_info->reward = reward;
-    step_info->done = done;
-
-    // Reset reward
-    reward = 0;
-
-    step_counter++;
-    if (done || step_counter == max_steps)
-    {
-        reset();
-    }
-
-    return step_info;
+    std::promise<std::unique_ptr<StepInfo>> promise;
+    std::future<std::unique_ptr<StepInfo>> future = promise.get_future();
+    ThreadCommand command{Commands::Step, std::move(promise), actions};
+    command_queue.emplace(std::move(command));
+    return future;
 }
 
 void TestEnv::change_reward(float reward_delta)
@@ -149,17 +142,73 @@ void TestEnv::set_done()
     done = true;
 }
 
-std::vector<float> TestEnv::reset()
+std::future<std::unique_ptr<StepInfo>> TestEnv::reset()
 {
-    done = false;
-    reward = 0;
-    step_counter = 0;
+    std::promise<std::unique_ptr<StepInfo>> promise;
+    std::future<std::unique_ptr<StepInfo>> future = promise.get_future();
+    ThreadCommand command{Commands::Reset, std::move(promise)};
+    command_queue.emplace(std::move(command));
+    return future;
+}
 
-    // Reset bot position
-    bot->rigid_body->body->SetTransform(b2Vec2_zero, 0);
-    bot->rigid_body->body->SetAngularVelocity(0);
-    bot->rigid_body->body->SetLinearVelocity(b2Vec2_zero);
+void TestEnv::thread_loop()
+{
+    bool quit = false;
+    while (!quit)
+    {
+        while (command_queue.empty()) {}
+        ThreadCommand command = std::move(command_queue.front());
+        command_queue.pop();
+        std::unique_ptr<StepInfo> step_info = std::make_unique<StepInfo>();
+        switch (command.command)
+        {
+        case Commands::Quit:
+            quit = true;
+            break;
+        case Commands::Step:
+            // Act
+            bot->act(command.actions);
 
-    return bot->get_observation();
+            // Step simulation
+            world->Step(0.2, 6, 4);
+
+            // Return step information
+            step_info->observation = bot->get_observation();
+            step_info->reward = reward;
+            step_info->done = done;
+
+            // Reset reward
+            reward = 0;
+
+            // Increment step counter
+            step_counter++;
+            if (done || step_counter == max_steps)
+            {
+                reset();
+            }
+
+            // Return
+            command.promise.set_value(std::move(step_info));
+            break;
+        case Commands::Reset:
+            done = false;
+            reward = 0;
+            step_counter = 0;
+
+            // Reset bot position
+            bot->rigid_body->body->SetTransform(b2Vec2_zero, 0);
+            bot->rigid_body->body->SetAngularVelocity(0);
+            bot->rigid_body->body->SetLinearVelocity(b2Vec2_zero);
+
+            // Fill in StepInfo
+            step_info->observation = bot->get_observation();
+            step_info->done = done;
+            step_info->reward = reward;
+
+            // Return
+            command.promise.set_value(std::move(step_info));
+            break;
+        }
+    }
 }
 }

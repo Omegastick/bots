@@ -2,8 +2,11 @@
 
 #include <Box2D/Box2D.h>
 #include <SFML/Graphics.hpp>
+#include <future>
 #include <memory>
-#include <vector>
+#include <queue>
+#include <thread>
+#include <utility>
 
 #include "idrawable.h"
 #include "test_screen/bot.h"
@@ -27,14 +30,26 @@ class TestEnv : IDrawable
     TestEnv(std::shared_ptr<ResourceManager> resource_manager, float x, float y, float scale, int max_steps);
     ~TestEnv();
 
+    void start_thread();
     void draw(sf::RenderTarget &render_target);
-    std::unique_ptr<StepInfo> step(std::vector<int> &actions);
-    std::vector<float> reset();
+    std::future<std::unique_ptr<StepInfo>> step(std::vector<int> &actions);
+    std::future<std::unique_ptr<StepInfo>> reset();
     void change_reward(float reward_delta);
     void set_done();
-    std::vector<float> get_observation();
 
   private:
+    enum Commands
+    {
+        Step,
+        Reset,
+        Quit
+    };
+    struct ThreadCommand
+    {
+        Commands command;
+        std::promise<std::unique_ptr<StepInfo>> promise;
+        std::vector<int> actions;
+    };
     sf::RenderTexture render_texture;
     sf::Sprite sprite;
     std::unique_ptr<b2World> world;
@@ -46,5 +61,9 @@ class TestEnv : IDrawable
     float reward;
     int step_counter;
     const int max_steps;
+    std::thread *thread;
+    std::queue<ThreadCommand> command_queue;
+
+    void thread_loop();
 };
 }

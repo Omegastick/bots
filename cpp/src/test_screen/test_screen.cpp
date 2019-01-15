@@ -9,11 +9,17 @@ TestScreen::TestScreen(std::shared_ptr<ResourceManager> resource_manager, std::s
     for (int i = 0; i < env_count; ++i)
     {
         environments.push_back(std::make_unique<TestEnv>(resource_manager, 460, 40, 1, 100));
+        environments.back()->start_thread();
     }
+    std::vector<std::future<std::unique_ptr<StepInfo>>> observation_futures(env_count);
     observations.resize(env_count);
     for (int i = 0; i < environments.size(); ++i)
     {
-        observations[i] = environments[i]->reset();
+        observation_futures[i] = environments[i]->reset();
+    }
+    for (int i = 0; i < environments.size(); ++i)
+    {
+        observations[i] = observation_futures[i].get()->observation;
     }
 
     // Init training session
@@ -60,9 +66,14 @@ void TestScreen::update(float delta_time)
     // Step environments
     std::vector<bool> dones;
     std::vector<float> rewards;
+    std::vector<std::future<std::unique_ptr<StepInfo>>> step_info_futures(environments.size());
     for (int i = 0; i < environments.size(); ++i)
     {
-        std::unique_ptr<StepInfo> step_info = environments[i]->step(actions[i]);
+        step_info_futures[i] = environments[i]->step(actions[i]);
+    }
+    for (int i = 0; i < environments.size(); ++i)
+    {
+        std::unique_ptr<StepInfo> step_info = step_info_futures[i].get();
         observations[i] = step_info->observation;
         dones.push_back(step_info->done);
         rewards.push_back(step_info->reward);
