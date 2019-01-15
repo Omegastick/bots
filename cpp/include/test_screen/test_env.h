@@ -7,6 +7,7 @@
 #include <queue>
 #include <thread>
 #include <utility>
+#include <atomic>
 
 #include "idrawable.h"
 #include "test_screen/bot.h"
@@ -63,6 +64,7 @@ class TestEnv : IDrawable
     const int max_steps;
     std::thread *thread;
     std::queue<ThreadCommand> command_queue;
+    std::atomic<int> command_queue_flag;
 
     void thread_loop();
 };

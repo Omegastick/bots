@@ -25,7 +25,7 @@ int main(int argc, const char *argv[])
     std::shared_ptr<ResourceManager> resource_manager = std::make_shared<ResourceManager>();
     std::shared_ptr<Communicator> communicator = std::make_shared<Communicator>("tcp://127.0.0.1:10201");
 
-    std::shared_ptr<TestScreen> test_screen = std::make_shared<TestScreen>(resource_manager, communicator, 8);
+    std::shared_ptr<TestScreen> test_screen = std::make_shared<TestScreen>(resource_manager, communicator, 7);
     screen_manager.show_screen(test_screen);
 
     frameClock.restart();

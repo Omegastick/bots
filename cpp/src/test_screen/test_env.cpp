@@ -62,7 +62,7 @@ class ContactListener : public b2ContactListener
 };
 
 TestEnv::TestEnv(std::shared_ptr<ResourceManager> resource_manager, float x, float y, float scale, int max_steps)
-    : max_steps(max_steps)
+    : max_steps(max_steps), command_queue_flag(0), reward(0), step_counter(0), done(false)
 {
     // Box2D world
     world = std::make_unique<b2World>(b2Vec2(0, 0));
@@ -87,17 +87,13 @@ TestEnv::TestEnv(std::shared_ptr<ResourceManager> resource_manager, float x, flo
     sprite.setPosition(x, y);
     sprite.setScale(scale, scale);
     render_texture.setView(sf::View(sf::Vector2f(0, 0), sf::Vector2f(10, 10)));
-
-    // Training data
-    reward = 0;
-    step_counter = 0;
-    done = false;
 }
 
 TestEnv::~TestEnv()
 {
     ThreadCommand command{Commands::Quit};
     command_queue.emplace(std::move(command));
+    command_queue_flag++;
     thread->join();
 };
 
@@ -129,6 +125,7 @@ std::future<std::unique_ptr<StepInfo>> TestEnv::step(std::vector<int> &actions)
     std::future<std::unique_ptr<StepInfo>> future = promise.get_future();
     ThreadCommand command{Commands::Step, std::move(promise), actions};
     command_queue.emplace(std::move(command));
+    command_queue_flag++;
     return future;
 }
 
@@ -148,6 +145,7 @@ std::future<std::unique_ptr<StepInfo>> TestEnv::reset()
     std::future<std::unique_ptr<StepInfo>> future = promise.get_future();
     ThreadCommand command{Commands::Reset, std::move(promise)};
     command_queue.emplace(std::move(command));
+    command_queue_flag++;
     return future;
 }
 
@@ -156,9 +154,10 @@ void TestEnv::thread_loop()
     bool quit = false;
     while (!quit)
     {
-        while (command_queue.empty()) {}
+        while (command_queue_flag == 0) {}
         ThreadCommand command = std::move(command_queue.front());
         command_queue.pop();
+        command_queue_flag--;
         std::unique_ptr<StepInfo> step_info = std::make_unique<StepInfo>();
         switch (command.command)
         {
