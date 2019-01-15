@@ -13,6 +13,7 @@
 #include "test_screen/bot.h"
 #include "test_screen/target.h"
 #include "test_screen/wall.h"
+#include "test_screen/score_display.h"
 
 namespace SingularityTrainer
 {
@@ -65,6 +66,7 @@ class TestEnv : IDrawable
     std::thread *thread;
     std::queue<ThreadCommand> command_queue;
     std::atomic<int> command_queue_flag;
+    ScoreDisplay score_display;
 
     void thread_loop();
 };

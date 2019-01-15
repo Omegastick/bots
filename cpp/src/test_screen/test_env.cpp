@@ -62,7 +62,12 @@ class ContactListener : public b2ContactListener
 };
 
 TestEnv::TestEnv(std::shared_ptr<ResourceManager> resource_manager, float x, float y, float scale, int max_steps)
-    : max_steps(max_steps), command_queue_flag(0), reward(0), step_counter(0), done(false)
+    : max_steps(max_steps),
+      command_queue_flag(0),
+      reward(0),
+      step_counter(0),
+      done(false),
+      score_display(-4.8, -4.8, 0.999, *resource_manager)
 {
     // Box2D world
     world = std::make_unique<b2World>(b2Vec2(0, 0));
@@ -112,6 +117,7 @@ void TestEnv::draw(sf::RenderTarget &render_target)
         wall->draw(render_texture);
     }
     target->draw(render_texture);
+    score_display.draw(render_texture);
     render_texture.display();
 
     // Draw temporary tecture onto window
@@ -154,7 +160,9 @@ void TestEnv::thread_loop()
     bool quit = false;
     while (!quit)
     {
-        while (command_queue_flag == 0) {}
+        while (command_queue_flag == 0)
+        {
+        }
         ThreadCommand command = std::move(command_queue.front());
         command_queue.pop();
         command_queue_flag--;
@@ -175,6 +183,8 @@ void TestEnv::thread_loop()
             step_info->observation = bot->get_observation();
             step_info->reward = reward;
             step_info->done = done;
+
+            score_display.add_score(reward);
 
             // Reset reward
             reward = 0;

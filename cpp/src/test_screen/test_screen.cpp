@@ -25,8 +25,8 @@ TestScreen::TestScreen(std::shared_ptr<ResourceManager> resource_manager, std::s
     // Init training session
     Model model{3, 4, true, true};
     HyperParams hyperparams;
-    hyperparams.learning_rate = 0.0001;
-    hyperparams.batch_size = 256;
+    hyperparams.learning_rate = 0.0004;
+    hyperparams.batch_size = 512;
     hyperparams.num_minibatch = 4;
     hyperparams.epochs = 3;
     hyperparams.discount_factor = 0.99;

@@ -6,4 +6,5 @@ PUBLIC
     ${CMAKE_CURRENT_LIST_DIR}/wall.cpp
     ${CMAKE_CURRENT_LIST_DIR}/rigid_body.cpp
     ${CMAKE_CURRENT_LIST_DIR}/target.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/score_display.cpp
 )
