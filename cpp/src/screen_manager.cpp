@@ -15,7 +15,7 @@ void ScreenManager::close_screen()
 {
     screens_.pop();
 }
-void ScreenManager::update(float delta_time)
+void ScreenManager::update(sf::Time delta_time)
 {
     screens_.top()->update(delta_time);
 }

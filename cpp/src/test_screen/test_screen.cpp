@@ -1,8 +1,11 @@
+#include <Thor/Time.hpp>
+
 #include "test_screen/test_screen.h"
 
 namespace SingularityTrainer
 {
 TestScreen::TestScreen(std::shared_ptr<ResourceManager> resource_manager, std::shared_ptr<Communicator> communicator, int env_count)
+    : frame_counter(0)
 {
     this->communicator = communicator;
     resource_manager->load_texture("arrow", "cpp/assets/images/Arrow.png");
@@ -27,7 +30,7 @@ TestScreen::TestScreen(std::shared_ptr<ResourceManager> resource_manager, std::s
     HyperParams hyperparams;
     hyperparams.learning_rate = 0.0004;
     hyperparams.batch_size = 512;
-    hyperparams.num_minibatch = 4;
+    hyperparams.num_minibatch = env_count;
     hyperparams.epochs = 3;
     hyperparams.discount_factor = 0.99;
     hyperparams.use_gae = true;
@@ -53,48 +56,119 @@ TestScreen::TestScreen(std::shared_ptr<ResourceManager> resource_manager, std::s
 
 TestScreen::~TestScreen(){};
 
-void TestScreen::update(float delta_time)
+void TestScreen::update(const sf::Time &delta_time)
 {
-    // Get actions from training server
+    frame_counter++;
+    bool action_frame = frame_counter % 6 == 0;
+    bool slow = sf::Keyboard::isKeyPressed(sf::Keyboard::Space);
+
+    if (slow)
+    {
+        slow_update(action_frame);
+    }
+    else
+    {
+        fast_update();
+    }
+}
+
+void TestScreen::draw(sf::RenderTarget &render_target)
+{
+    environments[0]->draw(render_target);
+}
+
+void TestScreen::fast_update()
+{
+    thor::StopWatch stop_watch;
+    stop_watch.start();
+    do
+    {
+        // Get actions from training server
+        std::vector<std::vector<int>> actions = get_actions();
+
+        // Step environments
+        std::vector<bool> dones;
+        std::vector<float> rewards;
+        std::vector<std::future<std::unique_ptr<StepInfo>>> step_info_futures(environments.size());
+        for (int j = 0; j < environments.size(); ++j)
+        {
+            step_info_futures[j] = environments[j]->step(actions[j], 1. / 60.);
+        }
+        for (int i = 0; i < environments.size(); ++i)
+        {
+            std::unique_ptr<StepInfo> step_info = step_info_futures[i].get();
+            observations[i] = step_info->observation;
+            dones.push_back(step_info->done);
+            rewards.push_back(step_info->reward);
+        }
+
+        // Send result to training server
+        std::shared_ptr<GiveRewardsParams> give_rewards_param = std::make_shared<GiveRewardsParams>();
+        give_rewards_param->rewards = rewards;
+        give_rewards_param->dones = dones;
+        give_rewards_param->session_id = 0;
+        Request<GiveRewardsParams> give_rewards_request("give_rewards", give_rewards_param, 3);
+        communicator->send_request<GiveRewardsParams>(give_rewards_request);
+        communicator->get_response<GiveRewardsResult>();
+
+        for (int i = 0; i < 5; ++i)
+        {
+            for (const auto &environment : environments)
+            {
+                environment->forward(1. / 60.);
+            }
+        }
+    } while (stop_watch.getElapsedTime().asSeconds() < 1. / 60.);
+}
+
+void TestScreen::slow_update(bool action_frame)
+{
+    if (action_frame)
+    {
+        // Get actions from training server
+        std::vector<std::vector<int>> actions = get_actions();
+
+        // Step environments
+        std::vector<bool> dones;
+        std::vector<float> rewards;
+        std::vector<std::future<std::unique_ptr<StepInfo>>> step_info_futures(environments.size());
+        for (int i = 0; i < environments.size(); ++i)
+        {
+            step_info_futures[i] = environments[i]->step(actions[i], 1. / 60.);
+        }
+        for (int i = 0; i < environments.size(); ++i)
+        {
+            std::unique_ptr<StepInfo> step_info = step_info_futures[i].get();
+            observations[i] = step_info->observation;
+            dones.push_back(step_info->done);
+            rewards.push_back(step_info->reward);
+        }
+
+        // Send result to training server
+        std::shared_ptr<GiveRewardsParams> give_rewards_param = std::make_shared<GiveRewardsParams>();
+        give_rewards_param->rewards = rewards;
+        give_rewards_param->dones = dones;
+        give_rewards_param->session_id = 0;
+        Request<GiveRewardsParams> give_rewards_request("give_rewards", give_rewards_param, 3);
+        communicator->send_request<GiveRewardsParams>(give_rewards_request);
+        communicator->get_response<GiveRewardsResult>();
+    }
+    else
+    {
+        for (const auto &environment : environments)
+        {
+            environment->forward(1. / 60.);
+        }
+    }
+}
+
+std::vector<std::vector<int>> TestScreen::get_actions()
+{
     std::shared_ptr<GetActionsParam> get_actions_param = std::make_shared<GetActionsParam>();
     get_actions_param->inputs = observations;
     get_actions_param->session_id = 0;
     Request<GetActionsParam> get_actions_request("get_actions", get_actions_param, 2);
     communicator->send_request(get_actions_request);
-    std::vector<std::vector<int>> actions = communicator->get_response<GetActionsResult>()->result.actions;
-
-    // Step environments
-    std::vector<bool> dones;
-    std::vector<float> rewards;
-    std::vector<std::future<std::unique_ptr<StepInfo>>> step_info_futures(environments.size());
-    for (int i = 0; i < environments.size(); ++i)
-    {
-        step_info_futures[i] = environments[i]->step(actions[i]);
-    }
-    for (int i = 0; i < environments.size(); ++i)
-    {
-        std::unique_ptr<StepInfo> step_info = step_info_futures[i].get();
-        observations[i] = step_info->observation;
-        dones.push_back(step_info->done);
-        rewards.push_back(step_info->reward);
-    }
-
-    // Send result to training server
-    std::shared_ptr<GiveRewardsParams> give_rewards_param = std::make_shared<GiveRewardsParams>();
-    give_rewards_param->rewards = rewards;
-    give_rewards_param->dones = dones;
-    give_rewards_param->session_id = 0;
-    Request<GiveRewardsParams> give_rewards_request("give_rewards", give_rewards_param, 3);
-    communicator->send_request<GiveRewardsParams>(give_rewards_request);
-    communicator->get_response<GiveRewardsResult>();
-}
-
-void TestScreen::draw(sf::RenderTarget &render_target)
-{
-    // for (auto &environment : environments)
-    // {
-    //     environment->draw(render_target);
-    // }
-    environments[0]->draw(render_target);
+    return communicator->get_response<GetActionsResult>()->result.actions;
 }
 }

@@ -15,7 +15,7 @@ class ScreenManager
 
     void show_screen(std::shared_ptr<IScreen> screen);
     void close_screen();
-    void update(float delta_time);
+    void update(sf::Time delta_time);
     void draw(sf::RenderTarget &render_target);
 
   private:

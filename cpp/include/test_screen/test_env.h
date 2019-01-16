@@ -34,7 +34,8 @@ class TestEnv : IDrawable
 
     void start_thread();
     void draw(sf::RenderTarget &render_target);
-    std::future<std::unique_ptr<StepInfo>> step(std::vector<int> &actions);
+    std::future<std::unique_ptr<StepInfo>> step(std::vector<int> &actions, float step_length);
+    void forward(float step_length);
     std::future<std::unique_ptr<StepInfo>> reset();
     void change_reward(float reward_delta);
     void set_done();
@@ -43,6 +44,7 @@ class TestEnv : IDrawable
     enum Commands
     {
         Step,
+        Forward,
         Reset,
         Quit
     };
@@ -50,6 +52,7 @@ class TestEnv : IDrawable
     {
         Commands command;
         std::promise<std::unique_ptr<StepInfo>> promise;
+        float step_length;
         std::vector<int> actions;
     };
     sf::RenderTexture render_texture;

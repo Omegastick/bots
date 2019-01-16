@@ -125,14 +125,22 @@ void TestEnv::draw(sf::RenderTarget &render_target)
     render_target.draw(sprite);
 }
 
-std::future<std::unique_ptr<StepInfo>> TestEnv::step(std::vector<int> &actions)
+std::future<std::unique_ptr<StepInfo>> TestEnv::step(std::vector<int> &actions, float step_length)
 {
     std::promise<std::unique_ptr<StepInfo>> promise;
     std::future<std::unique_ptr<StepInfo>> future = promise.get_future();
-    ThreadCommand command{Commands::Step, std::move(promise), actions};
+    ThreadCommand command{Commands::Step, std::move(promise), step_length, actions};
     command_queue.emplace(std::move(command));
     command_queue_flag++;
     return future;
+}
+
+void TestEnv::forward(float step_length)
+{
+    std::promise<std::unique_ptr<StepInfo>> promise;
+    ThreadCommand command{Commands::Forward, std::move(promise), step_length};
+    command_queue.emplace(std::move(command));
+    command_queue_flag++;
 }
 
 void TestEnv::change_reward(float reward_delta)
@@ -177,7 +185,7 @@ void TestEnv::thread_loop()
             bot->act(command.actions);
 
             // Step simulation
-            world->Step(0.2, 6, 4);
+            world->Step(command.step_length, 3, 2);
 
             // Return step information
             step_info->observation = bot->get_observation();
@@ -198,6 +206,9 @@ void TestEnv::thread_loop()
 
             // Return
             command.promise.set_value(std::move(step_info));
+            break;
+        case Commands::Forward:
+            world->Step(command.step_length, 3, 2);
             break;
         case Commands::Reset:
             done = false;

@@ -16,7 +16,7 @@ class DummyScreen : public IScreen
     ~DummyScreen();
 
     void draw(sf::RenderTarget &render_target);
-    void update(float delta_time);
+    void update(sf::Time delta_time);
 
   private:
     sf::Sprite arrow;

@@ -38,8 +38,8 @@ void DummyScreen::draw(sf::RenderTarget &render_target)
 {
     render_target.draw(arrow);
 }
-void DummyScreen::update(float delta_time)
+void DummyScreen::update(sf::Time delta_time)
 {
-    arrow.rotate(delta_time * 5);
+    arrow.rotate(delta_time.asSeconds() * 5);
 }
 }

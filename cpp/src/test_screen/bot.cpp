@@ -38,25 +38,26 @@ void Bot::draw(sf::RenderTarget &render_target)
 
 void Bot::act(std::vector<int> &actions)
 {
+    float speed = 60;
     if (actions[0])
     {
         float angle = rigid_body->body->GetAngle();
-        b2Vec2 force(std::sin(angle), std::cos(angle));
+        b2Vec2 force(std::sin(angle) * speed, std::cos(angle) * speed);
         rigid_body->body->ApplyForceToCenter(force, true);
     }
     if (actions[1])
     {
         float angle = rigid_body->body->GetAngle();
-        b2Vec2 force(std::sin(angle), std::cos(angle));
+        b2Vec2 force(-std::sin(angle) * speed, -std::cos(angle) * speed);
         rigid_body->body->ApplyForceToCenter(force, true);
     }
     if (actions[2])
     {
-        rigid_body->body->ApplyTorque(0.1, true);
+        rigid_body->body->ApplyTorque(0.1 * speed, true);
     }
     if (actions[3])
     {
-        rigid_body->body->ApplyTorque(-0.1, true);
+        rigid_body->body->ApplyTorque(-0.1 * speed, true);
     }
 }
 
