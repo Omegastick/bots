@@ -7,6 +7,7 @@
 #include "requests.h"
 #include "resource_manager.h"
 #include "test_screen/test_env.h"
+#include "gui/gui_panel.h"
 
 namespace SingularityTrainer
 {
@@ -28,5 +29,6 @@ class TestScreen : public IScreen
     void fast_update();
     void slow_update(bool action_frame);
     std::vector<std::vector<int>> get_actions();
+    GUIPanel panel;
 };
 }

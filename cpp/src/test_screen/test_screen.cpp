@@ -5,7 +5,7 @@
 namespace SingularityTrainer
 {
 TestScreen::TestScreen(std::shared_ptr<ResourceManager> resource_manager, std::shared_ptr<Communicator> communicator, int env_count)
-    : frame_counter(0)
+    : frame_counter(0), panel(100, 200, 100, 200)
 {
     this->communicator = communicator;
     resource_manager->load_texture("arrow", "cpp/assets/images/Arrow.png");
@@ -70,11 +70,14 @@ void TestScreen::update(const sf::Time &delta_time)
     {
         fast_update();
     }
+
+    panel.handle_input();
 }
 
 void TestScreen::draw(sf::RenderTarget &render_target)
 {
     environments[0]->draw(render_target);
+    panel.draw(render_target);
 }
 
 void TestScreen::fast_update()

@@ -8,3 +8,4 @@ PUBLIC
 )
 
 add_subdirectory(test_screen)
+add_subdirectory(gui)
