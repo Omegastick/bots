@@ -28,7 +28,7 @@ class TestScreen : public IScreen
 
     void fast_update();
     void slow_update(bool action_frame);
-    std::vector<std::vector<int>> get_actions();
+    void action_update();
     GUIPanel panel;
 };
 }
