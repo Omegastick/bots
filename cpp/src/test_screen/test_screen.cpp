@@ -55,7 +55,14 @@ TestScreen::TestScreen(std::shared_ptr<ResourceManager> resource_manager, std::s
     communicator->get_response<BeginSessionResult>();
 }
 
-TestScreen::~TestScreen(){};
+TestScreen::~TestScreen()
+{
+    std::shared_ptr<EndSessionParam> end_session_param = std::make_shared<EndSessionParam>();
+    end_session_param->session_id = 0;
+    Request<EndSessionParam> end_session_request("end_session", end_session_param, 4);
+    communicator->send_request<EndSessionParam>(end_session_request);
+    communicator->get_response<EndSessionResult>();
+};
 
 void TestScreen::update(const sf::Time &delta_time, const sf::Vector2f &mouse_position, const thor::ActionMap<Inputs> &action_map)
 {
@@ -153,12 +160,12 @@ void TestScreen::action_update()
     }
 
     // Send result to training server
-    std::shared_ptr<GiveRewardsParams> give_rewards_param = std::make_shared<GiveRewardsParams>();
+    std::shared_ptr<GiveRewardsParam> give_rewards_param = std::make_shared<GiveRewardsParam>();
     give_rewards_param->rewards = rewards;
     give_rewards_param->dones = dones;
     give_rewards_param->session_id = 0;
-    Request<GiveRewardsParams> give_rewards_request("give_rewards", give_rewards_param, 3);
-    communicator->send_request<GiveRewardsParams>(give_rewards_request);
+    Request<GiveRewardsParam> give_rewards_request("give_rewards", give_rewards_param, 3);
+    communicator->send_request<GiveRewardsParam>(give_rewards_request);
     if (action_frame_counter % 512 != 0)
     {
         communicator->get_response<GiveRewardsResult>();

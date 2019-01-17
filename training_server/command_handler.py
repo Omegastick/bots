@@ -155,6 +155,7 @@ class CommandHandler:
         Begins a new session.
         """
         params = command.params
+        logging.info("Beginning session: %i", params["session_id"])
         model = ModelSpecification(
             inputs=params["model"]["inputs"],
             outputs=params["model"]["outputs"],
@@ -207,6 +208,7 @@ class CommandHandler:
         Ends a session.
         """
         params = command.params
+        logging.info("Ending session: %i", params["session_id"])
         self.session_manager.end_session(params["session_id"])
         response = Response(result="OK", id=command.id)
         return self.create_response(response)

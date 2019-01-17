@@ -33,8 +33,8 @@ def main():
     command_handler = CommandHandler(session_manager)
 
     server = Server(args.port)
-    logging.info("Server started...")
-    server.send_message("Connection established...")
+    logging.info("Server started")
+    server.send_message("Connection established")
     logging.debug(server.get_message().decode())
 
     while True:

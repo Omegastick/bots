@@ -42,7 +42,13 @@ int main(int argc, const char *argv[])
         action_map.update(window);
         if (action_map.isActive(Inputs::Quit))
         {
+            while (screen_manager.stack_size() > 0)
+            {
+                screen_manager.close_screen();
+                std::cout << screen_manager.stack_size() << std::endl;;
+            }
             window.close();
+            break;
         }
 
         /*

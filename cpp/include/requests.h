@@ -77,7 +77,7 @@ struct BeginSessionParam
     MSGPACK_DEFINE_MAP(model, hyperparams, training, contexts, auto_train, session_id);
 };
 
-struct GiveRewardsParams
+struct GiveRewardsParam
 {
     std::vector<float> rewards;
     std::vector<bool> dones;
@@ -85,7 +85,7 @@ struct GiveRewardsParams
     MSGPACK_DEFINE_MAP(rewards, dones, session_id);
 };
 
-struct EndSessionParams
+struct EndSessionParam
 {
     int session_id;
     MSGPACK_DEFINE_MAP(session_id);
