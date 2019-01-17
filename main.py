@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 """
 Main script
 """
@@ -10,7 +11,6 @@ import logging
 from training_server.session_manager import SessionManager
 from training_server.server import Server
 from training_server.command_handler import CommandHandler
-
 
 def main():
     """

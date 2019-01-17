@@ -14,7 +14,7 @@ class GUIButton : IGUIObject
     GUIButton(std::string text, float x, float y, float width, float height);
     ~GUIButton();
 
-    void handle_input();
+    void handle_input(sf::RenderWindow &window);
     void draw(sf::RenderTarget &render_target);
 
     std::function<void()> callback;

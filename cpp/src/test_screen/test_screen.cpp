@@ -1,11 +1,12 @@
 #include <Thor/Time.hpp>
+#include <future>
 
 #include "test_screen/test_screen.h"
 
 namespace SingularityTrainer
 {
 TestScreen::TestScreen(std::shared_ptr<ResourceManager> resource_manager, std::shared_ptr<Communicator> communicator, int env_count)
-    : frame_counter(0), panel(100, 200, 100, 200)
+    : frame_counter(0), action_frame_counter(0), panel(100, 200, 100, 200), waiting_for_server(false)
 {
     this->communicator = communicator;
     resource_manager->load_texture("arrow", "cpp/assets/images/Arrow.png");
@@ -56,14 +57,22 @@ TestScreen::TestScreen(std::shared_ptr<ResourceManager> resource_manager, std::s
 
 TestScreen::~TestScreen(){};
 
-void TestScreen::update(const sf::Time &delta_time)
+void TestScreen::update(const sf::Time &delta_time, sf::RenderWindow &window)
 {
-    frame_counter++;
-    bool action_frame = frame_counter % 6 == 0;
-    bool slow = sf::Keyboard::isKeyPressed(sf::Keyboard::Space);
+    // If waiting for a model update, only update the GUI
+    if (waiting_for_server)
+    {
+        panel.handle_input(window);
+        return;
+    }
 
+    // Otherwise update the environments too
+    frame_counter++;
+
+    bool slow = sf::Keyboard::isKeyPressed(sf::Keyboard::Space);
     if (slow)
     {
+        bool action_frame = frame_counter % 6 == 0;
         slow_update(action_frame);
     }
     else
@@ -71,7 +80,7 @@ void TestScreen::update(const sf::Time &delta_time)
         fast_update();
     }
 
-    panel.handle_input();
+    panel.handle_input(window);
 }
 
 void TestScreen::draw(sf::RenderTarget &render_target)
@@ -114,6 +123,7 @@ void TestScreen::slow_update(bool action_frame)
 
 void TestScreen::action_update()
 {
+    action_frame_counter++;
     // Get actions from training server
     std::shared_ptr<GetActionsParam> get_actions_param = std::make_shared<GetActionsParam>();
     get_actions_param->inputs = observations;
@@ -145,6 +155,18 @@ void TestScreen::action_update()
     give_rewards_param->session_id = 0;
     Request<GiveRewardsParams> give_rewards_request("give_rewards", give_rewards_param, 3);
     communicator->send_request<GiveRewardsParams>(give_rewards_request);
-    communicator->get_response<GiveRewardsResult>();
+    if (action_frame_counter % 512 != 0)
+    {
+        communicator->get_response<GiveRewardsResult>();
+    }
+    else
+    {
+        waiting_for_server = true;
+        std::thread response_thread = std::thread([this]() {
+            communicator->get_response<GiveRewardsResult>();
+            waiting_for_server = false;
+        });
+        response_thread.detach();
+    }
 }
 }

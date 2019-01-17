@@ -15,9 +15,9 @@ void ScreenManager::close_screen()
 {
     screens_.pop();
 }
-void ScreenManager::update(sf::Time delta_time)
+void ScreenManager::update(sf::Time delta_time, sf::RenderWindow &window)
 {
-    screens_.top()->update(delta_time);
+    screens_.top()->update(delta_time, window);
 }
 void ScreenManager::draw(sf::RenderTarget &render_target)
 {

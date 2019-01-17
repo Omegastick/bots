@@ -14,7 +14,7 @@ class GUIPanel : IGUIObject
     GUIPanel(float x, float y, float width, float height);
     ~GUIPanel();
 
-    void handle_input();
+    void handle_input(sf::RenderWindow &window);
     void draw(sf::RenderTarget &render_target);
 
     sf::RectangleShape shape;

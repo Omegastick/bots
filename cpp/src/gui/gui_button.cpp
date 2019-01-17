@@ -8,7 +8,7 @@ GUIButton::GUIButton(std::string label, float x, float y, float width, float hei
 
 GUIButton::~GUIButton() {}
 
-void GUIButton::handle_input() {}
+void GUIButton::handle_input(sf::RenderWindow &window) {}
 
 void GUIButton::draw(sf::RenderTarget &render_target) {}
 }

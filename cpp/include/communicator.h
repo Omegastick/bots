@@ -2,10 +2,10 @@
 
 #include <iostream>
 #include <memory>
+#include <msgpack.hpp>
 #include <sstream>
 #include <string>
 #include <zmq.hpp>
-#include <msgpack.hpp>
 
 #include "requests.h"
 
@@ -29,11 +29,18 @@ class Communicator
         // Desrialize message
         msgpack::object_handle object_handle = msgpack::unpack(static_cast<char *>(packed_msg.data()), packed_msg.size());
         msgpack::object object = object_handle.get();
-        // std::cout << object << std::endl;
 
         // Fill out response object
         std::unique_ptr<Response<T>> response = std::make_unique<Response<T>>();
-        object.convert(response);
+        try
+        {
+            object.convert(response);
+        }
+        catch (...)
+        {
+            std::cout << object << std::endl;
+            std::cout << "Problem\n";
+        }
 
         return response;
     }

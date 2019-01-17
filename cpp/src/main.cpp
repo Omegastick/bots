@@ -45,7 +45,7 @@ int main(int argc, const char *argv[])
         /*
          *  Update logic
          */
-        screen_manager.update(frame_clock.restart());
+        screen_manager.update(frame_clock.restart(), window);
 
         /*
          *  Draw
