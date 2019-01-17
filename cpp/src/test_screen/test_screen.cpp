@@ -65,7 +65,6 @@ void TestScreen::update(const sf::Time &delta_time, sf::RenderWindow &window)
         panel.handle_input(window);
         return;
     }
-
     // Otherwise update the environments too
     frame_counter++;
 
@@ -103,6 +102,10 @@ void TestScreen::fast_update()
                 environment->forward(1. / 60.);
             }
         }
+        if (waiting_for_server)
+        {
+            break;
+        }
     } while (stop_watch.getElapsedTime().asSeconds() < 1. / 60.);
 }
 
@@ -124,6 +127,7 @@ void TestScreen::slow_update(bool action_frame)
 void TestScreen::action_update()
 {
     action_frame_counter++;
+    
     // Get actions from training server
     std::shared_ptr<GetActionsParam> get_actions_param = std::make_shared<GetActionsParam>();
     get_actions_param->inputs = observations;

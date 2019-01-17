@@ -19,6 +19,6 @@ class ScreenManager
     void draw(sf::RenderTarget &render_target);
 
   private:
-    std::stack<std::shared_ptr<IScreen>> screens_;
+    std::stack<std::shared_ptr<IScreen>> screens;
 };
 }

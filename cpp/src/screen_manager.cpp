@@ -9,18 +9,18 @@ namespace SingularityTrainer
 {
 void ScreenManager::show_screen(std::shared_ptr<IScreen> screen)
 {
-    screens_.push(screen);
+    screens.push(screen);
 }
 void ScreenManager::close_screen()
 {
-    screens_.pop();
+    screens.pop();
 }
 void ScreenManager::update(sf::Time delta_time, sf::RenderWindow &window)
 {
-    screens_.top()->update(delta_time, window);
+    screens.top()->update(delta_time, window);
 }
 void ScreenManager::draw(sf::RenderTarget &render_target)
 {
-    screens_.top()->draw(render_target);
+    screens.top()->draw(render_target);
 }
 }
