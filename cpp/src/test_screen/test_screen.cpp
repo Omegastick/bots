@@ -57,12 +57,12 @@ TestScreen::TestScreen(std::shared_ptr<ResourceManager> resource_manager, std::s
 
 TestScreen::~TestScreen(){};
 
-void TestScreen::update(const sf::Time &delta_time, const sf::Vector2f &mouse_position)
+void TestScreen::update(const sf::Time &delta_time, const sf::Vector2f &mouse_position, const thor::ActionMap<Inputs> &action_map)
 {
     // If waiting for a model update, only update the GUI
     if (waiting_for_server)
     {
-        panel.handle_input(mouse_position);
+        panel.handle_input(mouse_position, action_map);
         return;
     }
     // Otherwise update the environments too
@@ -79,7 +79,7 @@ void TestScreen::update(const sf::Time &delta_time, const sf::Vector2f &mouse_po
         fast_update();
     }
 
-    panel.handle_input(mouse_position);
+    panel.handle_input(mouse_position, action_map);
 }
 
 void TestScreen::draw(sf::RenderTarget &render_target)

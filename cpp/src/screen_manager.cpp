@@ -15,10 +15,10 @@ void ScreenManager::close_screen()
 {
     screens.pop();
 }
-void ScreenManager::update(sf::Time delta_time, sf::RenderWindow &window)
+void ScreenManager::update(sf::Time delta_time, sf::RenderWindow &window, const thor::ActionMap<Inputs> &action_map)
 {
     sf::Vector2f mouse_position = window.mapPixelToCoords(sf::Mouse::getPosition(window));
-    screens.top()->update(delta_time, mouse_position);
+    screens.top()->update(delta_time, mouse_position, action_map);
 }
 void ScreenManager::draw(sf::RenderTarget &render_target)
 {

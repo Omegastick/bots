@@ -14,7 +14,7 @@ class GUIPanel : IGUIObject
     GUIPanel(float x, float y, float width, float height);
     ~GUIPanel();
 
-    void handle_input(const sf::Vector2f &mouse_position);
+    void handle_input(const sf::Vector2f &mouse_position, const thor::ActionMap<Inputs> &action_map);
     void draw(sf::RenderTarget &render_target);
 
     sf::RectangleShape shape;

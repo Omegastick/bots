@@ -14,7 +14,7 @@ GUIPanel::GUIPanel(float x, float y, float width, float height) : mouse_over(fal
 
 GUIPanel::~GUIPanel() {}
 
-void GUIPanel::handle_input(const sf::Vector2f &mouse_position)
+void GUIPanel::handle_input(const sf::Vector2f &mouse_position, const thor::ActionMap<Inputs> &action_map)
 {
     if (shape.getGlobalBounds().contains(mouse_position.x, mouse_position.y))
     {
@@ -26,7 +26,7 @@ void GUIPanel::handle_input(const sf::Vector2f &mouse_position)
 
         for (auto child : children)
         {
-            child->handle_input(mouse_position);
+            child->handle_input(mouse_position, action_map);
         }
     }
     else

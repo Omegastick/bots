@@ -1,7 +1,9 @@
 #include <SFML/Graphics.hpp>
 #include <SFML/Window.hpp>
+#include <Thor/Input.hpp>
 
 #include "communicator.h"
+#include "gui/input.h"
 #include "requests.h"
 #include "screen_manager.h"
 #include "test_screen/test_screen.h"
@@ -21,6 +23,9 @@ int main(int argc, const char *argv[])
     sf::Event event;
     sf::Clock frame_clock;
 
+    thor::ActionMap<Inputs> action_map;
+    action_map[Inputs::Quit] = thor::Action(sf::Event::Closed);
+
     ScreenManager screen_manager;
     std::shared_ptr<ResourceManager> resource_manager = std::make_shared<ResourceManager>();
     std::shared_ptr<Communicator> communicator = std::make_shared<Communicator>("tcp://127.0.0.1:10201");
@@ -34,18 +39,16 @@ int main(int argc, const char *argv[])
         /*
          *  Process events
          */
-        while (window.pollEvent(event))
+        action_map.update(window);
+        if (action_map.isActive(Inputs::Quit))
         {
-            if (event.type == sf::Event::Closed)
-            {
-                window.close();
-            }
+            window.close();
         }
 
         /*
          *  Update logic
          */
-        screen_manager.update(frame_clock.restart(), window);
+        screen_manager.update(frame_clock.restart(), window, action_map);
 
         /*
          *  Draw

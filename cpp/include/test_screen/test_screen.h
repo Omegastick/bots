@@ -18,7 +18,7 @@ class TestScreen : public IScreen
     ~TestScreen();
 
     void draw(sf::RenderTarget &render_target);
-    void update(const sf::Time &delta_time, const sf::Vector2f &mouse_position);
+    void update(const sf::Time &delta_time, const sf::Vector2f &mouse_position, const thor::ActionMap<Inputs> &action_map);
 
   private:
     std::shared_ptr<Communicator> communicator;
