@@ -1,5 +1,5 @@
-
 #include "test_screen/test_env.h"
+#include "gui/colors.h"
 
 namespace SingularityTrainer
 {
@@ -110,7 +110,7 @@ void TestEnv::start_thread()
 void TestEnv::draw(sf::RenderTarget &render_target)
 {
     // Draw onto temporary texture
-    render_texture.clear();
+    render_texture.clear(cl_background);
     bot->draw(render_texture);
     for (auto &wall : walls)
     {

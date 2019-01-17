@@ -4,6 +4,7 @@
 #include <string>
 #include <vector>
 
+#include "gui/colors.h"
 #include "test_screen/wall.h"
 
 namespace SingularityTrainer
@@ -13,6 +14,7 @@ Wall::Wall(float x, float y, float width, float height, b2World &world)
     // Shape
     shape.setSize(sf::Vector2f(width, height));
     shape.setPosition(x, y);
+    shape.setFillColor(cl_white);
 
     // Rigidbody
     b2PolygonShape rigid_body_shape;

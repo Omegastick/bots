@@ -1,4 +1,5 @@
 #include "test_screen/target.h"
+#include "gui/colors.h"
 
 namespace SingularityTrainer
 {
@@ -10,7 +11,7 @@ Target::Target(float x, float y, b2World &world, TestEnv &env) : environment(env
     rigid_body = std::make_unique<RigidBody>(b2_staticBody, b2Vec2(x, y), world, rigid_body_shape, this, RigidBody::ParentTypes::Target);
 
     // Sprite
-    shape.setFillColor(sf::Color::White);
+    shape.setFillColor(cl_white);
     shape.setRadius(0.5);
     shape.setOrigin(0.5, 0.5);
     shape.setPosition(x, y);

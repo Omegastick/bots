@@ -2,6 +2,7 @@
 #include <iostream>
 
 #include "gui/gui_panel.h"
+#include "gui/colors.h"
 
 namespace SingularityTrainer
 {
@@ -9,7 +10,7 @@ GUIPanel::GUIPanel(float x, float y, float width, float height) : mouse_over(fal
 {
     shape.setPosition(x, y);
     shape.setSize(sf::Vector2f(width, height));
-    shape.setFillColor(sf::Color::Red);
+    shape.setFillColor(cl_dark_neutral);
 }
 
 GUIPanel::~GUIPanel() {}
@@ -21,7 +22,7 @@ void GUIPanel::handle_input(const sf::Vector2f &mouse_position, const thor::Acti
         if (!mouse_over)
         {
             mouse_over = true;
-            shape.setFillColor(sf::Color::Cyan);
+            shape.setFillColor(cl_light_neutral);
         }
 
         for (auto child : children)
@@ -34,7 +35,7 @@ void GUIPanel::handle_input(const sf::Vector2f &mouse_position, const thor::Acti
         if (mouse_over)
         {
             mouse_over = false;
-            shape.setFillColor(sf::Color::Red);
+            shape.setFillColor(cl_dark_neutral);
         }
     }
 }

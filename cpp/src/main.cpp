@@ -4,6 +4,7 @@
 
 #include "communicator.h"
 #include "gui/input.h"
+#include "gui/colors.h"
 #include "requests.h"
 #include "screen_manager.h"
 #include "test_screen/test_screen.h"
@@ -37,7 +38,7 @@ int main(int argc, const char *argv[])
     while (window.isOpen())
     {
         /*
-         *  Process events
+         *  Input
          */
         action_map.update(window);
         if (action_map.isActive(Inputs::Quit))
@@ -45,24 +46,23 @@ int main(int argc, const char *argv[])
             while (screen_manager.stack_size() > 0)
             {
                 screen_manager.close_screen();
-                std::cout << screen_manager.stack_size() << std::endl;;
+                std::cout << screen_manager.stack_size() << std::endl;
+                ;
             }
             window.close();
             break;
         }
 
         /*
-         *  Update logic
+         *  Update
          */
         screen_manager.update(frame_clock.restart(), window, action_map);
 
         /*
          *  Draw
          */
-        window.clear(sf::Color::Black);
-
+        window.clear(cl_background);
         screen_manager.draw(window);
-
         window.display();
     }
 

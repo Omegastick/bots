@@ -1,5 +1,6 @@
 #include "test_screen/bot.h"
 #include "test_screen/rigid_body.h"
+#include "gui/colors.h"
 
 inline float rad_to_deg(float radians)
 {
@@ -14,6 +15,7 @@ Bot::Bot(const std::shared_ptr<ResourceManager> resource_manager, b2World &world
     sprite.setTexture(*resource_manager->texture_store.get("arrow"));
     sprite.setScale(0.0025, 0.0025);
     sprite.setOrigin(sprite.getLocalBounds().width / 2, sprite.getLocalBounds().height / 2);
+    sprite.setColor(cl_white);
 
     // Rigid body
     b2Vec2 vertices[3];
