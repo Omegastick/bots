@@ -14,10 +14,13 @@ class GUIPanel : IGUIObject
     GUIPanel(float x, float y, float width, float height);
     ~GUIPanel();
 
-    void handle_input(sf::RenderWindow &window);
+    void handle_input(const sf::Vector2f &mouse_position);
     void draw(sf::RenderTarget &render_target);
 
     sf::RectangleShape shape;
     std::vector<std::shared_ptr<IGUIObject>> children;
+
+  private:
+    bool mouse_over;
 };
 }

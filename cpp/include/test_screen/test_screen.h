@@ -3,11 +3,11 @@
 #include <SFML/Graphics.hpp>
 
 #include "communicator.h"
+#include "gui/gui_panel.h"
 #include "iscreen.h"
 #include "requests.h"
 #include "resource_manager.h"
 #include "test_screen/test_env.h"
-#include "gui/gui_panel.h"
 
 namespace SingularityTrainer
 {
@@ -18,7 +18,7 @@ class TestScreen : public IScreen
     ~TestScreen();
 
     void draw(sf::RenderTarget &render_target);
-    void update(const sf::Time &delta_time, sf::RenderWindow &window);
+    void update(const sf::Time &delta_time, const sf::Vector2f &mouse_position);
 
   private:
     std::shared_ptr<Communicator> communicator;

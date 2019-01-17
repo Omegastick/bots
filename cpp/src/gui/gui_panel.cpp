@@ -5,7 +5,7 @@
 
 namespace SingularityTrainer
 {
-GUIPanel::GUIPanel(float x, float y, float width, float height)
+GUIPanel::GUIPanel(float x, float y, float width, float height) : mouse_over(false)
 {
     shape.setPosition(x, y);
     shape.setSize(sf::Vector2f(width, height));
@@ -14,22 +14,29 @@ GUIPanel::GUIPanel(float x, float y, float width, float height)
 
 GUIPanel::~GUIPanel() {}
 
-void GUIPanel::handle_input(sf::RenderWindow &window)
+void GUIPanel::handle_input(const sf::Vector2f &mouse_position)
 {
-    sf::Vector2f mouse_position = window.mapPixelToCoords(sf::Mouse::getPosition(window));
     if (shape.getGlobalBounds().contains(mouse_position.x, mouse_position.y))
     {
-        shape.setFillColor(sf::Color::Cyan);
+        if (!mouse_over)
+        {
+            mouse_over = true;
+            shape.setFillColor(sf::Color::Cyan);
+        }
 
         for (auto child : children)
         {
-            child->handle_input(window);
+            child->handle_input(mouse_position);
         }
     }
-    // else
-    // {
-    //     shape.setFillColor(sf::Color::Red);
-    // }
+    else
+    {
+        if (mouse_over)
+        {
+            mouse_over = false;
+            shape.setFillColor(sf::Color::Red);
+        }
+    }
 }
 
 void GUIPanel::draw(sf::RenderTarget &render_target)

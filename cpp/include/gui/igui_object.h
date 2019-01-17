@@ -13,7 +13,7 @@ class IGUIObject : IDrawable
     IGUIObject(){};
     ~IGUIObject(){};
 
-    virtual void handle_input(sf::RenderWindow &window) = 0;
+    virtual void handle_input(const sf::Vector2f &mouse_position) = 0;
     virtual void draw(sf::RenderTarget &render_target) = 0;
 };
 }

@@ -13,6 +13,6 @@ class IScreen : IDrawable
     ~IScreen(){};
 
     virtual void draw(sf::RenderTarget &render_target) = 0;
-    virtual void update(const sf::Time &delta_time, sf::RenderWindow &window) = 0;
+    virtual void update(const sf::Time &delta_time, const sf::Vector2f &mouse_position) = 0;
 };
 }

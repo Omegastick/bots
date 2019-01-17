@@ -57,12 +57,12 @@ TestScreen::TestScreen(std::shared_ptr<ResourceManager> resource_manager, std::s
 
 TestScreen::~TestScreen(){};
 
-void TestScreen::update(const sf::Time &delta_time, sf::RenderWindow &window)
+void TestScreen::update(const sf::Time &delta_time, const sf::Vector2f &mouse_position)
 {
     // If waiting for a model update, only update the GUI
     if (waiting_for_server)
     {
-        panel.handle_input(window);
+        panel.handle_input(mouse_position);
         return;
     }
     // Otherwise update the environments too
@@ -79,7 +79,7 @@ void TestScreen::update(const sf::Time &delta_time, sf::RenderWindow &window)
         fast_update();
     }
 
-    panel.handle_input(window);
+    panel.handle_input(mouse_position);
 }
 
 void TestScreen::draw(sf::RenderTarget &render_target)
@@ -127,7 +127,7 @@ void TestScreen::slow_update(bool action_frame)
 void TestScreen::action_update()
 {
     action_frame_counter++;
-    
+
     // Get actions from training server
     std::shared_ptr<GetActionsParam> get_actions_param = std::make_shared<GetActionsParam>();
     get_actions_param->inputs = observations;
