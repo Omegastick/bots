@@ -1,4 +1,5 @@
 #include <Thor/Time.hpp>
+#include <Thor/Vectors.hpp>
 #include <future>
 
 #include "test_screen/test_screen.h"
@@ -71,12 +72,25 @@ TestScreen::~TestScreen()
     communicator->get_response<EndSessionResult>();
 };
 
+sf::Vector2f radial_distort(sf::Vector2f coordinate)
+{
+    sf::Vector2f scaled_coordinate(coordinate.x / 1920, coordinate.y / 1080);
+    sf::Vector2f cc = sf::Vector2f(scaled_coordinate.x - 0.5, scaled_coordinate.y - 0.5);
+    float distortion = thor::dotProduct(cc, cc) * 0.03;
+    float distortion_mul = (1.0 + distortion) * distortion;
+    float distorted_x = scaled_coordinate.x + cc.x * (1.0 + distortion) * distortion;
+    float distorted_y = scaled_coordinate.y + cc.y * (1.0 + distortion) * distortion;
+    return sf::Vector2f(distorted_x * 1920, distorted_y * 1080);
+}
+
 void TestScreen::update(const sf::Time &delta_time, const sf::Vector2f &mouse_position, const thor::ActionMap<Inputs> &action_map)
 {
+    sf::Vector2f distorted_mouse_position = radial_distort(mouse_position);
+
     // If waiting for a model update, only update the GUI
     if (waiting_for_server)
     {
-        panel.handle_input(mouse_position, action_map);
+        panel.handle_input(distorted_mouse_position, action_map);
         return;
     }
     // Otherwise update the environments too
@@ -93,7 +107,7 @@ void TestScreen::update(const sf::Time &delta_time, const sf::Vector2f &mouse_po
         fast_update();
     }
 
-    panel.handle_input(mouse_position, action_map);
+    panel.handle_input(distorted_mouse_position, action_map);
 }
 
 void TestScreen::draw(sf::RenderTarget &render_target)
