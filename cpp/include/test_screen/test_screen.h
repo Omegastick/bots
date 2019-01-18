@@ -29,6 +29,8 @@ class TestScreen : public IScreen
     std::atomic<bool> waiting_for_server;
     std::future<std::unique_ptr<Response<GiveRewardsResult>>> model_update_finished;
     GUIPanel panel;
+    sf::RenderTexture texture;
+    sf::Shader shader;
 
     void fast_update();
     void slow_update(bool action_frame);

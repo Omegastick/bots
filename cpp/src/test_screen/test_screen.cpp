@@ -2,6 +2,7 @@
 #include <future>
 
 #include "test_screen/test_screen.h"
+#include "gui/colors.h"
 
 namespace SingularityTrainer
 {
@@ -53,6 +54,12 @@ TestScreen::TestScreen(std::shared_ptr<ResourceManager> resource_manager, std::s
     Request<BeginSessionParam> begin_session_request("begin_session", begin_session_param, 1);
     communicator->send_request<BeginSessionParam>(begin_session_request);
     communicator->get_response<BeginSessionResult>();
+
+    // Graphics
+    texture.create(1920, 1080);
+    shader.loadFromFile("./cpp/assets/shaders/crt.frag", sf::Shader::Fragment);
+    shader.setUniform("texture", sf::Shader::CurrentTexture);
+    shader.setUniform("resolution", sf::Vector2f(1440, 810));
 }
 
 TestScreen::~TestScreen()
@@ -91,8 +98,13 @@ void TestScreen::update(const sf::Time &delta_time, const sf::Vector2f &mouse_po
 
 void TestScreen::draw(sf::RenderTarget &render_target)
 {
-    environments[0]->draw(render_target);
-    panel.draw(render_target);
+    texture.clear(cl_background);
+
+    environments[0]->draw(texture);
+    panel.draw(texture);
+
+    texture.display();
+    render_target.draw(sf::Sprite(texture.getTexture()), &shader);
 }
 
 void TestScreen::fast_update()
