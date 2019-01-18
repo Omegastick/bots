@@ -60,7 +60,10 @@ TestScreen::TestScreen(std::shared_ptr<ResourceManager> resource_manager, std::s
     texture.create(1920, 1080);
     shader.loadFromFile("./cpp/assets/shaders/crt.frag", sf::Shader::Fragment);
     shader.setUniform("texture", sf::Shader::CurrentTexture);
-    shader.setUniform("resolution", sf::Vector2f(1440, 810));
+    shader.setUniform("texture_resolution", sf::Vector2f(1920, 1080));
+    shader.setUniform("screen_resolution", sf::Vector2f(2880, 1620));
+    shader.setUniform("output_gamma", 1.1f);
+    shader.setUniform("strength", 0.6f);
 }
 
 TestScreen::~TestScreen()

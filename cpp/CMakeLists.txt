@@ -16,6 +16,10 @@ find_package(SFML 2.5 REQUIRED audio graphics window system)
 find_package(cppzmq)
 find_package(Box2D)
 target_link_libraries(SingularityTrainer sfml-graphics sfml-window sfml-system cppzmq Box2D thor)
+if (UNIX)
+    # UNIX systems sometimes need to explicitly link the threading library
+    target_link_libraries(SingularityTrainer pthread)
+endif()
 
 # Inlcudes
 target_include_directories(SingularityTrainer PUBLIC include)
