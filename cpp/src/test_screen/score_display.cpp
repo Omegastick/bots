@@ -5,6 +5,7 @@
 #include "idrawable.h"
 #include "resource_manager.h"
 #include "test_screen/score_display.h"
+#include "gui/colors.h"
 
 namespace SingularityTrainer
 {
@@ -12,7 +13,7 @@ ScoreDisplay::ScoreDisplay(float x, float y, float smoothing_weight, ResourceMan
     : smoothing_weight(smoothing_weight), running_score(0)
 {
     resource_manager.load_font("hack", "cpp/assets/fonts/RobotoCondensed-Regular.ttf");
-    text.setFillColor(sf::Color::White);
+    text.setFillColor(cl_white);
     text.setPosition(x, y);
     text.setFont(*resource_manager.font_store.get("hack"));
     text.setCharacterSize(100);

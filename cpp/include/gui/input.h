@@ -6,6 +6,7 @@ enum Inputs
 {
     LeftClick,
     RightClick,
-    Quit
+    Quit,
+    ResizeWindow
 };
 }

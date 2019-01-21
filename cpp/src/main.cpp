@@ -3,13 +3,46 @@
 #include <Thor/Input.hpp>
 
 #include "communicator.h"
-#include "gui/input.h"
 #include "gui/colors.h"
+#include "gui/input.h"
 #include "requests.h"
 #include "screen_manager.h"
 #include "test_screen/test_screen.h"
 
 using namespace SingularityTrainer;
+
+void on_window_resize(thor::ActionContext<Inputs> context)
+{
+    sf::RenderWindow *window = static_cast<sf::RenderWindow *>(context.window);
+    sf::View view = window->getView();
+    sf::Vector2u window_size = context.window->getSize();
+
+    float window_ratio = window_size.x / (float)window_size.y;
+    float view_ratio = view.getSize().x / (float)view.getSize().y;
+    float size_x = 1;
+    float size_y = 1;
+    float pos_x = 0;
+    float pos_y = 0;
+
+    bool horizontal_spacing = true;
+    if (window_ratio < view_ratio)
+        horizontal_spacing = false;
+
+    if (horizontal_spacing)
+    {
+        size_x = view_ratio / window_ratio;
+        pos_x = (1 - size_x) / 2.f;
+    }
+    else
+    {
+        size_y = window_ratio / view_ratio;
+        pos_y = (1 - size_y) / 2.f;
+    }
+
+    view.setViewport(sf::FloatRect(pos_x, pos_y, size_x, size_y));
+
+    window->setView(view);
+}
 
 int main(int argc, const char *argv[])
 {
@@ -23,6 +56,9 @@ int main(int argc, const char *argv[])
 
     thor::ActionMap<Inputs> action_map;
     action_map[Inputs::Quit] = thor::Action(sf::Event::Closed);
+    action_map[Inputs::ResizeWindow] = thor::Action(sf::Event::Resized);
+    thor::ActionMap<Inputs>::CallbackSystem input_callback_system;
+    input_callback_system.connect(Inputs::ResizeWindow, std::function<void(thor::ActionContext<Inputs>)>(on_window_resize));
 
     ScreenManager screen_manager;
     std::shared_ptr<ResourceManager> resource_manager = std::make_shared<ResourceManager>();
@@ -38,6 +74,7 @@ int main(int argc, const char *argv[])
          *  Input
          */
         action_map.update(window);
+        action_map.invokeCallbacks(input_callback_system, &window);
         if (action_map.isActive(Inputs::Quit))
         {
             while (screen_manager.stack_size() > 0)
