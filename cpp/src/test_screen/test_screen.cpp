@@ -61,9 +61,9 @@ TestScreen::TestScreen(std::shared_ptr<ResourceManager> resource_manager, std::s
     shader.loadFromFile("./cpp/assets/shaders/crt.frag", sf::Shader::Fragment);
     shader.setUniform("texture", sf::Shader::CurrentTexture);
     shader.setUniform("texture_resolution", sf::Vector2f(1920, 1080));
-    shader.setUniform("screen_resolution", sf::Vector2f(2880, 1620));
+    shader.setUniform("screen_resolution", sf::Vector2f(1440, 810));
     shader.setUniform("output_gamma", 1.1f);
-    shader.setUniform("strength", 0.6f);
+    shader.setUniform("strength", 0.3f);
 }
 
 TestScreen::~TestScreen()
@@ -79,7 +79,7 @@ sf::Vector2f radial_distort(sf::Vector2f coordinate)
 {
     sf::Vector2f scaled_coordinate(coordinate.x / 1920, coordinate.y / 1080);
     sf::Vector2f cc = sf::Vector2f(scaled_coordinate.x - 0.5, scaled_coordinate.y - 0.5);
-    float distortion = thor::dotProduct(cc, cc) * 0.03;
+    float distortion = thor::dotProduct(cc, cc) * 0.08;
     float distortion_mul = (1.0 + distortion) * distortion;
     float distorted_x = scaled_coordinate.x + cc.x * (1.0 + distortion) * distortion;
     float distorted_y = scaled_coordinate.y + cc.y * (1.0 + distortion) * distortion;

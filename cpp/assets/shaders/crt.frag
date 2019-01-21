@@ -9,7 +9,7 @@ uniform vec2 texture_resolution;
 uniform float output_gamma;
 uniform float strength;
 
-#define distortion_factor 0.03;
+#define distortion_factor 0.08;
 
 vec2 distort(vec2 xy)
 {
@@ -33,7 +33,7 @@ void main() {
     vec2 uv_ratio = fract(ratio_scale);
 
     vec4 color = texture2D(texture, xy);
-    vec4 color_2 = texture2D(texture, xy + vec2(0.0, 1. / screen_resolution.y));
+    vec4 color_2 = texture2D(texture, xy + vec2(0.0, 1. / texture_resolution.y));
 
     vec4 weights = scanline_weights(uv_ratio.y, color);
     vec4 weights_2 = scanline_weights(1. - uv_ratio.y, color_2);
@@ -42,7 +42,7 @@ void main() {
     vec3 dot_mask = mix(
         vec3(1.0, 0.9, 1.0),
         vec3(0.9, 1.0, 0.9),
-        floor(mod(xy.x * screen_resolution.x * aspect_ratio, 2.0))
+        floor(mod(xy.x * texture_resolution.x * aspect_ratio, 2.0))
     );
     
     distorted_color *= dot_mask;
