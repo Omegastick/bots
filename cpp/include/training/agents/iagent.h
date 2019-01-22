@@ -11,6 +11,7 @@ namespace SingularityTrainer
 {
 class IAgent : IDrawable
 {
+  public:
     virtual void act(std::vector<int> actions) = 0;
     virtual std::vector<float> get_observation() = 0;
 
