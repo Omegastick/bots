@@ -1,3 +1,5 @@
+#include <vector>
+
 #include "training/actions/shoot_action.h"
 #include "training/modules/interfaces/ishootable.h"
 

@@ -5,7 +5,7 @@
 
 namespace SingularityTrainer
 {
-class ShootAction : IAction
+class ShootAction : public IAction
 {
   public:
     ShootAction(IShootable &module);

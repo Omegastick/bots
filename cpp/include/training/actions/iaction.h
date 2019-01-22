@@ -9,8 +9,11 @@ namespace SingularityTrainer
 class IAction
 {
   public:
-    int flag_count;
+    IAction(){};
+    ~IAction(){};
 
     virtual void act(std::vector<int> flags) = 0;
+
+    int flag_count;
 };
 }

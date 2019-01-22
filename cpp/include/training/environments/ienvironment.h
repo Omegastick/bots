@@ -19,6 +19,9 @@ struct StepInfo
 class IEnvironment : IDrawable
 {
   public:
+    IEnvironment(){};
+    ~IEnvironment(){};
+
     virtual void start_thread() = 0;
     virtual std::future<std::unique_ptr<StepInfo>> step(std::vector<int> actions, float step_length) = 0;
     virtual void forward(float step_length) = 0;
