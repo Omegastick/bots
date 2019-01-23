@@ -14,14 +14,14 @@ namespace SingularityTrainer
 class TestScreen : public IScreen
 {
   public:
-    TestScreen(std::shared_ptr<ResourceManager> resource_manager, std::shared_ptr<Communicator> communicator, int env_count);
+    TestScreen(ResourceManager &resource_manager, Communicator *communicator, int env_count);
     ~TestScreen();
 
     void draw(sf::RenderTarget &render_target);
     void update(const sf::Time &delta_time, const sf::Vector2f &mouse_position, const thor::ActionMap<Inputs> &action_map);
 
   private:
-    std::shared_ptr<Communicator> communicator;
+    Communicator *communicator;
     std::vector<std::unique_ptr<TestEnv>> environments;
     std::vector<std::vector<float>> observations;
     int frame_counter;

@@ -9,10 +9,10 @@ inline float rad_to_deg(float radians)
 
 namespace SingularityTrainer
 {
-Bot::Bot(const std::shared_ptr<ResourceManager> resource_manager, b2World &world)
+Bot::Bot(ResourceManager &resource_manager, b2World &world)
 {
     // Sprite
-    sprite.setTexture(*resource_manager->texture_store.get("arrow"));
+    sprite.setTexture(*resource_manager.texture_store.get("arrow"));
     sprite.setScale(0.0025, 0.0025);
     sprite.setOrigin(sprite.getLocalBounds().width / 2, sprite.getLocalBounds().height / 2);
     sprite.setColor(cl_white);

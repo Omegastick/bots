@@ -61,13 +61,13 @@ class ContactListener : public b2ContactListener
     }
 };
 
-TestEnv::TestEnv(std::shared_ptr<ResourceManager> resource_manager, float x, float y, float scale, int max_steps)
+TestEnv::TestEnv(ResourceManager &resource_manager, float x, float y, float scale, int max_steps)
     : max_steps(max_steps),
       command_queue_flag(0),
       reward(0),
       step_counter(0),
       done(false),
-      score_display(-4.8, -4.8, 0.999, *resource_manager)
+      score_display(-4.8, -4.8, 0.999, resource_manager)
 {
     // Box2D world
     world = std::make_unique<b2World>(b2Vec2(0, 0));

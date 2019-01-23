@@ -4,8 +4,13 @@
 
 namespace SingularityTrainer
 {
+ResourceManager::ResourceManager(std::string path_to_assets_folder) : base_path(path_to_assets_folder) {}
+ResourceManager::~ResourceManager() {}
+
 void ResourceManager::load_texture(const std::string &id, const std::string &path)
 {
+    std::string full_path = base_path + path;
+
     if (texture_store.check_exists(id))
     {
         return;
@@ -13,7 +18,7 @@ void ResourceManager::load_texture(const std::string &id, const std::string &pat
 
     std::shared_ptr<sf::Texture> texture = std::make_shared<sf::Texture>();
 
-    if (!texture->loadFromFile(path))
+    if (!texture->loadFromFile(full_path))
     {
         return;
     }
@@ -23,6 +28,8 @@ void ResourceManager::load_texture(const std::string &id, const std::string &pat
 
 void ResourceManager::load_font(const std::string &id, const std::string &path)
 {
+    std::string full_path = base_path + path;
+
     if (font_store.check_exists(id))
     {
         return;
@@ -30,7 +37,7 @@ void ResourceManager::load_font(const std::string &id, const std::string &path)
 
     std::shared_ptr<sf::Font> font = std::make_shared<sf::Font>();
 
-    if (!font->loadFromFile(path))
+    if (!font->loadFromFile(full_path))
     {
         return;
     }

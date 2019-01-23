@@ -18,7 +18,7 @@ namespace SingularityTrainer
 class Bot : public IDrawable, public ICollidable
 {
   public:
-    Bot(const std::shared_ptr<ResourceManager> resource_manager, b2World &world);
+    Bot(ResourceManager &resource_manager, b2World &world);
     ~Bot();
 
     void act(std::vector<int> &actions);

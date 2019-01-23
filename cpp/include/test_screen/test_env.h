@@ -29,7 +29,7 @@ struct StepInfo
 class TestEnv : IDrawable
 {
   public:
-    TestEnv(std::shared_ptr<ResourceManager> resource_manager, float x, float y, float scale, int max_steps);
+    TestEnv(ResourceManager &resource_manager, float x, float y, float scale, int max_steps);
     ~TestEnv();
 
     void start_thread();

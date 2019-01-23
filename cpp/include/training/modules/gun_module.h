@@ -5,6 +5,7 @@
 #include <memory>
 #include <vector>
 
+#include "resource_manager.h"
 #include "training/actions/iaction.h"
 #include "training/modules/imodule.h"
 #include "training/modules/interfaces/ishootable.h"
@@ -14,13 +15,9 @@ namespace SingularityTrainer
 class GunModule : public IModule, public IShootable
 {
   public:
-    GunModule();
+    GunModule(ResourceManager &resource_manager, b2Body &body);
     ~GunModule();
 
-    virtual std::vector<IModule *> get_children();
-    virtual void act(std::vector<int> actions);
-    virtual std::vector<float> get_sensor_reading();
-    virtual void draw(sf::RenderTarget &render_target);
     virtual void shoot();
 
   private:

@@ -61,10 +61,10 @@ int main(int argc, const char *argv[])
     input_callback_system.connect(Inputs::ResizeWindow, std::function<void(thor::ActionContext<Inputs>)>(on_window_resize));
 
     ScreenManager screen_manager;
-    std::shared_ptr<ResourceManager> resource_manager = std::make_shared<ResourceManager>();
-    std::shared_ptr<Communicator> communicator = std::make_shared<Communicator>("tcp://127.0.0.1:10201");
+    ResourceManager resource_manager = ResourceManager("cpp/assets/");
+    std::unique_ptr<Communicator> communicator = std::make_unique<Communicator>("tcp://127.0.0.1:10201");
 
-    std::shared_ptr<TestScreen> test_screen = std::make_shared<TestScreen>(resource_manager, communicator, 7);
+    std::shared_ptr<TestScreen> test_screen = std::make_shared<TestScreen>(resource_manager, communicator.get(), 7);
     screen_manager.show_screen(test_screen);
 
     frame_clock.restart();

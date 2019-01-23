@@ -7,11 +7,11 @@
 
 namespace SingularityTrainer
 {
-TestScreen::TestScreen(std::shared_ptr<ResourceManager> resource_manager, std::shared_ptr<Communicator> communicator, int env_count)
+TestScreen::TestScreen(ResourceManager &resource_manager, Communicator *communicator, int env_count)
     : frame_counter(0), action_frame_counter(0), panel(100, 200, 100, 200), waiting_for_server(false)
 {
     this->communicator = communicator;
-    resource_manager->load_texture("arrow", "cpp/assets/images/Arrow.png");
+    resource_manager.load_texture("arrow", "images/Arrow.png");
     for (int i = 0; i < env_count; ++i)
     {
         environments.push_back(std::make_unique<TestEnv>(resource_manager, 460, 40, 1, 100));
