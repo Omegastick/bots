@@ -3,18 +3,18 @@
 #include <vector>
 
 #include "resource_manager.h"
-#include "training/actions/shoot_action.h"
-#include "training/modules/gun_module.h"
+#include "training/modules/base_module.h"
 #include "training/modules/imodule.h"
+#include "training/modules/module_link.h"
 
 namespace SingularityTrainer
 {
-GunModule::GunModule(ResourceManager &resource_manager, b2Body &body) : cooldown(5), steps_since_last_shot(0)
+BaseModule::BaseModule(ResourceManager &resource_manager, b2Body &body)
 {
     // Sprite
-    resource_manager.load_texture("gun_module", "images/modules/gun_module.png");
+    resource_manager.load_texture("base_module", "images/modules/base_module.png");
     sprite.setScale(0.01, 0.01);
-    sprite.setTexture(*resource_manager.texture_store.get("gun_module"));
+    sprite.setTexture(*resource_manager.texture_store.get("base_module"));
     sprite.setOrigin(0.5, 0.5);
 
     // Box2D fixture
@@ -28,8 +28,6 @@ GunModule::GunModule(ResourceManager &resource_manager, b2Body &body) : cooldown
     module_links.push_back(ModuleLink(0.5, 0, 90));
     module_links.push_back(ModuleLink(0, -0.5, 180));
 
-    actions.push_back(std::make_unique<ShootAction>(this));
+    root = this;
 }
-
-void GunModule::shoot() {}
 }

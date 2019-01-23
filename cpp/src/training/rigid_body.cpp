@@ -1,6 +1,6 @@
 #include <Box2D/Box2D.h>
 
-#include "test_screen/rigid_body.h"
+#include "training/rigid_body.h"
 
 namespace SingularityTrainer
 {

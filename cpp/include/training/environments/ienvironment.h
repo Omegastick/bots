@@ -16,6 +16,22 @@ struct StepInfo
     bool done;
 };
 
+enum Commands
+{
+    Step,
+    Forward,
+    Reset,
+    Quit
+};
+
+struct ThreadCommand
+{
+    Commands command;
+    std::promise<std::unique_ptr<StepInfo>> promise;
+    float step_length;
+    std::vector<int> actions;
+};
+
 class IEnvironment : IDrawable
 {
   public:

@@ -11,7 +11,7 @@
 #include "idrawable.h"
 #include "resource_manager.h"
 #include "test_screen/icollidable.h"
-#include "test_screen/rigid_body.h"
+#include "training/rigid_body.h"
 
 namespace SingularityTrainer
 {

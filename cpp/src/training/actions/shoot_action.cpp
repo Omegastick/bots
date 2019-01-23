@@ -5,7 +5,7 @@
 
 namespace SingularityTrainer
 {
-ShootAction::ShootAction(IShootable &module) : module(module)
+ShootAction::ShootAction(IShootable *module) : module(module)
 {
     flag_count = 1;
 }
@@ -15,7 +15,7 @@ void ShootAction::act(std::vector<int> flags)
 {
     if (flags[0] == 1)
     {
-        module.shoot();
+        module->shoot();
     }
 }
 }

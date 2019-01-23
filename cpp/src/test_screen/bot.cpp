@@ -1,5 +1,5 @@
 #include "test_screen/bot.h"
-#include "test_screen/rigid_body.h"
+#include "training/rigid_body.h"
 #include "gui/colors.h"
 
 inline float rad_to_deg(float radians)

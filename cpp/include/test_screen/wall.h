@@ -4,7 +4,7 @@
 #include <SFML/Graphics.hpp>
 
 #include "idrawable.h"
-#include "test_screen/rigid_body.h"
+#include "training/rigid_body.h"
 
 namespace SingularityTrainer
 {
