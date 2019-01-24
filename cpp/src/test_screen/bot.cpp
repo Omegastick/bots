@@ -18,13 +18,18 @@ Bot::Bot(ResourceManager &resource_manager, b2World &world)
     sprite.setColor(cl_white);
 
     // Rigid body
+    rigid_body = std::make_unique<RigidBody>(b2_dynamicBody, b2Vec2_zero, world, this, RigidBody::ParentTypes::Bot);
     b2Vec2 vertices[3];
     vertices[0].Set(0, -0.7);
     vertices[1].Set(0.49, 0.74);
     vertices[2].Set(-0.49, 0.74);
     b2PolygonShape shape;
     shape.Set(vertices, 3);
-    rigid_body = std::make_unique<RigidBody>(b2_dynamicBody, b2Vec2_zero, world, shape, this, RigidBody::ParentTypes::Bot);
+    b2FixtureDef fixture_def;
+    fixture_def.density = 1;
+    fixture_def.friction = 1;
+    fixture_def.shape = &shape;
+    rigid_body->body->CreateFixture(&fixture_def);
 }
 
 Bot::~Bot() {}

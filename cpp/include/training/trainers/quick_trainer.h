@@ -1,24 +1,31 @@
 #pragma once
 
+#include <memory>
+#include <vector>
+
 #include "communicator.h"
+#include "resource_manager.h"
 #include "training/trainers/itrainer.h"
+#include "training/environments/ienvironment.h"
 
 namespace SingularityTrainer
 {
-class QuickTrainer : ITrainer
+class QuickTrainer : public ITrainer
 {
   public:
-    QuickTrainer(Communicator &communicator);
+    QuickTrainer(ResourceManager &resource_manager, Communicator *communicator, int env_count);
     ~QuickTrainer();
 
     virtual void begin_training();
     virtual void end_training();
     virtual void save_model();
     virtual void step();
-
-    std::vector<std::unique_ptr<IEnvironment>> environments;
+    virtual void slow_step();
 
   private:
-    Communicator &communicator;
+    Communicator *communicator;
+    bool waiting_for_server;
+    std::vector<std::vector<float>> observations;
+    int env_count;
 };
 }

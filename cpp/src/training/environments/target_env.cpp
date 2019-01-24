@@ -6,7 +6,7 @@
 #include "gui/colors.h"
 #include "training/environments/target_env.h"
 #include "training/rigid_body.h"
-#include "training/agents/iagent.h"
+#include "training/agents/test_agent.h"
 
 namespace SingularityTrainer
 {
@@ -80,8 +80,8 @@ TargetEnv::TargetEnv(ResourceManager &resource_manager, float x, float y, float 
     contact_listener = std::make_unique<ContactListener>();
     world->SetContactListener(contact_listener.get());
 
-    // // Bot
-    // agent = std::make_unique<Bot>(resource_manager, *world);
+    // Agent
+    agent = std::make_unique<TestAgent>(resource_manager, *world);
 
     // // Target
     // target = std::make_unique<Target>(4, 4, *world, *this);
@@ -102,7 +102,7 @@ TargetEnv::TargetEnv(ResourceManager &resource_manager, float x, float y, float 
 
 TargetEnv::~TargetEnv()
 {
-    ThreadCommand command{Commands::Quit};
+    ThreadCommand command{Commands::Stop};
     command_queue.emplace(std::move(command));
     command_queue_flag++;
     thread->join();
@@ -118,10 +118,10 @@ void TargetEnv::draw(sf::RenderTarget &render_target)
     // Draw onto temporary texture
     render_texture.clear(cl_background);
     agent->draw(render_texture);
-    for (auto &wall : walls)
-    {
-        wall->draw(render_texture);
-    }
+    // for (auto &wall : walls)
+    // {
+    //     wall->draw(render_texture);
+    // }
     // target->draw(render_texture);
     render_texture.display();
 
@@ -182,7 +182,7 @@ void TargetEnv::thread_loop()
         std::unique_ptr<StepInfo> step_info = std::make_unique<StepInfo>();
         switch (command.command)
         {
-        case Commands::Quit:
+        case Commands::Stop:
             quit = true;
             break;
         case Commands::Step:

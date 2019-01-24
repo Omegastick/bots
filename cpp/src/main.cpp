@@ -7,6 +7,7 @@
 #include "gui/input.h"
 #include "requests.h"
 #include "screen_manager.h"
+#include "screens/target_env_screen.h"
 #include "test_screen/test_screen.h"
 
 using namespace SingularityTrainer;
@@ -64,7 +65,8 @@ int main(int argc, const char *argv[])
     ResourceManager resource_manager = ResourceManager("cpp/assets/");
     std::unique_ptr<Communicator> communicator = std::make_unique<Communicator>("tcp://127.0.0.1:10201");
 
-    std::shared_ptr<TestScreen> test_screen = std::make_shared<TestScreen>(resource_manager, communicator.get(), 7);
+    std::shared_ptr<TargetEnvScreen> test_screen = std::make_shared<TargetEnvScreen>(resource_manager, communicator.get(), 7);
+    // std::shared_ptr<TestScreen> test_screen = std::make_shared<TestScreen>(resource_manager, communicator.get(), 7);
     screen_manager.show_screen(test_screen);
 
     frame_clock.restart();

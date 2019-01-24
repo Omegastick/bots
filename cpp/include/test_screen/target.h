@@ -7,9 +7,9 @@
 
 #include "idrawable.h"
 #include "test_screen/bot.h"
-#include "test_screen/icollidable.h"
-#include "training/rigid_body.h"
 #include "test_screen/test_env.h"
+#include "training/icollidable.h"
+#include "training/rigid_body.h"
 
 namespace SingularityTrainer
 {

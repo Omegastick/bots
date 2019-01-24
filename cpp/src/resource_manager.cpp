@@ -44,4 +44,23 @@ void ResourceManager::load_font(const std::string &id, const std::string &path)
 
     font_store.add(id, font);
 };
+
+void ResourceManager::load_shader(const std::string &id, const std::string &path)
+{
+    std::string full_path = base_path + path;
+
+    if (shader_store.check_exists(id))
+    {
+        return;
+    }
+
+    std::shared_ptr<sf::Shader> shader = std::make_shared<sf::Shader>();
+
+    if (!shader->loadFromFile(full_path, sf::Shader::Fragment))
+    {
+        return;
+    }
+
+    shader_store.add(id, shader);
+};
 }

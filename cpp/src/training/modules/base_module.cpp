@@ -12,8 +12,9 @@ namespace SingularityTrainer
 BaseModule::BaseModule(ResourceManager &resource_manager, b2Body &body)
 {
     // Sprite
-    resource_manager.load_texture("base_module", "images/modules/base_module.png");
-    sprite.setScale(0.01, 0.01);
+    // resource_manager.load_texture("base_module", "images/base_module.png");
+    resource_manager.load_texture("base_module", "images/Arrow.png");
+    sprite.setScale(0.1, 0.1);
     sprite.setTexture(*resource_manager.texture_store.get("base_module"));
     sprite.setOrigin(0.5, 0.5);
 
@@ -30,4 +31,6 @@ BaseModule::BaseModule(ResourceManager &resource_manager, b2Body &body)
 
     root = this;
 }
+
+BaseModule::~BaseModule() {}
 }

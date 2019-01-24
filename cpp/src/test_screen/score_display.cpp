@@ -12,7 +12,7 @@ namespace SingularityTrainer
 ScoreDisplay::ScoreDisplay(float x, float y, float smoothing_weight, ResourceManager &resource_manager)
     : smoothing_weight(smoothing_weight), running_score(0)
 {
-    resource_manager.load_font("hack", "cpp/assets/fonts/RobotoCondensed-Regular.ttf");
+    resource_manager.load_font("hack", "fonts/RobotoCondensed-Regular.ttf");
     text.setFillColor(cl_white);
     text.setPosition(x, y);
     text.setFont(*resource_manager.font_store.get("hack"));

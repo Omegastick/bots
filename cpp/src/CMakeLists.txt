@@ -10,3 +10,4 @@ PUBLIC
 add_subdirectory(test_screen)
 add_subdirectory(gui)
 add_subdirectory(training)
+add_subdirectory(screens)

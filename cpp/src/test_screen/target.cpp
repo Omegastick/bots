@@ -6,9 +6,14 @@ namespace SingularityTrainer
 Target::Target(float x, float y, b2World &world, TestEnv &env) : environment(env)
 {
     // Rigid body
+    rigid_body = std::make_unique<RigidBody>(b2_staticBody, b2Vec2(x, y), world, this, RigidBody::ParentTypes::Target);
     b2CircleShape rigid_body_shape;
     rigid_body_shape.m_radius = 0.5;
-    rigid_body = std::make_unique<RigidBody>(b2_staticBody, b2Vec2(x, y), world, rigid_body_shape, this, RigidBody::ParentTypes::Target);
+    b2FixtureDef fixture_def;
+    fixture_def.density = 1;
+    fixture_def.friction = 1;
+    fixture_def.shape = &rigid_body_shape;
+    rigid_body->body->CreateFixture(&fixture_def);
 
     // Sprite
     shape.setFillColor(cl_white);

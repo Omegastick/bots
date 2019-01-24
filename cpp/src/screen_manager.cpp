@@ -1,6 +1,6 @@
 #include <SFML/Graphics.hpp>
-#include <stack>
 #include <memory>
+#include <stack>
 
 #include "iscreen.h"
 #include "screen_manager.h"
@@ -20,11 +20,13 @@ void ScreenManager::update(sf::Time delta_time, sf::RenderWindow &window, const 
     sf::Vector2f mouse_position = window.mapPixelToCoords(sf::Mouse::getPosition(window));
     screens.top()->update(delta_time, mouse_position, action_map);
 }
-int ScreenManager::stack_size() {
+int ScreenManager::stack_size()
+{
     return screens.size();
 }
 void ScreenManager::draw(sf::RenderTarget &render_target)
 {
+    render_target.clear(sf::Color::Blue);
     screens.top()->draw(render_target);
 }
 }

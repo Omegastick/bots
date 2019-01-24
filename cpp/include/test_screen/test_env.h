@@ -14,17 +14,11 @@
 #include "test_screen/target.h"
 #include "test_screen/wall.h"
 #include "test_screen/score_display.h"
+#include "training/environments/ienvironment.h"
 
 namespace SingularityTrainer
 {
 class Target;
-
-struct StepInfo
-{
-    std::vector<float> observation;
-    float reward;
-    bool done;
-};
 
 class TestEnv : IDrawable
 {

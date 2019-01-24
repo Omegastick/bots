@@ -21,7 +21,7 @@ enum Commands
     Step,
     Forward,
     Reset,
-    Quit
+    Stop
 };
 
 struct ThreadCommand
@@ -39,7 +39,7 @@ class IEnvironment : IDrawable
     ~IEnvironment(){};
 
     virtual void start_thread() = 0;
-    virtual std::future<std::unique_ptr<StepInfo>> step(std::vector<int> actions, float step_length) = 0;
+    virtual std::future<std::unique_ptr<StepInfo>> step(std::vector<int> &actions, float step_length) = 0;
     virtual void forward(float step_length) = 0;
     virtual std::future<std::unique_ptr<StepInfo>> reset() = 0;
     virtual void change_reward(float reward_delta) = 0;

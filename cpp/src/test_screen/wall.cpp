@@ -17,10 +17,15 @@ Wall::Wall(float x, float y, float width, float height, b2World &world)
     shape.setFillColor(cl_white);
 
     // Rigidbody
+    b2Vec2 position(x + (width / 2), y + (height / 2));
+    rigid_body = std::make_unique<RigidBody>(b2_staticBody, position, world, this, RigidBody::ParentTypes::Wall);
     b2PolygonShape rigid_body_shape;
     rigid_body_shape.SetAsBox(width / 2, height / 2);
-    b2Vec2 position(x + (width / 2), y + (height / 2));
-    rigid_body = std::make_unique<RigidBody>(b2_staticBody, position, world, rigid_body_shape, this, RigidBody::ParentTypes::Wall);
+    b2FixtureDef fixture_def;
+    fixture_def.density = 1;
+    fixture_def.friction = 1;
+    fixture_def.shape = &rigid_body_shape;
+    rigid_body->body->CreateFixture(&fixture_def);
 }
 
 Wall::~Wall() {}
