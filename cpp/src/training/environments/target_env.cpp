@@ -123,6 +123,7 @@ void TargetEnv::draw(sf::RenderTarget &render_target)
     //     wall->draw(render_texture);
     // }
     // target->draw(render_texture);
+
     render_texture.display();
 
     // Draw temporary tecture onto window

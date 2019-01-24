@@ -47,7 +47,6 @@ void TargetEnvScreen::draw(sf::RenderTarget &render_target)
     texture.clear(cl_background);
 
     trainer->environments[0]->draw(texture);
-    texture.draw(sf::RectangleShape(sf::Vector2f(10, 10)));
 
     texture.display();
     sf::Vector2u resolution = render_target.getSize();

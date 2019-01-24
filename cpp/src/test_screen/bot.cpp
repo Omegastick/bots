@@ -1,11 +1,7 @@
 #include "test_screen/bot.h"
 #include "training/rigid_body.h"
 #include "gui/colors.h"
-
-inline float rad_to_deg(float radians)
-{
-    return radians * (180.f / M_PI);
-}
+#include "utilities.h"
 
 namespace SingularityTrainer
 {

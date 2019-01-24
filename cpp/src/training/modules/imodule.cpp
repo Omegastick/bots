@@ -1,6 +1,7 @@
 #include <algorithm>
 
 #include "training/modules/imodule.h"
+#include "utilities.h"
 
 namespace SingularityTrainer
 {
@@ -36,8 +37,10 @@ void IModule::draw(sf::RenderTarget &render_target)
 
     b2PolygonShape *shape = (b2PolygonShape *)fixture->GetShape();
 
-    b2Vec2 position = b2Mul(transform, shape->m_centroid);
-    sprite.setPosition(position.x, position.y);
+    b2Vec2 world_position = b2Mul(transform, shape->m_centroid);
+    sf::Vector2f screen_position(world_position.x, world_position.y);
+    sprite.setPosition(screen_position);
+    sprite.setRotation(rad_to_deg(body->GetAngle()));
     render_target.draw(sprite);
 }
 }

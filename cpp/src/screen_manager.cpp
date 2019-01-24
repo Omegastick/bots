@@ -26,7 +26,6 @@ int ScreenManager::stack_size()
 }
 void ScreenManager::draw(sf::RenderTarget &render_target)
 {
-    render_target.clear(sf::Color::Blue);
     screens.top()->draw(render_target);
 }
 }

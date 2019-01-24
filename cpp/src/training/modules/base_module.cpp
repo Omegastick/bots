@@ -1,7 +1,9 @@
 #include <Box2D/Box2D.h>
+#include <SFML/Graphics.hpp>
 #include <memory>
 #include <vector>
 
+#include "gui/colors.h"
 #include "resource_manager.h"
 #include "training/modules/base_module.h"
 #include "training/modules/imodule.h"
@@ -12,11 +14,11 @@ namespace SingularityTrainer
 BaseModule::BaseModule(ResourceManager &resource_manager, b2Body &body)
 {
     // Sprite
-    // resource_manager.load_texture("base_module", "images/base_module.png");
-    resource_manager.load_texture("base_module", "images/Arrow.png");
-    sprite.setScale(0.1, 0.1);
+    resource_manager.load_texture("base_module", "images/base_module.png");
     sprite.setTexture(*resource_manager.texture_store.get("base_module"));
-    sprite.setOrigin(0.5, 0.5);
+    sprite.setScale(0.01, 0.01);
+    sprite.setOrigin(sprite.getLocalBounds().width / 2, sprite.getLocalBounds().height / 2);
+    sprite.setColor(cl_white);
 
     // Box2D fixture
     b2PolygonShape shape;
