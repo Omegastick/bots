@@ -15,16 +15,19 @@ TestAgent::TestAgent(ResourceManager &resource_manager, b2World &world)
     rigid_body = std::make_unique<RigidBody>(b2_dynamicBody, b2Vec2_zero, world, this, RigidBody::ParentTypes::Agent);
 
     std::unique_ptr<BaseModule> base_module = std::make_unique<BaseModule>(resource_manager, *rigid_body->body, this);
-    std::unique_ptr<GunModule> gun_module = std::make_unique<GunModule>(resource_manager, *rigid_body->body, this);
+    std::unique_ptr<GunModule> gun_module_right = std::make_unique<GunModule>(resource_manager, *rigid_body->body, this);
+    std::unique_ptr<GunModule> gun_module_left = std::make_unique<GunModule>(resource_manager, *rigid_body->body, this);
 
-    base_module->module_links[0].link(&gun_module->module_links[2]);
+    base_module->module_links[1].link(&gun_module_right->module_links[0]);
+    base_module->module_links[3].link(&gun_module_left->module_links[1]);
 
     modules.push_back(std::move(base_module));
-    modules.push_back(std::move(gun_module));
+    modules.push_back(std::move(gun_module_right));
+    modules.push_back(std::move(gun_module_left));
 
     update_body();
 
-    rigid_body->body->ApplyForce(b2Vec2(10, 10), b2Vec2(3, 3), true);
+    rigid_body->body->ApplyForce(b2Vec2(100, 100), b2Vec2(3, 3), true);
 }
 
 TestAgent::~TestAgent() {}

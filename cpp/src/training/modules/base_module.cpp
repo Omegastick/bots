@@ -27,8 +27,10 @@ BaseModule::BaseModule(ResourceManager &resource_manager, b2Body &body, IAgent *
     rotation_rad = 0;
 
     // Module links
+    module_links.push_back(ModuleLink(0, 0.5, 0, this));
     module_links.push_back(ModuleLink(0.5, 0, 90, this));
     module_links.push_back(ModuleLink(0, -0.5, 180, this));
+    module_links.push_back(ModuleLink(-0.5, 0, 270, this));
 
     root = this;
     this->agent = agent;

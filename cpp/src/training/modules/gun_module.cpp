@@ -24,8 +24,8 @@ GunModule::GunModule(ResourceManager &resource_manager, b2Body &body, IAgent *ag
     rotation_rad = 0;
 
     // Module links
-    module_links.push_back(ModuleLink(-0.5, 0, -90, this));
-    module_links.push_back(ModuleLink(0.5, 0, 90, this));
+    module_links.push_back(ModuleLink(-0.5, -0.167, -90, this));
+    module_links.push_back(ModuleLink(0.5, -0.167, 90, this));
     module_links.push_back(ModuleLink(0, -0.5, 180, this));
 
     actions.push_back(std::make_unique<ShootAction>(this));

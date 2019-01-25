@@ -39,16 +39,6 @@ void IModule::draw(sf::RenderTarget &render_target)
     sf::Vector2f screen_position(world_position.x, world_position.y);
     sprite.setPosition(screen_position);
 
-    sf::CircleShape circle(0.25);
-    circle.setOrigin(0.25, 0.25);
-    circle.setPosition(0, 0);
-    render_target.draw(circle);
-
-    sf::CircleShape circle2(0.25);
-    circle2.setOrigin(0.25, 0.25);
-    circle2.setPosition(1, 1);
-    render_target.draw(circle2);
-
     sprite.setRotation(rad_to_deg(body->GetAngle() + rotation_rad));
     render_target.draw(sprite);
 }
