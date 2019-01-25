@@ -23,5 +23,6 @@ class TestAgent : public IAgent
     virtual void begin_contact(RigidBody *other);
     virtual void end_contact(RigidBody *other);
     virtual void draw(sf::RenderTarget &render_target);
+    virtual void update_body();
 };
 }

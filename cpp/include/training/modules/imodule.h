@@ -8,12 +8,13 @@
 #include "idrawable.h"
 #include "training/actions/iaction.h"
 #include "training/modules/module_link.h"
+#include "training/agents/iagent.h"
 
 namespace SingularityTrainer
 {
 class ModuleLink;
-class IModule;
 class IAction;
+class IAgent;
 
 class IModule : IDrawable
 {
@@ -29,7 +30,10 @@ class IModule : IDrawable
     const IModule *root;
     std::vector<ModuleLink> module_links;
     std::vector<std::unique_ptr<IAction>> actions;
-    b2Fixture *fixture;
+    b2Transform transform;
+    float rotation_rad;
+    b2PolygonShape shape;
     sf::Sprite sprite;
+    IAgent *agent;
 };
 }

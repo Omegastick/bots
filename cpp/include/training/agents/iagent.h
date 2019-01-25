@@ -12,6 +12,8 @@
 
 namespace SingularityTrainer
 {
+class IAction;
+
 class IAgent : public IDrawable, public ICollidable
 {
   public:
@@ -23,6 +25,7 @@ class IAgent : public IDrawable, public ICollidable
     virtual void begin_contact(RigidBody *other) = 0;
     virtual void end_contact(RigidBody *other) = 0;
     virtual void draw(sf::RenderTarget &render_target) = 0;
+    virtual void update_body() = 0;
 
     std::vector<std::unique_ptr<IModule>> modules;
     std::vector<IAction *> actions;

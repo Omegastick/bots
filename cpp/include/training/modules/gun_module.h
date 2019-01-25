@@ -9,13 +9,14 @@
 #include "training/actions/iaction.h"
 #include "training/modules/imodule.h"
 #include "training/modules/interfaces/ishootable.h"
+#include "training/agents/iagent.h"
 
 namespace SingularityTrainer
 {
 class GunModule : public IModule, public IShootable
 {
   public:
-    GunModule(ResourceManager &resource_manager, b2Body &body);
+    GunModule(ResourceManager &resource_manager, b2Body &body, IAgent *agent);
     ~GunModule();
 
     virtual void shoot();

@@ -8,10 +8,11 @@
 #include "training/modules/base_module.h"
 #include "training/modules/imodule.h"
 #include "training/modules/module_link.h"
+#include "training/agents/iagent.h"
 
 namespace SingularityTrainer
 {
-BaseModule::BaseModule(ResourceManager &resource_manager, b2Body &body)
+BaseModule::BaseModule(ResourceManager &resource_manager, b2Body &body, IAgent *agent)
 {
     // Sprite
     resource_manager.load_texture("base_module", "images/base_module.png");
@@ -20,18 +21,17 @@ BaseModule::BaseModule(ResourceManager &resource_manager, b2Body &body)
     sprite.setOrigin(sprite.getLocalBounds().width / 2, sprite.getLocalBounds().height / 2);
     sprite.setColor(cl_white);
 
-    // Box2D fixture
-    b2PolygonShape shape;
+    // Box2D
     shape.SetAsBox(0.5, 0.5);
-    b2FixtureDef fixture_def;
-    fixture_def.shape = &shape;
-    fixture = body.CreateFixture(&fixture_def);
+    transform.SetIdentity();
+    rotation_rad = 0;
 
     // Module links
-    module_links.push_back(ModuleLink(0.5, 0, 90));
-    module_links.push_back(ModuleLink(0, -0.5, 180));
+    module_links.push_back(ModuleLink(0.5, 0, 90, this));
+    module_links.push_back(ModuleLink(0, -0.5, 180, this));
 
     root = this;
+    this->agent = agent;
 }
 
 BaseModule::~BaseModule() {}

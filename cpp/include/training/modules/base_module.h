@@ -7,6 +7,7 @@
 
 #include "resource_manager.h"
 #include "training/actions/iaction.h"
+#include "training/agents/iagent.h"
 #include "training/modules/imodule.h"
 #include "training/modules/interfaces/ishootable.h"
 
@@ -15,7 +16,7 @@ namespace SingularityTrainer
 class BaseModule : public IModule
 {
   public:
-    BaseModule(ResourceManager &resource_manager, b2Body &body);
+    BaseModule(ResourceManager &resource_manager, b2Body &body, IAgent *agent);
     ~BaseModule();
 };
 }

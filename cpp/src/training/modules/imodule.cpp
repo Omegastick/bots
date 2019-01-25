@@ -32,15 +32,24 @@ std::vector<float> IModule::get_sensor_reading() { return std::vector<float>(); 
 
 void IModule::draw(sf::RenderTarget &render_target)
 {
-    b2Body *body = fixture->GetBody();
-    b2Transform transform = body->GetTransform();
+    b2Body *body = agent->rigid_body->body;
+    b2Transform agent_transform = body->GetTransform();
 
-    b2PolygonShape *shape = (b2PolygonShape *)fixture->GetShape();
-
-    b2Vec2 world_position = b2Mul(transform, shape->m_centroid);
+    b2Vec2 world_position = agent_transform.p + rotate_point_around_point(b2Vec2(transform.p.x, -transform.p.y), agent_transform.q, b2Vec2_zero);
     sf::Vector2f screen_position(world_position.x, world_position.y);
     sprite.setPosition(screen_position);
-    sprite.setRotation(rad_to_deg(body->GetAngle()));
+
+    sf::CircleShape circle(0.25);
+    circle.setOrigin(0.25, 0.25);
+    circle.setPosition(0, 0);
+    render_target.draw(circle);
+
+    sf::CircleShape circle2(0.25);
+    circle2.setOrigin(0.25, 0.25);
+    circle2.setPosition(1, 1);
+    render_target.draw(circle2);
+
+    sprite.setRotation(rad_to_deg(body->GetAngle() + rotation_rad));
     render_target.draw(sprite);
 }
 }

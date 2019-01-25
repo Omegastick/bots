@@ -27,5 +27,9 @@ class QuickTrainer : public ITrainer
     bool waiting_for_server;
     std::vector<std::vector<float>> observations;
     int env_count;
+    int frame_counter;
+    int action_frame_counter;
+
+    void action_update();
 };
 }

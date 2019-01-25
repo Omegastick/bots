@@ -1,5 +1,6 @@
 #include <SFML/Graphics.hpp>
 #include <Thor/Vectors.hpp>
+#include <Box2D/Box2D.h>
 
 #include "utilities.h"
 
@@ -21,6 +22,28 @@ sf::Vector2f radial_distort(sf::Vector2f coordinate, sf::Vector2f resolution, fl
 
 float rad_to_deg(float radians)
 {
-    return radians * (180.f / M_PI);
+    return radians * 57.2958;
+}
+
+float deg_to_rad(float degrees)
+{
+    return degrees * 0.0174533;
+}
+
+b2Vec2 rotate_point_around_point(b2Vec2 point, b2Rot angle, b2Vec2 pivot)
+{
+    // Translate point to pivot
+    point.x -= pivot.x;
+    point.y -= pivot.y;
+
+    // Rotate point
+    float x_offset_rotated = (point.x * angle.c) - (point.y * angle.s);
+    float y_offset_rotated = (point.x * angle.s) + (point.y * angle.c);
+
+    // Remove offset
+    point.x = x_offset_rotated + pivot.x;
+    point.y = y_offset_rotated + pivot.y;
+
+    return point;
 }
 }
