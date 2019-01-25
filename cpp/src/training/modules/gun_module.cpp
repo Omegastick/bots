@@ -1,12 +1,13 @@
 #include <Box2D/Box2D.h>
 #include <memory>
 #include <vector>
+#include <iostream>
 
 #include "resource_manager.h"
 #include "training/actions/shoot_action.h"
+#include "training/agents/iagent.h"
 #include "training/modules/gun_module.h"
 #include "training/modules/imodule.h"
-#include "training/agents/iagent.h"
 
 namespace SingularityTrainer
 {
@@ -35,5 +36,10 @@ GunModule::GunModule(ResourceManager &resource_manager, b2Body &body, IAgent *ag
 
 GunModule::~GunModule() {}
 
-void GunModule::shoot() {}
+void GunModule::shoot()
+{
+    sf::Color color = sprite.getColor();
+    color.g = (color.g + 1) % 255;
+    sprite.setColor(color);
+}
 }

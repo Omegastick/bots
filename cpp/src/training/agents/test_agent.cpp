@@ -26,13 +26,24 @@ TestAgent::TestAgent(ResourceManager &resource_manager, b2World &world)
     modules.push_back(std::move(gun_module_left));
 
     update_body();
+    register_actions();
 
     rigid_body->body->ApplyForce(b2Vec2(100, 100), b2Vec2(3, 3), true);
 }
 
 TestAgent::~TestAgent() {}
 
-void TestAgent::act(std::vector<int> actions) {}
+void TestAgent::act(std::vector<int> action_flags)
+{
+    int current_position = 0;
+    for (const auto &action : actions)
+    {
+        int next_position = current_position + action->flag_count;
+        action->act(std::vector<int>(&action_flags[current_position], &action_flags[next_position]));
+        current_position += next_position;
+    }
+}
+
 std::vector<float> TestAgent::get_observation() { return std::vector<float>(); }
 void TestAgent::begin_contact(RigidBody *other) {}
 void TestAgent::end_contact(RigidBody *other) {}
@@ -43,6 +54,8 @@ void TestAgent::draw(sf::RenderTarget &render_target)
     {
         module->draw(render_target);
     }
+
+    act(std::vector<int>{0, 1});
 }
 
 void TestAgent::update_body()
@@ -74,6 +87,18 @@ void TestAgent::update_body()
         fixture_def.density = 1;
         fixture_def.friction = 1;
         rigid_body->body->CreateFixture(&fixture_def);
+    }
+}
+
+void TestAgent::register_actions()
+{
+    actions = std::vector<IAction *>();
+    for (const auto &module : modules)
+    {
+        for (const auto &action : module->actions)
+        {
+            actions.push_back(action.get());
+        }
     }
 }
 }

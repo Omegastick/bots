@@ -20,7 +20,7 @@ class IAgent : public IDrawable, public ICollidable
     IAgent(){};
     ~IAgent(){};
 
-    virtual void act(std::vector<int> actions) = 0;
+    virtual void act(std::vector<int> action_flags) = 0;
     virtual std::vector<float> get_observation() = 0;
     virtual void begin_contact(RigidBody *other) = 0;
     virtual void end_contact(RigidBody *other) = 0;
