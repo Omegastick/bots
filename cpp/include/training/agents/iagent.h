@@ -13,6 +13,7 @@
 namespace SingularityTrainer
 {
 class IAction;
+class IModule;
 
 class IAgent : public IDrawable, public ICollidable
 {

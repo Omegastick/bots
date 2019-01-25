@@ -14,6 +14,7 @@ class RigidBody
         Agent,
         Wall,
         Target,
+        Bullet,
         Bot
     };
 

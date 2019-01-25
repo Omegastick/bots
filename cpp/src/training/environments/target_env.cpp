@@ -138,6 +138,7 @@ std::future<std::unique_ptr<StepInfo>> TargetEnv::step(std::vector<int> &actions
     ThreadCommand command{Commands::Step, std::move(promise), step_length, actions};
     command_queue.emplace(std::move(command));
     command_queue_flag++;
+    
     return future;
 }
 
@@ -212,6 +213,7 @@ void TargetEnv::thread_loop()
             command.promise.set_value(std::move(step_info));
             break;
         case Commands::Forward:
+            agent->act(std::vector<int>{1, 1});
             world->Step(command.step_length, 3, 2);
             break;
         case Commands::Reset:

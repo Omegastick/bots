@@ -7,8 +7,8 @@
 
 #include "idrawable.h"
 #include "training/actions/iaction.h"
-#include "training/modules/module_link.h"
 #include "training/agents/iagent.h"
+#include "training/modules/module_link.h"
 
 namespace SingularityTrainer
 {
@@ -22,10 +22,12 @@ class IModule : IDrawable
     IModule(){};
     ~IModule(){};
 
+    virtual void update();
     virtual std::vector<IModule *> get_children();
     virtual std::vector<IModule *> get_children(std::vector<IModule *> child_list);
     virtual std::vector<float> get_sensor_reading();
     virtual void draw(sf::RenderTarget &render_target);
+    virtual b2Vec2 get_global_position();
 
     const IModule *root;
     std::vector<ModuleLink> module_links;

@@ -35,6 +35,11 @@ TestAgent::~TestAgent() {}
 
 void TestAgent::act(std::vector<int> action_flags)
 {
+    for (const auto &module : modules)
+    {
+        module->update();
+    }
+
     int current_position = 0;
     for (const auto &action : actions)
     {
@@ -54,8 +59,6 @@ void TestAgent::draw(sf::RenderTarget &render_target)
     {
         module->draw(render_target);
     }
-
-    act(std::vector<int>{0, 1});
 }
 
 void TestAgent::update_body()

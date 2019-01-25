@@ -30,11 +30,11 @@ class TargetEnv : public IEnvironment
     virtual void set_done();
     virtual void draw(sf::RenderTarget &render_target);
 
+    std::unique_ptr<IAgent> agent;
   private:
     sf::RenderTexture render_texture;
     sf::Sprite sprite;
     std::unique_ptr<b2World> world;
-    std::unique_ptr<IAgent> agent;
     // std::vector<std::unique_ptr<Wall>> walls;
     std::unique_ptr<b2ContactListener> contact_listener;
     bool done;
