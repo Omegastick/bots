@@ -5,7 +5,7 @@
 #include <vector>
 
 #include "gui/colors.h"
-#include "test_screen/wall.h"
+#include "training/entities/wall.h"
 
 namespace SingularityTrainer
 {

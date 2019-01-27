@@ -4,9 +4,10 @@
 #include <vector>
 
 #include "gui/colors.h"
+#include "training/agents/test_agent.h"
+#include "training/entities/wall.h"
 #include "training/environments/target_env.h"
 #include "training/rigid_body.h"
-#include "training/agents/test_agent.h"
 
 namespace SingularityTrainer
 {
@@ -33,9 +34,9 @@ class ContactListener : public b2ContactListener
                 case RigidBody::ParentTypes::Agent:
                     static_cast<IAgent *>(body->parent)->begin_contact(other);
                     break;
-                // case RigidBody::ParentTypes::Target:
-                //     static_cast<Target *>(body->parent)->begin_contact(other);
-                //     break;
+                    // case RigidBody::ParentTypes::Target:
+                    //     static_cast<Target *>(body->parent)->begin_contact(other);
+                    //     break;
                 }
             }
         }
@@ -59,9 +60,9 @@ class ContactListener : public b2ContactListener
                 case RigidBody::ParentTypes::Agent:
                     static_cast<IAgent *>(body->parent)->end_contact(other);
                     break;
-                // case RigidBody::ParentTypes::Target:
-                //     static_cast<Target *>(body->parent)->end_contact(other);
-                //     break;
+                    // case RigidBody::ParentTypes::Target:
+                    //     static_cast<Target *>(body->parent)->end_contact(other);
+                    //     break;
                 }
             }
         }
@@ -87,10 +88,10 @@ TargetEnv::TargetEnv(ResourceManager &resource_manager, float x, float y, float 
     // target = std::make_unique<Target>(4, 4, *world, *this);
 
     // // Walls
-    // walls.push_back(std::make_unique<Wall>(-5, -5, 10, 0.1, *world));
-    // walls.push_back(std::make_unique<Wall>(-5, -5, 0.1, 10, *world));
-    // walls.push_back(std::make_unique<Wall>(-5, 4.9, 10, 0.1, *world));
-    // walls.push_back(std::make_unique<Wall>(4.9, -5, 0.1, 10, *world));
+    walls.push_back(std::make_unique<Wall>(-5, -5, 10, 0.1, *world));
+    walls.push_back(std::make_unique<Wall>(-5, -5, 0.1, 10, *world));
+    walls.push_back(std::make_unique<Wall>(-5, 4.9, 10, 0.1, *world));
+    walls.push_back(std::make_unique<Wall>(4.9, -5, 0.1, 10, *world));
 
     // Display
     render_texture.create(1000, 1000);
@@ -118,10 +119,10 @@ void TargetEnv::draw(sf::RenderTarget &render_target)
     // Draw onto temporary texture
     render_texture.clear(cl_background);
     agent->draw(render_texture);
-    // for (auto &wall : walls)
-    // {
-    //     wall->draw(render_texture);
-    // }
+    for (auto &wall : walls)
+    {
+        wall->draw(render_texture);
+    }
     // target->draw(render_texture);
 
     render_texture.display();
@@ -138,7 +139,7 @@ std::future<std::unique_ptr<StepInfo>> TargetEnv::step(std::vector<int> &actions
     ThreadCommand command{Commands::Step, std::move(promise), step_length, actions};
     command_queue.emplace(std::move(command));
     command_queue_flag++;
-    
+
     return future;
 }
 

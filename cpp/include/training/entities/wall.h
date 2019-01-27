@@ -14,10 +14,10 @@ class Wall : public IDrawable
     Wall(float x, float y, float width, float height, b2World &world);
     ~Wall();
 
-    void draw(sf::RenderTarget &render_target);
+    virtual void draw(sf::RenderTarget &render_target);
 
   private:
-    std::unique_ptr<RigidBody> rigid_body;
     sf::RectangleShape shape;
+    std::unique_ptr<RigidBody> rigid_body;
 };
 }

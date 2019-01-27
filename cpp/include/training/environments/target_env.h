@@ -12,7 +12,7 @@
 #include "resource_manager.h"
 #include "training/agents/iagent.h"
 #include "training/environments/ienvironment.h"
-// #include "training/entities/wall.h"
+#include "training/entities/wall.h"
 
 namespace SingularityTrainer
 {
@@ -35,7 +35,7 @@ class TargetEnv : public IEnvironment
     sf::RenderTexture render_texture;
     sf::Sprite sprite;
     std::unique_ptr<b2World> world;
-    // std::vector<std::unique_ptr<Wall>> walls;
+    std::vector<std::unique_ptr<Wall>> walls;
     std::unique_ptr<b2ContactListener> contact_listener;
     bool done;
     float reward;

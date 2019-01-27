@@ -12,7 +12,7 @@
 #include "idrawable.h"
 #include "test_screen/bot.h"
 #include "test_screen/target.h"
-#include "test_screen/wall.h"
+#include "training/entities/wall.h"
 #include "test_screen/score_display.h"
 #include "training/environments/ienvironment.h"
 
