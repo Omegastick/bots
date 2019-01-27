@@ -71,6 +71,8 @@ void TestAgent::draw(sf::RenderTarget &render_target)
     if (debug_draw)
     {
         b2Transform transform = rigid_body->body->GetTransform();
+
+        // Draw modules
         for (b2Fixture *fixture = rigid_body->body->GetFixtureList(); fixture; fixture = fixture->GetNext())
         {
             b2PolygonShape *b2_shape = (b2PolygonShape *)fixture->GetShape();
@@ -84,6 +86,20 @@ void TestAgent::draw(sf::RenderTarget &render_target)
                 screen_shape.setPoint(i, sf::Vector2f(vertex_position.x, vertex_position.y));
             }
             render_target.draw(screen_shape);
+        }
+
+        // Draw module links
+        for (const auto &module : modules)
+        {
+            for (const auto &module_link : module->module_links)
+            {
+                sf::CircleShape screen_shape(0.1);
+                screen_shape.setOrigin(0.1, 0.1);
+                screen_shape.setFillColor(sf::Color::Red);
+                b2Vec2 position = b2Mul(transform, module_link.transform).p;
+                screen_shape.setPosition(position.x, position.y);
+                render_target.draw(screen_shape);
+            }
         }
     }
 }

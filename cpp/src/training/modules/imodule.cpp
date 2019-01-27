@@ -45,7 +45,7 @@ b2Vec2 IModule::get_global_position()
     b2Body *body = agent->rigid_body->body;
     b2Transform agent_transform = body->GetTransform();
 
-    return agent_transform.p + rotate_point_around_point(b2Vec2(transform.p.x, -transform.p.y), agent_transform.q, b2Vec2_zero);
+    return agent_transform.p + rotate_point_around_point(b2Vec2(transform.p.x, transform.p.y), agent_transform.q, b2Vec2_zero);
 }
 
 void IModule::update() {}
