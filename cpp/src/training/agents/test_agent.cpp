@@ -12,21 +12,29 @@ namespace SingularityTrainer
 {
 TestAgent::TestAgent(ResourceManager &resource_manager, b2World &world)
 {
+    // Rigid body
     rigid_body = std::make_unique<RigidBody>(b2_dynamicBody, b2Vec2_zero, world, this, RigidBody::ParentTypes::Agent);
 
+    // Instantiate modules
     std::unique_ptr<BaseModule> base_module = std::make_unique<BaseModule>(resource_manager, *rigid_body->body, this);
     std::unique_ptr<GunModule> gun_module_right = std::make_unique<GunModule>(resource_manager, *rigid_body->body, this);
     std::unique_ptr<GunModule> gun_module_left = std::make_unique<GunModule>(resource_manager, *rigid_body->body, this);
 
+    // Connect modules
     base_module->module_links[1].link(&gun_module_right->module_links[0]);
     base_module->module_links[3].link(&gun_module_left->module_links[1]);
 
+    // Add modules to Agent
     modules.push_back(std::move(base_module));
     modules.push_back(std::move(gun_module_right));
     modules.push_back(std::move(gun_module_left));
 
+    // Sync agent with new modules
     update_body();
     register_actions();
+
+    // If true, draws the hitboxes of each module on screen
+    debug_draw = true;
 
     rigid_body->body->ApplyForce(b2Vec2(100, 100), b2Vec2(3, 3), true);
 }
@@ -59,6 +67,25 @@ void TestAgent::draw(sf::RenderTarget &render_target)
     {
         module->draw(render_target);
     }
+
+    if (debug_draw)
+    {
+        b2Transform transform = rigid_body->body->GetTransform();
+        for (b2Fixture *fixture = rigid_body->body->GetFixtureList(); fixture; fixture = fixture->GetNext())
+        {
+            b2PolygonShape *b2_shape = (b2PolygonShape *)fixture->GetShape();
+            sf::ConvexShape screen_shape(b2_shape->GetVertexCount());
+            screen_shape.setOutlineColor(sf::Color::Green);
+            screen_shape.setOutlineThickness(0.02);
+            screen_shape.setFillColor(sf::Color::Transparent);
+            for (int i = 0; i < b2_shape->m_count; ++i)
+            {
+                b2Vec2 vertex_position = b2Mul(transform, b2_shape->GetVertex(i));
+                screen_shape.setPoint(i, sf::Vector2f(vertex_position.x, vertex_position.y));
+            }
+            render_target.draw(screen_shape);
+        }
+    }
 }
 
 void TestAgent::update_body()
@@ -71,22 +98,22 @@ void TestAgent::update_body()
 
     for (const auto &module : modules)
     {
-        // Copy the module's shape
+        // Copy the module's screen_shape
         // It's important we leave the origina intact in case we need to do this again
-        b2PolygonShape shape = module->shape;
+        b2PolygonShape screen_shape = module->shape;
 
-        // Apply transform to all points in shape
-        for (int i = 0; i < shape.m_count; ++i)
+        // Apply transform to all points in screen_shape
+        for (int i = 0; i < screen_shape.m_count; ++i)
         {
             // Translate point
-            shape.m_vertices[i] = module->transform.p + shape.m_vertices[i];
+            screen_shape.m_vertices[i] = module->transform.p + screen_shape.m_vertices[i];
             // Rotate point
-            shape.m_vertices[i] = rotate_point_around_point(shape.m_vertices[i], module->transform.q, shape.m_centroid);
+            screen_shape.m_vertices[i] = rotate_point_around_point(screen_shape.m_vertices[i], module->transform.q, screen_shape.m_centroid);
         }
 
         // Create the fixture
         b2FixtureDef fixture_def;
-        fixture_def.shape = &shape;
+        fixture_def.shape = &screen_shape;
         fixture_def.density = 1;
         fixture_def.friction = 1;
         rigid_body->body->CreateFixture(&fixture_def);

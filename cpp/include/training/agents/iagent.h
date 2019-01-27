@@ -31,5 +31,6 @@ class IAgent : public IDrawable, public ICollidable
     std::vector<std::unique_ptr<IModule>> modules;
     std::vector<IAction *> actions;
     std::unique_ptr<RigidBody> rigid_body;
+    bool debug_draw;
 };
 }
