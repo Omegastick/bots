@@ -23,12 +23,11 @@ GunModule::GunModule(ResourceManager &resource_manager, b2Body &body, IAgent *ag
     // Box2D fixture
     shape.SetAsBox(0.5, 0.5);
     transform.SetIdentity();
-    rotation_rad = 0;
 
     // Module links
-    module_links.push_back(ModuleLink(-0.5, -0.167, -90, this));
-    module_links.push_back(ModuleLink(0.5, -0.167, 90, this));
-    module_links.push_back(ModuleLink(0, -0.5, 180, this));
+    module_links.push_back(ModuleLink(0.5, 0.167, 90, this));
+    module_links.push_back(ModuleLink(0, 0.5, 180, this));
+    module_links.push_back(ModuleLink(-0.5, 0.167, 270, this));
 
     actions.push_back(std::make_unique<ShootAction>(this));
 
@@ -51,11 +50,10 @@ void GunModule::shoot()
     if (steps_since_last_shot > cooldown)
     {
         steps_since_last_shot = 0;
-        b2Vec2 offset(0, -0.6);
-        b2Rot angle = b2Rot(agent->rigid_body->body->GetAngle());
-        b2Vec2 position = get_global_position() + b2Mul(angle, offset);
-        b2Vec2 velocity = b2Mul(angle, b2Vec2(0, -100));
-        bullets.push_back(std::make_unique<Bullet>(position, velocity, *agent->rigid_body->body->GetWorld()));
+        b2Transform global_transform = get_global_transform();
+        b2Vec2 velocity = b2Mul(global_transform.q, b2Vec2(0, -100));
+        b2Vec2 offset = b2Mul(global_transform.q, b2Vec2(0, -0.6));
+        bullets.push_back(std::make_unique<Bullet>(global_transform.p + offset, velocity, *agent->rigid_body->body->GetWorld()));
     }
 }
 

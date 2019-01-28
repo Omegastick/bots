@@ -27,13 +27,12 @@ class IModule : IDrawable
     virtual std::vector<IModule *> get_children(std::vector<IModule *> child_list);
     virtual std::vector<float> get_sensor_reading();
     virtual void draw(sf::RenderTarget &render_target);
-    virtual b2Vec2 get_global_position();
+    virtual b2Transform get_global_transform();
 
     const IModule *root;
     std::vector<ModuleLink> module_links;
     std::vector<std::unique_ptr<IAction>> actions;
     b2Transform transform;
-    float rotation_rad;
     b2PolygonShape shape;
     sf::Sprite sprite;
     IAgent *agent;

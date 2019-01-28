@@ -14,7 +14,7 @@ namespace SingularityTrainer
 {
 BaseModule::BaseModule(ResourceManager &resource_manager, b2Body &body, IAgent *agent)
 {
-    // Sprite
+    // SpriteZ
     resource_manager.load_texture("base_module", "images/base_module.png");
     sprite.setTexture(*resource_manager.texture_store.get("base_module"));
     sprite.setScale(0.01, 0.01);
@@ -24,12 +24,11 @@ BaseModule::BaseModule(ResourceManager &resource_manager, b2Body &body, IAgent *
     // Box2D
     shape.SetAsBox(0.5, 0.5);
     transform.SetIdentity();
-    rotation_rad = 0;
 
     // Module links
-    module_links.push_back(ModuleLink(0, 0.5, 0, this));
+    module_links.push_back(ModuleLink(0, -0.5, 0, this));
     module_links.push_back(ModuleLink(0.5, 0, 90, this));
-    module_links.push_back(ModuleLink(0, -0.5, 180, this));
+    module_links.push_back(ModuleLink(0, 0.5, 180, this));
     module_links.push_back(ModuleLink(-0.5, 0, 270, this));
 
     root = this;

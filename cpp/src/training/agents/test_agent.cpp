@@ -21,8 +21,8 @@ TestAgent::TestAgent(ResourceManager &resource_manager, b2World &world)
     std::unique_ptr<GunModule> gun_module_left = std::make_unique<GunModule>(resource_manager, *rigid_body->body, this);
 
     // Connect modules
-    base_module->module_links[1].link(&gun_module_right->module_links[0]);
-    base_module->module_links[3].link(&gun_module_left->module_links[1]);
+    base_module->module_links[1].link(&gun_module_right->module_links[2]);
+    base_module->module_links[3].link(&gun_module_left->module_links[0]);
 
     // Add modules to Agent
     modules.push_back(std::move(base_module));
@@ -91,14 +91,33 @@ void TestAgent::draw(sf::RenderTarget &render_target)
         // Draw module links
         for (const auto &module : modules)
         {
+            b2Transform module_transform = module->get_global_transform();
             for (const auto &module_link : module->module_links)
             {
-                sf::CircleShape screen_shape(0.1);
-                screen_shape.setOrigin(0.1, 0.1);
-                screen_shape.setFillColor(sf::Color::Red);
-                b2Vec2 position = b2Mul(transform, module_link.transform).p;
-                screen_shape.setPosition(position.x, position.y);
-                render_target.draw(screen_shape);
+                // Transform
+                b2Transform link_transform = b2Mul(module_transform, module_link.transform);
+
+                // Circle
+                sf::CircleShape circle(0.1);
+                circle.setOrigin(0.1, 0.1);
+                if (module_link.linked)
+                {
+                    circle.setFillColor(sf::Color(0, 255, 0, 100));
+                }
+                else
+                {
+                    circle.setFillColor(sf::Color(125, 125, 125, 100));
+                }
+                circle.setPosition(link_transform.p.x, link_transform.p.y);
+                render_target.draw(circle);
+
+                // Direction line
+                sf::RectangleShape line(sf::Vector2f(0.02, -0.1));
+                line.setOrigin(0.01, 0);
+                line.setFillColor(sf::Color::Red);
+                line.setRotation(rad_to_deg(link_transform.q.GetAngle()));
+                line.setPosition(link_transform.p.x, link_transform.p.y);
+                render_target.draw(line);
             }
         }
     }
@@ -117,15 +136,15 @@ void TestAgent::update_body()
         // Copy the module's screen_shape
         // It's important we leave the origina intact in case we need to do this again
         b2PolygonShape screen_shape = module->shape;
+        int vertex_count = screen_shape.GetVertexCount();
+        b2Vec2 points[vertex_count];
 
         // Apply transform to all points in screen_shape
-        for (int i = 0; i < screen_shape.m_count; ++i)
+        for (int i = 0; i < vertex_count; ++i)
         {
-            // Translate point
-            screen_shape.m_vertices[i] = module->transform.p + screen_shape.m_vertices[i];
-            // Rotate point
-            screen_shape.m_vertices[i] = rotate_point_around_point(screen_shape.m_vertices[i], module->transform.q, screen_shape.m_centroid);
+            points[i] = b2Mul(module->transform, screen_shape.GetVertex(i));
         }
+        screen_shape.Set(points, vertex_count);
 
         // Create the fixture
         b2FixtureDef fixture_def;
