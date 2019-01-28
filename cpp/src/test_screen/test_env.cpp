@@ -3,7 +3,7 @@
 
 namespace SingularityTrainer
 {
-class ContactListener : public b2ContactListener
+class TestContactListener : public b2ContactListener
 {
     void BeginContact(b2Contact *contact)
     {
@@ -71,7 +71,7 @@ TestEnv::TestEnv(ResourceManager &resource_manager, float x, float y, float scal
 {
     // Box2D world
     world = std::make_unique<b2World>(b2Vec2(0, 0));
-    contact_listener = std::make_unique<ContactListener>();
+    contact_listener = std::make_unique<TestContactListener>();
     world->SetContactListener(contact_listener.get());
 
     // Bot

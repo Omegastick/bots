@@ -57,7 +57,7 @@ void GunModule::shoot()
         steps_since_last_shot = 0;
         b2Transform global_transform = get_global_transform();
         b2Vec2 velocity = b2Mul(global_transform.q, b2Vec2(0, -100));
-        b2Vec2 offset = b2Mul(global_transform.q, b2Vec2(0, -0.6));
+        b2Vec2 offset = b2Mul(global_transform.q, b2Vec2(0, -0.7));
         bullets.push_back(std::make_unique<Bullet>(global_transform.p + offset, velocity, *agent->rigid_body->body->GetWorld()));
     }
 }
@@ -65,5 +65,13 @@ void GunModule::shoot()
 void GunModule::update()
 {
     steps_since_last_shot++;
+    
+    for (int i = 0; i < bullets.size(); ++i) {
+        if (bullets[i]->destroyed) {
+            b2Body *body = bullets[i]->rigid_body->body;
+            body->GetWorld()->DestroyBody(body);
+            bullets.erase(bullets.begin() + i);
+        }
+    }
 }
 }

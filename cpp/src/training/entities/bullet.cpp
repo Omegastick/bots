@@ -1,5 +1,6 @@
 #include <Box2D/Box2D.h>
 #include <SFML/Graphics.hpp>
+#include <iostream>
 
 #include "idrawable.h"
 #include "training/entities/bullet.h"
@@ -8,7 +9,7 @@
 
 namespace SingularityTrainer
 {
-Bullet::Bullet(b2Vec2 position, b2Vec2 velocity, b2World &world) : shape(0.1)
+Bullet::Bullet(b2Vec2 position, b2Vec2 velocity, b2World &world) : shape(0.1), destroyed(false)
 {
     shape.setOrigin(0.1, 0.1);
 
@@ -36,6 +37,9 @@ void Bullet::draw(sf::RenderTarget &render_target)
     render_target.draw(shape);
 }
 
-void Bullet::begin_contact(RigidBody *other) {}
+void Bullet::begin_contact(RigidBody *other)
+{
+    destroyed = true;
+}
 void Bullet::end_contact(RigidBody *other) {}
 }

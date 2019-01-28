@@ -19,8 +19,10 @@ class Bullet : public IDrawable, public ICollidable
     virtual void begin_contact(RigidBody *other);
     virtual void end_contact(RigidBody *other);
 
+    bool destroyed;
+    std::unique_ptr<RigidBody> rigid_body;
+
   private:
     sf::CircleShape shape;
-    std::unique_ptr<RigidBody> rigid_body;
 };
 }
