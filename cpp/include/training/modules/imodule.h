@@ -33,7 +33,7 @@ class IModule : IDrawable
     std::vector<ModuleLink> module_links;
     std::vector<std::unique_ptr<IAction>> actions;
     b2Transform transform;
-    b2PolygonShape shape;
+    std::vector<b2PolygonShape> shapes;
     sf::Sprite sprite;
     IAgent *agent;
 };

@@ -22,7 +22,9 @@ BaseModule::BaseModule(ResourceManager &resource_manager, b2Body &body, IAgent *
     sprite.setColor(cl_white);
 
     // Box2D
+    b2PolygonShape shape;
     shape.SetAsBox(0.5, 0.5);
+    shapes.push_back(shape);
     transform.SetIdentity();
 
     // Module links

@@ -21,7 +21,12 @@ GunModule::GunModule(ResourceManager &resource_manager, b2Body &body, IAgent *ag
     sprite.setOrigin(sprite.getLocalBounds().width / 2, sprite.getLocalBounds().height / 2);
 
     // Box2D fixture
-    shape.SetAsBox(0.5, 0.5);
+    b2PolygonShape body_shape;
+    body_shape.SetAsBox(0.5, 0.333, b2Vec2(0, 0.167), 0);
+    shapes.push_back(body_shape);
+    b2PolygonShape barrel_shape;
+    barrel_shape.SetAsBox(0.167, 0.333, b2Vec2(0, -0.167), 0);
+    shapes.push_back(barrel_shape);
     transform.SetIdentity();
 
     // Module links

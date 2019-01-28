@@ -134,24 +134,27 @@ void TestAgent::update_body()
     for (const auto &module : modules)
     {
         // Copy the module's screen_shape
-        // It's important we leave the origina intact in case we need to do this again
-        b2PolygonShape screen_shape = module->shape;
-        int vertex_count = screen_shape.GetVertexCount();
-        b2Vec2 points[vertex_count];
-
-        // Apply transform to all points in screen_shape
-        for (int i = 0; i < vertex_count; ++i)
+        // It's important we leave the original intact in case we need to do this again
+        std::vector<b2PolygonShape> screen_shapes = module->shapes;
+        for (auto &screen_shape : screen_shapes)
         {
-            points[i] = b2Mul(module->transform, screen_shape.GetVertex(i));
-        }
-        screen_shape.Set(points, vertex_count);
+            int vertex_count = screen_shape.GetVertexCount();
+            b2Vec2 points[vertex_count];
 
-        // Create the fixture
-        b2FixtureDef fixture_def;
-        fixture_def.shape = &screen_shape;
-        fixture_def.density = 1;
-        fixture_def.friction = 1;
-        rigid_body->body->CreateFixture(&fixture_def);
+            // Apply transform to all points in screen_shape
+            for (int i = 0; i < vertex_count; ++i)
+            {
+                points[i] = b2Mul(module->transform, screen_shape.GetVertex(i));
+            }
+            screen_shape.Set(points, vertex_count);
+
+            // Create the fixture
+            b2FixtureDef fixture_def;
+            fixture_def.shape = &screen_shape;
+            fixture_def.density = 1;
+            fixture_def.friction = 1;
+            rigid_body->body->CreateFixture(&fixture_def);
+        }
     }
 }
 
