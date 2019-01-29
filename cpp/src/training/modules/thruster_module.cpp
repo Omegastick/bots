@@ -48,7 +48,7 @@ void ThrusterModule::draw(sf::RenderTarget &render_target)
 void ThrusterModule::activate()
 {
     b2Transform global_transform = get_global_transform();
-    b2Vec2 velocity = b2Mul(global_transform.q, b2Vec2(0, -10));
+    b2Vec2 velocity = b2Mul(global_transform.q, b2Vec2(0, -50));
     agent->rigid_body->body->ApplyForce(velocity, global_transform.p, true);
 }
 

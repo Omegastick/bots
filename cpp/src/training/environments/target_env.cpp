@@ -1,8 +1,8 @@
 #include <Box2D/Box2D.h>
 #include <SFML/Graphics.hpp>
+#include <iostream>
 #include <memory>
 #include <vector>
-#include <iostream>
 
 #include "gui/colors.h"
 #include "training/agents/test_agent.h"
@@ -226,7 +226,6 @@ void TargetEnv::thread_loop()
             command.promise.set_value(std::move(step_info));
             break;
         case Commands::Forward:
-            agent->act(std::vector<int>{1, 1, 1});
             world->Step(command.step_length, 3, 2);
             break;
         case Commands::Reset:
