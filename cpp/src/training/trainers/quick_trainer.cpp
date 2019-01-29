@@ -77,6 +77,10 @@ void QuickTrainer::end_training()
 
 void QuickTrainer::step()
 {
+    if (waiting_for_server)
+    {
+        return;
+    }
     thor::StopWatch stop_watch;
     stop_watch.start();
     do
@@ -98,6 +102,10 @@ void QuickTrainer::step()
 
 void QuickTrainer::slow_step()
 {
+    if (waiting_for_server)
+    {
+        return;
+    }
     if (++frame_counter >= 6)
     {
         frame_counter = 0;
@@ -116,51 +124,51 @@ void QuickTrainer::save_model() {}
 
 void QuickTrainer::action_update()
 {
-    // action_frame_counter++;
+    action_frame_counter++;
 
-    // // Get actions from training server
-    // std::shared_ptr<GetActionsParam> get_actions_param = std::make_shared<GetActionsParam>();
-    // get_actions_param->inputs = observations;
-    // get_actions_param->session_id = 0;
-    // Request<GetActionsParam> get_actions_request("get_actions", get_actions_param, 2);
-    // communicator->send_request(get_actions_request);
-    // std::vector<std::vector<int>> actions = communicator->get_response<GetActionsResult>()->result.actions;
+    // Get actions from training server
+    std::shared_ptr<GetActionsParam> get_actions_param = std::make_shared<GetActionsParam>();
+    get_actions_param->inputs = observations;
+    get_actions_param->session_id = 0;
+    Request<GetActionsParam> get_actions_request("get_actions", get_actions_param, 2);
+    communicator->send_request(get_actions_request);
+    std::vector<std::vector<int>> actions = communicator->get_response<GetActionsResult>()->result.actions;
 
-    // // Step environments
-    // std::vector<bool> dones;
-    // std::vector<float> rewards;
-    // std::vector<std::future<std::unique_ptr<StepInfo>>> step_info_futures(environments.size());
-    // for (int j = 0; j < environments.size(); ++j)
-    // {
-    //     step_info_futures[j] = environments[j]->step(actions[j], 1. / 60.);
-    // }
-    // for (int i = 0; i < environments.size(); ++i)
-    // {
-    //     std::unique_ptr<StepInfo> step_info = step_info_futures[i].get();
-    //     observations[i] = step_info->observation;
-    //     dones.push_back(step_info->done);
-    //     rewards.push_back(step_info->reward);
-    // }
+    // Step environments
+    std::vector<bool> dones;
+    std::vector<float> rewards;
+    std::vector<std::future<std::unique_ptr<StepInfo>>> step_info_futures(environments.size());
+    for (int j = 0; j < environments.size(); ++j)
+    {
+        step_info_futures[j] = environments[j]->step(actions[j], 1. / 60.);
+    }
+    for (int i = 0; i < environments.size(); ++i)
+    {
+        std::unique_ptr<StepInfo> step_info = step_info_futures[i].get();
+        observations[i] = step_info->observation;
+        dones.push_back(step_info->done);
+        rewards.push_back(step_info->reward);
+    }
 
-    // // Send result to training server
-    // std::shared_ptr<GiveRewardsParam> give_rewards_param = std::make_shared<GiveRewardsParam>();
-    // give_rewards_param->rewards = rewards;
-    // give_rewards_param->dones = dones;
-    // give_rewards_param->session_id = 0;
-    // Request<GiveRewardsParam> give_rewards_request("give_rewards", give_rewards_param, 3);
-    // communicator->send_request<GiveRewardsParam>(give_rewards_request);
-    // if (action_frame_counter % 512 != 0)
-    // {
-    //     communicator->get_response<GiveRewardsResult>();
-    // }
-    // else
-    // {
-    //     waiting_for_server = true;
-    //     std::thread response_thread = std::thread([this]() {
-    //         communicator->get_response<GiveRewardsResult>();
-    //         waiting_for_server = false;
-    //     });
-    //     response_thread.detach();
-    // }
+    // Send result to training server
+    std::shared_ptr<GiveRewardsParam> give_rewards_param = std::make_shared<GiveRewardsParam>();
+    give_rewards_param->rewards = rewards;
+    give_rewards_param->dones = dones;
+    give_rewards_param->session_id = 0;
+    Request<GiveRewardsParam> give_rewards_request("give_rewards", give_rewards_param, 3);
+    communicator->send_request<GiveRewardsParam>(give_rewards_request);
+    if (action_frame_counter % 512 != 0)
+    {
+        communicator->get_response<GiveRewardsResult>();
+    }
+    else
+    {
+        waiting_for_server = true;
+        std::thread response_thread = std::thread([this]() {
+            communicator->get_response<GiveRewardsResult>();
+            waiting_for_server = false;
+        });
+        response_thread.detach();
+    }
 }
 }

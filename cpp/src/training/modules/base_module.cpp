@@ -38,4 +38,10 @@ BaseModule::BaseModule(ResourceManager &resource_manager, b2Body &body, IAgent *
 }
 
 BaseModule::~BaseModule() {}
+
+std::vector<float> BaseModule::get_sensor_reading()
+{
+    b2Transform position = agent->rigid_body->body->GetTransform();
+    return std::vector<float>{position.p.x, position.p.y, position.q.GetAngle()};
+}
 }

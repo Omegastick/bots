@@ -17,5 +17,7 @@ class BaseModule : public IModule
   public:
     BaseModule(ResourceManager &resource_manager, b2Body &body, IAgent *agent);
     ~BaseModule();
+
+    virtual std::vector<float> get_sensor_reading();
 };
 }

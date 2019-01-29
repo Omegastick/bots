@@ -41,7 +41,7 @@ TestAgent::TestAgent(ResourceManager &resource_manager, b2World &world)
     register_actions();
 
     // If true, draws the hitboxes of each module on screen
-    debug_draw = true;
+    debug_draw = false;
 
     rigid_body->body->ApplyForce(b2Vec2(100, 100), b2Vec2(3, 3), true);
 }
@@ -64,7 +64,17 @@ void TestAgent::act(std::vector<int> action_flags)
     }
 }
 
-std::vector<float> TestAgent::get_observation() { return std::vector<float>(); }
+std::vector<float> TestAgent::get_observation()
+{
+    std::vector<float> observation;
+    for (const auto &module : modules)
+    {
+        std::vector<float> sensor_reading = module->get_sensor_reading();
+        observation.insert(observation.end(), sensor_reading.begin(), sensor_reading.end());
+    }
+    return observation;
+}
+
 void TestAgent::begin_contact(RigidBody *other) {}
 void TestAgent::end_contact(RigidBody *other) {}
 

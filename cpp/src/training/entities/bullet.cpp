@@ -9,7 +9,7 @@
 
 namespace SingularityTrainer
 {
-Bullet::Bullet(b2Vec2 position, b2Vec2 velocity, b2World &world) : shape(0.1), destroyed(false)
+Bullet::Bullet(b2Vec2 position, b2Vec2 velocity, b2World &world) : shape(0.1), destroyed(false), life(10)
 {
     shape.setOrigin(0.1, 0.1);
 
@@ -41,5 +41,11 @@ void Bullet::begin_contact(RigidBody *other)
 {
     destroyed = true;
 }
+
 void Bullet::end_contact(RigidBody *other) {}
+
+void Bullet::update()
+{
+    destroyed = --life <= 0;
+}
 }

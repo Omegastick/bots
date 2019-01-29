@@ -26,21 +26,22 @@ TargetEnvScreen::TargetEnvScreen(ResourceManager &resource_manager, Communicator
     shader->setUniform("distortion_factor", 0.08f);
 
     texture.create(1920, 1080);
+
+    trainer->begin_training();
 }
 
 TargetEnvScreen::~TargetEnvScreen() {}
 
 void TargetEnvScreen::update(const sf::Time &delta_time, const sf::Vector2f &mouse_position, const thor::ActionMap<Inputs> &action_map)
 {
-    trainer->slow_step();
-    // if (sf::Keyboard::isKeyPressed(sf::Keyboard::Space))
-    // {
-    //     trainer->slow_step();
-    // }
-    // else
-    // {
-    //     trainer->step();
-    // }
+    if (sf::Keyboard::isKeyPressed(sf::Keyboard::Space))
+    {
+        trainer->slow_step();
+    }
+    else
+    {
+        trainer->step();
+    }
 }
 
 void TargetEnvScreen::draw(sf::RenderTarget &render_target)

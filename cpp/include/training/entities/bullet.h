@@ -18,8 +18,10 @@ class Bullet : public IDrawable, public ICollidable
     virtual void draw(sf::RenderTarget &render_target);
     virtual void begin_contact(RigidBody *other);
     virtual void end_contact(RigidBody *other);
+    void update();
 
     bool destroyed;
+    int life;
     std::unique_ptr<RigidBody> rigid_body;
 
   private:

@@ -66,8 +66,15 @@ void GunModule::update()
 {
     steps_since_last_shot++;
     
-    for (int i = 0; i < bullets.size(); ++i) {
-        if (bullets[i]->destroyed) {
+    for (const auto &bullet : bullets)
+    {
+        bullet->update();
+    }
+
+    for (int i = 0; i < bullets.size(); ++i)
+    {
+        if (bullets[i]->destroyed)
+        {
             b2Body *body = bullets[i]->rigid_body->body;
             body->GetWorld()->DestroyBody(body);
             bullets.erase(bullets.begin() + i);

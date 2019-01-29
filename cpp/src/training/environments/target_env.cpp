@@ -1,6 +1,5 @@
 #include <Box2D/Box2D.h>
 #include <SFML/Graphics.hpp>
-#include <iostream>
 #include <memory>
 #include <vector>
 
@@ -160,7 +159,6 @@ void TargetEnv::forward(float step_length)
 void TargetEnv::change_reward(float reward_delta)
 {
     reward += reward_delta;
-    std::cout << reward << "\n";
 }
 
 void TargetEnv::set_done()
