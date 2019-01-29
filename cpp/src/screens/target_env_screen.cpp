@@ -30,7 +30,9 @@ TargetEnvScreen::TargetEnvScreen(ResourceManager &resource_manager, Communicator
     trainer->begin_training();
 }
 
-TargetEnvScreen::~TargetEnvScreen() {}
+TargetEnvScreen::~TargetEnvScreen() {
+    trainer->end_training();
+}
 
 void TargetEnvScreen::update(const sf::Time &delta_time, const sf::Vector2f &mouse_position, const thor::ActionMap<Inputs> &action_map)
 {

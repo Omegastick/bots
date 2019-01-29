@@ -2,6 +2,7 @@
 #include <SFML/Graphics.hpp>
 #include <memory>
 #include <vector>
+#include <iostream>
 
 #include "gui/colors.h"
 #include "training/agents/test_agent.h"
@@ -89,10 +90,10 @@ TargetEnv::TargetEnv(ResourceManager &resource_manager, float x, float y, float 
     // Agent
     agent = std::make_unique<TestAgent>(resource_manager, *world);
 
-    // // Target
+    // Target
     target = std::make_unique<Target>(4, 4, *world, *this);
 
-    // // Walls
+    // Walls
     walls.push_back(std::make_unique<Wall>(-5, -5, 10, 0.1, *world));
     walls.push_back(std::make_unique<Wall>(-5, -5, 0.1, 10, *world));
     walls.push_back(std::make_unique<Wall>(-5, 4.9, 10, 0.1, *world));
@@ -159,6 +160,7 @@ void TargetEnv::forward(float step_length)
 void TargetEnv::change_reward(float reward_delta)
 {
     reward += reward_delta;
+    total_reward += reward_delta;
 }
 
 void TargetEnv::set_done()
@@ -200,6 +202,10 @@ void TargetEnv::thread_loop()
             // Step simulation
             world->Step(command.step_length, 3, 2);
 
+            // Max episode length
+            step_counter++;
+            done = done || step_counter >= max_steps;
+
             // Return step information
             step_info->observation = agent->get_observation();
             step_info->reward = reward;
@@ -209,9 +215,10 @@ void TargetEnv::thread_loop()
             reward = 0;
 
             // Increment step counter
-            step_counter++;
-            if (done || step_counter == max_steps)
+            if (done)
             {
+                std::string reward_string(std::to_string(total_reward) + "\n");
+                std::cout << reward_string;
                 reset();
             }
 
@@ -225,6 +232,7 @@ void TargetEnv::thread_loop()
         case Commands::Reset:
             done = false;
             reward = 0;
+            total_reward = 0;
             step_counter = 0;
 
             // Reset agent position

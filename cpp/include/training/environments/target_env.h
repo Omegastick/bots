@@ -47,6 +47,7 @@ class TargetEnv : public IEnvironment
     std::thread *thread;
     std::queue<ThreadCommand> command_queue;
     std::atomic<int> command_queue_flag;
+    int total_reward;
 
     void thread_loop();
 };
