@@ -18,7 +18,7 @@ ModuleLink::~ModuleLink() {}
 void ModuleLink::link(ModuleLink *other)
 {
     // Calculate own transform
-    b2Transform own_transform = b2Mul(transform, parent_module->transform);
+    b2Transform own_transform = b2Mul(parent_module->transform, transform);
 
     // Calculate other module's transform
     b2Rot inverse_rotation = b2Mul(own_transform.q, b2Rot(M_PI));

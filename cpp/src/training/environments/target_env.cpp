@@ -218,7 +218,7 @@ void TargetEnv::thread_loop()
             command.promise.set_value(std::move(step_info));
             break;
         case Commands::Forward:
-            agent->act(std::vector<int>{1, 1});
+            agent->act(std::vector<int>{1, 1, 1});
             world->Step(command.step_length, 3, 2);
             break;
         case Commands::Reset:

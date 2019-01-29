@@ -5,6 +5,7 @@
 #include "training/agents/test_agent.h"
 #include "training/modules/base_module.h"
 #include "training/modules/gun_module.h"
+#include "training/modules/thruster_module.h"
 #include "training/rigid_body.h"
 #include "utilities.h"
 
@@ -19,15 +20,21 @@ TestAgent::TestAgent(ResourceManager &resource_manager, b2World &world)
     std::unique_ptr<BaseModule> base_module = std::make_unique<BaseModule>(resource_manager, *rigid_body->body, this);
     std::unique_ptr<GunModule> gun_module_right = std::make_unique<GunModule>(resource_manager, *rigid_body->body, this);
     std::unique_ptr<GunModule> gun_module_left = std::make_unique<GunModule>(resource_manager, *rigid_body->body, this);
+    std::unique_ptr<ThrusterModule> thruster_module_left = std::make_unique<ThrusterModule>(resource_manager, *rigid_body->body, this);
+    std::unique_ptr<ThrusterModule> thruster_module_right = std::make_unique<ThrusterModule>(resource_manager, *rigid_body->body, this);
 
     // Connect modules
     base_module->module_links[1].link(&gun_module_right->module_links[2]);
     base_module->module_links[3].link(&gun_module_left->module_links[0]);
+    gun_module_left->module_links[1].link(&thruster_module_left->module_links[0]);
+    gun_module_right->module_links[1].link(&thruster_module_right->module_links[0]);
 
     // Add modules to Agent
     modules.push_back(std::move(base_module));
     modules.push_back(std::move(gun_module_right));
     modules.push_back(std::move(gun_module_left));
+    modules.push_back(std::move(thruster_module_left));
+    modules.push_back(std::move(thruster_module_right));
 
     // Sync agent with new modules
     update_body();
@@ -53,7 +60,7 @@ void TestAgent::act(std::vector<int> action_flags)
     {
         int next_position = current_position + action->flag_count;
         action->act(std::vector<int>(&action_flags[current_position], &action_flags[next_position]));
-        current_position += next_position;
+        current_position = next_position;
     }
 }
 
