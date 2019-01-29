@@ -45,6 +45,7 @@ class TrainingSession:
             hyperparams: HyperParams,
             contexts: int
     ):
+        self.model_specification = model
         torch.set_num_threads(1)
         self.device = torch.device("cuda:0" if hyperparams.use_gpu else "cpu")
 
@@ -189,7 +190,8 @@ class TrainingSession:
         # Update the agent
         value_loss, action_loss, entropy = self.agent.update(self.rollouts)
 
-        action_dist = self.rollouts.actions.view(-1, 4).mean(dim=0)
+        action_dist = self.rollouts.actions.view(
+            -1, self.model_specification.outputs).mean(dim=0)
         action_dist_str = " ".join(format(x, ".2f") for x in action_dist)
 
         # Reset the rollout storage
