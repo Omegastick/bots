@@ -1,14 +1,16 @@
 #include <Box2D/Box2D.h>
 #include <SFML/Graphics.hpp>
+#include <iostream>
 #include <memory>
 #include <vector>
 
 #include "gui/colors.h"
 #include "training/agents/test_agent.h"
+#include "training/entities/bullet.h"
+#include "training/entities/target.h"
 #include "training/entities/wall.h"
 #include "training/environments/target_env.h"
 #include "training/rigid_body.h"
-#include "training/entities/bullet.h"
 
 namespace SingularityTrainer
 {
@@ -38,9 +40,9 @@ class ContactListener : public b2ContactListener
                 case RigidBody::ParentTypes::Bullet:
                     static_cast<Bullet *>(body->parent)->begin_contact(other);
                     break;
-                    // case RigidBody::ParentTypes::Target:
-                    //     static_cast<Target *>(body->parent)->begin_contact(other);
-                    //     break;
+                case RigidBody::ParentTypes::Target:
+                    static_cast<Target *>(body->parent)->begin_contact(other);
+                    break;
                 }
             }
         }
@@ -64,9 +66,9 @@ class ContactListener : public b2ContactListener
                 case RigidBody::ParentTypes::Agent:
                     static_cast<IAgent *>(body->parent)->end_contact(other);
                     break;
-                    // case RigidBody::ParentTypes::Target:
-                    //     static_cast<Target *>(body->parent)->end_contact(other);
-                    //     break;
+                case RigidBody::ParentTypes::Target:
+                    static_cast<Target *>(body->parent)->end_contact(other);
+                    break;
                 }
             }
         }
@@ -89,7 +91,7 @@ TargetEnv::TargetEnv(ResourceManager &resource_manager, float x, float y, float 
     agent = std::make_unique<TestAgent>(resource_manager, *world);
 
     // // Target
-    // target = std::make_unique<Target>(4, 4, *world, *this);
+    target = std::make_unique<Target>(4, 4, *world, *this);
 
     // // Walls
     walls.push_back(std::make_unique<Wall>(-5, -5, 10, 0.1, *world));
@@ -127,7 +129,7 @@ void TargetEnv::draw(sf::RenderTarget &render_target)
     {
         wall->draw(render_texture);
     }
-    // target->draw(render_texture);
+    target->draw(render_texture);
 
     render_texture.display();
 
@@ -158,6 +160,7 @@ void TargetEnv::forward(float step_length)
 void TargetEnv::change_reward(float reward_delta)
 {
     reward += reward_delta;
+    std::cout << reward << "\n";
 }
 
 void TargetEnv::set_done()

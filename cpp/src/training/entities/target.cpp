@@ -1,9 +1,17 @@
-#include "test_screen/target.h"
+#include <Box2D/Box2D.h>
+#include <SFML/Graphics.hpp>
+#include <memory>
+
 #include "gui/colors.h"
+#include "idrawable.h"
+#include "training/entities/target.h"
+#include "training/environments/ienvironment.h"
+#include "training/icollidable.h"
+#include "training/rigid_body.h"
 
 namespace SingularityTrainer
 {
-Target::Target(float x, float y, b2World &world, TestEnv &env) : environment(env)
+Target::Target(float x, float y, b2World &world, IEnvironment &env) : environment(env)
 {
     // Rigid body
     rigid_body = std::make_unique<RigidBody>(b2_staticBody, b2Vec2(x, y), world, this, RigidBody::ParentTypes::Target);
@@ -22,7 +30,7 @@ Target::Target(float x, float y, b2World &world, TestEnv &env) : environment(env
     shape.setPosition(x, y);
 }
 
-Target::~Target(){};
+Target::~Target() {}
 
 void Target::draw(sf::RenderTarget &render_target)
 {
@@ -31,10 +39,9 @@ void Target::draw(sf::RenderTarget &render_target)
 
 void Target::begin_contact(RigidBody *other)
 {
-    if (other->parent_type == RigidBody::ParentTypes::Bot)
+    if (other->parent_type == RigidBody::ParentTypes::Bullet)
     {
         environment.change_reward(1);
-        environment.set_done();
     }
 }
 

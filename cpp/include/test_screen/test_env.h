@@ -11,16 +11,14 @@
 
 #include "idrawable.h"
 #include "test_screen/bot.h"
-#include "test_screen/target.h"
+#include "training/entities/target.h"
 #include "training/entities/wall.h"
 #include "test_screen/score_display.h"
 #include "training/environments/ienvironment.h"
 
 namespace SingularityTrainer
 {
-class Target;
-
-class TestEnv : IDrawable
+class TestEnv : public IEnvironment
 {
   public:
     TestEnv(ResourceManager &resource_manager, float x, float y, float scale, int max_steps);

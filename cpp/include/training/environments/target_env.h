@@ -11,8 +11,9 @@
 
 #include "resource_manager.h"
 #include "training/agents/iagent.h"
-#include "training/environments/ienvironment.h"
+#include "training/entities/target.h"
 #include "training/entities/wall.h"
+#include "training/environments/ienvironment.h"
 
 namespace SingularityTrainer
 {
@@ -31,11 +32,13 @@ class TargetEnv : public IEnvironment
     virtual void draw(sf::RenderTarget &render_target);
 
     std::unique_ptr<IAgent> agent;
+
   private:
     sf::RenderTexture render_texture;
     sf::Sprite sprite;
     std::unique_ptr<b2World> world;
     std::vector<std::unique_ptr<Wall>> walls;
+    std::unique_ptr<Target> target;
     std::unique_ptr<b2ContactListener> contact_listener;
     bool done;
     float reward;
