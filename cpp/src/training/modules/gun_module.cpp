@@ -4,7 +4,7 @@
 #include <vector>
 
 #include "resource_manager.h"
-#include "training/actions/shoot_action.h"
+#include "training/actions/activate_action.h"
 #include "training/agents/iagent.h"
 #include "training/entities/bullet.h"
 #include "training/modules/gun_module.h"
@@ -34,7 +34,7 @@ GunModule::GunModule(ResourceManager &resource_manager, b2Body &body, IAgent *ag
     module_links.push_back(ModuleLink(0, 0.5, 180, this));
     module_links.push_back(ModuleLink(-0.5, 0.167, 270, this));
 
-    actions.push_back(std::make_unique<ShootAction>(this));
+    actions.push_back(std::make_unique<ActivateAction>(this));
 
     this->agent = agent;
 }
@@ -50,7 +50,7 @@ void GunModule::draw(sf::RenderTarget &render_target)
     }
 }
 
-void GunModule::shoot()
+void GunModule::activate()
 {
     if (steps_since_last_shot > cooldown)
     {

@@ -9,7 +9,6 @@
 #include "training/actions/iaction.h"
 #include "training/agents/iagent.h"
 #include "training/modules/imodule.h"
-#include "training/modules/interfaces/ishootable.h"
 
 namespace SingularityTrainer
 {
