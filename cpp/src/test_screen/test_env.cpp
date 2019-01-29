@@ -187,6 +187,10 @@ void TestEnv::thread_loop()
             // Step simulation
             world->Step(command.step_length, 3, 2);
 
+            // Max episode length
+            step_counter++;
+            done = step_counter >= max_steps;
+
             // Return step information
             step_info->observation = bot->get_observation();
             step_info->reward = reward;
@@ -197,9 +201,7 @@ void TestEnv::thread_loop()
             // Reset reward
             reward = 0;
 
-            // Increment step counter
-            step_counter++;
-            if (done || step_counter == max_steps)
+            if (done)
             {
                 reset();
             }

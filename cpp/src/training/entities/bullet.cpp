@@ -32,9 +32,12 @@ Bullet::~Bullet() {}
 
 void Bullet::draw(sf::RenderTarget &render_target)
 {
-    b2Vec2 position = rigid_body->body->GetPosition();
-    shape.setPosition(position.x, position.y);
-    render_target.draw(shape);
+    if (!destroyed)
+    {
+        b2Vec2 position = rigid_body->body->GetPosition();
+        shape.setPosition(position.x, position.y);
+        render_target.draw(shape);
+    }
 }
 
 void Bullet::begin_contact(RigidBody *other)
