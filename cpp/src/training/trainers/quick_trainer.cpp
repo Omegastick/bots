@@ -2,22 +2,19 @@
 #include <memory>
 
 #include "communicator.h"
+#include "random.h"
 #include "resource_manager.h"
 #include "training/environments/target_env.h"
 #include "training/trainers/quick_trainer.h"
 
 namespace SingularityTrainer
 {
-QuickTrainer::QuickTrainer(ResourceManager &resource_manager, Communicator *communicator, int env_count)
-    : communicator(communicator), waiting_for_server(false), env_count(env_count), frame_counter(0), action_frame_counter(0)
+QuickTrainer::QuickTrainer(ResourceManager &resource_manager, Communicator *communicator, Random *rng, int env_count)
+    : communicator(communicator), waiting_for_server(false), env_count(env_count), frame_counter(0), action_frame_counter(0), rng(rng)
 {
     for (int i = 0; i < env_count; ++i)
     {
         environments.push_back(std::make_unique<TargetEnv>(resource_manager, 460, 40, 1, 100));
-    }
-    for (const auto &environment : environments)
-    {
-        environment->start_thread();
     }
 }
 
@@ -25,7 +22,22 @@ QuickTrainer::~QuickTrainer() {}
 
 void QuickTrainer::begin_training()
 {
+    for (int i = 0; i < environments.size(); ++i)
+    {
+        environments[i]->start_thread();
 
+        // Start each environment with a different number of random steps to decorrelate the environments
+        for (int current_step = 0; current_step < i * 4; current_step++)
+        {
+            std::vector<int> actions;
+            actions.reserve(4);
+            for (int action = 0; action < 4; action++)
+            {
+                actions.push_back(rng->NextInt(0, 1));
+            }
+            environments[i]->step(actions, 1.f / 10.f);                                                                                                                        
+        }
+    }
     std::vector<std::future<std::unique_ptr<StepInfo>>> observation_futures(env_count);
     observations.resize(env_count);
     for (int i = 0; i < environments.size(); ++i)

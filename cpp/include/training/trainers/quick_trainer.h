@@ -4,16 +4,17 @@
 #include <vector>
 
 #include "communicator.h"
+#include "random.h"
 #include "resource_manager.h"
-#include "training/trainers/itrainer.h"
 #include "training/environments/ienvironment.h"
+#include "training/trainers/itrainer.h"
 
 namespace SingularityTrainer
 {
 class QuickTrainer : public ITrainer
 {
   public:
-    QuickTrainer(ResourceManager &resource_manager, Communicator *communicator, int env_count);
+    QuickTrainer(ResourceManager &resource_manager, Communicator *communicator, Random *rng, int env_count);
     ~QuickTrainer();
 
     virtual void begin_training();
@@ -29,6 +30,7 @@ class QuickTrainer : public ITrainer
     int env_count;
     int frame_counter;
     int action_frame_counter;
+    Random *rng;
 
     void action_update();
 };

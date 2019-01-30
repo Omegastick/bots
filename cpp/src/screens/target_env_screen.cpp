@@ -13,9 +13,9 @@
 
 namespace SingularityTrainer
 {
-TargetEnvScreen::TargetEnvScreen(ResourceManager &resource_manager, Communicator *communicator, int env_count)
+TargetEnvScreen::TargetEnvScreen(ResourceManager &resource_manager, Communicator *communicator, Random *rng, int env_count)
 {
-    trainer = std::make_unique<QuickTrainer>(resource_manager, communicator, env_count);
+    trainer = std::make_unique<QuickTrainer>(resource_manager, communicator, rng, env_count);
 
     resource_manager.load_shader("crt", "shaders/crt.frag");
     shader = resource_manager.shader_store.get("crt");
@@ -30,7 +30,8 @@ TargetEnvScreen::TargetEnvScreen(ResourceManager &resource_manager, Communicator
     trainer->begin_training();
 }
 
-TargetEnvScreen::~TargetEnvScreen() {
+TargetEnvScreen::~TargetEnvScreen()
+{
     trainer->end_training();
 }
 

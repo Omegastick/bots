@@ -6,6 +6,7 @@ PUBLIC
     ${CMAKE_CURRENT_LIST_DIR}/resource_manager.cpp
     ${CMAKE_CURRENT_LIST_DIR}/screen_manager.cpp
     ${CMAKE_CURRENT_LIST_DIR}/utilities.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/random.cpp
 )
 
 add_subdirectory(test_screen)

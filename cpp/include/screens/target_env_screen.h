@@ -10,13 +10,14 @@
 #include "resource_manager.h"
 #include "training/environments/target_env.h"
 #include "training/trainers/itrainer.h"
+#include "random.h"
 
 namespace SingularityTrainer
 {
 class TargetEnvScreen : public IScreen
 {
   public:
-    TargetEnvScreen(ResourceManager &resource_manager, Communicator *communicator, int env_count);
+    TargetEnvScreen(ResourceManager &resource_manager, Communicator *communicator, Random *rng, int env_count);
     ~TargetEnvScreen();
 
     void draw(sf::RenderTarget &render_target);

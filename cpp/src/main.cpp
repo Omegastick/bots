@@ -5,6 +5,7 @@
 #include "communicator.h"
 #include "gui/colors.h"
 #include "gui/input.h"
+#include "random.h"
 #include "requests.h"
 #include "screen_manager.h"
 #include "screens/target_env_screen.h"
@@ -64,8 +65,9 @@ int main(int argc, const char *argv[])
     ScreenManager screen_manager;
     ResourceManager resource_manager = ResourceManager("cpp/assets/");
     std::unique_ptr<Communicator> communicator = std::make_unique<Communicator>("tcp://127.0.0.1:10201");
+    std::unique_ptr<Random> rng = std::make_unique<Random>(1);
 
-    std::shared_ptr<TargetEnvScreen> test_screen = std::make_shared<TargetEnvScreen>(resource_manager, communicator.get(), 7);
+    std::shared_ptr<TargetEnvScreen> test_screen = std::make_shared<TargetEnvScreen>(resource_manager, communicator.get(), rng.get(), 7);
     // std::shared_ptr<TestScreen> test_screen = std::make_shared<TestScreen>(resource_manager, communicator.get(), 7);
     screen_manager.show_screen(test_screen);
 
