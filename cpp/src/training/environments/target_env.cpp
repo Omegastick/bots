@@ -94,17 +94,17 @@ TargetEnv::TargetEnv(ResourceManager &resource_manager, float x, float y, float 
     target = std::make_unique<Target>(4, 4, *world, *this);
 
     // Walls
-    walls.push_back(std::make_unique<Wall>(-5, -5, 10, 0.1, *world));
-    walls.push_back(std::make_unique<Wall>(-5, -5, 0.1, 10, *world));
-    walls.push_back(std::make_unique<Wall>(-5, 4.9, 10, 0.1, *world));
-    walls.push_back(std::make_unique<Wall>(4.9, -5, 0.1, 10, *world));
+    walls.push_back(std::make_unique<Wall>(-10, -10, 20, 0.1, *world));
+    walls.push_back(std::make_unique<Wall>(-10, -10, 0.1, 20, *world));
+    walls.push_back(std::make_unique<Wall>(-10, 9.9, 20, 0.1, *world));
+    walls.push_back(std::make_unique<Wall>(9.9, -10, 0.1, 20, *world));
 
     // Display
     render_texture.create(1000, 1000);
     sprite.setTexture(render_texture.getTexture());
     sprite.setPosition(x, y);
     sprite.setScale(scale, scale);
-    render_texture.setView(sf::View(sf::Vector2f(0, 0), sf::Vector2f(10, 10)));
+    render_texture.setView(sf::View(sf::Vector2f(0, 0), sf::Vector2f(20, 20)));
 }
 
 TargetEnv::~TargetEnv()
