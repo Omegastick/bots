@@ -26,5 +26,7 @@ class Bullet : public IDrawable, public ICollidable
 
   private:
     sf::CircleShape shape;
+    b2Vec2 last_position;
+    sf::VertexArray trail;
 };
 }

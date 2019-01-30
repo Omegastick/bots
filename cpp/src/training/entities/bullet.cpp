@@ -2,6 +2,7 @@
 #include <SFML/Graphics.hpp>
 #include <iostream>
 
+#include "gui/colors.h"
 #include "idrawable.h"
 #include "training/entities/bullet.h"
 #include "training/icollidable.h"
@@ -9,7 +10,8 @@
 
 namespace SingularityTrainer
 {
-Bullet::Bullet(b2Vec2 position, b2Vec2 velocity, b2World &world) : shape(0.1), destroyed(false), life(10)
+Bullet::Bullet(b2Vec2 position, b2Vec2 velocity, b2World &world)
+    : shape(0.1), destroyed(false), life(10), trail(sf::Triangles, 3), last_position(b2Vec2_zero)
 {
     shape.setOrigin(0.1, 0.1);
 
@@ -23,8 +25,15 @@ Bullet::Bullet(b2Vec2 position, b2Vec2 velocity, b2World &world) : shape(0.1), d
     fixture_def.friction = 1;
     fixture_def.isSensor = true;
     rigid_body->body->CreateFixture(&fixture_def);
-
     rigid_body->body->SetBullet(true);
+
+    // Trail colour
+    sf::Color trail_end_colour = cl_white;
+    trail_end_colour.a = 0;
+    trail[0].color = trail_end_colour;
+    trail[1].color = cl_white;
+    trail[2].color = cl_white;
+
     rigid_body->body->ApplyForceToCenter(velocity, true);
 }
 
@@ -35,8 +44,24 @@ void Bullet::draw(sf::RenderTarget &render_target)
     if (!destroyed)
     {
         b2Vec2 position = rigid_body->body->GetPosition();
+        b2Vec2 velocity = rigid_body->body->GetLinearVelocity();
+        velocity.Normalize();
+        velocity *= 0.1;
+
+        // Body
         shape.setPosition(position.x, position.y);
         render_target.draw(shape);
+
+        // Trail
+        if (last_position.x != b2Vec2_zero.x || last_position.y != b2Vec2_zero.y)
+        {
+            trail[0].position = sf::Vector2f(last_position.x, last_position.y);
+            trail[1].position = sf::Vector2f(position.x + velocity.y, position.y - velocity.x);
+            trail[2].position = sf::Vector2f(position.x - velocity.y, position.y + velocity.x);
+            render_target.draw(trail);
+        }
+
+        last_position = position;
     }
 }
 

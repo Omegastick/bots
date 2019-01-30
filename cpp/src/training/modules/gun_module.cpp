@@ -12,7 +12,7 @@
 
 namespace SingularityTrainer
 {
-GunModule::GunModule(ResourceManager &resource_manager, b2Body &body, IAgent *agent) : cooldown(10), steps_since_last_shot(0)
+GunModule::GunModule(ResourceManager &resource_manager, b2Body &body, IAgent *agent) : cooldown(3), steps_since_last_shot(0)
 {
     // Sprite
     resource_manager.load_texture("gun_module", "images/gun_module.png");
