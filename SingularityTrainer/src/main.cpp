@@ -63,7 +63,7 @@ int main(int argc, const char *argv[])
     input_callback_system.connect(Inputs::ResizeWindow, std::function<void(thor::ActionContext<Inputs>)>(on_window_resize));
 
     ScreenManager screen_manager;
-    ResourceManager resource_manager = ResourceManager("cpp/assets/");
+    ResourceManager resource_manager = ResourceManager("SingularityTrainer/assets/");
     std::unique_ptr<Communicator> communicator = std::make_unique<Communicator>("tcp://127.0.0.1:10201");
     std::unique_ptr<Random> rng = std::make_unique<Random>(1);
 
