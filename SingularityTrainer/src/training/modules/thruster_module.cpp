@@ -56,18 +56,22 @@ void ThrusterModule::activate()
     agent->rigid_body->body->ApplyForce(velocity, global_transform.p, true);
 
     // Spawn particles
-    std::uniform_real_distribution<float> distribution(-0.5, 0.5);
+    b2Transform edge_transform = b2Mul(global_transform, b2Transform(b2Vec2(0, 0.4), b2Rot(0)));
+    std::uniform_real_distribution<float> distribution(0, 1);
     const int particle_count = 10;
     const float step_subdivision = 1.f / particle_count / 10.f;
+    sf::Color end_color = cl_white;
+    end_color.a = 0;
     for (int i = 0; i < particle_count; ++i)
     {
-        b2Rot angle = b2Mul(global_transform.q, b2Rot(M_PI_2));
-        angle = b2Mul(angle, b2Rot(agent->rng->next_float(distribution)));
+        b2Rot angle = b2Mul(edge_transform.q, b2Rot(M_PI_2));
+        float random_number = agent->rng->next_float(distribution) - 0.5;
+        angle = b2Mul(angle, b2Rot(-random_number));
         Particle particle{
-            global_transform.p,
+            b2Vec2(edge_transform.p.x + angle.s * random_number, edge_transform.p.y - angle.c * random_number),
             b2Vec2(angle.c * 10, angle.s * 10),
             cl_white,
-            sf::Color::Transparent,
+            end_color,
             0.5};
         particle_system->add_particle(particle, i * step_subdivision);
     }

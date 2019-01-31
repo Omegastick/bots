@@ -84,20 +84,33 @@ void LinearParticleSystem::draw(sf::RenderTarget &render_target)
     for (int i = 0; i < count; ++i)
     {
         sf::Color color;
-        float life_usage = lives[i] / lifetimes[i];
-        color.r = lerp(start_colors[i].r, end_colors[i].r, life_usage);
-        color.g = lerp(start_colors[i].g, end_colors[i].g, life_usage);
-        color.b = lerp(start_colors[i].b, end_colors[i].b, life_usage);
-        color.a = lerp(start_colors[i].a, end_colors[i].a, life_usage);
+        if (lives[i] > 0)
+        {
+            float life_usage = lives[i] / lifetimes[i];
+            color.r = lerp(start_colors[i].r, end_colors[i].r, life_usage);
+            color.g = lerp(start_colors[i].g, end_colors[i].g, life_usage);
+            color.b = lerp(start_colors[i].b, end_colors[i].b, life_usage);
+            color.a = lerp(start_colors[i].a, end_colors[i].a, life_usage);
+        }
+        else
+        {
+            color = sf::Color::Transparent;
+        }
         colors[i] = color;
     }
 
     // Create vertices
-    sf::VertexArray vertices(sf::Points, count);
+    sf::VertexArray vertices(sf::Quads, count * 4);
     for (int i = 0; i < count; ++i)
     {
-        vertices[i].position = sf::Vector2f(xs[i], ys[i]);
-        vertices[i].color = colors[i];
+        vertices[i * 4].position = sf::Vector2f(xs[i] - 0.1, ys[i] - 0.1);
+        vertices[i * 4].color = colors[i];
+        vertices[i * 4 + 1].position = sf::Vector2f(xs[i] + 0.1, ys[i] - 0.1);
+        vertices[i * 4 + 1].color = colors[i];
+        vertices[i * 4 + 2].position = sf::Vector2f(xs[i] + 0.1, ys[i] + 0.1);
+        vertices[i * 4 + 2].color = colors[i];
+        vertices[i * 4 + 3].position = sf::Vector2f(xs[i] - 0.1, ys[i] + 0.1);
+        vertices[i * 4 + 3].color = colors[i];
     }
 
     render_target.draw(vertices);
