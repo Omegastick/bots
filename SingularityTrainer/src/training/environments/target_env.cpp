@@ -127,17 +127,16 @@ void TargetEnv::draw(sf::RenderTarget &render_target, bool lightweight)
 {
     // Draw onto temporary texture
     render_texture.clear(cl_background);
+    if (!lightweight)
+    {
+        particle_system.draw(render_texture, lightweight);
+    }
     agent->draw(render_texture, lightweight);
     for (auto &wall : walls)
     {
         wall->draw(render_texture, lightweight);
     }
     target->draw(render_texture, lightweight);
-
-    if (!lightweight)
-    {
-        particle_system.draw(render_texture, lightweight);
-    }
 
     render_texture.display();
 
