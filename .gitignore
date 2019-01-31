@@ -44,11 +44,4 @@
 **.apk
 **.unitypackage
 
-Singularity Trainer_Data/
-Mono/
-UnityPlayer.dll
-UnityCrashHandler*
-WinPix*
-Singularity Trainer.exe
-
 **.egg-info
