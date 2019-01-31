@@ -9,6 +9,7 @@
 #include "training/icollidable.h"
 #include "training/modules/imodule.h"
 #include "training/rigid_body.h"
+#include "random.h"
 
 namespace SingularityTrainer
 {
@@ -32,5 +33,6 @@ class IAgent : public IDrawable, public ICollidable
     std::vector<IAction *> actions;
     std::unique_ptr<RigidBody> rigid_body;
     bool debug_draw;
+    Random *rng;
 };
 }
