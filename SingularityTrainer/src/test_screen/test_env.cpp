@@ -107,17 +107,17 @@ void TestEnv::start_thread()
     thread = new std::thread(&TestEnv::thread_loop, this);
 }
 
-void TestEnv::draw(sf::RenderTarget &render_target)
+void TestEnv::draw(sf::RenderTarget &render_target, bool lightweight)
 {
     // Draw onto temporary texture
     render_texture.clear(cl_background);
-    bot->draw(render_texture);
+    bot->draw(render_texture, lightweight);
     for (auto &wall : walls)
     {
-        wall->draw(render_texture);
+        wall->draw(render_texture, lightweight);
     }
-    target->draw(render_texture);
-    score_display.draw(render_texture);
+    target->draw(render_texture, lightweight);
+    score_display.draw(render_texture, lightweight);
     render_texture.display();
 
     // Draw temporary tecture onto window

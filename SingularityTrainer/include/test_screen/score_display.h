@@ -14,7 +14,7 @@ class ScoreDisplay : IDrawable
     ~ScoreDisplay();
 
     void add_score(float score);
-    void draw(sf::RenderTarget &render_target);
+    void draw(sf::RenderTarget &render_target, bool lightweight = false);
 
   private:
     sf::Text text;

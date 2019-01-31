@@ -31,7 +31,7 @@ class TargetEnv : public IEnvironment
     virtual std::future<std::unique_ptr<StepInfo>> reset();
     virtual void change_reward(float reward_delta);
     virtual void set_done();
-    virtual void draw(sf::RenderTarget &render_target);
+    virtual void draw(sf::RenderTarget &render_target, bool lightweight = false);
 
     std::unique_ptr<IAgent> agent;
 

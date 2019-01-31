@@ -24,8 +24,8 @@ int ScreenManager::stack_size()
 {
     return screens.size();
 }
-void ScreenManager::draw(sf::RenderTarget &render_target)
+void ScreenManager::draw(sf::RenderTarget &render_target, bool lightweight)
 {
-    screens.top()->draw(render_target);
+    screens.top()->draw(render_target, lightweight);
 }
 }

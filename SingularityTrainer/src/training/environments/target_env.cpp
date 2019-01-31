@@ -123,17 +123,21 @@ void TargetEnv::start_thread()
     thread = new std::thread(&TargetEnv::thread_loop, this);
 }
 
-void TargetEnv::draw(sf::RenderTarget &render_target)
+void TargetEnv::draw(sf::RenderTarget &render_target, bool lightweight)
 {
     // Draw onto temporary texture
     render_texture.clear(cl_background);
-    agent->draw(render_texture);
+    agent->draw(render_texture, lightweight);
     for (auto &wall : walls)
     {
-        wall->draw(render_texture);
+        wall->draw(render_texture, lightweight);
     }
-    target->draw(render_texture);
-    particle_system.draw(render_texture);
+    target->draw(render_texture, lightweight);
+
+    if (!lightweight)
+    {
+        particle_system.draw(render_texture, lightweight);
+    }
 
     render_texture.display();
 

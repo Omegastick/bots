@@ -41,12 +41,12 @@ GunModule::GunModule(ResourceManager &resource_manager, b2Body &body, IAgent *ag
 
 GunModule::~GunModule() {}
 
-void GunModule::draw(sf::RenderTarget &render_target)
+void GunModule::draw(sf::RenderTarget &render_target, bool lightweight)
 {
-    IModule::draw(render_target);
+    IModule::draw(render_target, lightweight);
     for (const auto &bullet : bullets)
     {
-        bullet->draw(render_target);
+        bullet->draw(render_target, lightweight);
     }
 }
 

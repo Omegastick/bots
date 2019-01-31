@@ -14,6 +14,7 @@
 namespace SingularityTrainer
 {
 TargetEnvScreen::TargetEnvScreen(ResourceManager &resource_manager, Communicator *communicator, Random *rng, int env_count)
+    : lightweight_rendering(false)
 {
     trainer = std::make_unique<QuickTrainer>(resource_manager, communicator, rng, env_count);
 
@@ -39,19 +40,21 @@ void TargetEnvScreen::update(const sf::Time &delta_time, const sf::Vector2f &mou
 {
     if (sf::Keyboard::isKeyPressed(sf::Keyboard::Space))
     {
+        lightweight_rendering = false;
         trainer->slow_step();
     }
     else
     {
+        lightweight_rendering = true;
         trainer->step();
     }
 }
 
-void TargetEnvScreen::draw(sf::RenderTarget &render_target)
+void TargetEnvScreen::draw(sf::RenderTarget &render_target, bool lightweight)
 {
     texture.clear(cl_background);
 
-    trainer->environments[0]->draw(texture);
+    trainer->environments[0]->draw(texture, lightweight_rendering);
 
     texture.display();
     sf::Vector2u resolution = render_target.getSize();

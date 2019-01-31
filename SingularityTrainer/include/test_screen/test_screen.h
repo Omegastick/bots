@@ -17,7 +17,7 @@ class TestScreen : public IScreen
     TestScreen(ResourceManager &resource_manager, Communicator *communicator, int env_count);
     ~TestScreen();
 
-    void draw(sf::RenderTarget &render_target);
+    void draw(sf::RenderTarget &render_target, bool lightweight = false);
     void update(const sf::Time &delta_time, const sf::Vector2f &mouse_position, const thor::ActionMap<Inputs> &action_map);
 
   private:

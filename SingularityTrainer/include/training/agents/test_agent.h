@@ -24,7 +24,7 @@ class TestAgent : public IAgent
     virtual std::vector<float> get_observation();
     virtual void begin_contact(RigidBody *other);
     virtual void end_contact(RigidBody *other);
-    virtual void draw(sf::RenderTarget &render_target);
+    virtual void draw(sf::RenderTarget &render_target, bool lightweight = false);
     virtual void update_body();
 
   private:

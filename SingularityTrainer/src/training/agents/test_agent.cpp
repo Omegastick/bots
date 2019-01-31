@@ -82,11 +82,11 @@ std::vector<float> TestAgent::get_observation()
 void TestAgent::begin_contact(RigidBody *other) {}
 void TestAgent::end_contact(RigidBody *other) {}
 
-void TestAgent::draw(sf::RenderTarget &render_target)
+void TestAgent::draw(sf::RenderTarget &render_target, bool lightweight)
 {
     for (const auto &module : modules)
     {
-        module->draw(render_target);
+        module->draw(render_target, lightweight);
     }
 
     if (debug_draw)

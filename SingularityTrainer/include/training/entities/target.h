@@ -17,7 +17,7 @@ class Target : public IDrawable, public ICollidable
     Target(float x, float y, b2World &world, IEnvironment &env);
     ~Target();
 
-    void draw(sf::RenderTarget &render_target);
+    void draw(sf::RenderTarget &render_target, bool lightweight = false);
     void begin_contact(RigidBody *other);
     void end_contact(RigidBody *other);
 

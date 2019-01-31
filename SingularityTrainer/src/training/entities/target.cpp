@@ -32,7 +32,7 @@ Target::Target(float x, float y, b2World &world, IEnvironment &env) : environmen
 
 Target::~Target() {}
 
-void Target::draw(sf::RenderTarget &render_target)
+void Target::draw(sf::RenderTarget &render_target, bool lightweight)
 {
     render_target.draw(shape);
 }

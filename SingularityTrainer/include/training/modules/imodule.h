@@ -26,7 +26,7 @@ class IModule : IDrawable
     virtual std::vector<IModule *> get_children();
     virtual std::vector<IModule *> get_children(std::vector<IModule *> child_list);
     virtual std::vector<float> get_sensor_reading();
-    virtual void draw(sf::RenderTarget &render_target);
+    virtual void draw(sf::RenderTarget &render_target, bool lightweight = false);
     virtual b2Transform get_global_transform();
 
     const IModule *root;

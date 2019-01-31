@@ -20,7 +20,7 @@ class ThrusterModule : public IModule, public IActivatable
     ThrusterModule(ResourceManager &resource_manager, b2Body &body, IAgent *agent, LinearParticleSystem *particle_system);
     ~ThrusterModule();
 
-    virtual void draw(sf::RenderTarget &render_target);
+    virtual void draw(sf::RenderTarget &render_target, bool lightweight = false);
     virtual void activate();
     virtual void update();
   

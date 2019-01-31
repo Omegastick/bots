@@ -36,5 +36,5 @@ void ModuleLink::link(ModuleLink *other)
     other->pair_link = this;
 }
 
-void ModuleLink::draw(sf::RenderTarget &render_target) {}
+void ModuleLink::draw(sf::RenderTarget &render_target, bool lightweight) {}
 }

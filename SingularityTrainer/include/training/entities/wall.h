@@ -14,7 +14,7 @@ class Wall : public IDrawable
     Wall(float x, float y, float width, float height, b2World &world);
     ~Wall();
 
-    virtual void draw(sf::RenderTarget &render_target);
+    virtual void draw(sf::RenderTarget &render_target, bool lightweight = false);
 
   private:
     sf::RectangleShape shape;

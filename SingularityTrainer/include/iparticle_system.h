@@ -14,7 +14,7 @@ class IParticleSystem : public IDrawable
     virtual ~IParticleSystem() = 0;
 
     virtual void update(float delta_time) = 0;
-    virtual void draw(sf::RenderTarget &render_target) = 0;
+    virtual void draw(sf::RenderTarget &render_target, bool lightweight = false) = 0;
 
   private:
     IParticleSystem &operator=(const IParticleSystem &) = default;

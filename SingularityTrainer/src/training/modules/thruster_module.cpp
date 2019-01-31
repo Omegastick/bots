@@ -44,9 +44,9 @@ ThrusterModule::ThrusterModule(ResourceManager &resource_manager, b2Body &body, 
 
 ThrusterModule::~ThrusterModule() {}
 
-void ThrusterModule::draw(sf::RenderTarget &render_target)
+void ThrusterModule::draw(sf::RenderTarget &render_target, bool lightweight)
 {
-    IModule::draw(render_target);
+    IModule::draw(render_target, lightweight);
 }
 
 void ThrusterModule::activate()
@@ -70,7 +70,7 @@ void ThrusterModule::activate()
         Particle particle{
             b2Vec2(edge_transform.p.x + angle.s * random_number, edge_transform.p.y - angle.c * random_number),
             b2Vec2(angle.c * 10, angle.s * 10),
-            cl_white,
+            sf::Color::Red,
             end_color,
             0.5};
         particle_system->add_particle(particle, i * step_subdivision);

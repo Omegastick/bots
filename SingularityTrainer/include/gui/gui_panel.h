@@ -15,7 +15,7 @@ class GUIPanel : IGUIObject
     ~GUIPanel();
 
     void handle_input(const sf::Vector2f &mouse_position, const thor::ActionMap<Inputs> &action_map);
-    void draw(sf::RenderTarget &render_target);
+    void draw(sf::RenderTarget &render_target, bool lightweight = false);
 
     sf::RectangleShape shape;
     std::vector<std::shared_ptr<IGUIObject>> children;

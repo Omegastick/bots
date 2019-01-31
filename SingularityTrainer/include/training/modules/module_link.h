@@ -17,7 +17,7 @@ class ModuleLink : IDrawable
     ~ModuleLink();
 
     void link(ModuleLink *other);
-    void draw(sf::RenderTarget &render_target);
+    void draw(sf::RenderTarget &render_target, bool lightweight = false);
 
     bool linked;
     IModule *parent_module;

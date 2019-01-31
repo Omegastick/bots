@@ -37,7 +37,7 @@ void LinearParticleSystem::add_particle(Particle &particle, float time_offset)
     spawn_times.push_back(current_time + time_offset);
 }
 
-void LinearParticleSystem::draw(sf::RenderTarget &render_target)
+void LinearParticleSystem::draw(sf::RenderTarget &render_target, bool lightweight)
 {
     int count = start_xs.size();
 
