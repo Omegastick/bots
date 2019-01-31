@@ -23,6 +23,10 @@ void LinearParticleSystem::update(float delta_time)
 
 void LinearParticleSystem::add_particle(Particle &particle, float time_offset)
 {
+    if (start_xs.size() > max_particles)
+    {
+        return;
+    }
     start_xs.push_back(particle.start_position.x);
     start_ys.push_back(particle.start_position.y);
     velocity_xs.push_back(particle.velocity.x);
@@ -53,27 +57,34 @@ void LinearParticleSystem::draw(sf::RenderTarget &render_target)
 
     float xs[count];
     float ys[count];
+    float lives[count];
     sf::Color colors[count];
+
+    // Calculate lives
+    for (int i = 0; i < count; ++i)
+    {
+        lives[i] = current_time - spawn_times[i];
+    }
 
     // Calculate particle X positions
     for (int i = 0; i < count; ++i)
     {
-        xs[i] = start_xs[i] + (current_time - spawn_times[i]) * velocity_xs[i];
+        xs[i] = start_xs[i] + (lives[i] * velocity_xs[i]);
         xs[i] = xs[i] > max_x ? max_x : xs[i] < min_x ? min_x : xs[i];
     }
 
     // Calculate particle Y positions
     for (int i = 0; i < count; ++i)
     {
-        ys[i] = start_ys[i] + (current_time - spawn_times[i]) * velocity_ys[i];
-        ys[i] = ys[i] > max_y ? max_y : ys[i] <min_y ? min_y : ys[i];
+        ys[i] = start_ys[i] + (lives[i] * velocity_ys[i]);
+        ys[i] = ys[i] > max_y ? max_y : ys[i] < min_y ? min_y : ys[i];
     }
 
     // Calculate colours
     for (int i = 0; i < count; ++i)
     {
         sf::Color color;
-        float life_usage = (current_time - spawn_times[i]) / lifetimes[i];
+        float life_usage = lives[i] / lifetimes[i];
         color.r = lerp(start_colors[i].r, end_colors[i].r, life_usage);
         color.g = lerp(start_colors[i].g, end_colors[i].g, life_usage);
         color.b = lerp(start_colors[i].b, end_colors[i].b, life_usage);
