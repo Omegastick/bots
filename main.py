@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 """
 Main script
 """
@@ -5,13 +6,11 @@ Main script
 import os
 os.environ['OMP_NUM_THREADS'] = '1'
 import argparse
-import time
 import logging
 
 from training_server.session_manager import SessionManager
 from training_server.server import Server
 from training_server.command_handler import CommandHandler
-
 
 def main():
     """
@@ -34,8 +33,8 @@ def main():
     command_handler = CommandHandler(session_manager)
 
     server = Server(args.port)
-    logging.info("Server started...")
-    server.send_message("Connection established...")
+    logging.info("Server started")
+    server.send_message("Connection established")
     logging.debug(server.get_message().decode())
 
     while True:

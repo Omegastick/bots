@@ -155,6 +155,7 @@ class CommandHandler:
         Begins a new session.
         """
         params = command.params
+        logging.info("Beginning session: %i", params["session_id"])
         model = ModelSpecification(
             inputs=params["model"]["inputs"],
             outputs=params["model"]["outputs"],
@@ -183,10 +184,11 @@ class CommandHandler:
         actions, value = self.session_manager.get_actions(
             params["session_id"], params["inputs"])
         values = value.view(-1).tolist()
-        actions = actions.tolist()
+        actions = actions.byte().tolist()
         response = Response(
             id=command.id,
-            result={"actions": actions, "value": values}
+            result={"actions": actions, "values": values}
+            # result={"actions": "Hello", "values": "I am Isaac"}
         )
         return self.create_response(response)
 
@@ -206,6 +208,7 @@ class CommandHandler:
         Ends a session.
         """
         params = command.params
+        logging.info("Ending session: %i", params["session_id"])
         self.session_manager.end_session(params["session_id"])
         response = Response(result="OK", id=command.id)
         return self.create_response(response)
