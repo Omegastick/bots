@@ -2,19 +2,18 @@
 
 #include <Box2D/Box2D.h>
 #include <SFML/Graphics.hpp>
-#include <atomic>
 #include <future>
 #include <memory>
 #include <queue>
 #include <thread>
 #include <utility>
+#include <atomic>
 
 #include "idrawable.h"
-#include "linear_particle_system.h"
 #include "test_screen/bot.h"
-#include "test_screen/score_display.h"
 #include "training/entities/target.h"
 #include "training/entities/wall.h"
+#include "test_screen/score_display.h"
 #include "training/environments/ienvironment.h"
 
 namespace SingularityTrainer

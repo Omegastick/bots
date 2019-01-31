@@ -9,8 +9,6 @@
 #include <thread>
 #include <utility>
 
-#include "linear_particle_system.h"
-#include "random.h"
 #include "resource_manager.h"
 #include "training/agents/iagent.h"
 #include "training/entities/target.h"
@@ -50,8 +48,6 @@ class TargetEnv : public IEnvironment
     std::queue<ThreadCommand> command_queue;
     std::atomic<int> command_queue_flag;
     int total_reward;
-    LinearParticleSystem particle_system;
-    Random rng;
 
     void thread_loop();
 };

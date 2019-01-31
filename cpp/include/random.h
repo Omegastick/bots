@@ -10,9 +10,8 @@ class Random
     Random(int seed);
     ~Random();
 
-    int next_int(int min, int max);
-    float next_float(float min, float max);
-    float next_float(std::uniform_real_distribution<float> distribution);
+    int NextInt(int min, int max);
+    float NextFloat(float min, float max);
 
   private:
     std::mt19937 rng;

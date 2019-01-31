@@ -7,7 +7,6 @@ PUBLIC
     ${CMAKE_CURRENT_LIST_DIR}/screen_manager.cpp
     ${CMAKE_CURRENT_LIST_DIR}/utilities.cpp
     ${CMAKE_CURRENT_LIST_DIR}/random.cpp
-    ${CMAKE_CURRENT_LIST_DIR}/linear_particle_system.cpp
 )
 
 add_subdirectory(test_screen)

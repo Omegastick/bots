@@ -1,11 +1,8 @@
 #include <Box2D/Box2D.h>
 #include <iostream>
 #include <memory>
-#include <random>
 #include <vector>
 
-#include "gui/colors.h"
-#include "linear_particle_system.h"
 #include "resource_manager.h"
 #include "training/actions/activate_action.h"
 #include "training/agents/iagent.h"
@@ -14,8 +11,7 @@
 
 namespace SingularityTrainer
 {
-ThrusterModule::ThrusterModule(ResourceManager &resource_manager, b2Body &body, IAgent *agent, LinearParticleSystem *particle_system)
-    : particle_system(particle_system)
+ThrusterModule::ThrusterModule(ResourceManager &resource_manager, b2Body &body, IAgent *agent)
 {
     // Sprite
     resource_manager.load_texture("thruster_module", "images/thruster_module.png");
@@ -54,23 +50,6 @@ void ThrusterModule::activate()
     b2Transform global_transform = get_global_transform();
     b2Vec2 velocity = b2Mul(global_transform.q, b2Vec2(0, -50));
     agent->rigid_body->body->ApplyForce(velocity, global_transform.p, true);
-
-    // Spawn particles
-    std::uniform_real_distribution<float> distribution(-0.5, 0.5);
-    const int particle_count = 10;
-    const float step_subdivision = 1.f / particle_count / 10.f;
-    for (int i = 0; i < particle_count; ++i)
-    {
-        b2Rot angle = b2Mul(global_transform.q, b2Rot(M_PI_2));
-        angle = b2Mul(angle, b2Rot(agent->rng->next_float(distribution)));
-        Particle particle{
-            global_transform.p,
-            b2Vec2(angle.c * 10, angle.s * 10),
-            cl_white,
-            sf::Color::Transparent,
-            0.5};
-        particle_system->add_particle(particle, i * step_subdivision);
-    }
 }
 
 void ThrusterModule::update() {}

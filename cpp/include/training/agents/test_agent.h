@@ -5,8 +5,6 @@
 #include <vector>
 
 #include "idrawable.h"
-#include "linear_particle_system.h"
-#include "random.h"
 #include "resource_manager.h"
 #include "training/actions/iaction.h"
 #include "training/agents/iagent.h"
@@ -17,7 +15,7 @@ namespace SingularityTrainer
 class TestAgent : public IAgent
 {
   public:
-    TestAgent(ResourceManager &resource_manager, b2World &world, LinearParticleSystem *particle_system, Random *rng);
+    TestAgent(ResourceManager &resource_manager, b2World &world);
     ~TestAgent();
 
     virtual void act(std::vector<int> action_flags);

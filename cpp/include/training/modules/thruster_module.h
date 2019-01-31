@@ -10,21 +10,17 @@
 #include "training/agents/iagent.h"
 #include "training/modules/imodule.h"
 #include "training/modules/interfaces/iactivatable.h"
-#include "linear_particle_system.h"
 
 namespace SingularityTrainer
 {
 class ThrusterModule : public IModule, public IActivatable
 {
   public:
-    ThrusterModule(ResourceManager &resource_manager, b2Body &body, IAgent *agent, LinearParticleSystem *particle_system);
+    ThrusterModule(ResourceManager &resource_manager, b2Body &body, IAgent *agent);
     ~ThrusterModule();
 
     virtual void draw(sf::RenderTarget &render_target);
     virtual void activate();
     virtual void update();
-  
-  private:
-    LinearParticleSystem *particle_system;
 };
 }

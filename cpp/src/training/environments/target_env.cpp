@@ -5,7 +5,6 @@
 #include <vector>
 
 #include "gui/colors.h"
-#include "linear_particle_system.h"
 #include "training/agents/test_agent.h"
 #include "training/entities/bullet.h"
 #include "training/entities/target.h"
@@ -81,9 +80,7 @@ TargetEnv::TargetEnv(ResourceManager &resource_manager, float x, float y, float 
       command_queue_flag(0),
       reward(0),
       step_counter(0),
-      done(false),
-      particle_system(-10, -10, 10, 10, 1000),
-      rng(0)
+      done(false)
 {
     // Box2D world
     world = std::make_unique<b2World>(b2Vec2(0, 0));
@@ -91,7 +88,7 @@ TargetEnv::TargetEnv(ResourceManager &resource_manager, float x, float y, float 
     world->SetContactListener(contact_listener.get());
 
     // Agent
-    agent = std::make_unique<TestAgent>(resource_manager, *world, &particle_system, &rng);
+    agent = std::make_unique<TestAgent>(resource_manager, *world);
 
     // Target
     target = std::make_unique<Target>(4, 4, *world, *this);
@@ -133,7 +130,6 @@ void TargetEnv::draw(sf::RenderTarget &render_target)
         wall->draw(render_texture);
     }
     target->draw(render_texture);
-    particle_system.draw(render_texture);
 
     render_texture.display();
 
@@ -205,7 +201,6 @@ void TargetEnv::thread_loop()
 
             // Step simulation
             world->Step(command.step_length, 3, 2);
-            particle_system.update(command.step_length);
 
             // Max episode length
             step_counter++;
@@ -232,7 +227,6 @@ void TargetEnv::thread_loop()
             break;
         case Commands::Forward:
             world->Step(command.step_length, 3, 2);
-            particle_system.update(command.step_length);
             break;
         case Commands::Reset:
             done = false;
