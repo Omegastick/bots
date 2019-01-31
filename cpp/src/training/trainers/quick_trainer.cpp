@@ -33,7 +33,7 @@ void QuickTrainer::begin_training()
             actions.reserve(4);
             for (int action = 0; action < 4; action++)
             {
-                actions.push_back(rng->NextInt(0, 1));
+                actions.push_back(rng->next_int(0, 1));
             }
             environments[i]->step(actions, 1.f / 10.f);                                                                                                                        
         }

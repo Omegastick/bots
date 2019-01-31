@@ -2,6 +2,8 @@
 #include <memory>
 #include <vector>
 
+#include "linear_particle_system.h"
+#include "random.h"
 #include "training/agents/test_agent.h"
 #include "training/modules/base_module.h"
 #include "training/modules/gun_module.h"
@@ -11,7 +13,7 @@
 
 namespace SingularityTrainer
 {
-TestAgent::TestAgent(ResourceManager &resource_manager, b2World &world)
+TestAgent::TestAgent(ResourceManager &resource_manager, b2World &world, LinearParticleSystem *particle_system, Random *rng)
 {
     // Rigid body
     rigid_body = std::make_unique<RigidBody>(b2_dynamicBody, b2Vec2_zero, world, this, RigidBody::ParentTypes::Agent);
@@ -20,8 +22,8 @@ TestAgent::TestAgent(ResourceManager &resource_manager, b2World &world)
     std::unique_ptr<BaseModule> base_module = std::make_unique<BaseModule>(resource_manager, *rigid_body->body, this);
     std::unique_ptr<GunModule> gun_module_right = std::make_unique<GunModule>(resource_manager, *rigid_body->body, this);
     std::unique_ptr<GunModule> gun_module_left = std::make_unique<GunModule>(resource_manager, *rigid_body->body, this);
-    std::unique_ptr<ThrusterModule> thruster_module_left = std::make_unique<ThrusterModule>(resource_manager, *rigid_body->body, this);
-    std::unique_ptr<ThrusterModule> thruster_module_right = std::make_unique<ThrusterModule>(resource_manager, *rigid_body->body, this);
+    std::unique_ptr<ThrusterModule> thruster_module_left = std::make_unique<ThrusterModule>(resource_manager, *rigid_body->body, this, particle_system);
+    std::unique_ptr<ThrusterModule> thruster_module_right = std::make_unique<ThrusterModule>(resource_manager, *rigid_body->body, this, particle_system);
 
     // Connect modules
     base_module->module_links[1].link(&gun_module_right->module_links[2]);
@@ -42,6 +44,8 @@ TestAgent::TestAgent(ResourceManager &resource_manager, b2World &world)
 
     // If true, draws the hitboxes of each module on screen
     debug_draw = false;
+
+    this->rng = rng;
 
     rigid_body->body->ApplyForce(b2Vec2(100, 100), b2Vec2(3, 3), true);
 }
