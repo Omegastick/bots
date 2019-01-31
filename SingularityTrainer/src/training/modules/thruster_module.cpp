@@ -14,6 +14,8 @@
 
 namespace SingularityTrainer
 {
+static const sf::Color particle_color = cl_white;
+
 ThrusterModule::ThrusterModule(ResourceManager &resource_manager, b2Body &body, IAgent *agent, LinearParticleSystem *particle_system)
     : particle_system(particle_system)
 {
@@ -60,7 +62,7 @@ void ThrusterModule::activate()
     std::uniform_real_distribution<float> distribution(0, 1);
     const int particle_count = 10;
     const float step_subdivision = 1.f / particle_count / 10.f;
-    sf::Color end_color = cl_white;
+    sf::Color end_color = particle_color;
     end_color.a = 0;
     for (int i = 0; i < particle_count; ++i)
     {
@@ -70,7 +72,7 @@ void ThrusterModule::activate()
         Particle particle{
             b2Vec2(edge_transform.p.x + angle.s * random_number, edge_transform.p.y - angle.c * random_number),
             b2Vec2(angle.c * 10, angle.s * 10),
-            sf::Color::Red,
+            particle_color,
             end_color,
             0.5};
         particle_system->add_particle(particle, i * step_subdivision);
