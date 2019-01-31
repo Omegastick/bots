@@ -25,7 +25,7 @@ class LinearParticleSystem : public IParticleSystem
 
     virtual void update(float delta_time);
     void add_particle(Particle &particle, float time_offset);
-    virtual void draw(sf::RenderTarget &render_target);
+    virtual void draw(sf::RenderTarget &render_target, bool lightweight = false);
 
   private:
     float current_time;

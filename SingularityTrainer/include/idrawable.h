@@ -10,6 +10,6 @@ class IDrawable
     IDrawable(){};
     ~IDrawable(){};
 
-    virtual void draw(sf::RenderTarget &render_target) = 0;
+    virtual void draw(sf::RenderTarget &render_target, bool lightweight = false) = 0;
 };
 }

@@ -30,7 +30,7 @@ std::vector<IModule *> IModule::get_children(std::vector<IModule *> child_list)
 
 std::vector<float> IModule::get_sensor_reading() { return std::vector<float>(); }
 
-void IModule::draw(sf::RenderTarget &render_target)
+void IModule::draw(sf::RenderTarget &render_target, bool lightweight)
 {
     b2Transform world_transform = get_global_transform();
     sf::Vector2f screen_position(world_transform.p.x, world_transform.p.y);

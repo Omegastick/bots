@@ -15,7 +15,7 @@ class GUIButton : IGUIObject
     ~GUIButton();
 
     void handle_input(sf::RenderWindow &window, const thor::ActionMap<Inputs> &action_map);
-    void draw(sf::RenderTarget &render_target);
+    void draw(sf::RenderTarget &render_target, bool lightweight = false);
 
     std::function<void()> callback;
     sf::RectangleShape shape;

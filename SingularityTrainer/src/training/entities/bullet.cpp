@@ -39,7 +39,7 @@ Bullet::Bullet(b2Vec2 position, b2Vec2 velocity, b2World &world)
 
 Bullet::~Bullet() {}
 
-void Bullet::draw(sf::RenderTarget &render_target)
+void Bullet::draw(sf::RenderTarget &render_target, bool lightweight)
 {
     if (!destroyed)
     {

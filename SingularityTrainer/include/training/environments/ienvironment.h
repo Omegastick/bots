@@ -44,6 +44,6 @@ class IEnvironment : IDrawable
     virtual std::future<std::unique_ptr<StepInfo>> reset() = 0;
     virtual void change_reward(float reward_delta) = 0;
     virtual void set_done() = 0;
-    virtual void draw(sf::RenderTarget &render_target) = 0;
+    virtual void draw(sf::RenderTarget &render_target, bool lightweight = false) = 0;
 };
 }

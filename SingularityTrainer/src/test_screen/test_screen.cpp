@@ -103,7 +103,7 @@ void TestScreen::update(const sf::Time &delta_time, const sf::Vector2f &mouse_po
     panel.handle_input(distorted_mouse_position, action_map);
 }
 
-void TestScreen::draw(sf::RenderTarget &render_target)
+void TestScreen::draw(sf::RenderTarget &render_target, bool lightweight)
 {
     texture.clear(cl_background);
 

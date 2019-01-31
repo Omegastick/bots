@@ -30,7 +30,7 @@ Wall::Wall(float x, float y, float width, float height, b2World &world)
 
 Wall::~Wall() {}
 
-void Wall::draw(sf::RenderTarget &render_target)
+void Wall::draw(sf::RenderTarget &render_target, bool lightweight)
 {
     render_target.draw(shape);
 }

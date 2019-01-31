@@ -10,7 +10,12 @@
 namespace SingularityTrainer
 {
 QuickTrainer::QuickTrainer(ResourceManager &resource_manager, Communicator *communicator, Random *rng, int env_count)
-    : communicator(communicator), waiting_for_server(false), env_count(env_count), frame_counter(0), action_frame_counter(0), rng(rng)
+    : communicator(communicator),
+      waiting_for_server(false),
+      env_count(env_count),
+      frame_counter(0),
+      action_frame_counter(0),
+      rng(rng)
 {
     for (int i = 0; i < env_count; ++i)
     {
@@ -35,7 +40,7 @@ void QuickTrainer::begin_training()
             {
                 actions.push_back(rng->next_int(0, 1));
             }
-            environments[i]->step(actions, 1.f / 10.f);                                                                                                                        
+            environments[i]->step(actions, 1.f / 10.f);
         }
     }
     std::vector<std::future<std::unique_ptr<StepInfo>>> observation_futures(env_count);

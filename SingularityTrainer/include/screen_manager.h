@@ -17,7 +17,7 @@ class ScreenManager
     void close_screen();
     void update(sf::Time delta_time, sf::RenderWindow &window, const thor::ActionMap<Inputs> &action_map);
     int stack_size();
-    void draw(sf::RenderTarget &render_target);
+    void draw(sf::RenderTarget &render_target, bool lightweight = false);
 
   private:
     std::stack<std::shared_ptr<IScreen>> screens;

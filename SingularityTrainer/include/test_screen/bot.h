@@ -22,7 +22,7 @@ class Bot : public IDrawable, public ICollidable
     ~Bot();
 
     void act(std::vector<int> &actions);
-    void draw(sf::RenderTarget &render_target);
+    void draw(sf::RenderTarget &render_target, bool lightweight = false);
     std::vector<float> get_observation();
     virtual void begin_contact(RigidBody *other);
     virtual void end_contact(RigidBody *other);

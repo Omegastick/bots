@@ -40,7 +40,7 @@ void GUIPanel::handle_input(const sf::Vector2f &mouse_position, const thor::Acti
     }
 }
 
-void GUIPanel::draw(sf::RenderTarget &render_target)
+void GUIPanel::draw(sf::RenderTarget &render_target, bool lightweight)
 {
     render_target.draw(shape);
 }

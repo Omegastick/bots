@@ -20,7 +20,7 @@ class GunModule : public IModule, public IActivatable
     GunModule(ResourceManager &resource_manager, b2Body &body, IAgent *agent);
     ~GunModule();
 
-    virtual void draw(sf::RenderTarget &render_target);
+    virtual void draw(sf::RenderTarget &render_target, bool lightweight = false);
     virtual void activate();
     virtual void update();
 

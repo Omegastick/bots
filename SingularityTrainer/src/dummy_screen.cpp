@@ -34,7 +34,7 @@ DummyScreen::DummyScreen(std::shared_ptr<ResourceManager> resource_manager, std:
 }
 DummyScreen::~DummyScreen() {}
 
-void DummyScreen::draw(sf::RenderTarget &render_target)
+void DummyScreen::draw(sf::RenderTarget &render_target, bool lightweight)
 {
     render_target.draw(arrow);
 }

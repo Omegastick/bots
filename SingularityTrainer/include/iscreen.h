@@ -14,7 +14,7 @@ class IScreen : IDrawable
     IScreen(){};
     ~IScreen(){};
 
-    virtual void draw(sf::RenderTarget &render_target) = 0;
+    virtual void draw(sf::RenderTarget &render_target, bool lightweight = false) = 0;
     virtual void update(const sf::Time &delta_time, const sf::Vector2f &mouse_position, const thor::ActionMap<Inputs> &action_map) = 0;
 };
 }

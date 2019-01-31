@@ -10,5 +10,5 @@ GUIButton::~GUIButton() {}
 
 void GUIButton::handle_input(sf::RenderWindow &window, const thor::ActionMap<Inputs> &action_map) {}
 
-void GUIButton::draw(sf::RenderTarget &render_target) {}
+void GUIButton::draw(sf::RenderTarget &render_target, bool lightweight) {}
 }
