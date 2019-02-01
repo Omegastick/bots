@@ -37,5 +37,7 @@ class LaserSensorModule : public IModule
     float laser_length;
     float fov;
     std::vector<float> last_reading;
+    std::shared_ptr<sf::Shader> laser_shader;
+    float time;
 };
 }
