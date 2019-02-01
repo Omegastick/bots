@@ -58,6 +58,10 @@ void ThrusterModule::activate()
     agent->rigid_body->body->ApplyForce(velocity, global_transform.p, true);
 
     // Spawn particles
+    if (particle_system->full())
+    {
+        return;
+    }
     b2Transform edge_transform = b2Mul(global_transform, b2Transform(b2Vec2(0, 0.4), b2Rot(0)));
     std::uniform_real_distribution<float> distribution(0, 1);
     const int particle_count = 10;
