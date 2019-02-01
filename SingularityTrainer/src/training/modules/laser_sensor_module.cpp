@@ -10,6 +10,7 @@
 #include "training/modules/imodule.h"
 #include "training/modules/laser_sensor_module.h"
 #include "training/modules/module_link.h"
+#include "training/rigid_body.h"
 #include "utilities.h"
 
 namespace SingularityTrainer
@@ -118,6 +119,10 @@ ClosestRaycastCallback::~ClosestRaycastCallback() {}
 
 float32 ClosestRaycastCallback::ReportFixture(b2Fixture *fixture, const b2Vec2 &point, const b2Vec2 &normal, float32 fraction)
 {
+    if (static_cast<RigidBody *>(fixture->GetBody()->GetUserData())->parent_type == RigidBody::ParentTypes::Bullet)
+    {
+        return 1;
+    }
     distance = fraction;
     return fraction;
 }
