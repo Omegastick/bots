@@ -55,7 +55,7 @@ void QuickTrainer::begin_training()
     }
 
     // Init training session
-    Model model{3, 4, true, true};
+    Model model{9, 4, true, true};
     HyperParams hyperparams;
     hyperparams.learning_rate = 0.0004;
     hyperparams.batch_size = 512;

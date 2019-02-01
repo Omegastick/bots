@@ -7,6 +7,7 @@
 #include "training/agents/test_agent.h"
 #include "training/modules/base_module.h"
 #include "training/modules/gun_module.h"
+#include "training/modules/laser_sensor_module.h"
 #include "training/modules/thruster_module.h"
 #include "training/rigid_body.h"
 #include "utilities.h"
@@ -24,12 +25,14 @@ TestAgent::TestAgent(ResourceManager &resource_manager, b2World &world, LinearPa
     std::unique_ptr<GunModule> gun_module_left = std::make_unique<GunModule>(resource_manager, *rigid_body->body, this);
     std::unique_ptr<ThrusterModule> thruster_module_left = std::make_unique<ThrusterModule>(resource_manager, *rigid_body->body, this, particle_system);
     std::unique_ptr<ThrusterModule> thruster_module_right = std::make_unique<ThrusterModule>(resource_manager, *rigid_body->body, this, particle_system);
+    std::unique_ptr<LaserSensorModule> laser_sensor_module = std::make_unique<LaserSensorModule>(resource_manager, *rigid_body->body, this);
 
     // Connect modules
     base_module->module_links[1].link(&gun_module_right->module_links[2]);
     base_module->module_links[3].link(&gun_module_left->module_links[0]);
     gun_module_left->module_links[1].link(&thruster_module_left->module_links[0]);
     gun_module_right->module_links[1].link(&thruster_module_right->module_links[0]);
+    base_module->module_links[0].link(&laser_sensor_module->module_links[0]);
 
     // Add modules to Agent
     modules.push_back(std::move(base_module));
@@ -37,6 +40,7 @@ TestAgent::TestAgent(ResourceManager &resource_manager, b2World &world, LinearPa
     modules.push_back(std::move(gun_module_left));
     modules.push_back(std::move(thruster_module_left));
     modules.push_back(std::move(thruster_module_right));
+    modules.push_back(std::move(laser_sensor_module));
 
     // Sync agent with new modules
     update_body();

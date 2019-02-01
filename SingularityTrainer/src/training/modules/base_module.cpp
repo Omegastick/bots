@@ -14,7 +14,7 @@ namespace SingularityTrainer
 {
 BaseModule::BaseModule(ResourceManager &resource_manager, b2Body &body, IAgent *agent)
 {
-    // SpriteZ
+    // Sprite
     resource_manager.load_texture("base_module", "images/base_module.png");
     sprite.setTexture(*resource_manager.texture_store.get("base_module"));
     sprite.setScale(0.01, 0.01);
@@ -41,7 +41,8 @@ BaseModule::~BaseModule() {}
 
 std::vector<float> BaseModule::get_sensor_reading()
 {
-    b2Transform position = agent->rigid_body->body->GetTransform();
-    return std::vector<float>{position.p.x, position.p.y, position.q.GetAngle()};
+    // b2Transform position = agent->rigid_body->body->GetTransform();
+    // return std::vector<float>{position.p.x, position.p.y, position.q.GetAngle()};
+    return std::vector<float>();
 }
 }
