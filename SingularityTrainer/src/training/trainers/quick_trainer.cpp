@@ -58,7 +58,7 @@ void QuickTrainer::begin_training()
     Model model{9, 4, true, true};
     HyperParams hyperparams;
     hyperparams.learning_rate = 0.0004;
-    hyperparams.batch_size = 512;
+    hyperparams.batch_size = 1024;
     hyperparams.num_minibatch = env_count;
     hyperparams.epochs = 3;
     hyperparams.discount_factor = 0.99;
