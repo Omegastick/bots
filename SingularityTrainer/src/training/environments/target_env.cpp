@@ -76,14 +76,14 @@ class ContactListener : public b2ContactListener
     }
 };
 
-TargetEnv::TargetEnv(ResourceManager &resource_manager, float x, float y, float scale, int max_steps)
+TargetEnv::TargetEnv(ResourceManager &resource_manager, float x, float y, float scale, int max_steps, int seed)
     : max_steps(max_steps),
       command_queue_flag(0),
       reward(0),
       step_counter(0),
       done(false),
       particle_system(-10, -10, 10, 10, 1000),
-      rng(0)
+      rng(seed)
 {
     // Box2D world
     world = std::make_unique<b2World>(b2Vec2(0, 0));
@@ -247,6 +247,11 @@ void TargetEnv::thread_loop()
             agent->rigid_body->body->SetTransform(b2Vec2_zero, 0);
             agent->rigid_body->body->SetAngularVelocity(0);
             agent->rigid_body->body->SetLinearVelocity(b2Vec2_zero);
+
+            // Change target position
+            float target_x = rng.next_float(0, 18) - 9;
+            float target_y = rng.next_float(0, 18) - 9;
+            target->rigid_body->body->SetTransform(b2Vec2(target_x, target_y), 0);
 
             // Fill in StepInfo
             step_info->observation = agent->get_observation();

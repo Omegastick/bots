@@ -21,8 +21,9 @@ class Target : public IDrawable, public ICollidable
     void begin_contact(RigidBody *other);
     void end_contact(RigidBody *other);
 
-  private:
     std::unique_ptr<RigidBody> rigid_body;
+
+  private:
     sf::CircleShape shape;
     IEnvironment &environment;
 };
