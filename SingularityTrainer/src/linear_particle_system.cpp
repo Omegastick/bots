@@ -159,4 +159,9 @@ void LinearParticleSystem::delete_particles(std::vector<int> indexes)
         spawn_times.pop_back();
     }
 }
+
+bool LinearParticleSystem::full()
+{
+    return start_xs.size() >= max_particles;
+}
 }
