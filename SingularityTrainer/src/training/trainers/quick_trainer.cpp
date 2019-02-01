@@ -19,7 +19,7 @@ QuickTrainer::QuickTrainer(ResourceManager &resource_manager, Communicator *comm
 {
     for (int i = 0; i < env_count; ++i)
     {
-        environments.push_back(std::make_unique<TargetEnv>(resource_manager, 460, 40, 1, 100));
+        environments.push_back(std::make_unique<TargetEnv>(resource_manager, 460, 40, 1, 100, i));
     }
 }
 
@@ -55,7 +55,7 @@ void QuickTrainer::begin_training()
     }
 
     // Init training session
-    Model model{9, 4, true, true};
+    Model model{12, 4, true, true};
     HyperParams hyperparams;
     hyperparams.learning_rate = 0.0004;
     hyperparams.batch_size = 1024;

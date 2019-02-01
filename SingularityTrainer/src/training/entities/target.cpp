@@ -34,6 +34,8 @@ Target::~Target() {}
 
 void Target::draw(sf::RenderTarget &render_target, bool lightweight)
 {
+    b2Vec2 position = rigid_body->body->GetPosition();
+    shape.setPosition(position.x, position.y);
     render_target.draw(shape);
 }
 

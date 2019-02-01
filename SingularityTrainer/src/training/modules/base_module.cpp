@@ -41,8 +41,8 @@ BaseModule::~BaseModule() {}
 
 std::vector<float> BaseModule::get_sensor_reading()
 {
-    // b2Transform position = agent->rigid_body->body->GetTransform();
-    // return std::vector<float>{position.p.x, position.p.y, position.q.GetAngle()};
-    return std::vector<float>();
+    b2Vec2 linear_velocity = agent->rigid_body->body->GetLinearVelocity();
+    float angular_velocity = agent->rigid_body->body->GetAngularVelocity();
+    return std::vector<float>{linear_velocity.x, linear_velocity.y, angular_velocity};
 }
 }

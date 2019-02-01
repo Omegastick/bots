@@ -22,7 +22,7 @@ namespace SingularityTrainer
 class TargetEnv : public IEnvironment
 {
   public:
-    TargetEnv(ResourceManager &resource_manager, float x, float y, float scale, int max_steps);
+    TargetEnv(ResourceManager &resource_manager, float x, float y, float scale, int max_steps, int seed);
     ~TargetEnv();
 
     virtual void start_thread();
