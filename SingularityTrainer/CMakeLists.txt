@@ -1,6 +1,9 @@
 cmake_minimum_required(VERSION 3.5.1)
 project(SingularityTrainer)
 
+# CMake policies
+cmake_policy(SET CMP0077 NEW)
+
 # Configuration
 set(LIB_DIR lib)
 set(GLFW_DIR ${LIB_DIR}/GLFW)
