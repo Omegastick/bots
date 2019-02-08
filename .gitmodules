@@ -4,3 +4,6 @@
 [submodule "SingularityTrainer/lib/glfw"]
 	path = SingularityTrainer/lib/GLFW
 	url = git@github.com:glfw/glfw.git
+[submodule "SingularityTrainer/lib/glm"]
+	path = SingularityTrainer/lib/GLM
+	url = git@github.com:g-truc/glm.git

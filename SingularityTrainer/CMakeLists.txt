@@ -5,6 +5,7 @@ project(SingularityTrainer)
 set(LIB_DIR lib)
 set(GLFW_DIR ${LIB_DIR}/GLFW)
 set(GLAD_DIR ${LIB_DIR}/GLAD)
+set(GLM_DIR ${LIB_DIR}/GLM)
 
 # CMake Properties
 if (NOT CMAKE_BUILD_TYPE)
@@ -29,6 +30,9 @@ add_subdirectory(${GLFW_DIR})
 ## GLAD
 add_library(glad ${GLAD_DIR}/src/glad.c)
 target_include_directories(glad PRIVATE ${GLAD_DIR}/include)
+## GLM
+set(GLM_TEST_ENABLE OFF)
+add_subdirectory(${GLM_DIR})
 
 # Libraries
 find_package(SFML 2.5 REQUIRED audio graphics window system)
@@ -39,10 +43,10 @@ if (UNIX)
     # UNIX systems sometimes need to explicitly link the threading library
     target_link_libraries(SingularityTrainer pthread)
 endif()
-target_link_libraries(GraphicsPlayground glad glfw ${GLFW_LIBRARIES})
+target_link_libraries(GraphicsPlayground glad glfw ${GLFW_LIBRARIES} glm)
 
 # Inlcudes
 target_include_directories(SingularityTrainer PUBLIC src)
-target_include_directories(GraphicsPlayground PUBLIC src ${GLAD_DIR}/include ${GLFW_DIR}/include)
+target_include_directories(GraphicsPlayground PUBLIC src ${GLAD_DIR}/include ${GLFW_DIR}/include ${GLM_DIR})
 
 add_subdirectory(src)
