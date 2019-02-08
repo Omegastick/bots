@@ -2,7 +2,7 @@
 #include <SFML/Graphics.hpp>
 #include <memory>
 
-#include "gui/colors.h"
+#include "graphics/colors.h"
 #include "idrawable.h"
 #include "training/entities/target.h"
 #include "training/environments/ienvironment.h"

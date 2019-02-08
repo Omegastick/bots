@@ -4,7 +4,7 @@
 #include <memory>
 
 #include "communicator.h"
-#include "gui/colors.h"
+#include "graphics/colors.h"
 #include "iscreen.h"
 #include "resource_manager.h"
 #include "screens/target_env_screen.h"

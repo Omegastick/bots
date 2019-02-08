@@ -1,5 +1,5 @@
 #include "test_screen/test_env.h"
-#include "gui/colors.h"
+#include "graphics/colors.h"
 
 namespace SingularityTrainer
 {

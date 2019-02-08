@@ -3,8 +3,8 @@
 #include <Thor/Input.hpp>
 
 #include "communicator.h"
-#include "gui/colors.h"
-#include "gui/input.h"
+#include "graphics/colors.h"
+#include "input.h"
 #include "random.h"
 #include "requests.h"
 #include "screen_manager.h"

@@ -4,7 +4,7 @@
 #include <string>
 #include <vector>
 
-#include "gui/colors.h"
+#include "graphics/colors.h"
 #include "training/entities/wall.h"
 
 namespace SingularityTrainer

@@ -2,7 +2,7 @@
 #include <SFML/Graphics.hpp>
 #include <iostream>
 
-#include "gui/colors.h"
+#include "graphics/colors.h"
 #include "idrawable.h"
 #include "training/entities/bullet.h"
 #include "training/icollidable.h"

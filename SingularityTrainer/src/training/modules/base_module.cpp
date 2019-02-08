@@ -3,7 +3,7 @@
 #include <memory>
 #include <vector>
 
-#include "gui/colors.h"
+#include "graphics/colors.h"
 #include "resource_manager.h"
 #include "training/agents/iagent.h"
 #include "training/modules/base_module.h"

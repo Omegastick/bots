@@ -1,6 +1,6 @@
 #include "test_screen/bot.h"
 #include "training/rigid_body.h"
-#include "gui/colors.h"
+#include "graphics/colors.h"
 #include "utilities.h"
 
 namespace SingularityTrainer
