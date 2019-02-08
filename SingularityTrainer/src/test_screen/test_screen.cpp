@@ -3,13 +3,13 @@
 #include <future>
 
 #include "test_screen/test_screen.h"
-#include "gui/colors.h"
+#include "graphics/colors.h"
 #include "utilities.h"
 
 namespace SingularityTrainer
 {
 TestScreen::TestScreen(ResourceManager &resource_manager, Communicator *communicator, int env_count)
-    : frame_counter(0), action_frame_counter(0), panel(100, 200, 100, 200), waiting_for_server(false)
+    : frame_counter(0), action_frame_counter(0), waiting_for_server(false)
 {
     this->communicator = communicator;
     resource_manager.load_texture("arrow", "images/Arrow.png");
@@ -83,7 +83,6 @@ void TestScreen::update(const sf::Time &delta_time, const sf::Vector2f &mouse_po
     // If waiting for a model update, only update the GUI
     if (waiting_for_server)
     {
-        panel.handle_input(distorted_mouse_position, action_map);
         return;
     }
     // Otherwise update the environments too
@@ -99,8 +98,6 @@ void TestScreen::update(const sf::Time &delta_time, const sf::Vector2f &mouse_po
     {
         fast_update();
     }
-
-    panel.handle_input(distorted_mouse_position, action_map);
 }
 
 void TestScreen::draw(sf::RenderTarget &render_target, bool lightweight)
@@ -108,7 +105,6 @@ void TestScreen::draw(sf::RenderTarget &render_target, bool lightweight)
     texture.clear(cl_background);
 
     environments[0]->draw(texture);
-    panel.draw(texture);
 
     texture.display();
     sf::Vector2u resolution = render_target.getSize();

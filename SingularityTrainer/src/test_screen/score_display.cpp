@@ -5,7 +5,7 @@
 #include "idrawable.h"
 #include "resource_manager.h"
 #include "test_screen/score_display.h"
-#include "gui/colors.h"
+#include "graphics/colors.h"
 
 namespace SingularityTrainer
 {

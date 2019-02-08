@@ -4,7 +4,7 @@
 #include <SFML/Graphics.hpp>
 
 #include "idrawable.h"
-#include "gui/input.h"
+#include "input.h"
 
 namespace SingularityTrainer
 {

@@ -3,7 +3,6 @@
 #include <SFML/Graphics.hpp>
 
 #include "communicator.h"
-#include "gui/gui_panel.h"
 #include "iscreen.h"
 #include "requests.h"
 #include "resource_manager.h"
@@ -28,7 +27,6 @@ class TestScreen : public IScreen
     int action_frame_counter;
     std::atomic<bool> waiting_for_server;
     std::future<std::unique_ptr<Response<GiveRewardsResult>>> model_update_finished;
-    GUIPanel panel;
     sf::RenderTexture texture;
     sf::Shader shader;
 

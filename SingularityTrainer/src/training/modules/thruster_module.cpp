@@ -4,7 +4,7 @@
 #include <random>
 #include <vector>
 
-#include "gui/colors.h"
+#include "graphics/colors.h"
 #include "particles/linear_particle_system.h"
 #include "resource_manager.h"
 #include "training/actions/activate_action.h"
