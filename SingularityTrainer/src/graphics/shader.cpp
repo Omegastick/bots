@@ -37,6 +37,9 @@ Shader::Shader(const std::string &vert_filepath, const std::string &frag_filepat
     glAttachShader(program, fragment_shader);
 
     glLinkProgram(program);
+
+    glDeleteShader(vertex_shader);
+    glDeleteShader(fragment_shader);
 }
 
 Shader::~Shader() {}
