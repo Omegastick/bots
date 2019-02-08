@@ -7,3 +7,6 @@
 [submodule "SingularityTrainer/lib/glm"]
 	path = SingularityTrainer/lib/GLM
 	url = git@github.com:g-truc/glm.git
+[submodule "SingularityTrainer/lib/spdlog"]
+	path = SingularityTrainer/lib/spdlog
+	url = git@github.com:gabime/spdlog.git
