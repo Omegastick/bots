@@ -4,7 +4,7 @@
 #include <SFML/Graphics.hpp>
 #include <vector>
 
-#include "iparticle_system.h"
+#include "particles/iparticle_system.h"
 
 namespace SingularityTrainer
 {

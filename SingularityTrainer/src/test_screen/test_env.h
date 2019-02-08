@@ -10,7 +10,7 @@
 #include <utility>
 
 #include "idrawable.h"
-#include "linear_particle_system.h"
+#include "particles/linear_particle_system.h"
 #include "test_screen/bot.h"
 #include "test_screen/score_display.h"
 #include "training/entities/target.h"

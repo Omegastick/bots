@@ -2,7 +2,7 @@
 #include <memory>
 #include <vector>
 
-#include "linear_particle_system.h"
+#include "particles/linear_particle_system.h"
 #include "random.h"
 #include "training/agents/test_agent.h"
 #include "training/modules/base_module.h"

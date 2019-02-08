@@ -5,7 +5,7 @@
 #include <vector>
 
 #include "gui/colors.h"
-#include "linear_particle_system.h"
+#include "particles/linear_particle_system.h"
 #include "training/agents/test_agent.h"
 #include "training/entities/bullet.h"
 #include "training/entities/target.h"

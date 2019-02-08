@@ -2,8 +2,8 @@
 #include <SFML/Graphics.hpp>
 #include <vector>
 
-#include "iparticle_system.h"
-#include "linear_particle_system.h"
+#include "particles/iparticle_system.h"
+#include "particles/linear_particle_system.h"
 
 inline float lerp(float start, float end, float percent)
 {
