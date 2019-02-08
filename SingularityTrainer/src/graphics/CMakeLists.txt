@@ -1,4 +1,4 @@
-# target_sources(SingularityTrainer
-# PUBLIC
-#     ${CMAKE_CURRENT_LIST_DIR}/gui_button.cpp
-# )
+target_sources(GraphicsPlayground
+PUBLIC
+    ${CMAKE_CURRENT_LIST_DIR}/graphics_playground.cpp
+)
