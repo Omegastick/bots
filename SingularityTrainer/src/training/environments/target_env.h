@@ -9,7 +9,7 @@
 #include <thread>
 #include <utility>
 
-#include "linear_particle_system.h"
+#include "particles/linear_particle_system.h"
 #include "random.h"
 #include "resource_manager.h"
 #include "training/agents/iagent.h"

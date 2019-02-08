@@ -10,7 +10,7 @@
 #include "training/agents/iagent.h"
 #include "training/modules/imodule.h"
 #include "training/modules/interfaces/iactivatable.h"
-#include "linear_particle_system.h"
+#include "particles/linear_particle_system.h"
 
 namespace SingularityTrainer
 {
