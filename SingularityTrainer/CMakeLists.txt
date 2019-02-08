@@ -22,6 +22,6 @@ if (UNIX)
 endif()
 
 # Inlcudes
-target_include_directories(SingularityTrainer PUBLIC include)
+target_include_directories(SingularityTrainer PUBLIC src)
 
 add_subdirectory(src)
