@@ -14,12 +14,11 @@ class Shader
 
     void bind();
     void unbind();
-
     // void set_uniform_4f(std::string &name, glm::vec4 value);
+
+    unsigned int program;
 
   private:
     unsigned int compile_shader(unsigned int type, const std::string &source);
-
-    unsigned int program;
 };
 }
