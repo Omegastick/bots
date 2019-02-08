@@ -97,7 +97,7 @@ void glDebugOutput(unsigned int source,
 
 Window::Window(int x, int y, std::string title, int opengl_major_version, int opengl_minor_version)
 {
-    spdlog::debug("Creating {}x{} window with OpenGL version {}.{}", x, y, opengl_major_version, opengl_minor_version);
+    spdlog::debug("Creating {}x{} window with target OpenGL version {}.{}", x, y, opengl_major_version, opengl_minor_version);
     if (!glfwInit())
     {
         spdlog::error("Unable to initialize GLFW");
@@ -137,6 +137,8 @@ Window::Window(int x, int y, std::string title, int opengl_major_version, int op
         glDebugMessageCallback(glDebugOutput, nullptr);
         glDebugMessageControl(GL_DONT_CARE, GL_DONT_CARE, GL_DONT_CARE, 0, nullptr, GL_TRUE);
     }
+
+    spdlog::debug("Actual OpenGL version: {}", glGetString(GL_VERSION));
 }
 
 Window::~Window()
