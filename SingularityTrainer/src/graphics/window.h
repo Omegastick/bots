@@ -7,5 +7,7 @@ namespace SingularityTrainer
 {
 class Window
 {
+  public:
+    Window();
 };
 }
