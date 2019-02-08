@@ -3,6 +3,7 @@
 
 #include "GLFW/glfw3.h"
 #include "glad/glad.h"
+#include "spdlog/spdlog.h"
 
 #include "graphics/window.h"
 
@@ -10,9 +11,10 @@ namespace SingularityTrainer
 {
 Window::Window(int x, int y, std::string title, int opengl_major_version, int opengl_minor_version)
 {
+    spdlog::debug("Creating {}x{} window with OpenGL version {}.{}", x, y, opengl_major_version, opengl_minor_version);
     if (!glfwInit())
     {
-        std::cerr << "Unable to initialize GLFW\n";
+        spdlog::error("Unable to initialize GLFW");
         throw std::exception();
     }
 
@@ -24,7 +26,7 @@ Window::Window(int x, int y, std::string title, int opengl_major_version, int op
     window = glfwCreateWindow(x, y, title.c_str(), nullptr, nullptr);
     if (!window)
     {
-        std::cerr << "Unable to create window\n";
+        spdlog::error("Unable to create window");
         glfwTerminate();
         throw std::exception();
     }
@@ -33,7 +35,7 @@ Window::Window(int x, int y, std::string title, int opengl_major_version, int op
 
     if (!gladLoadGL())
     {
-        std::cerr << "Unable to initialize GLAD\n";
+        spdlog::error("Unable to initialize GLAD");
         glfwDestroyWindow(window);
         glfwTerminate();
         throw std::exception();

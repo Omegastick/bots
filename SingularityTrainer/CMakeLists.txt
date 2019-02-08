@@ -6,6 +6,7 @@ set(LIB_DIR lib)
 set(GLFW_DIR ${LIB_DIR}/GLFW)
 set(GLAD_DIR ${LIB_DIR}/GLAD)
 set(GLM_DIR ${LIB_DIR}/GLM)
+set(SPDLOG_DIR ${LIB_DIR}/spdlog)
 
 # CMake Properties
 if (NOT CMAKE_BUILD_TYPE)
@@ -33,6 +34,8 @@ target_include_directories(glad PRIVATE ${GLAD_DIR}/include)
 ## GLM
 set(GLM_TEST_ENABLE OFF)
 add_subdirectory(${GLM_DIR})
+## spdlog
+add_subdirectory(${SPDLOG_DIR})
 
 # Libraries
 find_package(SFML 2.5 REQUIRED audio graphics window system)
@@ -47,6 +50,6 @@ target_link_libraries(GraphicsPlayground glad glfw ${GLFW_LIBRARIES} glm)
 
 # Inlcudes
 target_include_directories(SingularityTrainer PUBLIC src)
-target_include_directories(GraphicsPlayground PUBLIC src ${GLAD_DIR}/include ${GLFW_DIR}/include ${GLM_DIR})
+target_include_directories(GraphicsPlayground PUBLIC src ${GLAD_DIR}/include ${GLFW_DIR}/include ${GLM_DIR} ${SPDLOG_DIR}/include)
 
 add_subdirectory(src)

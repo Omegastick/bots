@@ -3,6 +3,7 @@
 
 #include "GLFW/glfw3.h"
 #include "glad/glad.h"
+#include "spdlog/spdlog.h"
 
 #include "graphics/window.h"
 
@@ -16,17 +17,22 @@ const int opengl_version_minor = 3;
 
 void error_callback(int error, const char *description)
 {
-    std::cerr << "GLFW error: [" << error << "] " << description << "\n";
+    spdlog::error("GLFW error: [{}] {}", error, description);
 }
 
 int main(int argc, const char *argv[])
 {
+    // Logging
+    spdlog::set_level(spdlog::level::debug);
+    spdlog::set_pattern("%^[%T %5l] %v%$");
     glfwSetErrorCallback(error_callback);
 
+    // Create window
     Window window = Window(resolution_x, resolution_y, window_title, opengl_version_major, opengl_version_minor);
 
     glClearColor(0.3, 0.4, 0.8, 1.0);
 
+    // Main loop
     while (!window.should_close())
     {
         glClear(GL_COLOR_BUFFER_BIT);
