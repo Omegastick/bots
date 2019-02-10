@@ -8,8 +8,8 @@ class VertexBuffer
     VertexBuffer(const void *data, const unsigned int size);
     ~VertexBuffer();
 
-    void bind();
-    void unbind();
+    const void bind();
+    const void unbind();
 
   private:
     unsigned int id;

@@ -7,6 +7,7 @@
 #include "graphics/window.h"
 #include "graphics/shader.h"
 #include "graphics/vertex_buffer.h"
+#include "graphics/element_buffer.h"
 
 using namespace SingularityTrainer;
 
@@ -49,10 +50,8 @@ int main(int argc, const char *argv[])
     unsigned int indices[] = {
         0, 1, 2,
         2, 3, 0};
-    unsigned int ebo;
-    glGenBuffers(1, &ebo);
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo);
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, 6 * sizeof(unsigned int), indices, GL_STATIC_DRAW);
+
+    ElementBuffer element_buffer(indices, 6);
 
     glEnableVertexAttribArray(0);
     glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 6 * sizeof(float), 0);
@@ -68,7 +67,7 @@ int main(int argc, const char *argv[])
         glClear(GL_COLOR_BUFFER_BIT);
 
         glBindVertexArray(vao);
-        glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+        glDrawElements(GL_TRIANGLES, element_buffer.get_count(), GL_UNSIGNED_INT, 0);
         glBindVertexArray(0);
 
         window.swap_buffers();
