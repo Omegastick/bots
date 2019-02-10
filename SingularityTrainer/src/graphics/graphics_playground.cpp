@@ -33,34 +33,45 @@ int main(int argc, const char *argv[])
     glClearColor(0.3, 0.4, 0.8, 1.0);
 
     // OpenGL stuff
+    unsigned int vao;
+    glGenVertexArrays(1, &vao);
+    glBindVertexArray(vao);
+
     float vertices[] = {
-        0.0, 0.5, 1.0, 0.0, 0.0, 1.0,
+        -0.5, 0.5, 1.0, 0.0, 0.0, 1.0,
         -0.5, -0.5, 0.0, 1.0, 0.0, 1.0,
-        0.5, -0.5, 0.0, 0.0, 1.0, 1.0};
+        0.5, -0.5, 0.0, 0.0, 1.0, 1.0,
+        0.5, 0.5, 1.0, 0.0, 1.0, 1.0};
 
     unsigned int vbo;
     glGenBuffers(1, &vbo);
     glBindBuffer(GL_ARRAY_BUFFER, vbo);
-    glBufferData(GL_ARRAY_BUFFER, 3 * 6 * sizeof(float), vertices, GL_STATIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, 4 * 6 * sizeof(float), vertices, GL_STATIC_DRAW);
 
-    Shader shader("SingularityTrainer/assets/shaders/default.vert", "SingularityTrainer/assets/shaders/default.frag");
-    shader.bind();
-
-    unsigned int vao;
-    glGenVertexArrays(1, &vao);
-    glBindVertexArray(vao);
+    unsigned int indices[] = {
+        0, 1, 2,
+        2, 3, 0};
+    unsigned int ebo;
+    glGenBuffers(1, &ebo);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, 6 * sizeof(unsigned int), indices, GL_STATIC_DRAW);
 
     glEnableVertexAttribArray(0);
     glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 6 * sizeof(float), 0);
     glEnableVertexAttribArray(1);
     glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void *)(2 * sizeof(float)));
 
+    Shader shader("SingularityTrainer/assets/shaders/default.vert", "SingularityTrainer/assets/shaders/default.frag");
+    shader.bind();
+
     // Main loop
     while (!window.should_close())
     {
         glClear(GL_COLOR_BUFFER_BIT);
 
-        glDrawArrays(GL_TRIANGLES, 0, 3);
+        glBindVertexArray(vao);
+        glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+        glBindVertexArray(0);
 
         window.swap_buffers();
         glfwPollEvents();
