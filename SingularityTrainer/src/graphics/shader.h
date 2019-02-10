@@ -12,8 +12,8 @@ class Shader
     Shader(const std::string &vert_filepath, const std::string &frag_filepath);
     ~Shader();
 
-    void bind();
-    void unbind();
+    void bind() const;
+    void unbind() const;
     // void set_uniform_4f(std::string &name, glm::vec4 value);
 
     unsigned int program;
