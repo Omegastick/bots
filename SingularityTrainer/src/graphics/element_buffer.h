@@ -12,8 +12,8 @@ class ElementBuffer
     ElementBuffer(const void *data, const unsigned int count);
     ~ElementBuffer();
 
-    const void bind();
-    const void unbind();
+    void bind() const;
+    void unbind() const;
 
     inline unsigned int get_count() { return count; };
 };

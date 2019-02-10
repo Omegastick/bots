@@ -8,6 +8,7 @@
 #include "graphics/shader.h"
 #include "graphics/vertex_buffer.h"
 #include "graphics/element_buffer.h"
+#include "graphics/vertex_array.h"
 
 using namespace SingularityTrainer;
 
@@ -35,9 +36,7 @@ int main(int argc, const char *argv[])
     glClearColor(0.3, 0.4, 0.8, 1.0);
 
     // OpenGL stuff
-    unsigned int vao;
-    glGenVertexArrays(1, &vao);
-    glBindVertexArray(vao);
+    VertexArray vertex_array;
 
     float vertices[] = {
         -0.5, 0.5, 1.0, 0.0, 0.0, 1.0,
@@ -53,10 +52,10 @@ int main(int argc, const char *argv[])
 
     ElementBuffer element_buffer(indices, 6);
 
-    glEnableVertexAttribArray(0);
-    glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 6 * sizeof(float), 0);
-    glEnableVertexAttribArray(1);
-    glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void *)(2 * sizeof(float)));
+    VertexBufferLayout layout;
+    layout.push<float>(2);
+    layout.push<float>(4);
+    vertex_array.add_buffer(vertex_buffer, layout);
 
     Shader shader("SingularityTrainer/assets/shaders/default.vert", "SingularityTrainer/assets/shaders/default.frag");
     shader.bind();
@@ -66,9 +65,8 @@ int main(int argc, const char *argv[])
     {
         glClear(GL_COLOR_BUFFER_BIT);
 
-        glBindVertexArray(vao);
+        vertex_array.bind();
         glDrawElements(GL_TRIANGLES, element_buffer.get_count(), GL_UNSIGNED_INT, 0);
-        glBindVertexArray(0);
 
         window.swap_buffers();
         glfwPollEvents();
