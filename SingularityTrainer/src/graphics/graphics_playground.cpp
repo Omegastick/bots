@@ -34,14 +34,14 @@ int main(int argc, const char *argv[])
 
     // OpenGL stuff
     float vertices[] = {
-        0.0, 0.5,
-        -0.5, -0.5,
-        0.5, -0.5};
+        0.0, 0.5, 1.0, 0.0, 0.0, 1.0,
+        -0.5, -0.5, 0.0, 1.0, 0.0, 1.0,
+        0.5, -0.5, 0.0, 0.0, 1.0, 1.0};
 
     unsigned int vbo;
     glGenBuffers(1, &vbo);
     glBindBuffer(GL_ARRAY_BUFFER, vbo);
-    glBufferData(GL_ARRAY_BUFFER, 6 * sizeof(float), vertices, GL_STATIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, 3 * 6 * sizeof(float), vertices, GL_STATIC_DRAW);
 
     Shader shader("SingularityTrainer/assets/shaders/default.vert", "SingularityTrainer/assets/shaders/default.frag");
     shader.bind();
@@ -50,9 +50,10 @@ int main(int argc, const char *argv[])
     glGenVertexArrays(1, &vao);
     glBindVertexArray(vao);
 
-    unsigned int pos_attrib = glGetAttribLocation(shader.program, "position");
-    glEnableVertexAttribArray(pos_attrib);
-    glVertexAttribPointer(pos_attrib, 2, GL_FLOAT, GL_FALSE, 0, 0);
+    glEnableVertexAttribArray(0);
+    glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 6 * sizeof(float), 0);
+    glEnableVertexAttribArray(1);
+    glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void *)(2 * sizeof(float)));
 
     // Main loop
     while (!window.should_close())
