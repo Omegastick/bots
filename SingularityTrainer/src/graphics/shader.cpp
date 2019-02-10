@@ -44,12 +44,12 @@ Shader::Shader(const std::string &vert_filepath, const std::string &frag_filepat
 
 Shader::~Shader() {}
 
-void Shader::bind()
+void Shader::bind() const
 {
     glUseProgram(program);
 }
 
-void Shader::unbind()
+void Shader::unbind() const
 {
     glUseProgram(0);
 }

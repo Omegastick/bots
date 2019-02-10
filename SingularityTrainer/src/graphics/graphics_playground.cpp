@@ -9,6 +9,7 @@
 #include "graphics/vertex_buffer.h"
 #include "graphics/element_buffer.h"
 #include "graphics/vertex_array.h"
+#include "graphics/renderer.h"
 
 using namespace SingularityTrainer;
 
@@ -32,8 +33,6 @@ int main(int argc, const char *argv[])
 
     // Create window
     Window window = Window(resolution_x, resolution_y, window_title, opengl_version_major, opengl_version_minor);
-
-    glClearColor(0.3, 0.4, 0.8, 1.0);
 
     // OpenGL stuff
     VertexArray vertex_array;
@@ -60,13 +59,15 @@ int main(int argc, const char *argv[])
     Shader shader("SingularityTrainer/assets/shaders/default.vert", "SingularityTrainer/assets/shaders/default.frag");
     shader.bind();
 
+    Renderer renderer;
+
     // Main loop
     while (!window.should_close())
     {
-        glClear(GL_COLOR_BUFFER_BIT);
+        renderer.clear();
 
         vertex_array.bind();
-        glDrawElements(GL_TRIANGLES, element_buffer.get_count(), GL_UNSIGNED_INT, 0);
+        renderer.draw(vertex_array, element_buffer, shader);
 
         window.swap_buffers();
         glfwPollEvents();

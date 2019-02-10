@@ -15,6 +15,6 @@ class ElementBuffer
     void bind() const;
     void unbind() const;
 
-    inline unsigned int get_count() { return count; };
+    inline unsigned int get_count() const { return count; };
 };
 }
