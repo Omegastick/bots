@@ -22,7 +22,7 @@ void glDebugOutput(unsigned int source,
         return;
 
     std::stringstream error_message;
-    error_message << "OpenGL error: ";
+    error_message << "OpenGL: ";
 
     switch (source)
     {
