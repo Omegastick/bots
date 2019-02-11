@@ -28,6 +28,18 @@ void error_callback(int error, const char *description)
     spdlog::error("GLFW error: [{}] {}", error, description);
 }
 
+void resize_window_callback(GLFWwindow *window, int x, int y)
+{
+    glViewport(0, 0, x, y);
+
+    ImGuiStyle &style = ImGui::GetStyle();
+    style = ImGuiStyle();
+    float relative_scale = (float)x / (float)resolution_x;
+    style.ScaleAllSizes(relative_scale);
+    ImGuiIO &io = ImGui::GetIO();
+    io.FontGlobalScale = relative_scale;
+}
+
 void init_imgui(const int opengl_version_major, const int opengl_version_minor, GLFWwindow *window)
 {
     IMGUI_CHECKVERSION();
@@ -38,6 +50,18 @@ void init_imgui(const int opengl_version_major, const int opengl_version_minor, 
     string_stream << "#version " << opengl_version_major << opengl_version_minor << "0 core";
     std::string x = string_stream.str();
     ImGui_ImplOpenGL3_Init(string_stream.str().c_str());
+
+    ImGuiStyle &style = ImGui::GetStyle();
+    style = ImGuiStyle();
+
+    ImFontConfig font_config;
+    font_config.OversampleH = 3;
+    font_config.OversampleV = 3;
+    ImGuiIO &io = ImGui::GetIO();
+    io.Fonts->ClearFonts();
+    io.Fonts->AddFontFromFileTTF("SingularityTrainer/assets/fonts/Roboto-Regular.ttf", 13, &font_config);
+
+    io.IniFilename = NULL;
 }
 
 int main(int argc, const char *argv[])
@@ -49,6 +73,7 @@ int main(int argc, const char *argv[])
 
     // Create window
     Window window = Window(resolution_x, resolution_y, window_title, opengl_version_major, opengl_version_minor);
+    window.set_resize_callback(resize_window_callback);
 
     // OpenGL stuff
     VertexArray vertex_array;
@@ -108,6 +133,10 @@ int main(int argc, const char *argv[])
 
         window.swap_buffers();
     }
+
+    ImGui_ImplOpenGL3_Shutdown();
+    ImGui_ImplGlfw_Shutdown();
+    ImGui::DestroyContext();
 
     return 0;
 }

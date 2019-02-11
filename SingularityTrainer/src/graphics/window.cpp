@@ -156,4 +156,9 @@ bool Window::should_close()
 {
     return glfwWindowShouldClose(window);
 }
+
+void Window::set_resize_callback(void (*callback)(GLFWwindow *, int, int))
+{
+    glfwSetWindowSizeCallback(window, callback);
+}
 }

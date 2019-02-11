@@ -14,6 +14,7 @@ class Window
 
     void swap_buffers();
     bool should_close();
+    void set_resize_callback(void(*callback)(GLFWwindow *, int, int));
 
     GLFWwindow *window;
 };
