@@ -10,6 +10,7 @@ set(GLFW_DIR ${LIB_DIR}/GLFW)
 set(GLAD_DIR ${LIB_DIR}/GLAD)
 set(GLM_DIR ${LIB_DIR}/GLM)
 set(SPDLOG_DIR ${LIB_DIR}/spdlog)
+set(IMGUI_DIR ${LIB_DIR}/imgui)
 
 # CMake Properties
 if (NOT CMAKE_BUILD_TYPE)
@@ -39,6 +40,8 @@ set(GLM_TEST_ENABLE OFF)
 add_subdirectory(${GLM_DIR})
 ## spdlog
 add_subdirectory(${SPDLOG_DIR})
+## imgui
+add_subdirectory(${IMGUI_DIR})
 
 # Libraries
 find_package(SFML 2.5 REQUIRED audio graphics window system)
@@ -49,10 +52,19 @@ if (UNIX)
     # UNIX systems sometimes need to explicitly link the threading library
     target_link_libraries(SingularityTrainer pthread)
 endif()
-target_link_libraries(GraphicsPlayground glad glfw ${GLFW_LIBRARIES} glm)
+target_link_libraries(GraphicsPlayground glad glfw ${GLFW_LIBRARIES} glm imgui)
 
 # Inlcudes
 target_include_directories(SingularityTrainer PUBLIC src)
-target_include_directories(GraphicsPlayground PUBLIC src ${GLAD_DIR}/include ${GLFW_DIR}/include ${GLM_DIR} ${SPDLOG_DIR}/include)
+target_include_directories(GraphicsPlayground 
+PUBLIC 
+    src 
+    ${GLAD_DIR}/include 
+    ${GLFW_DIR}/include 
+    ${GLM_DIR} 
+    ${SPDLOG_DIR}/include
+    ${IMGUI_DIR}
+    ${IMGUI_DIR}/examples
+)
 
 add_subdirectory(src)
