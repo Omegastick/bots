@@ -1,8 +1,12 @@
 #include <string>
+#include <sstream>
 
 #include "glad/glad.h"
 #include "GLFW/glfw3.h"
 #include "spdlog/spdlog.h"
+#include "imgui.h"
+#include "imgui_impl_glfw.h"
+#include "imgui_impl_opengl3.h"
 
 #include "graphics/window.h"
 #include "graphics/shader.h"
@@ -13,8 +17,8 @@
 
 using namespace SingularityTrainer;
 
-const int resolution_x = 1280;
-const int resolution_y = 720;
+const int resolution_x = 1920;
+const int resolution_y = 1080;
 const std::string window_title = "Graphics Playground";
 const int opengl_version_major = 4;
 const int opengl_version_minor = 3;
@@ -22,6 +26,18 @@ const int opengl_version_minor = 3;
 void error_callback(int error, const char *description)
 {
     spdlog::error("GLFW error: [{}] {}", error, description);
+}
+
+void init_imgui(const int opengl_version_major, const int opengl_version_minor, GLFWwindow *window)
+{
+    IMGUI_CHECKVERSION();
+    ImGui::CreateContext();
+    ImGui::StyleColorsDark();
+    ImGui_ImplGlfw_InitForOpenGL(window, true);
+    std::stringstream string_stream;
+    string_stream << "#version " << opengl_version_major << opengl_version_minor << "0";
+    std::string x = string_stream.str();
+    ImGui_ImplOpenGL3_Init(string_stream.str().c_str());
 }
 
 int main(int argc, const char *argv[])
@@ -61,16 +77,36 @@ int main(int argc, const char *argv[])
 
     Renderer renderer;
 
+    // ImGui
+    init_imgui(opengl_version_major, opengl_version_minor, window.window);
+    bool show_demo_window = true;
+
     // Main loop
     while (!window.should_close())
     {
+        // Input
+        glfwPollEvents();
+
+        // Update
+        ImGui_ImplOpenGL3_NewFrame();
+        ImGui_ImplGlfw_NewFrame();
+        ImGui::NewFrame();
+
+        if (show_demo_window)
+        {
+            ImGui::ShowDemoWindow(&show_demo_window);
+        }
+
+        // Draw
         renderer.clear();
 
         vertex_array.bind();
         renderer.draw(vertex_array, element_buffer, shader);
 
+        ImGui::Render();
+        ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+
         window.swap_buffers();
-        glfwPollEvents();
     }
 
     return 0;
