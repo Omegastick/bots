@@ -35,7 +35,7 @@ void init_imgui(const int opengl_version_major, const int opengl_version_minor, 
     ImGui::StyleColorsDark();
     ImGui_ImplGlfw_InitForOpenGL(window, true);
     std::stringstream string_stream;
-    string_stream << "#version " << opengl_version_major << opengl_version_minor << "0";
+    string_stream << "#version " << opengl_version_major << opengl_version_minor << "0 core";
     std::string x = string_stream.str();
     ImGui_ImplOpenGL3_Init(string_stream.str().c_str());
 }
