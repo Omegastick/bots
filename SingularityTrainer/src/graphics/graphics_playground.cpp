@@ -4,6 +4,8 @@
 
 #include "glad/glad.h"
 #include "GLFW/glfw3.h"
+#include "glm/glm.hpp"
+#include "glm/gtc/matrix_transform.hpp"
 #include "spdlog/spdlog.h"
 #include "imgui.h"
 #include "imgui_impl_glfw.h"
@@ -165,7 +167,7 @@ int main(int argc, const char *argv[])
         // Draw
         renderer.clear();
 
-        screen_manager.draw(delta_time, renderer);
+        screen_manager.draw(delta_time);
 
         ImGui::Render();
         ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());

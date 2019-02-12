@@ -16,6 +16,6 @@ class IScreen : IDrawable
     ~IScreen(){};
 
     virtual void update(const float delta_time) = 0;
-    virtual void draw(const float delta_time, const Renderer &renderer, bool lightweight = false) = 0;
+    virtual void draw(bool lightweight = false) = 0;
 };
 }

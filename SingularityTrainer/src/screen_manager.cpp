@@ -23,8 +23,8 @@ int ScreenManager::stack_size()
 {
     return screens.size();
 }
-void ScreenManager::draw(float delta_time, Renderer &renderer, bool lightweight)
+void ScreenManager::draw(bool lightweight)
 {
-    screens.top()->draw(delta_time, renderer, lightweight);
+    screens.top()->draw(lightweight);
 }
 }
