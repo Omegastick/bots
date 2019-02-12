@@ -17,6 +17,7 @@
 #include "graphics/renderer.h"
 #include "graphics/screens/quad_screen.h"
 #include "graphics/screens/quad_screen_2.h"
+#include "graphics/screens/texture_test_screen.h"
 #include "screen_manager.h"
 #include "iscreen.h"
 
@@ -121,7 +122,7 @@ int main(int argc, const char *argv[])
 {
     // Logging
     spdlog::set_level(spdlog::level::debug);
-    spdlog::set_pattern("%^[%T %5l] %v%$");
+    spdlog::set_pattern("%^[%T %7l] %v%$");
     glfwSetErrorCallback(error_callback);
 
     // Create window
@@ -134,8 +135,10 @@ int main(int argc, const char *argv[])
     std::vector<std::string> screen_names;
     screens.push_back(std::make_shared<QuadScreen>(&screen_manager, &screens, &screen_names));
     screen_names.push_back("Quad test");
-    screen_names.push_back("Quad test 2");
     screens.push_back(std::make_shared<QuadScreen2>(&screen_manager, &screens, &screen_names));
+    screen_names.push_back("Quad test 2");
+    screens.push_back(std::make_shared<TextureTestScreen>(&screen_manager, &screens, &screen_names));
+    screen_names.push_back("Texture test");
     screen_manager.show_screen(screens[0]);
 
     Renderer renderer;
