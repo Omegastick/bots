@@ -7,4 +7,7 @@ PUBLIC
     ${CMAKE_CURRENT_LIST_DIR}/element_buffer.cpp
     ${CMAKE_CURRENT_LIST_DIR}/vertex_array.cpp
     ${CMAKE_CURRENT_LIST_DIR}/renderer.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/imgui_utils.cpp
 )
+
+add_subdirectory(screens)

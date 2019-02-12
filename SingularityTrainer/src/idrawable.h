@@ -1,6 +1,6 @@
 #pragma once
 
-#include <SFML/Graphics.hpp>
+#include "graphics/renderer.h"
 
 namespace SingularityTrainer
 {
@@ -10,6 +10,6 @@ class IDrawable
     IDrawable(){};
     ~IDrawable(){};
 
-    virtual void draw(sf::RenderTarget &render_target, bool lightweight = false) = 0;
+    virtual void draw(const float delta_time, const Renderer &renderer, bool lightweight = false) = 0;
 };
 }
