@@ -3,6 +3,8 @@
 #include <string>
 
 #include <imgui.h>
+#include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
 
 #include "iscreen.h"
 #include "graphics/renderer.h"
@@ -17,15 +19,15 @@
 namespace SingularityTrainer
 {
 TextureTestScreen::TextureTestScreen(ScreenManager *screen_manager, std::vector<std::shared_ptr<IScreen>> *screens, std::vector<std::string> *screen_names)
-    : screens(screens), screen_names(screen_names), screen_manager(screen_manager)
+    : screens(screens), screen_names(screen_names), screen_manager(screen_manager), projection(glm::ortho(0.f, 1920.f, 0.f, 1080.f))
 {
     vertex_array = std::make_unique<VertexArray>();
 
     float vertices[] = {
-        -0.5, 0.5, 0.0, 1.0, 1.0, 0.0, 0.0, 1.0,
-        -0.5, -0.5, 0.0, 0.0, 0.0, 1.0, 0.0, 1.0,
-        0.5, -0.5, 1.0, 0.0, 0.0, 0.0, 1.0, 1.0,
-        0.5, 0.5, 1.0, 1.0, 1.0, 0.0, 1.0, 1.0};
+        400, 500, 0.0, 1.0, 1.0, 0.0, 0.0, 1.0,
+        400, 400, 0.0, 0.0, 0.0, 1.0, 0.0, 1.0,
+        500, 400, 1.0, 0.0, 0.0, 0.0, 1.0, 1.0,
+        500, 500, 1.0, 1.0, 1.0, 0.0, 1.0, 1.0};
 
     vertex_buffer = std::make_unique<VertexBuffer>(vertices, 4 * 8 * sizeof(float));
 
@@ -45,6 +47,7 @@ TextureTestScreen::TextureTestScreen(ScreenManager *screen_manager, std::vector<
     texture->bind();
 
     shader = std::make_unique<Shader>("SingularityTrainer/assets/shaders/texture.vert", "SingularityTrainer/assets/shaders/texture.frag");
+    shader->set_uniform_mat4f("u_mvp", projection);
     shader->set_uniform_1i("u_texture", 0);
 }
 

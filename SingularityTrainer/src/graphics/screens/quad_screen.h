@@ -4,6 +4,8 @@
 #include <memory>
 #include <string>
 
+#include <glm/glm.hpp>
+
 #include "iscreen.h"
 #include "graphics/renderer.h"
 #include "graphics/vertex_array.h"
@@ -24,6 +26,7 @@ class QuadScreen : public IScreen
     std::unique_ptr<ElementBuffer> element_buffer;
     std::unique_ptr<Shader> shader;
     ScreenManager *screen_manager;
+    glm::mat4 projection;
 
   public:
     QuadScreen(ScreenManager *screen_manager, std::vector<std::shared_ptr<IScreen>> *screens, std::vector<std::string> *screen_names);

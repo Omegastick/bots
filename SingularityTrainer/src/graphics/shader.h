@@ -1,9 +1,9 @@
 #pragma once
 
-#include "glm/vec4.hpp"
-
 #include <string>
 #include <unordered_map>
+
+#include <glm/glm.hpp>
 
 namespace SingularityTrainer
 {
@@ -22,6 +22,7 @@ class Shader
 
     void set_uniform_1i(const std::string &name, int value);
     void set_uniform_4f(const std::string &name, glm::vec4 value);
+    void set_uniform_mat4f(const std::string &name, glm::mat4 &value);
     int get_uniform_location(const std::string &name);
 
     unsigned int program;
