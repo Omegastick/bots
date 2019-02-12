@@ -3,6 +3,7 @@
 #include <string>
 
 #include "glad/glad.h"
+#include "glm/vec4.hpp"
 #include "spdlog/spdlog.h"
 
 #include "graphics/shader.h"
@@ -76,5 +77,34 @@ unsigned int Shader::compile_shader(unsigned int type, const std::string &source
         return 0;
     }
     return id;
+}
+
+void Shader::set_uniform_1i(const std::string &name, int value)
+{
+    bind();
+    glUniform1i(get_uniform_location(name), value);
+}
+
+void Shader::set_uniform_4f(const std::string &name, glm::vec4 value)
+{
+    bind();
+    glUniform4f(get_uniform_location(name), value.r, value.g, value.b, value.a);
+}
+
+int Shader::get_uniform_location(const std::string &name)
+{
+    if (uniform_location_cache.find(name) != uniform_location_cache.end())
+    {
+        return uniform_location_cache[name];
+    }
+
+    int location = glGetUniformLocation(program, name.c_str());
+    if (location == -1)
+    {
+        spdlog::warn("Uniform " + name + " not found.");
+    }
+
+    uniform_location_cache[name] = location;
+    return location;
 }
 }
