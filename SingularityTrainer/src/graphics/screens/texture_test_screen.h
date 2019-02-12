@@ -4,6 +4,8 @@
 #include <memory>
 #include <string>
 
+#include <glm/glm.hpp>
+
 #include "iscreen.h"
 #include "graphics/renderer.h"
 #include "graphics/vertex_array.h"
@@ -26,6 +28,7 @@ class TextureTestScreen : public IScreen
     std::unique_ptr<Shader> shader;
     std::unique_ptr<Texture> texture;
     ScreenManager *screen_manager;
+    glm::mat4 projection;
 
   public:
     TextureTestScreen(ScreenManager *screen_manager, std::vector<std::shared_ptr<IScreen>> *screens, std::vector<std::string> *screen_names);
