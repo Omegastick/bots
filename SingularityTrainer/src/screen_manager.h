@@ -4,6 +4,7 @@
 #include <stack>
 
 #include "iscreen.h"
+#include "graphics/renderer.h"
 
 namespace SingularityTrainer
 {
@@ -15,9 +16,9 @@ class ScreenManager
 
     void show_screen(std::shared_ptr<IScreen> screen);
     void close_screen();
-    void update(sf::Time delta_time, sf::RenderWindow &window, const thor::ActionMap<Inputs> &action_map);
+    void update(float delta_time);
     int stack_size();
-    void draw(sf::RenderTarget &render_target, bool lightweight = false);
+    void draw(float delta_time, Renderer &renderer, bool lightweight = false);
 
   private:
     std::stack<std::shared_ptr<IScreen>> screens;

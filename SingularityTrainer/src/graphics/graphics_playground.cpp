@@ -1,5 +1,6 @@
 #include <string>
 #include <sstream>
+#include <vector>
 
 #include "glad/glad.h"
 #include "GLFW/glfw3.h"
@@ -14,6 +15,9 @@
 #include "graphics/element_buffer.h"
 #include "graphics/vertex_array.h"
 #include "graphics/renderer.h"
+#include "graphics/screens/quad_screen.h"
+#include "screen_manager.h"
+#include "iscreen.h"
 
 using namespace SingularityTrainer;
 
@@ -33,11 +37,11 @@ void reset_imgui_style()
     ImGuiStyle &style = ImGui::GetStyle();
     style = ImGuiStyle();
 
-    style.WindowRounding = 2.3f;
-    style.GrabRounding = style.FrameRounding = 2.3f;
-    style.ScrollbarRounding = 5.0f;
-    style.FrameBorderSize = 1.0f;
-    style.ItemSpacing.y = 6.5f;
+    style.WindowRounding = 2.3;
+    style.GrabRounding = style.FrameRounding = 2.3;
+    style.ScrollbarRounding = 2.3;
+    style.FrameBorderSize = 1.0;
+    style.ItemSpacing.y = 6.5;
 
     style.Colors[ImGuiCol_Text] = {0.9f, 0.9f, 0.9f, 1.00f};
     style.Colors[ImGuiCol_TextDisabled] = {0.34509805f, 0.34509805f, 0.34509805f, 1.00f};
@@ -69,9 +73,9 @@ void reset_imgui_style()
     style.Colors[ImGuiCol_Separator] = {0.31640625f, 0.31640625f, 0.31640625f, 1.00f};
     style.Colors[ImGuiCol_SeparatorHovered] = {0.31640625f, 0.31640625f, 0.31640625f, 1.00f};
     style.Colors[ImGuiCol_SeparatorActive] = {0.31640625f, 0.31640625f, 0.31640625f, 1.00f};
-    style.Colors[ImGuiCol_ResizeGrip] = {1.00f, 1.00f, 1.00f, 0.85f};
-    style.Colors[ImGuiCol_ResizeGripHovered] = {1.00f, 1.00f, 1.00f, 0.60f};
-    style.Colors[ImGuiCol_ResizeGripActive] = {1.00f, 1.00f, 1.00f, 0.90f};
+    style.Colors[ImGuiCol_ResizeGrip] = {1.00f, 1.00f, 1.00f, 0.05f};
+    style.Colors[ImGuiCol_ResizeGripHovered] = {1.00f, 1.00f, 1.00f, 0.4f};
+    style.Colors[ImGuiCol_ResizeGripActive] = {1.00f, 1.00f, 1.00f, 0.3f};
     style.Colors[ImGuiCol_PlotLines] = {0.61f, 0.61f, 0.61f, 1.00f};
     style.Colors[ImGuiCol_PlotLinesHovered] = {1.00f, 0.43f, 0.35f, 1.00f};
     style.Colors[ImGuiCol_PlotHistogram] = {0.90f, 0.70f, 0.00f, 1.00f};
@@ -123,30 +127,12 @@ int main(int argc, const char *argv[])
     Window window = Window(resolution_x, resolution_y, window_title, opengl_version_major, opengl_version_minor);
     window.set_resize_callback(resize_window_callback);
 
-    // OpenGL stuff
-    VertexArray vertex_array;
-
-    float vertices[] = {
-        -0.5, 0.5, 1.0, 0.0, 0.0, 1.0,
-        -0.5, -0.5, 0.0, 1.0, 0.0, 1.0,
-        0.5, -0.5, 0.0, 0.0, 1.0, 1.0,
-        0.5, 0.5, 1.0, 0.0, 1.0, 1.0};
-
-    VertexBuffer vertex_buffer(vertices, 4 * 6 * sizeof(float));
-
-    unsigned int indices[] = {
-        0, 1, 2,
-        2, 3, 0};
-
-    ElementBuffer element_buffer(indices, 6);
-
-    VertexBufferLayout layout;
-    layout.push<float>(2);
-    layout.push<float>(4);
-    vertex_array.add_buffer(vertex_buffer, layout);
-
-    Shader shader("SingularityTrainer/assets/shaders/default.vert", "SingularityTrainer/assets/shaders/default.frag");
-    shader.bind();
+    // Screens
+    ScreenManager screen_manager;
+    std::vector<std::shared_ptr<IScreen>> screens;
+    std::vector<std::string> screen_names{
+        "Quad test"};
+    screen_manager.show_screen(std::make_shared<QuadScreen>(&screens, &screen_names));
 
     Renderer renderer;
 
@@ -154,9 +140,16 @@ int main(int argc, const char *argv[])
     init_imgui(opengl_version_major, opengl_version_minor, window.window);
     bool show_demo_window = true;
 
+    float time = glfwGetTime();
+
     // Main loop
     while (!window.should_close())
     {
+        // Time
+        float new_time = glfwGetTime();
+        float delta_time = new_time - time;
+        time = new_time;
+
         // Input
         glfwPollEvents();
 
@@ -165,16 +158,12 @@ int main(int argc, const char *argv[])
         ImGui_ImplGlfw_NewFrame();
         ImGui::NewFrame();
 
-        if (show_demo_window)
-        {
-            ImGui::ShowDemoWindow(&show_demo_window);
-        }
+        screen_manager.update(delta_time);
 
         // Draw
         renderer.clear();
 
-        vertex_array.bind();
-        renderer.draw(vertex_array, element_buffer, shader);
+        screen_manager.draw(delta_time, renderer);
 
         ImGui::Render();
         ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());

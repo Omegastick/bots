@@ -15,17 +15,16 @@ void ScreenManager::close_screen()
 {
     screens.pop();
 }
-void ScreenManager::update(sf::Time delta_time, sf::RenderWindow &window, const thor::ActionMap<Inputs> &action_map)
+void ScreenManager::update(float delta_time)
 {
-    sf::Vector2f mouse_position = window.mapPixelToCoords(sf::Mouse::getPosition(window));
-    screens.top()->update(delta_time, mouse_position, action_map);
+    screens.top()->update(delta_time);
 }
 int ScreenManager::stack_size()
 {
     return screens.size();
 }
-void ScreenManager::draw(sf::RenderTarget &render_target, bool lightweight)
+void ScreenManager::draw(float delta_time, Renderer &renderer, bool lightweight)
 {
-    screens.top()->draw(render_target, lightweight);
+    screens.top()->draw(delta_time, renderer, lightweight);
 }
 }

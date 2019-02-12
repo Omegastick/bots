@@ -20,7 +20,7 @@ set(CMAKE_CXX_STANDARD 14)
 set(CMAKE_CXX_FLAGS_RELEASE -O3)
 
 # Executable
-add_executable(SingularityTrainer "")
+add_executable(SingularityTrainer EXCLUDE_FROM_ALL "")
 add_executable(GraphicsPlayground "")
 
 # Libraries

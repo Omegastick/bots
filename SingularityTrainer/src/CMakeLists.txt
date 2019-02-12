@@ -8,6 +8,11 @@ PUBLIC
     ${CMAKE_CURRENT_LIST_DIR}/random.cpp
 )
 
+target_sources(GraphicsPlayground
+PUBLIC
+    ${CMAKE_CURRENT_LIST_DIR}/screen_manager.cpp
+)
+
 add_subdirectory(test_screen)
 add_subdirectory(graphics)
 add_subdirectory(training)

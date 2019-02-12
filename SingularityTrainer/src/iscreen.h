@@ -5,6 +5,7 @@
 
 #include "idrawable.h"
 #include "input.h"
+#include "graphics/renderer.h"
 
 namespace SingularityTrainer
 {
@@ -14,7 +15,7 @@ class IScreen : IDrawable
     IScreen(){};
     ~IScreen(){};
 
-    virtual void draw(sf::RenderTarget &render_target, bool lightweight = false) = 0;
-    virtual void update(const sf::Time &delta_time, const sf::Vector2f &mouse_position, const thor::ActionMap<Inputs> &action_map) = 0;
+    virtual void update(const float delta_time) = 0;
+    virtual void draw(const float delta_time, const Renderer &renderer, bool lightweight = false) = 0;
 };
 }

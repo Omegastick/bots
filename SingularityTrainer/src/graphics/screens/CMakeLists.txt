@@ -1,0 +1,4 @@
+target_sources(GraphicsPlayground
+PUBLIC
+    ${CMAKE_CURRENT_LIST_DIR}/quad_screen.cpp
+)
