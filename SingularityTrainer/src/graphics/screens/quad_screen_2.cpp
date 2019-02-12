@@ -11,17 +11,17 @@
 #include "graphics/element_buffer.h"
 #include "graphics/shader.h"
 #include "graphics/imgui_utils.h"
-#include "quad_screen.h"
+#include "quad_screen_2.h"
 
 namespace SingularityTrainer
 {
-QuadScreen::QuadScreen(ScreenManager *screen_manager, std::vector<std::shared_ptr<IScreen>> *screens, std::vector<std::string> *screen_names)
+QuadScreen2::QuadScreen2(ScreenManager *screen_manager, std::vector<std::shared_ptr<IScreen>> *screens, std::vector<std::string> *screen_names)
     : screens(screens), screen_names(screen_names), screen_manager(screen_manager)
 {
     vertex_array = std::make_unique<VertexArray>();
 
     float vertices[] = {
-        -0.5, 0.5, 1.0, 0.0, 0.0, 1.0,
+        -0.5, 0.5, 1.0, 1.0, 1.0, 1.0,
         -0.5, -0.5, 0.0, 1.0, 0.0, 1.0,
         0.5, -0.5, 0.0, 0.0, 1.0, 1.0,
         0.5, 0.5, 1.0, 0.0, 1.0, 1.0};
@@ -43,13 +43,13 @@ QuadScreen::QuadScreen(ScreenManager *screen_manager, std::vector<std::shared_pt
     shader->bind();
 }
 
-QuadScreen::~QuadScreen() {}
+QuadScreen2::~QuadScreen2() {}
 
-void QuadScreen::update(const float delta_time)
+void QuadScreen2::update(const float delta_time)
 {
     ImGui::SetNextWindowSize(ImVec2(150, 50));
     ImGui::Begin("Screens", NULL, ImGuiWindowFlags_NoResize);
-    int own_index = std::find(screen_names->begin(), screen_names->end(), "Quad test") - screen_names->begin();
+    int own_index = std::find(screen_names->begin(), screen_names->end(), "Quad test 2") - screen_names->begin();
     int screen_index = own_index;
     ImGui::Combo("", &screen_index, *screen_names);
     if (screen_index != own_index)
@@ -60,7 +60,7 @@ void QuadScreen::update(const float delta_time)
     ImGui::End();
 }
 
-void QuadScreen::draw(const float delta_time, const Renderer &renderer, bool lightweight)
+void QuadScreen2::draw(const float delta_time, const Renderer &renderer, bool lightweight)
 {
     renderer.draw(*vertex_array, *element_buffer, *shader);
 }

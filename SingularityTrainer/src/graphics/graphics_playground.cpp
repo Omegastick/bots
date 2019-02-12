@@ -16,6 +16,7 @@
 #include "graphics/vertex_array.h"
 #include "graphics/renderer.h"
 #include "graphics/screens/quad_screen.h"
+#include "graphics/screens/quad_screen_2.h"
 #include "screen_manager.h"
 #include "iscreen.h"
 
@@ -130,9 +131,12 @@ int main(int argc, const char *argv[])
     // Screens
     ScreenManager screen_manager;
     std::vector<std::shared_ptr<IScreen>> screens;
-    std::vector<std::string> screen_names{
-        "Quad test"};
-    screen_manager.show_screen(std::make_shared<QuadScreen>(&screens, &screen_names));
+    std::vector<std::string> screen_names;
+    screens.push_back(std::make_shared<QuadScreen>(&screen_manager, &screens, &screen_names));
+    screen_names.push_back("Quad test");
+    screen_names.push_back("Quad test 2");
+    screens.push_back(std::make_shared<QuadScreen2>(&screen_manager, &screens, &screen_names));
+    screen_manager.show_screen(screens[0]);
 
     Renderer renderer;
 

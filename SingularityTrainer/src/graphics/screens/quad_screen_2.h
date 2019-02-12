@@ -14,7 +14,7 @@
 
 namespace SingularityTrainer
 {
-class QuadScreen : public IScreen
+class QuadScreen2 : public IScreen
 {
   private:
     std::vector<std::shared_ptr<IScreen>> *screens;
@@ -26,8 +26,8 @@ class QuadScreen : public IScreen
     ScreenManager *screen_manager;
 
   public:
-    QuadScreen(ScreenManager *screen_manager, std::vector<std::shared_ptr<IScreen>> *screens, std::vector<std::string> *screen_names);
-    ~QuadScreen();
+    QuadScreen2(ScreenManager *screen_manager, std::vector<std::shared_ptr<IScreen>> *screens, std::vector<std::string> *screen_names);
+    ~QuadScreen2();
 
     virtual void update(const float delta_time);
     virtual void draw(const float delta_time, const Renderer &renderer, bool lightweight = false);
