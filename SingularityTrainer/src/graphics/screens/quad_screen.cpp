@@ -11,7 +11,8 @@
 #include "graphics/element_buffer.h"
 #include "graphics/shader.h"
 #include "graphics/imgui_utils.h"
-#include "quad_screen.h"
+#include "graphics/screens/test_utils.h"
+#include "graphics/screens/quad_screen.h"
 
 namespace SingularityTrainer
 {
@@ -47,17 +48,7 @@ QuadScreen::~QuadScreen() {}
 
 void QuadScreen::update(const float delta_time)
 {
-    ImGui::SetNextWindowSize(ImVec2(150, 50));
-    ImGui::Begin("Screens", NULL, ImGuiWindowFlags_NoResize);
-    int own_index = std::find(screen_names->begin(), screen_names->end(), "Quad test") - screen_names->begin();
-    int screen_index = own_index;
-    ImGui::Combo("", &screen_index, *screen_names);
-    if (screen_index != own_index)
-    {
-        screen_manager->close_screen();
-        screen_manager->show_screen((*screens)[screen_index]);
-    }
-    ImGui::End();
+    display_test_dialog("Quad test", *screens, *screen_names, *screen_manager);
 }
 
 void QuadScreen::draw(const float delta_time, const Renderer &renderer, bool lightweight)
