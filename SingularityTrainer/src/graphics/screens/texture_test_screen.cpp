@@ -55,8 +55,10 @@ void TextureTestScreen::update(const float delta_time)
     display_test_dialog("Texture test", *screens, *screen_names, *screen_manager);
 }
 
-void TextureTestScreen::draw(const float delta_time, const Renderer &renderer, bool lightweight)
+void TextureTestScreen::draw(bool lightweight)
 {
+    Renderer renderer;
+
     texture->bind();
     renderer.draw(*vertex_array, *element_buffer, *shader);
 }

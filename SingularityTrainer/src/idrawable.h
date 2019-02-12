@@ -10,6 +10,6 @@ class IDrawable
     IDrawable(){};
     ~IDrawable(){};
 
-    virtual void draw(const float delta_time, const Renderer &renderer, bool lightweight = false) = 0;
+    virtual void draw(bool lightweight = false) = 0;
 };
 }

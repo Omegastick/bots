@@ -32,6 +32,6 @@ class TextureTestScreen : public IScreen
     ~TextureTestScreen();
 
     virtual void update(const float delta_time);
-    virtual void draw(const float delta_time, const Renderer &renderer, bool lightweight = false);
+    virtual void draw(bool lightweight = false);
 };
 }
