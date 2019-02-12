@@ -10,13 +10,8 @@
 #include "imgui_impl_opengl3.h"
 
 #include "graphics/window.h"
-#include "graphics/shader.h"
-#include "graphics/vertex_buffer.h"
-#include "graphics/element_buffer.h"
-#include "graphics/vertex_array.h"
 #include "graphics/renderer.h"
 #include "graphics/screens/quad_screen.h"
-#include "graphics/screens/quad_screen_2.h"
 #include "graphics/screens/texture_test_screen.h"
 #include "screen_manager.h"
 #include "iscreen.h"
@@ -116,6 +111,8 @@ void init_imgui(const int opengl_version_major, const int opengl_version_minor, 
     io.Fonts->AddFontFromFileTTF("SingularityTrainer/assets/fonts/Roboto-Regular.ttf", 15, &font_config);
 
     io.IniFilename = NULL;
+
+    reset_imgui_style();
 }
 
 int main(int argc, const char *argv[])
@@ -135,8 +132,6 @@ int main(int argc, const char *argv[])
     std::vector<std::string> screen_names;
     screens.push_back(std::make_shared<QuadScreen>(&screen_manager, &screens, &screen_names));
     screen_names.push_back("Quad test");
-    screens.push_back(std::make_shared<QuadScreen2>(&screen_manager, &screens, &screen_names));
-    screen_names.push_back("Quad test 2");
     screens.push_back(std::make_shared<TextureTestScreen>(&screen_manager, &screens, &screen_names));
     screen_names.push_back("Texture test");
     screen_manager.show_screen(screens[0]);
