@@ -1,7 +1,5 @@
 #pragma once
 
-#include "graphics/renderer.h"
-
 namespace SingularityTrainer
 {
 class IDrawable
