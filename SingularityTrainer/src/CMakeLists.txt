@@ -11,6 +11,7 @@ PUBLIC
 target_sources(GraphicsPlayground
 PUBLIC
     ${CMAKE_CURRENT_LIST_DIR}/screen_manager.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/resource_manager.cpp
 )
 
 add_subdirectory(test_screen)

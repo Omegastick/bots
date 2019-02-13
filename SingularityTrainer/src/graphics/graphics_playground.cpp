@@ -15,6 +15,7 @@
 #include "graphics/renderer.h"
 #include "graphics/screens/quad_screen.h"
 #include "graphics/screens/texture_test_screen.h"
+#include "graphics/screens/sprite_test_screen.h"
 #include "screen_manager.h"
 #include "iscreen.h"
 
@@ -128,6 +129,8 @@ int main(int argc, const char *argv[])
     Window window = Window(resolution_x, resolution_y, window_title, opengl_version_major, opengl_version_minor);
     window.set_resize_callback(resize_window_callback);
 
+    ResourceManager resource_manager("SingularityTrainer/assets/");
+
     // Screens
     ScreenManager screen_manager;
     std::vector<std::shared_ptr<IScreen>> screens;
@@ -136,6 +139,8 @@ int main(int argc, const char *argv[])
     screen_names.push_back("Quad test");
     screens.push_back(std::make_shared<TextureTestScreen>(&screen_manager, &screens, &screen_names));
     screen_names.push_back("Texture test");
+    screens.push_back(std::make_shared<SpriteTestScreen>(&screen_manager, resource_manager, &screens, &screen_names));
+    screen_names.push_back("Sprite test");
     screen_manager.show_screen(screens[0]);
 
     Renderer renderer;
