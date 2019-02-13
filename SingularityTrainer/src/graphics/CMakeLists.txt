@@ -10,6 +10,8 @@ PUBLIC
     ${CMAKE_CURRENT_LIST_DIR}/texture.cpp
     ${CMAKE_CURRENT_LIST_DIR}/imgui_utils.cpp
     ${CMAKE_CURRENT_LIST_DIR}/stb_image.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/itransformable.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/sprite.cpp
 )
 
 add_subdirectory(screens)

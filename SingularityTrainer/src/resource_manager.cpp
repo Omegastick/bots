@@ -1,6 +1,9 @@
-#include <SFML/Graphics.hpp>
+#include <memory>
+#include <string>
 
 #include "resource_manager.h"
+#include "graphics/texture.h"
+#include "graphics/shader.h"
 
 namespace SingularityTrainer
 {
@@ -16,50 +19,22 @@ void ResourceManager::load_texture(const std::string &id, const std::string &pat
         return;
     }
 
-    std::shared_ptr<sf::Texture> texture = std::make_shared<sf::Texture>();
-
-    if (!texture->loadFromFile(full_path))
-    {
-        return;
-    }
+    std::shared_ptr<Texture> texture = std::make_shared<Texture>(full_path);
 
     texture_store.add(id, texture);
 };
 
-void ResourceManager::load_font(const std::string &id, const std::string &path)
+void ResourceManager::load_shader(const std::string &id, const std::string &vert_path, const std::string &frag_path)
 {
-    std::string full_path = base_path + path;
-
-    if (font_store.check_exists(id))
-    {
-        return;
-    }
-
-    std::shared_ptr<sf::Font> font = std::make_shared<sf::Font>();
-
-    if (!font->loadFromFile(full_path))
-    {
-        return;
-    }
-
-    font_store.add(id, font);
-};
-
-void ResourceManager::load_shader(const std::string &id, const std::string &path)
-{
-    std::string full_path = base_path + path;
+    std::string full_vert_path = base_path + vert_path;
+    std::string full_frag_path = base_path + frag_path;
 
     if (shader_store.check_exists(id))
     {
         return;
     }
 
-    std::shared_ptr<sf::Shader> shader = std::make_shared<sf::Shader>();
-
-    if (!shader->loadFromFile(full_path, sf::Shader::Fragment))
-    {
-        return;
-    }
+    std::shared_ptr<Shader> shader = std::make_shared<Shader>(full_vert_path, full_frag_path);
 
     shader_store.add(id, shader);
 };

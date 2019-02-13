@@ -138,6 +138,8 @@ Window::Window(int x, int y, std::string title, int opengl_major_version, int op
         glDebugMessageControl(GL_DONT_CARE, GL_DONT_CARE, GL_DONT_CARE, 0, nullptr, GL_TRUE);
     }
 
+    glEnable(GL_BLEND);
+
     spdlog::debug("Actual OpenGL version: {}", glGetString(GL_VERSION));
 }
 

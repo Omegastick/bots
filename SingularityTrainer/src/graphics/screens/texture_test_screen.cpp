@@ -48,7 +48,6 @@ TextureTestScreen::TextureTestScreen(ScreenManager *screen_manager, std::vector<
 
     shader = std::make_unique<Shader>("SingularityTrainer/assets/shaders/texture.vert", "SingularityTrainer/assets/shaders/texture.frag");
     shader->set_uniform_mat4f("u_mvp", projection);
-    shader->set_uniform_1i("u_texture", 0);
 }
 
 TextureTestScreen::~TextureTestScreen() {}
@@ -63,12 +62,12 @@ void TextureTestScreen::draw(bool lightweight)
 {
     Renderer renderer;
 
-    glm::mat4 translate = glm::translate(glm::mat4(1.), glm::vec3(960, 540, 0));
-    glm::mat4 rotate = glm::rotate(glm::mat4(1.), rotation, glm::vec3(0, 0, 1));
-    glm::mat4 mvp = projection * translate * rotate;
+    glm::mat4 mvp = glm::translate(projection, glm::vec3(960, 540, 0));
+    mvp = glm::rotate(mvp, rotation, glm::vec3(0, 0, 1));
     shader->set_uniform_mat4f("u_mvp", mvp);
-
     texture->bind();
+    shader->set_uniform_1i("u_texture", 0);
+
     renderer.draw(*vertex_array, *element_buffer, *shader);
 }
 }

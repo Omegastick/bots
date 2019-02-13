@@ -1,9 +1,10 @@
 #pragma once
 
 #include <string>
-#include <SFML/Graphics.hpp>
 
 #include "asset_store.h"
+#include "graphics/texture.h"
+#include "graphics/shader.h"
 
 namespace SingularityTrainer
 {
@@ -14,12 +15,10 @@ class ResourceManager
     ~ResourceManager();
 
     void load_texture(const std::string &id, const std::string &path);
-    void load_font(const std::string &id, const std::string &path);
-    void load_shader(const std::string &id, const std::string &path);
+    void load_shader(const std::string &id, const std::string &vert_path, const std::string &frag_path);
 
-    AssetStore<sf::Texture> texture_store;
-    AssetStore<sf::Font> font_store;
-    AssetStore<sf::Shader> shader_store;
+    AssetStore<Texture> texture_store;
+    AssetStore<Shader> shader_store;
 
   private:
     std::string base_path;
