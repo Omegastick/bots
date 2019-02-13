@@ -34,4 +34,9 @@ Sprite::Sprite(const std::shared_ptr<Texture> &texture) : texture(texture)
 }
 
 Sprite::~Sprite() {}
+
+glm::vec2 Sprite::get_center() const
+{
+    return glm::vec2(get_scale().x / 2, get_scale().y / 2);
+}
 }

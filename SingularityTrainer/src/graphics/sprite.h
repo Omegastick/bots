@@ -32,6 +32,8 @@ class Sprite : public ITransformable
     explicit Sprite(const std::shared_ptr<Texture> &texture);
     ~Sprite();
 
+    glm::vec2 get_center() const;
+
     inline const VertexArray &get_vertex_array() const { return *vertex_array; }
     inline const VertexBuffer &get_vertex_buffer() const { return *vertex_buffer; }
     inline const ElementBuffer &get_element_buffer() const { return *element_buffer; }
