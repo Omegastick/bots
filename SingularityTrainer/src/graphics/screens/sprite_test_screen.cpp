@@ -51,6 +51,6 @@ void SpriteTestScreen::draw(bool lightweight)
     sprite->get_texture().bind();
     shader->set_uniform_1i("u_texture", 0);
 
-    renderer.draw(sprite->get_vertex_array(), sprite->get_element_buffer(), *shader);
+    renderer.draw(*sprite, *shader);
 }
 }
