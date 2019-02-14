@@ -18,6 +18,7 @@ class Renderer
   private:
     std::vector<std::shared_ptr<PostProcLayer>> post_proc_layers;
     std::unique_ptr<FrameBuffer> base_frame_buffer;
+    std::unique_ptr<FrameBuffer> texture_frame_buffer;
 
   public:
     Renderer();
@@ -28,7 +29,7 @@ class Renderer
 
     void clear();
 
-    void push_post_proc_layer(PostProcLayer &post_proc_layer);
+    void push_post_proc_layer(std::shared_ptr<PostProcLayer> post_proc_layer);
     void pop_post_proc_layer();
     void clear_post_proc_stack();
 

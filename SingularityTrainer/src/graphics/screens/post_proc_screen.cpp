@@ -35,30 +35,8 @@ PostProcScreen::PostProcScreen(
     resource_manager.load_shader("texture", "shaders/texture.vert", "shaders/texture.frag");
     resource_manager.load_shader("post_proc_test", "shaders/texture.vert", "shaders/post_proc_test.frag");
 
-    glGenFramebuffers(1, &fbo);
-    glGenFramebuffers(1, &msfbo);
-    glGenRenderbuffers(1, &rbo);
-
-    glBindFramebuffer(GL_FRAMEBUFFER, msfbo);
-    glBindRenderbuffer(GL_RENDERBUFFER, rbo);
-    glRenderbufferStorageMultisample(GL_RENDERBUFFER, 4, GL_RGBA8, 1920, 1080);
-    glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_RENDERBUFFER, rbo);
-    if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
-    {
-        spdlog::error("Failed to initialize MSAA render buffer");
-        throw std::exception();
-    }
-
-    glBindFramebuffer(GL_FRAMEBUFFER, fbo);
-    texture = std::make_shared<Texture>(1920, 1080);
-    post_proc_sprite = std::make_unique<Sprite>(*texture);
-    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, texture->get_id(), 0);
-    if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
-    {
-        spdlog::error("Failed to initialize frame buffer object");
-        throw std::exception();
-    }
-    glBindFramebuffer(GL_FRAMEBUFFER, 0);
+    auto post_proc_layer = std::make_shared<PostProcLayer>(resource_manager.shader_store.get("post_proc_test").get(), projection);
+    renderer.push_post_proc_layer(post_proc_layer);
 }
 
 PostProcScreen::~PostProcScreen() {}
@@ -71,10 +49,9 @@ void PostProcScreen::update(const float delta_time)
 
 void PostProcScreen::draw(bool lightweight)
 {
-    auto shader = resource_manager->shader_store.get("texture");
+    renderer.begin_frame();
 
-    glBindFramebuffer(GL_FRAMEBUFFER, msfbo);
-    glClear(GL_COLOR_BUFFER_BIT);
+    auto shader = resource_manager->shader_store.get("texture");
 
     glm::mat4 mvp = projection * sprite->get_transform();
     shader->set_uniform_mat4f("u_mvp", mvp);
@@ -83,21 +60,6 @@ void PostProcScreen::draw(bool lightweight)
 
     renderer.draw(*sprite, *shader);
 
-    glBindFramebuffer(GL_READ_FRAMEBUFFER, msfbo);
-    glBindFramebuffer(GL_DRAW_FRAMEBUFFER, fbo);
-    glBlitFramebuffer(0, 0, 1920, 1080, 0, 0, 1920, 1080, GL_COLOR_BUFFER_BIT, GL_LINEAR);
-    glBindFramebuffer(GL_FRAMEBUFFER, 0);
-
-    auto post_proc_shader = resource_manager->shader_store.get("post_proc_test");
-    texture->bind();
-    post_proc_shader->set_uniform_1i("u_texture", 0);
-
-    post_proc_sprite->set_texture(texture.get());
-    post_proc_sprite->set_scale(glm::vec2(1920.f, 1080.f));
-    mvp = projection * post_proc_sprite->get_transform();
-    post_proc_shader->set_uniform_mat4f("u_mvp", mvp);
-    post_proc_shader->set_uniform_2f("u_resolution", glm::vec2(1920, 1080));
-    post_proc_shader->set_uniform_2f("u_direction", glm::vec2(1, 1));
-    renderer.draw(*post_proc_sprite, *post_proc_shader);
+    renderer.end_frame();
 }
 }
