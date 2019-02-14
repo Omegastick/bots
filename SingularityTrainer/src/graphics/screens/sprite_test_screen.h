@@ -9,6 +9,7 @@
 #include "iscreen.h"
 #include "graphics/shader.h"
 #include "graphics/sprite.h"
+#include "graphics/renderer.h"
 #include "resource_manager.h"
 #include "screen_manager.h"
 
@@ -23,6 +24,7 @@ class SpriteTestScreen : public IScreen
     ScreenManager *screen_manager;
     ResourceManager *resource_manager;
     glm::mat4 projection;
+    Renderer renderer;
 
   public:
     SpriteTestScreen(

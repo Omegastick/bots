@@ -1,3 +1,5 @@
+#include <memory>
+
 #include <glad/glad.h>
 
 #include "graphics/vertex_array.h"
@@ -9,6 +11,18 @@
 
 namespace SingularityTrainer
 {
+Renderer::Renderer()
+{
+    base_frame_buffer = std::make_unique<FrameBuffer>();
+    base_frame_buffer->add_render_buffer(1920, 1080, 4);
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);
+    glBindRenderbuffer(GL_RENDERBUFFER, 0);
+}
+
+Renderer::~Renderer()
+{
+}
+
 void Renderer::draw(const VertexArray &vertex_array, const ElementBuffer &element_buffer, const Shader &shader)
 {
     vertex_array.bind();
@@ -23,8 +37,28 @@ void Renderer::draw(const Sprite &sprite, const Shader &shader)
     glDrawElements(GL_TRIANGLES, sprite.get_element_buffer().get_count(), GL_UNSIGNED_INT, 0);
 }
 
-void Renderer::clear() const
+void Renderer::clear()
 {
     glClear(GL_COLOR_BUFFER_BIT);
+}
+
+void Renderer::begin_frame()
+{
+    base_frame_buffer->bind();
+    clear();
+}
+
+void Renderer::end_frame()
+{
+    FrameBuffer *read_buffer = base_frame_buffer.get();
+
+    for (const auto &post_proc_layer : post_proc_layers)
+    {
+        read_buffer = &post_proc_layer->render(read_buffer->get_texture(), *this);
+    }
+
+    read_buffer->bind_read();
+    glBindFramebuffer(GL_DRAW_BUFFER, 0);
+    glBlitFramebuffer(0, 0, 1920, 1080, 0, 0, 1920, 1080, GL_COLOR_BUFFER_BIT, GL_LINEAR);
 }
 }

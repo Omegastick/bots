@@ -12,6 +12,7 @@
 #include "graphics/vertex_buffer.h"
 #include "graphics/element_buffer.h"
 #include "graphics/shader.h"
+#include "graphics/renderer.h"
 #include "screen_manager.h"
 
 namespace SingularityTrainer
@@ -27,6 +28,7 @@ class QuadScreen : public IScreen
     std::unique_ptr<Shader> shader;
     ScreenManager *screen_manager;
     glm::mat4 projection;
+    Renderer renderer;
 
   public:
     QuadScreen(ScreenManager *screen_manager, std::vector<std::shared_ptr<IScreen>> *screens, std::vector<std::string> *screen_names);

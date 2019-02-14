@@ -26,10 +26,10 @@ class Sprite : public ITransformable
     std::unique_ptr<VertexArray> vertex_array;
     std::unique_ptr<VertexBuffer> vertex_buffer;
     std::unique_ptr<ElementBuffer> element_buffer;
-    std::shared_ptr<Texture> texture;
+    Texture *texture;
 
   public:
-    explicit Sprite(const std::shared_ptr<Texture> &texture);
+    explicit Sprite(Texture &texture);
     ~Sprite();
 
     glm::vec2 get_center() const;
@@ -38,5 +38,6 @@ class Sprite : public ITransformable
     inline const VertexBuffer &get_vertex_buffer() const { return *vertex_buffer; }
     inline const ElementBuffer &get_element_buffer() const { return *element_buffer; }
     inline const Texture &get_texture() const { return *texture; }
+    inline const void set_texture(Texture *texture) { this->texture = texture; }
 };
 }
