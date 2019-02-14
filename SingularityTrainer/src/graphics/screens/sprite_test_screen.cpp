@@ -37,7 +37,7 @@ SpriteTestScreen::~SpriteTestScreen() {}
 
 void SpriteTestScreen::update(const float delta_time)
 {
-    display_test_dialog("Sprite test", *screens, *screen_names, *screen_manager);
+    display_test_dialog("Sprite test", *screens, *screen_names, delta_time, *screen_manager);
     sprite->rotate(1.f * delta_time);
 }
 

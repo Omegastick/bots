@@ -13,7 +13,8 @@ class Texture
     int width, height, bpp;
 
   public:
-    Texture(const std::string &filepath);
+    Texture(int width, int height);
+    explicit Texture(const std::string &filepath);
     ~Texture();
 
     void bind(unsigned int slot = 0) const;
@@ -21,5 +22,6 @@ class Texture
 
     inline int get_width() const { return width; }
     inline int get_height() const { return height; }
+    inline int get_id() const { return id; }
 };
 }

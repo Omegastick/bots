@@ -108,7 +108,7 @@ Window::Window(int x, int y, std::string title, int opengl_major_version, int op
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, opengl_minor_version);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
     glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, GL_TRUE);
-    glfwWindowHint(GLFW_SAMPLES, 4);
+    // glfwWindowHint(GLFW_SAMPLES, 4);
 
     window = glfwCreateWindow(x, y, title.c_str(), nullptr, nullptr);
     if (!window)
@@ -141,6 +141,7 @@ Window::Window(int x, int y, std::string title, int opengl_major_version, int op
 
     glEnable(GL_BLEND);
     glEnable(GL_MULTISAMPLE);
+    glfwSwapInterval(0);
 
     spdlog::debug("Actual OpenGL version: {}", glGetString(GL_VERSION));
 }

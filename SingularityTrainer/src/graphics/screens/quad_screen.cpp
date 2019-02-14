@@ -51,7 +51,7 @@ QuadScreen::~QuadScreen() {}
 
 void QuadScreen::update(const float delta_time)
 {
-    display_test_dialog("Quad test", *screens, *screen_names, *screen_manager);
+    display_test_dialog("Quad test", *screens, *screen_names, delta_time, *screen_manager);
 }
 
 void QuadScreen::draw(bool lightweight)
