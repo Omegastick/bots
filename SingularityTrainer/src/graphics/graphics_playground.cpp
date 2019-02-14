@@ -16,6 +16,7 @@
 #include "graphics/screens/quad_screen.h"
 #include "graphics/screens/texture_test_screen.h"
 #include "graphics/screens/sprite_test_screen.h"
+#include "graphics/screens/post_proc_screen.h"
 #include "screen_manager.h"
 #include "iscreen.h"
 
@@ -141,6 +142,8 @@ int main(int argc, const char *argv[])
     screen_names.push_back("Texture test");
     screens.push_back(std::make_shared<SpriteTestScreen>(&screen_manager, resource_manager, &screens, &screen_names));
     screen_names.push_back("Sprite test");
+    screens.push_back(std::make_shared<PostProcScreen>(&screen_manager, resource_manager, &screens, &screen_names));
+    screen_names.push_back("Post processing test");
     screen_manager.show_screen(screens[0]);
 
     Renderer renderer;

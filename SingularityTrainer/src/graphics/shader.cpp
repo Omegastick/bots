@@ -85,6 +85,12 @@ void Shader::set_uniform_1i(const std::string &name, int value)
     glUniform1i(get_uniform_location(name), value);
 }
 
+void Shader::set_uniform_2f(const std::string &name, glm::vec2 value)
+{
+    bind();
+    glUniform2f(get_uniform_location(name), value.x, value.y);
+}
+
 void Shader::set_uniform_4f(const std::string &name, glm::vec4 value)
 {
     bind();
