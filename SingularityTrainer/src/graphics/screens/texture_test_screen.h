@@ -13,6 +13,7 @@
 #include "graphics/element_buffer.h"
 #include "graphics/shader.h"
 #include "graphics/texture.h"
+#include "graphics/renderer.h"
 #include "screen_manager.h"
 
 namespace SingularityTrainer
@@ -30,6 +31,7 @@ class TextureTestScreen : public IScreen
     ScreenManager *screen_manager;
     glm::mat4 projection;
     float rotation;
+    Renderer renderer;
 
   public:
     TextureTestScreen(ScreenManager *screen_manager, std::vector<std::shared_ptr<IScreen>> *screens, std::vector<std::string> *screen_names);

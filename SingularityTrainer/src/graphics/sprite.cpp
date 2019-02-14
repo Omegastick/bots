@@ -10,7 +10,7 @@
 
 namespace SingularityTrainer
 {
-Sprite::Sprite(const std::shared_ptr<Texture> &texture) : texture(texture)
+Sprite::Sprite(Texture &texture) : texture(&texture)
 {
     vertex_array = std::make_unique<VertexArray>();
 

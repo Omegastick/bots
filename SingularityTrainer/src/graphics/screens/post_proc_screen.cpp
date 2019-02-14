@@ -27,7 +27,7 @@ PostProcScreen::PostProcScreen(
 {
     this->resource_manager = &resource_manager;
     resource_manager.load_texture("base_module", "images/base_module.png");
-    sprite = std::make_unique<Sprite>(resource_manager.texture_store.get("base_module"));
+    sprite = std::make_unique<Sprite>(*resource_manager.texture_store.get("base_module"));
     sprite->set_scale(glm::vec2(100, 100));
     sprite->set_origin(sprite->get_center());
     sprite->set_position(glm::vec2(960, 540));
@@ -51,6 +51,7 @@ PostProcScreen::PostProcScreen(
 
     glBindFramebuffer(GL_FRAMEBUFFER, fbo);
     texture = std::make_shared<Texture>(1920, 1080);
+    post_proc_sprite = std::make_unique<Sprite>(*texture);
     glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, texture->get_id(), 0);
     if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
     {
@@ -70,7 +71,6 @@ void PostProcScreen::update(const float delta_time)
 
 void PostProcScreen::draw(bool lightweight)
 {
-    Renderer renderer;
     auto shader = resource_manager->shader_store.get("texture");
 
     glBindFramebuffer(GL_FRAMEBUFFER, msfbo);
@@ -92,12 +92,12 @@ void PostProcScreen::draw(bool lightweight)
     texture->bind();
     post_proc_shader->set_uniform_1i("u_texture", 0);
 
-    Sprite sprite(texture);
-    sprite.set_scale(glm::vec2(1920.f, 1080.f));
-    mvp = projection * sprite.get_transform();
+    post_proc_sprite->set_texture(texture.get());
+    post_proc_sprite->set_scale(glm::vec2(1920.f, 1080.f));
+    mvp = projection * post_proc_sprite->get_transform();
     post_proc_shader->set_uniform_mat4f("u_mvp", mvp);
     post_proc_shader->set_uniform_2f("u_resolution", glm::vec2(1920, 1080));
     post_proc_shader->set_uniform_2f("u_direction", glm::vec2(1, 1));
-    renderer.draw(sprite, *post_proc_shader);
+    renderer.draw(*post_proc_sprite, *post_proc_shader);
 }
 }

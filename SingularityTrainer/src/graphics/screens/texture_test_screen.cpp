@@ -60,8 +60,6 @@ void TextureTestScreen::update(const float delta_time)
 
 void TextureTestScreen::draw(bool lightweight)
 {
-    Renderer renderer;
-
     glm::mat4 mvp = glm::translate(projection, glm::vec3(960, 540, 0));
     mvp = glm::rotate(mvp, rotation, glm::vec3(0, 0, 1));
     shader->set_uniform_mat4f("u_mvp", mvp);

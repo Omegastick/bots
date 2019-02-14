@@ -56,7 +56,6 @@ void QuadScreen::update(const float delta_time)
 
 void QuadScreen::draw(bool lightweight)
 {
-    Renderer renderer;
     renderer.draw(*vertex_array, *element_buffer, *shader);
 }
 }
