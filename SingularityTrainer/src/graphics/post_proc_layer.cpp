@@ -24,12 +24,37 @@ FrameBuffer &PostProcLayer::render(Texture &input_texture, Renderer &renderer)
     shader->set_uniform_1i("u_texture", 0);
 
     sprite->set_texture(&input_texture);
-    sprite->set_scale(glm::vec2(1920.f, 1080.f));
-    glm::mat4 mvp = projection * sprite->get_transform();
+    // sprite->set_scale(glm::vec2(1920, 1080));
+    // sprite->set_position(glm::vec2(0, 0));
+    // glm::mat4 mvp = projection * sprite->get_transform();
+    // shader->set_uniform_mat4f("u_mvp", mvp);
+    auto mvp = glm::mat4(1.0);
     shader->set_uniform_mat4f("u_mvp", mvp);
-    shader->set_uniform_2f("u_resolution", glm::vec2(1920, 1080));
-    shader->set_uniform_2f("u_direction", glm::vec2(1, 1));
-    renderer.draw(*sprite, *shader);
+    // renderer.draw(*sprite, *shader);
+
+    auto vertex_array = std::make_unique<VertexArray>();
+
+    float vertices[] = {
+        0, 1, 0.0, 1.0, 1.0, 0.0, 0.0, 1.0,
+        0, 0, 0.0, 0.0, 0.0, 1.0, 0.0, 1.0,
+        1, 0, 1.0, 0.0, 0.0, 0.0, 1.0, 1.0,
+        1, 1, 1.0, 1.0, 1.0, 0.0, 1.0, 1.0};
+
+    auto vertex_buffer = std::make_unique<VertexBuffer>(vertices, 4 * 8 * sizeof(float));
+
+    unsigned int indices[] = {
+        0, 1, 2,
+        2, 3, 0};
+
+    auto element_buffer = std::make_unique<ElementBuffer>(indices, 6);
+
+    VertexBufferLayout layout;
+    layout.push<float>(2);
+    layout.push<float>(2);
+    layout.push<float>(4);
+    vertex_array->add_buffer(*vertex_buffer, layout);
+
+    renderer.draw(*vertex_array, *element_buffer, *shader);
 
     return frame_buffer;
 }
