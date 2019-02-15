@@ -21,6 +21,7 @@ class Shader
     void unbind() const;
 
     void set_uniform_1i(const std::string &name, int value);
+    void set_uniform_1f(const std::string &name, float value);
     void set_uniform_2f(const std::string &name, glm::vec2 value);
     void set_uniform_4f(const std::string &name, glm::vec4 value);
     void set_uniform_mat4f(const std::string &name, glm::mat4 &value);
