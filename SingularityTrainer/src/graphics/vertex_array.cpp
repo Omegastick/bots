@@ -40,21 +40,5 @@ void VertexArray::add_buffer(const VertexBuffer &vertex_buffer, const VertexBuff
         glVertexAttribPointer(i, element.count, element.type, element.normalized, layout.get_stride(), (void *)offset);
         offset += element.count * BufferLayoutElement::GetTypeSize(element.type);
     }
-    vertex_buffer.unbind();
-    unbind();
-}
-
-template <>
-void VertexBufferLayout::push<float>(const unsigned int count)
-{
-    elements.push_back({GL_FLOAT, count, GL_FALSE});
-    stride += count * BufferLayoutElement::GetTypeSize(GL_FLOAT);
-}
-
-template <>
-void VertexBufferLayout::push<unsigned int>(const unsigned int count)
-{
-    elements.push_back({GL_UNSIGNED_INT, count, GL_FALSE});
-    stride += count * BufferLayoutElement::GetTypeSize(GL_UNSIGNED_INT);
 }
 }

@@ -14,6 +14,7 @@ PUBLIC
     ${CMAKE_CURRENT_LIST_DIR}/sprite.cpp
     ${CMAKE_CURRENT_LIST_DIR}/frame_buffer.cpp
     ${CMAKE_CURRENT_LIST_DIR}/post_proc_layer.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/vertex_buffer_layout.cpp
 )
 
 add_subdirectory(screens)

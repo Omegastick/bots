@@ -1,5 +1,7 @@
 #pragma once
 
+#include "graphics/renderer.h"
+
 namespace SingularityTrainer
 {
 class IDrawable
@@ -8,6 +10,6 @@ class IDrawable
     IDrawable(){};
     ~IDrawable(){};
 
-    virtual void draw(bool lightweight = false) = 0;
+    virtual void draw(Renderer &renderer, bool lightweight = false) = 0;
 };
 }
