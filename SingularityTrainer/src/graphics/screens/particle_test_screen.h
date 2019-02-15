@@ -35,6 +35,7 @@ class ParticleTestScreen : public IScreen
     std::vector<float> particle_start_times;
     int max_particles;
     int particle_count;
+    int current_particle_index;
 
   public:
     ParticleTestScreen(
