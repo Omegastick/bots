@@ -39,6 +39,7 @@ PostProcLayer::PostProcLayer(Shader *shader) : shader(shader)
 
 FrameBuffer &PostProcLayer::render(Texture &input_texture, Renderer &renderer)
 {
+    glDisable(GL_BLEND);
     frame_buffer.bind();
 
     input_texture.bind();
@@ -50,6 +51,7 @@ FrameBuffer &PostProcLayer::render(Texture &input_texture, Renderer &renderer)
     glViewport(0, 0, 1920, 1080);
     renderer.draw(*vertex_array, *element_buffer, *shader);
 
+    glEnable(GL_BLEND);
     return frame_buffer;
 }
 }
