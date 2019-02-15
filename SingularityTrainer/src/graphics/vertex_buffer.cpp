@@ -35,6 +35,7 @@ void VertexBuffer::clear() const
 
 void VertexBuffer::add_data(const void *data, unsigned int size, unsigned int usage_mode)
 {
+    bind();
     this->size = size;
     this->usage_mode = usage_mode;
     glBufferData(GL_ARRAY_BUFFER, size, data, usage_mode);
@@ -42,8 +43,7 @@ void VertexBuffer::add_data(const void *data, unsigned int size, unsigned int us
 
 void VertexBuffer::add_sub_data(const void *data, unsigned int start_location, unsigned int size)
 {
-    this->size = size;
-    this->usage_mode = usage_mode;
+    bind();
     glBufferSubData(GL_ARRAY_BUFFER, start_location, size, data);
 }
 }

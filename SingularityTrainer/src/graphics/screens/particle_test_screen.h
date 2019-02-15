@@ -28,9 +28,11 @@ class ParticleTestScreen : public IScreen
     VertexArray vertex_array;
     std::unique_ptr<VertexBuffer> quad_vertex_buffer;
     std::unique_ptr<VertexBuffer> position_vertex_buffer;
+    std::unique_ptr<VertexBuffer> velocity_vertex_buffer;
+    std::unique_ptr<VertexBuffer> start_time_vertex_buffer;
     std::vector<glm::vec2> particle_positions;
     std::vector<glm::vec2> particle_velocities;
-    std::vector<float> particle_lifetimes;
+    std::vector<float> particle_start_times;
     int max_particles;
     int particle_count;
 
