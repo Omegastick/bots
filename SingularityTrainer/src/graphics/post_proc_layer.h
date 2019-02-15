@@ -6,7 +6,9 @@
 #include "graphics/frame_buffer.h"
 #include "graphics/shader.h"
 #include "graphics/texture.h"
-#include "graphics/sprite.h"
+#include "graphics/vertex_array.h"
+#include "graphics/vertex_buffer.h"
+#include "graphics/element_buffer.h"
 
 namespace SingularityTrainer
 {
@@ -17,11 +19,12 @@ class PostProcLayer
   private:
     FrameBuffer frame_buffer;
     Shader *shader;
-    std::unique_ptr<Sprite> sprite;
-    glm::mat4 projection;
+    std::unique_ptr<VertexArray> vertex_array;
+    std::unique_ptr<VertexBuffer> vertex_buffer;
+    std::unique_ptr<ElementBuffer> element_buffer;
 
   public:
-    PostProcLayer(Shader *shader, const glm::mat4 &projection);
+    PostProcLayer(Shader *shader);
 
     FrameBuffer &render(Texture &input_texture, Renderer &renderer);
 };

@@ -45,3 +45,4 @@
 **.unitypackage
 
 **.egg-info
+**/imgui.ini

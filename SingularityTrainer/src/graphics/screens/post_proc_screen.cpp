@@ -35,16 +35,16 @@ PostProcScreen::PostProcScreen(
     sprite->set_position(glm::vec2(960, 540));
 
     resource_manager.load_shader("texture", "shaders/texture.vert", "shaders/texture.frag");
-    resource_manager.load_shader("post_proc_test_1", "shaders/texture.vert", "shaders/texture.frag");
-    resource_manager.load_shader("post_proc_test_2", "shaders/texture.vert", "shaders/texture.frag");
-    resource_manager.load_shader("post_proc_test_3", "shaders/texture.vert", "shaders/texture.frag");
+    resource_manager.load_shader("post_proc_test_1", "shaders/texture.vert", "shaders/post_proc_test.frag");
+    resource_manager.load_shader("post_proc_test_2", "shaders/texture.vert", "shaders/post_proc_test.frag");
+    resource_manager.load_shader("post_proc_test_3", "shaders/texture.vert", "shaders/post_proc_test.frag");
 
-    auto post_proc_layer_1 = std::make_shared<PostProcLayer>(resource_manager.shader_store.get("post_proc_test_1").get(), projection);
+    auto post_proc_layer_1 = std::make_shared<PostProcLayer>(resource_manager.shader_store.get("post_proc_test_1").get());
     renderer.push_post_proc_layer(post_proc_layer_1);
-    // auto post_proc_layer_2 = std::make_shared<PostProcLayer>(resource_manager.shader_store.get("post_proc_test_2").get(), projection);
-    // renderer.push_post_proc_layer(post_proc_layer_2);
-    // auto post_proc_layer_3 = std::make_shared<PostProcLayer>(resource_manager.shader_store.get("post_proc_test_3").get(), projection);
-    // renderer.push_post_proc_layer(post_proc_layer_3);
+    auto post_proc_layer_2 = std::make_shared<PostProcLayer>(resource_manager.shader_store.get("post_proc_test_2").get());
+    renderer.push_post_proc_layer(post_proc_layer_2);
+    auto post_proc_layer_3 = std::make_shared<PostProcLayer>(resource_manager.shader_store.get("post_proc_test_3").get());
+    renderer.push_post_proc_layer(post_proc_layer_3);
 }
 
 PostProcScreen::~PostProcScreen() {}
