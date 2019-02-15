@@ -6,6 +6,7 @@
 #include <GLFW/glfw3.h>
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtc/random.hpp>
 #include <spdlog/spdlog.h>
 
 #include "graphics/screens/particle_test_screen.h"
@@ -27,8 +28,9 @@ ParticleTestScreen::ParticleTestScreen(
       screen_names(screen_names),
       screen_manager(screen_manager),
       projection(glm::ortho(0.f, 1920.f, 0.f, 1080.f)),
-      max_particles(10000),
-      particle_count(0)
+      max_particles(100000),
+      particle_count(0),
+      current_particle_index(0)
 {
     particle_positions.resize(max_particles);
     particle_velocities.resize(max_particles);
@@ -79,16 +81,15 @@ void ParticleTestScreen::update(const float delta_time)
 {
     display_test_dialog("Particle test", *screens, *screen_names, delta_time, *screen_manager);
 
-    if (particle_count + 10 <= max_particles)
+    float time = glfwGetTime();
+    for (int i = 0; i < 5; ++i)
     {
-        float time = glfwGetTime();
-        for (int i = 0; i < 10; ++i)
-        {
-            particle_positions[particle_count] = glm::vec2(960, 540);
-            particle_start_times[particle_count] = time + (float)i / 600;
-            particle_velocities[particle_count] = glm::vec2(100, 500);
-            particle_count++;
-        }
+        particle_positions[current_particle_index] = glm::vec2(960, 540);
+        particle_start_times[current_particle_index] = time + (float)i / 600;
+        particle_velocities[current_particle_index] = glm::diskRand<float>(500);
+        current_particle_index++;
+        current_particle_index %= max_particles;
+        particle_count = particle_count > current_particle_index ? particle_count : current_particle_index;
     }
 }
 
