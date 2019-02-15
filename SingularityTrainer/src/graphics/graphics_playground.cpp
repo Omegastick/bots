@@ -114,8 +114,6 @@ void init_imgui(const int opengl_version_major, const int opengl_version_minor, 
     io.Fonts->ClearFonts();
     io.Fonts->AddFontFromFileTTF("SingularityTrainer/assets/fonts/Roboto-Regular.ttf", 15, &font_config);
 
-    io.IniFilename = NULL;
-
     reset_imgui_style();
 }
 
