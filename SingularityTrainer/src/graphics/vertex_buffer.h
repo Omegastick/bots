@@ -1,17 +1,24 @@
 #pragma once
 
+#include <glad/glad.h>
+
 namespace SingularityTrainer
 {
 class VertexBuffer
 {
+  private:
+    unsigned int id;
+    unsigned int size;
+    unsigned int usage_mode;
+
   public:
-    VertexBuffer(const void *data, const unsigned int size);
+    VertexBuffer(const void *data, unsigned int size, unsigned int usage_mode = GL_STATIC_DRAW);
     ~VertexBuffer();
 
     void bind() const;
     void unbind() const;
-
-  private:
-    unsigned int id;
+    void clear() const;
+    void add_data(const void *data, unsigned int size, unsigned int usage_mode = GL_STATIC_DRAW);
+    void add_sub_data(const void *data, unsigned int start_location, unsigned int size);
 };
 }

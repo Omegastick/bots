@@ -37,14 +37,11 @@ PostProcScreen::PostProcScreen(
     resource_manager.load_shader("texture", "shaders/texture.vert", "shaders/texture.frag");
     resource_manager.load_shader("post_proc_test_1", "shaders/texture.vert", "shaders/post_proc_test.frag");
     resource_manager.load_shader("post_proc_test_2", "shaders/texture.vert", "shaders/post_proc_test.frag");
-    resource_manager.load_shader("post_proc_test_3", "shaders/texture.vert", "shaders/post_proc_test.frag");
 
     auto post_proc_layer_1 = std::make_shared<PostProcLayer>(resource_manager.shader_store.get("post_proc_test_1").get());
     renderer.push_post_proc_layer(post_proc_layer_1);
     auto post_proc_layer_2 = std::make_shared<PostProcLayer>(resource_manager.shader_store.get("post_proc_test_2").get());
     renderer.push_post_proc_layer(post_proc_layer_2);
-    auto post_proc_layer_3 = std::make_shared<PostProcLayer>(resource_manager.shader_store.get("post_proc_test_3").get());
-    renderer.push_post_proc_layer(post_proc_layer_3);
 }
 
 PostProcScreen::~PostProcScreen() {}
@@ -74,14 +71,13 @@ void PostProcScreen::draw(bool lightweight)
 
     renderer.draw(*sprite, *shader);
 
-    for (int i = 0; i < 3; ++i)
-    {
-        std::stringstream shader_name_stream;
-        shader_name_stream << "post_proc_test_" << i + 1;
-        auto post_proc_shader = resource_manager->shader_store.get(shader_name_stream.str());
-        post_proc_shader->set_uniform_2f("u_direction", glm::vec2(1, 1));
-        post_proc_shader->set_uniform_2f("u_resolution", glm::vec2(1920, 1080));
-    }
+    auto post_proc_shader_1 = resource_manager->shader_store.get("post_proc_test_1");
+    post_proc_shader_1->set_uniform_2f("u_direction", glm::vec2(1, 1));
+    post_proc_shader_1->set_uniform_2f("u_resolution", glm::vec2(1920, 1080));
+
+    auto post_proc_shader_2 = resource_manager->shader_store.get("post_proc_test_2");
+    post_proc_shader_2->set_uniform_2f("u_direction", glm::vec2(-1, 1));
+    post_proc_shader_2->set_uniform_2f("u_resolution", glm::vec2(1920, 1080));
 
     renderer.end_frame();
 }

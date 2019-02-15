@@ -9,7 +9,7 @@
 
 namespace SingularityTrainer
 {
-class IScreen : IDrawable
+class IScreen
 {
   public:
     IScreen(){};

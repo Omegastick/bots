@@ -9,7 +9,6 @@
 #include "graphics/texture.h"
 #include "graphics/element_buffer.h"
 #include "graphics/itransformable.h"
-#include "idrawable.h"
 
 namespace SingularityTrainer
 {
