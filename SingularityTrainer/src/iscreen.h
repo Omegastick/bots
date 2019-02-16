@@ -1,9 +1,5 @@
 #pragma once
 
-#include <Thor/Input.hpp>
-#include <SFML/Graphics.hpp>
-
-#include "idrawable.h"
 #include "input.h"
 #include "graphics/renderer.h"
 
@@ -16,6 +12,6 @@ class IScreen
     ~IScreen(){};
 
     virtual void update(const float delta_time) = 0;
-    virtual void draw(bool lightweight = false) = 0;
+    virtual void draw(Renderer &renderer, bool lightweight = false) = 0;
 };
 }

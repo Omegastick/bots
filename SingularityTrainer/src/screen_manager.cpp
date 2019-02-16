@@ -25,8 +25,8 @@ int ScreenManager::stack_size()
 {
     return screens.size();
 }
-void ScreenManager::draw(bool lightweight)
+void ScreenManager::draw(Renderer &renderer, bool lightweight)
 {
-    screens.top()->draw(lightweight);
+    screens.top()->draw(renderer, lightweight);
 }
 }

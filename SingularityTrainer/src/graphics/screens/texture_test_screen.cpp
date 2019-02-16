@@ -58,7 +58,7 @@ void TextureTestScreen::update(const float delta_time)
     rotation += 1.f * delta_time;
 }
 
-void TextureTestScreen::draw(bool lightweight)
+void TextureTestScreen::draw(Renderer &renderer, bool lightweight)
 {
     glm::mat4 mvp = glm::translate(projection, glm::vec3(960, 540, 0));
     mvp = glm::rotate(mvp, rotation, glm::vec3(0, 0, 1));

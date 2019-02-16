@@ -185,7 +185,7 @@ int main(int argc, const char *argv[])
         // Draw
         renderer.clear();
 
-        screen_manager.draw(delta_time);
+        screen_manager.draw(renderer, delta_time);
 
         ImGui::Render();
         ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());

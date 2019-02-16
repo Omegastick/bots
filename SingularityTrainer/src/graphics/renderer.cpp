@@ -68,9 +68,11 @@ void Renderer::end_frame()
     read_buffer->bind_read();
     glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
     glBlitFramebuffer(0, 0, 1920, 1080, 0, 0, 1920, 1080, GL_COLOR_BUFFER_BIT, GL_LINEAR);
+
+    post_proc_layers.clear();
 }
 
-void Renderer::push_post_proc_layer(std::shared_ptr<PostProcLayer> post_proc_layer)
+void Renderer::push_post_proc_layer(PostProcLayer *post_proc_layer)
 {
     post_proc_layers.push_back(post_proc_layer);
 }

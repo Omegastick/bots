@@ -28,13 +28,12 @@ class QuadScreen : public IScreen
     std::unique_ptr<Shader> shader;
     ScreenManager *screen_manager;
     glm::mat4 projection;
-    Renderer renderer;
 
   public:
     QuadScreen(ScreenManager *screen_manager, std::vector<std::shared_ptr<IScreen>> *screens, std::vector<std::string> *screen_names);
     ~QuadScreen();
 
     virtual void update(const float delta_time);
-    virtual void draw(bool lightweight = false);
+    virtual void draw(Renderer &renderer, bool lightweight = false);
 };
 }
