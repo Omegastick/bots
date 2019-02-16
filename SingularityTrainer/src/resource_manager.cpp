@@ -1,6 +1,8 @@
 #include <memory>
 #include <string>
 
+#include <spdlog/spdlog.h>
+
 #include "resource_manager.h"
 #include "graphics/texture.h"
 #include "graphics/shader.h"

@@ -1,12 +1,14 @@
-#include <SFML/Graphics.hpp>
 #include <memory>
 #include <stack>
+
+#include <spdlog/spdlog.h>
 
 #include "iscreen.h"
 #include "screen_manager.h"
 
 namespace SingularityTrainer
 {
+
 void ScreenManager::show_screen(std::shared_ptr<IScreen> screen)
 {
     screens.push(screen);

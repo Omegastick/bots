@@ -106,14 +106,14 @@ void ParticleTestScreen::update(const float delta_time)
     display_test_dialog("Particle test", *screens, *screen_names, delta_time, *screen_manager);
 
     float time = glfwGetTime();
-    for (int i = 0; i < 5; ++i)
+    for (int i = 0; i < 10; ++i)
     {
         particle_positions[current_particle_index] = glm::vec2(960, 540);
         particle_velocities[current_particle_index] = glm::diskRand<float>(500);
         particle_start_times[current_particle_index] = time + (float)i / 600;
         particle_lives[current_particle_index] = 5;
-        particle_start_colors[current_particle_index] = glm::vec4(0.5, 1.0, 1.0, 1.0);
-        particle_end_colors[current_particle_index] = glm::vec4(1.0, 0.5, 1.0, 0.0);
+        particle_start_colors[current_particle_index] = glm::vec4(1.0, 1.0, 1.0, 1.0);
+        particle_end_colors[current_particle_index] = glm::vec4(1.0, 1.0, 1.0, 0.0);
         current_particle_index++;
         current_particle_index %= max_particles;
         particle_count = particle_count > current_particle_index ? particle_count : current_particle_index;

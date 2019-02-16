@@ -5,11 +5,13 @@
 #include <imgui.h>
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
+#include <spdlog/spdlog.h>
 
 #include "iscreen.h"
 #include "graphics/renderer.h"
 #include "graphics/vertex_array.h"
 #include "graphics/vertex_buffer.h"
+#include "graphics/vertex_buffer_layout.h"
 #include "graphics/element_buffer.h"
 #include "graphics/shader.h"
 #include "graphics/imgui_utils.h"

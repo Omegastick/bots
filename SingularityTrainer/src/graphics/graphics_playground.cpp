@@ -87,6 +87,7 @@ void reset_imgui_style()
 
 void resize_window_callback(GLFWwindow *window, int x, int y)
 {
+    spdlog::debug("Resizing window to {}x{}", x, y);
     glViewport(0, 0, x, y);
 
     reset_imgui_style();
@@ -99,6 +100,7 @@ void resize_window_callback(GLFWwindow *window, int x, int y)
 
 void init_imgui(const int opengl_version_major, const int opengl_version_minor, GLFWwindow *window)
 {
+    spdlog::debug("Initializing ImGui");
     IMGUI_CHECKVERSION();
     ImGui::CreateContext();
     ImGui::StyleColorsDark();
@@ -132,21 +134,28 @@ int main(int argc, const char *argv[])
     ResourceManager resource_manager("SingularityTrainer/assets/");
 
     // Screens
+    spdlog::debug("Initializing screens");
     ScreenManager screen_manager;
     std::vector<std::shared_ptr<IScreen>> screens;
     std::vector<std::string> screen_names;
+    spdlog::debug("Initializing quad test");
     screens.push_back(std::make_shared<QuadScreen>(&screen_manager, &screens, &screen_names));
     screen_names.push_back("Quad test");
+    spdlog::debug("Initializing texture test");
     screens.push_back(std::make_shared<TextureTestScreen>(&screen_manager, &screens, &screen_names));
     screen_names.push_back("Texture test");
+    spdlog::debug("Initializing sprite test");
     screens.push_back(std::make_shared<SpriteTestScreen>(&screen_manager, resource_manager, &screens, &screen_names));
     screen_names.push_back("Sprite test");
+    spdlog::debug("Initializing post processing test");
     screens.push_back(std::make_shared<PostProcScreen>(&screen_manager, resource_manager, &screens, &screen_names));
     screen_names.push_back("Post processing test");
+    spdlog::debug("Initializing particle test");
     screens.push_back(std::make_shared<ParticleTestScreen>(&screen_manager, resource_manager, &screens, &screen_names));
     screen_names.push_back("Particle test");
     screen_manager.show_screen(screens[0]);
 
+    spdlog::debug("Initializing renderer");
     Renderer renderer;
 
     // ImGui

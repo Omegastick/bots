@@ -11,9 +11,6 @@ namespace SingularityTrainer
 class ScreenManager
 {
   public:
-    ScreenManager() {}
-    ~ScreenManager() {}
-
     void show_screen(std::shared_ptr<IScreen> screen);
     void close_screen();
     void update(float delta_time);
