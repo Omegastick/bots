@@ -1,8 +1,10 @@
 #pragma once
 
 #include <vector>
+#include <exception>
 
 #include <glad/glad.h>
+#include <spdlog/spdlog.h>
 
 namespace SingularityTrainer
 {
@@ -37,10 +39,24 @@ class VertexBufferLayout
     template <typename T>
     void push(const unsigned int count)
     {
-        throw "Type not implemented";
+        spdlog::error("Vertex buffer layout type not implemented");
     }
 
     inline unsigned int get_stride() const { return stride; }
     inline const std::vector<BufferLayoutElement> &get_elements() const { return elements; }
 };
+
+template <>
+inline void VertexBufferLayout::push<float>(const unsigned int count)
+{
+    elements.push_back({GL_FLOAT, count, GL_FALSE});
+    stride += count * BufferLayoutElement::GetTypeSize(GL_FLOAT);
+}
+
+template <>
+inline void VertexBufferLayout::push<unsigned int>(const unsigned int count)
+{
+    elements.push_back({GL_UNSIGNED_INT, count, GL_FALSE});
+    stride += count * BufferLayoutElement::GetTypeSize(GL_UNSIGNED_INT);
+}
 }
