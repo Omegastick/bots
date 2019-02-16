@@ -120,7 +120,7 @@ void ParticleTestScreen::update(const float delta_time)
     }
 }
 
-void ParticleTestScreen::draw(bool lightweight)
+void ParticleTestScreen::draw(Renderer &renderer, bool lightweight)
 {
     renderer.begin_frame();
 

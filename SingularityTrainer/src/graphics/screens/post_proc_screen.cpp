@@ -38,10 +38,8 @@ PostProcScreen::PostProcScreen(
     resource_manager.load_shader("post_proc_test_1", "shaders/texture.vert", "shaders/post_proc_test.frag");
     resource_manager.load_shader("post_proc_test_2", "shaders/texture.vert", "shaders/post_proc_test.frag");
 
-    auto post_proc_layer_1 = std::make_shared<PostProcLayer>(resource_manager.shader_store.get("post_proc_test_1").get());
-    renderer.push_post_proc_layer(post_proc_layer_1);
-    auto post_proc_layer_2 = std::make_shared<PostProcLayer>(resource_manager.shader_store.get("post_proc_test_2").get());
-    renderer.push_post_proc_layer(post_proc_layer_2);
+    post_proc_layer_1 = std::make_unique<PostProcLayer>(resource_manager.shader_store.get("post_proc_test_1").get());
+    post_proc_layer_2 = std::make_unique<PostProcLayer>(resource_manager.shader_store.get("post_proc_test_2").get());
 }
 
 PostProcScreen::~PostProcScreen() {}
@@ -58,8 +56,10 @@ void PostProcScreen::update(const float delta_time)
     ImGui::End();
 }
 
-void PostProcScreen::draw(bool lightweight)
+void PostProcScreen::draw(Renderer &renderer, bool lightweight)
 {
+    renderer.push_post_proc_layer(post_proc_layer_1.get());
+    renderer.push_post_proc_layer(post_proc_layer_2.get());
     renderer.begin_frame();
 
     auto shader = resource_manager->shader_store.get("texture");

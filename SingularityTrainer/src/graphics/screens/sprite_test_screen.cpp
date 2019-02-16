@@ -41,7 +41,7 @@ void SpriteTestScreen::update(const float delta_time)
     sprite->rotate(1.f * delta_time);
 }
 
-void SpriteTestScreen::draw(bool lightweight)
+void SpriteTestScreen::draw(Renderer &renderer, bool lightweight)
 {
     auto shader = resource_manager->shader_store.get("texture");
 

@@ -15,7 +15,7 @@ class ScreenManager
     void close_screen();
     void update(float delta_time);
     int stack_size();
-    void draw(bool lightweight = false);
+    void draw(Renderer &renderer, bool lightweight = false);
 
   private:
     std::stack<std::shared_ptr<IScreen>> screens;

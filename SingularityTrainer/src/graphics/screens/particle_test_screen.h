@@ -23,7 +23,6 @@ class ParticleTestScreen : public IScreen
     ScreenManager *screen_manager;
     ResourceManager *resource_manager;
     glm::mat4 projection;
-    Renderer renderer;
 
     VertexArray vertex_array;
     std::unique_ptr<VertexBuffer> quad_vertex_buffer;
@@ -52,6 +51,6 @@ class ParticleTestScreen : public IScreen
     ~ParticleTestScreen();
 
     virtual void update(const float delta_time);
-    virtual void draw(bool lightweight = false);
+    virtual void draw(Renderer &renderer, bool lightweight = false);
 };
 }

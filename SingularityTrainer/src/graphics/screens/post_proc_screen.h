@@ -11,6 +11,7 @@
 #include "graphics/sprite.h"
 #include "graphics/texture.h"
 #include "graphics/renderer.h"
+#include "graphics/post_proc_layer.h"
 #include "resource_manager.h"
 #include "screen_manager.h"
 
@@ -25,11 +26,12 @@ class PostProcScreen : public IScreen
     ScreenManager *screen_manager;
     ResourceManager *resource_manager;
     glm::mat4 projection;
-    Renderer renderer;
 
     unsigned int fbo, msfbo, rbo;
     std::shared_ptr<Texture> texture;
     std::unique_ptr<Sprite> post_proc_sprite;
+    std::unique_ptr<PostProcLayer> post_proc_layer_1;
+    std::unique_ptr<PostProcLayer> post_proc_layer_2;
 
   public:
     PostProcScreen(
@@ -40,6 +42,6 @@ class PostProcScreen : public IScreen
     ~PostProcScreen();
 
     virtual void update(const float delta_time);
-    virtual void draw(bool lightweight = false);
+    virtual void draw(Renderer &renderer, bool lightweight = false);
 };
 }

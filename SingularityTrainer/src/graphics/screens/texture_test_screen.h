@@ -31,13 +31,12 @@ class TextureTestScreen : public IScreen
     ScreenManager *screen_manager;
     glm::mat4 projection;
     float rotation;
-    Renderer renderer;
 
   public:
     TextureTestScreen(ScreenManager *screen_manager, std::vector<std::shared_ptr<IScreen>> *screens, std::vector<std::string> *screen_names);
     ~TextureTestScreen();
 
     virtual void update(const float delta_time);
-    virtual void draw(bool lightweight = false);
+    virtual void draw(Renderer &renderer, bool lightweight = false);
 };
 }
