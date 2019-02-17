@@ -43,6 +43,7 @@ void SpriteTestScreen::update(const float delta_time)
 
 void SpriteTestScreen::draw(Renderer &renderer, bool lightweight)
 {
+    renderer.begin();
     auto shader = resource_manager->shader_store.get("texture");
 
     glm::mat4 mvp = projection * sprite->get_transform();
@@ -51,5 +52,6 @@ void SpriteTestScreen::draw(Renderer &renderer, bool lightweight)
     shader->set_uniform_1i("u_texture", 0);
 
     renderer.draw(*sprite, *shader);
+    renderer.end();
 }
 }

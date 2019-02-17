@@ -11,13 +11,13 @@
 
 namespace SingularityTrainer
 {
-Renderer::Renderer()
+Renderer::Renderer(int width, int height) : width(width), height(height)
 {
     base_frame_buffer = std::make_unique<FrameBuffer>();
-    base_frame_buffer->add_render_buffer(1920, 1080, 4);
+    base_frame_buffer->set_render_buffer(width, height, 4);
 
     texture_frame_buffer = std::make_unique<FrameBuffer>();
-    texture_frame_buffer->add_texture(1920, 1080);
+    texture_frame_buffer->set_texture(width, height);
 
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
     glBindRenderbuffer(GL_RENDERBUFFER, 0);
@@ -25,6 +25,15 @@ Renderer::Renderer()
 
 Renderer::~Renderer()
 {
+}
+
+void Renderer::resize(int width, int height)
+{
+    this->width = width;
+    this->height = height;
+
+    base_frame_buffer->set_render_buffer(width, height, 4);
+    texture_frame_buffer->set_texture(width, height);
 }
 
 void Renderer::draw(const VertexArray &vertex_array, const ElementBuffer &element_buffer, const Shader &shader)
@@ -46,17 +55,27 @@ void Renderer::clear()
     glClear(GL_COLOR_BUFFER_BIT);
 }
 
-void Renderer::begin_frame()
+void Renderer::begin()
 {
     base_frame_buffer->bind();
+    glViewport(0, 0, width, height);
     clear();
 }
 
-void Renderer::end_frame()
+void Renderer::end()
 {
+    for (const auto &post_proc_layer : post_proc_layers)
+    {
+        if (post_proc_layer->get_size().x != width || post_proc_layer->get_size().y != height)
+        {
+            post_proc_layer->resize(width, height);
+        }
+    }
+
     base_frame_buffer->bind_read();
     texture_frame_buffer->bind_draw();
-    glBlitFramebuffer(0, 0, 1920, 1080, 0, 0, 1920, 1080, GL_COLOR_BUFFER_BIT, GL_LINEAR);
+    glViewport(0, 0, width, height);
+    glBlitFramebuffer(0, 0, width, height, 0, 0, width, height, GL_COLOR_BUFFER_BIT, GL_LINEAR);
 
     FrameBuffer *read_buffer = texture_frame_buffer.get();
 
@@ -67,7 +86,7 @@ void Renderer::end_frame()
 
     read_buffer->bind_read();
     glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
-    glBlitFramebuffer(0, 0, 1920, 1080, 0, 0, 1920, 1080, GL_COLOR_BUFFER_BIT, GL_LINEAR);
+    glBlitFramebuffer(0, 0, width, height, 0, 0, width, height, GL_COLOR_BUFFER_BIT, GL_LINEAR);
 
     post_proc_layers.clear();
 }

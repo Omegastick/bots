@@ -22,10 +22,14 @@ class PostProcLayer
     std::unique_ptr<VertexArray> vertex_array;
     std::unique_ptr<VertexBuffer> vertex_buffer;
     std::unique_ptr<ElementBuffer> element_buffer;
+    int width, height;
 
   public:
-    PostProcLayer(Shader *shader);
+    PostProcLayer(Shader *shader, int width = 1920, int height = 1080);
 
     FrameBuffer &render(Texture &input_texture, Renderer &renderer);
+    void resize(int width, int height);
+
+    inline glm::vec2 get_size() const { return frame_buffer.get_texture_size(); }
 };
 }

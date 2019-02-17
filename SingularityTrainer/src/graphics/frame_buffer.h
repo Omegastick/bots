@@ -2,6 +2,8 @@
 
 #include <memory>
 
+#include <glm/glm.hpp>
+
 #include "graphics/texture.h"
 
 namespace SingularityTrainer
@@ -21,9 +23,10 @@ class FrameBuffer
     void bind_read() const;
     void bind_draw() const;
     void unbind() const;
-    void add_render_buffer(int width, int height, int multisampling);
-    void add_texture(int width, int height);
+    void set_render_buffer(int width, int height, int multisampling);
+    void set_texture(int width, int height);
 
     inline Texture &get_texture() const { return *texture; }
+    inline glm::vec2 get_texture_size() const { return glm::vec2(texture->get_width(), texture->get_height()); }
 };
 }

@@ -8,7 +8,7 @@
 
 namespace SingularityTrainer
 {
-FrameBuffer::FrameBuffer() : id(0), render_buffer(0)
+FrameBuffer::FrameBuffer() : id(-1), render_buffer(-1)
 {
     glGenFramebuffers(1, &id);
 }
@@ -42,15 +42,16 @@ void FrameBuffer::unbind() const
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
 
-void FrameBuffer::add_render_buffer(int width, int height, int multisampling)
+void FrameBuffer::set_render_buffer(int width, int height, int multisampling)
 {
-    if (render_buffer != 0)
+    auto x = render_buffer;
+    if (glIsRenderbuffer(render_buffer))
     {
-        spdlog::error("Render buffer already registered");
-        throw std::exception();
+        glDeleteRenderbuffers(1, &render_buffer);
     }
 
     glGenRenderbuffers(1, &render_buffer);
+    auto y = render_buffer;
     bind();
     glBindRenderbuffer(GL_RENDERBUFFER, render_buffer);
     glRenderbufferStorageMultisample(GL_RENDERBUFFER, multisampling, GL_RGBA8, width, height);
@@ -63,16 +64,10 @@ void FrameBuffer::add_render_buffer(int width, int height, int multisampling)
     }
 }
 
-void FrameBuffer::add_texture(int width, int height)
+void FrameBuffer::set_texture(int width, int height)
 {
-    if (texture.get() != nullptr)
-    {
-        spdlog::error("Texture already registered");
-        throw std::exception();
-    }
-
     bind();
-    texture = std::make_unique<Texture>(1920, 1080);
+    texture = std::make_unique<Texture>(width, height);
     glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, texture->get_id(), 0);
 
     if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)

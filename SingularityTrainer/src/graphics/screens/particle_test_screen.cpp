@@ -122,7 +122,7 @@ void ParticleTestScreen::update(const float delta_time)
 
 void ParticleTestScreen::draw(Renderer &renderer, bool lightweight)
 {
-    renderer.begin_frame();
+    renderer.begin();
 
     vertex_array.bind();
     auto shader = resource_manager->shader_store.get("particle");
@@ -145,6 +145,6 @@ void ParticleTestScreen::draw(Renderer &renderer, bool lightweight)
 
     glDrawArraysInstanced(GL_TRIANGLE_STRIP, 0, 4, particle_count);
 
-    renderer.end_frame();
+    renderer.end();
 }
 }
