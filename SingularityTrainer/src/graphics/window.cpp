@@ -1,11 +1,12 @@
 #include <string>
 #include <sstream>
 
-#include "glad/glad.h"
-#include "GLFW/glfw3.h"
-#include "spdlog/spdlog.h"
+#include <glad/glad.h>
+#include <GLFW/glfw3.h>
+#include <spdlog/spdlog.h>
 
 #include "graphics/window.h"
+#include "graphics/renderer.h"
 
 namespace SingularityTrainer
 {
@@ -108,7 +109,6 @@ Window::Window(int x, int y, std::string title, int opengl_major_version, int op
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, opengl_minor_version);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
     glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, GL_TRUE);
-    // glfwWindowHint(GLFW_SAMPLES, 4);
 
     window = glfwCreateWindow(x, y, title.c_str(), nullptr, nullptr);
     if (!window)
@@ -143,6 +143,7 @@ Window::Window(int x, int y, std::string title, int opengl_major_version, int op
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     glEnable(GL_MULTISAMPLE);
     glfwSwapInterval(0);
+    glfwSetWindowUserPointer(window, this);
 
     spdlog::debug("Actual OpenGL version: {}", glGetString(GL_VERSION));
 }
@@ -166,5 +167,10 @@ bool Window::should_close()
 void Window::set_resize_callback(void (*callback)(GLFWwindow *, int, int))
 {
     glfwSetWindowSizeCallback(window, callback);
+}
+
+void Window::set_renderer(Renderer *renderer)
+{
+    this->renderer = renderer;
 }
 }

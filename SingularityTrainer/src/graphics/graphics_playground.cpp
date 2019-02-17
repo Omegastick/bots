@@ -85,7 +85,7 @@ void reset_imgui_style()
     style.Colors[ImGuiCol_TextSelectedBg] = {0.18431373f, 0.39607847f, 0.79215693f, 0.90f};
 }
 
-void resize_window_callback(GLFWwindow *window, int x, int y)
+void resize_window_callback(GLFWwindow *glfw_window, int x, int y)
 {
     spdlog::debug("Resizing window to {}x{}", x, y);
     glViewport(0, 0, x, y);
@@ -96,6 +96,9 @@ void resize_window_callback(GLFWwindow *window, int x, int y)
     style.ScaleAllSizes(relative_scale);
     ImGuiIO &io = ImGui::GetIO();
     io.FontGlobalScale = relative_scale;
+
+    Window *window = static_cast<Window *>(glfwGetWindowUserPointer(glfw_window));
+    window->get_renderer().resize(x, y);
 }
 
 void init_imgui(const int opengl_version_major, const int opengl_version_minor, GLFWwindow *window)
@@ -129,7 +132,6 @@ int main(int argc, const char *argv[])
 
     // Create window
     Window window = Window(resolution_x, resolution_y, window_title, opengl_version_major, opengl_version_minor);
-    window.set_resize_callback(resize_window_callback);
 
     ResourceManager resource_manager("SingularityTrainer/assets/");
 
@@ -156,7 +158,9 @@ int main(int argc, const char *argv[])
     screen_manager.show_screen(screens[0]);
 
     spdlog::debug("Initializing renderer");
-    Renderer renderer;
+    Renderer renderer(1920, 1080);
+    window.set_renderer(&renderer);
+    window.set_resize_callback(resize_window_callback);
 
     // ImGui
     init_imgui(opengl_version_major, opengl_version_minor, window.window);

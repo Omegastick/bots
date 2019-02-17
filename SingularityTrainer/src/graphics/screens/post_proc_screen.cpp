@@ -60,7 +60,7 @@ void PostProcScreen::draw(Renderer &renderer, bool lightweight)
 {
     renderer.push_post_proc_layer(post_proc_layer_1.get());
     renderer.push_post_proc_layer(post_proc_layer_2.get());
-    renderer.begin_frame();
+    renderer.begin();
 
     auto shader = resource_manager->shader_store.get("texture");
 
@@ -79,6 +79,6 @@ void PostProcScreen::draw(Renderer &renderer, bool lightweight)
     post_proc_shader_2->set_uniform_2f("u_direction", glm::vec2(-1, 1));
     post_proc_shader_2->set_uniform_2f("u_resolution", glm::vec2(1920, 1080));
 
-    renderer.end_frame();
+    renderer.end();
 }
 }
