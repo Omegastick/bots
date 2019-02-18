@@ -4,7 +4,7 @@
 #include <stack>
 
 #include "iscreen.h"
-#include "graphics/renderer.h"
+#include "graphics/renderers/renderer.h"
 
 namespace SingularityTrainer
 {

@@ -12,7 +12,7 @@
 #include "imgui_impl_opengl3.h"
 
 #include "graphics/window.h"
-#include "graphics/renderer.h"
+#include "graphics/renderers/renderer.h"
 #include "graphics/screens/quad_screen.h"
 #include "graphics/screens/texture_test_screen.h"
 #include "graphics/screens/sprite_test_screen.h"

@@ -9,7 +9,7 @@
 #include "iscreen.h"
 #include "graphics/shader.h"
 #include "graphics/sprite.h"
-#include "graphics/renderer.h"
+#include "graphics/renderers/renderer.h"
 #include "resource_manager.h"
 #include "screen_manager.h"
 

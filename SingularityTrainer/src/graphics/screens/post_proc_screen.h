@@ -10,7 +10,7 @@
 #include "graphics/shader.h"
 #include "graphics/sprite.h"
 #include "graphics/texture.h"
-#include "graphics/renderer.h"
+#include "graphics/renderers/renderer.h"
 #include "graphics/post_proc_layer.h"
 #include "resource_manager.h"
 #include "screen_manager.h"

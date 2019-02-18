@@ -5,7 +5,7 @@
 #include "graphics/shader.h"
 #include "graphics/texture.h"
 #include "graphics/sprite.h"
-#include "graphics/renderer.h"
+#include "graphics/renderers/renderer.h"
 #include "graphics/post_proc_layer.h"
 
 namespace SingularityTrainer
