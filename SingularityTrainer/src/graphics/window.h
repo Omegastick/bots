@@ -4,7 +4,7 @@
 
 #include <GLFW/glfw3.h>
 
-#include "graphics/renderer.h"
+#include "graphics/renderers/renderer.h"
 
 namespace SingularityTrainer
 {

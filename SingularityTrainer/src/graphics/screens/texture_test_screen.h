@@ -1,4 +1,4 @@
-#pragma once
+#pragma oncegraphics / renderers / renderer
 
 #include <vector>
 #include <memory>
@@ -7,13 +7,13 @@
 #include <glm/glm.hpp>
 
 #include "iscreen.h"
-#include "graphics/renderer.h"
+#include "graphics/renderers/renderer.h"
 #include "graphics/vertex_array.h"
 #include "graphics/vertex_buffer.h"
 #include "graphics/element_buffer.h"
 #include "graphics/shader.h"
 #include "graphics/texture.h"
-#include "graphics/renderer.h"
+#include "graphics/renderers/renderer.h"
 #include "screen_manager.h"
 
 namespace SingularityTrainer

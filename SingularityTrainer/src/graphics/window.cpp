@@ -1,4 +1,4 @@
-#include <string>
+#include "graphics/renderers/renderer.h"
 #include <sstream>
 
 #include <glad/glad.h>
@@ -6,7 +6,7 @@
 #include <spdlog/spdlog.h>
 
 #include "graphics/window.h"
-#include "graphics/renderer.h"
+#include "graphics/renderers/renderer.h"
 
 namespace SingularityTrainer
 {

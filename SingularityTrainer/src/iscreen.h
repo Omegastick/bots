@@ -1,7 +1,7 @@
 #pragma once
 
 #include "input.h"
-#include "graphics/renderer.h"
+#include "graphics/renderers/renderer.h"
 
 namespace SingularityTrainer
 {

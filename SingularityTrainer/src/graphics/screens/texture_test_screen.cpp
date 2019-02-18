@@ -1,4 +1,3 @@
-#include <vector>
 #include <memory>
 #include <string>
 
@@ -7,7 +6,7 @@
 #include <glm/gtc/matrix_transform.hpp>
 
 #include "iscreen.h"
-#include "graphics/renderer.h"
+#include "graphics/renderers/renderer.h"
 #include "graphics/vertex_array.h"
 #include "graphics/vertex_buffer.h"
 #include "graphics/element_buffer.h"

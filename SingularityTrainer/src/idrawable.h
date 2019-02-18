@@ -1,6 +1,6 @@
 #pragma once
 
-#include "graphics/renderer.h"
+#include "graphics/renderers/renderer.h"
 
 namespace SingularityTrainer
 {
