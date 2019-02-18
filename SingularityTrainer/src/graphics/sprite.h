@@ -1,6 +1,6 @@
 #pragma once
 
-#include <memory>
+#include <string>
 
 #include <glm/glm.hpp>
 
@@ -12,31 +12,18 @@
 
 namespace SingularityTrainer
 {
-struct Vertex
-{
-    glm::vec2 position;
-    glm::vec2 texture_coord;
-    glm::vec4 color;
-};
-
 class Sprite : public ITransformable
 {
   private:
-    std::unique_ptr<VertexArray> vertex_array;
-    std::unique_ptr<VertexBuffer> vertex_buffer;
-    std::unique_ptr<ElementBuffer> element_buffer;
-    Texture *texture;
+    std::string texture;
 
   public:
-    explicit Sprite(Texture &texture);
+    explicit Sprite(std::string texture);
     ~Sprite();
 
     glm::vec2 get_center() const;
 
-    inline const VertexArray &get_vertex_array() const { return *vertex_array; }
-    inline const VertexBuffer &get_vertex_buffer() const { return *vertex_buffer; }
-    inline const ElementBuffer &get_element_buffer() const { return *element_buffer; }
-    inline const Texture &get_texture() const { return *texture; }
-    inline const void set_texture(Texture *texture) { this->texture = texture; }
+    inline const std::string &get_texture() const { return texture; }
+    inline const void set_texture(const std::string &texture) { this->texture = texture; }
 };
 }

@@ -11,7 +11,8 @@
 
 namespace SingularityTrainer
 {
-Renderer::Renderer(int width, int height) : width(width), height(height)
+Renderer::Renderer(int width, int height, ResourceManager &resource_manager)
+    : width(width), height(height), resource_manager(&resource_manager)
 {
     base_frame_buffer = std::make_unique<FrameBuffer>();
     base_frame_buffer->set_render_buffer(width, height, 4);
@@ -21,6 +22,26 @@ Renderer::Renderer(int width, int height) : width(width), height(height)
 
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
     glBindRenderbuffer(GL_RENDERBUFFER, 0);
+
+    sprite_vertex_array = std::make_unique<VertexArray>();
+
+    SpriteVertex sprite_vertices[4]{
+        {glm::vec2(0.0, 1.0), glm::vec2(0.0, 1.0), glm::vec4(1.0, 1.0, 1.0, 1.0)},
+        {glm::vec2(0.0, 0.0), glm::vec2(0.0, 0.0), glm::vec4(1.0, 1.0, 1.0, 1.0)},
+        {glm::vec2(1.0, 0.0), glm::vec2(1.0, 0.0), glm::vec4(1.0, 1.0, 1.0, 1.0)},
+        {glm::vec2(1.0, 1.0), glm::vec2(1.0, 1.0), glm::vec4(1.0, 1.0, 1.0, 1.0)}};
+    sprite_vertex_buffer = std::make_unique<VertexBuffer>(&sprite_vertices[0], 4 * sizeof(SpriteVertex));
+
+    unsigned int sprite_indices[] = {
+        0, 1, 2,
+        2, 3, 0};
+    sprite_element_buffer = std::make_unique<ElementBuffer>(sprite_indices, 6);
+
+    VertexBufferLayout sprite_layout;
+    sprite_layout.push<float>(2);
+    sprite_layout.push<float>(2);
+    sprite_layout.push<float>(4);
+    sprite_vertex_array->add_buffer(*sprite_vertex_buffer, sprite_layout);
 }
 
 Renderer::~Renderer()
@@ -43,11 +64,16 @@ void Renderer::draw(const VertexArray &vertex_array, const ElementBuffer &elemen
     glDrawElements(GL_TRIANGLES, element_buffer.get_count(), GL_UNSIGNED_INT, 0);
 }
 
-void Renderer::draw(const Sprite &sprite, const Shader &shader)
+void Renderer::draw(const Sprite &sprite, const glm::mat4 &transform)
 {
-    sprite.get_vertex_array().bind();
-    shader.bind();
-    glDrawElements(GL_TRIANGLES, sprite.get_element_buffer().get_count(), GL_UNSIGNED_INT, 0);
+    sprite_vertex_array->bind();
+    auto shader = resource_manager->shader_store.get("texture");
+    shader->bind();
+    auto mvp = transform * sprite.get_transform();
+    shader->set_uniform_mat4f("u_mvp", mvp);
+    shader->set_uniform_1i("u_texture", 0);
+    resource_manager->texture_store.get(sprite.get_texture())->bind();
+    glDrawElements(GL_TRIANGLES, sprite_element_buffer->get_count(), GL_UNSIGNED_INT, 0);
 }
 
 void Renderer::clear()

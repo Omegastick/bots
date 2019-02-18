@@ -29,7 +29,7 @@ PostProcScreen::PostProcScreen(
 {
     this->resource_manager = &resource_manager;
     resource_manager.load_texture("base_module", "images/base_module.png");
-    sprite = std::make_unique<Sprite>(*resource_manager.texture_store.get("base_module"));
+    sprite = std::make_unique<Sprite>("base_module");
     sprite->set_scale(glm::vec2(100, 100));
     sprite->set_origin(sprite->get_center());
     sprite->set_position(glm::vec2(960, 540));
@@ -62,22 +62,15 @@ void PostProcScreen::draw(Renderer &renderer, bool lightweight)
     renderer.push_post_proc_layer(post_proc_layer_2.get());
     renderer.begin();
 
-    auto shader = resource_manager->shader_store.get("texture");
-
-    glm::mat4 mvp = projection * sprite->get_transform();
-    shader->set_uniform_mat4f("u_mvp", mvp);
-    sprite->get_texture().bind();
-    shader->set_uniform_1i("u_texture", 0);
-
-    renderer.draw(*sprite, *shader);
+    renderer.draw(*sprite, projection);
 
     auto post_proc_shader_1 = resource_manager->shader_store.get("post_proc_test_1");
     post_proc_shader_1->set_uniform_2f("u_direction", glm::vec2(1, 1));
-    post_proc_shader_1->set_uniform_2f("u_resolution", glm::vec2(1920, 1080));
+    post_proc_shader_1->set_uniform_2f("u_resolution", glm::vec2(renderer.get_width(), renderer.get_height()));
 
     auto post_proc_shader_2 = resource_manager->shader_store.get("post_proc_test_2");
     post_proc_shader_2->set_uniform_2f("u_direction", glm::vec2(-1, 1));
-    post_proc_shader_2->set_uniform_2f("u_resolution", glm::vec2(1920, 1080));
+    post_proc_shader_2->set_uniform_2f("u_resolution", glm::vec2(renderer.get_width(), renderer.get_height()));
 
     renderer.end();
 }
