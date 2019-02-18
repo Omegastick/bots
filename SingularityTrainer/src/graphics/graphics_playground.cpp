@@ -158,7 +158,7 @@ int main(int argc, const char *argv[])
     screen_manager.show_screen(screens[0]);
 
     spdlog::debug("Initializing renderer");
-    Renderer renderer(1920, 1080);
+    Renderer renderer(1920, 1080, resource_manager);
     window.set_renderer(&renderer);
     window.set_resize_callback(resize_window_callback);
 

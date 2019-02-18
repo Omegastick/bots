@@ -25,7 +25,7 @@ SpriteTestScreen::SpriteTestScreen(
 {
     this->resource_manager = &resource_manager;
     resource_manager.load_texture("base_module", "images/base_module.png");
-    sprite = std::make_unique<Sprite>(*resource_manager.texture_store.get("base_module"));
+    sprite = std::make_unique<Sprite>("base_module");
     sprite->set_scale(glm::vec2(100, 100));
     sprite->set_origin(sprite->get_center());
     sprite->set_position(glm::vec2(960, 540));
@@ -44,14 +44,7 @@ void SpriteTestScreen::update(const float delta_time)
 void SpriteTestScreen::draw(Renderer &renderer, bool lightweight)
 {
     renderer.begin();
-    auto shader = resource_manager->shader_store.get("texture");
-
-    glm::mat4 mvp = projection * sprite->get_transform();
-    shader->set_uniform_mat4f("u_mvp", mvp);
-    sprite->get_texture().bind();
-    shader->set_uniform_1i("u_texture", 0);
-
-    renderer.draw(*sprite, *shader);
+    renderer.draw(*sprite, projection);
     renderer.end();
 }
 }

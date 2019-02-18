@@ -57,6 +57,8 @@ FrameBuffer &PostProcLayer::render(Texture &input_texture, Renderer &renderer)
 
 void PostProcLayer::resize(int width, int height)
 {
+    this->width = width;
+    this->height = height;
     frame_buffer.set_texture(width, height);
 }
 }

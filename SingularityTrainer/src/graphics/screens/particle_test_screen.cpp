@@ -14,6 +14,7 @@
 #include "graphics/shader.h"
 #include "graphics/renderer.h"
 #include "graphics/vertex_buffer.h"
+#include "graphics/colors.h"
 #include "resource_manager.h"
 #include "screen_manager.h"
 
@@ -40,8 +41,10 @@ ParticleTestScreen::ParticleTestScreen(
     particle_end_colors.resize(max_particles);
 
     this->resource_manager = &resource_manager;
+
     resource_manager.load_shader("particle", "shaders/particle.vert", "shaders/default.frag");
 
+    // particle_engine = std::make_unique<ParticleEngine>(resource_manager.shader_store.get("particle").get());
     float vertex_buffer_data[] = {
         -1, -1,
         1, -1,
@@ -108,6 +111,15 @@ void ParticleTestScreen::update(const float delta_time)
     float time = glfwGetTime();
     for (int i = 0; i < 10; ++i)
     {
+        /* 
+        particle_engine->add_particle(
+            glm::vec2(960, 540),
+            glm::diskRand<float>(500),
+            time + (float)i / 600.f,
+            5,
+            cl_white,
+            glm::vec4(1.0, 1.0, 1.0, 0.0)
+        ); */
         particle_positions[current_particle_index] = glm::vec2(960, 540);
         particle_velocities[current_particle_index] = glm::diskRand<float>(500);
         particle_start_times[current_particle_index] = time + (float)i / 600;
@@ -124,12 +136,7 @@ void ParticleTestScreen::draw(Renderer &renderer, bool lightweight)
 {
     renderer.begin();
 
-    vertex_array.bind();
-    auto shader = resource_manager->shader_store.get("particle");
-    shader->bind();
-    shader->set_uniform_mat4f("u_mvp", projection);
-    shader->set_uniform_1f("u_time", glfwGetTime());
-
+    // particle_engine->update_buffers();
     position_vertex_buffer->clear();
     position_vertex_buffer->add_sub_data(&particle_positions[0], 0, particle_count * sizeof(glm::vec2));
     velocity_vertex_buffer->clear();
@@ -143,6 +150,13 @@ void ParticleTestScreen::draw(Renderer &renderer, bool lightweight)
     end_color_vertex_buffer->clear();
     end_color_vertex_buffer->add_sub_data(&particle_end_colors[0], 0, particle_count * sizeof(glm::vec4));
 
+    auto shader = resource_manager->shader_store.get("particle");
+    shader->bind();
+    shader->set_uniform_mat4f("u_mvp", projection);
+    shader->set_uniform_1f("u_time", glfwGetTime());
+
+    // renderer.draw(particle_engine, shader);
+    vertex_array.bind();
     glDrawArraysInstanced(GL_TRIANGLE_STRIP, 0, 4, particle_count);
 
     renderer.end();

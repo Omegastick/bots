@@ -18,12 +18,6 @@ namespace SingularityTrainer
 class ParticleTestScreen : public IScreen
 {
   private:
-    std::vector<std::shared_ptr<IScreen>> *screens;
-    std::vector<std::string> *screen_names;
-    ScreenManager *screen_manager;
-    ResourceManager *resource_manager;
-    glm::mat4 projection;
-
     VertexArray vertex_array;
     std::unique_ptr<VertexBuffer> quad_vertex_buffer;
     std::unique_ptr<VertexBuffer> position_vertex_buffer;
@@ -41,6 +35,12 @@ class ParticleTestScreen : public IScreen
     int max_particles;
     int particle_count;
     int current_particle_index;
+
+    std::vector<std::shared_ptr<IScreen>> *screens;
+    std::vector<std::string> *screen_names;
+    ScreenManager *screen_manager;
+    ResourceManager *resource_manager;
+    glm::mat4 projection;
 
   public:
     ParticleTestScreen(
