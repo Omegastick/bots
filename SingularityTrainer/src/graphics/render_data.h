@@ -16,8 +16,12 @@ struct Particle
     glm::vec4 end_color;
 };
 
-struct RenderData
+class RenderData
 {
+  public:
+    void append(const std::vector<Sprite> &sprites, const std::vector<Particle> &particles);
+    void append(const RenderData &render_data);
+
     std::vector<Sprite> sprites;
     std::vector<Particle> particles;
 };

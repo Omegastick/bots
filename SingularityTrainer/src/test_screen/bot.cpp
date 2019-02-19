@@ -30,7 +30,7 @@ Bot::Bot(ResourceManager &resource_manager, b2World &world)
 
 Bot::~Bot() {}
 
-void Bot::draw(sf::RenderTarget &render_target, bool lightweight)
+void Bot::get_render_data(bool lightweight)
 {
     b2Vec2 world_position = rigid_body->body->GetPosition();
     sf::Vector2f screen_position(world_position.x, world_position.y);

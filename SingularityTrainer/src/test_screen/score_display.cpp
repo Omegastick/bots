@@ -27,7 +27,7 @@ void ScoreDisplay::add_score(float score)
     running_score = running_score * smoothing_weight + (1 - smoothing_weight) * score;
 }
 
-void ScoreDisplay::draw(sf::RenderTarget &render_target, bool lightweight)
+void ScoreDisplay::get_render_data(bool lightweight)
 {
     std::stringstream stream;
     stream << std::fixed << std::setprecision(2) << running_score;

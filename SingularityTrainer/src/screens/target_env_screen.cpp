@@ -50,7 +50,7 @@ void TargetEnvScreen::update(const sf::Time &delta_time, const sf::Vector2f &mou
     }
 }
 
-void TargetEnvScreen::draw(sf::RenderTarget &render_target, bool lightweight)
+void TargetEnvScreen::get_render_data(bool lightweight)
 {
     texture.clear(cl_background);
 

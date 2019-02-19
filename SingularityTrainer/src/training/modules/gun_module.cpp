@@ -3,6 +3,7 @@
 #include <memory>
 #include <vector>
 
+#include "graphics/sprite.h"
 #include "resource_manager.h"
 #include "training/actions/activate_action.h"
 #include "training/agents/iagent.h"
@@ -15,10 +16,9 @@ namespace SingularityTrainer
 GunModule::GunModule(ResourceManager &resource_manager, b2Body &body, IAgent *agent) : cooldown(3), steps_since_last_shot(0)
 {
     // Sprite
-    resource_manager.load_texture("gun_module", "images/gun_module.png");
-    sprite.setScale(0.01, 0.01);
-    sprite.setTexture(*resource_manager.texture_store.get("gun_module"));
-    sprite.setOrigin(sprite.getLocalBounds().width / 2, sprite.getLocalBounds().height / 2);
+    sprite = std::make_unique<Sprite>("gun_module");
+    sprite->set_scale(glm::vec2(0.01, 0.01));
+    sprite->set_origin(sprite->get_center());
 
     // Box2D fixture
     b2PolygonShape body_shape;
@@ -41,13 +41,13 @@ GunModule::GunModule(ResourceManager &resource_manager, b2Body &body, IAgent *ag
 
 GunModule::~GunModule() {}
 
-void GunModule::draw(sf::RenderTarget &render_target, bool lightweight)
+RenderData GunModule::get_render_data(bool lightweight)
 {
-    IModule::draw(render_target, lightweight);
-    for (const auto &bullet : bullets)
-    {
-        bullet->draw(render_target, lightweight);
-    }
+    return IModule::get_render_data(lightweight);
+    // for (const auto &bullet : bullets)
+    // {
+    //     bullet->draw(render_target, lightweight);
+    // }
 }
 
 void GunModule::activate()
@@ -65,7 +65,7 @@ void GunModule::activate()
 void GunModule::update()
 {
     steps_since_last_shot++;
-    
+
     for (const auto &bullet : bullets)
     {
         bullet->update();

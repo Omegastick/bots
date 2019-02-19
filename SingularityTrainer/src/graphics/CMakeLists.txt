@@ -7,6 +7,7 @@ PUBLIC
     ${CMAKE_CURRENT_LIST_DIR}/itransformable.cpp
     ${CMAKE_CURRENT_LIST_DIR}/sprite.cpp
     ${CMAKE_CURRENT_LIST_DIR}/post_proc_layer.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/render_data.cpp
 )
 
 add_subdirectory(screens)

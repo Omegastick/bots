@@ -26,7 +26,7 @@ class TestEnv : public IEnvironment
     ~TestEnv();
 
     void start_thread();
-    void draw(sf::RenderTarget &render_target, bool lightweight = false);
+    RenderData get_render_data(bool lightweight = false);
     std::future<std::unique_ptr<StepInfo>> step(std::vector<int> &actions, float step_length);
     void forward(float step_length);
     std::future<std::unique_ptr<StepInfo>> reset();

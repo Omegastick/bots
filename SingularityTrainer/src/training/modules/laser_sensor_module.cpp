@@ -19,11 +19,10 @@ LaserSensorModule::LaserSensorModule(ResourceManager &resource_manager, b2Body &
     : laser_count(9), fov(180), laser_length(10), time(0)
 {
     // Sprite
-    resource_manager.load_texture("laser_sensor_module", "images/laser_sensor_module.png");
-    sprite.setTexture(*resource_manager.texture_store.get("laser_sensor_module"));
-    sprite.setScale(0.01, 0.01);
-    sprite.setOrigin(sprite.getLocalBounds().width / 2, sprite.getLocalBounds().height / 2);
-    sprite.setColor(cl_white);
+    sprite = std::make_unique<Sprite>("laser_sensor_module");
+    sprite->set_scale(glm::vec2(0.01, 0.01));
+    sprite->set_origin(sprite->get_center());
+    sprite->set_color(cl_white);
 
     // Box2D
     b2PolygonShape shape;
@@ -37,8 +36,8 @@ LaserSensorModule::LaserSensorModule(ResourceManager &resource_manager, b2Body &
     this->agent = agent;
 
     // Shader
-    resource_manager.load_shader("laser", "shaders/laser.frag");
-    laser_shader = resource_manager.shader_store.get("laser");
+    // resource_manager.load_shader("laser", "shaders/laser.frag");
+    // laser_shader = resource_manager.shader_store.get("laser");
 }
 
 LaserSensorModule::~LaserSensorModule() {}
@@ -73,45 +72,45 @@ std::vector<float> LaserSensorModule::get_sensor_reading()
     return sensor_reading;
 }
 
-void LaserSensorModule::draw(sf::RenderTarget &render_target, bool lightweight)
+RenderData LaserSensorModule::get_render_data(bool lightweight)
 {
-    if (!lightweight)
-    {
-        b2Transform global_transform = get_global_transform();
-        float segment_width = fov / (laser_count - 1);
+    // if (!lightweight)
+    // {
+    //     b2Transform global_transform = get_global_transform();
+    //     float segment_width = fov / (laser_count - 1);
 
-        sf::VertexArray vertices(sf::Lines, laser_count * 2);
+    //     sf::VertexArray vertices(sf::Lines, laser_count * 2);
 
-        sf::Color color = cl_white;
-        color.a = 100;
+    //     sf::Color color = cl_white;
+    //     color.a = 100;
 
-        for (int i = 0; i < laser_count; ++i)
-        {
-            if (last_reading[i] < 1)
-            {
-                b2Rot angle(deg_to_rad((segment_width * i) - (fov / 2)));
-                b2Vec2 laser = b2Mul(angle, b2Vec2(0, -last_reading[i] * laser_length));
-                b2Vec2 laser_start = b2Mul(angle, b2Vec2(0, -0.35));
-                b2Vec2 transformed_end = b2Mul(global_transform, laser);
-                b2Vec2 transformed_start = b2Mul(global_transform, laser_start);
-                vertices[i * 2].position = sf::Vector2f(transformed_start.x, transformed_start.y);
-                vertices[i * 2].color = color;
-                vertices[i * 2 + 1].position = sf::Vector2f(transformed_end.x, transformed_end.y);
-                vertices[i * 2 + 1].color = color;
-            }
-            else
-            {
-                vertices[i * 2].color = sf::Color::Transparent;
-                vertices[i * 2 + 1].color = sf::Color::Transparent;
-            }
-        }
+    //     for (int i = 0; i < laser_count; ++i)
+    //     {
+    //         if (last_reading[i] < 1)
+    //         {
+    //             b2Rot angle(deg_to_rad((segment_width * i) - (fov / 2)));
+    //             b2Vec2 laser = b2Mul(angle, b2Vec2(0, -last_reading[i] * laser_length));
+    //             b2Vec2 laser_start = b2Mul(angle, b2Vec2(0, -0.35));
+    //             b2Vec2 transformed_end = b2Mul(global_transform, laser);
+    //             b2Vec2 transformed_start = b2Mul(global_transform, laser_start);
+    //             vertices[i * 2].position = sf::Vector2f(transformed_start.x, transformed_start.y);
+    //             vertices[i * 2].color = color;
+    //             vertices[i * 2 + 1].position = sf::Vector2f(transformed_end.x, transformed_end.y);
+    //             vertices[i * 2 + 1].color = color;
+    //         }
+    //         else
+    //         {
+    //             vertices[i * 2].color = sf::Color::Transparent;
+    //             vertices[i * 2 + 1].color = sf::Color::Transparent;
+    //         }
+    //     }
 
-        laser_shader->setUniform("u_Time", time);
-        time += 0.02;
-        render_target.draw(vertices, laser_shader.get());
-    }
+    //     laser_shader->setUniform("u_Time", time);
+    //     time += 0.02;
+    //     render_target.draw(vertices, laser_shader.get());
+    // }
 
-    IModule::draw(render_target, lightweight);
+    return IModule::get_render_data(lightweight);
 }
 
 ClosestRaycastCallback::ClosestRaycastCallback() : distance(-1) {}

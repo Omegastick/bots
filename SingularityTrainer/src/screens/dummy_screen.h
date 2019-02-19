@@ -15,7 +15,7 @@ class DummyScreen : public IScreen
     DummyScreen(std::shared_ptr<ResourceManager> resource_manager, std::shared_ptr<Communicator> communicator);
     ~DummyScreen();
 
-    void draw(sf::RenderTarget &render_target, bool lightweight = false);
+    RenderData get_render_data(bool lightweight = false);
     void update(sf::Time delta_time);
 
   private:

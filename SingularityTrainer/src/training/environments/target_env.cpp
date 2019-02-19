@@ -1,16 +1,14 @@
 #include <Box2D/Box2D.h>
-#include <SFML/Graphics.hpp>
 #include <iostream>
 #include <memory>
 #include <vector>
 
+#include "training/environments/target_env.h"
 #include "graphics/colors.h"
-#include "particles/linear_particle_system.h"
 #include "training/agents/test_agent.h"
 #include "training/entities/bullet.h"
 #include "training/entities/target.h"
 #include "training/entities/wall.h"
-#include "training/environments/target_env.h"
 #include "training/rigid_body.h"
 
 namespace SingularityTrainer
@@ -82,7 +80,6 @@ TargetEnv::TargetEnv(ResourceManager &resource_manager, float x, float y, float 
       reward(0),
       step_counter(0),
       done(false),
-      particle_system(-10, -10, 10, 10, 1000),
       rng(seed)
 {
     // Box2D world
@@ -91,7 +88,7 @@ TargetEnv::TargetEnv(ResourceManager &resource_manager, float x, float y, float 
     world->SetContactListener(contact_listener.get());
 
     // Agent
-    agent = std::make_unique<TestAgent>(resource_manager, *world, &particle_system, &rng);
+    agent = std::make_unique<TestAgent>(resource_manager, *world, &rng);
 
     // Target
     target = std::make_unique<Target>(4, 4, *world, *this);
@@ -101,13 +98,6 @@ TargetEnv::TargetEnv(ResourceManager &resource_manager, float x, float y, float 
     walls.push_back(std::make_unique<Wall>(-10, -10, 0.1, 20, *world));
     walls.push_back(std::make_unique<Wall>(-10, 9.9, 20, 0.1, *world));
     walls.push_back(std::make_unique<Wall>(9.9, -10, 0.1, 20, *world));
-
-    // Display
-    render_texture.create(1000, 1000);
-    sprite.setTexture(render_texture.getTexture());
-    sprite.setPosition(x, y);
-    sprite.setScale(scale, scale);
-    render_texture.setView(sf::View(sf::Vector2f(0, 0), sf::Vector2f(20, 20)));
 }
 
 TargetEnv::~TargetEnv()
@@ -123,26 +113,23 @@ void TargetEnv::start_thread()
     thread = new std::thread(&TargetEnv::thread_loop, this);
 }
 
-void TargetEnv::draw(sf::RenderTarget &render_target, bool lightweight)
+RenderData TargetEnv::get_render_data(bool lightweight)
 {
-    // Draw onto temporary texture
-    render_texture.clear(cl_background);
-    if (!lightweight)
-    {
-        particle_system.draw(render_texture, lightweight);
-    }
-    agent->draw(render_texture, lightweight);
+    RenderData render_data;
+
+    auto agent_render_data = agent->get_render_data(lightweight);
+    render_data.append(agent_render_data);
+
     for (auto &wall : walls)
     {
-        wall->draw(render_texture, lightweight);
+        auto wall_render_data = wall->get_render_data(lightweight);
+        render_data.append(wall_render_data);
     }
-    target->draw(render_texture, lightweight);
 
-    render_texture.display();
+    auto target_render_data = target->get_render_data(lightweight);
+    render_data.append(target_render_data);
 
-    // Draw temporary tecture onto window
-    sprite.setTexture(render_texture.getTexture());
-    render_target.draw(sprite);
+    return render_data;
 }
 
 std::future<std::unique_ptr<StepInfo>> TargetEnv::step(std::vector<int> &actions, float step_length)
@@ -208,7 +195,6 @@ void TargetEnv::thread_loop()
 
             // Step simulation
             world->Step(command.step_length, 3, 2);
-            particle_system.update(command.step_length);
 
             // Max episode length
             step_counter++;
@@ -235,7 +221,6 @@ void TargetEnv::thread_loop()
             break;
         case Commands::Forward:
             world->Step(command.step_length, 3, 2);
-            particle_system.update(command.step_length);
             break;
         case Commands::Reset:
             done = false;
