@@ -3,7 +3,7 @@
 #include <memory>
 
 #include "graphics/colors.h"
-#include "idrawable.h"
+#include "graphics/idrawable.h"
 #include "training/entities/target.h"
 #include "training/environments/ienvironment.h"
 #include "training/icollidable.h"

@@ -12,7 +12,11 @@
 namespace SingularityTrainer
 {
 Renderer::Renderer(int width, int height, ResourceManager &resource_manager)
-    : width(width), height(height), resource_manager(&resource_manager), sprite_renderer(resource_manager)
+    : width(width),
+      height(height),
+      resource_manager(&resource_manager),
+      sprite_renderer(resource_manager),
+      particle_renderer(100000, resource_manager)
 {
     base_frame_buffer = std::make_unique<FrameBuffer>();
     base_frame_buffer->set_render_buffer(width, height, 4);
@@ -49,8 +53,23 @@ void Renderer::draw(const Sprite &sprite, const glm::mat4 &view)
     sprite_renderer.draw(sprite, view);
 }
 
-void Renderer::clear()
+void Renderer::draw(RenderData &render_data, const glm::mat4 &view, float time, bool lightweight)
 {
+    for (auto sprite : render_data.sprites)
+    {
+        sprite_renderer.draw(sprite, view);
+    }
+
+    particle_renderer.add_particles(render_data.particles);
+    if (!lightweight)
+    {
+        particle_renderer.draw(time, view);
+    }
+}
+
+void Renderer::clear(const glm::vec4 &color)
+{
+    glClearColor(color.r, color.g, color.b, color.a);
     glClear(GL_COLOR_BUFFER_BIT);
 }
 

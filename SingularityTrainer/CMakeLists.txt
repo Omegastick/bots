@@ -52,7 +52,7 @@ if (UNIX)
     # UNIX systems sometimes need to explicitly link the threading library
     target_link_libraries(SingularityTrainer pthread)
 endif()
-target_link_libraries(GraphicsPlayground glad glfw ${GLFW_LIBRARIES} glm imgui)
+target_link_libraries(GraphicsPlayground glad glfw ${GLFW_LIBRARIES} glm imgui Box2D)
 
 # Inlcudes
 target_include_directories(SingularityTrainer PUBLIC src)

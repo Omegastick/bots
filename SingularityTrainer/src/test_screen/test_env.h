@@ -9,7 +9,7 @@
 #include <thread>
 #include <utility>
 
-#include "idrawable.h"
+#include "graphics/idrawable.h"
 #include "particles/linear_particle_system.h"
 #include "test_screen/bot.h"
 #include "test_screen/score_display.h"

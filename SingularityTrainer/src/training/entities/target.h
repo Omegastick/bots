@@ -4,7 +4,7 @@
 #include <SFML/Graphics.hpp>
 #include <memory>
 
-#include "idrawable.h"
+#include "graphics/idrawable.h"
 #include "training/environments/ienvironment.h"
 #include "training/icollidable.h"
 #include "training/rigid_body.h"

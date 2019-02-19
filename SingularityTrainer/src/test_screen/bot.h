@@ -8,7 +8,7 @@
 #include <string>
 #include <vector>
 
-#include "idrawable.h"
+#include "graphics/idrawable.h"
 #include "resource_manager.h"
 #include "training/icollidable.h"
 #include "training/rigid_body.h"

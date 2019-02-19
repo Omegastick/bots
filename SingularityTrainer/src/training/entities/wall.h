@@ -3,7 +3,7 @@
 #include <Box2D/Box2D.h>
 #include <SFML/Graphics.hpp>
 
-#include "idrawable.h"
+#include "graphics/idrawable.h"
 #include "training/rigid_body.h"
 
 namespace SingularityTrainer

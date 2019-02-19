@@ -3,7 +3,7 @@
 #include <iostream>
 
 #include "graphics/colors.h"
-#include "idrawable.h"
+#include "graphics/idrawable.h"
 #include "training/entities/bullet.h"
 #include "training/icollidable.h"
 #include "training/rigid_body.h"

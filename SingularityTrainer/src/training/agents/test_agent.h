@@ -4,7 +4,7 @@
 #include <SFML/Graphics.hpp>
 #include <vector>
 
-#include "idrawable.h"
+#include "graphics/idrawable.h"
 #include "particles/linear_particle_system.h"
 #include "random.h"
 #include "resource_manager.h"
