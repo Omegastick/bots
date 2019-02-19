@@ -4,8 +4,8 @@
 #include <spdlog/spdlog.h>
 
 #include "resource_manager.h"
-#include "graphics/texture.h"
-#include "graphics/shader.h"
+#include "graphics/backend/texture.h"
+#include "graphics/backend/shader.h"
 
 namespace SingularityTrainer
 {

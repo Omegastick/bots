@@ -5,8 +5,8 @@
 
 #include <glm/glm.hpp>
 
-#include "graphics/vertex_array.h"
-#include "graphics/vertex_buffer.h"
+#include "graphics/backend/vertex_array.h"
+#include "graphics/backend/vertex_buffer.h"
 #include "resource_manager.h"
 
 namespace SingularityTrainer

@@ -6,7 +6,7 @@
 #include "glm/vec4.hpp"
 #include "spdlog/spdlog.h"
 
-#include "graphics/shader.h"
+#include "graphics/backend/shader.h"
 
 namespace SingularityTrainer
 {

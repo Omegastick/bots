@@ -11,10 +11,10 @@
 
 #include "graphics/screens/particle_test_screen.h"
 #include "graphics/screens/test_utils.h"
-#include "graphics/shader.h"
+#include "graphics/backend/shader.h"
 #include "graphics/renderers/renderer.h"
 #include "graphics/renderers/particle_renderer.h"
-#include "graphics/vertex_buffer.h"
+#include "graphics/backend/vertex_buffer.h"
 #include "graphics/colors.h"
 #include "resource_manager.h"
 #include "screen_manager.h"

@@ -7,7 +7,7 @@
 #include <glm/glm.hpp>
 
 #include "iscreen.h"
-#include "graphics/shader.h"
+#include "graphics/backend/shader.h"
 #include "graphics/sprite.h"
 #include "graphics/renderers/renderer.h"
 #include "resource_manager.h"

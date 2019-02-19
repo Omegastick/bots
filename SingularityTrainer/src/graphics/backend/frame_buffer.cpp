@@ -3,8 +3,8 @@
 #include <glad/glad.h>
 #include <spdlog/spdlog.h>
 
-#include "graphics/frame_buffer.h"
-#include "graphics/texture.h"
+#include "graphics/backend/frame_buffer.h"
+#include "graphics/backend/texture.h"
 
 namespace SingularityTrainer
 {

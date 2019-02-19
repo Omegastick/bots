@@ -2,10 +2,10 @@
 
 #include <glad/glad.h>
 
-#include "graphics/vertex_array.h"
-#include "graphics/shader.h"
-#include "graphics/element_buffer.h"
-#include "graphics/shader.h"
+#include "graphics/backend/vertex_array.h"
+#include "graphics/backend/shader.h"
+#include "graphics/backend/element_buffer.h"
+#include "graphics/backend/shader.h"
 #include "graphics/sprite.h"
 #include "graphics/renderers/renderer.h"
 

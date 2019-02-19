@@ -4,8 +4,8 @@
 
 #include "glad/glad.h"
 
-#include "graphics/vertex_buffer.h"
-#include "graphics/vertex_buffer_layout.h"
+#include "graphics/backend/vertex_buffer.h"
+#include "graphics/backend/vertex_buffer_layout.h"
 
 namespace SingularityTrainer
 {

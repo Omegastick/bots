@@ -4,7 +4,7 @@
 
 #include <glm/glm.hpp>
 
-#include "graphics/texture.h"
+#include "graphics/backend/texture.h"
 
 namespace SingularityTrainer
 {

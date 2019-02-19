@@ -3,9 +3,9 @@
 #include <glad/glad.h>
 
 #include "graphics/renderers/particle_renderer.h"
-#include "graphics/vertex_array.h"
-#include "graphics/shader.h"
-#include "graphics/vertex_buffer.h"
+#include "graphics/backend/vertex_array.h"
+#include "graphics/backend/shader.h"
+#include "graphics/backend/vertex_buffer.h"
 #include "resource_manager.h"
 
 namespace SingularityTrainer
