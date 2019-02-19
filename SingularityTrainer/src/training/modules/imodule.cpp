@@ -1,5 +1,9 @@
+#include <vector>
 #include <algorithm>
 
+#include <glm/vec2.hpp>
+
+#include "graphics/render_data.h"
 #include "training/modules/imodule.h"
 #include "utilities.h"
 
@@ -30,14 +34,14 @@ std::vector<IModule *> IModule::get_children(std::vector<IModule *> child_list)
 
 std::vector<float> IModule::get_sensor_reading() { return std::vector<float>(); }
 
-void IModule::draw(sf::RenderTarget &render_target, bool lightweight)
+RenderData IModule::get_render_data(bool lightweight)
 {
     b2Transform world_transform = get_global_transform();
-    sf::Vector2f screen_position(world_transform.p.x, world_transform.p.y);
-    sprite.setPosition(screen_position);
+    glm::vec2 screen_position(world_transform.p.x, world_transform.p.y);
+    sprite->set_position(screen_position);
+    sprite->set_rotation(world_transform.q.GetAngle());
 
-    sprite.setRotation(rad_to_deg(world_transform.q.GetAngle()));
-    render_target.draw(sprite);
+    return RenderData{{*sprite}};
 }
 
 b2Transform IModule::get_global_transform()

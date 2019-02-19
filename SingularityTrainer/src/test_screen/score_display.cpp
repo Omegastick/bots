@@ -2,7 +2,7 @@
 #include <iomanip>
 #include <sstream>
 
-#include "idrawable.h"
+#include "graphics/idrawable.h"
 #include "resource_manager.h"
 #include "test_screen/score_display.h"
 #include "graphics/colors.h"

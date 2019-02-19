@@ -5,22 +5,13 @@
 
 #include <glm/glm.hpp>
 
+#include "graphics/render_data.h"
 #include "graphics/backend/vertex_array.h"
 #include "graphics/backend/vertex_buffer.h"
 #include "resource_manager.h"
 
 namespace SingularityTrainer
 {
-struct Particle
-{
-    glm::vec2 start_position;
-    glm::vec2 velocity;
-    float start_time;
-    float lifetime;
-    glm::vec4 start_color;
-    glm::vec4 end_color;
-};
-
 class ParticleRenderer
 {
   private:

@@ -3,7 +3,12 @@
 #include <vector>
 #include <memory>
 
+#include <glm/vec4.hpp>
+
+#include "graphics/render_data.h"
+#include "graphics/colors.h"
 #include "graphics/renderers/sprite_renderer.h"
+#include "graphics/renderers/particle_renderer.h"
 #include "graphics/backend/vertex_array.h"
 #include "graphics/backend/shader.h"
 #include "graphics/backend/element_buffer.h"
@@ -19,6 +24,7 @@ class Renderer
   private:
     int width, height;
     SpriteRenderer sprite_renderer;
+    ParticleRenderer particle_renderer;
     std::vector<PostProcLayer *> post_proc_layers;
     std::unique_ptr<FrameBuffer> base_frame_buffer;
     std::unique_ptr<FrameBuffer> texture_frame_buffer;
@@ -34,8 +40,9 @@ class Renderer
 
     void draw(const VertexArray &vertex_array, const ElementBuffer &element_buffer, const Shader &shader);
     void draw(const Sprite &sprite, const glm::mat4 &view);
+    void draw(RenderData &render_data, const glm::mat4 &view, float time, bool lightweight = false);
 
-    void clear();
+    void clear(const glm::vec4 &color = cl_background);
 
     void push_post_proc_layer(PostProcLayer *post_proc_layer);
     void pop_post_proc_layer();
