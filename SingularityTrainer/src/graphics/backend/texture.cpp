@@ -2,7 +2,7 @@
 
 #include <glad/glad.h>
 
-#include "graphics/texture.h"
+#include "graphics/backend/texture.h"
 #include "graphics/stb_image.h"
 
 namespace SingularityTrainer

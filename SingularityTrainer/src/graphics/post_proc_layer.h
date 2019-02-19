@@ -3,12 +3,12 @@
 #include <memory>
 #include <glm/glm.hpp>
 
-#include "graphics/frame_buffer.h"
-#include "graphics/shader.h"
-#include "graphics/texture.h"
-#include "graphics/vertex_array.h"
-#include "graphics/vertex_buffer.h"
-#include "graphics/element_buffer.h"
+#include "graphics/backend/frame_buffer.h"
+#include "graphics/backend/shader.h"
+#include "graphics/backend/texture.h"
+#include "graphics/backend/vertex_array.h"
+#include "graphics/backend/vertex_buffer.h"
+#include "graphics/backend/element_buffer.h"
 
 namespace SingularityTrainer
 {

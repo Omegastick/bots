@@ -11,9 +11,9 @@
 
 #include "graphics/screens/post_proc_screen.h"
 #include "graphics/screens/test_utils.h"
-#include "graphics/shader.h"
+#include "graphics/backend/shader.h"
 #include "graphics/sprite.h"
-#include "graphics/texture.h"
+#include "graphics/backend/texture.h"
 #include "resource_manager.h"
 #include "screen_manager.h"
 #include "iscreen.h"

@@ -3,8 +3,8 @@
 #include <string>
 
 #include "asset_store.h"
-#include "graphics/texture.h"
-#include "graphics/shader.h"
+#include "graphics/backend/texture.h"
+#include "graphics/backend/shader.h"
 
 namespace SingularityTrainer
 {

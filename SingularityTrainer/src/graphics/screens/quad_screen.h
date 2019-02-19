@@ -8,10 +8,10 @@
 
 #include "iscreen.h"
 #include "graphics/renderers/renderer.h"
-#include "graphics/vertex_array.h"
-#include "graphics/vertex_buffer.h"
-#include "graphics/element_buffer.h"
-#include "graphics/shader.h"
+#include "graphics/backend/vertex_array.h"
+#include "graphics/backend/vertex_buffer.h"
+#include "graphics/backend/element_buffer.h"
+#include "graphics/backend/shader.h"
 #include "graphics/renderers/renderer.h"
 #include "screen_manager.h"
 

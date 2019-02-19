@@ -1,9 +1,9 @@
 #include <memory>
 #include <glm/glm.hpp>
 
-#include "graphics/frame_buffer.h"
-#include "graphics/shader.h"
-#include "graphics/texture.h"
+#include "graphics/backend/frame_buffer.h"
+#include "graphics/backend/shader.h"
+#include "graphics/backend/texture.h"
 #include "graphics/sprite.h"
 #include "graphics/renderers/renderer.h"
 #include "graphics/post_proc_layer.h"
