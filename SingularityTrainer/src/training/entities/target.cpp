@@ -22,21 +22,16 @@ Target::Target(float x, float y, b2World &world, IEnvironment &env) : environmen
     fixture_def.friction = 1;
     fixture_def.shape = &rigid_body_shape;
     rigid_body->body->CreateFixture(&fixture_def);
-
-    // Sprite
-    shape.setFillColor(cl_white);
-    shape.setRadius(0.5);
-    shape.setOrigin(0.5, 0.5);
-    shape.setPosition(x, y);
 }
 
 Target::~Target() {}
 
-void Target::draw(sf::RenderTarget &render_target, bool lightweight)
+RenderData Target::get_render_data(bool lightweight)
 {
     b2Vec2 position = rigid_body->body->GetPosition();
-    shape.setPosition(position.x, position.y);
-    render_target.draw(shape);
+    // shape.setPosition(position.x, position.y);
+    // render_target.draw(shape);
+    return RenderData();
 }
 
 void Target::begin_contact(RigidBody *other)

@@ -107,7 +107,7 @@ void TestEnv::start_thread()
     thread = new std::thread(&TestEnv::thread_loop, this);
 }
 
-void TestEnv::draw(sf::RenderTarget &render_target, bool lightweight)
+void TestEnv::get_render_data(bool lightweight)
 {
     // Draw onto temporary texture
     render_texture.clear(cl_background);

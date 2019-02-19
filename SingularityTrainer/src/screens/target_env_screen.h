@@ -20,7 +20,7 @@ class TargetEnvScreen : public IScreen
     TargetEnvScreen(ResourceManager &resource_manager, Communicator *communicator, Random *rng, int env_count);
     ~TargetEnvScreen();
 
-    void draw(sf::RenderTarget &render_target, bool lightweight = false);
+    RenderData get_render_data(bool lightweight = false);
     void update(const sf::Time &delta_time, const sf::Vector2f &mouse_position, const thor::ActionMap<Inputs> &action_map);
 
   private:

@@ -100,7 +100,7 @@ void TestScreen::update(const sf::Time &delta_time, const sf::Vector2f &mouse_po
     }
 }
 
-void TestScreen::draw(sf::RenderTarget &render_target, bool lightweight)
+void TestScreen::get_render_data(bool lightweight)
 {
     texture.clear(cl_background);
 

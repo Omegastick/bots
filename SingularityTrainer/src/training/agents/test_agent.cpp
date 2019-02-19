@@ -1,8 +1,8 @@
-#include <Box2D/Box2D.h>
 #include <memory>
 #include <vector>
 
-#include "particles/linear_particle_system.h"
+#include <Box2D/Box2D.h>
+
 #include "random.h"
 #include "training/agents/test_agent.h"
 #include "training/modules/base_module.h"
@@ -14,7 +14,7 @@
 
 namespace SingularityTrainer
 {
-TestAgent::TestAgent(ResourceManager &resource_manager, b2World &world, LinearParticleSystem *particle_system, Random *rng)
+TestAgent::TestAgent(ResourceManager &resource_manager, b2World &world, Random *rng)
 {
     // Rigid body
     rigid_body = std::make_unique<RigidBody>(b2_dynamicBody, b2Vec2_zero, world, this, RigidBody::ParentTypes::Agent);
@@ -23,8 +23,8 @@ TestAgent::TestAgent(ResourceManager &resource_manager, b2World &world, LinearPa
     std::unique_ptr<BaseModule> base_module = std::make_unique<BaseModule>(resource_manager, *rigid_body->body, this);
     std::unique_ptr<GunModule> gun_module_right = std::make_unique<GunModule>(resource_manager, *rigid_body->body, this);
     std::unique_ptr<GunModule> gun_module_left = std::make_unique<GunModule>(resource_manager, *rigid_body->body, this);
-    std::unique_ptr<ThrusterModule> thruster_module_left = std::make_unique<ThrusterModule>(resource_manager, *rigid_body->body, this, particle_system);
-    std::unique_ptr<ThrusterModule> thruster_module_right = std::make_unique<ThrusterModule>(resource_manager, *rigid_body->body, this, particle_system);
+    std::unique_ptr<ThrusterModule> thruster_module_left = std::make_unique<ThrusterModule>(resource_manager, *rigid_body->body, this);
+    std::unique_ptr<ThrusterModule> thruster_module_right = std::make_unique<ThrusterModule>(resource_manager, *rigid_body->body, this);
     std::unique_ptr<LaserSensorModule> laser_sensor_module = std::make_unique<LaserSensorModule>(resource_manager, *rigid_body->body, this);
 
     // Connect modules
@@ -86,66 +86,69 @@ std::vector<float> TestAgent::get_observation()
 void TestAgent::begin_contact(RigidBody *other) {}
 void TestAgent::end_contact(RigidBody *other) {}
 
-void TestAgent::draw(sf::RenderTarget &render_target, bool lightweight)
+RenderData TestAgent::get_render_data(bool lightweight)
 {
+    RenderData render_data;
     for (const auto &module : modules)
     {
-        module->draw(render_target, lightweight);
+        render_data.append(module->get_render_data(lightweight));
     }
 
-    if (debug_draw)
-    {
-        b2Transform transform = rigid_body->body->GetTransform();
+    return render_data;
 
-        // Draw modules
-        for (b2Fixture *fixture = rigid_body->body->GetFixtureList(); fixture; fixture = fixture->GetNext())
-        {
-            b2PolygonShape *b2_shape = (b2PolygonShape *)fixture->GetShape();
-            sf::ConvexShape screen_shape(b2_shape->GetVertexCount());
-            screen_shape.setOutlineColor(sf::Color::Green);
-            screen_shape.setOutlineThickness(0.02);
-            screen_shape.setFillColor(sf::Color::Transparent);
-            for (int i = 0; i < b2_shape->m_count; ++i)
-            {
-                b2Vec2 vertex_position = b2Mul(transform, b2_shape->GetVertex(i));
-                screen_shape.setPoint(i, sf::Vector2f(vertex_position.x, vertex_position.y));
-            }
-            render_target.draw(screen_shape);
-        }
+    // if (debug_draw)
+    // {
+    //     b2Transform transform = rigid_body->body->GetTransform();
 
-        // Draw module links
-        for (const auto &module : modules)
-        {
-            b2Transform module_transform = module->get_global_transform();
-            for (const auto &module_link : module->module_links)
-            {
-                // Transform
-                b2Transform link_transform = b2Mul(module_transform, module_link.transform);
+    //     // Draw modules
+    //     for (b2Fixture *fixture = rigid_body->body->GetFixtureList(); fixture; fixture = fixture->GetNext())
+    //     {
+    //         b2PolygonShape *b2_shape = (b2PolygonShape *)fixture->GetShape();
+    //         sf::ConvexShape screen_shape(b2_shape->GetVertexCount());
+    //         screen_shape.setOutlineColor(sf::Color::Green);
+    //         screen_shape.setOutlineThickness(0.02);
+    //         screen_shape.setFillColor(sf::Color::Transparent);
+    //         for (int i = 0; i < b2_shape->m_count; ++i)
+    //         {
+    //             b2Vec2 vertex_position = b2Mul(transform, b2_shape->GetVertex(i));
+    //             screen_shape.setPoint(i, sf::Vector2f(vertex_position.x, vertex_position.y));
+    //         }
+    //         render_target.draw(screen_shape);
+    //     }
 
-                // Circle
-                sf::CircleShape circle(0.1);
-                circle.setOrigin(0.1, 0.1);
-                if (module_link.linked)
-                {
-                    circle.setFillColor(sf::Color(0, 255, 0, 100));
-                }
-                else
-                {
-                    circle.setFillColor(sf::Color(125, 125, 125, 100));
-                }
-                circle.setPosition(link_transform.p.x, link_transform.p.y);
-                render_target.draw(circle);
+    //     // Draw module links
+    //     for (const auto &module : modules)
+    //     {
+    //         b2Transform module_transform = module->get_global_transform();
+    //         for (const auto &module_link : module->module_links)
+    //         {
+    //             // Transform
+    //             b2Transform link_transform = b2Mul(module_transform, module_link.transform);
 
-                // Direction line
-                sf::RectangleShape line(sf::Vector2f(0.02, -0.1));
-                line.setOrigin(0.01, 0);
-                line.setFillColor(sf::Color::Red);
-                line.setRotation(rad_to_deg(link_transform.q.GetAngle()));
-                line.setPosition(link_transform.p.x, link_transform.p.y);
-                render_target.draw(line);
-            }
-        }
-    }
+    //             // Circle
+    //             sf::CircleShape circle(0.1);
+    //             circle.setOrigin(0.1, 0.1);
+    //             if (module_link.linked)
+    //             {
+    //                 circle.setFillColor(sf::Color(0, 255, 0, 100));
+    //             }
+    //             else
+    //             {
+    //                 circle.setFillColor(sf::Color(125, 125, 125, 100));
+    //             }
+    //             circle.setPosition(link_transform.p.x, link_transform.p.y);
+    //             render_target.draw(circle);
+
+    //             // Direction line
+    //             sf::RectangleShape line(sf::Vector2f(0.02, -0.1));
+    //             line.setOrigin(0.01, 0);
+    //             line.setFillColor(sf::Color::Red);
+    //             line.setRotation(rad_to_deg(link_transform.q.GetAngle()));
+    //             line.setPosition(link_transform.p.x, link_transform.p.y);
+    //             render_target.draw(line);
+    //         }
+    //     }
+    // }
 }
 
 void TestAgent::update_body()

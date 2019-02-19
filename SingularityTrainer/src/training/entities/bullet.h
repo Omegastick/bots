@@ -15,7 +15,7 @@ class Bullet : public IDrawable, public ICollidable
     Bullet(b2Vec2 position, b2Vec2 velocity, b2World &world);
     ~Bullet();
 
-    virtual void draw(sf::RenderTarget &render_target, bool lightweight = false);
+    virtual RenderData get_render_data(bool lightweight = false);
     virtual void begin_contact(RigidBody *other);
     virtual void end_contact(RigidBody *other);
     void update();
@@ -25,8 +25,6 @@ class Bullet : public IDrawable, public ICollidable
     std::unique_ptr<RigidBody> rigid_body;
 
   private:
-    sf::CircleShape shape;
     b2Vec2 last_position;
-    sf::VertexArray trail;
 };
 }

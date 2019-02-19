@@ -25,7 +25,7 @@ class IAgent : public ICollidable
     virtual std::vector<float> get_observation() = 0;
     virtual void begin_contact(RigidBody *other) = 0;
     virtual void end_contact(RigidBody *other) = 0;
-    virtual std::unique_ptr<RenderData> get_render_data(bool lightweight = false) = 0;
+    virtual RenderData get_render_data(bool lightweight = false) = 0;
     virtual void update_body() = 0;
 
     std::vector<std::unique_ptr<IModule>> modules;

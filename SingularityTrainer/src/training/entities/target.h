@@ -1,7 +1,6 @@
 #pragma once
 
 #include <Box2D/Box2D.h>
-#include <SFML/Graphics.hpp>
 #include <memory>
 
 #include "graphics/idrawable.h"
@@ -17,14 +16,13 @@ class Target : public IDrawable, public ICollidable
     Target(float x, float y, b2World &world, IEnvironment &env);
     ~Target();
 
-    void draw(sf::RenderTarget &render_target, bool lightweight = false);
+    RenderData get_render_data(bool lightweight = false);
     void begin_contact(RigidBody *other);
     void end_contact(RigidBody *other);
 
     std::unique_ptr<RigidBody> rigid_body;
 
   private:
-    sf::CircleShape shape;
     IEnvironment &environment;
 };
 }
