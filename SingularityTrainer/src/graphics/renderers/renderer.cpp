@@ -60,7 +60,7 @@ void Renderer::draw(RenderData &render_data, const glm::mat4 &view, float time, 
         sprite_renderer.draw(sprite, view);
     }
 
-    particle_renderer.add_particles(render_data.particles);
+    particle_renderer.add_particles(render_data.particles, time);
     if (!lightweight)
     {
         particle_renderer.draw(time, view);

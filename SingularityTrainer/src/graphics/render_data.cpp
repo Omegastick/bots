@@ -1,5 +1,7 @@
 #include <vector>
 
+#include <spdlog/spdlog.h>
+
 #include "graphics/render_data.h"
 #include "graphics/sprite.h"
 

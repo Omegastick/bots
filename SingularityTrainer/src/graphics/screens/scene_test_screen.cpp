@@ -22,7 +22,7 @@ SceneTestScreen::SceneTestScreen(
     ResourceManager &resource_manager,
     std::vector<std::shared_ptr<IScreen>> *screens,
     std::vector<std::string> *screen_names)
-    : screens(screens), screen_names(screen_names), screen_manager(screen_manager), projection(glm::ortho(-9.6f, 9.6f, -5.4f, 5.4f))
+    : screens(screens), screen_names(screen_names), screen_manager(screen_manager), projection(glm::ortho(-9.6f, 9.6f, -5.4f, 5.4f)), random(0)
 {
     this->resource_manager = &resource_manager;
     resource_manager.load_texture("base_module", "images/base_module.png");
@@ -32,8 +32,10 @@ SceneTestScreen::SceneTestScreen(
     resource_manager.load_shader("texture", "shaders/texture.vert", "shaders/texture.frag");
 
     b2_world = std::make_unique<b2World>(b2Vec2(0, 0));
-    agent = std::make_unique<TestAgent>(resource_manager, *b2_world, nullptr);
+    agent = std::make_unique<TestAgent>(resource_manager, *b2_world, &random);
     agent->rigid_body->body->ApplyAngularImpulse(1, true);
+
+    agent->act({1, 1, 1, 1});
 }
 
 SceneTestScreen::~SceneTestScreen() {}
