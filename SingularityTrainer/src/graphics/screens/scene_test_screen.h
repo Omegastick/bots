@@ -12,6 +12,7 @@
 #include "resource_manager.h"
 #include "screen_manager.h"
 #include "training/agents/iagent.h"
+#include "random.h"
 
 namespace SingularityTrainer
 {
@@ -25,6 +26,7 @@ class SceneTestScreen : public IScreen
     glm::mat4 projection;
     std::unique_ptr<IAgent> agent;
     std::unique_ptr<b2World> b2_world;
+    Random random;
 
   public:
     SceneTestScreen(

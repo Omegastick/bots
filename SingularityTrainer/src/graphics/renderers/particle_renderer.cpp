@@ -18,6 +18,7 @@ ParticleRenderer::ParticleRenderer(int max_particles, ResourceManager &resource_
     particle_velocities.resize(max_particles);
     particle_start_times.resize(max_particles);
     particle_lives.resize(max_particles);
+    particle_sizes.resize(max_particles);
     particle_start_colors.resize(max_particles);
     particle_end_colors.resize(max_particles);
 
@@ -31,6 +32,7 @@ ParticleRenderer::ParticleRenderer(int max_particles, ResourceManager &resource_
     velocity_vertex_buffer = std::make_unique<VertexBuffer>(nullptr, max_particles * sizeof(glm::vec2), GL_STREAM_DRAW);
     start_time_vertex_buffer = std::make_unique<VertexBuffer>(nullptr, max_particles * sizeof(float), GL_STREAM_DRAW);
     life_vertex_buffer = std::make_unique<VertexBuffer>(nullptr, max_particles * sizeof(float), GL_STREAM_DRAW);
+    size_vertex_buffer = std::make_unique<VertexBuffer>(nullptr, max_particles * sizeof(float), GL_STREAM_DRAW);
     start_color_vertex_buffer = std::make_unique<VertexBuffer>(nullptr, max_particles * sizeof(glm::vec4), GL_STREAM_DRAW);
     end_color_vertex_buffer = std::make_unique<VertexBuffer>(nullptr, max_particles * sizeof(glm::vec4), GL_STREAM_DRAW);
 
@@ -65,27 +67,34 @@ ParticleRenderer::ParticleRenderer(int max_particles, ResourceManager &resource_
     glVertexAttribPointer(4, 1, GL_FLOAT, GL_FALSE, 0, (void *)0);
     glVertexAttribDivisor(4, 1);
 
-    // Set attribute pointer for start colors
-    start_color_vertex_buffer->bind();
+    // Set attribute pointer for sizes
+    size_vertex_buffer->bind();
     glEnableVertexAttribArray(5);
-    glVertexAttribPointer(5, 4, GL_FLOAT, GL_FALSE, 0, (void *)0);
+    glVertexAttribPointer(5, 1, GL_FLOAT, GL_FALSE, 0, (void *)0);
     glVertexAttribDivisor(5, 1);
 
-    // Set attribute pointer for end colors
-    end_color_vertex_buffer->bind();
+    // Set attribute pointer for start colors
+    start_color_vertex_buffer->bind();
     glEnableVertexAttribArray(6);
     glVertexAttribPointer(6, 4, GL_FLOAT, GL_FALSE, 0, (void *)0);
     glVertexAttribDivisor(6, 1);
+
+    // Set attribute pointer for end colors
+    end_color_vertex_buffer->bind();
+    glEnableVertexAttribArray(7);
+    glVertexAttribPointer(7, 4, GL_FLOAT, GL_FALSE, 0, (void *)0);
+    glVertexAttribDivisor(7, 1);
 }
 
-void ParticleRenderer::add_particles(std::vector<Particle> &particles)
+void ParticleRenderer::add_particles(std::vector<Particle> &particles, float time)
 {
     for (const auto &particle : particles)
     {
         particle_positions[current_particle_index] = particle.start_position;
         particle_velocities[current_particle_index] = particle.velocity;
         particle_lives[current_particle_index] = particle.lifetime;
-        particle_start_times[current_particle_index] = particle.start_time;
+        particle_sizes[current_particle_index] = particle.size;
+        particle_start_times[current_particle_index] = time + particle.start_time_offset;
         particle_start_colors[current_particle_index] = particle.start_color;
         particle_end_colors[current_particle_index] = particle.end_color;
         current_particle_index++;
@@ -104,6 +113,8 @@ void ParticleRenderer::draw(float time, glm::mat4 view)
     start_time_vertex_buffer->add_sub_data(&particle_start_times[0], 0, particle_count * sizeof(float));
     life_vertex_buffer->clear();
     life_vertex_buffer->add_sub_data(&particle_lives[0], 0, particle_count * sizeof(float));
+    size_vertex_buffer->clear();
+    size_vertex_buffer->add_sub_data(&particle_sizes[0], 0, particle_count * sizeof(float));
     start_color_vertex_buffer->clear();
     start_color_vertex_buffer->add_sub_data(&particle_start_colors[0], 0, particle_count * sizeof(glm::vec4));
     end_color_vertex_buffer->clear();

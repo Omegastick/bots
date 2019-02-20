@@ -10,8 +10,9 @@ struct Particle
 {
     glm::vec2 start_position;
     glm::vec2 velocity;
-    float start_time;
+    float start_time_offset;
     float lifetime;
+    float size;
     glm::vec4 start_color;
     glm::vec4 end_color;
 };

@@ -91,7 +91,8 @@ RenderData TestAgent::get_render_data(bool lightweight)
     RenderData render_data;
     for (const auto &module : modules)
     {
-        render_data.append(module->get_render_data(lightweight));
+        auto x = module->get_render_data(lightweight);
+        render_data.append(x);
     }
 
     return render_data;

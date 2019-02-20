@@ -43,20 +43,20 @@ void ParticleTestScreen::update(const float delta_time)
 {
     display_test_dialog("Particle test", *screens, *screen_names, delta_time, *screen_manager);
 
-    float time = glfwGetTime();
     std::vector<Particle> particles;
     for (int i = 0; i < 10; ++i)
     {
         Particle particle;
         particle.start_position = glm::vec2(960, 540);
         particle.velocity = glm::diskRand<float>(500);
-        particle.start_time = time + (float)i / 600;
+        particle.start_time_offset = (float)i / 600;
         particle.lifetime = 5;
+        particle.size = 1;
         particle.start_color = glm::vec4(1.0, 1.0, 1.0, 1.0);
         particle.end_color = glm::vec4(1.0, 1.0, 1.0, 0.0);
         particles.push_back(particle);
     }
-    particle_renderer.add_particles(particles);
+    particle_renderer.add_particles(particles, glfwGetTime());
 }
 
 void ParticleTestScreen::draw(Renderer &renderer, bool lightweight)
