@@ -20,7 +20,7 @@ LaserSensorModule::LaserSensorModule(ResourceManager &resource_manager, b2Body &
 {
     // Sprite
     sprite = std::make_unique<Sprite>("laser_sensor_module");
-    sprite->set_scale(glm::vec2(0.01, 0.01));
+    sprite->set_scale(glm::vec2(1, 0.5));
     sprite->set_origin(sprite->get_center());
     sprite->set_color(cl_white);
 
@@ -31,7 +31,7 @@ LaserSensorModule::LaserSensorModule(ResourceManager &resource_manager, b2Body &
     transform.SetIdentity();
 
     // Module links
-    module_links.push_back(ModuleLink(0, 0.25, 180, this));
+    module_links.push_back(ModuleLink(0, -0.25, 180, this));
 
     this->agent = agent;
 

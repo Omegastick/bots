@@ -2,16 +2,18 @@
 #include <memory>
 #include <string>
 
+#include <GLFW/glfw3.h>
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <spdlog/spdlog.h>
+#include <Box2D/Box2D.h>
 
 #include "graphics/screens/scene_test_screen.h"
 #include "graphics/screens/test_utils.h"
 #include "resource_manager.h"
 #include "screen_manager.h"
 #include "iscreen.h"
-#include "training/modules/base_module.h"
+#include "training/agents/test_agent.h"
 
 namespace SingularityTrainer
 {
@@ -20,7 +22,7 @@ SceneTestScreen::SceneTestScreen(
     ResourceManager &resource_manager,
     std::vector<std::shared_ptr<IScreen>> *screens,
     std::vector<std::string> *screen_names)
-    : screens(screens), screen_names(screen_names), screen_manager(screen_manager), projection(glm::ortho(0.f, 1920.f, 0.f, 1080.f))
+    : screens(screens), screen_names(screen_names), screen_manager(screen_manager), projection(glm::ortho(-9.6f, 9.6f, -5.4f, 5.4f))
 {
     this->resource_manager = &resource_manager;
     resource_manager.load_texture("base_module", "images/base_module.png");
@@ -28,6 +30,10 @@ SceneTestScreen::SceneTestScreen(
     resource_manager.load_texture("thruster_module", "images/thruster_module.png");
     resource_manager.load_texture("laser_sensor_module", "images/laser_sensor_module.png");
     resource_manager.load_shader("texture", "shaders/texture.vert", "shaders/texture.frag");
+
+    b2_world = std::make_unique<b2World>(b2Vec2(0, 0));
+    agent = std::make_unique<TestAgent>(resource_manager, *b2_world, nullptr);
+    agent->rigid_body->body->ApplyAngularImpulse(1, true);
 }
 
 SceneTestScreen::~SceneTestScreen() {}
@@ -35,12 +41,16 @@ SceneTestScreen::~SceneTestScreen() {}
 void SceneTestScreen::update(const float delta_time)
 {
     display_test_dialog("Scene test", *screens, *screen_names, delta_time, *screen_manager);
+    b2_world->Step(delta_time, 6, 4);
 }
 
 void SceneTestScreen::draw(Renderer &renderer, bool lightweight)
 {
     renderer.begin();
 
-        renderer.end();
+    auto render_data = agent->get_render_data();
+    renderer.draw(render_data, projection, glfwGetTime());
+
+    renderer.end();
 }
 }

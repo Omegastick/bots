@@ -1,7 +1,7 @@
 #include <vector>
 #include <algorithm>
 
-#include <glm/vec2.hpp>
+#include <glm/glm.hpp>
 
 #include "graphics/render_data.h"
 #include "training/modules/imodule.h"
@@ -39,7 +39,8 @@ RenderData IModule::get_render_data(bool lightweight)
     b2Transform world_transform = get_global_transform();
     glm::vec2 screen_position(world_transform.p.x, world_transform.p.y);
     sprite->set_position(screen_position);
-    sprite->set_rotation(world_transform.q.GetAngle());
+    auto rotation = world_transform.q.GetAngle();
+    sprite->set_rotation(rotation);
 
     return RenderData{{*sprite}};
 }

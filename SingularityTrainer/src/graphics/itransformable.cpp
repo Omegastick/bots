@@ -22,9 +22,9 @@ void ITransformable::set_position(const glm::vec2 &position)
 
 void ITransformable::set_rotation(float angle)
 {
-    rotation = static_cast<float>(fmod(angle, 360));
+    rotation = static_cast<float>(fmod(angle, glm::radians(360.f)));
     if (rotation < 0)
-        rotation += 360.f;
+        rotation += glm::radians(360.f);
 
     transform_needs_update = true;
 }

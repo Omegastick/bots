@@ -16,8 +16,8 @@ namespace SingularityTrainer
 BaseModule::BaseModule(ResourceManager &resource_manager, b2Body &body, IAgent *agent)
 {
     // Sprite
-    sprite->set_texture("base_module");
-    sprite->set_scale(glm::vec2(0.01, 0.01));
+    sprite = std::make_unique<Sprite>("base_module");
+    sprite->set_scale(glm::vec2(1, 1));
     sprite->set_origin(sprite->get_center());
     sprite->set_color(cl_white);
 
@@ -28,9 +28,9 @@ BaseModule::BaseModule(ResourceManager &resource_manager, b2Body &body, IAgent *
     transform.SetIdentity();
 
     // Module links
-    module_links.push_back(ModuleLink(0, -0.5, 0, this));
+    module_links.push_back(ModuleLink(0, 0.5, 0, this));
     module_links.push_back(ModuleLink(0.5, 0, 90, this));
-    module_links.push_back(ModuleLink(0, 0.5, 180, this));
+    module_links.push_back(ModuleLink(0, -0.5, 180, this));
     module_links.push_back(ModuleLink(-0.5, 0, 270, this));
 
     root = this;
