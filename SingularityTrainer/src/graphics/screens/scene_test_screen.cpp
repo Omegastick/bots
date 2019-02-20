@@ -22,28 +22,38 @@ SceneTestScreen::SceneTestScreen(
     ResourceManager &resource_manager,
     std::vector<std::shared_ptr<IScreen>> *screens,
     std::vector<std::string> *screen_names)
-    : screens(screens), screen_names(screen_names), screen_manager(screen_manager), projection(glm::ortho(-9.6f, 9.6f, -5.4f, 5.4f)), random(0)
+    : screens(screens),
+      screen_names(screen_names),
+      screen_manager(screen_manager),
+      projection(glm::ortho(-9.6f, 9.6f, -5.4f, 5.4f)),
+      random(0),
+      elapsed_time(0)
 {
     this->resource_manager = &resource_manager;
     resource_manager.load_texture("base_module", "images/base_module.png");
     resource_manager.load_texture("gun_module", "images/gun_module.png");
     resource_manager.load_texture("thruster_module", "images/thruster_module.png");
     resource_manager.load_texture("laser_sensor_module", "images/laser_sensor_module.png");
+    resource_manager.load_texture("bullet", "images/bullet.png");
     resource_manager.load_shader("texture", "shaders/texture.vert", "shaders/texture.frag");
 
     b2_world = std::make_unique<b2World>(b2Vec2(0, 0));
     agent = std::make_unique<TestAgent>(resource_manager, *b2_world, &random);
     agent->rigid_body->body->ApplyAngularImpulse(1, true);
-
-    agent->act({1, 1, 1, 1});
 }
 
 SceneTestScreen::~SceneTestScreen() {}
 
 void SceneTestScreen::update(const float delta_time)
 {
+    elapsed_time += delta_time;
     display_test_dialog("Scene test", *screens, *screen_names, delta_time, *screen_manager);
     b2_world->Step(delta_time, 6, 4);
+    if (elapsed_time >= 1.f / 10.f)
+    {
+        elapsed_time = 0;
+        agent->act({1, 1, 1, 1});
+    }
 }
 
 void SceneTestScreen::draw(Renderer &renderer, bool lightweight)

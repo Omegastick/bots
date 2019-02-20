@@ -27,6 +27,7 @@ class SceneTestScreen : public IScreen
     std::unique_ptr<IAgent> agent;
     std::unique_ptr<b2World> b2_world;
     Random random;
+    float elapsed_time;
 
   public:
     SceneTestScreen(

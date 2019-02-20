@@ -1,8 +1,10 @@
 #pragma once
 
-#include <Box2D/Box2D.h>
-#include <SFML/Graphics.hpp>
+#include <memory>
 
+#include <Box2D/Box2D.h>
+
+#include "graphics/sprite.h"
 #include "graphics/idrawable.h"
 #include "training/icollidable.h"
 #include "training/rigid_body.h"
@@ -11,6 +13,10 @@ namespace SingularityTrainer
 {
 class Bullet : public IDrawable, public ICollidable
 {
+  private:
+    b2Vec2 last_position;
+    std::unique_ptr<Sprite> sprite;
+
   public:
     Bullet(b2Vec2 position, b2Vec2 velocity, b2World &world);
     ~Bullet();
@@ -23,8 +29,5 @@ class Bullet : public IDrawable, public ICollidable
     bool destroyed;
     int life;
     std::unique_ptr<RigidBody> rigid_body;
-
-  private:
-    b2Vec2 last_position;
 };
 }

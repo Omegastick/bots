@@ -43,11 +43,12 @@ GunModule::~GunModule() {}
 
 RenderData GunModule::get_render_data(bool lightweight)
 {
-    return IModule::get_render_data(lightweight);
-    // for (const auto &bullet : bullets)
-    // {
-    //     bullet->draw(render_target, lightweight);
-    // }
+    auto render_data = IModule::get_render_data(lightweight);
+    for (const auto &bullet : bullets)
+    {
+        render_data.append(bullet->get_render_data(lightweight));
+    }
+    return render_data;
 }
 
 void GunModule::activate()
@@ -56,8 +57,8 @@ void GunModule::activate()
     {
         steps_since_last_shot = 0;
         b2Transform global_transform = get_global_transform();
-        b2Vec2 velocity = b2Mul(global_transform.q, b2Vec2(0, -100));
-        b2Vec2 offset = b2Mul(global_transform.q, b2Vec2(0, -0.7));
+        b2Vec2 velocity = b2Mul(global_transform.q, b2Vec2(0, 100));
+        b2Vec2 offset = b2Mul(global_transform.q, b2Vec2(0, 0.7));
         bullets.push_back(std::make_unique<Bullet>(global_transform.p + offset, velocity, *agent->rigid_body->body->GetWorld()));
     }
 }
