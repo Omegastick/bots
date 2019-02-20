@@ -19,8 +19,9 @@ struct Particle
 class RenderData
 {
   public:
-    void append(const std::vector<Sprite> &sprites, const std::vector<Particle> &particles);
     void append(const RenderData &render_data);
+    void append(const std::vector<Sprite> &sprites);
+    void append(const std::vector<Particle> &particles);
 
     std::vector<Sprite> sprites;
     std::vector<Particle> particles;

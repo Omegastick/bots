@@ -17,7 +17,7 @@ GunModule::GunModule(ResourceManager &resource_manager, b2Body &body, IAgent *ag
 {
     // Sprite
     sprite = std::make_unique<Sprite>("gun_module");
-    sprite->set_scale(glm::vec2(0.01, 0.01));
+    sprite->set_scale(glm::vec2(1, 1));
     sprite->set_origin(sprite->get_center());
 
     // Box2D fixture
@@ -30,9 +30,9 @@ GunModule::GunModule(ResourceManager &resource_manager, b2Body &body, IAgent *ag
     transform.SetIdentity();
 
     // Module links
-    module_links.push_back(ModuleLink(0.5, 0.167, 90, this));
-    module_links.push_back(ModuleLink(0, 0.5, 180, this));
-    module_links.push_back(ModuleLink(-0.5, 0.167, 270, this));
+    module_links.push_back(ModuleLink(0.5, -0.167, 90, this));
+    module_links.push_back(ModuleLink(0, -0.5, 180, this));
+    module_links.push_back(ModuleLink(-0.5, -0.167, 270, this));
 
     actions.push_back(std::make_unique<ActivateAction>(this));
 

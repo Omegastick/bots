@@ -5,12 +5,13 @@
 #include <string>
 
 #include <glm/glm.hpp>
+#include <Box2D/Box2D.h>
 
 #include "iscreen.h"
 #include "graphics/renderers/renderer.h"
 #include "resource_manager.h"
 #include "screen_manager.h"
-#include "training/modules/imodule.h"
+#include "training/agents/iagent.h"
 
 namespace SingularityTrainer
 {
@@ -22,6 +23,8 @@ class SceneTestScreen : public IScreen
     ScreenManager *screen_manager;
     ResourceManager *resource_manager;
     glm::mat4 projection;
+    std::unique_ptr<IAgent> agent;
+    std::unique_ptr<b2World> b2_world;
 
   public:
     SceneTestScreen(

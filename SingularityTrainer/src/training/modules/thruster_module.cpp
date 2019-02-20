@@ -17,7 +17,7 @@ ThrusterModule::ThrusterModule(ResourceManager &resource_manager, b2Body &body, 
 {
     // Sprite
     sprite = std::make_unique<Sprite>("thruster_module");
-    sprite->set_scale(glm::vec2(0.01, 0.01));
+    sprite->set_scale(glm::vec2(1, 0.333));
     sprite->set_origin(sprite->get_center());
 
     // Box2D fixture
@@ -32,7 +32,7 @@ ThrusterModule::ThrusterModule(ResourceManager &resource_manager, b2Body &body, 
     transform.SetIdentity();
 
     // Module links
-    module_links.push_back(ModuleLink(0, -0.167, 0, this));
+    module_links.push_back(ModuleLink(0, 0.167, 0, this));
 
     actions.push_back(std::make_unique<ActivateAction>(this));
 
