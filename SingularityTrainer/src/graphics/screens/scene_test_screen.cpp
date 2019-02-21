@@ -53,6 +53,7 @@ void SceneTestScreen::update(const float delta_time)
     {
         elapsed_time = 0;
         agent->act({1, 1, 1, 1});
+        agent->get_observation();
     }
 }
 
