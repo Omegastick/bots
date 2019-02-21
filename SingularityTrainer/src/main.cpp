@@ -1,106 +1,79 @@
-#include <SFML/Graphics.hpp>
-#include <SFML/Window.hpp>
-#include <Thor/Input.hpp>
+#include <GLFW/glfw3.h>
+#include <spdlog/spdlog.h>
 
-#include "communicator.h"
+#include "graphics/window.h"
 #include "graphics/colors.h"
-#include "input.h"
+#include "graphics/renderers/renderer.h"
+#include "communicator.h"
 #include "random.h"
 #include "requests.h"
 #include "screen_manager.h"
 #include "screens/target_env_screen.h"
-#include "test_screen/test_screen.h"
 
 using namespace SingularityTrainer;
 
-void on_window_resize(thor::ActionContext<Inputs> context)
+const int resolution_x = 1920;
+const int resolution_y = 1080;
+const std::string window_title = "Singularity Trainer";
+const int opengl_version_major = 4;
+const int opengl_version_minor = 3;
+
+void error_callback(int error, const char *description)
 {
-    sf::RenderWindow *window = static_cast<sf::RenderWindow *>(context.window);
-    sf::View view = window->getView();
-    sf::Vector2u window_size = context.window->getSize();
+    spdlog::error("GLFW error: [{}] {}", error, description);
+}
 
-    float window_ratio = window_size.x / (float)window_size.y;
-    float view_ratio = view.getSize().x / (float)view.getSize().y;
-    float size_x = 1;
-    float size_y = 1;
-    float pos_x = 0;
-    float pos_y = 0;
+void resize_window_callback(GLFWwindow *glfw_window, int x, int y)
+{
+    spdlog::debug("Resizing window to {}x{}", x, y);
+    glViewport(0, 0, x, y);
 
-    bool horizontal_spacing = true;
-    if (window_ratio < view_ratio)
-        horizontal_spacing = false;
-
-    if (horizontal_spacing)
-    {
-        size_x = view_ratio / window_ratio;
-        pos_x = (1 - size_x) / 2.f;
-    }
-    else
-    {
-        size_y = window_ratio / view_ratio;
-        pos_y = (1 - size_y) / 2.f;
-    }
-
-    view.setViewport(sf::FloatRect(pos_x, pos_y, size_x, size_y));
-
-    window->setView(view);
+    Window *window = static_cast<Window *>(glfwGetWindowUserPointer(glfw_window));
+    window->get_renderer().resize(x, y);
 }
 
 int main(int argc, const char *argv[])
 {
-    sf::RenderWindow window(sf::VideoMode(1920, 1080), "Singularity Trainer", sf::Style::Default);
-    window.setFramerateLimit(60);
-    sf::View view(sf::FloatRect(0, 0, 1920, 1080));
-    window.setView(view);
+    // Logging
+    spdlog::set_level(spdlog::level::debug);
+    spdlog::set_pattern("%^[%T %7l] %v%$");
+    glfwSetErrorCallback(error_callback);
 
-    sf::Event event;
-    sf::Clock frame_clock;
-
-    thor::ActionMap<Inputs> action_map;
-    action_map[Inputs::Quit] = thor::Action(sf::Event::Closed);
-    action_map[Inputs::ResizeWindow] = thor::Action(sf::Event::Resized);
-    thor::ActionMap<Inputs>::CallbackSystem input_callback_system;
-    input_callback_system.connect(Inputs::ResizeWindow, std::function<void(thor::ActionContext<Inputs>)>(on_window_resize));
+    // Create window
+    Window window = Window(resolution_x, resolution_y, window_title, opengl_version_major, opengl_version_minor);
 
     ScreenManager screen_manager;
-    ResourceManager resource_manager = ResourceManager("SingularityTrainer/assets/");
-    std::unique_ptr<Communicator> communicator = std::make_unique<Communicator>("tcp://127.0.0.1:10201");
-    std::unique_ptr<Random> rng = std::make_unique<Random>(1);
+    ResourceManager resource_manager("SingularityTrainer/assets/");
+    Communicator communicator("tcp://127.0.0.1:10201");
+    Random rng(1);
+    Renderer renderer(1920, 1080, resource_manager);
 
-    std::shared_ptr<TargetEnvScreen> test_screen = std::make_shared<TargetEnvScreen>(resource_manager, communicator.get(), rng.get(), 7);
-    // std::shared_ptr<TestScreen> test_screen = std::make_shared<TestScreen>(resource_manager, communicator.get(), 7);
+    std::shared_ptr<TargetEnvScreen> test_screen = std::make_shared<TargetEnvScreen>(resource_manager, &communicator, &rng, 7);
     screen_manager.show_screen(test_screen);
 
-    frame_clock.restart();
-    while (window.isOpen())
+    float time = glfwGetTime();
+
+    while (!window.should_close())
     {
         /*
          *  Input
          */
-        action_map.update(window);
-        action_map.invokeCallbacks(input_callback_system, &window);
-        if (action_map.isActive(Inputs::Quit))
-        {
-            while (screen_manager.stack_size() > 0)
-            {
-                screen_manager.close_screen();
-                std::cout << screen_manager.stack_size() << std::endl;
-            }
-            window.close();
-            break;
-        }
+        glfwPollEvents();
 
         /*
          *  Update
          */
-        screen_manager.update(frame_clock.restart(), window, action_map);
+        float new_time = glfwGetTime();
+        float delta_time = new_time - time;
+        time = new_time;
+
+        screen_manager.update(delta_time);
 
         /*
          *  Draw
          */
-        window.clear(cl_background);
-        screen_manager.draw(window);
-        window.display();
+        screen_manager.draw(renderer);
+        window.swap_buffers();
     }
 
     return 0;

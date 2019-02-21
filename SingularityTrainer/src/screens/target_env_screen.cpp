@@ -1,7 +1,7 @@
-#include <SFML/Graphics.hpp>
-#include <SFML/System.hpp>
-#include <Thor/Input.hpp>
 #include <memory>
+
+#include <glm/mat4x4.hpp>
+#include <glm/gtc/matrix_transform.hpp>
 
 #include "communicator.h"
 #include "graphics/colors.h"
@@ -14,19 +14,17 @@
 namespace SingularityTrainer
 {
 TargetEnvScreen::TargetEnvScreen(ResourceManager &resource_manager, Communicator *communicator, Random *rng, int env_count)
-    : lightweight_rendering(false)
+    : lightweight_rendering(false), projection(glm::ortho(0.f, 19.2f, 0.f, 10.8f))
 {
     trainer = std::make_unique<QuickTrainer>(resource_manager, communicator, rng, env_count);
 
-    resource_manager.load_shader("crt", "shaders/crt.frag");
-    shader = resource_manager.shader_store.get("crt");
-    shader->setUniform("texture", sf::Shader::CurrentTexture);
-    shader->setUniform("resolution", sf::Vector2f(1920, 1080));
-    shader->setUniform("output_gamma", 1.1f);
-    shader->setUniform("strength", 0.3f);
-    shader->setUniform("distortion_factor", 0.08f);
-
-    texture.create(1920, 1080);
+    // resource_manager.load_shader("crt", "shaders/crt.frag");
+    // shader = resource_manager.shader_store.get("crt");
+    // shader->setUniform("texture", sf::Shader::CurrentTexture);
+    // shader->setUniform("resolution", sf::Vector2f(1920, 1080));
+    // shader->setUniform("output_gamma", 1.1f);
+    // shader->setUniform("strength", 0.3f);
+    // shader->setUniform("distortion_factor", 0.08f);
 
     trainer->begin_training();
 }
@@ -36,29 +34,27 @@ TargetEnvScreen::~TargetEnvScreen()
     trainer->end_training();
 }
 
-void TargetEnvScreen::update(const sf::Time &delta_time, const sf::Vector2f &mouse_position, const thor::ActionMap<Inputs> &action_map)
+void TargetEnvScreen::update(const float delta_time)
 {
-    if (sf::Keyboard::isKeyPressed(sf::Keyboard::Space))
+    // if (sf::Keyboard::isKeyPressed(sf::Keyboard::Space))
     {
         lightweight_rendering = false;
         trainer->slow_step();
     }
-    else
-    {
-        lightweight_rendering = true;
-        trainer->step();
-    }
+    // else
+    // {
+    //     lightweight_rendering = true;
+    //     trainer->step();
+    // }
 }
 
-void TargetEnvScreen::get_render_data(bool lightweight)
+void TargetEnvScreen::draw(Renderer &renderer, bool lightweight)
 {
-    texture.clear(cl_background);
+    renderer.begin();
 
-    trainer->environments[0]->draw(texture, lightweight_rendering);
+    auto render_data = trainer->environments[0]->get_render_data(lightweight_rendering);
+    renderer.draw(render_data);
 
-    texture.display();
-    sf::Vector2u resolution = render_target.getSize();
-    shader->setUniform("resolution", sf::Vector2f(resolution.x, resolution.y));
-    render_target.draw(sf::Sprite(texture.getTexture()), shader.get());
+    renderer.end();
 }
 }
