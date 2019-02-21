@@ -42,22 +42,23 @@ RenderData Bullet::get_render_data(bool lightweight)
     if (!destroyed)
     {
         b2Vec2 position = rigid_body->body->GetPosition();
-        b2Vec2 velocity = rigid_body->body->GetLinearVelocity();
-        velocity.Normalize();
-        velocity *= 0.1;
 
         // Body
         sprite->set_position(glm::vec2(position.x, position.y));
         render_data.sprites.push_back(*sprite);
 
-        // // Trail
-        // if (last_position.x != b2Vec2_zero.x || last_position.y != b2Vec2_zero.y)
-        // {
-        //     trail[0].position = sf::Vector2f(last_position.x, last_position.y);
-        //     trail[1].position = sf::Vector2f(position.x + velocity.y, position.y - velocity.x);
-        //     trail[2].position = sf::Vector2f(position.x - velocity.y, position.y + velocity.x);
-        //     render_target.draw(trail);
-        // }
+        // Trail
+        if (last_position.x != b2Vec2_zero.x || last_position.y != b2Vec2_zero.y)
+        {
+            Line trail;
+            trail.points.push_back({position.x, position.y});
+            trail.widths.push_back(0.1);
+            trail.colors.push_back({1.0, 1.0, 1.0, 1.0});
+            trail.points.push_back({last_position.x, last_position.y});
+            trail.widths.push_back(0);
+            trail.colors.push_back({1.0, 1.0, 1.0, 0.0});
+            render_data.lines.push_back(trail);
+        }
 
         last_position = position;
     }
