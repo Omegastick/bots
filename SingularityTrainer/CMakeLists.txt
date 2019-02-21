@@ -20,7 +20,7 @@ set(CMAKE_CXX_STANDARD 14)
 set(CMAKE_CXX_FLAGS_RELEASE -O3)
 
 # Executable
-add_executable(SingularityTrainer EXCLUDE_FROM_ALL "")
+add_executable(SingularityTrainer "")
 add_executable(GraphicsPlayground "")
 
 # Libraries
@@ -47,7 +47,7 @@ add_subdirectory(${IMGUI_DIR})
 find_package(SFML 2.5 REQUIRED audio graphics window system)
 find_package(cppzmq)
 find_package(Box2D)
-target_link_libraries(SingularityTrainer sfml-graphics sfml-window sfml-system cppzmq Box2D thor)
+target_link_libraries(SingularityTrainer glad glfw ${GLFW_LIBRARIES} glm imgui cppzmq Box2D)
 if (UNIX)
     # UNIX systems sometimes need to explicitly link the threading library
     target_link_libraries(SingularityTrainer pthread)
@@ -55,7 +55,15 @@ endif()
 target_link_libraries(GraphicsPlayground glad glfw ${GLFW_LIBRARIES} glm imgui Box2D)
 
 # Inlcudes
-target_include_directories(SingularityTrainer PUBLIC src)
+target_include_directories(SingularityTrainer PUBLIC 
+    src
+    ${GLAD_DIR}/include 
+    ${GLFW_DIR}/include 
+    ${GLM_DIR} 
+    ${SPDLOG_DIR}/include
+    ${IMGUI_DIR}
+    ${IMGUI_DIR}/examples
+)
 target_include_directories(GraphicsPlayground 
 PUBLIC 
     src 

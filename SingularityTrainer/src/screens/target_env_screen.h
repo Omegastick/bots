@@ -1,10 +1,10 @@
 #pragma once
 
-#include <SFML/Graphics.hpp>
-#include <SFML/System.hpp>
-#include <Thor/Input.hpp>
 #include <memory>
 
+#include <glm/mat4x4.hpp>
+
+#include "graphics/render_data.h"
 #include "communicator.h"
 #include "iscreen.h"
 #include "random.h"
@@ -16,17 +16,16 @@ namespace SingularityTrainer
 {
 class TargetEnvScreen : public IScreen
 {
+  private:
+    std::unique_ptr<ITrainer> trainer;
+    bool lightweight_rendering;
+    glm::mat4 projection;
+
   public:
     TargetEnvScreen(ResourceManager &resource_manager, Communicator *communicator, Random *rng, int env_count);
     ~TargetEnvScreen();
 
-    RenderData get_render_data(bool lightweight = false);
-    void update(const sf::Time &delta_time, const sf::Vector2f &mouse_position, const thor::ActionMap<Inputs> &action_map);
-
-  private:
-    std::unique_ptr<ITrainer> trainer;
-    std::shared_ptr<sf::Shader> shader;
-    sf::RenderTexture texture;
-    bool lightweight_rendering;
+    virtual void draw(Renderer &renderer, bool lightweight = false);
+    void update(const float delta_time);
 };
 }

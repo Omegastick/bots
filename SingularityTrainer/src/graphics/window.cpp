@@ -142,7 +142,7 @@ Window::Window(int x, int y, std::string title, int opengl_major_version, int op
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     glEnable(GL_MULTISAMPLE);
-    glfwSwapInterval(0);
+    // glfwSwapInterval(0);
     glfwSetWindowUserPointer(window, this);
 
     spdlog::debug("Actual OpenGL version: {}", glGetString(GL_VERSION));
