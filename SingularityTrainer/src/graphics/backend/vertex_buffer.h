@@ -20,5 +20,7 @@ class VertexBuffer
     void clear() const;
     void add_data(const void *data, unsigned int size, unsigned int usage_mode = GL_STATIC_DRAW);
     void add_sub_data(const void *data, unsigned int start_location, unsigned int size);
+
+    inline int get_id() const { return id; }
 };
 }

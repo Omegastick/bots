@@ -24,7 +24,7 @@ class Shader
     void set_uniform_1f(const std::string &name, float value);
     void set_uniform_2f(const std::string &name, glm::vec2 value);
     void set_uniform_4f(const std::string &name, glm::vec4 value);
-    void set_uniform_mat4f(const std::string &name, glm::mat4 &value);
+    void set_uniform_mat4f(const std::string &name, const glm::mat4 &value);
     int get_uniform_location(const std::string &name);
 
     unsigned int program;

@@ -9,6 +9,7 @@
 #include "graphics/colors.h"
 #include "graphics/renderers/sprite_renderer.h"
 #include "graphics/renderers/particle_renderer.h"
+#include "graphics/renderers/line_renderer.h"
 #include "graphics/backend/vertex_array.h"
 #include "graphics/backend/shader.h"
 #include "graphics/backend/element_buffer.h"
@@ -25,6 +26,7 @@ class Renderer
     int width, height;
     SpriteRenderer sprite_renderer;
     ParticleRenderer particle_renderer;
+    LineRenderer line_renderer;
     std::vector<PostProcLayer *> post_proc_layers;
     std::unique_ptr<FrameBuffer> base_frame_buffer;
     std::unique_ptr<FrameBuffer> texture_frame_buffer;
