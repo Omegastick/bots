@@ -6,4 +6,5 @@ PUBLIC
     ${CMAKE_CURRENT_LIST_DIR}/post_proc_screen.cpp
     ${CMAKE_CURRENT_LIST_DIR}/particle_test_screen.cpp
     ${CMAKE_CURRENT_LIST_DIR}/scene_test_screen.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/line_test_screen.cpp
 )

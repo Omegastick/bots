@@ -25,4 +25,11 @@ void ElementBuffer::unbind() const
 {
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 }
+
+void ElementBuffer::set_data(const void *data, const unsigned int count)
+{
+    this->count = count;
+    bind();
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, count * sizeof(unsigned int), data, GL_STATIC_DRAW);
+}
 }

@@ -17,9 +17,15 @@ void RenderData::append(const std::vector<Particle> &particles)
     this->particles.insert(this->particles.end(), particles.begin(), particles.end());
 }
 
+void RenderData::append(const std::vector<Line> &lines)
+{
+    this->lines.insert(this->lines.end(), lines.begin(), lines.end());
+}
+
 void RenderData::append(const RenderData &render_data)
 {
     append(render_data.sprites);
     append(render_data.particles);
+    append(render_data.lines);
 }
 }
