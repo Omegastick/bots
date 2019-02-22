@@ -75,6 +75,7 @@ void Bullet::end_contact(RigidBody *other) {}
 
 void Bullet::update()
 {
-    destroyed = --life <= 0;
+    --life;
+    destroyed = destroyed || life <= 0;
 }
 }
