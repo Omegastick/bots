@@ -1,4 +1,4 @@
-target_sources(GraphicsPlayground
+target_sources(Graphics
 PUBLIC
     ${CMAKE_CURRENT_LIST_DIR}/quad_screen.cpp
     ${CMAKE_CURRENT_LIST_DIR}/texture_test_screen.cpp

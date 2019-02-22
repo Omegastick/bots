@@ -1,9 +1,9 @@
 #pragma once
 
-#include <Box2D/Box2D.h>
-#include <SFML/Graphics.hpp>
 #include <memory>
 #include <vector>
+
+#include <Box2D/Box2D.h>
 
 #include "resource_manager.h"
 #include "training/actions/iaction.h"

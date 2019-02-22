@@ -80,7 +80,8 @@ TargetEnv::TargetEnv(ResourceManager &resource_manager, float x, float y, float 
       reward(0),
       step_counter(0),
       done(false),
-      rng(seed)
+      rng(seed),
+      elapsed_time(0)
 {
     // Box2D world
     world = std::make_unique<b2World>(b2Vec2(0, 0));
@@ -107,6 +108,11 @@ TargetEnv::~TargetEnv()
     command_queue_flag++;
     thread->join();
 };
+
+float TargetEnv::get_elapsed_time() const
+{
+    return elapsed_time;
+}
 
 void TargetEnv::start_thread()
 {
@@ -195,6 +201,7 @@ void TargetEnv::thread_loop()
 
             // Step simulation
             world->Step(command.step_length, 3, 2);
+            elapsed_time += command.step_length;
 
             // Max episode length
             step_counter++;
@@ -221,6 +228,7 @@ void TargetEnv::thread_loop()
             break;
         case Commands::Forward:
             world->Step(command.step_length, 3, 2);
+            elapsed_time += command.step_length;
             break;
         case Commands::Reset:
             done = false;

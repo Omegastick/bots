@@ -1,14 +1,4 @@
-target_sources(SingularityTrainer
-PUBLIC
-    ${CMAKE_CURRENT_LIST_DIR}/module_link.cpp
-    ${CMAKE_CURRENT_LIST_DIR}/imodule.cpp
-    ${CMAKE_CURRENT_LIST_DIR}/base_module.cpp
-    ${CMAKE_CURRENT_LIST_DIR}/gun_module.cpp
-    ${CMAKE_CURRENT_LIST_DIR}/thruster_module.cpp
-    ${CMAKE_CURRENT_LIST_DIR}/laser_sensor_module.cpp
-)
-
-target_sources(GraphicsPlayground
+target_sources(Training
 PUBLIC
     ${CMAKE_CURRENT_LIST_DIR}/module_link.cpp
     ${CMAKE_CURRENT_LIST_DIR}/imodule.cpp

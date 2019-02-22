@@ -19,11 +19,13 @@ endif()
 set(CMAKE_CXX_STANDARD 14)
 set(CMAKE_CXX_FLAGS_RELEASE -O3)
 
-# Executable
+# Executables and loca libraries
 add_executable(SingularityTrainer "")
 add_executable(GraphicsPlayground "")
+add_library(Training STATIC "")
+add_library(Graphics STATIC "")
 
-# Libraries
+# Libraries included in repository
 ## GLFW
 set(GLFW_BUILD_EXAMPLES OFF CACHE INTERNAL "Build the GLFW example programs")
 set(GLFW_BUILD_TESTS OFF CACHE INTERNAL "Build the GLFW test programs")
@@ -43,19 +45,21 @@ add_subdirectory(${SPDLOG_DIR})
 ## imgui
 add_subdirectory(${IMGUI_DIR})
 
-# Libraries
-find_package(SFML 2.5 REQUIRED audio graphics window system)
+# Libraries not included in repository
 find_package(cppzmq)
 find_package(Box2D)
-target_link_libraries(SingularityTrainer glad glfw ${GLFW_LIBRARIES} glm imgui cppzmq Box2D)
+
+# Link libraries
+target_link_libraries(Training cppzmq)
+target_link_libraries(SingularityTrainer Training Graphics glad glfw ${GLFW_LIBRARIES} glm imgui cppzmq Box2D)
 if (UNIX)
     # UNIX systems sometimes need to explicitly link the threading library
     target_link_libraries(SingularityTrainer pthread)
 endif()
-target_link_libraries(GraphicsPlayground glad glfw ${GLFW_LIBRARIES} glm imgui Box2D)
+target_link_libraries(GraphicsPlayground Training Graphics glad glfw ${GLFW_LIBRARIES} glm imgui Box2D)
 
 # Inlcudes
-target_include_directories(SingularityTrainer PUBLIC 
+set(INCLUDE_DIRS
     src
     ${GLAD_DIR}/include 
     ${GLFW_DIR}/include 
@@ -64,15 +68,9 @@ target_include_directories(SingularityTrainer PUBLIC
     ${IMGUI_DIR}
     ${IMGUI_DIR}/examples
 )
-target_include_directories(GraphicsPlayground 
-PUBLIC 
-    src 
-    ${GLAD_DIR}/include 
-    ${GLFW_DIR}/include 
-    ${GLM_DIR} 
-    ${SPDLOG_DIR}/include
-    ${IMGUI_DIR}
-    ${IMGUI_DIR}/examples
-)
+target_include_directories(SingularityTrainer PUBLIC ${INCLUDE_DIRS})
+target_include_directories(GraphicsPlayground PUBLIC ${INCLUDE_DIRS})
+target_include_directories(Training PUBLIC ${INCLUDE_DIRS})
+target_include_directories(Graphics PUBLIC ${INCLUDE_DIRS})
 
 add_subdirectory(src)

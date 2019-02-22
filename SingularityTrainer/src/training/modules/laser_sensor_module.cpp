@@ -1,6 +1,8 @@
-#include <Box2D/Box2D.h>
 #include <memory>
 #include <vector>
+
+#include <Box2D/Box2D.h>
+#include <glm/glm.hpp>
 
 #include "graphics/colors.h"
 #include "resource_manager.h"
@@ -53,7 +55,7 @@ std::vector<float> LaserSensorModule::get_sensor_reading()
     {
         ClosestRaycastCallback raycast_callback;
 
-        b2Rot angle(deg_to_rad((segment_width * i) - (fov / 2)));
+        b2Rot angle(glm::radians((segment_width * i) - (fov / 2)));
         b2Vec2 laser = b2Mul(angle, b2Vec2(0, laser_length));
 
         agent->rigid_body->body->GetWorld()->RayCast(&raycast_callback, global_transform.p, b2Mul(global_transform, laser));
@@ -89,7 +91,7 @@ RenderData LaserSensorModule::get_render_data(bool lightweight)
             if (last_reading[i] < 1)
             {
                 Line line;
-                b2Rot angle(deg_to_rad((segment_width * i) - (fov / 2)));
+                b2Rot angle(glm::radians((segment_width * i) - (fov / 2)));
                 b2Vec2 laser = b2Mul(angle, b2Vec2(0, last_reading[i] * laser_length));
                 b2Vec2 laser_start = b2Mul(angle, b2Vec2(0, 0.35));
                 b2Vec2 transformed_end = b2Mul(global_transform, laser);

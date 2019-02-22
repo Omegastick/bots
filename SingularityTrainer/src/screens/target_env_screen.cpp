@@ -14,9 +14,15 @@
 namespace SingularityTrainer
 {
 TargetEnvScreen::TargetEnvScreen(ResourceManager &resource_manager, Communicator *communicator, Random *rng, int env_count)
-    : lightweight_rendering(false), projection(glm::ortho(0.f, 19.2f, 0.f, 10.8f))
+    : lightweight_rendering(false), projection(glm::ortho(0.f, 1920.f, 0.f, 1080.f))
 {
     trainer = std::make_unique<QuickTrainer>(resource_manager, communicator, rng, env_count);
+
+    resource_manager.load_texture("base_module", "images/base_module.png");
+    resource_manager.load_texture("gun_module", "images/gun_module.png");
+    resource_manager.load_texture("thruster_module", "images/thruster_module.png");
+    resource_manager.load_texture("laser_sensor_module", "images/laser_sensor_module.png");
+    resource_manager.load_texture("bullet", "images/bullet.png");
 
     // resource_manager.load_shader("crt", "shaders/crt.frag");
     // shader = resource_manager.shader_store.get("crt");
@@ -53,7 +59,7 @@ void TargetEnvScreen::draw(Renderer &renderer, bool lightweight)
     renderer.begin();
 
     auto render_data = trainer->environments[0]->get_render_data(lightweight_rendering);
-    renderer.draw(render_data);
+    renderer.draw(render_data, glm::ortho(-9.6f, 9.6f, -5.4f, 5.4f), trainer->environments[0]->get_elapsed_time(), lightweight_rendering);
 
     renderer.end();
 }

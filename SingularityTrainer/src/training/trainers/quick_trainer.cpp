@@ -1,4 +1,3 @@
-#include <Thor/Time.hpp>
 #include <memory>
 
 #include "communicator.h"
@@ -15,7 +14,8 @@ QuickTrainer::QuickTrainer(ResourceManager &resource_manager, Communicator *comm
       env_count(env_count),
       frame_counter(0),
       action_frame_counter(0),
-      rng(rng)
+      rng(rng),
+      elapsed_time(0)
 {
     for (int i = 0; i < env_count; ++i)
     {
@@ -94,27 +94,27 @@ void QuickTrainer::end_training()
 
 void QuickTrainer::step()
 {
-    if (waiting_for_server)
-    {
-        return;
-    }
-    thor::StopWatch stop_watch;
-    stop_watch.start();
-    do
-    {
-        action_update();
-        for (int i = 0; i < 5; ++i)
-        {
-            for (const auto &environment : environments)
-            {
-                environment->forward(1. / 60.);
-            }
-        }
-        if (waiting_for_server)
-        {
-            break;
-        }
-    } while (stop_watch.getElapsedTime().asSeconds() < 1. / 60.);
+    // if (waiting_for_server)
+    // {
+    //     return;
+    // }
+    // thor::StopWatch stop_watch;
+    // stop_watch.start();
+    // do
+    // {
+    //     action_update();
+    //     for (int i = 0; i < 5; ++i)
+    //     {
+    //         for (const auto &environment : environments)
+    //         {
+    //             environment->forward(1. / 60.);
+    //         }
+    //     }
+    //     if (waiting_for_server)
+    //     {
+    //         break;
+    //     }
+    // } while (stop_watch.getElapsedTime().asSeconds() < 1. / 60.);
 }
 
 void QuickTrainer::slow_step()

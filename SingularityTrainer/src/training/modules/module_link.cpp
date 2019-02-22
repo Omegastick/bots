@@ -1,5 +1,7 @@
 #include <Box2D/Box2D.h>
 
+#include <glm/glm.hpp>
+
 #include "graphics/idrawable.h"
 #include "graphics/render_data.h"
 #include "training/modules/imodule.h"
@@ -12,7 +14,7 @@ ModuleLink::ModuleLink(float x, float y, float rot, IModule *parent)
     : parent_module(parent), linked(false), visible(false)
 {
     transform.p = b2Vec2(x, y);
-    transform.q = b2Rot(deg_to_rad(rot));
+    transform.q = b2Rot(glm::radians(rot));
 }
 ModuleLink::~ModuleLink() {}
 
