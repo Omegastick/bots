@@ -20,13 +20,20 @@ Wall::Wall(float x, float y, float width, float height, b2World &world)
     fixture_def.friction = 1;
     fixture_def.shape = &rigid_body_shape;
     rigid_body->body->CreateFixture(&fixture_def);
+
+    sprite = std::make_unique<Sprite>("pixel");
+    sprite->set_scale({width, height});
+    sprite->set_origin(sprite->get_center());
+    sprite->set_position({x + (width / 2), y + (height / 2)});
+    sprite->set_color(cl_white);
 }
 
 Wall::~Wall() {}
 
 RenderData Wall::get_render_data(bool lightweight)
 {
-    return RenderData();
-    // render_target.draw(shape);
+    RenderData render_data;
+    render_data.sprites.push_back(*sprite);
+    return render_data;
 }
 }
