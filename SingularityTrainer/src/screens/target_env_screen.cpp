@@ -23,6 +23,7 @@ TargetEnvScreen::TargetEnvScreen(ResourceManager &resource_manager, Communicator
     resource_manager.load_texture("thruster_module", "images/thruster_module.png");
     resource_manager.load_texture("laser_sensor_module", "images/laser_sensor_module.png");
     resource_manager.load_texture("bullet", "images/bullet.png");
+    resource_manager.load_texture("pixel", "images/pixel.png");
 
     // resource_manager.load_shader("crt", "shaders/crt.frag");
     // shader = resource_manager.shader_store.get("crt");
@@ -59,7 +60,7 @@ void TargetEnvScreen::draw(Renderer &renderer, bool lightweight)
     renderer.begin();
 
     auto render_data = trainer->environments[0]->get_render_data(lightweight_rendering);
-    renderer.draw(render_data, glm::ortho(-9.6f, 9.6f, -5.4f, 5.4f), trainer->environments[0]->get_elapsed_time(), lightweight_rendering);
+    renderer.draw(render_data, glm::ortho(-19.2f, 19.2f, -10.8f, 10.8f), trainer->environments[0]->get_elapsed_time(), lightweight_rendering);
 
     renderer.end();
 }
