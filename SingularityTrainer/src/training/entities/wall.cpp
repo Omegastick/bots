@@ -36,4 +36,8 @@ RenderData Wall::get_render_data(bool lightweight)
     render_data.sprites.push_back(*sprite);
     return render_data;
 }
+
+void Wall::begin_contact(RigidBody *other) {}
+
+void Wall::end_contact(RigidBody *other) {}
 }

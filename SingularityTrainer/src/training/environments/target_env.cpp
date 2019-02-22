@@ -42,6 +42,9 @@ class ContactListener : public b2ContactListener
                 case RigidBody::ParentTypes::Target:
                     static_cast<Target *>(body->parent)->begin_contact(other);
                     break;
+                case RigidBody::ParentTypes::Wall:
+                    static_cast<Wall *>(body->parent)->begin_contact(other);
+                    break;
                 }
             }
         }
@@ -65,8 +68,14 @@ class ContactListener : public b2ContactListener
                 case RigidBody::ParentTypes::Agent:
                     static_cast<IAgent *>(body->parent)->end_contact(other);
                     break;
+                case RigidBody::ParentTypes::Bullet:
+                    static_cast<Bullet *>(body->parent)->end_contact(other);
+                    break;
                 case RigidBody::ParentTypes::Target:
                     static_cast<Target *>(body->parent)->end_contact(other);
+                    break;
+                case RigidBody::ParentTypes::Wall:
+                    static_cast<Wall *>(body->parent)->end_contact(other);
                     break;
                 }
             }
