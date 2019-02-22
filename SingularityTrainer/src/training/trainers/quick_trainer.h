@@ -13,6 +13,18 @@ namespace SingularityTrainer
 {
 class QuickTrainer : public ITrainer
 {
+  private:
+    Communicator *communicator;
+    bool waiting_for_server;
+    std::vector<std::vector<float>> observations;
+    int env_count;
+    int frame_counter;
+    int action_frame_counter;
+    Random *rng;
+    float elapsed_time;
+
+    void action_update();
+
   public:
     QuickTrainer(ResourceManager &resource_manager, Communicator *communicator, Random *rng, int env_count);
     ~QuickTrainer();
@@ -22,16 +34,5 @@ class QuickTrainer : public ITrainer
     virtual void save_model();
     virtual void step();
     virtual void slow_step();
-
-  private:
-    Communicator *communicator;
-    bool waiting_for_server;
-    std::vector<std::vector<float>> observations;
-    int env_count;
-    int frame_counter;
-    int action_frame_counter;
-    Random *rng;
-
-    void action_update();
 };
 }

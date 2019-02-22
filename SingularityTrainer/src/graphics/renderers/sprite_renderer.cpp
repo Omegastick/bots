@@ -14,6 +14,7 @@ namespace SingularityTrainer
 {
 SpriteRenderer::SpriteRenderer(ResourceManager &resource_manager) : resource_manager(&resource_manager)
 {
+    resource_manager.load_shader("texture", "shaders/texture.vert", "shaders/texture.frag");
     vertex_array = std::make_unique<VertexArray>();
 
     SpriteVertex sprite_vertices[4]{

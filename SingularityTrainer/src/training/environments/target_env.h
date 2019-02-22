@@ -35,6 +35,7 @@ class TargetEnv : public IEnvironment
     std::atomic<int> command_queue_flag;
     int total_reward;
     Random rng;
+    float elapsed_time;
 
     void thread_loop();
 
@@ -49,6 +50,7 @@ class TargetEnv : public IEnvironment
     virtual void change_reward(float reward_delta);
     virtual void set_done();
     virtual RenderData get_render_data(bool lightweight = false);
+    virtual float get_elapsed_time() const;
 
     std::unique_ptr<IAgent> agent;
 };
