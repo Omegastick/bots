@@ -23,6 +23,7 @@ TargetEnvScreen::TargetEnvScreen(ResourceManager &resource_manager, Communicator
     resource_manager.load_texture("thruster_module", "images/thruster_module.png");
     resource_manager.load_texture("laser_sensor_module", "images/laser_sensor_module.png");
     resource_manager.load_texture("bullet", "images/bullet.png");
+    resource_manager.load_texture("target", "images/target.png");
     resource_manager.load_texture("pixel", "images/pixel.png");
 
     // resource_manager.load_shader("crt", "shaders/crt.frag");
