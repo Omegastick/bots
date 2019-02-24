@@ -1,4 +1,5 @@
 #include <memory>
+#include <chrono>
 
 #include "communicator.h"
 #include "random.h"
@@ -94,27 +95,26 @@ void QuickTrainer::end_training()
 
 void QuickTrainer::step()
 {
-    // if (waiting_for_server)
-    // {
-    //     return;
-    // }
-    // thor::StopWatch stop_watch;
-    // stop_watch.start();
-    // do
-    // {
-    //     action_update();
-    //     for (int i = 0; i < 5; ++i)
-    //     {
-    //         for (const auto &environment : environments)
-    //         {
-    //             environment->forward(1. / 60.);
-    //         }
-    //     }
-    //     if (waiting_for_server)
-    //     {
-    //         break;
-    //     }
-    // } while (stop_watch.getElapsedTime().asSeconds() < 1. / 60.);
+    if (waiting_for_server)
+    {
+        return;
+    }
+    auto clock_start = std::chrono::high_resolution_clock::now();
+    do
+    {
+        action_update();
+        for (int i = 0; i < 5; ++i)
+        {
+            for (const auto &environment : environments)
+            {
+                environment->forward(1. / 60.);
+            }
+        }
+        if (waiting_for_server)
+        {
+            break;
+        }
+    } while (std::chrono::high_resolution_clock::now() - clock_start < std::chrono::duration<double>(1. / 60.));
 }
 
 void QuickTrainer::slow_step()
