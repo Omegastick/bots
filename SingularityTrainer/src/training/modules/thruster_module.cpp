@@ -84,5 +84,8 @@ void ThrusterModule::activate()
     agent->rigid_body->body->ApplyForce(velocity, global_transform.p, true);
 }
 
-void ThrusterModule::update() {}
+void ThrusterModule::update()
+{
+    active = false;
+}
 }
