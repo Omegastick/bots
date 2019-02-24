@@ -1,10 +1,12 @@
 #pragma once
 
-#include <Box2D/Box2D.h>
 #include <memory>
+
+#include <Box2D/Box2D.h>
 
 #include "graphics/idrawable.h"
 #include "training/environments/ienvironment.h"
+#include "graphics/sprite.h"
 #include "training/icollidable.h"
 #include "training/rigid_body.h"
 
@@ -12,6 +14,10 @@ namespace SingularityTrainer
 {
 class Target : public IDrawable, public ICollidable
 {
+  private:
+    IEnvironment &environment;
+    std::unique_ptr<Sprite> sprite;
+
   public:
     Target(float x, float y, b2World &world, IEnvironment &env);
     ~Target();
@@ -21,8 +27,5 @@ class Target : public IDrawable, public ICollidable
     void end_contact(RigidBody *other);
 
     std::unique_ptr<RigidBody> rigid_body;
-
-  private:
-    IEnvironment &environment;
 };
 }

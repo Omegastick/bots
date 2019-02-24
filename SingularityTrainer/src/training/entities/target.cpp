@@ -21,16 +21,24 @@ Target::Target(float x, float y, b2World &world, IEnvironment &env) : environmen
     fixture_def.friction = 1;
     fixture_def.shape = &rigid_body_shape;
     rigid_body->body->CreateFixture(&fixture_def);
+
+    // Sprite
+    sprite = std::make_unique<Sprite>("target");
+    sprite->set_scale({1, 1});
+    sprite->set_origin(sprite->get_center());
 }
 
 Target::~Target() {}
 
 RenderData Target::get_render_data(bool lightweight)
 {
+    auto render_data = RenderData();
+
     b2Vec2 position = rigid_body->body->GetPosition();
-    // shape.setPosition(position.x, position.y);
-    // render_target.draw(shape);
-    return RenderData();
+    sprite->set_position({position.x, position.y});
+    render_data.sprites.push_back(*sprite);
+
+    return render_data;
 }
 
 void Target::begin_contact(RigidBody *other)
