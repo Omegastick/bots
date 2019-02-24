@@ -50,6 +50,9 @@ class Renderer
     void pop_post_proc_layer();
     void clear_post_proc_stack();
 
+    void scissor(float x, float y, float width, float height, const glm::mat4 &projection) const;
+    void clear_scissor() const;
+
     void begin();
     void end();
 };

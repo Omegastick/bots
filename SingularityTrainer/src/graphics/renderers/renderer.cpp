@@ -1,6 +1,9 @@
 #include <memory>
 
 #include <glad/glad.h>
+#include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtc/matrix_inverse.hpp>
 
 #include "graphics/backend/vertex_array.h"
 #include "graphics/backend/shader.h"
@@ -81,6 +84,7 @@ void Renderer::clear(const glm::vec4 &color)
 
 void Renderer::begin()
 {
+    clear_scissor();
     base_frame_buffer->bind();
     glViewport(0, 0, width, height);
     clear();
@@ -88,6 +92,7 @@ void Renderer::begin()
 
 void Renderer::end()
 {
+    clear_scissor();
     for (const auto &post_proc_layer : post_proc_layers)
     {
         if (post_proc_layer->get_size().x != width || post_proc_layer->get_size().y != height)
@@ -128,5 +133,26 @@ void Renderer::pop_post_proc_layer()
 void Renderer::clear_post_proc_stack()
 {
     post_proc_layers.clear();
+}
+
+void Renderer::scissor(float left, float bottom, float right, float top, const glm::mat4 &projection) const
+{
+    glm::vec4 bottom_left(left, bottom, 0, 0);
+    glm::vec4 top_right(right, top, 0, 0);
+
+    bottom_left = ((bottom_left * projection) + 1.f) / 2.f;
+    top_right = ((top_right * projection) + 1.f) / 2.f;
+
+    glEnable(GL_SCISSOR_TEST);
+    glScissor(
+        bottom_left.x * this->width,
+        bottom_left.y * this->height,
+        (top_right.x - bottom_left.x) * this->width,
+        (top_right.y - bottom_left.y) * this->height);
+}
+
+void Renderer::clear_scissor() const
+{
+    glDisable(GL_SCISSOR_TEST);
 }
 }

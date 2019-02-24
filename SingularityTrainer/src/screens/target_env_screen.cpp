@@ -59,6 +59,7 @@ void TargetEnvScreen::draw(Renderer &renderer, bool lightweight)
 {
     renderer.begin();
 
+    renderer.scissor(-10, -10, 10, 10, glm::ortho(-19.2f, 19.2f, -10.8f, 10.8f));
     auto render_data = trainer->environments[0]->get_render_data(lightweight_rendering);
     renderer.draw(render_data, glm::ortho(-19.2f, 19.2f, -10.8f, 10.8f), trainer->environments[0]->get_elapsed_time(), lightweight_rendering);
 

@@ -42,12 +42,14 @@ int main(int argc, const char *argv[])
 
     // Create window
     Window window = Window(resolution_x, resolution_y, window_title, opengl_version_major, opengl_version_minor);
+    window.set_resize_callback(resize_window_callback);
 
     ScreenManager screen_manager;
     ResourceManager resource_manager("SingularityTrainer/assets/");
     Communicator communicator("tcp://127.0.0.1:10201");
     Random rng(1);
     Renderer renderer(1920, 1080, resource_manager);
+    window.set_renderer(&renderer);
 
     std::shared_ptr<TargetEnvScreen> test_screen = std::make_shared<TargetEnvScreen>(resource_manager, &communicator, &rng, 7);
     screen_manager.show_screen(test_screen);
