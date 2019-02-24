@@ -20,6 +20,7 @@ class TargetEnvScreen : public IScreen
     std::unique_ptr<ITrainer> trainer;
     bool lightweight_rendering;
     glm::mat4 projection;
+    bool fast;
 
   public:
     TargetEnvScreen(ResourceManager &resource_manager, Communicator *communicator, Random *rng, int env_count);
