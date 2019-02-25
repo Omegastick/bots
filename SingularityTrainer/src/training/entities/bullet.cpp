@@ -1,6 +1,8 @@
 #include <iostream>
 
 #include <Box2D/Box2D.h>
+#include <glm/glm.hpp>
+#include <glm/gtc/random.hpp>
 
 #include "graphics/colors.h"
 #include "graphics/idrawable.h"
@@ -11,7 +13,7 @@
 namespace SingularityTrainer
 {
 Bullet::Bullet(b2Vec2 position, b2Vec2 velocity, b2World &world)
-    : destroyed(false), life(10), last_position(b2Vec2_zero)
+    : destroyed(false), life(10), last_position(b2Vec2_zero), particle_color(cl_white)
 {
     sprite = std::make_unique<Sprite>("bullet");
     sprite->set_scale(glm::vec2(0.2, 0.2));
@@ -63,11 +65,34 @@ RenderData Bullet::get_render_data(bool lightweight)
         last_position = position;
     }
 
+    render_data.append(explosion_particles);
+    explosion_particles.clear();
+
     return render_data;
 }
 
 void Bullet::begin_contact(RigidBody *other)
 {
+    if (!destroyed)
+    {
+        b2Vec2 transform = rigid_body->body->GetPosition();
+        const int particle_count = 100;
+        const float step_subdivision = 1.f / particle_count / 10.f;
+        glm::vec4 end_color = particle_color;
+        end_color.a = 0;
+        for (int i = 0; i < particle_count; ++i)
+        {
+            Particle particle{
+                glm::vec2(transform.x, transform.y),
+                glm::diskRand(4.f),
+                -i * step_subdivision,
+                0.75,
+                0.02,
+                particle_color,
+                end_color};
+            explosion_particles.push_back(particle);
+        }
+    }
     destroyed = true;
 }
 
