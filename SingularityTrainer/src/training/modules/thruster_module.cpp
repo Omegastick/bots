@@ -53,7 +53,7 @@ RenderData ThrusterModule::get_render_data(bool lightweight)
         b2Transform global_transform = get_global_transform();
         b2Transform edge_transform = b2Mul(global_transform, b2Transform(b2Vec2(0, -0.3), b2Rot(M_PI_2)));
         std::uniform_real_distribution<float> distribution(0, 1);
-        const int particle_count = 10;
+        const int particle_count = 20;
         const float step_subdivision = 1.f / particle_count / 10.f;
         glm::vec4 end_color = particle_color;
         end_color.a = 0;
@@ -66,7 +66,7 @@ RenderData ThrusterModule::get_render_data(bool lightweight)
                 -glm::vec2(angle.c * 10, angle.s * 10),
                 -i * step_subdivision,
                 1,
-                0.015,
+                0.02,
                 particle_color,
                 end_color};
             render_data.particles.push_back(particle);
