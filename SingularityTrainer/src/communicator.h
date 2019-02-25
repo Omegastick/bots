@@ -2,10 +2,13 @@
 
 #include <iostream>
 #include <memory>
-#include <msgpack.hpp>
 #include <sstream>
 #include <string>
+
+#include <msgpack.hpp>
 #include <zmq.hpp>
+#include <spdlog/spdlog.h>
+#include <spdlog/fmt/bundled/ostream.h>
 
 #include "requests.h"
 
@@ -38,8 +41,7 @@ class Communicator
         }
         catch (...)
         {
-            std::cout << object << std::endl;
-            std::cout << "Problem\n";
+            spdlog::error("Communication error: {}", object);
         }
 
         return response;

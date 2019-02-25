@@ -1,6 +1,8 @@
 #include <memory>
 #include <string>
+
 #include <zmq.hpp>
+#include <spdlog/spdlog.h>
 
 #include "communicator.h"
 #include "requests.h"
@@ -14,7 +16,7 @@ Communicator::Communicator(const std::string &url)
 
     socket->connect(url);
     socket->send(zmq::message_t("Connecting...", 13));
-    std::cout << get_raw_response() << std::endl;
+    spdlog::info(get_raw_response());
 }
 
 Communicator::~Communicator() {}

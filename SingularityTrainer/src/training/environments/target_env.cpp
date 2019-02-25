@@ -1,7 +1,9 @@
-#include <Box2D/Box2D.h>
 #include <iostream>
 #include <memory>
 #include <vector>
+
+#include <Box2D/Box2D.h>
+#include <spdlog/spdlog.h>
 
 #include "training/environments/target_env.h"
 #include "graphics/colors.h"
@@ -227,8 +229,7 @@ void TargetEnv::thread_loop()
             // Increment step counter
             if (done)
             {
-                std::string reward_string(std::to_string(total_reward) + "\n");
-                std::cout << reward_string;
+                spdlog::info("Reward: {}", total_reward);
                 reset();
             }
 
