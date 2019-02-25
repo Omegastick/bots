@@ -28,12 +28,15 @@ QuickTrainer::~QuickTrainer() {}
 
 void QuickTrainer::begin_training()
 {
+    std::vector<std::future<std::unique_ptr<StepInfo>>> observation_futures(env_count);
+    observations.resize(env_count);
     for (int i = 0; i < environments.size(); ++i)
     {
         environments[i]->start_thread();
+        observation_futures[i] = environments[i]->reset();
 
         // Start each environment with a different number of random steps to decorrelate the environments
-        for (int current_step = 0; current_step < i * 4; current_step++)
+        for (int current_step = 0; current_step < i * 10; current_step++)
         {
             std::vector<int> actions;
             actions.reserve(4);
@@ -41,14 +44,8 @@ void QuickTrainer::begin_training()
             {
                 actions.push_back(rng->next_int(0, 1));
             }
-            environments[i]->step(actions, 1.f / 10.f);
+            observation_futures[i] = environments[i]->step(actions, 1.f / 10.f);
         }
-    }
-    std::vector<std::future<std::unique_ptr<StepInfo>>> observation_futures(env_count);
-    observations.resize(env_count);
-    for (int i = 0; i < environments.size(); ++i)
-    {
-        observation_futures[i] = environments[i]->reset();
     }
     for (int i = 0; i < environments.size(); ++i)
     {
