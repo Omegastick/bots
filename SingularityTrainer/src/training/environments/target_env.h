@@ -40,7 +40,7 @@ class TargetEnv : public IEnvironment
     void thread_loop();
 
   public:
-    TargetEnv(ResourceManager &resource_manager, float x, float y, float scale, int max_steps, int seed);
+    TargetEnv(float x, float y, float scale, int max_steps, int seed);
     ~TargetEnv();
 
     virtual void start_thread();

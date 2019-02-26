@@ -21,7 +21,7 @@ class ThrusterModule : public IModule, public IActivatable
     glm::vec4 particle_color;
 
   public:
-    ThrusterModule(ResourceManager &resource_manager, b2Body &body, IAgent *agent);
+    ThrusterModule(b2Body &body, IAgent *agent);
     ~ThrusterModule();
 
     virtual RenderData get_render_data(bool lightweight = false);

@@ -85,7 +85,7 @@ class ContactListener : public b2ContactListener
     }
 };
 
-TargetEnv::TargetEnv(ResourceManager &resource_manager, float x, float y, float scale, int max_steps, int seed)
+TargetEnv::TargetEnv(float x, float y, float scale, int max_steps, int seed)
     : max_steps(max_steps),
       command_queue_flag(0),
       reward(0),
@@ -100,7 +100,7 @@ TargetEnv::TargetEnv(ResourceManager &resource_manager, float x, float y, float 
     world->SetContactListener(contact_listener.get());
 
     // Agent
-    agent = std::make_unique<TestAgent>(resource_manager, *world, &rng);
+    agent = std::make_unique<TestAgent>(*world, &rng);
 
     // Target
     target = std::make_unique<Target>(4, 4, *world, *this);

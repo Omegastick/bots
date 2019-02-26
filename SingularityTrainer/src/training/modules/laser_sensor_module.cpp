@@ -16,7 +16,7 @@
 
 namespace SingularityTrainer
 {
-LaserSensorModule::LaserSensorModule(ResourceManager &resource_manager, b2Body &body, IAgent *agent)
+LaserSensorModule::LaserSensorModule(b2Body &body, IAgent *agent)
     : laser_count(9), fov(180), laser_length(10), time(0)
 {
     // Sprite
@@ -35,10 +35,6 @@ LaserSensorModule::LaserSensorModule(ResourceManager &resource_manager, b2Body &
     module_links.push_back(ModuleLink(0, -0.25, 180, this));
 
     this->agent = agent;
-
-    // Shader
-    // resource_manager.load_shader("laser", "shaders/laser.frag");
-    // laser_shader = resource_manager.shader_store.get("laser");
 }
 
 LaserSensorModule::~LaserSensorModule() {}

@@ -39,7 +39,7 @@ SceneTestScreen::SceneTestScreen(
     resource_manager.load_shader("texture", "shaders/texture.vert", "shaders/texture.frag");
 
     b2_world = std::make_unique<b2World>(b2Vec2(0, 0));
-    agent = std::make_unique<TestAgent>(resource_manager, *b2_world, &random);
+    agent = std::make_unique<TestAgent>(*b2_world, &random);
     agent->rigid_body->body->ApplyAngularImpulse(1, true);
 }
 

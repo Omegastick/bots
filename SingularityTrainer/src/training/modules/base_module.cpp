@@ -13,7 +13,7 @@
 
 namespace SingularityTrainer
 {
-BaseModule::BaseModule(ResourceManager &resource_manager, b2Body &body, IAgent *agent)
+BaseModule::BaseModule(b2Body &body, IAgent *agent)
 {
     // Sprite
     sprite = std::make_unique<Sprite>("base_module");

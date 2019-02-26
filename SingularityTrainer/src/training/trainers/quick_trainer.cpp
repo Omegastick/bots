@@ -9,7 +9,7 @@
 
 namespace SingularityTrainer
 {
-QuickTrainer::QuickTrainer(ResourceManager &resource_manager, Communicator *communicator, Random *rng, int env_count)
+QuickTrainer::QuickTrainer(Communicator *communicator, Random *rng, int env_count)
     : communicator(communicator),
       waiting_for_server(false),
       env_count(env_count),
@@ -20,7 +20,7 @@ QuickTrainer::QuickTrainer(ResourceManager &resource_manager, Communicator *comm
 {
     for (int i = 0; i < env_count; ++i)
     {
-        environments.push_back(std::make_unique<TargetEnv>(resource_manager, 460, 40, 1, 100, i));
+        environments.push_back(std::make_unique<TargetEnv>(460, 40, 1, 100, i));
     }
 }
 

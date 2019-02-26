@@ -26,7 +26,7 @@ class QuickTrainer : public ITrainer
     void action_update();
 
   public:
-    QuickTrainer(ResourceManager &resource_manager, Communicator *communicator, Random *rng, int env_count);
+    QuickTrainer(Communicator *communicator, Random *rng, int env_count);
     ~QuickTrainer();
 
     virtual void begin_training();

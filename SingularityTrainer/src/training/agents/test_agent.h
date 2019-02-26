@@ -17,7 +17,7 @@ namespace SingularityTrainer
 class TestAgent : public IAgent
 {
   public:
-    TestAgent(ResourceManager &resource_manager, b2World &world, Random *rng);
+    TestAgent(b2World &world, Random *rng);
     ~TestAgent();
 
     virtual void act(std::vector<int> action_flags);
