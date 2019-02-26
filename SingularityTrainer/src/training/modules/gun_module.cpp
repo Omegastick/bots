@@ -13,7 +13,7 @@
 
 namespace SingularityTrainer
 {
-GunModule::GunModule(ResourceManager &resource_manager, b2Body &body, IAgent *agent) : cooldown(3), steps_since_last_shot(0)
+GunModule::GunModule(b2Body &body, IAgent *agent) : cooldown(3), steps_since_last_shot(0)
 {
     // Sprite
     sprite = std::make_unique<Sprite>("gun_module");

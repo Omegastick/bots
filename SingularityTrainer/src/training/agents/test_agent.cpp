@@ -14,18 +14,18 @@
 
 namespace SingularityTrainer
 {
-TestAgent::TestAgent(ResourceManager &resource_manager, b2World &world, Random *rng)
+TestAgent::TestAgent(b2World &world, Random *rng)
 {
     // Rigid body
     rigid_body = std::make_unique<RigidBody>(b2_dynamicBody, b2Vec2_zero, world, this, RigidBody::ParentTypes::Agent);
 
     // Instantiate modules
-    std::unique_ptr<BaseModule> base_module = std::make_unique<BaseModule>(resource_manager, *rigid_body->body, this);
-    std::unique_ptr<GunModule> gun_module_right = std::make_unique<GunModule>(resource_manager, *rigid_body->body, this);
-    std::unique_ptr<GunModule> gun_module_left = std::make_unique<GunModule>(resource_manager, *rigid_body->body, this);
-    std::unique_ptr<ThrusterModule> thruster_module_left = std::make_unique<ThrusterModule>(resource_manager, *rigid_body->body, this);
-    std::unique_ptr<ThrusterModule> thruster_module_right = std::make_unique<ThrusterModule>(resource_manager, *rigid_body->body, this);
-    std::unique_ptr<LaserSensorModule> laser_sensor_module = std::make_unique<LaserSensorModule>(resource_manager, *rigid_body->body, this);
+    std::unique_ptr<BaseModule> base_module = std::make_unique<BaseModule>(*rigid_body->body, this);
+    std::unique_ptr<GunModule> gun_module_right = std::make_unique<GunModule>(*rigid_body->body, this);
+    std::unique_ptr<GunModule> gun_module_left = std::make_unique<GunModule>(*rigid_body->body, this);
+    std::unique_ptr<ThrusterModule> thruster_module_left = std::make_unique<ThrusterModule>(*rigid_body->body, this);
+    std::unique_ptr<ThrusterModule> thruster_module_right = std::make_unique<ThrusterModule>(*rigid_body->body, this);
+    std::unique_ptr<LaserSensorModule> laser_sensor_module = std::make_unique<LaserSensorModule>(*rigid_body->body, this);
 
     // Connect modules
     base_module->module_links[1].link(&gun_module_right->module_links[2]);

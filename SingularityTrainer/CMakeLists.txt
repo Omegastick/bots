@@ -21,6 +21,7 @@ set(CMAKE_CXX_FLAGS_RELEASE -O3)
 
 # Executables and loca libraries
 add_executable(SingularityTrainer "")
+add_executable(HeadlessTrainer "")
 add_executable(GraphicsPlayground "")
 add_library(Training STATIC "")
 add_library(Graphics STATIC "")
@@ -50,13 +51,15 @@ find_package(cppzmq)
 find_package(Box2D)
 
 # Link libraries
-target_link_libraries(Training cppzmq)
-target_link_libraries(SingularityTrainer Training Graphics glad glfw ${GLFW_LIBRARIES} glm imgui cppzmq Box2D)
+target_link_libraries(Training cppzmq Box2D)
 if (UNIX)
     # UNIX systems sometimes need to explicitly link the threading library
-    target_link_libraries(SingularityTrainer pthread)
+    target_link_libraries(Training pthread)
 endif()
-target_link_libraries(GraphicsPlayground Training Graphics glad glfw ${GLFW_LIBRARIES} glm imgui Box2D)
+target_link_libraries(Graphics cppzmq glad glfw ${GLFW_LIBRARIES} glm imgui)
+target_link_libraries(SingularityTrainer Training Graphics)
+target_link_libraries(HeadlessTrainer Training Graphics)
+target_link_libraries(GraphicsPlayground Training Graphics)
 
 # Inlcudes
 set(INCLUDE_DIRS
@@ -69,6 +72,7 @@ set(INCLUDE_DIRS
     ${IMGUI_DIR}/examples
 )
 target_include_directories(SingularityTrainer PUBLIC ${INCLUDE_DIRS})
+target_include_directories(HeadlessTrainer PUBLIC ${INCLUDE_DIRS})
 target_include_directories(GraphicsPlayground PUBLIC ${INCLUDE_DIRS})
 target_include_directories(Training PUBLIC ${INCLUDE_DIRS})
 target_include_directories(Graphics PUBLIC ${INCLUDE_DIRS})

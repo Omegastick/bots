@@ -14,7 +14,7 @@
 
 namespace SingularityTrainer
 {
-ThrusterModule::ThrusterModule(ResourceManager &resource_manager, b2Body &body, IAgent *agent)
+ThrusterModule::ThrusterModule(b2Body &body, IAgent *agent)
     : active(false), particle_color(cl_white)
 {
     // Sprite

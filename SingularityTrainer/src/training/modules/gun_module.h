@@ -18,7 +18,7 @@ namespace SingularityTrainer
 class GunModule : public IModule, public IActivatable
 {
   public:
-    GunModule(ResourceManager &resource_manager, b2Body &body, IAgent *agent);
+    GunModule(b2Body &body, IAgent *agent);
     ~GunModule();
 
     virtual RenderData get_render_data(bool lightweight = false);
