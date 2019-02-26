@@ -1,4 +1,4 @@
-target_sources(SingularityTrainer
+target_sources(Training
 PUBLIC
     ${CMAKE_CURRENT_LIST_DIR}/bullet.cpp
     ${CMAKE_CURRENT_LIST_DIR}/wall.cpp

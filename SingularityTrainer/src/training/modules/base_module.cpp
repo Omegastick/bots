@@ -1,7 +1,8 @@
-#include <Box2D/Box2D.h>
-#include <SFML/Graphics.hpp>
 #include <memory>
 #include <vector>
+
+#include <Box2D/Box2D.h>
+#include <glm/vec2.hpp>
 
 #include "graphics/colors.h"
 #include "resource_manager.h"
@@ -15,11 +16,10 @@ namespace SingularityTrainer
 BaseModule::BaseModule(ResourceManager &resource_manager, b2Body &body, IAgent *agent)
 {
     // Sprite
-    resource_manager.load_texture("base_module", "images/base_module.png");
-    sprite.setTexture(*resource_manager.texture_store.get("base_module"));
-    sprite.setScale(0.01, 0.01);
-    sprite.setOrigin(sprite.getLocalBounds().width / 2, sprite.getLocalBounds().height / 2);
-    sprite.setColor(cl_white);
+    sprite = std::make_unique<Sprite>("base_module");
+    sprite->set_scale(glm::vec2(1, 1));
+    sprite->set_origin(sprite->get_center());
+    sprite->set_color(cl_white);
 
     // Box2D
     b2PolygonShape shape;
@@ -28,9 +28,9 @@ BaseModule::BaseModule(ResourceManager &resource_manager, b2Body &body, IAgent *
     transform.SetIdentity();
 
     // Module links
-    module_links.push_back(ModuleLink(0, -0.5, 0, this));
+    module_links.push_back(ModuleLink(0, 0.5, 0, this));
     module_links.push_back(ModuleLink(0.5, 0, 90, this));
-    module_links.push_back(ModuleLink(0, 0.5, 180, this));
+    module_links.push_back(ModuleLink(0, -0.5, 180, this));
     module_links.push_back(ModuleLink(-0.5, 0, 270, this));
 
     root = this;

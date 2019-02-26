@@ -1,30 +1,31 @@
 #pragma once
 
 #include <Box2D/Box2D.h>
-#include <SFML/Graphics.hpp>
 #include <memory>
 #include <vector>
+#include <glm/vec4.hpp>
 
+#include "graphics/render_data.h"
 #include "resource_manager.h"
 #include "training/actions/iaction.h"
 #include "training/agents/iagent.h"
 #include "training/modules/imodule.h"
 #include "training/modules/interfaces/iactivatable.h"
-#include "particles/linear_particle_system.h"
 
 namespace SingularityTrainer
 {
 class ThrusterModule : public IModule, public IActivatable
 {
+  private:
+    bool active;
+    glm::vec4 particle_color;
+
   public:
-    ThrusterModule(ResourceManager &resource_manager, b2Body &body, IAgent *agent, LinearParticleSystem *particle_system);
+    ThrusterModule(ResourceManager &resource_manager, b2Body &body, IAgent *agent);
     ~ThrusterModule();
 
-    virtual void draw(sf::RenderTarget &render_target, bool lightweight = false);
+    virtual RenderData get_render_data(bool lightweight = false);
     virtual void activate();
     virtual void update();
-  
-  private:
-    LinearParticleSystem *particle_system;
 };
 }

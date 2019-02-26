@@ -1,9 +1,11 @@
-#include <Box2D/Box2D.h>
-#include <SFML/Graphics.hpp>
 #include <iostream>
 
+#include <Box2D/Box2D.h>
+#include <glm/glm.hpp>
+#include <glm/gtc/random.hpp>
+
 #include "graphics/colors.h"
-#include "idrawable.h"
+#include "graphics/idrawable.h"
 #include "training/entities/bullet.h"
 #include "training/icollidable.h"
 #include "training/rigid_body.h"
@@ -11,9 +13,12 @@
 namespace SingularityTrainer
 {
 Bullet::Bullet(b2Vec2 position, b2Vec2 velocity, b2World &world)
-    : shape(0.1), destroyed(false), life(10), trail(sf::Triangles, 3), last_position(b2Vec2_zero)
+    : destroyed(false), life(10), last_position(b2Vec2_zero), particle_color(cl_white)
 {
-    shape.setOrigin(0.1, 0.1);
+    sprite = std::make_unique<Sprite>("bullet");
+    sprite->set_scale(glm::vec2(0.2, 0.2));
+    sprite->set_origin(sprite->get_center());
+    sprite->set_position(glm::vec2(position.x, position.y));
 
     rigid_body = std::make_unique<RigidBody>(b2_dynamicBody, position, world, this, RigidBody::ParentTypes::Bullet);
 
@@ -27,46 +32,67 @@ Bullet::Bullet(b2Vec2 position, b2Vec2 velocity, b2World &world)
     rigid_body->body->CreateFixture(&fixture_def);
     rigid_body->body->SetBullet(true);
 
-    // Trail colour
-    sf::Color trail_end_colour = cl_white;
-    trail_end_colour.a = 0;
-    trail[0].color = trail_end_colour;
-    trail[1].color = cl_white;
-    trail[2].color = cl_white;
-
     rigid_body->body->ApplyForceToCenter(velocity, true);
 }
 
 Bullet::~Bullet() {}
 
-void Bullet::draw(sf::RenderTarget &render_target, bool lightweight)
+RenderData Bullet::get_render_data(bool lightweight)
 {
+    RenderData render_data;
+
     if (!destroyed)
     {
         b2Vec2 position = rigid_body->body->GetPosition();
-        b2Vec2 velocity = rigid_body->body->GetLinearVelocity();
-        velocity.Normalize();
-        velocity *= 0.1;
 
         // Body
-        shape.setPosition(position.x, position.y);
-        render_target.draw(shape);
+        sprite->set_position(glm::vec2(position.x, position.y));
+        render_data.sprites.push_back(*sprite);
 
         // Trail
         if (last_position.x != b2Vec2_zero.x || last_position.y != b2Vec2_zero.y)
         {
-            trail[0].position = sf::Vector2f(last_position.x, last_position.y);
-            trail[1].position = sf::Vector2f(position.x + velocity.y, position.y - velocity.x);
-            trail[2].position = sf::Vector2f(position.x - velocity.y, position.y + velocity.x);
-            render_target.draw(trail);
+            Line trail;
+            trail.points.push_back({position.x, position.y});
+            trail.widths.push_back(0.1);
+            trail.colors.push_back({1.0, 1.0, 1.0, 1.0});
+            trail.points.push_back({last_position.x, last_position.y});
+            trail.widths.push_back(0);
+            trail.colors.push_back({1.0, 1.0, 1.0, 0.0});
+            render_data.lines.push_back(trail);
         }
 
         last_position = position;
     }
+
+    render_data.append(explosion_particles);
+    explosion_particles.clear();
+
+    return render_data;
 }
 
 void Bullet::begin_contact(RigidBody *other)
 {
+    if (!destroyed)
+    {
+        b2Vec2 transform = rigid_body->body->GetPosition();
+        const int particle_count = 100;
+        const float step_subdivision = 1.f / particle_count / 10.f;
+        glm::vec4 end_color = particle_color;
+        end_color.a = 0;
+        for (int i = 0; i < particle_count; ++i)
+        {
+            Particle particle{
+                glm::vec2(transform.x, transform.y),
+                glm::diskRand(4.f),
+                -i * step_subdivision,
+                0.75,
+                0.02,
+                particle_color,
+                end_color};
+            explosion_particles.push_back(particle);
+        }
+    }
     destroyed = true;
 }
 
@@ -74,6 +100,7 @@ void Bullet::end_contact(RigidBody *other) {}
 
 void Bullet::update()
 {
-    destroyed = --life <= 0;
+    --life;
+    destroyed = destroyed || life <= 0;
 }
 }

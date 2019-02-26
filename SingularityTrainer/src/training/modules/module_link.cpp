@@ -1,6 +1,9 @@
 #include <Box2D/Box2D.h>
-#include <SFML/Graphics.hpp>
 
+#include <glm/glm.hpp>
+
+#include "graphics/idrawable.h"
+#include "graphics/render_data.h"
 #include "training/modules/imodule.h"
 #include "training/modules/module_link.h"
 #include "utilities.h"
@@ -11,7 +14,7 @@ ModuleLink::ModuleLink(float x, float y, float rot, IModule *parent)
     : parent_module(parent), linked(false), visible(false)
 {
     transform.p = b2Vec2(x, y);
-    transform.q = b2Rot(deg_to_rad(rot));
+    transform.q = b2Rot(glm::radians(rot));
 }
 ModuleLink::~ModuleLink() {}
 
@@ -36,5 +39,5 @@ void ModuleLink::link(ModuleLink *other)
     other->pair_link = this;
 }
 
-void ModuleLink::draw(sf::RenderTarget &render_target, bool lightweight) {}
+RenderData ModuleLink::get_render_data(bool lightweight) { return RenderData(); }
 }

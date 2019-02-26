@@ -1,20 +1,17 @@
 #pragma once
 
-#include <Thor/Input.hpp>
-#include <SFML/Graphics.hpp>
-
-#include "idrawable.h"
 #include "input.h"
+#include "graphics/renderers/renderer.h"
 
 namespace SingularityTrainer
 {
-class IScreen : IDrawable
+class IScreen
 {
   public:
     IScreen(){};
     ~IScreen(){};
 
-    virtual void draw(sf::RenderTarget &render_target, bool lightweight = false) = 0;
-    virtual void update(const sf::Time &delta_time, const sf::Vector2f &mouse_position, const thor::ActionMap<Inputs> &action_map) = 0;
+    virtual void update(const float delta_time) = 0;
+    virtual void draw(Renderer &renderer, bool lightweight = false) = 0;
 };
 }

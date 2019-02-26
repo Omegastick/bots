@@ -1,10 +1,11 @@
 #pragma once
 
-#include <Box2D/Box2D.h>
-#include <SFML/Graphics.hpp>
 #include <memory>
 #include <vector>
 
+#include <Box2D/Box2D.h>
+
+#include "graphics/render_data.h"
 #include "resource_manager.h"
 #include "training/actions/iaction.h"
 #include "training/agents/iagent.h"
@@ -20,7 +21,7 @@ class GunModule : public IModule, public IActivatable
     GunModule(ResourceManager &resource_manager, b2Body &body, IAgent *agent);
     ~GunModule();
 
-    virtual void draw(sf::RenderTarget &render_target, bool lightweight = false);
+    virtual RenderData get_render_data(bool lightweight = false);
     virtual void activate();
     virtual void update();
 

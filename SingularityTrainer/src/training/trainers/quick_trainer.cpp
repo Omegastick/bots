@@ -1,5 +1,5 @@
-#include <Thor/Time.hpp>
 #include <memory>
+#include <chrono>
 
 #include "communicator.h"
 #include "random.h"
@@ -15,7 +15,8 @@ QuickTrainer::QuickTrainer(ResourceManager &resource_manager, Communicator *comm
       env_count(env_count),
       frame_counter(0),
       action_frame_counter(0),
-      rng(rng)
+      rng(rng),
+      elapsed_time(0)
 {
     for (int i = 0; i < env_count; ++i)
     {
@@ -27,12 +28,15 @@ QuickTrainer::~QuickTrainer() {}
 
 void QuickTrainer::begin_training()
 {
+    std::vector<std::future<std::unique_ptr<StepInfo>>> observation_futures(env_count);
+    observations.resize(env_count);
     for (int i = 0; i < environments.size(); ++i)
     {
         environments[i]->start_thread();
+        observation_futures[i] = environments[i]->reset();
 
         // Start each environment with a different number of random steps to decorrelate the environments
-        for (int current_step = 0; current_step < i * 4; current_step++)
+        for (int current_step = 0; current_step < i * 10; current_step++)
         {
             std::vector<int> actions;
             actions.reserve(4);
@@ -40,14 +44,8 @@ void QuickTrainer::begin_training()
             {
                 actions.push_back(rng->next_int(0, 1));
             }
-            environments[i]->step(actions, 1.f / 10.f);
+            observation_futures[i] = environments[i]->step(actions, 1.f / 10.f);
         }
-    }
-    std::vector<std::future<std::unique_ptr<StepInfo>>> observation_futures(env_count);
-    observations.resize(env_count);
-    for (int i = 0; i < environments.size(); ++i)
-    {
-        observation_futures[i] = environments[i]->reset();
     }
     for (int i = 0; i < environments.size(); ++i)
     {
@@ -98,8 +96,7 @@ void QuickTrainer::step()
     {
         return;
     }
-    thor::StopWatch stop_watch;
-    stop_watch.start();
+    auto clock_start = std::chrono::high_resolution_clock::now();
     do
     {
         action_update();
@@ -114,7 +111,7 @@ void QuickTrainer::step()
         {
             break;
         }
-    } while (stop_watch.getElapsedTime().asSeconds() < 1. / 60.);
+    } while (std::chrono::high_resolution_clock::now() - clock_start < std::chrono::duration<double>(1. / 60.));
 }
 
 void QuickTrainer::slow_step()

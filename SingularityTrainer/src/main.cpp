@@ -1,106 +1,177 @@
-#include <SFML/Graphics.hpp>
-#include <SFML/Window.hpp>
-#include <Thor/Input.hpp>
+#include <memory>
 
-#include "communicator.h"
+#include <glad/glad.h>
+#include <GLFW/glfw3.h>
+#include <spdlog/spdlog.h>
+#include <imgui.h>
+#include <imgui_impl_glfw.h>
+#include <imgui_impl_opengl3.h>
+
+#include "graphics/window.h"
 #include "graphics/colors.h"
-#include "input.h"
+#include "graphics/renderers/renderer.h"
+#include "communicator.h"
 #include "random.h"
 #include "requests.h"
 #include "screen_manager.h"
 #include "screens/target_env_screen.h"
-#include "test_screen/test_screen.h"
 
 using namespace SingularityTrainer;
 
-void on_window_resize(thor::ActionContext<Inputs> context)
+const int resolution_x = 1920;
+const int resolution_y = 1080;
+const std::string window_title = "Singularity Trainer";
+const int opengl_version_major = 4;
+const int opengl_version_minor = 3;
+
+void error_callback(int error, const char *description)
 {
-    sf::RenderWindow *window = static_cast<sf::RenderWindow *>(context.window);
-    sf::View view = window->getView();
-    sf::Vector2u window_size = context.window->getSize();
+    spdlog::error("GLFW error: [{}] {}", error, description);
+}
 
-    float window_ratio = window_size.x / (float)window_size.y;
-    float view_ratio = view.getSize().x / (float)view.getSize().y;
-    float size_x = 1;
-    float size_y = 1;
-    float pos_x = 0;
-    float pos_y = 0;
+void reset_imgui_style()
+{
+    ImGuiStyle &style = ImGui::GetStyle();
+    style = ImGuiStyle();
 
-    bool horizontal_spacing = true;
-    if (window_ratio < view_ratio)
-        horizontal_spacing = false;
+    style.WindowRounding = 2.3;
+    style.GrabRounding = style.FrameRounding = 2.3;
+    style.ScrollbarRounding = 2.3;
+    style.FrameBorderSize = 1.0;
+    style.ItemSpacing.y = 6.5;
 
-    if (horizontal_spacing)
-    {
-        size_x = view_ratio / window_ratio;
-        pos_x = (1 - size_x) / 2.f;
-    }
-    else
-    {
-        size_y = window_ratio / view_ratio;
-        pos_y = (1 - size_y) / 2.f;
-    }
+    style.Colors[ImGuiCol_Text] = {0.9f, 0.9f, 0.9f, 1.00f};
+    style.Colors[ImGuiCol_TextDisabled] = {0.34509805f, 0.34509805f, 0.34509805f, 1.00f};
+    style.Colors[ImGuiCol_WindowBg] = {0.23529413f, 0.24705884f, 0.25490198f, 0.94f};
+    style.Colors[ImGuiCol_ChildBg] = {0.23529413f, 0.24705884f, 0.25490198f, 0.00f};
+    style.Colors[ImGuiCol_PopupBg] = {0.23529413f, 0.24705884f, 0.25490198f, 0.94f};
+    style.Colors[ImGuiCol_Border] = {0.33333334f, 0.33333334f, 0.33333334f, 0.50f};
+    style.Colors[ImGuiCol_BorderShadow] = {0.15686275f, 0.15686275f, 0.15686275f, 0.00f};
+    style.Colors[ImGuiCol_FrameBg] = {0.16862746f, 0.16862746f, 0.16862746f, 0.54f};
+    style.Colors[ImGuiCol_FrameBgHovered] = {0.453125f, 0.67578125f, 0.99609375f, 0.67f};
+    style.Colors[ImGuiCol_FrameBgActive] = {0.47058827f, 0.47058827f, 0.47058827f, 0.67f};
+    style.Colors[ImGuiCol_TitleBg] = {0.23529413f, 0.24705884f, 0.25490198f, 0.54f};
+    style.Colors[ImGuiCol_TitleBgCollapsed] = {0.23529413f, 0.24705884f, 0.25490198f, 0.34f};
+    style.Colors[ImGuiCol_TitleBgActive] = {0.23529413f, 0.24705884f, 0.25490198f, 0.94f};
+    style.Colors[ImGuiCol_MenuBarBg] = {0.27058825f, 0.28627452f, 0.2901961f, 0.80f};
+    style.Colors[ImGuiCol_ScrollbarBg] = {0.27058825f, 0.28627452f, 0.2901961f, 0.60f};
+    style.Colors[ImGuiCol_ScrollbarGrab] = {0.21960786f, 0.30980393f, 0.41960788f, 0.51f};
+    style.Colors[ImGuiCol_ScrollbarGrabHovered] = {0.21960786f, 0.30980393f, 0.41960788f, 1.00f};
+    style.Colors[ImGuiCol_ScrollbarGrabActive] = {0.13725491f, 0.19215688f, 0.2627451f, 0.91f};
+    style.Colors[ImGuiCol_CheckMark] = {0.90f, 0.90f, 0.90f, 0.83f};
+    style.Colors[ImGuiCol_SliderGrab] = {0.70f, 0.70f, 0.70f, 0.62f};
+    style.Colors[ImGuiCol_SliderGrabActive] = {0.30f, 0.30f, 0.30f, 0.84f};
+    style.Colors[ImGuiCol_Button] = {0.33333334f, 0.3529412f, 0.36078432f, 0.49f};
+    style.Colors[ImGuiCol_ButtonHovered] = {0.21960786f, 0.30980393f, 0.41960788f, 1.00f};
+    style.Colors[ImGuiCol_ButtonActive] = {0.13725491f, 0.19215688f, 0.2627451f, 1.00f};
+    style.Colors[ImGuiCol_Header] = {0.33333334f, 0.3529412f, 0.36078432f, 0.53f};
+    style.Colors[ImGuiCol_HeaderHovered] = {0.453125f, 0.67578125f, 0.99609375f, 0.67f};
+    style.Colors[ImGuiCol_HeaderActive] = {0.47058827f, 0.47058827f, 0.47058827f, 0.67f};
+    style.Colors[ImGuiCol_Separator] = {0.31640625f, 0.31640625f, 0.31640625f, 1.00f};
+    style.Colors[ImGuiCol_SeparatorHovered] = {0.31640625f, 0.31640625f, 0.31640625f, 1.00f};
+    style.Colors[ImGuiCol_SeparatorActive] = {0.31640625f, 0.31640625f, 0.31640625f, 1.00f};
+    style.Colors[ImGuiCol_ResizeGrip] = {1.00f, 1.00f, 1.00f, 0.05f};
+    style.Colors[ImGuiCol_ResizeGripHovered] = {1.00f, 1.00f, 1.00f, 0.4f};
+    style.Colors[ImGuiCol_ResizeGripActive] = {1.00f, 1.00f, 1.00f, 0.3f};
+    style.Colors[ImGuiCol_PlotLines] = {0.61f, 0.61f, 0.61f, 1.00f};
+    style.Colors[ImGuiCol_PlotLinesHovered] = {1.00f, 0.43f, 0.35f, 1.00f};
+    style.Colors[ImGuiCol_PlotHistogram] = {0.90f, 0.70f, 0.00f, 1.00f};
+    style.Colors[ImGuiCol_PlotHistogramHovered] = {1.00f, 0.60f, 0.00f, 1.00f};
+    style.Colors[ImGuiCol_TextSelectedBg] = {0.18431373f, 0.39607847f, 0.79215693f, 0.90f};
+}
 
-    view.setViewport(sf::FloatRect(pos_x, pos_y, size_x, size_y));
+void init_imgui(const int opengl_version_major, const int opengl_version_minor, GLFWwindow *window)
+{
+    spdlog::debug("Initializing ImGui");
+    IMGUI_CHECKVERSION();
+    ImGui::CreateContext();
+    ImGui::StyleColorsDark();
+    ImGui_ImplGlfw_InitForOpenGL(window, true);
+    std::stringstream string_stream;
+    string_stream << "#version " << opengl_version_major << opengl_version_minor << "0 core";
+    std::string x = string_stream.str();
+    ImGui_ImplOpenGL3_Init(string_stream.str().c_str());
 
-    window->setView(view);
+    ImFontConfig font_config;
+    font_config.OversampleH = 3;
+    font_config.OversampleV = 3;
+    ImGuiIO &io = ImGui::GetIO();
+    io.Fonts->ClearFonts();
+    io.Fonts->AddFontFromFileTTF("SingularityTrainer/assets/fonts/Roboto-Regular.ttf", 15, &font_config);
+
+    reset_imgui_style();
+}
+
+void resize_window_callback(GLFWwindow *glfw_window, int x, int y)
+{
+    spdlog::debug("Resizing window to {}x{}", x, y);
+    glViewport(0, 0, x, y);
+
+    reset_imgui_style();
+    ImGuiStyle &style = ImGui::GetStyle();
+    float relative_scale = (float)x / (float)resolution_x;
+    style.ScaleAllSizes(relative_scale);
+    ImGuiIO &io = ImGui::GetIO();
+    io.FontGlobalScale = relative_scale;
+
+    Window *window = static_cast<Window *>(glfwGetWindowUserPointer(glfw_window));
+    window->get_renderer().resize(x, y);
 }
 
 int main(int argc, const char *argv[])
 {
-    sf::RenderWindow window(sf::VideoMode(1920, 1080), "Singularity Trainer", sf::Style::Default);
-    window.setFramerateLimit(60);
-    sf::View view(sf::FloatRect(0, 0, 1920, 1080));
-    window.setView(view);
+    // Logging
+    spdlog::set_level(spdlog::level::debug);
+    spdlog::set_pattern("%^[%T %7l] %v%$");
+    glfwSetErrorCallback(error_callback);
 
-    sf::Event event;
-    sf::Clock frame_clock;
-
-    thor::ActionMap<Inputs> action_map;
-    action_map[Inputs::Quit] = thor::Action(sf::Event::Closed);
-    action_map[Inputs::ResizeWindow] = thor::Action(sf::Event::Resized);
-    thor::ActionMap<Inputs>::CallbackSystem input_callback_system;
-    input_callback_system.connect(Inputs::ResizeWindow, std::function<void(thor::ActionContext<Inputs>)>(on_window_resize));
+    // Create window
+    Window window = Window(resolution_x, resolution_y, window_title, opengl_version_major, opengl_version_minor);
+    window.set_resize_callback(resize_window_callback);
 
     ScreenManager screen_manager;
-    ResourceManager resource_manager = ResourceManager("SingularityTrainer/assets/");
-    std::unique_ptr<Communicator> communicator = std::make_unique<Communicator>("tcp://127.0.0.1:10201");
-    std::unique_ptr<Random> rng = std::make_unique<Random>(1);
+    ResourceManager resource_manager("SingularityTrainer/assets/");
+    Communicator communicator("tcp://127.0.0.1:10201");
+    Random rng(1);
+    Renderer renderer(1920, 1080, resource_manager);
+    window.set_renderer(&renderer);
 
-    std::shared_ptr<TargetEnvScreen> test_screen = std::make_shared<TargetEnvScreen>(resource_manager, communicator.get(), rng.get(), 7);
-    // std::shared_ptr<TestScreen> test_screen = std::make_shared<TestScreen>(resource_manager, communicator.get(), 7);
+    std::shared_ptr<TargetEnvScreen> test_screen = std::make_shared<TargetEnvScreen>(resource_manager, &communicator, &rng, 7);
     screen_manager.show_screen(test_screen);
 
-    frame_clock.restart();
-    while (window.isOpen())
+    init_imgui(opengl_version_major, opengl_version_minor, window.window);
+
+    float time = glfwGetTime();
+
+    while (!window.should_close())
     {
         /*
          *  Input
          */
-        action_map.update(window);
-        action_map.invokeCallbacks(input_callback_system, &window);
-        if (action_map.isActive(Inputs::Quit))
-        {
-            while (screen_manager.stack_size() > 0)
-            {
-                screen_manager.close_screen();
-                std::cout << screen_manager.stack_size() << std::endl;
-            }
-            window.close();
-            break;
-        }
+        glfwPollEvents();
 
         /*
          *  Update
          */
-        screen_manager.update(frame_clock.restart(), window, action_map);
+        float new_time = glfwGetTime();
+        float delta_time = new_time - time;
+        time = new_time;
+
+        ImGui_ImplOpenGL3_NewFrame();
+        ImGui_ImplGlfw_NewFrame();
+        ImGui::NewFrame();
+
+        screen_manager.update(delta_time);
 
         /*
          *  Draw
          */
-        window.clear(cl_background);
-        screen_manager.draw(window);
-        window.display();
+        screen_manager.draw(renderer);
+
+        ImGui::Render();
+        ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+
+        window.swap_buffers();
     }
 
     return 0;

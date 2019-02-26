@@ -1,3 +1,15 @@
 [submodule "pytorch-a2c-ppo-acktr"]
 	path = pytorch-a2c-ppo-acktr
 	url = https://github.com/Omegastick/pytorch-a2c-ppo-acktr.git
+[submodule "SingularityTrainer/lib/glfw"]
+	path = SingularityTrainer/lib/GLFW
+	url = git@github.com:glfw/glfw.git
+[submodule "SingularityTrainer/lib/glm"]
+	path = SingularityTrainer/lib/GLM
+	url = git@github.com:g-truc/glm.git
+[submodule "SingularityTrainer/lib/spdlog"]
+	path = SingularityTrainer/lib/spdlog
+	url = git@github.com:gabime/spdlog.git
+[submodule "SingularityTrainer/lib/imgui"]
+	path = SingularityTrainer/lib/imgui
+	url = git@github.com:Omegastick/imgui.git

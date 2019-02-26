@@ -1,7 +1,6 @@
 #pragma once
 
 #include <Box2D/Box2D.h>
-#include <SFML/Graphics.hpp>
 #include <atomic>
 #include <future>
 #include <memory>
@@ -9,7 +8,8 @@
 #include <thread>
 #include <utility>
 
-#include "particles/linear_particle_system.h"
+#include "graphics/render_data.h"
+#include "graphics/idrawable.h"
 #include "random.h"
 #include "resource_manager.h"
 #include "training/agents/iagent.h"
@@ -21,23 +21,7 @@ namespace SingularityTrainer
 {
 class TargetEnv : public IEnvironment
 {
-  public:
-    TargetEnv(ResourceManager &resource_manager, float x, float y, float scale, int max_steps, int seed);
-    ~TargetEnv();
-
-    virtual void start_thread();
-    virtual std::future<std::unique_ptr<StepInfo>> step(std::vector<int> &actions, float step_length);
-    virtual void forward(float step_length);
-    virtual std::future<std::unique_ptr<StepInfo>> reset();
-    virtual void change_reward(float reward_delta);
-    virtual void set_done();
-    virtual void draw(sf::RenderTarget &render_target, bool lightweight = false);
-
-    std::unique_ptr<IAgent> agent;
-
   private:
-    sf::RenderTexture render_texture;
-    sf::Sprite sprite;
     std::unique_ptr<b2World> world;
     std::vector<std::unique_ptr<Wall>> walls;
     std::unique_ptr<Target> target;
@@ -50,9 +34,24 @@ class TargetEnv : public IEnvironment
     std::queue<ThreadCommand> command_queue;
     std::atomic<int> command_queue_flag;
     int total_reward;
-    LinearParticleSystem particle_system;
     Random rng;
+    float elapsed_time;
 
     void thread_loop();
+
+  public:
+    TargetEnv(ResourceManager &resource_manager, float x, float y, float scale, int max_steps, int seed);
+    ~TargetEnv();
+
+    virtual void start_thread();
+    virtual std::future<std::unique_ptr<StepInfo>> step(std::vector<int> &actions, float step_length);
+    virtual void forward(float step_length);
+    virtual std::future<std::unique_ptr<StepInfo>> reset();
+    virtual void change_reward(float reward_delta);
+    virtual void set_done();
+    virtual RenderData get_render_data(bool lightweight = false);
+    virtual float get_elapsed_time() const;
+
+    std::unique_ptr<IAgent> agent;
 };
 }

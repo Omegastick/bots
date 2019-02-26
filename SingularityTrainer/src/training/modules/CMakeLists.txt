@@ -1,4 +1,4 @@
-target_sources(SingularityTrainer
+target_sources(Training
 PUBLIC
     ${CMAKE_CURRENT_LIST_DIR}/module_link.cpp
     ${CMAKE_CURRENT_LIST_DIR}/imodule.cpp

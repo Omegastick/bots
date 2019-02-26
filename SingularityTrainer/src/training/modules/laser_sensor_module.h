@@ -1,11 +1,11 @@
 #pragma once
 
-#include <Box2D/Box2D.h>
-#include <SFML/Graphics.hpp>
 #include <memory>
 #include <vector>
 
-#include "particles/linear_particle_system.h"
+#include <Box2D/Box2D.h>
+
+#include "graphics/render_data.h"
 #include "resource_manager.h"
 #include "training/actions/iaction.h"
 #include "training/agents/iagent.h"
@@ -31,13 +31,12 @@ class LaserSensorModule : public IModule
     ~LaserSensorModule();
 
     virtual std::vector<float> get_sensor_reading();
-    virtual void draw(sf::RenderTarget &render_target, bool lightweight = false);
+    virtual RenderData get_render_data(bool lightweight = false);
 
     int laser_count;
     float laser_length;
     float fov;
     std::vector<float> last_reading;
-    std::shared_ptr<sf::Shader> laser_shader;
     float time;
 };
 }
