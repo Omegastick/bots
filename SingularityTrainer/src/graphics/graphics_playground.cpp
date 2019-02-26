@@ -20,6 +20,7 @@
 #include "graphics/screens/particle_test_screen.h"
 #include "graphics/screens/scene_test_screen.h"
 #include "graphics/screens/line_test_screen.h"
+#include "graphics/screens/crt_test_screen.h"
 #include "screen_manager.h"
 #include "iscreen.h"
 
@@ -163,6 +164,9 @@ int main(int argc, const char *argv[])
     spdlog::debug("Initializing line test");
     screens.push_back(std::make_shared<LineTestScreen>(&screen_manager, resource_manager, &screens, &screen_names));
     screen_names.push_back("Line test");
+    spdlog::debug("Initializing CRT test");
+    screens.push_back(std::make_shared<CrtTestScreen>(&screen_manager, resource_manager, &screens, &screen_names));
+    screen_names.push_back("CRT test");
     screen_manager.show_screen(screens[0]);
 
     spdlog::debug("Initializing renderer");
