@@ -1,9 +1,9 @@
 #pragma once
 
 #include <Box2D/Box2D.h>
-#include <SFML/Graphics.hpp>
 
-#include "idrawable.h"
+#include "graphics/idrawable.h"
+#include "graphics/render_data.h"
 #include "training/modules/imodule.h"
 
 namespace SingularityTrainer
@@ -17,7 +17,7 @@ class ModuleLink : IDrawable
     ~ModuleLink();
 
     void link(ModuleLink *other);
-    void draw(sf::RenderTarget &render_target, bool lightweight = false);
+    virtual RenderData get_render_data(bool lightweight = false);
 
     bool linked;
     IModule *parent_module;

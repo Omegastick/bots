@@ -1,23 +1,28 @@
 #pragma once
 
-#include <Box2D/Box2D.h>
-#include <SFML/Graphics.hpp>
+#include <memory>
 
-#include "idrawable.h"
+#include <Box2D/Box2D.h>
+
+#include "graphics/sprite.h"
+#include "graphics/idrawable.h"
 #include "training/rigid_body.h"
+#include "training/icollidable.h"
 
 namespace SingularityTrainer
 {
-class Wall : public IDrawable
+class Wall : public IDrawable, public ICollidable
 {
+  private:
+    std::unique_ptr<RigidBody> rigid_body;
+    std::unique_ptr<Sprite> sprite;
+
   public:
     Wall(float x, float y, float width, float height, b2World &world);
     ~Wall();
 
-    virtual void draw(sf::RenderTarget &render_target, bool lightweight = false);
-
-  private:
-    sf::RectangleShape shape;
-    std::unique_ptr<RigidBody> rigid_body;
+    virtual RenderData get_render_data(bool lightweight = false);
+    virtual void begin_contact(RigidBody *other);
+    virtual void end_contact(RigidBody *other);
 };
 }

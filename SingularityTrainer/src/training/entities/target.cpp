@@ -1,9 +1,8 @@
 #include <Box2D/Box2D.h>
-#include <SFML/Graphics.hpp>
 #include <memory>
 
 #include "graphics/colors.h"
-#include "idrawable.h"
+#include "graphics/idrawable.h"
 #include "training/entities/target.h"
 #include "training/environments/ienvironment.h"
 #include "training/icollidable.h"
@@ -24,19 +23,22 @@ Target::Target(float x, float y, b2World &world, IEnvironment &env) : environmen
     rigid_body->body->CreateFixture(&fixture_def);
 
     // Sprite
-    shape.setFillColor(cl_white);
-    shape.setRadius(0.5);
-    shape.setOrigin(0.5, 0.5);
-    shape.setPosition(x, y);
+    sprite = std::make_unique<Sprite>("target");
+    sprite->set_scale({1, 1});
+    sprite->set_origin(sprite->get_center());
 }
 
 Target::~Target() {}
 
-void Target::draw(sf::RenderTarget &render_target, bool lightweight)
+RenderData Target::get_render_data(bool lightweight)
 {
+    auto render_data = RenderData();
+
     b2Vec2 position = rigid_body->body->GetPosition();
-    shape.setPosition(position.x, position.y);
-    render_target.draw(shape);
+    sprite->set_position({position.x, position.y});
+    render_data.sprites.push_back(*sprite);
+
+    return render_data;
 }
 
 void Target::begin_contact(RigidBody *other)

@@ -8,8 +8,14 @@ PUBLIC
     ${CMAKE_CURRENT_LIST_DIR}/random.cpp
 )
 
-add_subdirectory(test_screen)
+target_sources(GraphicsPlayground
+PUBLIC
+    ${CMAKE_CURRENT_LIST_DIR}/screen_manager.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/resource_manager.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/utilities.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/random.cpp
+)
+
 add_subdirectory(graphics)
 add_subdirectory(training)
 add_subdirectory(screens)
-add_subdirectory(particles)
