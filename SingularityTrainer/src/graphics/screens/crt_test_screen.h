@@ -26,7 +26,6 @@ class CrtTestScreen : public IScreen
     ScreenManager *screen_manager;
     ResourceManager *resource_manager;
     glm::mat4 projection;
-
     std::unique_ptr<PostProcLayer> post_proc_layer;
 
   public:
