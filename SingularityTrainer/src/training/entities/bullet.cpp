@@ -28,7 +28,7 @@ Bullet::Bullet(b2Vec2 position, b2Vec2 velocity, b2World &world)
     fixture_def.shape = &rigid_body_shape;
     fixture_def.density = 1;
     fixture_def.friction = 1;
-    fixture_def.isSensor = true;
+    fixture_def.isSensor = false;
     rigid_body->body->CreateFixture(&fixture_def);
     rigid_body->body->SetBullet(true);
 
