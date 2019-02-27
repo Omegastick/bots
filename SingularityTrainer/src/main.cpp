@@ -174,5 +174,11 @@ int main(int argc, const char *argv[])
         window.swap_buffers();
     }
 
+    // Allow screens to perform cleanup
+    while (screen_manager.stack_size() > 0)
+    {
+        screen_manager.close_screen();
+    }
+
     return 0;
 }
