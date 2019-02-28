@@ -13,3 +13,12 @@
 [submodule "SingularityTrainer/lib/imgui"]
 	path = SingularityTrainer/lib/imgui
 	url = git@github.com:Omegastick/imgui.git
+[submodule "SingularityTrainer/lib/cppzmq"]
+	path = SingularityTrainer/lib/cppzmq
+	url = git@github.com:zeromq/cppzmq.git
+[submodule "SingularityTrainer/lib/msgpack-c"]
+	path = SingularityTrainer/lib/msgpack-c
+	url = https://github.com/msgpack/msgpack-c
+[submodule "SingularityTrainer/lib/Box2D-cmake"]
+	path = SingularityTrainer/lib/Box2D-cmake
+	url = git@github.com:tobanteGaming/Box2D-cmake.git

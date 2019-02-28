@@ -11,6 +11,9 @@ set(GLAD_DIR ${LIB_DIR}/GLAD)
 set(GLM_DIR ${LIB_DIR}/GLM)
 set(SPDLOG_DIR ${LIB_DIR}/spdlog)
 set(IMGUI_DIR ${LIB_DIR}/imgui)
+set(CPPZMQ_DIR ${LIB_DIR}/cppzmq)
+set(BOX2D_DIR ${LIB_DIR}/Box2D-cmake)
+set(MSGPACK_DIR ${LIB_DIR}/msgpack-c)
 
 # CMake Properties
 if (NOT CMAKE_BUILD_TYPE)
@@ -45,13 +48,14 @@ add_subdirectory(${GLM_DIR})
 add_subdirectory(${SPDLOG_DIR})
 ## imgui
 add_subdirectory(${IMGUI_DIR})
-
-# Libraries not included in repository
-find_package(cppzmq)
-find_package(Box2D)
+## cppzmq
+set(CPPZMQ_BUILD_TESTS OFF)
+add_subdirectory(${CPPZMQ_DIR})
+## Box2D
+add_subdirectory(${BOX2D_DIR})
 
 # Link libraries
-target_link_libraries(Training cppzmq Box2D)
+target_link_libraries(Training cppzmq TG::Box2D)
 if (UNIX)
     # UNIX systems sometimes need to explicitly link the threading library
     target_link_libraries(Training pthread)
@@ -70,6 +74,8 @@ set(INCLUDE_DIRS
     ${SPDLOG_DIR}/include
     ${IMGUI_DIR}
     ${IMGUI_DIR}/examples
+    ${BOX2D_DIR}/Box2D
+    ${MSGPACK_DIR}/include
 )
 target_include_directories(SingularityTrainer PUBLIC ${INCLUDE_DIRS})
 target_include_directories(HeadlessTrainer PUBLIC ${INCLUDE_DIRS})
