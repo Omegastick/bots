@@ -1,6 +1,9 @@
 #include <memory>
 #include <chrono>
 
+#include <spdlog/spdlog.h>
+#include <spdlog/fmt/fmt.h>
+
 #include "communicator.h"
 #include "random.h"
 #include "resource_manager.h"
@@ -16,12 +19,14 @@ QuickTrainer::QuickTrainer(Communicator *communicator, Random *rng, int env_coun
       frame_counter(0),
       action_frame_counter(0),
       rng(rng),
-      elapsed_time(0)
+      elapsed_time(0),
+      score_processor(1, 0.99)
 {
     for (int i = 0; i < env_count; ++i)
     {
         environments.push_back(std::make_unique<TargetEnv>(460, 40, 1, 100, i));
     }
+    env_scores.resize(env_count);
 }
 
 QuickTrainer::~QuickTrainer() {}
@@ -162,6 +167,17 @@ void QuickTrainer::action_update()
         observations[i] = step_info->observation;
         dones.push_back(step_info->done);
         rewards.push_back(step_info->reward);
+        env_scores[i] += step_info->reward;
+        if (step_info->done)
+        {
+            score_processor.add_score(0, env_scores[i]);
+            env_scores[i] = 0;
+        }
+    }
+    if (action_frame_counter % 100 == 0)
+    {
+        std::vector<float> score_averages = score_processor.get_scores();
+        spdlog::info("Average reward: {}", fmt::join(score_averages, " "));
     }
 
     // Send result to training server
