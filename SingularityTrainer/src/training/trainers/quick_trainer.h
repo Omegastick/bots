@@ -8,6 +8,7 @@
 #include "resource_manager.h"
 #include "training/environments/ienvironment.h"
 #include "training/trainers/itrainer.h"
+#include "training/score_processor.h"
 
 namespace SingularityTrainer
 {
@@ -22,6 +23,8 @@ class QuickTrainer : public ITrainer
     int action_frame_counter;
     Random *rng;
     float elapsed_time;
+    ScoreProcessor score_processor;
+    std::vector<float> env_scores;
 
     void action_update();
 

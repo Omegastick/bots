@@ -229,7 +229,7 @@ void TargetEnv::thread_loop()
             // Increment step counter
             if (done)
             {
-                spdlog::info("Reward: {}", total_reward);
+                // spdlog::info("Reward: {}", total_reward);
                 reset();
             }
 

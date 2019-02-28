@@ -65,8 +65,11 @@ RenderData Bullet::get_render_data(bool lightweight)
         last_position = position;
     }
 
-    render_data.append(explosion_particles);
-    explosion_particles.clear();
+    if (explosion_particles.size() > 1)
+    {
+        render_data.append(explosion_particles);
+        explosion_particles.clear();
+    }
 
     return render_data;
 }
