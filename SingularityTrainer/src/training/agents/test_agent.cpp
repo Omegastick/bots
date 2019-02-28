@@ -167,13 +167,13 @@ void TestAgent::update_body()
         std::vector<b2PolygonShape> screen_shapes = module->shapes;
         for (auto &screen_shape : screen_shapes)
         {
-            int vertex_count = screen_shape.GetVertexCount();
+            int vertex_count = screen_shape.m_count;
             b2Vec2 points[vertex_count];
 
             // Apply transform to all points in screen_shape
             for (int i = 0; i < vertex_count; ++i)
             {
-                points[i] = b2Mul(module->transform, screen_shape.GetVertex(i));
+                points[i] = b2Mul(module->transform, screen_shape.m_vertices[i]);
             }
             screen_shape.Set(points, vertex_count);
 
