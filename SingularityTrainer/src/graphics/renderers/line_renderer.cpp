@@ -118,7 +118,7 @@ void LineRenderer::draw(const Line &line, const glm::mat4 &view)
     vertex_buffer->add_data(&polyline[0], sizeof(LineData) * polyline.size());
 
     int quad_count = line.points.size() - 1;
-    unsigned int indices[quad_count * 6];
+	std::vector<unsigned int> indices(quad_count * 6);
     for (int i = 0; i < quad_count * 2; ++i)
     {
         int index = i * 3;
@@ -126,7 +126,7 @@ void LineRenderer::draw(const Line &line, const glm::mat4 &view)
         indices[index + 1] = i + 1;
         indices[index + 2] = i + 2;
     }
-    element_buffer->set_data(indices, quad_count * 6);
+    element_buffer->set_data(&indices[0], quad_count * 6);
 
     auto shader = resource_manager->shader_store.get("line");
     shader->set_uniform_mat4f("u_mvp", view);

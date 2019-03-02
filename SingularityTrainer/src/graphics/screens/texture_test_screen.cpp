@@ -42,10 +42,10 @@ TextureTestScreen::TextureTestScreen(ScreenManager *screen_manager, std::vector<
     layout.push<float>(4);
     vertex_array->add_buffer(*vertex_buffer, layout);
 
-    texture = std::make_unique<Texture>("SingularityTrainer/assets/images/gun_module.png");
+    texture = std::make_unique<Texture>("assets/images/gun_module.png");
     texture->bind();
 
-    shader = std::make_unique<Shader>("SingularityTrainer/assets/shaders/texture.vert", "SingularityTrainer/assets/shaders/texture.frag");
+    shader = std::make_unique<Shader>("assets/shaders/texture.vert", "assets/shaders/texture.frag");
     shader->set_uniform_mat4f("u_mvp", projection);
 }
 

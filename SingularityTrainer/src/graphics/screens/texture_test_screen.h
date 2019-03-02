@@ -1,4 +1,4 @@
-#pragma oncegraphics / renderers / renderer
+#pragma once
 
 #include <vector>
 #include <memory>

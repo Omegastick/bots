@@ -44,7 +44,7 @@ QuadScreen::QuadScreen(ScreenManager *screen_manager, std::vector<std::shared_pt
     layout.push<float>(4);
     vertex_array->add_buffer(*vertex_buffer, layout);
 
-    shader = std::make_unique<Shader>("SingularityTrainer/assets/shaders/default.vert", "SingularityTrainer/assets/shaders/default.frag");
+    shader = std::make_unique<Shader>("assets/shaders/default.vert", "assets/shaders/default.frag");
     shader->set_uniform_mat4f("u_mvp", projection);
     shader->bind();
 }
