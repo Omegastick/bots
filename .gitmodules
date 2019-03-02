@@ -22,3 +22,6 @@
 [submodule "SingularityTrainer/lib/Box2D-cmake"]
 	path = SingularityTrainer/lib/Box2D-cmake
 	url = git@github.com:tobanteGaming/Box2D-cmake.git
+[submodule "SingularityTrainer/lib/libzmq"]
+	path = SingularityTrainer/lib/libzmq
+	url = git@github.com:zeromq/libzmq.git
