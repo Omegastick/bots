@@ -11,6 +11,7 @@ set(GLAD_DIR ${LIB_DIR}/GLAD)
 set(GLM_DIR ${LIB_DIR}/GLM)
 set(SPDLOG_DIR ${LIB_DIR}/spdlog)
 set(IMGUI_DIR ${LIB_DIR}/imgui)
+set(ZMQ_DIR ${LIB_DIR}/libzmq)
 set(CPPZMQ_DIR ${LIB_DIR}/cppzmq)
 set(BOX2D_DIR ${LIB_DIR}/Box2D-cmake)
 set(MSGPACK_DIR ${LIB_DIR}/msgpack-c)
@@ -48,9 +49,9 @@ add_subdirectory(${GLM_DIR})
 add_subdirectory(${SPDLOG_DIR})
 ## imgui
 add_subdirectory(${IMGUI_DIR})
-## cppzmq
-set(CPPZMQ_BUILD_TESTS OFF)
-add_subdirectory(${CPPZMQ_DIR})
+## ZMQ
+set(ZMQ_BUILD_TESTS OFF)
+add_subdirectory(${ZMQ_DIR})
 ## Box2D
 add_subdirectory(${BOX2D_DIR})
 
