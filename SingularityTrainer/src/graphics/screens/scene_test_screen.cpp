@@ -26,7 +26,7 @@ SceneTestScreen::SceneTestScreen(
     : screens(screens),
       screen_names(screen_names),
       screen_manager(screen_manager),
-      projection(glm::ortho(-9.6f, 9.6f, -5.4f, 5.4f)),
+      projection(glm::ortho(-19.2f, 19.2f, -10.8f, 10.8f)),
       random(0),
       elapsed_time(0)
 {

@@ -1,5 +1,4 @@
 #include <memory>
-#include <unistd.h>
 #include <signal.h>
 
 #include <spdlog/spdlog.h>

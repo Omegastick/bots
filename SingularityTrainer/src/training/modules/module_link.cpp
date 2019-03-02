@@ -24,7 +24,7 @@ void ModuleLink::link(ModuleLink *other)
     b2Transform own_transform = b2Mul(parent_module->transform, transform);
 
     // Calculate other module's transform
-    b2Rot inverse_rotation = b2Mul(own_transform.q, b2Rot(M_PI));
+    b2Rot inverse_rotation = b2Mul(own_transform.q, b2Rot(b2_pi));
     other->parent_module->transform.q = b2Rot(inverse_rotation.GetAngle() - other->transform.q.GetAngle());
     other->parent_module->transform.p = b2Mul(other->parent_module->transform.q, other->transform.p);
     other->parent_module->transform.p *= -1;

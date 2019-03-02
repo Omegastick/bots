@@ -2,7 +2,9 @@ cmake_minimum_required(VERSION 3.5.1)
 project(SingularityTrainer)
 
 # CMake policies
-cmake_policy(SET CMP0077 NEW)
+if (!WINDOWS)
+	cmake_policy(SET CMP0077 NEW)
+endif()
 
 # Configuration
 set(LIB_DIR lib)
@@ -56,12 +58,12 @@ add_subdirectory(${ZMQ_DIR})
 add_subdirectory(${BOX2D_DIR})
 
 # Link libraries
-target_link_libraries(Training cppzmq TG::Box2D)
+target_link_libraries(Training libzmq-static TG::Box2D)
 if (UNIX)
     # UNIX systems sometimes need to explicitly link the threading library
     target_link_libraries(Training pthread)
 endif()
-target_link_libraries(Graphics cppzmq glad glfw ${GLFW_LIBRARIES} glm imgui)
+target_link_libraries(Graphics glad glfw ${GLFW_LIBRARIES} glm imgui)
 target_link_libraries(SingularityTrainer Training Graphics)
 target_link_libraries(HeadlessTrainer Training Graphics)
 target_link_libraries(GraphicsPlayground Training Graphics)
@@ -77,6 +79,8 @@ set(INCLUDE_DIRS
     ${IMGUI_DIR}/examples
     ${BOX2D_DIR}/Box2D
     ${MSGPACK_DIR}/include
+    ${CPPZMQ_DIR}
+    ${ZMQ_DIR}/include
 )
 target_include_directories(SingularityTrainer PUBLIC ${INCLUDE_DIRS})
 target_include_directories(HeadlessTrainer PUBLIC ${INCLUDE_DIRS})

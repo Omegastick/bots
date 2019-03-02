@@ -67,7 +67,7 @@ void TestAgent::act(std::vector<int> action_flags)
     for (const auto &action : actions)
     {
         int next_position = current_position + action->flag_count;
-        action->act(std::vector<int>(&action_flags[current_position], &action_flags[next_position]));
+        action->act(std::vector<int>(action_flags.begin() + current_position, action_flags.begin() + next_position));
         current_position = next_position;
     }
 }
@@ -167,15 +167,15 @@ void TestAgent::update_body()
         std::vector<b2PolygonShape> screen_shapes = module->shapes;
         for (auto &screen_shape : screen_shapes)
         {
-            int vertex_count = screen_shape.m_count;
-            b2Vec2 points[vertex_count];
+            std::vector<b2Vec2> points;
+			points.resize(screen_shape.m_count);
 
             // Apply transform to all points in screen_shape
-            for (int i = 0; i < vertex_count; ++i)
+            for (int i = 0; i < screen_shape.m_count; ++i)
             {
                 points[i] = b2Mul(module->transform, screen_shape.m_vertices[i]);
             }
-            screen_shape.Set(points, vertex_count);
+            screen_shape.Set(&points[0], screen_shape.m_count);
 
             // Create the fixture
             b2FixtureDef fixture_def;

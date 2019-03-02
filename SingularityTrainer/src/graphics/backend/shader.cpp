@@ -70,9 +70,9 @@ unsigned int Shader::compile_shader(unsigned int type, const std::string &source
     {
         int length;
         glGetShaderiv(id, GL_INFO_LOG_LENGTH, &length);
-        char message[length];
-        glGetShaderInfoLog(id, length, &length, message);
-        spdlog::error("Shader compile error: {}", std::string(message));
+        std::vector<char> message(length);
+        glGetShaderInfoLog(id, length, &length, &message[0]);
+        spdlog::error("Shader compile error: {}", std::string(&message[0]));
         glDeleteShader(id);
         return 0;
     }

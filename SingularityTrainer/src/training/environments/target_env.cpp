@@ -115,8 +115,10 @@ TargetEnv::TargetEnv(float x, float y, float scale, int max_steps, int seed)
 TargetEnv::~TargetEnv()
 {
     ThreadCommand command{Commands::Stop};
-    command_queue.emplace(std::move(command));
-    command_queue_flag++;
+	command_queue_mutex.lock();
+	command_queue.push(std::move(command));
+	command_queue_mutex.unlock();
+	command_queue_flag++;
     thread->join();
 };
 
@@ -154,8 +156,10 @@ std::future<std::unique_ptr<StepInfo>> TargetEnv::step(std::vector<int> &actions
     std::promise<std::unique_ptr<StepInfo>> promise;
     std::future<std::unique_ptr<StepInfo>> future = promise.get_future();
     ThreadCommand command{Commands::Step, std::move(promise), step_length, actions};
-    command_queue.emplace(std::move(command));
-    command_queue_flag++;
+	command_queue_mutex.lock();
+    command_queue.push(std::move(command));
+	command_queue_mutex.unlock();
+	command_queue_flag++;
 
     return future;
 }
@@ -164,8 +168,10 @@ void TargetEnv::forward(float step_length)
 {
     std::promise<std::unique_ptr<StepInfo>> promise;
     ThreadCommand command{Commands::Forward, std::move(promise), step_length};
-    command_queue.emplace(std::move(command));
-    command_queue_flag++;
+	command_queue_mutex.lock();
+	command_queue.push(std::move(command));
+	command_queue_mutex.unlock();
+	command_queue_flag++;
 }
 
 void TargetEnv::change_reward(float reward_delta)
@@ -184,8 +190,10 @@ std::future<std::unique_ptr<StepInfo>> TargetEnv::reset()
     std::promise<std::unique_ptr<StepInfo>> promise;
     std::future<std::unique_ptr<StepInfo>> future = promise.get_future();
     ThreadCommand command{Commands::Reset, std::move(promise)};
-    command_queue.emplace(std::move(command));
-    command_queue_flag++;
+	command_queue_mutex.lock();
+	command_queue.push(std::move(command));
+	command_queue_mutex.unlock();
+	command_queue_flag++;
     return future;
 }
 
@@ -197,9 +205,11 @@ void TargetEnv::thread_loop()
         while (command_queue_flag == 0)
         {
         }
-        ThreadCommand command = std::move(command_queue.front());
+		command_queue_mutex.lock();
+		ThreadCommand command = std::move(command_queue.front());
         command_queue.pop();
-        command_queue_flag--;
+		command_queue_mutex.unlock();
+		command_queue_flag--;
         std::unique_ptr<StepInfo> step_info = std::make_unique<StepInfo>();
         switch (command.command)
         {

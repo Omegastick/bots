@@ -97,7 +97,7 @@ void init_imgui(const int opengl_version_major, const int opengl_version_minor, 
     font_config.OversampleV = 3;
     ImGuiIO &io = ImGui::GetIO();
     io.Fonts->ClearFonts();
-    io.Fonts->AddFontFromFileTTF("SingularityTrainer/assets/fonts/Roboto-Regular.ttf", 15, &font_config);
+    io.Fonts->AddFontFromFileTTF("assets/fonts/Roboto-Regular.ttf", 15, &font_config);
 
     reset_imgui_style();
 }
@@ -130,7 +130,7 @@ int main(int argc, const char *argv[])
     window.set_resize_callback(resize_window_callback);
 
     ScreenManager screen_manager;
-    ResourceManager resource_manager("SingularityTrainer/assets/");
+    ResourceManager resource_manager("assets/");
     Communicator communicator("tcp://127.0.0.1:10201");
     Random rng(1);
     Renderer renderer(1920, 1080, resource_manager);

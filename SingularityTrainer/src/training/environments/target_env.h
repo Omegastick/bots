@@ -7,6 +7,7 @@
 #include <queue>
 #include <thread>
 #include <utility>
+#include <mutex>
 
 #include "graphics/render_data.h"
 #include "graphics/idrawable.h"
@@ -33,7 +34,8 @@ class TargetEnv : public IEnvironment
     std::thread *thread;
     std::queue<ThreadCommand> command_queue;
     std::atomic<int> command_queue_flag;
-    int total_reward;
+	std::mutex command_queue_mutex;
+	int total_reward;
     Random rng;
     float elapsed_time;
 

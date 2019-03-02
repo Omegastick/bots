@@ -121,7 +121,7 @@ void init_imgui(const int opengl_version_major, const int opengl_version_minor, 
     font_config.OversampleV = 3;
     ImGuiIO &io = ImGui::GetIO();
     io.Fonts->ClearFonts();
-    io.Fonts->AddFontFromFileTTF("SingularityTrainer/assets/fonts/Roboto-Regular.ttf", 15, &font_config);
+    io.Fonts->AddFontFromFileTTF("assets/fonts/Roboto-Regular.ttf", 15, &font_config);
 
     reset_imgui_style();
 }
@@ -136,7 +136,7 @@ int main(int argc, const char *argv[])
     // Create window
     Window window = Window(resolution_x, resolution_y, window_title, opengl_version_major, opengl_version_minor);
 
-    ResourceManager resource_manager("SingularityTrainer/assets/");
+    ResourceManager resource_manager("assets/");
 
     // Screens
     spdlog::debug("Initializing screens");
