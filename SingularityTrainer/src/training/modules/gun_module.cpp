@@ -72,7 +72,7 @@ void GunModule::update()
         bullet->update();
     }
 
-    for (int i = 0; i < bullets.size(); ++i)
+    for (unsigned int i = 0; i < bullets.size(); ++i)
     {
         if (bullets[i]->destroyed)
         {

@@ -16,14 +16,14 @@ struct Request
     std::string method;
     std::shared_ptr<T> param;
     int id;
-    MSGPACK_DEFINE_MAP(api, method, param, id);
+    MSGPACK_DEFINE_MAP(api, method, param, id)
 };
 
 struct GetActionsParam
 {
     std::vector<std::vector<float>> inputs;
     int session_id;
-    MSGPACK_DEFINE_MAP(inputs, session_id);
+    MSGPACK_DEFINE_MAP(inputs, session_id)
 };
 
 struct Model
@@ -32,7 +32,7 @@ struct Model
     int outputs;
     bool recurrent;
     bool normalize_observations;
-    MSGPACK_DEFINE_MAP(inputs, outputs, recurrent, normalize_observations);
+    MSGPACK_DEFINE_MAP(inputs, outputs, recurrent, normalize_observations)
 };
 
 struct HyperParams
@@ -63,7 +63,7 @@ struct HyperParams
         max_grad_norm,
         clip_factor,
         use_gpu,
-        normalize_rewards);
+        normalize_rewards)
 };
 
 struct BeginSessionParam
@@ -74,7 +74,7 @@ struct BeginSessionParam
     bool training;
     int contexts;
     bool auto_train;
-    MSGPACK_DEFINE_MAP(model, hyperparams, training, contexts, auto_train, session_id);
+    MSGPACK_DEFINE_MAP(model, hyperparams, training, contexts, auto_train, session_id)
 };
 
 struct GiveRewardsParam
@@ -82,13 +82,13 @@ struct GiveRewardsParam
     std::vector<float> rewards;
     std::vector<bool> dones;
     int session_id;
-    MSGPACK_DEFINE_MAP(rewards, dones, session_id);
+    MSGPACK_DEFINE_MAP(rewards, dones, session_id)
 };
 
 struct EndSessionParam
 {
     int session_id;
-    MSGPACK_DEFINE_MAP(session_id);
+    MSGPACK_DEFINE_MAP(session_id)
 };
 
 template <class T>
@@ -97,7 +97,7 @@ struct Response
     std::string api;
     T result;
     int id;
-    MSGPACK_DEFINE_MAP(api, result, id);
+    MSGPACK_DEFINE_MAP(api, result, id)
 };
 
 typedef std::string BeginSessionResult;
@@ -108,6 +108,6 @@ struct GetActionsResult
 {
     std::vector<std::vector<int>> actions;
     std::vector<float> values;
-    MSGPACK_DEFINE_MAP(actions, values);
+    MSGPACK_DEFINE_MAP(actions, values)
 };
 }

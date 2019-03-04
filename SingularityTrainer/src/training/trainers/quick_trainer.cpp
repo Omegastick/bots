@@ -35,13 +35,13 @@ void QuickTrainer::begin_training()
 {
     std::vector<std::future<std::unique_ptr<StepInfo>>> observation_futures(env_count);
     observations.resize(env_count);
-    for (int i = 0; i < environments.size(); ++i)
+    for (unsigned int i = 0; i < environments.size(); ++i)
     {
         environments[i]->start_thread();
         observation_futures[i] = environments[i]->reset();
 
         // Start each environment with a different number of random steps to decorrelate the environments
-        for (int current_step = 0; current_step < i * 10; current_step++)
+        for (unsigned int current_step = 0; current_step < i * 10; current_step++)
         {
             std::vector<int> actions;
             actions.reserve(4);
@@ -52,7 +52,7 @@ void QuickTrainer::begin_training()
             observation_futures[i] = environments[i]->step(actions, 1.f / 10.f);
         }
     }
-    for (int i = 0; i < environments.size(); ++i)
+    for (unsigned int i = 0; i < environments.size(); ++i)
     {
         observations[i] = observation_futures[i].get()->observation;
     }
@@ -157,11 +157,11 @@ void QuickTrainer::action_update()
     std::vector<bool> dones;
     std::vector<float> rewards;
     std::vector<std::future<std::unique_ptr<StepInfo>>> step_info_futures(environments.size());
-    for (int j = 0; j < environments.size(); ++j)
+    for (unsigned int j = 0; j < environments.size(); ++j)
     {
         step_info_futures[j] = environments[j]->step(actions[j], 1. / 60.);
     }
-    for (int i = 0; i < environments.size(); ++i)
+    for (unsigned int i = 0; i < environments.size(); ++i)
     {
         std::unique_ptr<StepInfo> step_info = step_info_futures[i].get();
         observations[i] = step_info->observation;

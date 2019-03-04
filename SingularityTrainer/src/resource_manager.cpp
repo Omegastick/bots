@@ -24,7 +24,7 @@ void ResourceManager::load_texture(const std::string &id, const std::string &pat
     std::shared_ptr<Texture> texture = std::make_shared<Texture>(full_path);
 
     texture_store.add(id, texture);
-};
+}
 
 void ResourceManager::load_shader(const std::string &id, const std::string &vert_path, const std::string &frag_path)
 {
@@ -39,5 +39,5 @@ void ResourceManager::load_shader(const std::string &id, const std::string &vert
     std::shared_ptr<Shader> shader = std::make_shared<Shader>(full_vert_path, full_frag_path);
 
     shader_store.add(id, shader);
-};
+}
 }
