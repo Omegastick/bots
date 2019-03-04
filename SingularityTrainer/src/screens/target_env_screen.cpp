@@ -67,7 +67,7 @@ void TargetEnvScreen::draw(Renderer &renderer, bool lightweight)
     auto crt_shader = resource_manager->shader_store.get("crt");
     crt_shader->set_uniform_2f("u_resolution", glm::vec2(renderer.get_width(), renderer.get_height()));
     crt_shader->set_uniform_1f("u_output_gamma", 1);
-    crt_shader->set_uniform_1f("u_strength", 0.5);
+    crt_shader->set_uniform_1f("u_strength", 0.8);
     crt_shader->set_uniform_1f("u_distortion_factor", 0.03);
 
     renderer.end();
