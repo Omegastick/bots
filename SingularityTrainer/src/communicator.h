@@ -56,7 +56,7 @@ class Communicator
         zmq::message_t message(buffer.size());
         std::memcpy(message.data(), buffer.data(), buffer.size());
         socket->send(message);
-    };
+    }
 
   private:
     std::unique_ptr<zmq::context_t> context;

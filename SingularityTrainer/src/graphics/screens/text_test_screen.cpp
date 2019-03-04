@@ -135,7 +135,7 @@ TextTestScreen::TextTestScreen(
         last_index += 4;
     }
 
-    for (int i = 0; i < positions.size(); ++i)
+    for (unsigned int i = 0; i < positions.size(); ++i)
     {
         vertices.push_back(positions[i].x);
         vertices.push_back(positions[i].y);

@@ -2,8 +2,8 @@ cmake_minimum_required(VERSION 3.5.1)
 project(SingularityTrainer)
 
 # CMake policies
-if (!WINDOWS)
-	cmake_policy(SET CMP0077 NEW)
+if (UNIX)
+    cmake_policy(SET CMP0077 NEW)
 endif()
 
 # Configuration
