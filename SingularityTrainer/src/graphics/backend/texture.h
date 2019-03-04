@@ -14,6 +14,7 @@ class Texture
 
   public:
     Texture(int width, int height);
+    Texture(int width, int height, unsigned char *data);
     explicit Texture(const std::string &filepath);
     ~Texture();
 

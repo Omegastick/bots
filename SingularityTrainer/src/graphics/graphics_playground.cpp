@@ -21,6 +21,7 @@
 #include "graphics/screens/scene_test_screen.h"
 #include "graphics/screens/line_test_screen.h"
 #include "graphics/screens/crt_test_screen.h"
+#include "graphics/screens/text_test_screen.h"
 #include "screen_manager.h"
 #include "iscreen.h"
 
@@ -167,6 +168,9 @@ int main(int argc, const char *argv[])
     spdlog::debug("Initializing CRT test");
     screens.push_back(std::make_shared<CrtTestScreen>(&screen_manager, resource_manager, &screens, &screen_names));
     screen_names.push_back("CRT test");
+    spdlog::debug("Initializing Text test");
+    screens.push_back(std::make_shared<TextTestScreen>(&screen_manager, resource_manager, &screens, &screen_names));
+    screen_names.push_back("Text test");
     screen_manager.show_screen(screens[0]);
 
     spdlog::debug("Initializing renderer");
