@@ -4,6 +4,8 @@
 #include <vector>
 
 #include <Box2D/Box2D.h>
+#include <glm/glm.hpp>
+#include <glm/gtc/constants.hpp>
 
 #include "graphics/colors.h"
 #include "resource_manager.h"
@@ -51,7 +53,7 @@ RenderData ThrusterModule::get_render_data(bool lightweight)
     if (active && !lightweight)
     {
         b2Transform global_transform = get_global_transform();
-        b2Transform edge_transform = b2Mul(global_transform, b2Transform(b2Vec2(0, -0.3), b2Rot(0)));
+        b2Transform edge_transform = b2Mul(global_transform, b2Transform(b2Vec2(0, -0.3), b2Rot(glm::pi<float>() / 2)));
         std::uniform_real_distribution<float> distribution(0, 1);
         const int particle_count = 20;
         const float step_subdivision = 1.f / particle_count / 10.f;
