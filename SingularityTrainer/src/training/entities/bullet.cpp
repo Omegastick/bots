@@ -76,10 +76,11 @@ RenderData Bullet::get_render_data(bool lightweight)
 
 void Bullet::begin_contact(RigidBody *other)
 {
-    if (!destroyed)
+    if (!destroyed && explosion_particles.size() == 0)
     {
-        b2Vec2 transform = rigid_body->body->GetPosition();
         const int particle_count = 100;
+        explosion_particles.reserve(particle_count);
+        b2Vec2 transform = rigid_body->body->GetPosition();
         const float step_subdivision = 1.f / particle_count / 10.f;
         glm::vec4 end_color = particle_color;
         end_color.a = 0;
