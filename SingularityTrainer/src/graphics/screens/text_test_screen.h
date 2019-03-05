@@ -11,6 +11,7 @@
 #include "graphics/backend/vertex_array.h"
 #include "graphics/backend/vertex_buffer.h"
 #include "graphics/backend/element_buffer.h"
+#include "graphics/font.h"
 #include "resource_manager.h"
 #include "screen_manager.h"
 
@@ -27,7 +28,7 @@ class TextTestScreen : public IScreen
     std::unique_ptr<VertexArray> vertex_array;
     std::unique_ptr<VertexBuffer> vertex_buffer;
     std::unique_ptr<ElementBuffer> element_buffer;
-    std::unique_ptr<Texture> atlas_texture;
+    Text text;
 
   public:
     TextTestScreen(

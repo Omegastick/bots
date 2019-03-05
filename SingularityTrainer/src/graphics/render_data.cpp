@@ -22,10 +22,16 @@ void RenderData::append(const std::vector<Line> &lines)
     this->lines.insert(this->lines.end(), lines.begin(), lines.end());
 }
 
+void RenderData::append(const std::vector<Text> &texts)
+{
+    this->texts.insert(this->texts.end(), texts.begin(), texts.end());
+}
+
 void RenderData::append(const RenderData &render_data)
 {
     append(render_data.sprites);
     append(render_data.particles);
     append(render_data.lines);
+    append(render_data.texts);
 }
 }

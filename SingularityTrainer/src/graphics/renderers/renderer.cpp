@@ -20,7 +20,8 @@ Renderer::Renderer(int width, int height, ResourceManager &resource_manager)
       resource_manager(&resource_manager),
       sprite_renderer(resource_manager),
       particle_renderer(100000, resource_manager),
-      line_renderer(resource_manager)
+      line_renderer(resource_manager),
+      text_renderer(resource_manager)
 {
     base_frame_buffer = std::make_unique<FrameBuffer>();
     base_frame_buffer->set_render_buffer(width, height, 4);
@@ -57,6 +58,11 @@ void Renderer::draw(const Sprite &sprite, const glm::mat4 &view)
     sprite_renderer.draw(sprite, view);
 }
 
+void Renderer::draw(const Text &text, const glm::mat4 &view)
+{
+    text_renderer.draw(text, view);
+}
+
 void Renderer::draw(RenderData &render_data, const glm::mat4 &view, float time, bool lightweight)
 {
     for (const auto &sprite : render_data.sprites)
@@ -73,6 +79,11 @@ void Renderer::draw(RenderData &render_data, const glm::mat4 &view, float time, 
     for (const auto &line : render_data.lines)
     {
         line_renderer.draw(line, view);
+    }
+
+    for (const auto &text : render_data.texts)
+    {
+        text_renderer.draw(text, view);
     }
 }
 
