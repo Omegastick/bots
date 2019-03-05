@@ -17,7 +17,7 @@ class ResourceManager
 
     void load_texture(const std::string &id, const std::string &path);
     void load_shader(const std::string &id, const std::string &vert_path, const std::string &frag_path);
-    void load_font(const std::string &id, const std::string &path);
+    void load_font(const std::string &id, const std::string &path, float size);
 
     AssetStore<Texture> texture_store;
     AssetStore<Shader> shader_store;

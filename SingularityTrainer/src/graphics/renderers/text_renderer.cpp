@@ -24,7 +24,7 @@ GlyphInfo get_glyph_info(const stbtt_packedchar *char_info, unsigned int charact
 {
     stbtt_aligned_quad quad;
 
-    stbtt_GetPackedQuad(char_info, 512, 512, character - 32, &offset_x, &offset_y, &quad, 1);
+    stbtt_GetPackedQuad(char_info, 1024, 1024, character - 32, &offset_x, &offset_y, &quad, 1);
     auto x_min = quad.x0;
     auto x_max = quad.x1;
     auto y_min = -quad.y1;

@@ -41,7 +41,7 @@ void ResourceManager::load_shader(const std::string &id, const std::string &vert
     shader_store.add(id, shader);
 }
 
-void ResourceManager::load_font(const std::string &id, const std::string &path)
+void ResourceManager::load_font(const std::string &id, const std::string &path, float size)
 {
     std::string full_path = base_path + path;
 
@@ -50,7 +50,7 @@ void ResourceManager::load_font(const std::string &id, const std::string &path)
         return;
     }
 
-    std::shared_ptr<Font> font = std::make_shared<Font>(full_path);
+    std::shared_ptr<Font> font = std::make_shared<Font>(full_path, size);
 
     font_store.add(id, font);
 }
