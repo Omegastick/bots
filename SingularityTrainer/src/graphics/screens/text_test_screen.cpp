@@ -34,11 +34,10 @@ TextTestScreen::TextTestScreen(
 {
     this->resource_manager = &resource_manager;
     resource_manager.load_shader("font", "shaders/texture.vert", "shaders/font.frag");
-    resource_manager.load_font("roboto-24", "fonts/Roboto-Regular.ttf");
+    resource_manager.load_font("roboto-48", "fonts/Roboto-Regular.ttf", 48);
 
     text.text = "Hello world!";
-    text.font = "roboto-24";
-    text.set_scale({8, 8});
+    text.font = "roboto-48";
     text.set_position({500, 500});
     text.set_rotation(25);
 }

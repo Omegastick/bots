@@ -11,7 +11,7 @@
 
 namespace SingularityTrainer
 {
-Font::Font(const std::string filepath)
+Font::Font(const std::string filepath, float size)
 {
     // Read file
     std::ifstream file(filepath, std::ios::binary | std::ios::ate);
@@ -20,24 +20,24 @@ Font::Font(const std::string filepath)
         spdlog::error("Failed to open file");
         throw std::exception();
     }
-    const auto size = file.tellg();
+    const auto file_size = file.tellg();
     file.seekg(0, std::ios::beg);
-    auto bytes = std::vector<uint8_t>(size);
-    file.read(reinterpret_cast<char *>(&bytes[0]), size);
+    auto bytes = std::vector<unsigned char>(file_size);
+    file.read(reinterpret_cast<char *>(&bytes[0]), file_size);
     file.close();
 
-    unsigned char atlas_data[512 * 512];
+    unsigned char atlas_data[1024 * 1024];
     char_info.resize(96);
 
     stbtt_pack_context pack_context;
-    if (!stbtt_PackBegin(&pack_context, atlas_data, 512, 512, 0, 1, nullptr))
+    if (!stbtt_PackBegin(&pack_context, atlas_data, 1024, 1024, 0, 1, nullptr))
     {
         spdlog::error("Failed to initialize font");
         throw std::exception();
     }
 
     stbtt_PackSetOversampling(&pack_context, 2, 2);
-    if (!stbtt_PackFontRange(&pack_context, bytes.data(), 0, 24, 32, 96, char_info.data()))
+    if (!stbtt_PackFontRange(&pack_context, bytes.data(), 0, size, 32, 96, char_info.data()))
     {
         spdlog::error("Failed to pack font");
         throw std::exception();
@@ -46,7 +46,7 @@ Font::Font(const std::string filepath)
     stbtt_PackEnd(&pack_context);
 
     // Create atlas texture
-    atlas_texture = std::make_unique<Texture>(512, 512, atlas_data);
+    atlas_texture = std::make_unique<Texture>(1024, 1024, atlas_data);
 }
 
 void Font::bind() const
