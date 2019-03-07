@@ -11,9 +11,9 @@ namespace SingularityTrainer
 {
 struct StepInfo
 {
-    std::vector<float> observation;
-    float reward;
-    bool done;
+    std::vector<std::vector<float>> observation;
+    std::vector<float> reward;
+    std::vector<bool> done;
 };
 
 enum Commands
@@ -29,7 +29,7 @@ struct ThreadCommand
     Commands command;
     std::promise<std::unique_ptr<StepInfo>> promise;
     float step_length;
-    std::vector<int> actions;
+    std::vector<std::vector<int>> actions;
 };
 
 class IEnvironment : public IDrawable
@@ -38,7 +38,7 @@ class IEnvironment : public IDrawable
     virtual ~IEnvironment() = 0;
 
     virtual void start_thread() = 0;
-    virtual std::future<std::unique_ptr<StepInfo>> step(std::vector<int> &actions, float step_length) = 0;
+    virtual std::future<std::unique_ptr<StepInfo>> step(const std::vector<std::vector<int>> &actions, float step_length) = 0;
     virtual void forward(float step_length) = 0;
     virtual std::future<std::unique_ptr<StepInfo>> reset() = 0;
     virtual void change_reward(float reward_delta) = 0;
