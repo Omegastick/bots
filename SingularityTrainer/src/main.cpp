@@ -104,6 +104,10 @@ void init_imgui(const int opengl_version_major, const int opengl_version_minor, 
 
 void resize_window_callback(GLFWwindow *glfw_window, int x, int y)
 {
+	if (x == 0 || y == 0)
+	{
+		return;
+	}
     spdlog::debug("Resizing window to {}x{}", x, y);
     glViewport(0, 0, x, y);
 
