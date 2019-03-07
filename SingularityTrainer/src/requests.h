@@ -91,6 +91,13 @@ struct EndSessionParam
     MSGPACK_DEFINE_MAP(session_id)
 };
 
+struct SaveModelParam
+{
+    std::string path;
+    int session_id;
+    MSGPACK_DEFINE_MAP(path, session_id)
+};
+
 template <class T>
 struct Response
 {
@@ -103,6 +110,7 @@ struct Response
 typedef std::string BeginSessionResult;
 typedef std::string EndSessionResult;
 typedef std::string GiveRewardsResult;
+typedef std::string SaveModelResult;
 
 struct GetActionsResult
 {

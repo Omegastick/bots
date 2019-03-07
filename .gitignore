@@ -5,6 +5,7 @@
 .mypy_cache/**
 **/.cache
 **.pyc
+**.pth
 
 */[Ll]ibrary/
 */[Tt]emp/

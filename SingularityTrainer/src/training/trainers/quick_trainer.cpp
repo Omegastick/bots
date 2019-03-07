@@ -11,6 +11,7 @@
 #include "training/environments/koth_env.h"
 #include "training/trainers/quick_trainer.h"
 #include "utilities.h"
+#include "date.h"
 
 namespace SingularityTrainer
 {
@@ -142,7 +143,16 @@ void QuickTrainer::slow_step()
     }
 }
 
-void QuickTrainer::save_model() {}
+void QuickTrainer::save_model()
+{
+    auto date_time_string = date::format("%F_%H:%M", std::chrono::system_clock::now());
+    auto save_model_param = std::make_shared<SaveModelParam>();
+    save_model_param->path = "./" + date_time_string + ".pth";
+    save_model_param->session_id = 0;
+    Request<SaveModelParam> save_model_request("save_model", save_model_param, 0);
+    communicator->send_request(save_model_request);
+    communicator->get_response<SaveModelResult>();
+}
 
 void QuickTrainer::action_update()
 {
