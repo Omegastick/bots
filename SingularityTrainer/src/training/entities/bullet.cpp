@@ -76,6 +76,11 @@ RenderData Bullet::get_render_data(bool lightweight)
 
 void Bullet::begin_contact(RigidBody *other)
 {
+    if (other->parent_type == RigidBody::ParentTypes::Hill)
+    {
+        return;
+    }
+
     if (!destroyed && explosion_particles.size() == 0)
     {
         const int particle_count = 100;
