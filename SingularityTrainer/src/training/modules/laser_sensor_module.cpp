@@ -17,7 +17,7 @@
 namespace SingularityTrainer
 {
 LaserSensorModule::LaserSensorModule(b2Body &body, IAgent *agent)
-    : laser_count(9), fov(180), laser_length(10), time(0)
+    : laser_count(9), fov(180), laser_length(20)
 {
     // Sprite
     sprite = std::make_unique<Sprite>("laser_sensor_module");

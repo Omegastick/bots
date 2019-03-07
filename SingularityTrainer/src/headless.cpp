@@ -1,3 +1,4 @@
+#include <chrono>
 #include <memory>
 #include <signal.h>
 
@@ -30,8 +31,15 @@ int main(int argc, const char *argv[])
     QuickTrainer trainer(&communicator, &rng, atoi(argv[1]));
     trainer.begin_training();
 
+    auto last_save_time = std::chrono::steady_clock::now();
+
     while (!stop)
     {
+        if (std::chrono::steady_clock::now() - last_save_time > std::chrono::minutes(10))
+        {
+            trainer.save_model();
+            last_save_time = std::chrono::steady_clock::now();
+        }
         trainer.step();
     }
 
