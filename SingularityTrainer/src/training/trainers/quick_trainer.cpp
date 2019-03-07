@@ -8,6 +8,7 @@
 #include "random.h"
 #include "resource_manager.h"
 #include "training/environments/target_env.h"
+#include "training/environments/koth_env.h"
 #include "training/trainers/quick_trainer.h"
 #include "utilities.h"
 
@@ -22,11 +23,11 @@ QuickTrainer::QuickTrainer(Communicator *communicator, Random *rng, int env_coun
       rng(rng),
       elapsed_time(0),
       score_processor(1, 0.99),
-      agents_per_env(1)
+      agents_per_env(2)
 {
     for (int i = 0; i < env_count; ++i)
     {
-        environments.push_back(std::make_unique<TargetEnv>(460, 40, 1, 100, i));
+        environments.push_back(std::make_unique<KothEnv>(460, 40, 1, 100, i));
     }
     env_scores.resize(env_count);
 }
@@ -51,7 +52,7 @@ void QuickTrainer::begin_training()
             {
                 actions.push_back(rng->next_int(0, 1));
             }
-            observation_futures[i] = environments[i]->step({actions}, 1.f / 10.f);
+            observation_futures[i] = environments[i]->step({actions, actions}, 1.f / 10.f);
         }
     }
     for (unsigned int i = 0; i < environments.size(); ++i)
@@ -159,12 +160,12 @@ void QuickTrainer::action_update()
     std::vector<std::vector<bool>> dones;
     std::vector<std::vector<float>> rewards;
     std::vector<std::future<std::unique_ptr<StepInfo>>> step_info_futures(environments.size());
-    for (unsigned int j = 0; j < environments.size(); j += agents_per_env)
+    for (unsigned int j = 0; j < environments.size(); ++j)
     {
         std::vector<std::vector<int>> env_actions;
         for (int k = 0; k < agents_per_env; ++k)
         {
-            env_actions.push_back(actions[j + k]);
+            env_actions.push_back(actions[(j * agents_per_env) + k]);
         }
         step_info_futures[j] = environments[j]->step(env_actions, 1. / 60.);
     }

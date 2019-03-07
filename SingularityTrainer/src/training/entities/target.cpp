@@ -45,7 +45,7 @@ void Target::begin_contact(RigidBody *other)
 {
     if (other->parent_type == RigidBody::ParentTypes::Bullet)
     {
-        environment.change_reward(1);
+        environment.change_reward(0, 1);
     }
 }
 
