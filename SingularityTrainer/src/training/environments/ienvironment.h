@@ -41,7 +41,7 @@ class IEnvironment : public IDrawable
     virtual std::future<std::unique_ptr<StepInfo>> step(const std::vector<std::vector<int>> &actions, float step_length) = 0;
     virtual void forward(float step_length) = 0;
     virtual std::future<std::unique_ptr<StepInfo>> reset() = 0;
-    virtual void change_reward(float reward_delta) = 0;
+    virtual void change_reward(int agent, float reward_delta) = 0;
     virtual void set_done() = 0;
     virtual RenderData get_render_data(bool lightweight = false) = 0;
     virtual float get_elapsed_time() const = 0;

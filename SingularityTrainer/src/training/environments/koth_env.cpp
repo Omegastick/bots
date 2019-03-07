@@ -5,11 +5,10 @@
 #include <Box2D/Box2D.h>
 #include <spdlog/spdlog.h>
 
-#include "training/environments/target_env.h"
+#include "training/environments/koth_env.h"
 #include "graphics/colors.h"
 #include "training/agents/test_agent.h"
 #include "training/entities/bullet.h"
-#include "training/entities/target.h"
 #include "training/entities/wall.h"
 #include "training/rigid_body.h"
 
@@ -41,9 +40,6 @@ class ContactListener : public b2ContactListener
                 case RigidBody::ParentTypes::Bullet:
                     static_cast<Bullet *>(body->parent)->begin_contact(other);
                     break;
-                case RigidBody::ParentTypes::Target:
-                    static_cast<Target *>(body->parent)->begin_contact(other);
-                    break;
                 case RigidBody::ParentTypes::Wall:
                     static_cast<Wall *>(body->parent)->begin_contact(other);
                     break;
@@ -73,9 +69,6 @@ class ContactListener : public b2ContactListener
                 case RigidBody::ParentTypes::Bullet:
                     static_cast<Bullet *>(body->parent)->end_contact(other);
                     break;
-                case RigidBody::ParentTypes::Target:
-                    static_cast<Target *>(body->parent)->end_contact(other);
-                    break;
                 case RigidBody::ParentTypes::Wall:
                     static_cast<Wall *>(body->parent)->end_contact(other);
                     break;
@@ -85,10 +78,11 @@ class ContactListener : public b2ContactListener
     }
 };
 
-TargetEnv::TargetEnv(float x, float y, float scale, int max_steps, int seed)
+KothEnv::KothEnv(float x, float y, float scale, int max_steps, int seed)
     : max_steps(max_steps),
       command_queue_flag(0),
-      reward(0),
+      rewards({0, 0}),
+      total_rewards({0, 0}),
       step_counter(0),
       done(false),
       rng(seed),
@@ -100,19 +94,17 @@ TargetEnv::TargetEnv(float x, float y, float scale, int max_steps, int seed)
     world->SetContactListener(contact_listener.get());
 
     // Agent
-    agent = std::make_unique<TestAgent>(*world, &rng);
-
-    // Target
-    target = std::make_unique<Target>(4, 4, *world, *this);
+    agent_1 = std::make_unique<TestAgent>(*world, &rng);
+    agent_2 = std::make_unique<TestAgent>(*world, &rng);
 
     // Walls
-    walls.push_back(std::make_unique<Wall>(-10, -10, 20, 0.1, *world));
-    walls.push_back(std::make_unique<Wall>(-10, -10, 0.1, 20, *world));
-    walls.push_back(std::make_unique<Wall>(-10, 9.9, 20, 0.1, *world));
-    walls.push_back(std::make_unique<Wall>(9.9, -10, 0.1, 20, *world));
+    walls.push_back(std::make_unique<Wall>(-10, -20, 20, 0.1, *world));
+    walls.push_back(std::make_unique<Wall>(-10, -20, 0.1, 40, *world));
+    walls.push_back(std::make_unique<Wall>(-10, 19.9, 20, 0.1, *world));
+    walls.push_back(std::make_unique<Wall>(9.9, -20, 0.1, 40, *world));
 }
 
-TargetEnv::~TargetEnv()
+KothEnv::~KothEnv()
 {
     ThreadCommand command{Commands::Stop};
     command_queue_mutex.lock();
@@ -122,22 +114,24 @@ TargetEnv::~TargetEnv()
     thread->join();
 };
 
-float TargetEnv::get_elapsed_time() const
+float KothEnv::get_elapsed_time() const
 {
     return elapsed_time;
 }
 
-void TargetEnv::start_thread()
+void KothEnv::start_thread()
 {
-    thread = new std::thread(&TargetEnv::thread_loop, this);
+    thread = new std::thread(&KothEnv::thread_loop, this);
 }
 
-RenderData TargetEnv::get_render_data(bool lightweight)
+RenderData KothEnv::get_render_data(bool lightweight)
 {
     RenderData render_data;
 
-    auto agent_render_data = agent->get_render_data(lightweight);
-    render_data.append(agent_render_data);
+    auto agent_1_render_data = agent_1->get_render_data(lightweight);
+    render_data.append(agent_1_render_data);
+    auto agent_2_render_data = agent_2->get_render_data(lightweight);
+    render_data.append(agent_2_render_data);
 
     for (auto &wall : walls)
     {
@@ -145,13 +139,10 @@ RenderData TargetEnv::get_render_data(bool lightweight)
         render_data.append(wall_render_data);
     }
 
-    auto target_render_data = target->get_render_data(lightweight);
-    render_data.append(target_render_data);
-
     return render_data;
 }
 
-std::future<std::unique_ptr<StepInfo>> TargetEnv::step(const std::vector<std::vector<int>> &actions, float step_length)
+std::future<std::unique_ptr<StepInfo>> KothEnv::step(const std::vector<std::vector<int>> &actions, float step_length)
 {
     std::promise<std::unique_ptr<StepInfo>> promise;
     std::future<std::unique_ptr<StepInfo>> future = promise.get_future();
@@ -164,7 +155,7 @@ std::future<std::unique_ptr<StepInfo>> TargetEnv::step(const std::vector<std::ve
     return future;
 }
 
-void TargetEnv::forward(float step_length)
+void KothEnv::forward(float step_length)
 {
     std::promise<std::unique_ptr<StepInfo>> promise;
     ThreadCommand command{Commands::Forward, std::move(promise), step_length};
@@ -174,18 +165,18 @@ void TargetEnv::forward(float step_length)
     command_queue_flag++;
 }
 
-void TargetEnv::change_reward(int agent, float reward_delta)
+void KothEnv::change_reward(int agent, float reward_delta)
 {
-    reward += reward_delta;
-    total_reward += reward_delta;
+    rewards[agent] += reward_delta;
+    total_rewards[agent] += reward_delta;
 }
 
-void TargetEnv::set_done()
+void KothEnv::set_done()
 {
     done = true;
 }
 
-std::future<std::unique_ptr<StepInfo>> TargetEnv::reset()
+std::future<std::unique_ptr<StepInfo>> KothEnv::reset()
 {
     std::promise<std::unique_ptr<StepInfo>> promise;
     std::future<std::unique_ptr<StepInfo>> future = promise.get_future();
@@ -197,7 +188,7 @@ std::future<std::unique_ptr<StepInfo>> TargetEnv::reset()
     return future;
 }
 
-void TargetEnv::thread_loop()
+void KothEnv::thread_loop()
 {
     bool quit = false;
     while (!quit)
@@ -218,7 +209,8 @@ void TargetEnv::thread_loop()
             break;
         case Commands::Step:
             // Act
-            agent->act(command.actions[0]);
+            agent_1->act(command.actions[0]);
+            agent_2->act(command.actions[1]);
 
             // Step simulation
             world->Step(command.step_length, 3, 2);
@@ -229,16 +221,18 @@ void TargetEnv::thread_loop()
             done = done || step_counter >= max_steps;
 
             // Return step information
-            step_info->observation.push_back(agent->get_observation());
-            step_info->reward.push_back(reward);
-            step_info->done.push_back(done);
+            step_info->observation.push_back(agent_1->get_observation());
+            step_info->observation.push_back(agent_2->get_observation());
+            step_info->reward = rewards;
+            step_info->done = {done, done};
 
             // Reset reward
-            reward = 0;
+            rewards = {0, 0};
 
             // Increment step counter
             if (done)
             {
+                // spdlog::info("Reward: {}", total_reward);
                 reset();
             }
 
@@ -251,24 +245,23 @@ void TargetEnv::thread_loop()
             break;
         case Commands::Reset:
             done = false;
-            reward = 0;
-            total_reward = 0;
+            rewards = {0, 0};
+            total_rewards = {0, 0};
             step_counter = 0;
 
             // Reset agent position
-            agent->rigid_body->body->SetTransform(b2Vec2_zero, 0);
-            agent->rigid_body->body->SetAngularVelocity(0);
-            agent->rigid_body->body->SetLinearVelocity(b2Vec2_zero);
-
-            // Change target position
-            float target_x = rng.next_float(0, 18) - 9;
-            float target_y = rng.next_float(0, 18) - 9;
-            target->rigid_body->body->SetTransform(b2Vec2(target_x, target_y), 0);
+            agent_1->rigid_body->body->SetTransform({0, -10}, 0);
+            agent_1->rigid_body->body->SetAngularVelocity(0);
+            agent_1->rigid_body->body->SetLinearVelocity(b2Vec2_zero);
+            agent_2->rigid_body->body->SetTransform({0, 10}, glm::radians(180.f));
+            agent_2->rigid_body->body->SetAngularVelocity(0);
+            agent_2->rigid_body->body->SetLinearVelocity(b2Vec2_zero);
 
             // Fill in StepInfo
-            step_info->observation.push_back(agent->get_observation());
-            step_info->done.push_back(done);
-            step_info->reward.push_back(reward);
+            step_info->observation.push_back(agent_1->get_observation());
+            step_info->observation.push_back(agent_2->get_observation());
+            step_info->done = {done, done};
+            step_info->reward = rewards;
 
             // Return
             command.promise.set_value(std::move(step_info));
