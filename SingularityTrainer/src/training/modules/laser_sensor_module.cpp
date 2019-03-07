@@ -113,7 +113,8 @@ ClosestRaycastCallback::~ClosestRaycastCallback() {}
 
 float32 ClosestRaycastCallback::ReportFixture(b2Fixture *fixture, const b2Vec2 &point, const b2Vec2 &normal, float32 fraction)
 {
-    if (static_cast<RigidBody *>(fixture->GetBody()->GetUserData())->parent_type == RigidBody::ParentTypes::Bullet)
+    auto fixture_type = static_cast<RigidBody *>(fixture->GetBody()->GetUserData())->parent_type;
+    if (fixture_type == RigidBody::ParentTypes::Bullet || fixture_type == RigidBody::ParentTypes::Hill)
     {
         return 1;
     }
