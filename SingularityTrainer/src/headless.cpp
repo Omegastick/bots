@@ -27,7 +27,7 @@ int main(int argc, const char *argv[])
 
     Communicator communicator("tcp://127.0.0.1:10201");
     Random rng(1);
-    QuickTrainer trainer(&communicator, &rng, 7);
+    QuickTrainer trainer(&communicator, &rng, atoi(argv[1]));
     trainer.begin_training();
 
     while (!stop)
