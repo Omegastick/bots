@@ -25,6 +25,7 @@ KothEnvScreen::KothEnvScreen(ResourceManager &resource_manager, Communicator *co
     resource_manager.load_texture("laser_sensor_module", "images/laser_sensor_module.png");
     resource_manager.load_texture("bullet", "images/bullet.png");
     resource_manager.load_texture("pixel", "images/pixel.png");
+    resource_manager.load_texture("target", "images/target.png");
     resource_manager.load_shader("crt", "shaders/texture.vert", "shaders/crt.frag");
 
     crt_post_proc_layer = std::make_unique<PostProcLayer>(resource_manager.shader_store.get("crt").get());

@@ -15,6 +15,7 @@
 #include "resource_manager.h"
 #include "training/agents/iagent.h"
 #include "training/entities/wall.h"
+#include "training/entities/hill.h"
 #include "training/environments/ienvironment.h"
 
 namespace SingularityTrainer
@@ -22,8 +23,9 @@ namespace SingularityTrainer
 class KothEnv : public IEnvironment
 {
   private:
-    std::unique_ptr<b2World> world;
+    b2World world;
     std::vector<std::unique_ptr<Wall>> walls;
+    Hill hill;
     std::unique_ptr<b2ContactListener> contact_listener;
     bool done;
     std::vector<float> rewards;
