@@ -15,7 +15,8 @@ class RigidBody
         Wall,
         Target,
         Bullet,
-        Bot
+        Bot,
+        Hill
     };
 
     RigidBody(b2BodyType type, b2Vec2 position, b2World &world, void *parent, ParentTypes parent_type);

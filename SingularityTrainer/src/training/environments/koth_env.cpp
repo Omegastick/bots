@@ -14,7 +14,7 @@
 
 namespace SingularityTrainer
 {
-class ContactListener : public b2ContactListener
+class KothContactListener : public b2ContactListener
 {
     void BeginContact(b2Contact *contact)
     {
@@ -42,6 +42,9 @@ class ContactListener : public b2ContactListener
                     break;
                 case RigidBody::ParentTypes::Wall:
                     static_cast<Wall *>(body->parent)->begin_contact(other);
+                    break;
+                case RigidBody::ParentTypes::Hill:
+                    static_cast<Hill *>(body->parent)->begin_contact(other);
                     break;
                 }
             }
@@ -72,6 +75,9 @@ class ContactListener : public b2ContactListener
                 case RigidBody::ParentTypes::Wall:
                     static_cast<Wall *>(body->parent)->end_contact(other);
                     break;
+                case RigidBody::ParentTypes::Hill:
+                    static_cast<Hill *>(body->parent)->end_contact(other);
+                    break;
                 }
             }
         }
@@ -86,22 +92,23 @@ KothEnv::KothEnv(float x, float y, float scale, int max_steps, int seed)
       step_counter(0),
       done(false),
       rng(seed),
-      elapsed_time(0)
+      elapsed_time(0),
+      world({0, 0}),
+      hill(0, 0, world, *this)
 {
     // Box2D world
-    world = std::make_unique<b2World>(b2Vec2(0, 0));
-    contact_listener = std::make_unique<ContactListener>();
-    world->SetContactListener(contact_listener.get());
+    contact_listener = std::make_unique<KothContactListener>();
+    world.SetContactListener(contact_listener.get());
 
     // Agent
-    agent_1 = std::make_unique<TestAgent>(*world, &rng);
-    agent_2 = std::make_unique<TestAgent>(*world, &rng);
+    agent_1 = std::make_unique<TestAgent>(world, &rng);
+    agent_2 = std::make_unique<TestAgent>(world, &rng);
 
     // Walls
-    walls.push_back(std::make_unique<Wall>(-10, -20, 20, 0.1, *world));
-    walls.push_back(std::make_unique<Wall>(-10, -20, 0.1, 40, *world));
-    walls.push_back(std::make_unique<Wall>(-10, 19.9, 20, 0.1, *world));
-    walls.push_back(std::make_unique<Wall>(9.9, -20, 0.1, 40, *world));
+    walls.push_back(std::make_unique<Wall>(-10, -20, 20, 0.1, world));
+    walls.push_back(std::make_unique<Wall>(-10, -20, 0.1, 40, world));
+    walls.push_back(std::make_unique<Wall>(-10, 19.9, 20, 0.1, world));
+    walls.push_back(std::make_unique<Wall>(9.9, -20, 0.1, 40, world));
 }
 
 KothEnv::~KothEnv()
@@ -127,6 +134,8 @@ void KothEnv::start_thread()
 RenderData KothEnv::get_render_data(bool lightweight)
 {
     RenderData render_data;
+
+    render_data.append(hill.get_render_data(lightweight));
 
     auto agent_1_render_data = agent_1->get_render_data(lightweight);
     render_data.append(agent_1_render_data);
@@ -202,6 +211,7 @@ void KothEnv::thread_loop()
         command_queue_mutex.unlock();
         command_queue_flag--;
         std::unique_ptr<StepInfo> step_info = std::make_unique<StepInfo>();
+        std::vector<IAgent *> hill_occupants;
         switch (command.command)
         {
         case Commands::Stop:
@@ -213,8 +223,19 @@ void KothEnv::thread_loop()
             agent_2->act(command.actions[1]);
 
             // Step simulation
-            world->Step(command.step_length, 3, 2);
+            world.Step(command.step_length, 3, 2);
             elapsed_time += command.step_length;
+
+            // Hill score
+            hill_occupants = hill.get_occupants();
+            if (std::find(hill_occupants.begin(), hill_occupants.end(), agent_1.get()) != hill_occupants.end())
+            {
+                change_reward(0, 1);
+            }
+            if (std::find(hill_occupants.begin(), hill_occupants.end(), agent_2.get()) != hill_occupants.end())
+            {
+                change_reward(0, 1);
+            }
 
             // Max episode length
             step_counter++;
@@ -240,7 +261,7 @@ void KothEnv::thread_loop()
             command.promise.set_value(std::move(step_info));
             break;
         case Commands::Forward:
-            world->Step(command.step_length, 3, 2);
+            world.Step(command.step_length, 3, 2);
             elapsed_time += command.step_length;
             break;
         case Commands::Reset:
