@@ -17,7 +17,7 @@ class QuickTrainer : public ITrainer
   private:
     Communicator *communicator;
     bool waiting_for_server;
-    std::vector<std::vector<float>> observations;
+    std::vector<std::vector<std::vector<float>>> observations;
     int env_count;
     int frame_counter;
     int action_frame_counter;
@@ -25,6 +25,7 @@ class QuickTrainer : public ITrainer
     float elapsed_time;
     ScoreProcessor score_processor;
     std::vector<float> env_scores;
+    int agents_per_env;
 
     void action_update();
 

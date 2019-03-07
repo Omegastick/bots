@@ -9,6 +9,7 @@
 #include "resource_manager.h"
 #include "training/environments/target_env.h"
 #include "training/trainers/quick_trainer.h"
+#include "utilities.h"
 
 namespace SingularityTrainer
 {
@@ -20,7 +21,8 @@ QuickTrainer::QuickTrainer(Communicator *communicator, Random *rng, int env_coun
       action_frame_counter(0),
       rng(rng),
       elapsed_time(0),
-      score_processor(1, 0.99)
+      score_processor(1, 0.99),
+      agents_per_env(1)
 {
     for (int i = 0; i < env_count; ++i)
     {
@@ -49,7 +51,7 @@ void QuickTrainer::begin_training()
             {
                 actions.push_back(rng->next_int(0, 1));
             }
-            observation_futures[i] = environments[i]->step(actions, 1.f / 10.f);
+            observation_futures[i] = environments[i]->step({actions}, 1.f / 10.f);
         }
     }
     for (unsigned int i = 0; i < environments.size(); ++i)
@@ -60,8 +62,8 @@ void QuickTrainer::begin_training()
     // Init training session
     Model model{12, 4, true, true};
     HyperParams hyperparams;
-    hyperparams.learning_rate = 0.0004;
-    hyperparams.batch_size = 1024;
+    hyperparams.learning_rate = 0.0007;
+    hyperparams.batch_size = 512;
     hyperparams.num_minibatch = env_count;
     hyperparams.epochs = 3;
     hyperparams.discount_factor = 0.99;
@@ -77,7 +79,7 @@ void QuickTrainer::begin_training()
     begin_session_param->session_id = 0;
     begin_session_param->model = std::move(model);
     begin_session_param->hyperparams = std::move(hyperparams);
-    begin_session_param->contexts = env_count;
+    begin_session_param->contexts = env_count * agents_per_env;
     begin_session_param->auto_train = true;
     begin_session_param->training = true;
     begin_session_param->session_id = 0;
@@ -147,19 +149,24 @@ void QuickTrainer::action_update()
 
     // Get actions from training server
     std::shared_ptr<GetActionsParam> get_actions_param = std::make_shared<GetActionsParam>();
-    get_actions_param->inputs = observations;
+    get_actions_param->inputs = interleave_vectors<std::vector<float>>(observations);
     get_actions_param->session_id = 0;
     Request<GetActionsParam> get_actions_request("get_actions", get_actions_param, 2);
     communicator->send_request(get_actions_request);
-    std::vector<std::vector<int>> actions = communicator->get_response<GetActionsResult>()->result.actions;
+    auto actions = communicator->get_response<GetActionsResult>()->result.actions;
 
     // Step environments
-    std::vector<bool> dones;
-    std::vector<float> rewards;
+    std::vector<std::vector<bool>> dones;
+    std::vector<std::vector<float>> rewards;
     std::vector<std::future<std::unique_ptr<StepInfo>>> step_info_futures(environments.size());
-    for (unsigned int j = 0; j < environments.size(); ++j)
+    for (unsigned int j = 0; j < environments.size(); j += agents_per_env)
     {
-        step_info_futures[j] = environments[j]->step(actions[j], 1. / 60.);
+        std::vector<std::vector<int>> env_actions;
+        for (int k = 0; k < agents_per_env; ++k)
+        {
+            env_actions.push_back(actions[j + k]);
+        }
+        step_info_futures[j] = environments[j]->step(env_actions, 1. / 60.);
     }
     for (unsigned int i = 0; i < environments.size(); ++i)
     {
@@ -167,11 +174,14 @@ void QuickTrainer::action_update()
         observations[i] = step_info->observation;
         dones.push_back(step_info->done);
         rewards.push_back(step_info->reward);
-        env_scores[i] += step_info->reward;
-        if (step_info->done)
+        for (int j = 0; j < step_info->reward.size(); ++j)
         {
-            score_processor.add_score(0, env_scores[i]);
-            env_scores[i] = 0;
+            env_scores[i] += step_info->reward[j];
+            if (step_info->done[j])
+            {
+                score_processor.add_score(0, env_scores[i]);
+                env_scores[i] = 0;
+            }
         }
     }
     if (action_frame_counter % 100 == 0)
@@ -182,8 +192,8 @@ void QuickTrainer::action_update()
 
     // Send result to training server
     std::shared_ptr<GiveRewardsParam> give_rewards_param = std::make_shared<GiveRewardsParam>();
-    give_rewards_param->rewards = rewards;
-    give_rewards_param->dones = dones;
+    give_rewards_param->rewards = interleave_vectors<float>(rewards);
+    give_rewards_param->dones = interleave_vectors<bool>(dones);
     give_rewards_param->session_id = 0;
     Request<GiveRewardsParam> give_rewards_request("give_rewards", give_rewards_param, 3);
     communicator->send_request<GiveRewardsParam>(give_rewards_request);

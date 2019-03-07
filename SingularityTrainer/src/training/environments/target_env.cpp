@@ -115,10 +115,10 @@ TargetEnv::TargetEnv(float x, float y, float scale, int max_steps, int seed)
 TargetEnv::~TargetEnv()
 {
     ThreadCommand command{Commands::Stop};
-	command_queue_mutex.lock();
-	command_queue.push(std::move(command));
-	command_queue_mutex.unlock();
-	command_queue_flag++;
+    command_queue_mutex.lock();
+    command_queue.push(std::move(command));
+    command_queue_mutex.unlock();
+    command_queue_flag++;
     thread->join();
 };
 
@@ -151,15 +151,15 @@ RenderData TargetEnv::get_render_data(bool lightweight)
     return render_data;
 }
 
-std::future<std::unique_ptr<StepInfo>> TargetEnv::step(std::vector<int> &actions, float step_length)
+std::future<std::unique_ptr<StepInfo>> TargetEnv::step(const std::vector<std::vector<int>> &actions, float step_length)
 {
     std::promise<std::unique_ptr<StepInfo>> promise;
     std::future<std::unique_ptr<StepInfo>> future = promise.get_future();
     ThreadCommand command{Commands::Step, std::move(promise), step_length, actions};
-	command_queue_mutex.lock();
+    command_queue_mutex.lock();
     command_queue.push(std::move(command));
-	command_queue_mutex.unlock();
-	command_queue_flag++;
+    command_queue_mutex.unlock();
+    command_queue_flag++;
 
     return future;
 }
@@ -168,10 +168,10 @@ void TargetEnv::forward(float step_length)
 {
     std::promise<std::unique_ptr<StepInfo>> promise;
     ThreadCommand command{Commands::Forward, std::move(promise), step_length};
-	command_queue_mutex.lock();
-	command_queue.push(std::move(command));
-	command_queue_mutex.unlock();
-	command_queue_flag++;
+    command_queue_mutex.lock();
+    command_queue.push(std::move(command));
+    command_queue_mutex.unlock();
+    command_queue_flag++;
 }
 
 void TargetEnv::change_reward(float reward_delta)
@@ -190,10 +190,10 @@ std::future<std::unique_ptr<StepInfo>> TargetEnv::reset()
     std::promise<std::unique_ptr<StepInfo>> promise;
     std::future<std::unique_ptr<StepInfo>> future = promise.get_future();
     ThreadCommand command{Commands::Reset, std::move(promise)};
-	command_queue_mutex.lock();
-	command_queue.push(std::move(command));
-	command_queue_mutex.unlock();
-	command_queue_flag++;
+    command_queue_mutex.lock();
+    command_queue.push(std::move(command));
+    command_queue_mutex.unlock();
+    command_queue_flag++;
     return future;
 }
 
@@ -205,11 +205,11 @@ void TargetEnv::thread_loop()
         while (command_queue_flag == 0)
         {
         }
-		command_queue_mutex.lock();
-		ThreadCommand command = std::move(command_queue.front());
+        command_queue_mutex.lock();
+        ThreadCommand command = std::move(command_queue.front());
         command_queue.pop();
-		command_queue_mutex.unlock();
-		command_queue_flag--;
+        command_queue_mutex.unlock();
+        command_queue_flag--;
         std::unique_ptr<StepInfo> step_info = std::make_unique<StepInfo>();
         switch (command.command)
         {
@@ -218,7 +218,7 @@ void TargetEnv::thread_loop()
             break;
         case Commands::Step:
             // Act
-            agent->act(command.actions);
+            agent->act(command.actions[0]);
 
             // Step simulation
             world->Step(command.step_length, 3, 2);
@@ -229,9 +229,9 @@ void TargetEnv::thread_loop()
             done = done || step_counter >= max_steps;
 
             // Return step information
-            step_info->observation = agent->get_observation();
-            step_info->reward = reward;
-            step_info->done = done;
+            step_info->observation.push_back(agent->get_observation());
+            step_info->reward.push_back(reward);
+            step_info->done.push_back(done);
 
             // Reset reward
             reward = 0;
@@ -239,7 +239,6 @@ void TargetEnv::thread_loop()
             // Increment step counter
             if (done)
             {
-                // spdlog::info("Reward: {}", total_reward);
                 reset();
             }
 
@@ -267,9 +266,9 @@ void TargetEnv::thread_loop()
             target->rigid_body->body->SetTransform(b2Vec2(target_x, target_y), 0);
 
             // Fill in StepInfo
-            step_info->observation = agent->get_observation();
-            step_info->done = done;
-            step_info->reward = reward;
+            step_info->observation.push_back(agent->get_observation());
+            step_info->done.push_back(done);
+            step_info->reward.push_back(reward);
 
             // Return
             command.promise.set_value(std::move(step_info));

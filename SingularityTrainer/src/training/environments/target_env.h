@@ -34,8 +34,8 @@ class TargetEnv : public IEnvironment
     std::thread *thread;
     std::queue<ThreadCommand> command_queue;
     std::atomic<int> command_queue_flag;
-	std::mutex command_queue_mutex;
-	int total_reward;
+    std::mutex command_queue_mutex;
+    int total_reward;
     Random rng;
     float elapsed_time;
 
@@ -46,7 +46,7 @@ class TargetEnv : public IEnvironment
     ~TargetEnv();
 
     virtual void start_thread();
-    virtual std::future<std::unique_ptr<StepInfo>> step(std::vector<int> &actions, float step_length);
+    virtual std::future<std::unique_ptr<StepInfo>> step(const std::vector<std::vector<int>> &actions, float step_length);
     virtual void forward(float step_length);
     virtual std::future<std::unique_ptr<StepInfo>> reset();
     virtual void change_reward(float reward_delta);
