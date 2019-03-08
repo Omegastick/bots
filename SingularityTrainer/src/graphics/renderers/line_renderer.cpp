@@ -2,8 +2,8 @@
 
 #include <glm/mat4x4.hpp>
 
-#include "graphics/render_data.h"
 #include "graphics/renderers/line_renderer.h"
+#include "graphics/render_data.h"
 #include "graphics/backend/vertex_array.h"
 #include "graphics/backend/vertex_buffer_layout.h"
 #include "graphics/backend/shader.h"
@@ -118,7 +118,7 @@ void LineRenderer::draw(const Line &line, const glm::mat4 &view)
     vertex_buffer->add_data(&polyline[0], sizeof(LineData) * polyline.size());
 
     int quad_count = line.points.size() - 1;
-	std::vector<unsigned int> indices(quad_count * 6);
+    std::vector<unsigned int> indices(quad_count * 6);
     for (int i = 0; i < quad_count * 2; ++i)
     {
         int index = i * 3;

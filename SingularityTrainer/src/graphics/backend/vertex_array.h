@@ -4,11 +4,10 @@
 
 #include "glad/glad.h"
 
-#include "graphics/backend/vertex_buffer.h"
-#include "graphics/backend/vertex_buffer_layout.h"
-
 namespace SingularityTrainer
 {
+class VertexBuffer;
+class VertexBufferLayout;
 
 class VertexArray
 {

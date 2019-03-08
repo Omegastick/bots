@@ -23,6 +23,7 @@
 #include "graphics/screens/crt_test_screen.h"
 #include "graphics/screens/text_test_screen.h"
 #include "screen_manager.h"
+#include "resource_manager.h"
 #include "iscreen.h"
 
 using namespace SingularityTrainer;

@@ -76,4 +76,9 @@ void FrameBuffer::set_texture(int width, int height)
         throw std::exception();
     }
 }
+
+glm::vec2 FrameBuffer::get_texture_size() const
+{
+    return glm::vec2(texture->get_width(), texture->get_height());
+}
 }
