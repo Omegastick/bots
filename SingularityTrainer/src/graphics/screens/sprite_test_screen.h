@@ -7,13 +7,14 @@
 #include <glm/glm.hpp>
 
 #include "iscreen.h"
-#include "graphics/sprite.h"
-#include "graphics/renderers/renderer.h"
-#include "resource_manager.h"
-#include "screen_manager.h"
 
 namespace SingularityTrainer
 {
+class Sprite;
+class ResourceManager;
+class ScreenManager;
+class Renderer;
+
 class SpriteTestScreen : public IScreen
 {
   private:

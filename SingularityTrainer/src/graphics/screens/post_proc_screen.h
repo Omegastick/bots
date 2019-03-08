@@ -7,16 +7,17 @@
 #include <glm/glm.hpp>
 
 #include "iscreen.h"
-#include "graphics/backend/shader.h"
-#include "graphics/sprite.h"
-#include "graphics/backend/texture.h"
-#include "graphics/renderers/renderer.h"
-#include "graphics/post_proc_layer.h"
-#include "resource_manager.h"
-#include "screen_manager.h"
 
 namespace SingularityTrainer
 {
+class Renderer;
+class Shader;
+class ScreenManager;
+class PostProcLayer;
+class ResourceManager;
+class Sprite;
+class Texture;
+
 class PostProcScreen : public IScreen
 {
   private:
