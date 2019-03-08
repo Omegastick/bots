@@ -7,15 +7,14 @@
 #include <glm/glm.hpp>
 
 #include "iscreen.h"
-#include "graphics/backend/shader.h"
-#include "graphics/renderers/renderer.h"
 #include "graphics/renderers/particle_renderer.h"
-#include "graphics/backend/vertex_buffer.h"
-#include "resource_manager.h"
-#include "screen_manager.h"
 
 namespace SingularityTrainer
 {
+class Renderer;
+class ScreenManager;
+class ResourceManager;
+
 class ParticleTestScreen : public IScreen
 {
   private:

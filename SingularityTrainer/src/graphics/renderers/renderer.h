@@ -5,22 +5,24 @@
 
 #include <glm/vec4.hpp>
 
-#include "graphics/render_data.h"
 #include "graphics/colors.h"
 #include "graphics/renderers/sprite_renderer.h"
 #include "graphics/renderers/particle_renderer.h"
 #include "graphics/renderers/line_renderer.h"
 #include "graphics/renderers/text_renderer.h"
-#include "graphics/backend/vertex_array.h"
-#include "graphics/backend/shader.h"
-#include "graphics/backend/element_buffer.h"
-#include "graphics/sprite.h"
-#include "graphics/post_proc_layer.h"
-#include "graphics/backend/frame_buffer.h"
-#include "resource_manager.h"
 
 namespace SingularityTrainer
 {
+class PostProcLayer;
+class FrameBuffer;
+class ResourceManager;
+class VertexArray;
+class ElementBuffer;
+class Shader;
+class Sprite;
+class Text;
+class RenderData;
+
 class Renderer
 {
   private:

@@ -4,14 +4,14 @@
 
 #include <glm/mat4x4.hpp>
 
-#include "graphics/backend/vertex_array.h"
-#include "graphics/backend/shader.h"
-#include "graphics/backend/element_buffer.h"
-#include "graphics/sprite.h"
-#include "resource_manager.h"
-
 namespace SingularityTrainer
 {
+class VertexArray;
+class VertexBuffer;
+class ElementBuffer;
+class ResourceManager;
+class Sprite;
+
 struct SpriteVertex
 {
     glm::vec2 position;

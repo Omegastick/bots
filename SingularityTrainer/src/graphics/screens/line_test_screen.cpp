@@ -10,6 +10,7 @@
 
 #include "graphics/screens/line_test_screen.h"
 #include "graphics/screens/test_utils.h"
+#include "graphics/renderers/renderer.h"
 #include "graphics/render_data.h"
 #include "resource_manager.h"
 #include "screen_manager.h"
