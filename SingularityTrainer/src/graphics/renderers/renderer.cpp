@@ -9,6 +9,8 @@
 #include "graphics/backend/shader.h"
 #include "graphics/backend/element_buffer.h"
 #include "graphics/backend/shader.h"
+#include "graphics/backend/frame_buffer.h"
+#include "graphics/post_proc_layer.h"
 #include "graphics/sprite.h"
 #include "graphics/renderers/renderer.h"
 

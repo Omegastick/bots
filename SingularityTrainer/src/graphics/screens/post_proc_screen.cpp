@@ -13,6 +13,7 @@
 #include "graphics/screens/test_utils.h"
 #include "graphics/renderers/renderer.h"
 #include "graphics/backend/shader.h"
+#include "graphics/post_proc_layer.h"
 #include "graphics/sprite.h"
 #include "graphics/backend/texture.h"
 #include "resource_manager.h"
