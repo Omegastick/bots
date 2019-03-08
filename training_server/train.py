@@ -166,7 +166,9 @@ class TrainingSession:
         """
         Saves the current model to disk.
         """
+        logging.info("Saving model: %s", path)
         torch.save(self.model.state_dict(), path)
+        logging.debug("Model saved successfully")
 
     def update(self):
         """
