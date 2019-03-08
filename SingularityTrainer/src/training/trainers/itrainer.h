@@ -8,6 +8,8 @@
 
 namespace SingularityTrainer
 {
+class IEnvironment;
+
 class ITrainer
 {
   public:

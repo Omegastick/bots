@@ -1,7 +1,8 @@
 #pragma once
 
-#include <msgpack.hpp>
 #include <string>
+
+#include <msgpack.hpp>
 
 namespace SingularityTrainer
 {

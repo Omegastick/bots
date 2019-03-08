@@ -5,14 +5,12 @@
 
 #include <Box2D/Box2D.h>
 
-#include "graphics/render_data.h"
-#include "resource_manager.h"
-#include "training/actions/iaction.h"
-#include "training/agents/iagent.h"
 #include "training/modules/imodule.h"
 
 namespace SingularityTrainer
 {
+class RenderData;
+
 class ClosestRaycastCallback : public b2RayCastCallback
 {
   public:

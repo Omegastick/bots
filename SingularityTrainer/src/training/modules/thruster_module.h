@@ -1,19 +1,16 @@
 #pragma once
 
 #include <Box2D/Box2D.h>
-#include <memory>
-#include <vector>
 #include <glm/vec4.hpp>
 
-#include "graphics/render_data.h"
-#include "resource_manager.h"
-#include "training/actions/iaction.h"
-#include "training/agents/iagent.h"
 #include "training/modules/imodule.h"
 #include "training/modules/interfaces/iactivatable.h"
 
 namespace SingularityTrainer
 {
+class IAgent;
+class RenderData;
+
 class ThrusterModule : public IModule, public IActivatable
 {
   private:

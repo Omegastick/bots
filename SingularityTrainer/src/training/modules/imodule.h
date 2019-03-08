@@ -5,10 +5,7 @@
 #include <vector>
 
 #include "graphics/idrawable.h"
-#include "graphics/sprite.h"
-#include "graphics/render_data.h"
 #include "training/actions/iaction.h"
-#include "training/agents/iagent.h"
 #include "training/modules/module_link.h"
 
 namespace SingularityTrainer
@@ -16,6 +13,8 @@ namespace SingularityTrainer
 class ModuleLink;
 class IAction;
 class IAgent;
+class RenderData;
+class Sprite;
 
 class IModule : public IDrawable
 {
