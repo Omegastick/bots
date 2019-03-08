@@ -36,7 +36,7 @@ int main(int argc, const char *argv[])
     while (!stop)
     {
         if (!trainer.waiting_for_server() &&
-            std::chrono::steady_clock::now() - last_save_time > std::chrono::minutes(1))
+            std::chrono::steady_clock::now() - last_save_time > std::chrono::minutes(10))
         {
             spdlog::info("Saving model");
             trainer.save_model();
