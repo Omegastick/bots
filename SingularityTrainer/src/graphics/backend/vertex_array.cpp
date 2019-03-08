@@ -4,6 +4,7 @@
 
 #include "graphics/backend/vertex_array.h"
 #include "graphics/backend/vertex_buffer.h"
+#include "graphics/backend/vertex_buffer_layout.h"
 
 namespace SingularityTrainer
 {

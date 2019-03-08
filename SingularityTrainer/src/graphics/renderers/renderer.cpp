@@ -5,14 +5,19 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/matrix_inverse.hpp>
 
+#include "graphics/renderers/renderer.h"
+#include "graphics/renderers/sprite_renderer.h"
+#include "graphics/renderers/particle_renderer.h"
+#include "graphics/renderers/line_renderer.h"
+#include "graphics/renderers/text_renderer.h"
 #include "graphics/backend/vertex_array.h"
 #include "graphics/backend/shader.h"
 #include "graphics/backend/element_buffer.h"
 #include "graphics/backend/shader.h"
 #include "graphics/backend/frame_buffer.h"
+#include "graphics/render_data.h"
 #include "graphics/post_proc_layer.h"
 #include "graphics/sprite.h"
-#include "graphics/renderers/renderer.h"
 
 namespace SingularityTrainer
 {
@@ -20,10 +25,10 @@ Renderer::Renderer(int width, int height, ResourceManager &resource_manager)
     : width(width),
       height(height),
       resource_manager(&resource_manager),
-      sprite_renderer(resource_manager),
-      particle_renderer(100000, resource_manager),
-      line_renderer(resource_manager),
-      text_renderer(resource_manager)
+      sprite_renderer(std::make_unique<SpriteRenderer>(resource_manager)),
+      particle_renderer(std::make_unique<ParticleRenderer>(100000, resource_manager)),
+      line_renderer(std::make_unique<LineRenderer>(resource_manager)),
+      text_renderer(std::make_unique<TextRenderer>(resource_manager))
 {
     base_frame_buffer = std::make_unique<FrameBuffer>();
     base_frame_buffer->set_render_buffer(width, height, 4);
@@ -57,35 +62,35 @@ void Renderer::draw(const VertexArray &vertex_array, const ElementBuffer &elemen
 
 void Renderer::draw(const Sprite &sprite, const glm::mat4 &view)
 {
-    sprite_renderer.draw(sprite, view);
+    sprite_renderer->draw(sprite, view);
 }
 
 void Renderer::draw(const Text &text, const glm::mat4 &view)
 {
-    text_renderer.draw(text, view);
+    text_renderer->draw(text, view);
 }
 
 void Renderer::draw(RenderData &render_data, const glm::mat4 &view, float time, bool lightweight)
 {
     for (const auto &sprite : render_data.sprites)
     {
-        sprite_renderer.draw(sprite, view);
+        sprite_renderer->draw(sprite, view);
     }
 
-    particle_renderer.add_particles(render_data.particles, time);
+    particle_renderer->add_particles(render_data.particles, time);
     if (!lightweight)
     {
-        particle_renderer.draw(time, view);
+        particle_renderer->draw(time, view);
     }
 
     for (const auto &line : render_data.lines)
     {
-        line_renderer.draw(line, view);
+        line_renderer->draw(line, view);
     }
 
     for (const auto &text : render_data.texts)
     {
-        text_renderer.draw(text, view);
+        text_renderer->draw(text, view);
     }
 }
 

@@ -4,10 +4,10 @@
 
 #include <glm/glm.hpp>
 
-#include "graphics/backend/texture.h"
-
 namespace SingularityTrainer
 {
+class Texture;
+
 class FrameBuffer
 {
   private:
@@ -27,6 +27,6 @@ class FrameBuffer
     void set_texture(int width, int height);
 
     inline Texture &get_texture() const { return *texture; }
-    inline glm::vec2 get_texture_size() const { return glm::vec2(texture->get_width(), texture->get_height()); }
+    glm::vec2 get_texture_size() const;
 };
 }

@@ -3,13 +3,9 @@
 #include <vector>
 #include <memory>
 
-#include <glm/vec4.hpp>
+#include <glm/glm.hpp>
 
 #include "graphics/colors.h"
-#include "graphics/renderers/sprite_renderer.h"
-#include "graphics/renderers/particle_renderer.h"
-#include "graphics/renderers/line_renderer.h"
-#include "graphics/renderers/text_renderer.h"
 
 namespace SingularityTrainer
 {
@@ -22,15 +18,19 @@ class Shader;
 class Sprite;
 class Text;
 class RenderData;
+class SpriteRenderer;
+class ParticleRenderer;
+class LineRenderer;
+class TextRenderer;
 
 class Renderer
 {
   private:
     int width, height;
-    SpriteRenderer sprite_renderer;
-    ParticleRenderer particle_renderer;
-    LineRenderer line_renderer;
-    TextRenderer text_renderer;
+    std::unique_ptr<SpriteRenderer> sprite_renderer;
+    std::unique_ptr<ParticleRenderer> particle_renderer;
+    std::unique_ptr<LineRenderer> line_renderer;
+    std::unique_ptr<TextRenderer> text_renderer;
     std::vector<PostProcLayer *> post_proc_layers;
     std::unique_ptr<FrameBuffer> base_frame_buffer;
     std::unique_ptr<FrameBuffer> texture_frame_buffer;

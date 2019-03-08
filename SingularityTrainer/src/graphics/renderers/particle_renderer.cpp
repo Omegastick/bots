@@ -12,7 +12,11 @@
 namespace SingularityTrainer
 {
 ParticleRenderer::ParticleRenderer(int max_particles, ResourceManager &resource_manager)
-    : max_particles(max_particles), particle_count(0), current_particle_index(0), resource_manager(&resource_manager)
+    : max_particles(max_particles),
+      particle_count(0),
+      current_particle_index(0),
+      resource_manager(&resource_manager),
+      vertex_array(std::make_unique<VertexArray>())
 {
     resource_manager.load_shader("particle", "shaders/particle.vert", "shaders/default.frag");
     particle_positions.resize(max_particles);
@@ -38,7 +42,7 @@ ParticleRenderer::ParticleRenderer(int max_particles, ResourceManager &resource_
     end_color_vertex_buffer = std::make_unique<VertexBuffer>(nullptr, max_particles * sizeof(glm::vec4), GL_STREAM_DRAW);
 
     // Set attribute pointer for quad
-    vertex_array.bind();
+    vertex_array->bind();
     quad_vertex_buffer->bind();
     glEnableVertexAttribArray(0);
     glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 0, (void *)0);
@@ -127,7 +131,7 @@ void ParticleRenderer::draw(float time, glm::mat4 view)
     shader->set_uniform_1f("u_time", time);
 
     // renderer.draw(particle_engine, shader);
-    vertex_array.bind();
+    vertex_array->bind();
     glDrawArraysInstanced(GL_TRIANGLE_STRIP, 0, 4, particle_count);
 }
 }

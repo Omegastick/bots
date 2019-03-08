@@ -14,6 +14,7 @@
 #include "random.h"
 #include "requests.h"
 #include "screen_manager.h"
+#include "resource_manager.h"
 #include "screens/main_menu_screen.h"
 
 using namespace SingularityTrainer;
