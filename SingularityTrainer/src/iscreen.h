@@ -1,10 +1,9 @@
 #pragma once
 
-#include "input.h"
-#include "graphics/renderers/renderer.h"
-
 namespace SingularityTrainer
 {
+class Renderer;
+
 class IScreen
 {
   public:

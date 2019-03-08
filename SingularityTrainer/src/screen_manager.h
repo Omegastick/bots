@@ -2,11 +2,11 @@
 
 #include <stack>
 
-#include "iscreen.h"
-#include "graphics/renderers/renderer.h"
-
 namespace SingularityTrainer
 {
+class IScreen;
+class Renderer;
+
 class ScreenManager
 {
   public:
