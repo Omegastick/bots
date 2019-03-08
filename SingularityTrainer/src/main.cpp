@@ -14,7 +14,7 @@
 #include "random.h"
 #include "requests.h"
 #include "screen_manager.h"
-#include "screens/koth_env_screen.h"
+#include "screens/main_menu_screen.h"
 
 using namespace SingularityTrainer;
 
@@ -104,10 +104,10 @@ void init_imgui(const int opengl_version_major, const int opengl_version_minor, 
 
 void resize_window_callback(GLFWwindow *glfw_window, int x, int y)
 {
-	if (x == 0 || y == 0)
-	{
-		return;
-	}
+    if (x == 0 || y == 0)
+    {
+        return;
+    }
     spdlog::debug("Resizing window to {}x{}", x, y);
     glViewport(0, 0, x, y);
 
@@ -140,7 +140,7 @@ int main(int argc, const char *argv[])
     Renderer renderer(1920, 1080, resource_manager);
     window.set_renderer(&renderer);
 
-    std::shared_ptr<KothEnvScreen> test_screen = std::make_shared<KothEnvScreen>(resource_manager, &communicator, &rng, 7);
+    std::shared_ptr<MainMenuScreen> test_screen = std::make_shared<MainMenuScreen>(resource_manager, communicator, screen_manager);
     screen_manager.show_screen(test_screen);
 
     init_imgui(opengl_version_major, opengl_version_minor, window.window);
