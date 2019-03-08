@@ -234,7 +234,7 @@ void KothEnv::thread_loop()
             }
             if (std::find(hill_occupants.begin(), hill_occupants.end(), agent_2.get()) != hill_occupants.end())
             {
-                change_reward(0, 1);
+                change_reward(1, 1);
             }
 
             // Max episode length

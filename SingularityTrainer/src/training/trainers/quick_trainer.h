@@ -16,7 +16,7 @@ class QuickTrainer : public ITrainer
 {
   private:
     Communicator *communicator;
-    bool waiting_for_server;
+    bool waiting;
     std::vector<std::vector<std::vector<float>>> observations;
     int env_count;
     int frame_counter;
@@ -38,5 +38,6 @@ class QuickTrainer : public ITrainer
     virtual void save_model();
     virtual void step();
     virtual void slow_step();
+    virtual bool waiting_for_server();
 };
 }

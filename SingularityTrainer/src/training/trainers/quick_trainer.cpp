@@ -17,7 +17,7 @@ namespace SingularityTrainer
 {
 QuickTrainer::QuickTrainer(Communicator *communicator, Random *rng, int env_count)
     : communicator(communicator),
-      waiting_for_server(false),
+      waiting(false),
       env_count(env_count),
       frame_counter(0),
       action_frame_counter(0),
@@ -101,7 +101,7 @@ void QuickTrainer::end_training()
 
 void QuickTrainer::step()
 {
-    if (waiting_for_server)
+    if (waiting)
     {
         return;
     }
@@ -116,7 +116,7 @@ void QuickTrainer::step()
                 environment->forward(1. / 60.);
             }
         }
-        if (waiting_for_server)
+        if (waiting)
         {
             break;
         }
@@ -125,7 +125,7 @@ void QuickTrainer::step()
 
 void QuickTrainer::slow_step()
 {
-    if (waiting_for_server)
+    if (waiting)
     {
         return;
     }
@@ -145,7 +145,7 @@ void QuickTrainer::slow_step()
 
 void QuickTrainer::save_model()
 {
-    auto date_time_string = date::format("%F_%H:%M", std::chrono::system_clock::now());
+    auto date_time_string = date::format("%F-%H-%M", std::chrono::system_clock::now());
     auto save_model_param = std::make_shared<SaveModelParam>();
     save_model_param->path = "./" + date_time_string + ".pth";
     save_model_param->session_id = 0;
@@ -214,12 +214,17 @@ void QuickTrainer::action_update()
     }
     else
     {
-        waiting_for_server = true;
+        waiting = true;
         std::thread response_thread = std::thread([this]() {
             communicator->get_response<GiveRewardsResult>();
-            waiting_for_server = false;
+            waiting = false;
         });
         response_thread.detach();
     }
+}
+
+bool QuickTrainer::waiting_for_server()
+{
+    return waiting;
 }
 }
