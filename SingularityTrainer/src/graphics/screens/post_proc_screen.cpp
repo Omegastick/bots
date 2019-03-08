@@ -11,6 +11,7 @@
 
 #include "graphics/screens/post_proc_screen.h"
 #include "graphics/screens/test_utils.h"
+#include "graphics/renderers/renderer.h"
 #include "graphics/backend/shader.h"
 #include "graphics/sprite.h"
 #include "graphics/backend/texture.h"

@@ -7,16 +7,18 @@
 #include <glm/glm.hpp>
 
 #include "iscreen.h"
-#include "graphics/renderers/renderer.h"
-#include "graphics/backend/vertex_array.h"
-#include "graphics/backend/vertex_buffer.h"
-#include "graphics/backend/element_buffer.h"
 #include "graphics/font.h"
-#include "resource_manager.h"
-#include "screen_manager.h"
+#include "graphics/render_data.h"
 
 namespace SingularityTrainer
 {
+class VertexArray;
+class VertexBuffer;
+class ElementBuffer;
+class Renderer;
+class ScreenManager;
+class ResourceManager;
+
 class TextTestScreen : public IScreen
 {
   private:

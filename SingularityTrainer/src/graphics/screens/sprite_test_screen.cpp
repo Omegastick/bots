@@ -9,6 +9,7 @@
 #include "graphics/screens/sprite_test_screen.h"
 #include "graphics/screens/test_utils.h"
 #include "graphics/backend/shader.h"
+#include "graphics/renderers/renderer.h"
 #include "graphics/sprite.h"
 #include "resource_manager.h"
 #include "screen_manager.h"

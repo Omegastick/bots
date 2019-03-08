@@ -5,17 +5,19 @@
 #include <string>
 
 #include <glm/glm.hpp>
-#include <Box2D/Box2D.h>
 
 #include "iscreen.h"
-#include "graphics/renderers/renderer.h"
-#include "resource_manager.h"
-#include "screen_manager.h"
-#include "training/agents/iagent.h"
 #include "random.h"
+
+class b2World;
 
 namespace SingularityTrainer
 {
+class Renderer;
+class IAgent;
+class ScreenManager;
+class ResourceManager;
+
 class SceneTestScreen : public IScreen
 {
   private:
