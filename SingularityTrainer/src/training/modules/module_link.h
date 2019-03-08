@@ -3,12 +3,11 @@
 #include <Box2D/Box2D.h>
 
 #include "graphics/idrawable.h"
-#include "graphics/render_data.h"
-#include "training/modules/imodule.h"
 
 namespace SingularityTrainer
 {
 class IModule;
+class RenderData;
 
 class ModuleLink : IDrawable
 {

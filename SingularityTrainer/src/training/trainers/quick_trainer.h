@@ -1,17 +1,15 @@
 #pragma once
 
-#include <memory>
 #include <vector>
 
-#include "communicator.h"
-#include "random.h"
-#include "resource_manager.h"
-#include "training/environments/ienvironment.h"
 #include "training/trainers/itrainer.h"
 #include "training/score_processor.h"
 
 namespace SingularityTrainer
 {
+class Random;
+class Communicator;
+
 class QuickTrainer : public ITrainer
 {
   private:
