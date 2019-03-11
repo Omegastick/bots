@@ -17,10 +17,10 @@
 
 namespace SingularityTrainer
 {
-KothEnvScreen::KothEnvScreen(ResourceManager &resource_manager, Communicator *communicator, Random *rng, int env_count)
+KothEnvScreen::KothEnvScreen(ResourceManager &resource_manager, Communicator &communicator, Random &rng, int env_count)
     : lightweight_rendering(false), projection(glm::ortho(0.f, 1920.f, 0.f, 1080.f)), fast(false), resource_manager(&resource_manager)
 {
-    trainer = std::make_unique<QuickTrainer>(communicator, rng, env_count);
+    trainer = std::make_unique<QuickTrainer>(&communicator, &rng, env_count);
 
     resource_manager.load_texture("base_module", "images/base_module.png");
     resource_manager.load_texture("gun_module", "images/gun_module.png");

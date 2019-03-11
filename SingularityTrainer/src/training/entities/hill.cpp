@@ -1,5 +1,7 @@
-#include <Box2D/Box2D.h>
 #include <memory>
+
+#include <Box2D/Box2D.h>
+#include <spdlog/spdlog.h>
 
 #include "training/entities/hill.h"
 #include "graphics/colors.h"
@@ -47,19 +49,53 @@ void Hill::begin_contact(RigidBody *other)
 {
     if (other->parent_type == RigidBody::ParentTypes::Agent)
     {
-        if (std::find(occupants.begin(), occupants.end(), static_cast<IAgent *>(other->parent)) == occupants.end())
+        if (registered_agents.count(static_cast<IAgent *>(other->parent)) > 0)
         {
-            occupants.push_back(static_cast<IAgent *>(other->parent));
+            occupants[static_cast<IAgent *>(other->parent)]++;
         }
     }
 }
 
 void Hill::end_contact(RigidBody *other)
 {
-    auto occupant_index = std::find(occupants.begin(), occupants.end(), static_cast<IAgent *>(other->parent));
-    if (occupant_index != occupants.end())
+    if (other->parent_type == RigidBody::ParentTypes::Agent)
     {
-        occupants.erase(occupant_index);
+        if (registered_agents.count(static_cast<IAgent *>(other->parent)) > 0)
+        {
+            occupants[static_cast<IAgent *>(other->parent)]--;
+        }
+    }
+}
+
+void Hill::register_agent(IAgent *agent, int agent_number)
+{
+    if (registered_agents.count(agent) == 0)
+    {
+        registered_agents[agent] = agent_number;
+        occupants[agent] = 0;
+    }
+}
+
+void Hill::update() const
+{
+    for (auto agent : occupants)
+    {
+        if (agent.second > 0)
+        {
+            auto agent_number = registered_agents.find(agent.first);
+            if (agent_number != registered_agents.end())
+            {
+                environment.change_reward(agent_number->second, 1);
+            }
+        }
+    }
+}
+
+void Hill::reset()
+{
+    for (const auto &occupant : occupants)
+    {
+        occupants[occupant.first] = 0;
     }
 }
 }
