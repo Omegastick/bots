@@ -3,17 +3,17 @@
 #include <memory>
 #include <vector>
 
-#include "graphics/render_data.h"
-#include "training/actions/iaction.h"
 #include "training/icollidable.h"
-#include "training/modules/imodule.h"
 #include "training/rigid_body.h"
-#include "random.h"
+#include "training/modules/imodule.h"
 
 namespace SingularityTrainer
 {
 class IAction;
 class IModule;
+class RenderData;
+class RigidBody;
+class Random;
 
 class IAgent : public ICollidable
 {

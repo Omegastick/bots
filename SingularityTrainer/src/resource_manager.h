@@ -3,12 +3,13 @@
 #include <string>
 
 #include "asset_store.h"
-#include "graphics/backend/texture.h"
-#include "graphics/backend/shader.h"
-#include "graphics/font.h"
 
 namespace SingularityTrainer
 {
+class Texture;
+class Shader;
+class Font;
+
 class ResourceManager
 {
   public:

@@ -5,14 +5,15 @@
 #include <Box2D/Box2D.h>
 
 #include "graphics/idrawable.h"
-#include "training/environments/ienvironment.h"
-#include "training/agents/iagent.h"
-#include "graphics/sprite.h"
 #include "training/icollidable.h"
-#include "training/rigid_body.h"
 
 namespace SingularityTrainer
 {
+class IEnvironment;
+class IAgent;
+class Sprite;
+class RigidBody;
+
 class Hill : public IDrawable, public ICollidable
 {
   private:

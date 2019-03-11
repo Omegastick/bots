@@ -8,13 +8,10 @@
 
 namespace SingularityTrainer
 {
-class IEnvironment;
-
 class ITrainer
 {
   public:
-    ITrainer(){};
-    ~ITrainer(){};
+    virtual ~ITrainer() = 0;
 
     virtual void begin_training() = 0;
     virtual void end_training() = 0;
@@ -25,4 +22,6 @@ class ITrainer
 
     std::vector<std::unique_ptr<IEnvironment>> environments;
 };
+
+inline ITrainer::~ITrainer() {}
 }

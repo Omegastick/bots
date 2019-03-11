@@ -9,17 +9,16 @@
 #include <utility>
 #include <mutex>
 
-#include "graphics/render_data.h"
-#include "graphics/idrawable.h"
-#include "random.h"
-#include "resource_manager.h"
-#include "training/agents/iagent.h"
-#include "training/entities/target.h"
-#include "training/entities/wall.h"
 #include "training/environments/ienvironment.h"
 
 namespace SingularityTrainer
 {
+class Random;
+class ResourceManager;
+class IAgent;
+class Target;
+class Wall;
+
 class TargetEnv : public IEnvironment
 {
   private:
@@ -36,7 +35,7 @@ class TargetEnv : public IEnvironment
     std::atomic<int> command_queue_flag;
     std::mutex command_queue_mutex;
     int total_reward;
-    Random rng;
+    std::unique_ptr<Random> rng;
     float elapsed_time;
 
     void thread_loop();

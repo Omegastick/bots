@@ -10,6 +10,7 @@
 #include "training/modules/base_module.h"
 #include "training/modules/imodule.h"
 #include "training/modules/module_link.h"
+#include "training/rigid_body.h"
 
 namespace SingularityTrainer
 {

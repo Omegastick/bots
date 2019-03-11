@@ -10,6 +10,7 @@
 #include "training/environments/target_env.h"
 #include "training/environments/koth_env.h"
 #include "training/trainers/quick_trainer.h"
+#include "training/score_processor.h"
 #include "utilities.h"
 #include "date.h"
 
@@ -23,7 +24,7 @@ QuickTrainer::QuickTrainer(Communicator *communicator, Random *rng, int env_coun
       action_frame_counter(0),
       rng(rng),
       elapsed_time(0),
-      score_processor(1, 0.99),
+      score_processor(std::make_unique<ScoreProcessor>(1, 0.99)),
       agents_per_env(2)
 {
     for (int i = 0; i < env_count; ++i)
@@ -190,14 +191,14 @@ void QuickTrainer::action_update()
             env_scores[i] += step_info->reward[j];
             if (step_info->done[j])
             {
-                score_processor.add_score(0, env_scores[i]);
+                score_processor->add_score(0, env_scores[i]);
                 env_scores[i] = 0;
             }
         }
     }
     if (action_frame_counter % 100 == 0)
     {
-        std::vector<float> score_averages = score_processor.get_scores();
+        std::vector<float> score_averages = score_processor->get_scores();
         spdlog::info("Average reward: {}", fmt::join(score_averages, " "));
     }
 

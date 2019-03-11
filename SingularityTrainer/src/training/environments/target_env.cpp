@@ -12,6 +12,7 @@
 #include "training/entities/target.h"
 #include "training/entities/wall.h"
 #include "training/rigid_body.h"
+#include "random.h"
 
 namespace SingularityTrainer
 {
@@ -91,7 +92,7 @@ TargetEnv::TargetEnv(float x, float y, float scale, int max_steps, int seed)
       reward(0),
       step_counter(0),
       done(false),
-      rng(seed),
+      rng(std::make_unique<Random>(seed)),
       elapsed_time(0)
 {
     // Box2D world
@@ -100,7 +101,7 @@ TargetEnv::TargetEnv(float x, float y, float scale, int max_steps, int seed)
     world->SetContactListener(contact_listener.get());
 
     // Agent
-    agent = std::make_unique<TestAgent>(*world, &rng);
+    agent = std::make_unique<TestAgent>(*world, rng.get());
 
     // Target
     target = std::make_unique<Target>(4, 4, *world, *this);
@@ -261,8 +262,8 @@ void TargetEnv::thread_loop()
             agent->rigid_body->body->SetLinearVelocity(b2Vec2_zero);
 
             // Change target position
-            float target_x = rng.next_float(0, 18) - 9;
-            float target_y = rng.next_float(0, 18) - 9;
+            float target_x = rng->next_float(0, 18) - 9;
+            float target_y = rng->next_float(0, 18) - 9;
             target->rigid_body->body->SetTransform(b2Vec2(target_x, target_y), 0);
 
             // Fill in StepInfo

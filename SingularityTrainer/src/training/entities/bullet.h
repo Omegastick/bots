@@ -5,14 +5,15 @@
 #include <Box2D/Box2D.h>
 #include <glm/vec4.hpp>
 
-#include "graphics/render_data.h"
-#include "graphics/sprite.h"
 #include "graphics/idrawable.h"
 #include "training/icollidable.h"
-#include "training/rigid_body.h"
 
 namespace SingularityTrainer
 {
+class RenderData;
+class Sprite;
+class RigidBody;
+
 class Bullet : public IDrawable, public ICollidable
 {
   private:

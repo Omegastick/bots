@@ -4,18 +4,17 @@
 
 #include <glm/mat4x4.hpp>
 
-#include "graphics/post_proc_layer.h"
-#include "graphics/renderers/renderer.h"
-#include "graphics/render_data.h"
-#include "communicator.h"
 #include "iscreen.h"
-#include "random.h"
-#include "resource_manager.h"
-#include "training/environments/target_env.h"
-#include "training/trainers/itrainer.h"
 
 namespace SingularityTrainer
 {
+class ITrainer;
+class ResourceManager;
+class Random;
+class Communicator;
+class Renderer;
+class PostProcLayer;
+
 class KothEnvScreen : public IScreen
 {
   private:

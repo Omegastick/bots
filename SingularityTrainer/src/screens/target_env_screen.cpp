@@ -4,13 +4,16 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <imgui.h>
 
-#include "communicator.h"
+#include "screens/target_env_screen.h"
+#include "graphics/renderers/renderer.h"
+#include "graphics/backend/shader.h"
+#include "graphics/post_proc_layer.h"
 #include "graphics/colors.h"
+#include "training/environments/koth_env.h"
+#include "training/trainers/quick_trainer.h"
+#include "communicator.h"
 #include "iscreen.h"
 #include "resource_manager.h"
-#include "screens/target_env_screen.h"
-#include "training/environments/target_env.h"
-#include "training/trainers/quick_trainer.h"
 
 namespace SingularityTrainer
 {
