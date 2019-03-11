@@ -4,16 +4,13 @@
 
 #include <Box2D/Box2D.h>
 
-#include "graphics/render_data.h"
-#include "graphics/idrawable.h"
-#include "random.h"
-#include "resource_manager.h"
-#include "training/actions/iaction.h"
 #include "training/agents/iagent.h"
-#include "training/rigid_body.h"
 
 namespace SingularityTrainer
 {
+class RenderData;
+class Random;
+
 class TestAgent : public IAgent
 {
   public:

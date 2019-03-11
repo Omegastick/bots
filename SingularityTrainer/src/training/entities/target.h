@@ -5,13 +5,14 @@
 #include <Box2D/Box2D.h>
 
 #include "graphics/idrawable.h"
-#include "training/environments/ienvironment.h"
-#include "graphics/sprite.h"
 #include "training/icollidable.h"
-#include "training/rigid_body.h"
 
 namespace SingularityTrainer
 {
+class IEnvironment;
+class Sprite;
+class RigidBody;
+
 class Target : public IDrawable, public ICollidable
 {
   private:

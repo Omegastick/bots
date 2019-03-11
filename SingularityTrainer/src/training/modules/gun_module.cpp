@@ -10,6 +10,7 @@
 #include "training/entities/bullet.h"
 #include "training/modules/gun_module.h"
 #include "training/modules/imodule.h"
+#include "training/rigid_body.h"
 
 namespace SingularityTrainer
 {

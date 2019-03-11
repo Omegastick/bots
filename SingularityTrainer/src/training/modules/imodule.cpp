@@ -6,6 +6,7 @@
 #include "graphics/render_data.h"
 #include "training/modules/imodule.h"
 #include "training/agents/iagent.h"
+#include "training/rigid_body.h"
 #include "utilities.h"
 
 namespace SingularityTrainer

@@ -4,13 +4,14 @@
 
 #include <Box2D/Box2D.h>
 
-#include "graphics/sprite.h"
 #include "graphics/idrawable.h"
-#include "training/rigid_body.h"
 #include "training/icollidable.h"
 
 namespace SingularityTrainer
 {
+class Sprite;
+class RigidBody;
+
 class Wall : public IDrawable, public ICollidable
 {
   private:

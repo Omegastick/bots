@@ -10,7 +10,9 @@
 #include "training/agents/test_agent.h"
 #include "training/entities/bullet.h"
 #include "training/entities/wall.h"
+#include "training/entities/hill.h"
 #include "training/rigid_body.h"
+#include "random.h"
 
 namespace SingularityTrainer
 {
@@ -91,18 +93,18 @@ KothEnv::KothEnv(float x, float y, float scale, int max_steps, int seed)
       total_rewards({0, 0}),
       step_counter(0),
       done(false),
-      rng(seed),
+      rng(std::make_unique<Random>(seed)),
       elapsed_time(0),
       world({0, 0}),
-      hill(0, 0, world, *this)
+      hill(std::make_unique<Hill>(0, 0, world, *this))
 {
     // Box2D world
     contact_listener = std::make_unique<KothContactListener>();
     world.SetContactListener(contact_listener.get());
 
     // Agent
-    agent_1 = std::make_unique<TestAgent>(world, &rng);
-    agent_2 = std::make_unique<TestAgent>(world, &rng);
+    agent_1 = std::make_unique<TestAgent>(world, rng.get());
+    agent_2 = std::make_unique<TestAgent>(world, rng.get());
 
     // Walls
     walls.push_back(std::make_unique<Wall>(-10, -20, 20, 0.1, world));
@@ -135,7 +137,7 @@ RenderData KothEnv::get_render_data(bool lightweight)
 {
     RenderData render_data;
 
-    render_data.append(hill.get_render_data(lightweight));
+    render_data.append(hill->get_render_data(lightweight));
 
     auto agent_1_render_data = agent_1->get_render_data(lightweight);
     render_data.append(agent_1_render_data);
@@ -227,7 +229,7 @@ void KothEnv::thread_loop()
             elapsed_time += command.step_length;
 
             // Hill score
-            hill_occupants = hill.get_occupants();
+            hill_occupants = hill->get_occupants();
             if (std::find(hill_occupants.begin(), hill_occupants.end(), agent_1.get()) != hill_occupants.end())
             {
                 change_reward(0, 1);

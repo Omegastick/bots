@@ -1,10 +1,11 @@
 #pragma once
 
 #include "training/actions/iaction.h"
-#include "training/modules/interfaces/iactivatable.h"
 
 namespace SingularityTrainer
 {
+class IActivatable;
+
 class ActivateAction : public IAction
 {
   public:

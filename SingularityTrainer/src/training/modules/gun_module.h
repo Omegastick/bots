@@ -5,16 +5,14 @@
 
 #include <Box2D/Box2D.h>
 
-#include "graphics/render_data.h"
-#include "resource_manager.h"
-#include "training/actions/iaction.h"
-#include "training/agents/iagent.h"
-#include "training/entities/bullet.h"
 #include "training/modules/imodule.h"
 #include "training/modules/interfaces/iactivatable.h"
 
 namespace SingularityTrainer
 {
+class IAgent;
+class Bullet;
+
 class GunModule : public IModule, public IActivatable
 {
   public:

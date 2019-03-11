@@ -9,23 +9,22 @@
 #include <utility>
 #include <mutex>
 
-#include "graphics/render_data.h"
-#include "graphics/idrawable.h"
-#include "random.h"
-#include "resource_manager.h"
-#include "training/agents/iagent.h"
-#include "training/entities/wall.h"
-#include "training/entities/hill.h"
 #include "training/environments/ienvironment.h"
 
 namespace SingularityTrainer
 {
+class Random;
+class ResourceManager;
+class IAgent;
+class Wall;
+class Hill;
+
 class KothEnv : public IEnvironment
 {
   private:
     b2World world;
     std::vector<std::unique_ptr<Wall>> walls;
-    Hill hill;
+    std::unique_ptr<Hill> hill;
     std::unique_ptr<b2ContactListener> contact_listener;
     bool done;
     std::vector<float> rewards;
@@ -36,7 +35,7 @@ class KothEnv : public IEnvironment
     std::atomic<int> command_queue_flag;
     std::mutex command_queue_mutex;
     std::vector<float> total_rewards;
-    Random rng;
+    std::unique_ptr<Random> rng;
     float elapsed_time;
 
     void thread_loop();

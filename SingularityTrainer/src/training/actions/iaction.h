@@ -2,8 +2,6 @@
 
 #include <vector>
 
-#include "training/modules/imodule.h"
-
 namespace SingularityTrainer
 {
 class IAction

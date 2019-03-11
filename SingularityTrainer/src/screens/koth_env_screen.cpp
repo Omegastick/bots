@@ -5,12 +5,15 @@
 #include <imgui.h>
 
 #include "screens/koth_env_screen.h"
-#include "communicator.h"
+#include "graphics/renderers/renderer.h"
+#include "graphics/backend/shader.h"
+#include "graphics/post_proc_layer.h"
 #include "graphics/colors.h"
-#include "iscreen.h"
-#include "resource_manager.h"
 #include "training/environments/koth_env.h"
 #include "training/trainers/quick_trainer.h"
+#include "communicator.h"
+#include "iscreen.h"
+#include "resource_manager.h"
 
 namespace SingularityTrainer
 {

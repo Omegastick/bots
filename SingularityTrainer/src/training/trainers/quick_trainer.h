@@ -3,12 +3,12 @@
 #include <vector>
 
 #include "training/trainers/itrainer.h"
-#include "training/score_processor.h"
 
 namespace SingularityTrainer
 {
 class Random;
 class Communicator;
+class ScoreProcessor;
 
 class QuickTrainer : public ITrainer
 {
@@ -21,7 +21,7 @@ class QuickTrainer : public ITrainer
     int action_frame_counter;
     Random *rng;
     float elapsed_time;
-    ScoreProcessor score_processor;
+    std::unique_ptr<ScoreProcessor> score_processor;
     std::vector<float> env_scores;
     int agents_per_env;
 

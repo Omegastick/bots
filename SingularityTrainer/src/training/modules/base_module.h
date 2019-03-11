@@ -1,17 +1,15 @@
 #pragma once
 
-#include <memory>
 #include <vector>
 
 #include <Box2D/Box2D.h>
 
-#include "resource_manager.h"
-#include "training/actions/iaction.h"
-#include "training/agents/iagent.h"
 #include "training/modules/imodule.h"
 
 namespace SingularityTrainer
 {
+class IAgent;
+
 class BaseModule : public IModule
 {
   public:

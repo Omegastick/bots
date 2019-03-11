@@ -4,7 +4,6 @@
 #include <memory>
 #include <vector>
 
-#include "graphics/render_data.h"
 #include "graphics/idrawable.h"
 
 namespace SingularityTrainer

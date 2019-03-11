@@ -13,6 +13,8 @@
 #include "training/agents/iagent.h"
 #include "training/modules/imodule.h"
 #include "training/modules/thruster_module.h"
+#include "training/rigid_body.h"
+#include "random.h"
 
 namespace SingularityTrainer
 {

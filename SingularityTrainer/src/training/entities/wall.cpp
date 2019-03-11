@@ -5,6 +5,7 @@
 
 #include "graphics/colors.h"
 #include "training/entities/wall.h"
+#include "training/rigid_body.h"
 
 namespace SingularityTrainer
 {

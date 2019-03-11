@@ -2,12 +2,13 @@
 
 #include <glm/glm.hpp>
 
-#include "graphics/render_data.h"
 #include "graphics/renderers/text_renderer.h"
 #include "graphics/backend/vertex_array.h"
 #include "graphics/backend/vertex_buffer_layout.h"
 #include "graphics/backend/shader.h"
 #include "graphics/backend/element_buffer.h"
+#include "graphics/font.h"
+#include "graphics/render_data.h"
 #include "resource_manager.h"
 
 namespace SingularityTrainer
