@@ -41,6 +41,8 @@ void reset_imgui_style()
     style.ScrollbarRounding = 2.3;
     style.FrameBorderSize = 1.0;
     style.ItemSpacing.y = 6.5;
+    style.WindowBorderSize = 0;
+    style.FrameBorderSize = 0;
 
     style.Colors[ImGuiCol_Text] = {0.9f, 0.9f, 0.9f, 1.00f};
     style.Colors[ImGuiCol_TextDisabled] = {0.34509805f, 0.34509805f, 0.34509805f, 1.00f};
@@ -99,7 +101,8 @@ void init_imgui(const int opengl_version_major, const int opengl_version_minor, 
     font_config.OversampleV = 3;
     ImGuiIO &io = ImGui::GetIO();
     io.Fonts->ClearFonts();
-    io.Fonts->AddFontFromFileTTF("assets/fonts/Roboto-Regular.ttf", 15, &font_config);
+    io.Fonts->AddFontFromFileTTF("assets/fonts/Roboto-Regular.ttf", 16, &font_config);
+    io.Fonts->AddFontFromFileTTF("assets/fonts/Roboto-Regular.ttf", 32, &font_config);
 
     reset_imgui_style();
 }
@@ -142,7 +145,7 @@ int main(int argc, const char *argv[])
     Renderer renderer(1920, 1080, resource_manager);
     window.set_renderer(&renderer);
 
-    std::shared_ptr<KothEnvScreen> test_screen = std::make_shared<KothEnvScreen>(resource_manager, communicator, rng, 1);
+    std::shared_ptr<MainMenuScreen> test_screen = std::make_shared<MainMenuScreen>(resource_manager, communicator, screen_manager, rng);
     screen_manager.show_screen(test_screen);
 
     init_imgui(opengl_version_major, opengl_version_minor, window.window);
