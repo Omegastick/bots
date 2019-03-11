@@ -16,6 +16,7 @@
 #include "screen_manager.h"
 #include "resource_manager.h"
 #include "screens/main_menu_screen.h"
+#include "screens/koth_env_screen.h"
 
 using namespace SingularityTrainer;
 
@@ -141,7 +142,7 @@ int main(int argc, const char *argv[])
     Renderer renderer(1920, 1080, resource_manager);
     window.set_renderer(&renderer);
 
-    std::shared_ptr<MainMenuScreen> test_screen = std::make_shared<MainMenuScreen>(resource_manager, communicator, screen_manager);
+    std::shared_ptr<KothEnvScreen> test_screen = std::make_shared<KothEnvScreen>(resource_manager, communicator, rng, 1);
     screen_manager.show_screen(test_screen);
 
     init_imgui(opengl_version_major, opengl_version_minor, window.window);

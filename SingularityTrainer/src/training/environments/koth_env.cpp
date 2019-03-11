@@ -106,6 +106,10 @@ KothEnv::KothEnv(float x, float y, float scale, int max_steps, int seed)
     agent_1 = std::make_unique<TestAgent>(world, rng.get());
     agent_2 = std::make_unique<TestAgent>(world, rng.get());
 
+    // Hill
+    hill->register_agent(agent_1.get(), 0);
+    hill->register_agent(agent_2.get(), 1);
+
     // Walls
     walls.push_back(std::make_unique<Wall>(-10, -20, 20, 0.1, world));
     walls.push_back(std::make_unique<Wall>(-10, -20, 0.1, 40, world));
@@ -229,15 +233,16 @@ void KothEnv::thread_loop()
             elapsed_time += command.step_length;
 
             // Hill score
-            hill_occupants = hill->get_occupants();
-            if (std::find(hill_occupants.begin(), hill_occupants.end(), agent_1.get()) != hill_occupants.end())
-            {
-                change_reward(0, 1);
-            }
-            if (std::find(hill_occupants.begin(), hill_occupants.end(), agent_2.get()) != hill_occupants.end())
-            {
-                change_reward(1, 1);
-            }
+            hill->update();
+            // hill_occupants = hill->get_occupants();
+            // if (std::find(hill_occupants.begin(), hill_occupants.end(), agent_1.get()) != hill_occupants.end())
+            // {
+            //     change_reward(0, 1);
+            // }
+            // if (std::find(hill_occupants.begin(), hill_occupants.end(), agent_2.get()) != hill_occupants.end())
+            // {
+            //     change_reward(1, 1);
+            // }
 
             // Max episode length
             step_counter++;
@@ -279,6 +284,9 @@ void KothEnv::thread_loop()
             agent_2->rigid_body->body->SetTransform({0, 10}, glm::radians(180.f));
             agent_2->rigid_body->body->SetAngularVelocity(0);
             agent_2->rigid_body->body->SetLinearVelocity(b2Vec2_zero);
+
+            // Reset hill
+            hill->reset();
 
             // Fill in StepInfo
             step_info->observation.push_back(agent_1->get_observation());
