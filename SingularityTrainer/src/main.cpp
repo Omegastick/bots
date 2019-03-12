@@ -16,7 +16,6 @@
 #include "screen_manager.h"
 #include "resource_manager.h"
 #include "screens/main_menu_screen.h"
-#include "screens/koth_env_screen.h"
 
 using namespace SingularityTrainer;
 

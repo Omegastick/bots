@@ -124,7 +124,10 @@ KothEnv::~KothEnv()
     command_queue.push(std::move(command));
     command_queue_mutex.unlock();
     command_queue_flag++;
-    thread->join();
+    if (thread.get() != nullptr)
+    {
+        thread->join();
+    }
 };
 
 float KothEnv::get_elapsed_time() const
@@ -134,7 +137,7 @@ float KothEnv::get_elapsed_time() const
 
 void KothEnv::start_thread()
 {
-    thread = new std::thread(&KothEnv::thread_loop, this);
+    thread = std::make_unique<std::thread>(&KothEnv::thread_loop, this);
 }
 
 RenderData KothEnv::get_render_data(bool lightweight)

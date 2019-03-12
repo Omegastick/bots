@@ -22,7 +22,7 @@ set(MSGPACK_DIR ${LIB_DIR}/msgpack-c)
 if (NOT CMAKE_BUILD_TYPE)
     set(CMAKE_BUILD_TYPE Debug)
 endif()
-set(CMAKE_CXX_STANDARD 14)
+set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_FLAGS_RELEASE -O3)
 
 # Executables and loca libraries
@@ -59,9 +59,10 @@ add_subdirectory(${BOX2D_DIR})
 
 # Link libraries
 target_link_libraries(Training libzmq-static TG::Box2D)
+# UNIX systems sometimes need to explicitly link the threading library and filesystem library
 if (UNIX)
-    # UNIX systems sometimes need to explicitly link the threading library
     target_link_libraries(Training pthread)
+    target_link_libraries(SingularityTrainer stdc++fs)
 endif()
 target_link_libraries(Graphics glad glfw ${GLFW_LIBRARIES} glm imgui)
 target_link_libraries(SingularityTrainer Training Graphics)
