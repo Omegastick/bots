@@ -448,7 +448,7 @@ def test_model_learns_with_delayed_rewards():
     rewards = []
     environment = DelayedRewardGame(delay=8)
 
-    for _ in range(600):
+    for _ in range(1000):
         observation = [1]
         action, _ = session.get_actions(observation)
         environment.act(action[0].item())

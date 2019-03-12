@@ -1,5 +1,6 @@
 #include <memory>
 #include <filesystem>
+#include <future>
 
 #include <glm/mat4x4.hpp>
 #include <glm/gtc/matrix_transform.hpp>
@@ -22,7 +23,8 @@ WatchScreen::WatchScreen(ResourceManager &resource_manager, Communicator &commun
       resource_manager(&resource_manager),
       communicator(&communicator),
       state(States::BROWSING),
-      selected_file(-1)
+      selected_file(-1),
+      frame_counter(0)
 {
     environment = std::make_unique<KothEnv>(460, 40, 1, 100, 0);
 
@@ -54,9 +56,11 @@ void WatchScreen::update(const float delta_time)
 {
     if (state == States::BROWSING)
     {
+        // Load agent window
         ImGui::SetNextWindowPosCenter();
         ImGui::Begin("Pick a checkpoint", NULL, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoTitleBar);
 
+        // Enumerate all model files
         std::vector<std::string> files;
         for (const auto &file : fs::directory_iterator(fs::current_path().parent_path()))
         {
@@ -66,13 +70,12 @@ void WatchScreen::update(const float delta_time)
                 files.push_back(filename.substr(0, filename.size() - 4));
             }
         }
-        std::vector<char *> c_strings{};
-
+        // Display list of model files
+        std::vector<char *> c_strings;
         for (auto &string : files)
         {
             c_strings.push_back(&string.front());
         }
-
         ImGui::ListBox("", &selected_file, &c_strings.front(), files.size());
 
         if (ImGui::Button("Select"))
@@ -80,7 +83,7 @@ void WatchScreen::update(const float delta_time)
             auto begin_session_param = std::make_shared<BeginSessionParam>();
             Model model{12, 4, true, true};
             begin_session_param->model = model;
-            begin_session_param->contexts = 1;
+            begin_session_param->contexts = 2;
             begin_session_param->session_id = 0;
             begin_session_param->training = false;
             begin_session_param->model_path = fs::current_path().parent_path().append(files[selected_file] + ".pth");
@@ -88,9 +91,24 @@ void WatchScreen::update(const float delta_time)
             communicator->send_request<BeginSessionParam>(request);
             communicator->get_response<BeginSessionResult>();
 
+            environment->start_thread();
+            observations = environment->reset().get()->observation;
+
             state = States::WATCHING;
         }
         ImGui::End();
+    }
+    else if (state == States::WATCHING)
+    {
+        if (++frame_counter >= 6)
+        {
+            frame_counter = 0;
+            action_update();
+        }
+        else
+        {
+            environment->forward(1. / 60.);
+        }
     }
 }
 
@@ -113,5 +131,20 @@ void WatchScreen::draw(Renderer &renderer, bool lightweight)
     }
 
     renderer.end();
+}
+
+void WatchScreen::action_update()
+{
+    // Get actions
+    auto get_actions_param = std::make_shared<GetActionsParam>();
+    get_actions_param->inputs = {observations};
+    get_actions_param->session_id = 0;
+    Request<GetActionsParam> get_actions_request("get_actions", get_actions_param, 2);
+    communicator->send_request(get_actions_request);
+    auto actions = communicator->get_response<GetActionsResult>()->result.actions;
+
+    // Step environment
+    auto step_info = environment->step(actions, 1. / 60.).get();
+    observations = step_info->observation;
 }
 }

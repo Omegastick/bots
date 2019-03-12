@@ -20,19 +20,26 @@ class InferenceSession:
             contexts: int):
         self.contexts = contexts
 
+        self.hidden_states = torch.zeros(contexts, 128)
+
         self.model = CustomPolicy(model.inputs, model.outputs, model.recurrent)
         self.model.load_state_dict(torch.load(model_path))
 
     def get_actions(
             self,
-            inputs: List[torch.Tensor],
-            _: None = None) -> Tuple[List[int], torch.Tensor]:
+            obs: List[List[float]]
+    ) -> Tuple[torch.Tensor, torch.Tensor]:
         """
         Given an observation, get an action and the value of the observation
-        from one of the models being trained.
+        from the models being trained.
         """
-        inputs = torch.Tensor(inputs)
-        with torch.no_grad():
-            value, actions, _, _ = self.model.act(inputs, None, None)
+        obs = torch.Tensor(obs)
 
-        return actions, value
+        with torch.no_grad():
+            values, actions, _, self.hidden_states = self.model.act(
+                obs,
+                self.hidden_states,
+                torch.FloatTensor([[0]] * self.contexts)
+            )
+
+        return actions, values
