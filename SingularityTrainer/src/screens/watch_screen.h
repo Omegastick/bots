@@ -1,5 +1,6 @@
 #pragma once
 
+#include <vector>
 #include <memory>
 
 #include <glm/mat4x4.hpp>
@@ -18,6 +19,8 @@ class IEnvironment;
 class WatchScreen : public IScreen
 {
   private:
+    void action_update();
+
     enum States
     {
         BROWSING = 0,
@@ -30,6 +33,8 @@ class WatchScreen : public IScreen
     std::unique_ptr<IEnvironment> environment;
     States state;
     int selected_file;
+    int frame_counter;
+    std::vector<std::vector<float>> observations;
 
   public:
     WatchScreen(ResourceManager &resource_manager, Communicator &communicator, Random &rng);
