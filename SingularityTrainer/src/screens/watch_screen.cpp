@@ -7,21 +7,22 @@
 
 #include "screens/watch_screen.h"
 #include "graphics/renderers/renderer.h"
-#include "graphics/backend/shader.h"
 #include "graphics/post_proc_layer.h"
-#include "graphics/colors.h"
 #include "training/environments/koth_env.h"
-#include "training/trainers/quick_trainer.h"
 #include "communicator.h"
-#include "iscreen.h"
 #include "resource_manager.h"
+#include "requests.h"
 
 namespace fs = std::filesystem;
 
 namespace SingularityTrainer
 {
 WatchScreen::WatchScreen(ResourceManager &resource_manager, Communicator &communicator, Random &rng)
-    : projection(glm::ortho(0.f, 1920.f, 0.f, 1080.f)), resource_manager(&resource_manager), state(States::BROWSING)
+    : projection(glm::ortho(0.f, 1920.f, 0.f, 1080.f)),
+      resource_manager(&resource_manager),
+      communicator(&communicator),
+      state(States::BROWSING),
+      selected_file(-1)
 {
     environment = std::make_unique<KothEnv>(460, 40, 1, 100, 0);
 
@@ -39,6 +40,14 @@ WatchScreen::WatchScreen(ResourceManager &resource_manager, Communicator &commun
 
 WatchScreen::~WatchScreen()
 {
+    if (state == States::WATCHING)
+    {
+        std::shared_ptr<EndSessionParam> end_session_param = std::make_shared<EndSessionParam>();
+        end_session_param->session_id = 0;
+        Request<EndSessionParam> end_session_request("end_session", end_session_param, 4);
+        communicator->send_request<EndSessionParam>(end_session_request);
+        communicator->get_response<EndSessionResult>();
+    }
 }
 
 void WatchScreen::update(const float delta_time)
@@ -64,10 +73,23 @@ void WatchScreen::update(const float delta_time)
             c_strings.push_back(&string.front());
         }
 
-        static int selected_item = -1;
-        ImGui::ListBox("", &selected_item, &c_strings.front(), files.size());
+        ImGui::ListBox("", &selected_file, &c_strings.front(), files.size());
 
-        ImGui::Button("Select");
+        if (ImGui::Button("Select"))
+        {
+            auto begin_session_param = std::make_shared<BeginSessionParam>();
+            Model model{12, 4, true, true};
+            begin_session_param->model = model;
+            begin_session_param->contexts = 1;
+            begin_session_param->session_id = 0;
+            begin_session_param->training = false;
+            begin_session_param->model_path = fs::current_path().parent_path().append(files[selected_file] + ".pth");
+            Request<BeginSessionParam> request("begin_session", begin_session_param, 0);
+            communicator->send_request<BeginSessionParam>(request);
+            communicator->get_response<BeginSessionResult>();
+
+            state = States::WATCHING;
+        }
         ImGui::End();
     }
 }

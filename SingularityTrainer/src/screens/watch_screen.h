@@ -24,10 +24,12 @@ class WatchScreen : public IScreen
         WATCHING = 1
     };
     ResourceManager *resource_manager;
+    Communicator *communicator;
     glm::mat4 projection;
     std::unique_ptr<PostProcLayer> crt_post_proc_layer;
     std::unique_ptr<IEnvironment> environment;
     States state;
+    int selected_file;
 
   public:
     WatchScreen(ResourceManager &resource_manager, Communicator &communicator, Random &rng);
