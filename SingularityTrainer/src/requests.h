@@ -75,7 +75,8 @@ struct BeginSessionParam
     bool training;
     int contexts;
     bool auto_train;
-    MSGPACK_DEFINE_MAP(model, hyperparams, training, contexts, auto_train, session_id)
+    std::string model_path;
+    MSGPACK_DEFINE_MAP(model, hyperparams, training, contexts, auto_train, model_path, session_id)
 };
 
 struct GiveRewardsParam
