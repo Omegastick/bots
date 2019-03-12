@@ -30,7 +30,7 @@ class KothEnv : public IEnvironment
     std::vector<float> rewards;
     int step_counter;
     const int max_steps;
-    std::thread *thread;
+    std::unique_ptr<std::thread> thread;
     std::queue<ThreadCommand> command_queue;
     std::atomic<int> command_queue_flag;
     std::mutex command_queue_mutex;

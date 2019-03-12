@@ -3,6 +3,7 @@
 
 #include "screens/main_menu_screen.h"
 #include "screens/koth_env_screen.h"
+#include "screens/watch_screen.h"
 #include "graphics/renderers/renderer.h"
 #include "screen_manager.h"
 #include "resource_manager.h"
@@ -30,12 +31,11 @@ void MainMenuScreen::update(float delta_time)
     ImGui::Begin("Main menu :)", NULL, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoTitleBar);
     if (ImGui::Button("Train Agent"))
     {
-        auto koth_env_screen = std::make_shared<KothEnvScreen>(*resource_manager, *communicator, *rng, 7);
-        screen_manager->show_screen(koth_env_screen);
+        screen_manager->show_screen(std::make_shared<KothEnvScreen>(*resource_manager, *communicator, *rng, 7));
     }
     if (ImGui::Button("Load Agent"))
     {
-        spdlog::debug("Load");
+        screen_manager->show_screen(std::make_shared<WatchScreen>(*resource_manager, *communicator, *rng));
     }
     ImGui::End();
     ImGui::PopFont();
