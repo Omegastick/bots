@@ -103,9 +103,9 @@ KothEnv::KothEnv(float x, float y, float scale, int max_steps, int seed)
     world.SetContactListener(contact_listener.get());
 
     // Agent
-    agent_1 = std::make_unique<TestAgent>(world, rng.get());
+    agent_1 = std::make_unique<TestAgent>(world, rng.get(), *this);
     agent_numbers[agent_1.get()] = 0;
-    agent_2 = std::make_unique<TestAgent>(world, rng.get());
+    agent_2 = std::make_unique<TestAgent>(world, rng.get(), *this);
     agent_numbers[agent_2.get()] = 1;
 
     // Walls

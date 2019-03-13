@@ -14,7 +14,7 @@
 
 namespace SingularityTrainer
 {
-TestAgent::TestAgent(b2World &world, Random *rng)
+TestAgent::TestAgent(b2World &world, Random *rng, IEnvironment &environment) : environment(&environment)
 {
     // Rigid body
     rigid_body = std::make_unique<RigidBody>(b2_dynamicBody, b2Vec2_zero, world, this, RigidBody::ParentTypes::Agent);
@@ -168,7 +168,7 @@ void TestAgent::update_body()
         for (auto &screen_shape : screen_shapes)
         {
             std::vector<b2Vec2> points;
-			points.resize(screen_shape.m_count);
+            points.resize(screen_shape.m_count);
 
             // Apply transform to all points in screen_shape
             for (int i = 0; i < screen_shape.m_count; ++i)

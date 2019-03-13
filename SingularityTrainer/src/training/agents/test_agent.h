@@ -10,11 +10,17 @@ namespace SingularityTrainer
 {
 class RenderData;
 class Random;
+class IEnvironment;
 
 class TestAgent : public IAgent
 {
+  private:
+    IEnvironment *environment;
+
+    void register_actions();
+
   public:
-    TestAgent(b2World &world, Random *rng);
+    TestAgent(b2World &world, Random *rng, IEnvironment &environment);
     ~TestAgent();
 
     virtual void act(std::vector<int> action_flags);
@@ -24,7 +30,6 @@ class TestAgent : public IAgent
     virtual RenderData get_render_data(bool lightweight = false);
     virtual void update_body();
 
-  private:
-    void register_actions();
+    virtual inline IEnvironment *get_environment() const { return environment; }
 };
 }

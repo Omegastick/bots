@@ -18,7 +18,7 @@
 #include "graphics/screens/sprite_test_screen.h"
 #include "graphics/screens/post_proc_screen.h"
 #include "graphics/screens/particle_test_screen.h"
-#include "graphics/screens/scene_test_screen.h"
+// #include "graphics/screens/scene_test_screen.h"
 #include "graphics/screens/line_test_screen.h"
 #include "graphics/screens/crt_test_screen.h"
 #include "graphics/screens/text_test_screen.h"
@@ -160,9 +160,9 @@ int main(int argc, const char *argv[])
     spdlog::debug("Initializing particle test");
     screens.push_back(std::make_shared<ParticleTestScreen>(&screen_manager, resource_manager, &screens, &screen_names));
     screen_names.push_back("Particle test");
-    spdlog::debug("Initializing scene test");
-    screens.push_back(std::make_shared<SceneTestScreen>(&screen_manager, resource_manager, &screens, &screen_names));
-    screen_names.push_back("Scene test");
+    // spdlog::debug("Initializing scene test");
+    // screens.push_back(std::make_shared<SceneTestScreen>(&screen_manager, resource_manager, &screens, &screen_names));
+    // screen_names.push_back("Scene test");
     spdlog::debug("Initializing line test");
     screens.push_back(std::make_shared<LineTestScreen>(&screen_manager, resource_manager, &screens, &screen_names));
     screen_names.push_back("Line test");

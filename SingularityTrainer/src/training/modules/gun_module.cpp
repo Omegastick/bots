@@ -60,7 +60,7 @@ void GunModule::activate()
         b2Transform global_transform = get_global_transform();
         b2Vec2 velocity = b2Mul(global_transform.q, b2Vec2(0, 100));
         b2Vec2 offset = b2Mul(global_transform.q, b2Vec2(0, 0.7));
-        bullets.push_back(std::make_unique<Bullet>(global_transform.p + offset, velocity, *agent->rigid_body->body->GetWorld()));
+        bullets.push_back(std::make_unique<Bullet>(global_transform.p + offset, velocity, *agent->rigid_body->body->GetWorld(), agent));
     }
 }
 
