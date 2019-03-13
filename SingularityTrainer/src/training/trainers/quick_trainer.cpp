@@ -73,7 +73,7 @@ void QuickTrainer::begin_training()
     hyperparams.use_gae = true;
     hyperparams.gae = 0.95;
     hyperparams.critic_coef = 0.5;
-    hyperparams.entropy_coef = 0.01;
+    hyperparams.entropy_coef = 0.005;
     hyperparams.max_grad_norm = 0.5;
     hyperparams.clip_factor = 0.2;
     hyperparams.use_gpu = false;

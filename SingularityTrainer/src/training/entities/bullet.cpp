@@ -9,11 +9,13 @@
 #include "training/entities/bullet.h"
 #include "training/icollidable.h"
 #include "training/rigid_body.h"
+#include "training/agents/iagent.h"
+#include "training/environments/ienvironment.h"
 
 namespace SingularityTrainer
 {
-Bullet::Bullet(b2Vec2 position, b2Vec2 velocity, b2World &world)
-    : destroyed(false), life(10), last_position(b2Vec2_zero), particle_color(cl_white)
+Bullet::Bullet(b2Vec2 position, b2Vec2 velocity, b2World &world, IAgent *owner)
+    : destroyed(false), life(10), last_position(b2Vec2_zero), particle_color(cl_white), owner(owner)
 {
     sprite = std::make_unique<Sprite>("bullet");
     sprite->set_scale(glm::vec2(0.2, 0.2));
@@ -76,11 +78,21 @@ RenderData Bullet::get_render_data(bool lightweight)
 
 void Bullet::begin_contact(RigidBody *other)
 {
+    // Hill
     if (other->parent_type == RigidBody::ParentTypes::Hill)
     {
         return;
     }
 
+    // Agent
+    if (other->parent_type == RigidBody::ParentTypes::Agent && !destroyed)
+    {
+        owner->get_environment()->change_reward(owner, 1);
+        auto other_agent = static_cast<IAgent *>(other->parent);
+        other_agent->get_environment()->change_reward(other_agent, -1);
+    }
+
+    // Create particle effect
     if (!destroyed && explosion_particles.size() == 0)
     {
         const int particle_count = 100;
@@ -101,8 +113,9 @@ void Bullet::begin_contact(RigidBody *other)
                 end_color};
             explosion_particles.push_back(particle);
         }
+
+        destroyed = true;
     }
-    destroyed = true;
 }
 
 void Bullet::end_contact(RigidBody *other) {}

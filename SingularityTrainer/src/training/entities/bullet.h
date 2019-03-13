@@ -13,6 +13,8 @@ namespace SingularityTrainer
 class RenderData;
 class Sprite;
 class RigidBody;
+class IAgent;
+class IEnvironment;
 
 class Bullet : public IDrawable, public ICollidable
 {
@@ -21,9 +23,10 @@ class Bullet : public IDrawable, public ICollidable
     std::unique_ptr<Sprite> sprite;
     std::vector<Particle> explosion_particles;
     glm::vec4 particle_color;
+    IAgent *owner;
 
   public:
-    Bullet(b2Vec2 position, b2Vec2 velocity, b2World &world);
+    Bullet(b2Vec2 position, b2Vec2 velocity, b2World &world, IAgent *owner);
     ~Bullet();
 
     virtual RenderData get_render_data(bool lightweight = false);
