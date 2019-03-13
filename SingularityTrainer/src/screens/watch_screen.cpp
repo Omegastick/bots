@@ -1,3 +1,4 @@
+#include <algorithm>
 #include <memory>
 #include <filesystem>
 #include <future>
@@ -70,6 +71,7 @@ void WatchScreen::update(const float delta_time)
                 files.push_back(filename.substr(0, filename.size() - 4));
             }
         }
+        std::sort(files.begin(), files.end());
         // Display list of model files
         std::vector<char *> c_strings;
         for (auto &string : files)
