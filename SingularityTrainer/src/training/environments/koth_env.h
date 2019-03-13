@@ -8,6 +8,7 @@
 #include <thread>
 #include <utility>
 #include <mutex>
+#include <unordered_map>
 
 #include "training/environments/ienvironment.h"
 
@@ -37,6 +38,7 @@ class KothEnv : public IEnvironment
     std::vector<float> total_rewards;
     std::unique_ptr<Random> rng;
     float elapsed_time;
+    std::unordered_map<IAgent *, int> agent_numbers;
 
     void thread_loop();
 
@@ -49,6 +51,7 @@ class KothEnv : public IEnvironment
     virtual void forward(float step_length);
     virtual std::future<std::unique_ptr<StepInfo>> reset();
     virtual void change_reward(int agent, float reward_delta);
+    virtual void change_reward(IAgent *agent, float reward_delta);
     virtual void set_done();
     virtual RenderData get_render_data(bool lightweight = false);
     virtual float get_elapsed_time() const;
