@@ -104,11 +104,9 @@ KothEnv::KothEnv(float x, float y, float scale, int max_steps, int seed)
 
     // Agent
     agent_1 = std::make_unique<TestAgent>(world, rng.get());
+    agent_numbers[agent_1.get()] = 0;
     agent_2 = std::make_unique<TestAgent>(world, rng.get());
-
-    // Hill
-    hill->register_agent(agent_1.get(), 0);
-    hill->register_agent(agent_2.get(), 1);
+    agent_numbers[agent_2.get()] = 1;
 
     // Walls
     walls.push_back(std::make_unique<Wall>(-10, -20, 20, 0.1, world));
@@ -189,6 +187,11 @@ void KothEnv::change_reward(int agent, float reward_delta)
     total_rewards[agent] += reward_delta;
 }
 
+void KothEnv::change_reward(IAgent *agent, float reward_delta)
+{
+    change_reward(agent_numbers[agent], reward_delta);
+}
+
 void KothEnv::set_done()
 {
     done = true;
@@ -237,15 +240,6 @@ void KothEnv::thread_loop()
 
             // Hill score
             hill->update();
-            // hill_occupants = hill->get_occupants();
-            // if (std::find(hill_occupants.begin(), hill_occupants.end(), agent_1.get()) != hill_occupants.end())
-            // {
-            //     change_reward(0, 1);
-            // }
-            // if (std::find(hill_occupants.begin(), hill_occupants.end(), agent_2.get()) != hill_occupants.end())
-            // {
-            //     change_reward(1, 1);
-            // }
 
             // Max episode length
             step_counter++;
@@ -263,7 +257,6 @@ void KothEnv::thread_loop()
             // Increment step counter
             if (done)
             {
-                // spdlog::info("Reward: {}", total_reward);
                 reset();
             }
 

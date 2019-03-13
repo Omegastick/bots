@@ -49,10 +49,7 @@ void Hill::begin_contact(RigidBody *other)
 {
     if (other->parent_type == RigidBody::ParentTypes::Agent)
     {
-        if (registered_agents.count(static_cast<IAgent *>(other->parent)) > 0)
-        {
-            occupants[static_cast<IAgent *>(other->parent)]++;
-        }
+        occupants[static_cast<IAgent *>(other->parent)]++;
     }
 }
 
@@ -60,19 +57,7 @@ void Hill::end_contact(RigidBody *other)
 {
     if (other->parent_type == RigidBody::ParentTypes::Agent)
     {
-        if (registered_agents.count(static_cast<IAgent *>(other->parent)) > 0)
-        {
-            occupants[static_cast<IAgent *>(other->parent)]--;
-        }
-    }
-}
-
-void Hill::register_agent(IAgent *agent, int agent_number)
-{
-    if (registered_agents.count(agent) == 0)
-    {
-        registered_agents[agent] = agent_number;
-        occupants[agent] = 0;
+        occupants[static_cast<IAgent *>(other->parent)]--;
     }
 }
 
@@ -82,11 +67,7 @@ void Hill::update() const
     {
         if (agent.second > 0)
         {
-            auto agent_number = registered_agents.find(agent.first);
-            if (agent_number != registered_agents.end())
-            {
-                environment.change_reward(agent_number->second, 1);
-            }
+            environment.change_reward(agent.first, 1);
         }
     }
 }
