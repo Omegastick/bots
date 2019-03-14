@@ -30,6 +30,8 @@ KothEnvScreen::KothEnvScreen(ResourceManager &resource_manager, Communicator &co
     resource_manager.load_texture("pixel", "images/pixel.png");
     resource_manager.load_texture("target", "images/target.png");
     resource_manager.load_shader("crt", "shaders/texture.vert", "shaders/crt.frag");
+    resource_manager.load_shader("font", "shaders/texture.vert", "shaders/font.frag");
+    resource_manager.load_font("roboto-16", "fonts/Roboto-Regular.ttf", 16);
 
     crt_post_proc_layer = std::make_unique<PostProcLayer>(resource_manager.shader_store.get("crt").get());
 

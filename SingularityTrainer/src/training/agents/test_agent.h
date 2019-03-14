@@ -16,6 +16,7 @@ class TestAgent : public IAgent
 {
   private:
     IEnvironment *environment;
+    float hp;
 
     void register_actions();
 
@@ -29,7 +30,10 @@ class TestAgent : public IAgent
     virtual void end_contact(RigidBody *other);
     virtual RenderData get_render_data(bool lightweight = false);
     virtual void update_body();
+    virtual void hit(float damage);
+    virtual void reset();
 
     virtual inline IEnvironment *get_environment() const { return environment; }
+    virtual inline float get_hp() const { return hp; }
 };
 }

@@ -27,7 +27,7 @@ WatchScreen::WatchScreen(ResourceManager &resource_manager, Communicator &commun
       selected_file(-1),
       frame_counter(0)
 {
-    environment = std::make_unique<KothEnv>(460, 40, 1, 100, 0);
+    environment = std::make_unique<KothEnv>(460, 40, 1, 600, 0);
 
     resource_manager.load_texture("base_module", "images/base_module.png");
     resource_manager.load_texture("gun_module", "images/gun_module.png");
@@ -37,6 +37,8 @@ WatchScreen::WatchScreen(ResourceManager &resource_manager, Communicator &commun
     resource_manager.load_texture("pixel", "images/pixel.png");
     resource_manager.load_texture("target", "images/target.png");
     resource_manager.load_shader("crt", "shaders/texture.vert", "shaders/crt.frag");
+    resource_manager.load_shader("font", "shaders/texture.vert", "shaders/font.frag");
+    resource_manager.load_font("roboto-16", "fonts/Roboto-Regular.ttf", 16);
 
     crt_post_proc_layer = std::make_unique<PostProcLayer>(resource_manager.shader_store.get("crt").get());
 }

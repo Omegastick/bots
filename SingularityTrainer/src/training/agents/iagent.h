@@ -28,6 +28,9 @@ class IAgent : public ICollidable
     virtual RenderData get_render_data(bool lightweight = false) = 0;
     virtual void update_body() = 0;
     virtual IEnvironment *get_environment() const = 0;
+    virtual float get_hp() const = 0;
+    virtual void hit(float damage) = 0;
+    virtual void reset() = 0;
 
     std::vector<std::unique_ptr<IModule>> modules;
     std::vector<IAction *> actions;

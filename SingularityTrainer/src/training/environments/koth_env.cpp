@@ -241,6 +241,20 @@ void KothEnv::thread_loop()
             // Hill score
             hill->update();
 
+            // Check if agent is destroyed
+            if (agent_1->get_hp() < 0)
+            {
+                change_reward(agent_1.get(), -100);
+                change_reward(agent_2.get(), 100);
+                set_done();
+            }
+            else if (agent_2->get_hp() < 0)
+            {
+                change_reward(agent_1.get(), 100);
+                change_reward(agent_2.get(), -100);
+                set_done();
+            }
+
             // Max episode length
             step_counter++;
             done = done || step_counter >= max_steps;
@@ -280,6 +294,10 @@ void KothEnv::thread_loop()
             agent_2->rigid_body->body->SetTransform({0, 10}, glm::radians(180.f));
             agent_2->rigid_body->body->SetAngularVelocity(0);
             agent_2->rigid_body->body->SetLinearVelocity(b2Vec2_zero);
+
+            // Reset agent hp
+            agent_1->reset();
+            agent_2->reset();
 
             // Reset hill
             hill->reset();

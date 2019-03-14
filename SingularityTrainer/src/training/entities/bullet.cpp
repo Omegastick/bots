@@ -90,6 +90,7 @@ void Bullet::begin_contact(RigidBody *other)
         owner->get_environment()->change_reward(owner, 1);
         auto other_agent = static_cast<IAgent *>(other->parent);
         other_agent->get_environment()->change_reward(other_agent, -1);
+        other_agent->hit(1);
     }
 
     // Create particle effect
