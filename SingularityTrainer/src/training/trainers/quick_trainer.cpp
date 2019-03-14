@@ -29,7 +29,7 @@ QuickTrainer::QuickTrainer(Communicator *communicator, Random *rng, int env_coun
 {
     for (int i = 0; i < env_count; ++i)
     {
-        environments.push_back(std::make_unique<KothEnv>(460, 40, 1, 100, i));
+        environments.push_back(std::make_unique<KothEnv>(460, 40, 1, 600, i));
     }
     env_scores.resize(env_count);
 }
@@ -46,7 +46,7 @@ void QuickTrainer::begin_training()
         observation_futures[i] = environments[i]->reset();
 
         // Start each environment with a different number of random steps to decorrelate the environments
-        for (unsigned int current_step = 0; current_step < i * 10; current_step++)
+        for (unsigned int current_step = 0; current_step < i * 12; current_step++)
         {
             std::vector<int> actions;
             actions.reserve(4);
@@ -73,15 +73,15 @@ void QuickTrainer::begin_training()
     hyperparams.use_gae = true;
     hyperparams.gae = 0.95;
     hyperparams.critic_coef = 0.5;
-    hyperparams.entropy_coef = 0.005;
+    hyperparams.entropy_coef = 0.01;
     hyperparams.max_grad_norm = 0.5;
     hyperparams.clip_factor = 0.2;
     hyperparams.use_gpu = false;
     hyperparams.normalize_rewards = true;
     std::shared_ptr<BeginSessionParam> begin_session_param = std::make_shared<BeginSessionParam>();
     begin_session_param->session_id = 0;
-    begin_session_param->model = std::move(model);
-    begin_session_param->hyperparams = std::move(hyperparams);
+    begin_session_param->model = model;
+    begin_session_param->hyperparams = hyperparams;
     begin_session_param->contexts = env_count * agents_per_env;
     begin_session_param->auto_train = true;
     begin_session_param->training = true;
@@ -196,7 +196,7 @@ void QuickTrainer::action_update()
             }
         }
     }
-    if (action_frame_counter % 100 == 0)
+    if (action_frame_counter % 1000 == 0)
     {
         std::vector<float> score_averages = score_processor->get_scores();
         spdlog::info("Average reward: {}", fmt::join(score_averages, " "));

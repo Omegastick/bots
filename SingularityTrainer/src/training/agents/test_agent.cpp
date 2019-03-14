@@ -1,5 +1,6 @@
 #include <memory>
 #include <vector>
+#include <sstream>
 
 #include <Box2D/Box2D.h>
 
@@ -9,12 +10,14 @@
 #include "training/modules/gun_module.h"
 #include "training/modules/laser_sensor_module.h"
 #include "training/modules/thruster_module.h"
+#include "training/environments/ienvironment.h"
 #include "training/rigid_body.h"
+#include "graphics/colors.h"
 #include "utilities.h"
 
 namespace SingularityTrainer
 {
-TestAgent::TestAgent(b2World &world, Random *rng, IEnvironment &environment) : environment(&environment)
+TestAgent::TestAgent(b2World &world, Random *rng, IEnvironment &environment) : environment(&environment), hp(0)
 {
     // Rigid body
     rigid_body = std::make_unique<RigidBody>(b2_dynamicBody, b2Vec2_zero, world, this, RigidBody::ParentTypes::Agent);
@@ -94,6 +97,17 @@ RenderData TestAgent::get_render_data(bool lightweight)
         auto x = module->get_render_data(lightweight);
         render_data.append(x);
     }
+
+    std::stringstream hp_stream;
+    hp_stream << hp;
+    Text text;
+    text.font = "roboto-16";
+    text.text = hp_stream.str();
+    text.color = cl_white;
+    b2Vec2 position = rigid_body->body->GetPosition();
+    text.set_position({position.x, position.y});
+    text.set_scale({0.1, 0.1});
+    render_data.texts.push_back(text);
 
     return render_data;
 
@@ -197,5 +211,15 @@ void TestAgent::register_actions()
             actions.push_back(action.get());
         }
     }
+}
+
+void TestAgent::hit(float damage)
+{
+    hp -= damage;
+}
+
+void TestAgent::reset()
+{
+    hp = 10;
 }
 }
