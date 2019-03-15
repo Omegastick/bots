@@ -1,4 +1,5 @@
 #include <iostream>
+#include <mutex>
 
 #include <Box2D/Box2D.h>
 #include <glm/glm.hpp>
@@ -67,11 +68,14 @@ RenderData Bullet::get_render_data(bool lightweight)
         last_position = position;
     }
 
-    if (explosion_particles.size() > 1)
-    {
-        render_data.append(explosion_particles);
-        explosion_particles.clear();
-    }
+	{
+		std::lock_guard<std::mutex> lock_guard(particle_mutex);
+		if (explosion_particles.size() > 0)
+		{
+			render_data.append(explosion_particles);
+			explosion_particles.clear();
+		}
+	}
 
     return render_data;
 }
@@ -93,10 +97,13 @@ void Bullet::begin_contact(RigidBody *other)
         other_agent->hit(1);
     }
 
-    // Create particle effect
-    if (!destroyed && explosion_particles.size() == 0)
+    // Create particle effect and set destroyed flag
+    if (!destroyed)
     {
-        const int particle_count = 100;
+		std::lock_guard<std::mutex> lock_guard(particle_mutex);
+		destroyed = true;
+
+		const int particle_count = 100;
         explosion_particles.reserve(particle_count);
         b2Vec2 transform = rigid_body->body->GetPosition();
         const float step_subdivision = 1.f / particle_count / 10.f;
@@ -114,8 +121,6 @@ void Bullet::begin_contact(RigidBody *other)
                 end_color};
             explosion_particles.push_back(particle);
         }
-
-        destroyed = true;
     }
 }
 

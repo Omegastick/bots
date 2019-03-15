@@ -158,7 +158,7 @@ void WatchScreen::show_checkpoint_selector()
         begin_session_param->contexts = 2;
         begin_session_param->session_id = 0;
         begin_session_param->training = false;
-        begin_session_param->model_path = fs::current_path().parent_path().append(files[selected_file] + ".pth");
+        begin_session_param->model_path = fs::current_path().parent_path().append(files[selected_file] + ".pth").string();
         Request<BeginSessionParam> request("begin_session", begin_session_param, 0);
         communicator->send_request<BeginSessionParam>(request);
         communicator->get_response<BeginSessionResult>();

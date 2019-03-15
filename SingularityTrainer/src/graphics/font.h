@@ -15,7 +15,7 @@ class Font
     std::vector<stbtt_packedchar> char_info;
 
   public:
-    Font(const std::string filepath, float size);
+    Font(const std::string &filepath, float size);
 
     void bind() const;
     void unbind() const;
