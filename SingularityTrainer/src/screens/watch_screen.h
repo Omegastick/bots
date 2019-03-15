@@ -20,6 +20,8 @@ class WatchScreen : public IScreen
 {
   private:
     void action_update();
+    void show_checkpoint_selector();
+    void show_agent_scores();
 
     enum States
     {
@@ -35,6 +37,7 @@ class WatchScreen : public IScreen
     int selected_file;
     int frame_counter;
     std::vector<std::vector<float>> observations;
+    std::vector<std::vector<float>> scores;
 
   public:
     WatchScreen(ResourceManager &resource_manager, Communicator &communicator, Random &rng);

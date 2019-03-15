@@ -25,7 +25,8 @@ WatchScreen::WatchScreen(ResourceManager &resource_manager, Communicator &commun
       communicator(&communicator),
       state(States::BROWSING),
       selected_file(-1),
-      frame_counter(0)
+      frame_counter(0),
+      scores({{0}, {0}})
 {
     environment = std::make_unique<KothEnv>(460, 40, 1, 600, 0);
 
@@ -59,48 +60,7 @@ void WatchScreen::update(const float delta_time)
 {
     if (state == States::BROWSING)
     {
-        // Load agent window
-        ImGui::SetNextWindowPosCenter();
-        ImGui::Begin("Pick a checkpoint", NULL, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoTitleBar);
-
-        // Enumerate all model files
-        std::vector<std::string> files;
-        for (const auto &file : fs::directory_iterator(fs::current_path().parent_path()))
-        {
-            if (file.path().extension().string() == ".pth")
-            {
-                auto filename = file.path().filename().string();
-                files.push_back(filename.substr(0, filename.size() - 4));
-            }
-        }
-        std::sort(files.begin(), files.end());
-        // Display list of model files
-        std::vector<char *> c_strings;
-        for (auto &string : files)
-        {
-            c_strings.push_back(&string.front());
-        }
-        ImGui::ListBox("", &selected_file, &c_strings.front(), files.size());
-
-        if (ImGui::Button("Select"))
-        {
-            auto begin_session_param = std::make_shared<BeginSessionParam>();
-            Model model{12, 4, true, true};
-            begin_session_param->model = model;
-            begin_session_param->contexts = 2;
-            begin_session_param->session_id = 0;
-            begin_session_param->training = false;
-            begin_session_param->model_path = fs::current_path().parent_path().append(files[selected_file] + ".pth");
-            Request<BeginSessionParam> request("begin_session", begin_session_param, 0);
-            communicator->send_request<BeginSessionParam>(request);
-            communicator->get_response<BeginSessionResult>();
-
-            environment->start_thread();
-            observations = environment->reset().get()->observation;
-
-            state = States::WATCHING;
-        }
-        ImGui::End();
+        show_checkpoint_selector();
     }
     else if (state == States::WATCHING)
     {
@@ -113,6 +73,8 @@ void WatchScreen::update(const float delta_time)
         {
             environment->forward(1. / 60.);
         }
+
+        show_agent_scores();
     }
 }
 
@@ -150,5 +112,75 @@ void WatchScreen::action_update()
     // Step environment
     auto step_info = environment->step(actions, 1. / 60.).get();
     observations = step_info->observation;
+    for (int i = 0; i < scores.size(); ++i)
+    {
+        scores[i].push_back(scores[i].back() + step_info->reward[i]);
+    }
+    if (step_info->done[0])
+    {
+        for (auto &agent_scores : scores)
+        {
+            agent_scores = {0};
+        }
+    }
+}
+
+void WatchScreen::show_checkpoint_selector()
+{
+    // Load agent window
+    ImGui::SetNextWindowPosCenter();
+    ImGui::Begin("Pick a checkpoint", NULL, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoTitleBar);
+
+    // Enumerate all model files
+    std::vector<std::string> files;
+    for (const auto &file : fs::directory_iterator(fs::current_path().parent_path()))
+    {
+        if (file.path().extension().string() == ".pth")
+        {
+            auto filename = file.path().filename().string();
+            files.push_back(filename.substr(0, filename.size() - 4));
+        }
+    }
+    std::sort(files.begin(), files.end());
+    // Display list of model files
+    std::vector<char *> c_strings;
+    for (auto &string : files)
+    {
+        c_strings.push_back(&string.front());
+    }
+    ImGui::ListBox("", &selected_file, &c_strings.front(), files.size());
+
+    if (ImGui::Button("Select"))
+    {
+        auto begin_session_param = std::make_shared<BeginSessionParam>();
+        Model model{12, 4, true, true};
+        begin_session_param->model = model;
+        begin_session_param->contexts = 2;
+        begin_session_param->session_id = 0;
+        begin_session_param->training = false;
+        begin_session_param->model_path = fs::current_path().parent_path().append(files[selected_file] + ".pth");
+        Request<BeginSessionParam> request("begin_session", begin_session_param, 0);
+        communicator->send_request<BeginSessionParam>(request);
+        communicator->get_response<BeginSessionResult>();
+
+        environment->start_thread();
+        observations = environment->reset().get()->observation;
+
+        state = States::WATCHING;
+    }
+    ImGui::End();
+}
+
+void WatchScreen::show_agent_scores()
+{
+    ImGui::Begin("Agent 1", NULL, ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoResize);
+    ImGui::Text("Score: %.0f", scores[0].back());
+    ImGui::PlotLines("", &scores[0].front(), scores[0].size());
+    ImGui::End();
+
+    ImGui::Begin("Agent 2", NULL, ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoResize);
+    ImGui::Text("Score: %.0f", scores[1].back());
+    ImGui::PlotLines("", &scores[1].front(), scores[1].size());
+    ImGui::End();
 }
 }
