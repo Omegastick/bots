@@ -11,7 +11,7 @@
 
 namespace SingularityTrainer
 {
-Font::Font(const std::string filepath, float size)
+Font::Font(const std::string &filepath, float size)
 {
     // Read file
     std::ifstream file(filepath, std::ios::binary | std::ios::ate);
@@ -26,11 +26,12 @@ Font::Font(const std::string filepath, float size)
     file.read(reinterpret_cast<char *>(&bytes[0]), file_size);
     file.close();
 
-    unsigned char atlas_data[1024 * 1024];
+    std::vector<unsigned char> atlas_data;
+	atlas_data.resize(1024 * 1024);
     char_info.resize(96);
 
     stbtt_pack_context pack_context;
-    if (!stbtt_PackBegin(&pack_context, atlas_data, 1024, 1024, 0, 1, nullptr))
+    if (!stbtt_PackBegin(&pack_context, atlas_data.data(), 1024, 1024, 0, 1, nullptr))
     {
         spdlog::error("Failed to initialize font");
         throw std::exception();
@@ -46,7 +47,7 @@ Font::Font(const std::string filepath, float size)
     stbtt_PackEnd(&pack_context);
 
     // Create atlas texture
-    atlas_texture = std::make_unique<Texture>(1024, 1024, atlas_data);
+    atlas_texture = std::make_unique<Texture>(1024, 1024, atlas_data.data());
 }
 
 void Font::bind() const

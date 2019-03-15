@@ -1,6 +1,7 @@
 #pragma once
 
 #include <memory>
+#include <mutex>
 
 #include <Box2D/Box2D.h>
 #include <glm/vec4.hpp>
@@ -24,6 +25,7 @@ class Bullet : public IDrawable, public ICollidable
     std::vector<Particle> explosion_particles;
     glm::vec4 particle_color;
     IAgent *owner;
+	std::mutex particle_mutex;
 
   public:
     Bullet(b2Vec2 position, b2Vec2 velocity, b2World &world, IAgent *owner);
