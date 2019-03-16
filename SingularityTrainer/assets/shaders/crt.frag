@@ -25,24 +25,25 @@ vec4 scanline_weights(float distance_from_scanline, vec4 color)
 }
 
 void main() {
-    float aspect_ratio = u_virtual_resolution.x / u_virtual_resolution.y;
-    vec2 xy = distort(gl_FragCoord.xy / u_virtual_resolution.xy, u_distortion_factor);
-    vec2 xy_inverted = distort(gl_FragCoord.xy / u_virtual_resolution.xy, - u_distortion_factor);
+    // vec2 xy = distort(gl_FragCoord.xy / u_resolution.xy, u_distortion_factor);
+    vec2 xy = gl_FragCoord.xy / u_resolution;
+    // vec2 xy_inverted = distort(gl_FragCoord.xy / u_resolution.xy, - u_distortion_factor);
+    vec2 xy_inverted = gl_FragCoord.xy / u_resolution;
     
-    vec2 xy_scaled = xy_inverted * u_virtual_resolution.xy * aspect_ratio;
-    vec2 uv_ratio = fract(xy_scaled);
+    vec2 xy_scaled = xy * u_virtual_resolution;
+    vec2 xy_fract = fract(xy_scaled * 10);
     
     vec4 color = texture2D(u_texture, xy);
-    vec4 color_2 = texture2D(u_texture, xy + vec2(0.0, 1.0 / u_resolution.y));
+    vec4 color_2 = texture2D(u_texture, xy + vec2(0.0, 1.0 / u_virtual_resolution.y));
     
-    vec4 weights = scanline_weights(uv_ratio.y, color);
-    vec4 weights_2 = scanline_weights(1.0 - uv_ratio.y, color_2);
+    vec4 weights = scanline_weights(xy_fract.y, color);
+    vec4 weights_2 = scanline_weights(1.0 - xy_fract.y, color_2);
     vec3 distorted_color = (color * weights + color_2 * weights_2).rgb;
     
     vec3 dot_mask = mix(
         vec3(1.0, 0.7, 1.0),
         vec3(0.7, 1.0, 0.7),
-        floor(mod(xy.x * u_virtual_resolution.x, 2.0))
+        floor(mod(xy_scaled.x, 2.0))
     );
     
     distorted_color *= dot_mask;
