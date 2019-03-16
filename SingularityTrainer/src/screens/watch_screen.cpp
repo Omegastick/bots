@@ -90,7 +90,8 @@ void WatchScreen::draw(Renderer &renderer, bool lightweight)
         renderer.draw(render_data, glm::ortho(-38.4f, 38.4f, -21.6f, 21.6f), environment->get_elapsed_time());
 
         auto crt_shader = resource_manager->shader_store.get("crt");
-        crt_shader->set_uniform_2f("u_resolution", glm::vec2(renderer.get_width(), renderer.get_height()));
+		crt_shader->set_uniform_2f("u_resolution", {renderer.get_width(), renderer.get_height()});
+		crt_shader->set_uniform_2f("u_virtual_resolution", {1920, 1080});
         crt_shader->set_uniform_1f("u_output_gamma", 1);
         crt_shader->set_uniform_1f("u_strength", 0.8);
         crt_shader->set_uniform_1f("u_distortion_factor", 0.03);

@@ -1,13 +1,14 @@
 #version 120
 #ifdef GL_ES
-precision mediump float; 
+precision mediump float;
 #endif
 
-uniform sampler2D u_texture; 
-uniform vec2 u_resolution; 
-uniform float u_output_gamma; 
-uniform float u_strength; 
-uniform float u_distortion_factor; 
+uniform sampler2D u_texture;
+uniform vec2 u_resolution;
+uniform vec2 u_virtual_resolution;
+uniform float u_output_gamma;
+uniform float u_strength;
+uniform float u_distortion_factor;
 
 vec2 distort(vec2 xy, float u_distortion_factor)
  {
@@ -24,11 +25,11 @@ vec4 scanline_weights(float distance_from_scanline, vec4 color)
 }
 
 void main() {
-    float aspect_ratio = u_resolution.x / u_resolution.y;
-    vec2 xy = distort(gl_FragCoord.xy / u_resolution.xy, u_distortion_factor);
-    vec2 xy_inverted = distort(gl_FragCoord.xy / u_resolution.xy, - u_distortion_factor);
+    float aspect_ratio = u_virtual_resolution.x / u_virtual_resolution.y;
+    vec2 xy = distort(gl_FragCoord.xy / u_virtual_resolution.xy, u_distortion_factor);
+    vec2 xy_inverted = distort(gl_FragCoord.xy / u_virtual_resolution.xy, - u_distortion_factor);
     
-    vec2 xy_scaled = xy_inverted * u_resolution.xy * aspect_ratio;
+    vec2 xy_scaled = xy_inverted * u_virtual_resolution.xy * aspect_ratio;
     vec2 uv_ratio = fract(xy_scaled);
     
     vec4 color = texture2D(u_texture, xy);
@@ -41,7 +42,7 @@ void main() {
     vec3 dot_mask = mix(
         vec3(1.0, 0.7, 1.0),
         vec3(0.7, 1.0, 0.7),
-        floor(mod(xy.x * u_resolution.x, 2.0))
+        floor(mod(xy.x * u_virtual_resolution.x, 2.0))
     );
     
     distorted_color *= dot_mask;
