@@ -26,6 +26,16 @@ PUBLIC
     ${CMAKE_CURRENT_LIST_DIR}/random.cpp
 )
 
+target_sources(Tests
+PUBLIC
+    ${CMAKE_CURRENT_LIST_DIR}/doctest.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/communicator.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/resource_manager.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/screen_manager.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/utilities.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/random.cpp
+)
+
 add_subdirectory(graphics)
 add_subdirectory(training)
 add_subdirectory(screens)
