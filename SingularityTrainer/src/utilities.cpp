@@ -19,16 +19,6 @@ glm::vec2 radial_distort(glm::vec2 coordinate, glm::vec2 resolution, float stren
     return glm::vec2(distorted_x * resolution.x, distorted_y * resolution.y);
 }
 
-float rad_to_deg(float radians)
-{
-    return radians * 57.2958;
-}
-
-float deg_to_rad(float degrees)
-{
-    return degrees * 0.0174533;
-}
-
 b2Vec2 rotate_point_around_point(b2Vec2 point, b2Rot angle, b2Vec2 pivot)
 {
     // Translate point to pivot
