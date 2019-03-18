@@ -25,3 +25,6 @@
 [submodule "SingularityTrainer/lib/libzmq"]
 	path = SingularityTrainer/lib/libzmq
 	url = git@github.com:zeromq/libzmq.git
+[submodule "SingularityTrainer/lib/doctest"]
+	path = SingularityTrainer/lib/doctest
+	url = git@github.com:onqtam/doctest.git

@@ -16,7 +16,7 @@ glm::vec2 radial_distort(glm::vec2 coordinate, glm::vec2 resolution, float stren
     float distorted_x = scaled_coordinate.x + centered_coordinates.x * distortion_mul;
     float distorted_y = scaled_coordinate.y + centered_coordinates.y * distortion_mul;
 
-    return glm::vec2(distorted_x * resolution.x, distorted_y * resolution.y);
+    return {distorted_x * resolution.x, distorted_y * resolution.y};
 }
 
 b2Vec2 rotate_point_around_point(b2Vec2 point, b2Rot angle, b2Vec2 pivot)
