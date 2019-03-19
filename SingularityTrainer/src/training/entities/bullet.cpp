@@ -10,12 +10,12 @@
 #include "training/entities/bullet.h"
 #include "training/icollidable.h"
 #include "training/rigid_body.h"
-#include "training/agents/iagent.h"
+#include "training/agents/agent.h"
 #include "training/environments/ienvironment.h"
 
 namespace SingularityTrainer
 {
-Bullet::Bullet(b2Vec2 position, b2Vec2 velocity, b2World &world, IAgent *owner)
+Bullet::Bullet(b2Vec2 position, b2Vec2 velocity, b2World &world, Agent *owner)
     : destroyed(false), life(10), last_position(b2Vec2_zero), particle_color(cl_white), owner(owner)
 {
     sprite = std::make_unique<Sprite>("bullet");
@@ -68,14 +68,14 @@ RenderData Bullet::get_render_data(bool lightweight)
         last_position = position;
     }
 
-	{
-		std::lock_guard<std::mutex> lock_guard(particle_mutex);
-		if (explosion_particles.size() > 0)
-		{
-			render_data.append(explosion_particles);
-			explosion_particles.clear();
-		}
-	}
+    {
+        std::lock_guard<std::mutex> lock_guard(particle_mutex);
+        if (explosion_particles.size() > 0)
+        {
+            render_data.append(explosion_particles);
+            explosion_particles.clear();
+        }
+    }
 
     return render_data;
 }
@@ -92,7 +92,7 @@ void Bullet::begin_contact(RigidBody *other)
     if (other->parent_type == RigidBody::ParentTypes::Agent && !destroyed)
     {
         owner->get_environment()->change_reward(owner, 1);
-        auto other_agent = static_cast<IAgent *>(other->parent);
+        auto other_agent = static_cast<Agent *>(other->parent);
         other_agent->get_environment()->change_reward(other_agent, -1);
         other_agent->hit(1);
     }
@@ -100,10 +100,10 @@ void Bullet::begin_contact(RigidBody *other)
     // Create particle effect and set destroyed flag
     if (!destroyed)
     {
-		std::lock_guard<std::mutex> lock_guard(particle_mutex);
-		destroyed = true;
+        std::lock_guard<std::mutex> lock_guard(particle_mutex);
+        destroyed = true;
 
-		const int particle_count = 100;
+        const int particle_count = 100;
         explosion_particles.reserve(particle_count);
         b2Vec2 transform = rigid_body->body->GetPosition();
         const float step_subdivision = 1.f / particle_count / 10.f;

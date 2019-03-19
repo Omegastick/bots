@@ -37,7 +37,7 @@ class KothContactListener : public b2ContactListener
                 switch (body->parent_type)
                 {
                 case RigidBody::ParentTypes::Agent:
-                    static_cast<IAgent *>(body->parent)->begin_contact(other);
+                    static_cast<Agent *>(body->parent)->begin_contact(other);
                     break;
                 case RigidBody::ParentTypes::Bullet:
                     static_cast<Bullet *>(body->parent)->begin_contact(other);
@@ -69,7 +69,7 @@ class KothContactListener : public b2ContactListener
                 switch (body->parent_type)
                 {
                 case RigidBody::ParentTypes::Agent:
-                    static_cast<IAgent *>(body->parent)->end_contact(other);
+                    static_cast<Agent *>(body->parent)->end_contact(other);
                     break;
                 case RigidBody::ParentTypes::Bullet:
                     static_cast<Bullet *>(body->parent)->end_contact(other);
@@ -187,7 +187,7 @@ void KothEnv::change_reward(int agent, float reward_delta)
     total_rewards[agent] += reward_delta;
 }
 
-void KothEnv::change_reward(IAgent *agent, float reward_delta)
+void KothEnv::change_reward(Agent *agent, float reward_delta)
 {
     change_reward(agent_numbers[agent], reward_delta);
 }
@@ -223,7 +223,7 @@ void KothEnv::thread_loop()
         command_queue_mutex.unlock();
         command_queue_flag--;
         std::unique_ptr<StepInfo> step_info = std::make_unique<StepInfo>();
-        std::vector<IAgent *> hill_occupants;
+        std::vector<Agent *> hill_occupants;
         switch (command.command)
         {
         case Commands::Stop:
@@ -288,12 +288,12 @@ void KothEnv::thread_loop()
             step_counter = 0;
 
             // Reset agent position
-            agent_1->rigid_body->body->SetTransform({0, -10}, 0);
-            agent_1->rigid_body->body->SetAngularVelocity(0);
-            agent_1->rigid_body->body->SetLinearVelocity(b2Vec2_zero);
-            agent_2->rigid_body->body->SetTransform({0, 10}, glm::radians(180.f));
-            agent_2->rigid_body->body->SetAngularVelocity(0);
-            agent_2->rigid_body->body->SetLinearVelocity(b2Vec2_zero);
+            agent_1->get_rigid_body()->body->SetTransform({0, -10}, 0);
+            agent_1->get_rigid_body()->body->SetAngularVelocity(0);
+            agent_1->get_rigid_body()->body->SetLinearVelocity(b2Vec2_zero);
+            agent_2->get_rigid_body()->body->SetTransform({0, 10}, glm::radians(180.f));
+            agent_2->get_rigid_body()->body->SetAngularVelocity(0);
+            agent_2->get_rigid_body()->body->SetLinearVelocity(b2Vec2_zero);
 
             // Reset agent hp
             agent_1->reset();

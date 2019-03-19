@@ -6,7 +6,7 @@
 
 #include "graphics/colors.h"
 #include "resource_manager.h"
-#include "training/agents/iagent.h"
+#include "training/agents/agent.h"
 #include "training/modules/base_module.h"
 #include "training/modules/imodule.h"
 #include "training/modules/module_link.h"
@@ -14,7 +14,7 @@
 
 namespace SingularityTrainer
 {
-BaseModule::BaseModule(b2Body &body, IAgent *agent)
+BaseModule::BaseModule()
 {
     // Sprite
     sprite = std::make_unique<Sprite>("base_module");
@@ -35,15 +35,14 @@ BaseModule::BaseModule(b2Body &body, IAgent *agent)
     module_links.push_back(ModuleLink(-0.5, 0, 270, this));
 
     root = this;
-    this->agent = agent;
 }
 
 BaseModule::~BaseModule() {}
 
 std::vector<float> BaseModule::get_sensor_reading()
 {
-    b2Vec2 linear_velocity = agent->rigid_body->body->GetLinearVelocity();
-    float angular_velocity = agent->rigid_body->body->GetAngularVelocity();
+    b2Vec2 linear_velocity = agent->get_rigid_body()->body->GetLinearVelocity();
+    float angular_velocity = agent->get_rigid_body()->body->GetAngularVelocity();
     return std::vector<float>{linear_velocity.x, linear_velocity.y, angular_velocity};
 }
 }

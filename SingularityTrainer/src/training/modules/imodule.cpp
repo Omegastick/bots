@@ -5,7 +5,7 @@
 
 #include "graphics/render_data.h"
 #include "training/modules/imodule.h"
-#include "training/agents/iagent.h"
+#include "training/agents/agent.h"
 #include "training/rigid_body.h"
 #include "utilities.h"
 
@@ -49,7 +49,7 @@ RenderData IModule::get_render_data(bool lightweight)
 
 b2Transform IModule::get_global_transform()
 {
-    b2Body *body = agent->rigid_body->body;
+    b2Body *body = agent->get_rigid_body()->body;
     b2Transform agent_transform = body->GetTransform();
 
     return b2Mul(agent_transform, transform);

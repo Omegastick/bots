@@ -17,18 +17,15 @@
 
 namespace SingularityTrainer
 {
-TestAgent::TestAgent(b2World &world, Random *rng, IEnvironment &environment) : environment(&environment), hp(0)
+TestAgent::TestAgent(b2World &world, Random *rng, IEnvironment &environment) : Agent(world, rng, environment)
 {
-    // Rigid body
-    rigid_body = std::make_unique<RigidBody>(b2_dynamicBody, b2Vec2_zero, world, this, RigidBody::ParentTypes::Agent);
-
     // Instantiate modules
-    std::unique_ptr<BaseModule> base_module = std::make_unique<BaseModule>(*rigid_body->body, this);
-    std::unique_ptr<GunModule> gun_module_right = std::make_unique<GunModule>(*rigid_body->body, this);
-    std::unique_ptr<GunModule> gun_module_left = std::make_unique<GunModule>(*rigid_body->body, this);
-    std::unique_ptr<ThrusterModule> thruster_module_left = std::make_unique<ThrusterModule>(*rigid_body->body, this);
-    std::unique_ptr<ThrusterModule> thruster_module_right = std::make_unique<ThrusterModule>(*rigid_body->body, this);
-    std::unique_ptr<LaserSensorModule> laser_sensor_module = std::make_unique<LaserSensorModule>(*rigid_body->body, this);
+    auto base_module = std::make_shared<BaseModule>();
+    auto gun_module_right = std::make_shared<GunModule>();
+    auto gun_module_left = std::make_shared<GunModule>();
+    auto thruster_module_left = std::make_shared<ThrusterModule>();
+    auto thruster_module_right = std::make_shared<ThrusterModule>();
+    auto laser_sensor_module = std::make_shared<LaserSensorModule>();
 
     // Connect modules
     base_module->module_links[1].link(&gun_module_right->module_links[2]);
@@ -38,188 +35,15 @@ TestAgent::TestAgent(b2World &world, Random *rng, IEnvironment &environment) : e
     base_module->module_links[0].link(&laser_sensor_module->module_links[0]);
 
     // Add modules to Agent
-    modules.push_back(std::move(base_module));
-    modules.push_back(std::move(gun_module_right));
-    modules.push_back(std::move(gun_module_left));
-    modules.push_back(std::move(thruster_module_left));
-    modules.push_back(std::move(thruster_module_right));
-    modules.push_back(std::move(laser_sensor_module));
+    add_module(base_module);
+    add_module(gun_module_right);
+    add_module(gun_module_left);
+    add_module(thruster_module_left);
+    add_module(thruster_module_right);
+    add_module(laser_sensor_module);
 
     // Sync agent with new modules
     update_body();
     register_actions();
-
-    // If true, draws the hitboxes of each module on screen
-    debug_draw = false;
-
-    this->rng = rng;
-
-    rigid_body->body->ApplyForce(b2Vec2(100, 100), b2Vec2(3, 3), true);
-}
-
-TestAgent::~TestAgent() {}
-
-void TestAgent::act(std::vector<int> action_flags)
-{
-    for (const auto &module : modules)
-    {
-        module->update();
-    }
-
-    int current_position = 0;
-    for (const auto &action : actions)
-    {
-        int next_position = current_position + action->flag_count;
-        action->act(std::vector<int>(action_flags.begin() + current_position, action_flags.begin() + next_position));
-        current_position = next_position;
-    }
-}
-
-std::vector<float> TestAgent::get_observation()
-{
-    std::vector<float> observation;
-    for (const auto &module : modules)
-    {
-        std::vector<float> sensor_reading = module->get_sensor_reading();
-        observation.insert(observation.end(), sensor_reading.begin(), sensor_reading.end());
-    }
-    return observation;
-}
-
-void TestAgent::begin_contact(RigidBody *other) {}
-void TestAgent::end_contact(RigidBody *other) {}
-
-RenderData TestAgent::get_render_data(bool lightweight)
-{
-    RenderData render_data;
-    for (const auto &module : modules)
-    {
-        auto x = module->get_render_data(lightweight);
-        render_data.append(x);
-    }
-
-    std::stringstream hp_stream;
-    hp_stream << hp;
-    Text text;
-    text.font = "roboto-16";
-    text.text = hp_stream.str();
-    text.color = cl_white;
-    b2Vec2 position = rigid_body->body->GetPosition();
-    text.set_position({position.x, position.y});
-    text.set_scale({0.1, 0.1});
-    render_data.texts.push_back(text);
-
-    return render_data;
-
-    // if (debug_draw)
-    // {
-    //     b2Transform transform = rigid_body->body->GetTransform();
-
-    //     // Draw modules
-    //     for (b2Fixture *fixture = rigid_body->body->GetFixtureList(); fixture; fixture = fixture->GetNext())
-    //     {
-    //         b2PolygonShape *b2_shape = (b2PolygonShape *)fixture->GetShape();
-    //         sf::ConvexShape screen_shape(b2_shape->GetVertexCount());
-    //         screen_shape.setOutlineColor(sf::Color::Green);
-    //         screen_shape.setOutlineThickness(0.02);
-    //         screen_shape.setFillColor(sf::Color::Transparent);
-    //         for (int i = 0; i < b2_shape->m_count; ++i)
-    //         {
-    //             b2Vec2 vertex_position = b2Mul(transform, b2_shape->GetVertex(i));
-    //             screen_shape.setPoint(i, sf::Vector2f(vertex_position.x, vertex_position.y));
-    //         }
-    //         render_target.draw(screen_shape);
-    //     }
-
-    //     // Draw module links
-    //     for (const auto &module : modules)
-    //     {
-    //         b2Transform module_transform = module->get_global_transform();
-    //         for (const auto &module_link : module->module_links)
-    //         {
-    //             // Transform
-    //             b2Transform link_transform = b2Mul(module_transform, module_link.transform);
-
-    //             // Circle
-    //             sf::CircleShape circle(0.1);
-    //             circle.setOrigin(0.1, 0.1);
-    //             if (module_link.linked)
-    //             {
-    //                 circle.setFillColor(sf::Color(0, 255, 0, 100));
-    //             }
-    //             else
-    //             {
-    //                 circle.setFillColor(sf::Color(125, 125, 125, 100));
-    //             }
-    //             circle.setPosition(link_transform.p.x, link_transform.p.y);
-    //             render_target.draw(circle);
-
-    //             // Direction line
-    //             sf::RectangleShape line(sf::Vector2f(0.02, -0.1));
-    //             line.setOrigin(0.01, 0);
-    //             line.setFillColor(sf::Color::Red);
-    //             line.setRotation(rad_to_deg(link_transform.q.GetAngle()));
-    //             line.setPosition(link_transform.p.x, link_transform.p.y);
-    //             render_target.draw(line);
-    //         }
-    //     }
-    // }
-}
-
-void TestAgent::update_body()
-{
-    // Destroy all fixtures
-    for (b2Fixture *f = rigid_body->body->GetFixtureList(); f; f = f->GetNext())
-    {
-        rigid_body->body->DestroyFixture(f);
-    }
-
-    for (const auto &module : modules)
-    {
-        // Copy the module's screen_shape
-        // It's important we leave the original intact in case we need to do this again
-        std::vector<b2PolygonShape> screen_shapes = module->shapes;
-        for (auto &screen_shape : screen_shapes)
-        {
-            std::vector<b2Vec2> points;
-            points.resize(screen_shape.m_count);
-
-            // Apply transform to all points in screen_shape
-            for (int i = 0; i < screen_shape.m_count; ++i)
-            {
-                points[i] = b2Mul(module->transform, screen_shape.m_vertices[i]);
-            }
-            screen_shape.Set(&points[0], screen_shape.m_count);
-
-            // Create the fixture
-            b2FixtureDef fixture_def;
-            fixture_def.shape = &screen_shape;
-            fixture_def.density = 1;
-            fixture_def.friction = 1;
-            rigid_body->body->CreateFixture(&fixture_def);
-        }
-    }
-}
-
-void TestAgent::register_actions()
-{
-    actions = std::vector<IAction *>();
-    for (const auto &module : modules)
-    {
-        for (const auto &action : module->actions)
-        {
-            actions.push_back(action.get());
-        }
-    }
-}
-
-void TestAgent::hit(float damage)
-{
-    hp -= damage;
-}
-
-void TestAgent::reset()
-{
-    hp = 10;
 }
 }

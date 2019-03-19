@@ -19,6 +19,7 @@ set(BOX2D_DIR ${LIB_DIR}/Box2D-cmake)
 set(MSGPACK_DIR ${LIB_DIR}/msgpack-c)
 set(DOCTEST_DIR ${LIB_DIR}/doctest)
 set(ARGH_DIR ${LIB_DIR}/argh)
+set(JSON_DIR ${LIB_DIR}/json)
 
 # CMake Properties
 if (NOT CMAKE_BUILD_TYPE)
@@ -60,6 +61,9 @@ add_subdirectory(${ZMQ_DIR})
 add_subdirectory(${BOX2D_DIR})
 ## Doctest
 add_subdirectory(${DOCTEST_DIR})
+## Json
+set(JSON_BuildTests OFF CACHE INTERNAL "")
+add_subdirectory(${JSON_DIR})
 
 # Link libraries
 target_link_libraries(Training libzmq-static TG::Box2D doctest)
@@ -69,7 +73,7 @@ if (UNIX)
     target_link_libraries(SingularityTrainer stdc++fs)
 endif()
 target_link_libraries(Graphics glad glfw ${GLFW_LIBRARIES} glm imgui doctest)
-target_link_libraries(SingularityTrainer Training Graphics)
+target_link_libraries(SingularityTrainer Training Graphics nlohmann_json::nlohmann_json)
 target_link_libraries(HeadlessTrainer Training Graphics)
 target_link_libraries(GraphicsPlayground Training Graphics)
 
@@ -88,6 +92,7 @@ set(INCLUDE_DIRS
     ${ZMQ_DIR}/include
     ${DOCTEST_DIR}/doctest
     ${ARGH_DIR}
+    ${JSON_DIR}/include
 )
 target_include_directories(SingularityTrainer PUBLIC ${INCLUDE_DIRS})
 target_include_directories(HeadlessTrainer PUBLIC ${INCLUDE_DIRS})

@@ -10,7 +10,7 @@
 #include "graphics/colors.h"
 #include "resource_manager.h"
 #include "training/actions/activate_action.h"
-#include "training/agents/iagent.h"
+#include "training/agents/agent.h"
 #include "training/modules/imodule.h"
 #include "training/modules/thruster_module.h"
 #include "training/rigid_body.h"
@@ -18,8 +18,7 @@
 
 namespace SingularityTrainer
 {
-ThrusterModule::ThrusterModule(b2Body &body, IAgent *agent)
-    : active(false), particle_color(cl_white)
+ThrusterModule::ThrusterModule() : active(false), particle_color(cl_white)
 {
     // Sprite
     sprite = std::make_unique<Sprite>("thruster_module");
@@ -41,11 +40,7 @@ ThrusterModule::ThrusterModule(b2Body &body, IAgent *agent)
     module_links.push_back(ModuleLink(0, 0.167, 0, this));
 
     actions.push_back(std::make_unique<ActivateAction>(this));
-
-    this->agent = agent;
 }
-
-ThrusterModule::~ThrusterModule() {}
 
 RenderData ThrusterModule::get_render_data(bool lightweight)
 {
@@ -63,7 +58,7 @@ RenderData ThrusterModule::get_render_data(bool lightweight)
         end_color.a = 0;
         for (int i = 0; i < particle_count; ++i)
         {
-            float random_number = agent->rng->next_float(distribution) - 0.5;
+            float random_number = agent->get_rng()->next_float(distribution) - 0.5;
             b2Rot angle = b2Mul(edge_transform.q, b2Rot(random_number));
             Particle particle{
                 glm::vec2(edge_transform.p.x + edge_transform.q.s * random_number, edge_transform.p.y - edge_transform.q.c * random_number),
@@ -85,7 +80,7 @@ void ThrusterModule::activate()
     active = true;
     b2Transform global_transform = get_global_transform();
     b2Vec2 velocity = b2Mul(global_transform.q, b2Vec2(0, 50));
-    agent->rigid_body->body->ApplyForce(velocity, global_transform.p, true);
+    agent->get_rigid_body()->body->ApplyForce(velocity, global_transform.p, true);
 }
 
 void ThrusterModule::update()

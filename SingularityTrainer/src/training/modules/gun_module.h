@@ -7,17 +7,16 @@
 
 #include "training/modules/imodule.h"
 #include "training/modules/interfaces/iactivatable.h"
+#include "training/entities/bullet.h"
 
 namespace SingularityTrainer
 {
-class IAgent;
-class Bullet;
+class Agent;
 
 class GunModule : public IModule, public IActivatable
 {
   public:
-    GunModule(b2Body &body, IAgent *agent);
-    ~GunModule();
+    GunModule();
 
     virtual RenderData get_render_data(bool lightweight = false);
     virtual void activate();

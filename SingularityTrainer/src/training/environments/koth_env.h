@@ -16,7 +16,7 @@ namespace SingularityTrainer
 {
 class Random;
 class ResourceManager;
-class IAgent;
+class Agent;
 class Wall;
 class Hill;
 
@@ -38,7 +38,7 @@ class KothEnv : public IEnvironment
     std::vector<float> total_rewards;
     std::unique_ptr<Random> rng;
     float elapsed_time;
-    std::unordered_map<IAgent *, int> agent_numbers;
+    std::unordered_map<Agent *, int> agent_numbers;
 
     void thread_loop();
 
@@ -51,12 +51,12 @@ class KothEnv : public IEnvironment
     virtual void forward(float step_length);
     virtual std::future<std::unique_ptr<StepInfo>> reset();
     virtual void change_reward(int agent, float reward_delta);
-    virtual void change_reward(IAgent *agent, float reward_delta);
+    virtual void change_reward(Agent *agent, float reward_delta);
     virtual void set_done();
     virtual RenderData get_render_data(bool lightweight = false);
     virtual float get_elapsed_time() const;
 
-    std::unique_ptr<IAgent> agent_1;
-    std::unique_ptr<IAgent> agent_2;
+    std::unique_ptr<Agent> agent_1;
+    std::unique_ptr<Agent> agent_2;
 };
 }

@@ -14,7 +14,7 @@ class b2World;
 namespace SingularityTrainer
 {
 class Renderer;
-class IAgent;
+class Agent;
 class ScreenManager;
 class ResourceManager;
 
@@ -26,7 +26,7 @@ class SceneTestScreen : public IScreen
     ScreenManager *screen_manager;
     ResourceManager *resource_manager;
     glm::mat4 projection;
-    std::unique_ptr<IAgent> agent;
+    std::unique_ptr<Agent> agent;
     std::unique_ptr<b2World> b2_world;
     Random random;
     float elapsed_time;

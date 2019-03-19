@@ -15,7 +15,7 @@ namespace SingularityTrainer
 {
 class Random;
 class ResourceManager;
-class IAgent;
+class Agent;
 class Target;
 class Wall;
 
@@ -53,6 +53,6 @@ class TargetEnv : public IEnvironment
     virtual RenderData get_render_data(bool lightweight = false);
     virtual float get_elapsed_time() const;
 
-    std::unique_ptr<IAgent> agent;
+    std::unique_ptr<Agent> agent;
 };
 }

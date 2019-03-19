@@ -8,7 +8,7 @@
 
 namespace SingularityTrainer
 {
-class IAgent;
+class Agent;
 class RenderData;
 
 class ThrusterModule : public IModule, public IActivatable
@@ -18,8 +18,7 @@ class ThrusterModule : public IModule, public IActivatable
     glm::vec4 particle_color;
 
   public:
-    ThrusterModule(b2Body &body, IAgent *agent);
-    ~ThrusterModule();
+    ThrusterModule();
 
     virtual RenderData get_render_data(bool lightweight = false);
     virtual void activate();
