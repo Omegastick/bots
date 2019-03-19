@@ -28,3 +28,6 @@
 [submodule "SingularityTrainer/lib/doctest"]
 	path = SingularityTrainer/lib/doctest
 	url = git@github.com:onqtam/doctest.git
+[submodule "SingularityTrainer/lib/argh"]
+	path = SingularityTrainer/lib/argh
+	url = git@github.com:adishavit/argh.git
