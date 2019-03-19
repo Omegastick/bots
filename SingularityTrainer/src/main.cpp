@@ -6,6 +6,8 @@
 #include <imgui.h>
 #include <imgui_impl_glfw.h>
 #include <imgui_impl_opengl3.h>
+#include <argh.h>
+#include <doctest.h>
 
 #include "graphics/window.h"
 #include "graphics/colors.h"
@@ -126,12 +128,30 @@ void resize_window_callback(GLFWwindow *glfw_window, int x, int y)
     window->get_renderer().resize(x, y);
 }
 
+int run_tests(int argc, const char *argv[])
+{
+    doctest::Context context;
+
+    context.setOption("order-by", "name");
+
+    context.applyCommandLine(argc, argv);
+
+    return context.run();
+}
+
 int main(int argc, const char *argv[])
 {
     // Logging
     spdlog::set_level(spdlog::level::debug);
     spdlog::set_pattern("%^[%T %7l] %v%$");
     glfwSetErrorCallback(error_callback);
+
+    argh::parser args(argv);
+
+    if (args[{"-t", "--test"}])
+    {
+        return run_tests(argc, argv);
+    }
 
     // Create window
     Window window = Window(resolution_x, resolution_y, window_title, opengl_version_major, opengl_version_minor);

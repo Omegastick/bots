@@ -18,6 +18,7 @@ set(CPPZMQ_DIR ${LIB_DIR}/cppzmq)
 set(BOX2D_DIR ${LIB_DIR}/Box2D-cmake)
 set(MSGPACK_DIR ${LIB_DIR}/msgpack-c)
 set(DOCTEST_DIR ${LIB_DIR}/doctest)
+set(ARGH_DIR ${LIB_DIR}/argh)
 
 # CMake Properties
 if (NOT CMAKE_BUILD_TYPE)
@@ -30,7 +31,6 @@ set(CMAKE_CXX_FLAGS_RELEASE -O3)
 add_executable(SingularityTrainer "")
 add_executable(HeadlessTrainer "")
 add_executable(GraphicsPlayground "")
-add_executable(Tests "")
 add_library(Training STATIC "")
 add_library(Graphics STATIC "")
 
@@ -59,21 +59,19 @@ add_subdirectory(${ZMQ_DIR})
 ## Box2D
 add_subdirectory(${BOX2D_DIR})
 ## Doctest
-add_library(doctest INTERFACE)
-target_include_directories(doctest INTERFACE ${DOCTEST_DIR}/doctest)
+add_subdirectory(${DOCTEST_DIR})
 
 # Link libraries
-target_link_libraries(Training libzmq-static TG::Box2D)
+target_link_libraries(Training libzmq-static TG::Box2D doctest)
 # UNIX systems sometimes need to explicitly link the threading library and filesystem library
 if (UNIX)
     target_link_libraries(Training pthread)
     target_link_libraries(SingularityTrainer stdc++fs)
 endif()
-target_link_libraries(Graphics glad glfw ${GLFW_LIBRARIES} glm imgui)
+target_link_libraries(Graphics glad glfw ${GLFW_LIBRARIES} glm imgui doctest)
 target_link_libraries(SingularityTrainer Training Graphics)
 target_link_libraries(HeadlessTrainer Training Graphics)
 target_link_libraries(GraphicsPlayground Training Graphics)
-target_link_libraries(Tests Training Graphics doctest)
 
 # Inlcudes
 set(INCLUDE_DIRS
@@ -88,11 +86,12 @@ set(INCLUDE_DIRS
     ${MSGPACK_DIR}/include
     ${CPPZMQ_DIR}
     ${ZMQ_DIR}/include
+    ${DOCTEST_DIR}/doctest
+    ${ARGH_DIR}
 )
 target_include_directories(SingularityTrainer PUBLIC ${INCLUDE_DIRS})
 target_include_directories(HeadlessTrainer PUBLIC ${INCLUDE_DIRS})
 target_include_directories(GraphicsPlayground PUBLIC ${INCLUDE_DIRS})
-target_include_directories(Tests PUBLIC ${INCLUDE_DIRS})
 target_include_directories(Training PUBLIC ${INCLUDE_DIRS})
 target_include_directories(Graphics PUBLIC ${INCLUDE_DIRS})
 
