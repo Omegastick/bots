@@ -31,3 +31,6 @@
 [submodule "SingularityTrainer/lib/argh"]
 	path = SingularityTrainer/lib/argh
 	url = git@github.com:adishavit/argh.git
+[submodule "SingularityTrainer/lib/json"]
+	path = SingularityTrainer/lib/json
+	url = git@github.com:nlohmann/json.git

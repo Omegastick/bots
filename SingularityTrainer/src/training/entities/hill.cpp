@@ -7,7 +7,7 @@
 #include "graphics/colors.h"
 #include "graphics/idrawable.h"
 #include "training/environments/ienvironment.h"
-#include "training/agents/iagent.h"
+#include "training/agents/agent.h"
 #include "training/icollidable.h"
 #include "training/rigid_body.h"
 
@@ -49,7 +49,7 @@ void Hill::begin_contact(RigidBody *other)
 {
     if (other->parent_type == RigidBody::ParentTypes::Agent)
     {
-        occupants[static_cast<IAgent *>(other->parent)]++;
+        occupants[static_cast<Agent *>(other->parent)]++;
     }
 }
 
@@ -57,7 +57,7 @@ void Hill::end_contact(RigidBody *other)
 {
     if (other->parent_type == RigidBody::ParentTypes::Agent)
     {
-        occupants[static_cast<IAgent *>(other->parent)]--;
+        occupants[static_cast<Agent *>(other->parent)]--;
     }
 }
 

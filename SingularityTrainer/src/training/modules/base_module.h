@@ -8,12 +8,12 @@
 
 namespace SingularityTrainer
 {
-class IAgent;
+class Agent;
 
 class BaseModule : public IModule
 {
   public:
-    BaseModule(b2Body &body, IAgent *agent);
+    BaseModule();
     ~BaseModule();
 
     virtual std::vector<float> get_sensor_reading();

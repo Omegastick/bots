@@ -6,7 +6,7 @@
 
 #include "graphics/colors.h"
 #include "resource_manager.h"
-#include "training/agents/iagent.h"
+#include "training/agents/agent.h"
 #include "training/modules/base_module.h"
 #include "training/modules/imodule.h"
 #include "training/modules/laser_sensor_module.h"
@@ -16,8 +16,7 @@
 
 namespace SingularityTrainer
 {
-LaserSensorModule::LaserSensorModule(b2Body &body, IAgent *agent)
-    : laser_count(9), fov(180), laser_length(20)
+LaserSensorModule::LaserSensorModule() : laser_count(9), fov(180), laser_length(20)
 {
     // Sprite
     sprite = std::make_unique<Sprite>("laser_sensor_module");
@@ -33,11 +32,7 @@ LaserSensorModule::LaserSensorModule(b2Body &body, IAgent *agent)
 
     // Module links
     module_links.push_back(ModuleLink(0, -0.25, 180, this));
-
-    this->agent = agent;
 }
-
-LaserSensorModule::~LaserSensorModule() {}
 
 std::vector<float> LaserSensorModule::get_sensor_reading()
 {
@@ -54,7 +49,7 @@ std::vector<float> LaserSensorModule::get_sensor_reading()
         b2Rot angle(glm::radians((segment_width * i) - (fov / 2)));
         b2Vec2 laser = b2Mul(angle, b2Vec2(0, laser_length));
 
-        agent->rigid_body->body->GetWorld()->RayCast(&raycast_callback, global_transform.p, b2Mul(global_transform, laser));
+        agent->get_rigid_body()->body->GetWorld()->RayCast(&raycast_callback, global_transform.p, b2Mul(global_transform, laser));
         if (raycast_callback.distance == -1)
         {
             sensor_reading[i] = 1;

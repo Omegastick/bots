@@ -6,7 +6,7 @@
 #include "graphics/sprite.h"
 #include "resource_manager.h"
 #include "training/actions/activate_action.h"
-#include "training/agents/iagent.h"
+#include "training/agents/agent.h"
 #include "training/entities/bullet.h"
 #include "training/modules/gun_module.h"
 #include "training/modules/imodule.h"
@@ -14,7 +14,7 @@
 
 namespace SingularityTrainer
 {
-GunModule::GunModule(b2Body &body, IAgent *agent) : cooldown(3), steps_since_last_shot(0)
+GunModule::GunModule() : cooldown(3), steps_since_last_shot(0)
 {
     // Sprite
     sprite = std::make_unique<Sprite>("gun_module");
@@ -36,11 +36,7 @@ GunModule::GunModule(b2Body &body, IAgent *agent) : cooldown(3), steps_since_las
     module_links.push_back(ModuleLink(-0.5, -0.167, 270, this));
 
     actions.push_back(std::make_unique<ActivateAction>(this));
-
-    this->agent = agent;
 }
-
-GunModule::~GunModule() {}
 
 RenderData GunModule::get_render_data(bool lightweight)
 {
@@ -60,7 +56,7 @@ void GunModule::activate()
         b2Transform global_transform = get_global_transform();
         b2Vec2 velocity = b2Mul(global_transform.q, b2Vec2(0, 100));
         b2Vec2 offset = b2Mul(global_transform.q, b2Vec2(0, 0.7));
-        bullets.push_back(std::make_unique<Bullet>(global_transform.p + offset, velocity, *agent->rigid_body->body->GetWorld(), agent));
+        bullets.push_back(std::make_unique<Bullet>(global_transform.p + offset, velocity, *agent->get_rigid_body()->body->GetWorld(), agent));
     }
 }
 

@@ -12,7 +12,7 @@ namespace SingularityTrainer
 {
 class ModuleLink;
 class IAction;
-class IAgent;
+class Agent;
 class RenderData;
 class Sprite;
 
@@ -28,13 +28,15 @@ class IModule : public IDrawable
     virtual RenderData get_render_data(bool lightweight = false);
     virtual b2Transform get_global_transform();
 
+    inline virtual void set_agent(Agent *agent) { this->agent = agent; };
+
     IModule *root;
     std::vector<ModuleLink> module_links;
     std::vector<std::unique_ptr<IAction>> actions;
     b2Transform transform;
     std::vector<b2PolygonShape> shapes;
     std::unique_ptr<Sprite> sprite;
-    IAgent *agent;
+    Agent *agent;
 };
 
 inline IModule::~IModule() {}

@@ -37,7 +37,7 @@ class ContactListener : public b2ContactListener
                 switch (body->parent_type)
                 {
                 case RigidBody::ParentTypes::Agent:
-                    static_cast<IAgent *>(body->parent)->begin_contact(other);
+                    static_cast<Agent *>(body->parent)->begin_contact(other);
                     break;
                 case RigidBody::ParentTypes::Bullet:
                     static_cast<Bullet *>(body->parent)->begin_contact(other);
@@ -69,7 +69,7 @@ class ContactListener : public b2ContactListener
                 switch (body->parent_type)
                 {
                 case RigidBody::ParentTypes::Agent:
-                    static_cast<IAgent *>(body->parent)->end_contact(other);
+                    static_cast<Agent *>(body->parent)->end_contact(other);
                     break;
                 case RigidBody::ParentTypes::Bullet:
                     static_cast<Bullet *>(body->parent)->end_contact(other);
@@ -257,9 +257,9 @@ void TargetEnv::thread_loop()
             step_counter = 0;
 
             // Reset agent position
-            agent->rigid_body->body->SetTransform(b2Vec2_zero, 0);
-            agent->rigid_body->body->SetAngularVelocity(0);
-            agent->rigid_body->body->SetLinearVelocity(b2Vec2_zero);
+            agent->get_rigid_body()->body->SetTransform(b2Vec2_zero, 0);
+            agent->get_rigid_body()->body->SetAngularVelocity(0);
+            agent->get_rigid_body()->body->SetLinearVelocity(b2Vec2_zero);
 
             // Change target position
             float target_x = rng->next_float(0, 18) - 9;

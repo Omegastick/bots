@@ -25,8 +25,7 @@ class ClosestRaycastCallback : public b2RayCastCallback
 class LaserSensorModule : public IModule
 {
   public:
-    LaserSensorModule(b2Body &body, IAgent *agent);
-    ~LaserSensorModule();
+    LaserSensorModule();
 
     virtual std::vector<float> get_sensor_reading();
     virtual RenderData get_render_data(bool lightweight = false);
