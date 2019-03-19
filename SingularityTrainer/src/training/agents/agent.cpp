@@ -3,17 +3,25 @@
 #include <sstream>
 
 #include <Box2D/Box2D.h>
+#include <doctest.h>
 
 #include "random.h"
 #include "training/agents/agent.h"
 #include "training/environments/ienvironment.h"
+#include "training/modules/base_module.h"
 #include "training/rigid_body.h"
 #include "graphics/colors.h"
 #include "utilities.h"
+#include "random.h"
 
 namespace SingularityTrainer
 {
-Agent::Agent(b2World &world, Random *rng, IEnvironment &environment) : rng(rng), environment(&environment), hp(0)
+Agent::Agent(b2World &world, Random *rng, IEnvironment &environment) : Agent(world, rng)
+{
+    this->environment = &environment;
+}
+
+Agent::Agent(b2World &world, Random *rng) : rng(rng), hp(0)
 {
     // Rigid body
     rigid_body = std::make_unique<RigidBody>(b2_dynamicBody, b2Vec2_zero, world, this, RigidBody::ParentTypes::Agent);
@@ -187,5 +195,24 @@ void Agent::hit(float damage)
 void Agent::reset()
 {
     hp = 10;
+}
+
+TEST_CASE("Agents can have modules added")
+{
+    b2World b2_world({0, 0});
+    Random rng(1);
+    Agent agent(b2_world, &rng);
+
+    CHECK(agent.get_modules()->size() == 0);
+
+    auto module = std::make_shared<BaseModule>();
+    agent.add_module(module);
+
+    CHECK(agent.get_modules()->size() == 1);
+
+    SUBCASE("Added modules have their parent agent set correctly")
+    {
+        CHECK((*agent.get_modules())[0]->get_agent() == &agent);
+    }
 }
 }

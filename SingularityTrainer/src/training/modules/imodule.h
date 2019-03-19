@@ -28,7 +28,8 @@ class IModule : public IDrawable
     virtual RenderData get_render_data(bool lightweight = false);
     virtual b2Transform get_global_transform();
 
-    inline virtual void set_agent(Agent *agent) { this->agent = agent; };
+    inline void set_agent(Agent *agent) { this->agent = agent; };
+    inline const Agent *get_agent() const { return agent; };
 
     IModule *root;
     std::vector<ModuleLink> module_links;
