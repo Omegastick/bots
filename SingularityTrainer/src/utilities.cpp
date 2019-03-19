@@ -1,5 +1,8 @@
+#include <string>
+
 #include <Box2D/Box2D.h>
 #include <glm/glm.hpp>
+#include <doctest.h>
 
 #include "utilities.h"
 
@@ -26,13 +29,59 @@ b2Vec2 rotate_point_around_point(b2Vec2 point, b2Rot angle, b2Vec2 pivot)
     point.y -= pivot.y;
 
     // Rotate point
-    float x_offset_rotated = (point.x * angle.c) - (point.y * angle.s);
-    float y_offset_rotated = (point.x * angle.s) + (point.y * angle.c);
+    point = b2Mul(angle, point);
 
     // Remove offset
-    point.x = x_offset_rotated + pivot.x;
-    point.y = y_offset_rotated + pivot.y;
+    point.x += pivot.x;
+    point.y += pivot.y;
 
     return point;
 }
+
+bool approx(const b2Vec2 &vector_1, const b2Vec2 &vector_2)
+{
+    auto x = vector_1.x == doctest::Approx(vector_2.x);
+    auto y = vector_1.y == doctest::Approx(vector_2.y);
+    return x && y;
+}
+
+TEST_CASE("Rotating around a point produces expected results")
+{
+    SUBCASE("Rotate {0, 1} 90 degrees right")
+    {
+        b2Vec2 expected{1, 0};
+        auto result = rotate_point_around_point({0, 1}, b2Rot(glm::radians(-90.f)), {0, 0});
+        INFO("Expected: {" << expected.x << ", " << expected.y << "} - Actual: {" << result.x << ", " << result.y << "}");
+        CHECK(approx(result, expected));
+    }
+
+    SUBCASE("Rotate {2, 0} 90 degrees left")
+    {
+        b2Vec2 expected{0, 2};
+        auto result = rotate_point_around_point({2, 0}, b2Rot(glm::radians(90.f)), {0, 0});
+        INFO("Expected: {" << expected.x << ", " << expected.y << "} - Actual: {" << result.x << ", " << result.y << "}");
+        CHECK(approx(result, expected));
+    }
+
+    SUBCASE("Rotate {5, 0} 180 degrees")
+    {
+        b2Vec2 expected{-5, 0};
+        auto result = rotate_point_around_point({5, 0}, b2Rot(glm::radians(180.f)), {0, 0});
+        INFO("Expected: {" << expected.x << ", " << expected.y << "} - Actual: {" << result.x << ", " << result.y << "}");
+        CHECK(approx(result, expected));
+    }
+
+    SUBCASE("Rotate {5, 2} 180 degrees around {0, 2}")
+    {
+        b2Vec2 expected{-5, 2};
+        auto result = rotate_point_around_point({5, 2}, b2Rot(glm::radians(180.f)), {0, 2});
+        INFO("Expected: {" << expected.x << ", " << expected.y << "} - Actual: {" << result.x << ", " << result.y << "}");
+        CHECK(approx(result, expected));
+    }
+}
+}
+
+doctest::String toString(const b2Vec2 &value)
+{
+    return ("{" + std::to_string(value.x) + ", " + std::to_string(value.y) + "}").c_str();
 }
