@@ -29,8 +29,11 @@ class Agent : public ICollidable
     float hp;
     IEnvironment *environment;
 
+    void load_json(const nlohmann::json &json);
+
   public:
     Agent(b2World &world, Random *rng);
+    Agent(b2World &world, Random *rng, const nlohmann::json &json);
     Agent(b2World &world, Random *rng, IEnvironment &environment);
     Agent(b2World &world, Random *rng, IEnvironment &environment, const nlohmann::json &json);
 
@@ -47,10 +50,11 @@ class Agent : public ICollidable
     nlohmann::json to_json() const;
     void update_body();
 
+    inline const std::vector<IAction *> &get_actions() const { return actions; }
     inline IEnvironment *get_environment() const { return environment; }
     inline void set_environment() { this->environment = environment; }
     inline float get_hp() const { return hp; }
-    inline const std::vector<std::shared_ptr<IModule>> *get_modules() const { return &modules; }
+    inline const std::vector<std::shared_ptr<IModule>> &get_modules() const { return modules; }
     inline RigidBody *get_rigid_body() const { return rigid_body.get(); }
     inline Random *get_rng() const { return rng; }
 };
