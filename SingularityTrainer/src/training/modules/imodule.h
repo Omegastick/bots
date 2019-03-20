@@ -18,6 +18,15 @@ class Sprite;
 
 class IModule : public IDrawable
 {
+  protected:
+    IModule *root;
+    std::vector<ModuleLink> module_links;
+    std::vector<std::unique_ptr<IAction>> actions;
+    b2Transform transform;
+    std::vector<b2PolygonShape> shapes;
+    std::unique_ptr<Sprite> sprite;
+    Agent *agent;
+
   public:
     virtual ~IModule() = 0;
 
@@ -28,16 +37,12 @@ class IModule : public IDrawable
     virtual RenderData get_render_data(bool lightweight = false);
     virtual b2Transform get_global_transform();
 
-    inline void set_agent(Agent *agent) { this->agent = agent; };
+    inline const std::vector<std::unique_ptr<IAction>> &get_actions() const { return actions; }
     inline const Agent *get_agent() const { return agent; };
-
-    IModule *root;
-    std::vector<ModuleLink> module_links;
-    std::vector<std::unique_ptr<IAction>> actions;
-    b2Transform transform;
-    std::vector<b2PolygonShape> shapes;
-    std::unique_ptr<Sprite> sprite;
-    Agent *agent;
+    inline void set_agent(Agent *agent) { this->agent = agent; };
+    inline std::vector<ModuleLink> &get_module_links() { return module_links; }
+    inline const std::vector<b2PolygonShape> &get_shapes() const { return shapes; }
+    inline b2Transform &get_transform() { return transform; }
 };
 
 inline IModule::~IModule() {}
