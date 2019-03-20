@@ -3,6 +3,7 @@
 #include <vector>
 
 #include <Box2D/Box2D.h>
+#include <doctest.h>
 #include <nlohmann/json.hpp>
 
 #include "graphics/sprite.h"
@@ -62,7 +63,33 @@ RenderData GunModule::get_render_data(bool lightweight)
     return render_data;
 }
 
-nlohmann::json GunModule::to_json() const { return nlohmann::json::object(); }
+nlohmann::json GunModule::to_json() const
+{
+    auto json = nlohmann::json::object();
+    json["type"] = "gun";
+
+    json["links"] = nlohmann::json::array();
+    for (const auto &link : module_links)
+    {
+        if (link.linked && link.is_parent)
+        {
+            int child_link = 0;
+            while (link.linked_module->get_module_links()[child_link].linked_module != this)
+            {
+                child_link++;
+            }
+            json["links"].push_back(nlohmann::json::object());
+            json["links"].back()["child_link"] = child_link;
+            json["links"].back()["child"] = link.linked_module->to_json();
+        }
+        else
+        {
+            json["links"].push_back(nullptr);
+        }
+    }
+
+    return json;
+}
 
 void GunModule::update()
 {
@@ -80,6 +107,48 @@ void GunModule::update()
             b2Body *body = bullets[i]->rigid_body->body;
             body->GetWorld()->DestroyBody(body);
             bullets.erase(bullets.begin() + i);
+        }
+    }
+}
+
+TEST_CASE("GunModule converts to correct Json")
+{
+    GunModule module;
+
+    auto json = module.to_json();
+
+    SUBCASE("GunModule Json has correct type")
+    {
+        CHECK(json["type"] == "gun");
+    }
+
+    SUBCASE("GunModule Json has correct number of links")
+    {
+        CHECK(json["links"].size() == 3);
+    }
+
+    SUBCASE("Nested modules are represented correctly in Json")
+    {
+        // Attach gun module
+        GunModule gun_module;
+        module.get_module_links()[0].link(&gun_module.get_module_links()[0]);
+
+        // Update json
+        json = module.to_json();
+
+        SUBCASE("Submodule Json has correct type")
+        {
+            CHECK(json["links"][0]["child"]["type"] == "gun");
+        }
+
+        SUBCASE("Link's child link number is correct")
+        {
+            CHECK(json["links"][0]["child_link"] == 0);
+        }
+
+        SUBCASE("Submodule link to parent is null in Json")
+        {
+            CHECK(json["links"][0]["child"]["links"][0] == nullptr);
         }
     }
 }

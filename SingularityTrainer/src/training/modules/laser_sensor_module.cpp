@@ -2,6 +2,7 @@
 #include <vector>
 
 #include <Box2D/Box2D.h>
+#include <doctest.h>
 #include <glm/glm.hpp>
 #include <nlohmann/json.hpp>
 
@@ -12,6 +13,7 @@
 #include "training/modules/imodule.h"
 #include "training/modules/laser_sensor_module.h"
 #include "training/modules/module_link.h"
+#include "training/modules/gun_module.h"
 #include "training/rigid_body.h"
 #include "utilities.h"
 
@@ -107,7 +109,33 @@ RenderData LaserSensorModule::get_render_data(bool lightweight)
     return render_data;
 }
 
-nlohmann::json LaserSensorModule::to_json() const { return nlohmann::json::object(); }
+nlohmann::json LaserSensorModule::to_json() const
+{
+    auto json = nlohmann::json::object();
+    json["type"] = "laser_sensor";
+
+    json["links"] = nlohmann::json::array();
+    for (const auto &link : module_links)
+    {
+        if (link.linked && link.is_parent)
+        {
+            int child_link = 0;
+            while (link.linked_module->get_module_links()[child_link].linked_module != this)
+            {
+                child_link++;
+            }
+            json["links"].push_back(nlohmann::json::object());
+            json["links"].back()["child_link"] = child_link;
+            json["links"].back()["child"] = link.linked_module->to_json();
+        }
+        else
+        {
+            json["links"].push_back(nullptr);
+        }
+    }
+
+    return json;
+}
 
 ClosestRaycastCallback::ClosestRaycastCallback() : distance(-1) {}
 ClosestRaycastCallback::~ClosestRaycastCallback() {}
@@ -121,5 +149,47 @@ float32 ClosestRaycastCallback::ReportFixture(b2Fixture *fixture, const b2Vec2 &
     }
     distance = fraction;
     return fraction;
+}
+
+TEST_CASE("LaserSensorModule converts to correct Json")
+{
+    LaserSensorModule module;
+
+    auto json = module.to_json();
+
+    SUBCASE("LaserSensorModule Json has correct type")
+    {
+        CHECK(json["type"] == "laser_sensor");
+    }
+
+    SUBCASE("LaserSensorModule Json has correct number of links")
+    {
+        CHECK(json["links"].size() == 1);
+    }
+
+    SUBCASE("Nested modules are represented correctly in Json")
+    {
+        // Attach gun module
+        GunModule gun_module;
+        module.get_module_links()[0].link(&gun_module.get_module_links()[0]);
+
+        // Update json
+        json = module.to_json();
+
+        SUBCASE("Submodule Json has correct type")
+        {
+            CHECK(json["links"][0]["child"]["type"] == "gun");
+        }
+
+        SUBCASE("Link's child link number is correct")
+        {
+            CHECK(json["links"][0]["child_link"] == 0);
+        }
+
+        SUBCASE("Submodule link to parent is null in Json")
+        {
+            CHECK(json["links"][0]["child"]["links"][0] == nullptr);
+        }
+    }
 }
 }
