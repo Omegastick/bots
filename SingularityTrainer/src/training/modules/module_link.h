@@ -18,11 +18,12 @@ class ModuleLink : IDrawable
     void link(ModuleLink *other);
     virtual RenderData get_render_data(bool lightweight = false);
 
+    bool is_parent;
     bool linked;
-    IModule *parent_module;
     IModule *linked_module;
+    IModule *parent_module;
     ModuleLink *pair_link;
-    bool visible;
     b2Transform transform;
+    bool visible;
 };
 }

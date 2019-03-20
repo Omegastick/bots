@@ -49,7 +49,33 @@ std::vector<float> BaseModule::get_sensor_reading()
     return std::vector<float>{linear_velocity.x, linear_velocity.y, angular_velocity};
 }
 
-nlohmann::json BaseModule::to_json() const { return nlohmann::json::object(); }
+nlohmann::json BaseModule::to_json() const
+{
+    auto json = nlohmann::json::object();
+    json["type"] = "base";
+
+    json["links"] = nlohmann::json::array();
+    for (const auto &link : module_links)
+    {
+        if (link.linked && link.is_parent)
+        {
+            int child_link = 0;
+            while (link.linked_module->get_module_links()[child_link].linked_module != this)
+            {
+                child_link++;
+            }
+            json["links"].push_back(nlohmann::json::object());
+            json["links"].back()["child_link"] = child_link;
+            json["links"].back()["child"] = link.linked_module->to_json();
+        }
+        else
+        {
+            json["links"].push_back(nullptr);
+        }
+    }
+
+    return json;
+}
 
 TEST_CASE("BaseModule converts to correct Json")
 {
@@ -78,12 +104,17 @@ TEST_CASE("BaseModule converts to correct Json")
 
         SUBCASE("Submodule Json has correct type")
         {
-            CHECK(json["links"][0]["type"] == "gun");
+            CHECK(json["links"][0]["child"]["type"] == "gun");
+        }
+
+        SUBCASE("Link's child link number is correct")
+        {
+            CHECK(json["links"][0]["child_link"] == 0);
         }
 
         SUBCASE("Submodule link to parent is null in Json")
         {
-            CHECK(json["links"][0]["links"][0] == nullptr);
+            CHECK(json["links"][0]["child"]["links"][0] == nullptr);
         }
     }
 }
