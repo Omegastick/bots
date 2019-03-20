@@ -3,6 +3,7 @@
 #include <vector>
 
 #include <Box2D/Box2D.h>
+#include <nlohmann/json_fwd.hpp>
 
 #include "training/modules/imodule.h"
 
@@ -17,5 +18,6 @@ class BaseModule : public IModule
     ~BaseModule();
 
     virtual std::vector<float> get_sensor_reading();
+    virtual nlohmann::json to_json() const;
 };
 }

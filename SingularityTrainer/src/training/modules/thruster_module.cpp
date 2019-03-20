@@ -6,6 +6,7 @@
 #include <Box2D/Box2D.h>
 #include <glm/glm.hpp>
 #include <glm/gtc/constants.hpp>
+#include <nlohmann/json.hpp>
 
 #include "graphics/colors.h"
 #include "resource_manager.h"
@@ -42,6 +43,14 @@ ThrusterModule::ThrusterModule() : active(false), particle_color(cl_white)
     actions.push_back(std::make_unique<ActivateAction>(this));
 }
 
+void ThrusterModule::activate()
+{
+    active = true;
+    b2Transform global_transform = get_global_transform();
+    b2Vec2 velocity = b2Mul(global_transform.q, b2Vec2(0, 50));
+    agent->get_rigid_body()->body->ApplyForce(velocity, global_transform.p, true);
+}
+
 RenderData ThrusterModule::get_render_data(bool lightweight)
 {
     auto render_data = IModule::get_render_data(lightweight);
@@ -75,13 +84,7 @@ RenderData ThrusterModule::get_render_data(bool lightweight)
     return render_data;
 }
 
-void ThrusterModule::activate()
-{
-    active = true;
-    b2Transform global_transform = get_global_transform();
-    b2Vec2 velocity = b2Mul(global_transform.q, b2Vec2(0, 50));
-    agent->get_rigid_body()->body->ApplyForce(velocity, global_transform.p, true);
-}
+nlohmann::json ThrusterModule::to_json() const { return nlohmann::json::object(); }
 
 void ThrusterModule::update()
 {

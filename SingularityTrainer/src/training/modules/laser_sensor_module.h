@@ -24,15 +24,17 @@ class ClosestRaycastCallback : public b2RayCastCallback
 
 class LaserSensorModule : public IModule
 {
-  public:
-    LaserSensorModule();
-
-    virtual std::vector<float> get_sensor_reading();
-    virtual RenderData get_render_data(bool lightweight = false);
-
+  private:
     int laser_count;
     float laser_length;
     float fov;
     std::vector<float> last_reading;
+
+  public:
+    LaserSensorModule(int laser_count = 9, float fov = 180, float laser_length = 20);
+
+    virtual std::vector<float> get_sensor_reading();
+    virtual RenderData get_render_data(bool lightweight = false);
+    virtual nlohmann::json to_json() const;
 };
 }
