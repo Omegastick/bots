@@ -3,6 +3,7 @@
 
 #include <Box2D/Box2D.h>
 #include <glm/glm.hpp>
+#include <nlohmann/json.hpp>
 
 #include "graphics/colors.h"
 #include "resource_manager.h"
@@ -16,7 +17,10 @@
 
 namespace SingularityTrainer
 {
-LaserSensorModule::LaserSensorModule() : laser_count(9), fov(180), laser_length(20)
+LaserSensorModule::LaserSensorModule(int laser_count, float fov, float laser_length)
+    : laser_count(laser_count),
+      fov(fov),
+      laser_length(laser_length)
 {
     // Sprite
     sprite = std::make_unique<Sprite>("laser_sensor_module");
@@ -102,6 +106,8 @@ RenderData LaserSensorModule::get_render_data(bool lightweight)
 
     return render_data;
 }
+
+nlohmann::json LaserSensorModule::to_json() const { return nlohmann::json::object(); }
 
 ClosestRaycastCallback::ClosestRaycastCallback() : distance(-1) {}
 ClosestRaycastCallback::~ClosestRaycastCallback() {}

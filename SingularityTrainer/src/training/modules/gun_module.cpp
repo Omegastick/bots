@@ -1,7 +1,9 @@
-#include <Box2D/Box2D.h>
 #include <iostream>
 #include <memory>
 #include <vector>
+
+#include <Box2D/Box2D.h>
+#include <nlohmann/json.hpp>
 
 #include "graphics/sprite.h"
 #include "resource_manager.h"
@@ -38,16 +40,6 @@ GunModule::GunModule() : cooldown(3), steps_since_last_shot(0)
     actions.push_back(std::make_unique<ActivateAction>(this));
 }
 
-RenderData GunModule::get_render_data(bool lightweight)
-{
-    auto render_data = IModule::get_render_data(lightweight);
-    for (const auto &bullet : bullets)
-    {
-        render_data.append(bullet->get_render_data(lightweight));
-    }
-    return render_data;
-}
-
 void GunModule::activate()
 {
     if (steps_since_last_shot > cooldown)
@@ -59,6 +51,18 @@ void GunModule::activate()
         bullets.push_back(std::make_unique<Bullet>(global_transform.p + offset, velocity, *agent->get_rigid_body()->body->GetWorld(), agent));
     }
 }
+
+RenderData GunModule::get_render_data(bool lightweight)
+{
+    auto render_data = IModule::get_render_data(lightweight);
+    for (const auto &bullet : bullets)
+    {
+        render_data.append(bullet->get_render_data(lightweight));
+    }
+    return render_data;
+}
+
+nlohmann::json GunModule::to_json() const { return nlohmann::json::object(); }
 
 void GunModule::update()
 {
