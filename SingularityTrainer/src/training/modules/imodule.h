@@ -48,6 +48,7 @@ class IModule : public IDrawable
     inline const Agent *get_agent() const { return agent; };
     inline void set_agent(Agent *agent) { this->agent = agent; };
     inline std::vector<ModuleLink> &get_module_links() { return module_links; }
+    inline const IModule *get_root_module() const { return root; }
     inline const std::vector<b2PolygonShape> &get_shapes() const { return shapes; }
     inline b2Transform &get_transform() { return transform; }
 };
