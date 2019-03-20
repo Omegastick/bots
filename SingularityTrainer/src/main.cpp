@@ -128,8 +128,12 @@ void resize_window_callback(GLFWwindow *glfw_window, int x, int y)
     window->get_renderer().resize(x, y);
 }
 
-int run_tests(int argc, const char *argv[])
+int run_tests(int argc, const char *argv[], const argh::parser &args)
 {
+    if (!args["--with-logs"])
+    {
+        spdlog::set_level(spdlog::level::off);
+    }
     doctest::Context context;
 
     context.setOption("order-by", "name");
@@ -150,7 +154,7 @@ int main(int argc, const char *argv[])
 
     if (args[{"-t", "--test"}])
     {
-        return run_tests(argc, argv);
+        return run_tests(argc, argv, args);
     }
 
     // Create window

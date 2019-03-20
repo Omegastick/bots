@@ -1,10 +1,11 @@
 #include <memory>
-#include <vector>
 #include <sstream>
+#include <vector>
 
 #include <Box2D/Box2D.h>
 #include <doctest.h>
 #include <nlohmann/json.hpp>
+#include <spdlog/spdlog.h>
 
 #include "random.h"
 #include "training/agents/agent.h"
@@ -12,6 +13,7 @@
 #include "training/modules/base_module.h"
 #include "training/modules/thruster_module.h"
 #include "training/modules/gun_module.h"
+#include "training/modules/laser_sensor_module.h"
 #include "training/rigid_body.h"
 #include "graphics/colors.h"
 #include "utilities.h"
@@ -19,6 +21,8 @@
 
 namespace SingularityTrainer
 {
+static const std::string schema_version = "v1alpha1";
+
 Agent::Agent(b2World &world, Random *rng, const nlohmann::json &json) : Agent(world, rng)
 {
     load_json(json);
@@ -155,6 +159,59 @@ RenderData Agent::get_render_data(bool lightweight)
 
 void Agent::load_json(const nlohmann::json &json)
 {
+    if (json["schema"] != schema_version)
+    {
+        spdlog::error("Invalid Agent Json schema version: {}. Excpected: {}", static_cast<std::string>(json["schema"]), schema_version);
+        throw std::exception();
+    }
+
+    if (json["base_module"] != nullptr)
+    {
+        recurse_json_modules(json["base_module"]);
+    }
+
+    update_body();
+    register_actions();
+}
+
+void Agent::recurse_json_modules(const nlohmann::json &module_json, IModule *parent_module, int parent_link, int child_link)
+{
+    std::shared_ptr<IModule> module;
+    if (module_json["type"] == "base")
+    {
+        module = std::make_shared<BaseModule>();
+    }
+    else if (module_json["type"] == "gun")
+    {
+        module = std::make_shared<GunModule>();
+    }
+    else if (module_json["type"] == "thruster")
+    {
+        module = std::make_shared<ThrusterModule>();
+    }
+    else if (module_json["type"] == "laser_sensor")
+    {
+        module = std::make_shared<LaserSensorModule>();
+    }
+
+    add_module(module);
+
+    if (parent_module != nullptr)
+    {
+        parent_module->get_module_links()[parent_link].link(&module->get_module_links()[child_link]);
+    }
+
+    for (int i = 0; i < module_json["links"].size(); ++i)
+    {
+        if (module_json["links"][i] != nullptr)
+        {
+            recurse_json_modules(
+                module_json["links"][i]["child"],
+                module.get(),
+                i,
+                module_json["links"][i]["child_link"]);
+        }
+    }
 }
 
 void Agent::register_actions()
@@ -173,7 +230,7 @@ nlohmann::json Agent::to_json() const
 {
     auto json = nlohmann::json::object();
 
-    json["api"] = "v1alpha1";
+    json["schema"] = "v1alpha1";
     json["name"] = "Bob";
     if (modules.size() > 0)
     {
@@ -298,5 +355,15 @@ TEST_CASE("Agents with no modules are converted to Json correctly")
     INFO("Json :" << pretty_json);
 
     CHECK(json["base_module"] == nullptr);
+}
+
+TEST_CASE("Load Json errors on invalid schema version")
+{
+    Random rng(1);
+    b2World b2_world({0, 0});
+
+    auto json = "{\"schema\": \"bad_schema\"}"_json;
+
+    CHECK_THROWS(Agent agent(b2_world, &rng, json));
 }
 }

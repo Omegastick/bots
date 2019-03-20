@@ -30,6 +30,7 @@ class Agent : public ICollidable
     IEnvironment *environment;
 
     void load_json(const nlohmann::json &json);
+    void recurse_json_modules(const nlohmann::json &module_json, IModule *parent_module = nullptr, int parent_link = 0, int child_link = 0);
 
   public:
     Agent(b2World &world, Random *rng);
