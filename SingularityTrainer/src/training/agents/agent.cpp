@@ -171,9 +171,20 @@ void Agent::register_actions()
 
 nlohmann::json Agent::to_json() const
 {
-    return R"({
-        "hello": "Woo"
-    })"_json;
+    auto json = nlohmann::json::object();
+
+    json["api"] = "v1alpha1";
+    json["name"] = "Bob";
+    if (modules.size() > 0)
+    {
+        json["base_module"] = modules[0]->get_root_module()->to_json();
+    }
+    else
+    {
+        json["base_module"] = nullptr;
+    }
+
+    return json;
 }
 
 void Agent::update_body()
@@ -265,14 +276,27 @@ TEST_CASE("Agents can be saved to Json and loaded back")
     INFO("Json: " << pretty_json);
     Agent loaded_agent(b2_world, &rng, json);
 
-    SUBCASE("Agents have the same number of modules")
+    SUBCASE("Loaded Agents have the same number of modules")
     {
         CHECK(loaded_agent.get_modules().size() == agent.get_modules().size());
     }
 
-    SUBCASE("Agents have the same number of actions")
+    SUBCASE("Loaded Agents have the same number of actions")
     {
         CHECK(loaded_agent.get_actions().size() == agent.get_actions().size());
     }
+}
+
+TEST_CASE("Agents with no modules are converted to Json correctly")
+{
+    Random rng(1);
+    b2World b2_world({0, 0});
+    Agent agent(b2_world, &rng);
+
+    auto json = agent.to_json();
+    auto pretty_json = json.dump(2);
+    INFO("Json :" << pretty_json);
+
+    CHECK(json["base_module"] == nullptr);
 }
 }
