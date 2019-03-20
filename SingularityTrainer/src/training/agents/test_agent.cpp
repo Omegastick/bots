@@ -28,11 +28,11 @@ TestAgent::TestAgent(b2World &world, Random *rng, IEnvironment &environment) : A
     auto laser_sensor_module = std::make_shared<LaserSensorModule>();
 
     // Connect modules
-    base_module->module_links[1].link(&gun_module_right->module_links[2]);
-    base_module->module_links[3].link(&gun_module_left->module_links[0]);
-    gun_module_left->module_links[1].link(&thruster_module_left->module_links[0]);
-    gun_module_right->module_links[1].link(&thruster_module_right->module_links[0]);
-    base_module->module_links[0].link(&laser_sensor_module->module_links[0]);
+    base_module->get_module_links()[1].link(&gun_module_right->get_module_links()[2]);
+    base_module->get_module_links()[3].link(&gun_module_left->get_module_links()[0]);
+    gun_module_left->get_module_links()[1].link(&thruster_module_left->get_module_links()[0]);
+    gun_module_right->get_module_links()[1].link(&thruster_module_right->get_module_links()[0]);
+    base_module->get_module_links()[0].link(&laser_sensor_module->get_module_links()[0]);
 
     // Add modules to Agent
     add_module(base_module);

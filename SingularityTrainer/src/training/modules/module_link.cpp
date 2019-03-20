@@ -21,14 +21,14 @@ ModuleLink::~ModuleLink() {}
 void ModuleLink::link(ModuleLink *other)
 {
     // Calculate own transform
-    b2Transform own_transform = b2Mul(parent_module->transform, transform);
+    b2Transform own_transform = b2Mul(parent_module->get_transform(), transform);
 
     // Calculate other module's transform
     b2Rot inverse_rotation = b2Mul(own_transform.q, b2Rot(b2_pi));
-    other->parent_module->transform.q = b2Rot(inverse_rotation.GetAngle() - other->transform.q.GetAngle());
-    other->parent_module->transform.p = b2Mul(other->parent_module->transform.q, other->transform.p);
-    other->parent_module->transform.p *= -1;
-    other->parent_module->transform.p += own_transform.p;
+    other->parent_module->get_transform().q = b2Rot(inverse_rotation.GetAngle() - other->transform.q.GetAngle());
+    other->parent_module->get_transform().p = b2Mul(other->parent_module->get_transform().q, other->transform.p);
+    other->parent_module->get_transform().p *= -1;
+    other->parent_module->get_transform().p += own_transform.p;
 
     // Set linked flags and pointers
     linked = true;

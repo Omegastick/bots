@@ -152,7 +152,7 @@ void Agent::update_body()
     {
         // Copy the module's screen_shape
         // It's important we leave the original intact in case we need to do this again
-        std::vector<b2PolygonShape> screen_shapes = module->shapes;
+        std::vector<b2PolygonShape> screen_shapes = module->get_shapes();
         for (auto &screen_shape : screen_shapes)
         {
             std::vector<b2Vec2> points;
@@ -161,7 +161,7 @@ void Agent::update_body()
             // Apply transform to all points in screen_shape
             for (int i = 0; i < screen_shape.m_count; ++i)
             {
-                points[i] = b2Mul(module->transform, screen_shape.m_vertices[i]);
+                points[i] = b2Mul(module->get_transform(), screen_shape.m_vertices[i]);
             }
             screen_shape.Set(&points[0], screen_shape.m_count);
 
@@ -180,7 +180,7 @@ void Agent::register_actions()
     actions = std::vector<IAction *>();
     for (const auto &module : modules)
     {
-        for (const auto &action : module->actions)
+        for (const auto &action : module->get_actions())
         {
             actions.push_back(action.get());
         }
