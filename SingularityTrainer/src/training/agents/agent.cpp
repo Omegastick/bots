@@ -4,11 +4,14 @@
 
 #include <Box2D/Box2D.h>
 #include <doctest.h>
+#include <nlohmann/json.hpp>
 
 #include "random.h"
 #include "training/agents/agent.h"
 #include "training/environments/ienvironment.h"
 #include "training/modules/base_module.h"
+#include "training/modules/thruster_module.h"
+#include "training/modules/gun_module.h"
 #include "training/rigid_body.h"
 #include "graphics/colors.h"
 #include "utilities.h"
@@ -16,9 +19,19 @@
 
 namespace SingularityTrainer
 {
+Agent::Agent(b2World &world, Random *rng, const nlohmann::json &json) : Agent(world, rng)
+{
+    load_json(json);
+}
+
 Agent::Agent(b2World &world, Random *rng, IEnvironment &environment) : Agent(world, rng)
 {
     this->environment = &environment;
+}
+
+Agent::Agent(b2World &world, Random *rng, IEnvironment &environment, const nlohmann::json &json) : Agent(world, rng, environment)
+{
+    load_json(json);
 }
 
 Agent::Agent(b2World &world, Random *rng) : rng(rng), hp(0)
@@ -140,6 +153,29 @@ RenderData Agent::get_render_data(bool lightweight)
     // }
 }
 
+void Agent::load_json(const nlohmann::json &json)
+{
+}
+
+void Agent::register_actions()
+{
+    actions = std::vector<IAction *>();
+    for (const auto &module : modules)
+    {
+        for (const auto &action : module->get_actions())
+        {
+            actions.push_back(action.get());
+        }
+    }
+}
+
+nlohmann::json Agent::to_json() const
+{
+    return R"({
+        "hello": "Woo"
+    })"_json;
+}
+
 void Agent::update_body()
 {
     // Destroy all fixtures
@@ -175,18 +211,6 @@ void Agent::update_body()
     }
 }
 
-void Agent::register_actions()
-{
-    actions = std::vector<IAction *>();
-    for (const auto &module : modules)
-    {
-        for (const auto &action : module->get_actions())
-        {
-            actions.push_back(action.get());
-        }
-    }
-}
-
 void Agent::hit(float damage)
 {
     hp -= damage;
@@ -199,20 +223,56 @@ void Agent::reset()
 
 TEST_CASE("Agents can have modules added")
 {
-    b2World b2_world({0, 0});
     Random rng(1);
+    b2World b2_world({0, 0});
     Agent agent(b2_world, &rng);
 
-    CHECK(agent.get_modules()->size() == 0);
+    CHECK(agent.get_modules().size() == 0);
 
     auto module = std::make_shared<BaseModule>();
     agent.add_module(module);
 
-    CHECK(agent.get_modules()->size() == 1);
+    CHECK(agent.get_modules().size() == 1);
 
     SUBCASE("Added modules have their parent agent set correctly")
     {
-        CHECK((*agent.get_modules())[0]->get_agent() == &agent);
+        CHECK(agent.get_modules()[0]->get_agent() == &agent);
+    }
+}
+
+TEST_CASE("Agents can be saved to Json and loaded back")
+{
+    Random rng(1);
+    b2World b2_world({0, 0});
+    Agent agent(b2_world, &rng);
+
+    auto base_module = std::make_shared<BaseModule>();
+    auto thruster_module = std::make_shared<ThrusterModule>();
+    auto gun_module = std::make_shared<GunModule>();
+
+    base_module->get_module_links()[0].link(&gun_module->get_module_links()[0]);
+    gun_module->get_module_links()[2].link(&thruster_module->get_module_links()[0]);
+
+    agent.add_module(base_module);
+    agent.add_module(gun_module);
+    agent.add_module(thruster_module);
+
+    agent.update_body();
+    agent.register_actions();
+
+    auto json = agent.to_json();
+    auto pretty_json = json.dump(2);
+    INFO("Json: " << pretty_json);
+    Agent loaded_agent(b2_world, &rng, json);
+
+    SUBCASE("Agents have the same number of modules")
+    {
+        CHECK(loaded_agent.get_modules().size() == agent.get_modules().size());
+    }
+
+    SUBCASE("Agents have the same number of actions")
+    {
+        CHECK(loaded_agent.get_actions().size() == agent.get_actions().size());
     }
 }
 }
