@@ -118,11 +118,9 @@ void resize_window_callback(GLFWwindow *glfw_window, int x, int y)
     glViewport(0, 0, x, y);
 
     reset_imgui_style();
-    ImGuiStyle &style = ImGui::GetStyle();
     float relative_scale = (float)x / (float)resolution_x;
-    style.ScaleAllSizes(relative_scale);
-    ImGuiIO &io = ImGui::GetIO();
-    io.FontGlobalScale = relative_scale;
+    ImGui::GetStyle().ScaleAllSizes(relative_scale);
+    ImGui::GetIO().FontGlobalScale = relative_scale;
 
     Window *window = static_cast<Window *>(glfwGetWindowUserPointer(glfw_window));
     window->get_renderer().resize(x, y);
