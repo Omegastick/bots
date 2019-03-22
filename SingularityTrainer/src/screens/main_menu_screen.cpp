@@ -24,6 +24,7 @@ void MainMenuScreen::update(float delta_time)
     ImGui::PushStyleColor(ImGuiCol_Button, {0, 0, 0, 0});
     ImGui::PushStyleColor(ImGuiCol_ButtonHovered, {1, 1, 1, 0.1});
     ImGui::PushStyleColor(ImGuiCol_ButtonActive, {1, 1, 1, 0.05});
+    ImGui::PushStyleColor(ImGuiCol_Text, {cl_base3.r, cl_base3.g, cl_base3.b, 1});
     auto io = ImGui::GetIO();
     ImGui::PushFont(io.Fonts->Fonts[1]);
 
@@ -39,7 +40,7 @@ void MainMenuScreen::update(float delta_time)
     }
     ImGui::End();
     ImGui::PopFont();
-    ImGui::PopStyleColor(4);
+    ImGui::PopStyleColor(5);
 
     ImGui::ShowStyleEditor();
 }
