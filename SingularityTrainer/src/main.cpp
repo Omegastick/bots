@@ -32,6 +32,11 @@ void error_callback(int error, const char *description)
     spdlog::error("GLFW error: [{}] {}", error, description);
 }
 
+ImVec4 glm_to_im(const glm::vec4 &in)
+{
+    return {in.x, in.y, in.z, in.w};
+}
+
 void reset_imgui_style()
 {
     ImGuiStyle &style = ImGui::GetStyle();
@@ -45,44 +50,44 @@ void reset_imgui_style()
     style.WindowBorderSize = 0;
     style.FrameBorderSize = 0;
 
-    style.Colors[ImGuiCol_Text] = {0.9f, 0.9f, 0.9f, 1.00f};
-    style.Colors[ImGuiCol_TextDisabled] = {0.34509805f, 0.34509805f, 0.34509805f, 1.00f};
-    style.Colors[ImGuiCol_WindowBg] = {0.23529413f, 0.24705884f, 0.25490198f, 0.94f};
-    style.Colors[ImGuiCol_ChildBg] = {0.23529413f, 0.24705884f, 0.25490198f, 0.00f};
-    style.Colors[ImGuiCol_PopupBg] = {0.23529413f, 0.24705884f, 0.25490198f, 0.94f};
-    style.Colors[ImGuiCol_Border] = {0.33333334f, 0.33333334f, 0.33333334f, 0.50f};
-    style.Colors[ImGuiCol_BorderShadow] = {0.15686275f, 0.15686275f, 0.15686275f, 0.00f};
-    style.Colors[ImGuiCol_FrameBg] = {0.16862746f, 0.16862746f, 0.16862746f, 0.54f};
-    style.Colors[ImGuiCol_FrameBgHovered] = {0.453125f, 0.67578125f, 0.99609375f, 0.67f};
-    style.Colors[ImGuiCol_FrameBgActive] = {0.47058827f, 0.47058827f, 0.47058827f, 0.67f};
-    style.Colors[ImGuiCol_TitleBg] = {0.23529413f, 0.24705884f, 0.25490198f, 0.54f};
-    style.Colors[ImGuiCol_TitleBgCollapsed] = {0.23529413f, 0.24705884f, 0.25490198f, 0.34f};
-    style.Colors[ImGuiCol_TitleBgActive] = {0.23529413f, 0.24705884f, 0.25490198f, 0.94f};
-    style.Colors[ImGuiCol_MenuBarBg] = {0.27058825f, 0.28627452f, 0.2901961f, 0.80f};
-    style.Colors[ImGuiCol_ScrollbarBg] = {0.27058825f, 0.28627452f, 0.2901961f, 0.60f};
-    style.Colors[ImGuiCol_ScrollbarGrab] = {0.21960786f, 0.30980393f, 0.41960788f, 0.51f};
-    style.Colors[ImGuiCol_ScrollbarGrabHovered] = {0.21960786f, 0.30980393f, 0.41960788f, 1.00f};
-    style.Colors[ImGuiCol_ScrollbarGrabActive] = {0.13725491f, 0.19215688f, 0.2627451f, 0.91f};
-    style.Colors[ImGuiCol_CheckMark] = {0.90f, 0.90f, 0.90f, 0.83f};
-    style.Colors[ImGuiCol_SliderGrab] = {0.70f, 0.70f, 0.70f, 0.62f};
-    style.Colors[ImGuiCol_SliderGrabActive] = {0.30f, 0.30f, 0.30f, 0.84f};
-    style.Colors[ImGuiCol_Button] = {0.33333334f, 0.3529412f, 0.36078432f, 0.49f};
-    style.Colors[ImGuiCol_ButtonHovered] = {0.21960786f, 0.30980393f, 0.41960788f, 1.00f};
-    style.Colors[ImGuiCol_ButtonActive] = {0.13725491f, 0.19215688f, 0.2627451f, 1.00f};
-    style.Colors[ImGuiCol_Header] = {0.33333334f, 0.3529412f, 0.36078432f, 0.53f};
-    style.Colors[ImGuiCol_HeaderHovered] = {0.453125f, 0.67578125f, 0.99609375f, 0.67f};
-    style.Colors[ImGuiCol_HeaderActive] = {0.47058827f, 0.47058827f, 0.47058827f, 0.67f};
-    style.Colors[ImGuiCol_Separator] = {0.31640625f, 0.31640625f, 0.31640625f, 1.00f};
-    style.Colors[ImGuiCol_SeparatorHovered] = {0.31640625f, 0.31640625f, 0.31640625f, 1.00f};
-    style.Colors[ImGuiCol_SeparatorActive] = {0.31640625f, 0.31640625f, 0.31640625f, 1.00f};
-    style.Colors[ImGuiCol_ResizeGrip] = {1.00f, 1.00f, 1.00f, 0.05f};
-    style.Colors[ImGuiCol_ResizeGripHovered] = {1.00f, 1.00f, 1.00f, 0.4f};
-    style.Colors[ImGuiCol_ResizeGripActive] = {1.00f, 1.00f, 1.00f, 0.3f};
-    style.Colors[ImGuiCol_PlotLines] = {0.61f, 0.61f, 0.61f, 1.00f};
-    style.Colors[ImGuiCol_PlotLinesHovered] = {1.00f, 0.43f, 0.35f, 1.00f};
-    style.Colors[ImGuiCol_PlotHistogram] = {0.90f, 0.70f, 0.00f, 1.00f};
-    style.Colors[ImGuiCol_PlotHistogramHovered] = {1.00f, 0.60f, 0.00f, 1.00f};
-    style.Colors[ImGuiCol_TextSelectedBg] = {0.18431373f, 0.39607847f, 0.79215693f, 0.90f};
+    style.Colors[ImGuiCol_Text] = glm_to_im(cl_base00);
+    style.Colors[ImGuiCol_TextDisabled] = glm_to_im(cl_base1);
+    style.Colors[ImGuiCol_WindowBg] = glm_to_im(cl_base3);
+    style.Colors[ImGuiCol_ChildBg] = glm_to_im(cl_base2);
+    style.Colors[ImGuiCol_PopupBg] = glm_to_im(cl_base3);
+    style.Colors[ImGuiCol_Border] = glm_to_im(cl_base03);
+    style.Colors[ImGuiCol_BorderShadow] = glm_to_im(cl_base03);
+    style.Colors[ImGuiCol_FrameBg] = glm_to_im(cl_base3);
+    style.Colors[ImGuiCol_FrameBgHovered] = glm_to_im(cl_base2);
+    style.Colors[ImGuiCol_FrameBgActive] = glm_to_im(cl_base3);
+    style.Colors[ImGuiCol_TitleBg] = glm_to_im(cl_base3);
+    style.Colors[ImGuiCol_TitleBgCollapsed] = glm_to_im(cl_base2);
+    style.Colors[ImGuiCol_TitleBgActive] = glm_to_im(cl_base2);
+    style.Colors[ImGuiCol_MenuBarBg] = glm_to_im(cl_base2);
+    style.Colors[ImGuiCol_ScrollbarBg] = glm_to_im(cl_base2);
+    style.Colors[ImGuiCol_ScrollbarGrab] = glm_to_im(cl_base00);
+    style.Colors[ImGuiCol_ScrollbarGrabHovered] = glm_to_im(cl_base1);
+    style.Colors[ImGuiCol_ScrollbarGrabActive] = glm_to_im(cl_base01);
+    style.Colors[ImGuiCol_CheckMark] = glm_to_im(cl_base1);
+    style.Colors[ImGuiCol_SliderGrab] = glm_to_im(cl_base00);
+    style.Colors[ImGuiCol_SliderGrabActive] = glm_to_im(cl_base01);
+    style.Colors[ImGuiCol_Button] = glm_to_im(cl_base1);
+    style.Colors[ImGuiCol_ButtonHovered] = glm_to_im(cl_base2);
+    style.Colors[ImGuiCol_ButtonActive] = glm_to_im(cl_base2);
+    // style.Colors[ImGuiCol_Header] = glm_to_im();
+    // style.Colors[ImGuiCol_HeaderHovered] glm_to_im();
+    // // style.Colors[ImGuiCol_HeaderActive] = glm_to_im();
+    // style.Colors[ImGuiCol_Separator] = glm_to_im();
+    // style.Colors[ImGuiCol_SeparatorHovered] = glm_to_im();
+    // style.Colors[ImGuiCol_SeparatorActive] = glm_to_im();
+    style.Colors[ImGuiCol_ResizeGrip] = glm_to_im(cl_base2);
+    style.Colors[ImGuiCol_ResizeGripHovered] = glm_to_im(cl_base2);
+    style.Colors[ImGuiCol_ResizeGripActive] = glm_to_im(cl_base01);
+    style.Colors[ImGuiCol_PlotLines] = glm_to_im(cl_base00);
+    style.Colors[ImGuiCol_PlotLinesHovered] = glm_to_im(cl_base01);
+    style.Colors[ImGuiCol_PlotHistogram] = glm_to_im(cl_base00);
+    style.Colors[ImGuiCol_PlotHistogramHovered] = glm_to_im(cl_base00);
+    style.Colors[ImGuiCol_TextSelectedBg] = glm_to_im(cl_base02);
 }
 
 void init_imgui(const int opengl_version_major, const int opengl_version_minor, GLFWwindow *window)
