@@ -45,8 +45,8 @@ KothEnvScreen::~KothEnvScreen()
 
 void KothEnvScreen::update(const float delta_time)
 {
-    ImGui::Begin("Speed");
-    ImGui::Checkbox("Fast?", &fast);
+    ImGui::Begin("Speed", NULL, ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoResize);
+    ImGui::Checkbox("Fast", &fast);
     ImGui::End();
     if (fast)
     {
