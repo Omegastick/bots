@@ -44,14 +44,12 @@ void FrameBuffer::unbind() const
 
 void FrameBuffer::set_render_buffer(int width, int height, int multisampling)
 {
-    auto x = render_buffer;
     if (glIsRenderbuffer(render_buffer))
     {
         glDeleteRenderbuffers(1, &render_buffer);
     }
 
     glGenRenderbuffers(1, &render_buffer);
-    auto y = render_buffer;
     bind();
     glBindRenderbuffer(GL_RENDERBUFFER, render_buffer);
     glRenderbufferStorageMultisample(GL_RENDERBUFFER, multisampling, GL_RGBA8, width, height);

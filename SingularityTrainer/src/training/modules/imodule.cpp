@@ -36,7 +36,7 @@ std::vector<IModule *> IModule::get_children(std::vector<IModule *> child_list)
 
 std::vector<float> IModule::get_sensor_reading() { return std::vector<float>(); }
 
-RenderData IModule::get_render_data(bool lightweight)
+RenderData IModule::get_render_data(bool /*lightweight*/)
 {
     b2Transform world_transform = get_global_transform();
     glm::vec2 screen_position(world_transform.p.x, world_transform.p.y);
@@ -44,7 +44,7 @@ RenderData IModule::get_render_data(bool lightweight)
     auto rotation = world_transform.q.GetAngle();
     sprite->set_rotation(rotation);
 
-    return RenderData{{*sprite}};
+    return RenderData{{*sprite}, {}, {}, {}};
 }
 
 b2Transform IModule::get_global_transform()

@@ -34,7 +34,7 @@ Hill::Hill(float x, float y, b2World &world, IEnvironment &env) : environment(en
 
 Hill::~Hill() {}
 
-RenderData Hill::get_render_data(bool lightweight)
+RenderData Hill::get_render_data(bool /*lightweight*/)
 {
     auto render_data = RenderData();
 

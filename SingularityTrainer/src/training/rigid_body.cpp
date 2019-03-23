@@ -11,7 +11,6 @@ RigidBody::RigidBody(b2BodyType type, b2Vec2 position, b2World &world, void *par
     // Rigidbody
     body_def.type = type;
     body_def.position = position;
-    bool x = world.IsLocked();
     body = world.CreateBody(&body_def);
     body->SetUserData(this);
 }

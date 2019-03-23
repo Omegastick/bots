@@ -13,12 +13,12 @@ using namespace SingularityTrainer;
 
 volatile sig_atomic_t stop;
 
-void inthand(int signum)
+void inthand(int /*signum*/)
 {
     stop = 1;
 }
 
-int main(int argc, const char *argv[])
+int main(int /*argc*/, const char *argv[])
 {
     // Logging
     spdlog::set_level(spdlog::level::debug);

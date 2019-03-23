@@ -186,7 +186,7 @@ void QuickTrainer::action_update()
         observations[i] = step_info->observation;
         dones.push_back(step_info->done);
         rewards.push_back(step_info->reward);
-        for (int j = 0; j < step_info->reward.size(); ++j)
+        for (unsigned int j = 0; j < step_info->reward.size(); ++j)
         {
             env_scores[i] += step_info->reward[j];
             if (step_info->done[j])

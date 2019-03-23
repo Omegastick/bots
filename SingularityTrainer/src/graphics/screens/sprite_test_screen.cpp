@@ -42,7 +42,7 @@ void SpriteTestScreen::update(const float delta_time)
     sprite->rotate(1.f * delta_time);
 }
 
-void SpriteTestScreen::draw(Renderer &renderer, bool lightweight)
+void SpriteTestScreen::draw(Renderer &renderer, bool /*lightweight*/)
 {
     renderer.begin();
     renderer.draw(*sprite, projection);

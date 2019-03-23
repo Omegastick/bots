@@ -20,6 +20,7 @@ class IEnvironment;
 class Bullet : public IDrawable, public ICollidable
 {
   private:
+    int life;
     b2Vec2 last_position;
     std::unique_ptr<Sprite> sprite;
     std::vector<Particle> explosion_particles;
@@ -37,7 +38,6 @@ class Bullet : public IDrawable, public ICollidable
     void update();
 
     bool destroyed;
-    int life;
     std::unique_ptr<RigidBody> rigid_body;
 };
 }

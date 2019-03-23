@@ -48,6 +48,8 @@ class ContactListener : public b2ContactListener
                 case RigidBody::ParentTypes::Wall:
                     static_cast<Wall *>(body->parent)->begin_contact(other);
                     break;
+                default:
+                    break;
                 }
             }
         }
@@ -80,13 +82,15 @@ class ContactListener : public b2ContactListener
                 case RigidBody::ParentTypes::Wall:
                     static_cast<Wall *>(body->parent)->end_contact(other);
                     break;
+                default:
+                    break;
                 }
             }
         }
     }
 };
 
-TargetEnv::TargetEnv(float x, float y, float scale, int max_steps, int seed)
+TargetEnv::TargetEnv(float /*x*/, float /*y*/, float /*scale*/, int max_steps, int seed)
     : max_steps(max_steps),
       command_queue_flag(0),
       reward(0),
@@ -115,13 +119,13 @@ TargetEnv::TargetEnv(float x, float y, float scale, int max_steps, int seed)
 
 TargetEnv::~TargetEnv()
 {
-    ThreadCommand command{Commands::Stop};
+    ThreadCommand command{Commands::Stop, {}, {}, {}};
     command_queue_mutex.lock();
     command_queue.push(std::move(command));
     command_queue_mutex.unlock();
     command_queue_flag++;
     thread->join();
-};
+}
 
 float TargetEnv::get_elapsed_time() const
 {
@@ -168,14 +172,14 @@ std::future<std::unique_ptr<StepInfo>> TargetEnv::step(const std::vector<std::ve
 void TargetEnv::forward(float step_length)
 {
     std::promise<std::unique_ptr<StepInfo>> promise;
-    ThreadCommand command{Commands::Forward, std::move(promise), step_length};
+    ThreadCommand command{Commands::Forward, std::move(promise), step_length, {}};
     command_queue_mutex.lock();
     command_queue.push(std::move(command));
     command_queue_mutex.unlock();
     command_queue_flag++;
 }
 
-void TargetEnv::change_reward(int agent, float reward_delta)
+void TargetEnv::change_reward(int /*agent*/, float reward_delta)
 {
     reward += reward_delta;
     total_reward += reward_delta;
@@ -190,7 +194,7 @@ std::future<std::unique_ptr<StepInfo>> TargetEnv::reset()
 {
     std::promise<std::unique_ptr<StepInfo>> promise;
     std::future<std::unique_ptr<StepInfo>> future = promise.get_future();
-    ThreadCommand command{Commands::Reset, std::move(promise)};
+    ThreadCommand command{Commands::Reset, std::move(promise), {}, {}};
     command_queue_mutex.lock();
     command_queue.push(std::move(command));
     command_queue_mutex.unlock();

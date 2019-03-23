@@ -28,12 +28,12 @@ class WatchScreen : public IScreen
         BROWSING = 0,
         WATCHING = 1
     };
+    glm::mat4 projection;
     ResourceManager *resource_manager;
     Communicator *communicator;
-    glm::mat4 projection;
+    States state;
     std::unique_ptr<PostProcLayer> crt_post_proc_layer;
     std::unique_ptr<IEnvironment> environment;
-    States state;
     int selected_file;
     int frame_counter;
     std::vector<std::vector<float>> observations;

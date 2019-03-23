@@ -50,7 +50,7 @@ void TextTestScreen::update(const float delta_time)
     display_test_dialog("Text test", *screens, *screen_names, delta_time, *screen_manager);
 }
 
-void TextTestScreen::draw(Renderer &renderer, bool lightweight)
+void TextTestScreen::draw(Renderer &renderer, bool /*lightweight*/)
 {
     renderer.begin();
 

@@ -26,8 +26,8 @@ class LaserSensorModule : public IModule
 {
   private:
     int laser_count;
-    float laser_length;
     float fov;
+    float laser_length;
     std::vector<float> last_reading;
 
   public:

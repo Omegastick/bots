@@ -14,7 +14,7 @@ template <typename T>
 std::vector<T> interleave_vectors(const std::vector<std::vector<T>> &vectors)
 {
     std::vector<T> output;
-    for (int i = 0; i < vectors[0].size(); ++i)
+    for (unsigned int i = 0; i < vectors[0].size(); ++i)
     {
         for (const auto &vector : vectors)
         {

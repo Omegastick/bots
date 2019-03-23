@@ -23,21 +23,21 @@ class Hill;
 class KothEnv : public IEnvironment
 {
   private:
+    int max_steps;
+    std::unique_ptr<Random> rng;
     b2World world;
     std::vector<std::unique_ptr<Wall>> walls;
     std::unique_ptr<Hill> hill;
     std::unique_ptr<b2ContactListener> contact_listener;
+    float elapsed_time;
     bool done;
     std::vector<float> rewards;
     int step_counter;
-    const int max_steps;
     std::unique_ptr<std::thread> thread;
     std::queue<ThreadCommand> command_queue;
     std::atomic<int> command_queue_flag;
     std::mutex command_queue_mutex;
     std::vector<float> total_rewards;
-    std::unique_ptr<Random> rng;
-    float elapsed_time;
     std::unordered_map<Agent *, int> agent_numbers;
 
     void thread_loop();

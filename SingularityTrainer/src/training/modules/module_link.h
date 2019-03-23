@@ -20,10 +20,10 @@ class ModuleLink : IDrawable
 
     bool is_parent;
     bool linked;
+    bool visible;
     IModule *linked_module;
     IModule *parent_module;
     ModuleLink *pair_link;
     b2Transform transform;
-    bool visible;
 };
 }
