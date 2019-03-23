@@ -77,8 +77,8 @@ std::vector<float> Agent::get_observation()
     return observation;
 }
 
-void Agent::begin_contact(RigidBody *other) {}
-void Agent::end_contact(RigidBody *other) {}
+void Agent::begin_contact(RigidBody * /*other*/) {}
+void Agent::end_contact(RigidBody * /*other*/) {}
 
 RenderData Agent::get_render_data(bool lightweight)
 {
@@ -201,7 +201,7 @@ void Agent::recurse_json_modules(const nlohmann::json &module_json, IModule *par
         parent_module->get_module_links()[parent_link].link(&module->get_module_links()[child_link]);
     }
 
-    for (int i = 0; i < module_json["links"].size(); ++i)
+    for (unsigned int i = 0; i < module_json["links"].size(); ++i)
     {
         if (module_json["links"][i] != nullptr)
         {

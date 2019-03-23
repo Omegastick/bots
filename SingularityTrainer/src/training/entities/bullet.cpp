@@ -16,7 +16,11 @@
 namespace SingularityTrainer
 {
 Bullet::Bullet(b2Vec2 position, b2Vec2 velocity, b2World &world, Agent *owner)
-    : destroyed(false), life(10), last_position(b2Vec2_zero), particle_color(cl_white), owner(owner)
+    : life(10),
+      last_position(b2Vec2_zero),
+      particle_color(cl_white),
+      owner(owner),
+      destroyed(false)
 {
     sprite = std::make_unique<Sprite>("bullet");
     sprite->set_scale(glm::vec2(0.2, 0.2));
@@ -40,7 +44,7 @@ Bullet::Bullet(b2Vec2 position, b2Vec2 velocity, b2World &world, Agent *owner)
 
 Bullet::~Bullet() {}
 
-RenderData Bullet::get_render_data(bool lightweight)
+RenderData Bullet::get_render_data(bool /*lightweight*/)
 {
     RenderData render_data;
 
@@ -124,7 +128,7 @@ void Bullet::begin_contact(RigidBody *other)
     }
 }
 
-void Bullet::end_contact(RigidBody *other) {}
+void Bullet::end_contact(RigidBody * /*other*/) {}
 
 void Bullet::update()
 {

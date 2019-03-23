@@ -27,11 +27,11 @@ ParticleTestScreen::ParticleTestScreen(
     ResourceManager &resource_manager,
     std::vector<std::shared_ptr<IScreen>> *screens,
     std::vector<std::string> *screen_names)
-    : screens(screens),
+    : particle_renderer(100000, resource_manager),
+      screens(screens),
       screen_names(screen_names),
       screen_manager(screen_manager),
-      projection(glm::ortho(0.f, 1920.f, 0.f, 1080.f)),
-      particle_renderer(100000, resource_manager)
+      projection(glm::ortho(0.f, 1920.f, 0.f, 1080.f))
 {
     this->resource_manager = &resource_manager;
 
@@ -60,7 +60,7 @@ void ParticleTestScreen::update(const float delta_time)
     particle_renderer.add_particles(particles, glfwGetTime());
 }
 
-void ParticleTestScreen::draw(Renderer &renderer, bool lightweight)
+void ParticleTestScreen::draw(Renderer &renderer, bool /*lightweight*/)
 {
     renderer.begin();
 

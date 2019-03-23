@@ -48,6 +48,8 @@ class KothContactListener : public b2ContactListener
                 case RigidBody::ParentTypes::Hill:
                     static_cast<Hill *>(body->parent)->begin_contact(other);
                     break;
+                default:
+                    break;
                 }
             }
         }
@@ -80,23 +82,25 @@ class KothContactListener : public b2ContactListener
                 case RigidBody::ParentTypes::Hill:
                     static_cast<Hill *>(body->parent)->end_contact(other);
                     break;
+                default:
+                    break;
                 }
             }
         }
     }
 };
 
-KothEnv::KothEnv(float x, float y, float scale, int max_steps, int seed)
+KothEnv::KothEnv(float /*x*/, float /*y*/, float /*scale*/, int max_steps, int seed)
     : max_steps(max_steps),
-      command_queue_flag(0),
-      rewards({0, 0}),
-      total_rewards({0, 0}),
-      step_counter(0),
-      done(false),
       rng(std::make_unique<Random>(seed)),
-      elapsed_time(0),
       world({0, 0}),
-      hill(std::make_unique<Hill>(0, 0, world, *this))
+      hill(std::make_unique<Hill>(0, 0, world, *this)),
+      elapsed_time(0),
+      done(false),
+      rewards({0, 0}),
+      step_counter(0),
+      command_queue_flag(0),
+      total_rewards({0, 0})
 {
     // Box2D world
     contact_listener = std::make_unique<KothContactListener>();
@@ -117,7 +121,7 @@ KothEnv::KothEnv(float x, float y, float scale, int max_steps, int seed)
 
 KothEnv::~KothEnv()
 {
-    ThreadCommand command{Commands::Stop};
+    ThreadCommand command{Commands::Stop, {}, {}, {}};
     command_queue_mutex.lock();
     command_queue.push(std::move(command));
     command_queue_mutex.unlock();
@@ -126,7 +130,7 @@ KothEnv::~KothEnv()
     {
         thread->join();
     }
-};
+}
 
 float KothEnv::get_elapsed_time() const
 {
@@ -174,7 +178,7 @@ std::future<std::unique_ptr<StepInfo>> KothEnv::step(const std::vector<std::vect
 void KothEnv::forward(float step_length)
 {
     std::promise<std::unique_ptr<StepInfo>> promise;
-    ThreadCommand command{Commands::Forward, std::move(promise), step_length};
+    ThreadCommand command{Commands::Forward, std::move(promise), step_length, {}};
     command_queue_mutex.lock();
     command_queue.push(std::move(command));
     command_queue_mutex.unlock();
@@ -201,7 +205,7 @@ std::future<std::unique_ptr<StepInfo>> KothEnv::reset()
 {
     std::promise<std::unique_ptr<StepInfo>> promise;
     std::future<std::unique_ptr<StepInfo>> future = promise.get_future();
-    ThreadCommand command{Commands::Reset, std::move(promise)};
+    ThreadCommand command{Commands::Reset, std::move(promise), {}, {}};
     command_queue_mutex.lock();
     command_queue.push(std::move(command));
     command_queue_mutex.unlock();

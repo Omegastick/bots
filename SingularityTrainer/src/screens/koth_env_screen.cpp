@@ -18,7 +18,10 @@
 namespace SingularityTrainer
 {
 KothEnvScreen::KothEnvScreen(ResourceManager &resource_manager, Communicator &communicator, Random &rng, int env_count)
-    : lightweight_rendering(false), projection(glm::ortho(0.f, 1920.f, 0.f, 1080.f)), fast(false), resource_manager(&resource_manager)
+    : resource_manager(&resource_manager),
+      lightweight_rendering(false),
+      projection(glm::ortho(0.f, 1920.f, 0.f, 1080.f)),
+      fast(false)
 {
     trainer = std::make_unique<QuickTrainer>(&communicator, &rng, env_count);
 
@@ -43,7 +46,7 @@ KothEnvScreen::~KothEnvScreen()
     trainer->end_training();
 }
 
-void KothEnvScreen::update(const float delta_time)
+void KothEnvScreen::update(const float /*delta_time*/)
 {
     ImGui::Begin("Speed");
     ImGui::Checkbox("Fast?", &fast);
@@ -60,7 +63,7 @@ void KothEnvScreen::update(const float delta_time)
     }
 }
 
-void KothEnvScreen::draw(Renderer &renderer, bool lightweight)
+void KothEnvScreen::draw(Renderer &renderer, bool /*lightweight*/)
 {
     renderer.push_post_proc_layer(crt_post_proc_layer.get());
     renderer.begin();

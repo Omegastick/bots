@@ -28,12 +28,28 @@ endif()
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_FLAGS_RELEASE -O3)
 
-# Executables and loca libraries
+# Executables and local libraries
 add_executable(SingularityTrainer "")
 add_executable(HeadlessTrainer "")
 add_executable(GraphicsPlayground "")
 add_library(Training STATIC "")
 add_library(Graphics STATIC "")
+set(ST_TARGETS
+    SingularityTrainer
+    HeadlessTrainer
+    GraphicsPlayground
+    Training
+    Graphics
+)
+
+# Enable all warnings
+foreach(target ${ST_TARGETS})
+    if(MSVC)
+    target_compile_options(${target} PRIVATE /W4 /WX)
+    else(MSVC)
+    target_compile_options(${target} PRIVATE -Wall -Wextra -pedantic -Werror)
+    endif(MSVC)    
+endforeach(target ${ST_TARGETS})
 
 # Libraries included in repository
 ## GLFW

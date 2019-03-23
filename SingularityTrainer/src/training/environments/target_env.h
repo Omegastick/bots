@@ -22,17 +22,17 @@ class Wall;
 class TargetEnv : public IEnvironment
 {
   private:
+    int max_steps;
     std::unique_ptr<b2World> world;
     std::vector<std::unique_ptr<Wall>> walls;
     std::unique_ptr<Target> target;
     std::unique_ptr<b2ContactListener> contact_listener;
-    bool done;
+    std::atomic<int> command_queue_flag;
     float reward;
     int step_counter;
-    const int max_steps;
+    bool done;
     std::thread *thread;
     std::queue<ThreadCommand> command_queue;
-    std::atomic<int> command_queue_flag;
     std::mutex command_queue_mutex;
     int total_reward;
     std::unique_ptr<Random> rng;

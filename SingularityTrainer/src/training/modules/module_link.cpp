@@ -11,7 +11,7 @@
 namespace SingularityTrainer
 {
 ModuleLink::ModuleLink(float x, float y, float rot, IModule *parent)
-    : is_parent(false), parent_module(parent), linked(false), visible(false)
+    : is_parent(false), linked(false), visible(false), parent_module(parent)
 {
     transform.p = b2Vec2(x, y);
     transform.q = b2Rot(glm::radians(rot));
@@ -41,5 +41,5 @@ void ModuleLink::link(ModuleLink *other)
     other->pair_link = this;
 }
 
-RenderData ModuleLink::get_render_data(bool lightweight) { return RenderData(); }
+RenderData ModuleLink::get_render_data(bool /*lightweight*/) { return RenderData(); }
 }

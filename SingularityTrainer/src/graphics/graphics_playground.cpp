@@ -128,7 +128,7 @@ void init_imgui(const int opengl_version_major, const int opengl_version_minor, 
     reset_imgui_style();
 }
 
-int main(int argc, const char *argv[])
+int main(int /*argc*/, const char * /*argv*/ [])
 {
     // Logging
     spdlog::set_level(spdlog::level::debug);
@@ -181,7 +181,6 @@ int main(int argc, const char *argv[])
 
     // ImGui
     init_imgui(opengl_version_major, opengl_version_minor, window.window);
-    bool show_demo_window = true;
 
     float time = glfwGetTime();
 

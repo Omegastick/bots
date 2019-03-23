@@ -12,10 +12,10 @@
 namespace SingularityTrainer
 {
 ParticleRenderer::ParticleRenderer(int max_particles, ResourceManager &resource_manager)
-    : max_particles(max_particles),
+    : resource_manager(&resource_manager),
+      max_particles(max_particles),
       particle_count(0),
       current_particle_index(0),
-      resource_manager(&resource_manager),
       vertex_array(std::make_unique<VertexArray>())
 {
     resource_manager.load_shader("particle", "shaders/particle.vert", "shaders/default.frag");

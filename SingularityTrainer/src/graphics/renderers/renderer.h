@@ -27,6 +27,7 @@ class Renderer
 {
   private:
     int width, height;
+    ResourceManager *resource_manager;
     std::unique_ptr<SpriteRenderer> sprite_renderer;
     std::unique_ptr<ParticleRenderer> particle_renderer;
     std::unique_ptr<LineRenderer> line_renderer;
@@ -34,7 +35,6 @@ class Renderer
     std::vector<PostProcLayer *> post_proc_layers;
     std::unique_ptr<FrameBuffer> base_frame_buffer;
     std::unique_ptr<FrameBuffer> texture_frame_buffer;
-    ResourceManager *resource_manager;
 
   public:
     Renderer(int width, int height, ResourceManager &resource_manager);

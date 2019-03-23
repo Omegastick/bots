@@ -30,7 +30,7 @@ Target::Target(float x, float y, b2World &world, IEnvironment &env) : environmen
 
 Target::~Target() {}
 
-RenderData Target::get_render_data(bool lightweight)
+RenderData Target::get_render_data(bool /*lightweight*/)
 {
     auto render_data = RenderData();
 
@@ -49,7 +49,5 @@ void Target::begin_contact(RigidBody *other)
     }
 }
 
-void Target::end_contact(RigidBody *other)
-{
-}
+void Target::end_contact(RigidBody * /*other*/) {}
 }

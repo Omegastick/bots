@@ -19,7 +19,7 @@ namespace fs = std::filesystem;
 
 namespace SingularityTrainer
 {
-WatchScreen::WatchScreen(ResourceManager &resource_manager, Communicator &communicator, Random &rng)
+WatchScreen::WatchScreen(ResourceManager &resource_manager, Communicator &communicator, Random & /*rng*/)
     : projection(glm::ortho(0.f, 1920.f, 0.f, 1080.f)),
       resource_manager(&resource_manager),
       communicator(&communicator),
@@ -56,7 +56,7 @@ WatchScreen::~WatchScreen()
     }
 }
 
-void WatchScreen::update(const float delta_time)
+void WatchScreen::update(const float /*delta_time*/)
 {
     if (state == States::BROWSING)
     {
@@ -78,7 +78,7 @@ void WatchScreen::update(const float delta_time)
     }
 }
 
-void WatchScreen::draw(Renderer &renderer, bool lightweight)
+void WatchScreen::draw(Renderer &renderer, bool /*lightweight*/)
 {
     renderer.push_post_proc_layer(crt_post_proc_layer.get());
     renderer.begin();
@@ -112,7 +112,7 @@ void WatchScreen::action_update()
     // Step environment
     auto step_info = environment->step(actions, 1. / 60.).get();
     observations = step_info->observation;
-    for (int i = 0; i < scores.size(); ++i)
+    for (unsigned int i = 0; i < scores.size(); ++i)
     {
         scores[i].push_back(scores[i].back() + step_info->reward[i]);
     }

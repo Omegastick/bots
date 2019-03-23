@@ -18,7 +18,7 @@ MainMenuScreen::MainMenuScreen(ResourceManager &resource_manager, Communicator &
 {
 }
 
-void MainMenuScreen::update(float delta_time)
+void MainMenuScreen::update(float /*delta_time*/)
 {
     ImGui::PushStyleColor(ImGuiCol_WindowBg, {0, 0, 0, 0});
     ImGui::PushStyleColor(ImGuiCol_Button, {0, 0, 0, 0});
@@ -44,7 +44,7 @@ void MainMenuScreen::update(float delta_time)
     ImGui::ShowStyleEditor();
 }
 
-void MainMenuScreen::draw(Renderer &renderer, bool lightweight)
+void MainMenuScreen::draw(Renderer &renderer, bool /*lightweight*/)
 {
     renderer.begin();
     renderer.end();

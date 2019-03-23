@@ -14,9 +14,9 @@ void glDebugOutput(unsigned int source,
                    unsigned int type,
                    unsigned int id,
                    unsigned int severity,
-                   int length,
+                   int /*length*/,
                    const char *message,
-                   const void *userParam)
+                   const void * /*userParam*/)
 {
     // ignore non-significant error/warning codes
     if (id == 131169 || id == 131185 || id == 131218 || id == 131204)

@@ -56,7 +56,7 @@ void CrtTestScreen::update(const float delta_time)
     ImGui::End();
 }
 
-void CrtTestScreen::draw(Renderer &renderer, bool lightweight)
+void CrtTestScreen::draw(Renderer &renderer, bool /*lightweight*/)
 {
     renderer.push_post_proc_layer(post_proc_layer.get());
     renderer.begin();

@@ -56,7 +56,7 @@ void QuadScreen::update(const float delta_time)
     display_test_dialog("Quad test", *screens, *screen_names, delta_time, *screen_manager);
 }
 
-void QuadScreen::draw(Renderer &renderer, bool lightweight)
+void QuadScreen::draw(Renderer &renderer, bool /*lightweight*/)
 {
     renderer.begin();
     renderer.draw(*vertex_array, *element_buffer, *shader);

@@ -140,7 +140,7 @@ nlohmann::json LaserSensorModule::to_json() const
 ClosestRaycastCallback::ClosestRaycastCallback() : distance(-1) {}
 ClosestRaycastCallback::~ClosestRaycastCallback() {}
 
-float32 ClosestRaycastCallback::ReportFixture(b2Fixture *fixture, const b2Vec2 &point, const b2Vec2 &normal, float32 fraction)
+float32 ClosestRaycastCallback::ReportFixture(b2Fixture *fixture, const b2Vec2 & /*point*/, const b2Vec2 & /*normal*/, float32 fraction)
 {
     auto fixture_type = static_cast<RigidBody *>(fixture->GetBody()->GetUserData())->parent_type;
     if (fixture_type == RigidBody::ParentTypes::Bullet || fixture_type == RigidBody::ParentTypes::Hill)

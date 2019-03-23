@@ -16,6 +16,9 @@ class ParticleRenderer
 {
   private:
     ResourceManager *resource_manager;
+    int max_particles;
+    int particle_count;
+    int current_particle_index;
     std::unique_ptr<VertexArray> vertex_array;
     std::unique_ptr<VertexBuffer> quad_vertex_buffer;
     std::unique_ptr<VertexBuffer> position_vertex_buffer;
@@ -32,9 +35,6 @@ class ParticleRenderer
     std::vector<float> particle_sizes;
     std::vector<glm::vec4> particle_start_colors;
     std::vector<glm::vec4> particle_end_colors;
-    int max_particles;
-    int particle_count;
-    int current_particle_index;
 
   public:
     ParticleRenderer(int max_particles, ResourceManager &resource_manager);
