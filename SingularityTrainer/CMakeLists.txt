@@ -47,7 +47,7 @@ foreach(target ${ST_TARGETS})
     if(MSVC)
     target_compile_options(${target} PRIVATE /W4 /WX)
     else(MSVC)
-    target_compile_options(${target} PRIVATE -Wall -Wextra -pedantic -Werror)
+    target_compile_options(${target} PRIVATE -Wall -Wextra -pedantic)
     endif(MSVC)    
 endforeach(target ${ST_TARGETS})
 
