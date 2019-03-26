@@ -7,7 +7,7 @@
 
 #include "graphics/font.h"
 #include "graphics/backend/texture.h"
-#include "graphics/stb_truetype.h"
+#include "third_party/stb_truetype.h"
 
 namespace SingularityTrainer
 {
@@ -27,7 +27,7 @@ Font::Font(const std::string &filepath, float size)
     file.close();
 
     std::vector<unsigned char> atlas_data;
-	atlas_data.resize(1024 * 1024);
+    atlas_data.resize(1024 * 1024);
     char_info.resize(96);
 
     stbtt_pack_context pack_context;
