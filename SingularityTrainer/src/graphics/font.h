@@ -4,7 +4,7 @@
 #include <string>
 
 #include "graphics/backend/texture.h"
-#include "graphics/stb_truetype.h"
+#include "third_party/stb_truetype.h"
 
 namespace SingularityTrainer
 {

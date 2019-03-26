@@ -11,7 +11,7 @@
 #include "graphics/screens/text_test_screen.h"
 #include "graphics/renderers/renderer.h"
 #include "graphics/screens/test_utils.h"
-#include "graphics/stb_truetype.h"
+#include "third_party/stb_truetype.h"
 #include "graphics/render_data.h"
 #include "graphics/backend/texture.h"
 #include "graphics/backend/vertex_array.h"
