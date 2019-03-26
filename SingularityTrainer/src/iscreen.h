@@ -7,10 +7,11 @@ class Renderer;
 class IScreen
 {
   public:
-    IScreen(){};
-    ~IScreen(){};
+    virtual ~IScreen() = 0;
 
     virtual void update(const float delta_time) = 0;
     virtual void draw(Renderer &renderer, bool lightweight = false) = 0;
 };
+
+inline IScreen::~IScreen() {}
 }
