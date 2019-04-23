@@ -1,5 +1,5 @@
 target_sources(Training
-PUBLIC
+PRIVATE
     ${CMAKE_CURRENT_LIST_DIR}/bullet.cpp
     ${CMAKE_CURRENT_LIST_DIR}/wall.cpp
     ${CMAKE_CURRENT_LIST_DIR}/target.cpp

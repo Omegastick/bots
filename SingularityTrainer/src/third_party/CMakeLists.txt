@@ -14,7 +14,7 @@ PUBLIC
 )
 
 target_sources(Graphics
-PUBLIC
+PRIVATE
     ${CMAKE_CURRENT_LIST_DIR}/stb_image.cpp
     ${CMAKE_CURRENT_LIST_DIR}/stb_truetype.cpp
 )

@@ -1,5 +1,5 @@
 target_sources(Graphics
-PUBLIC
+PRIVATE
     ${CMAKE_CURRENT_LIST_DIR}/quad_screen.cpp
     ${CMAKE_CURRENT_LIST_DIR}/texture_test_screen.cpp
     ${CMAKE_CURRENT_LIST_DIR}/sprite_test_screen.cpp

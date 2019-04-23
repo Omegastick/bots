@@ -1,5 +1,5 @@
 target_sources(Graphics
-PUBLIC
+PRIVATE
     ${CMAKE_CURRENT_LIST_DIR}/window.cpp
     ${CMAKE_CURRENT_LIST_DIR}/imgui_utils.cpp
     ${CMAKE_CURRENT_LIST_DIR}/itransformable.cpp
