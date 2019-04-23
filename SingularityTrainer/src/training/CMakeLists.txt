@@ -1,5 +1,5 @@
 target_sources(Training
-PUBLIC
+PRIVATE
     ${CMAKE_CURRENT_LIST_DIR}/rigid_body.cpp
     ${CMAKE_CURRENT_LIST_DIR}/score_processor.cpp
 )

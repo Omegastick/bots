@@ -32,8 +32,8 @@ set(CMAKE_CXX_FLAGS_RELEASE -O3)
 add_executable(SingularityTrainer "")
 add_executable(HeadlessTrainer "")
 add_executable(GraphicsPlayground "")
-add_library(Training STATIC "")
-add_library(Graphics STATIC "")
+add_library(Training "")
+add_library(Graphics "")
 set(ST_TARGETS
     SingularityTrainer
     HeadlessTrainer

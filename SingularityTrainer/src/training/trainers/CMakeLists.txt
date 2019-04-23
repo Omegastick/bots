@@ -1,4 +1,4 @@
 target_sources(Training
-PUBLIC
+PRIVATE
     ${CMAKE_CURRENT_LIST_DIR}/quick_trainer.cpp
 )
