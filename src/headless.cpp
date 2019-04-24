@@ -1,11 +1,11 @@
 #include <chrono>
 #include <memory>
 #include <signal.h>
+#include <stdlib.h>
 
 #include <spdlog/spdlog.h>
 
 #include "training/trainers/quick_trainer.h"
-#include "communicator.h"
 #include "random.h"
 #include "requests.h"
 
@@ -26,17 +26,15 @@ int main(int /*argc*/, const char *argv[])
 
     signal(SIGINT, inthand);
 
-    Communicator communicator("tcp://127.0.0.1:10201");
     Random rng(1);
-    QuickTrainer trainer(&communicator, &rng, atoi(argv[1]));
+    QuickTrainer trainer(&rng, atoi(argv[1]));
     trainer.begin_training();
 
     auto last_save_time = std::chrono::steady_clock::now();
 
     while (!stop)
     {
-        if (!trainer.waiting_for_server() &&
-            std::chrono::steady_clock::now() - last_save_time > std::chrono::minutes(10))
+        if (std::chrono::steady_clock::now() - last_save_time > std::chrono::minutes(10))
         {
             spdlog::info("Saving model");
             trainer.save_model();

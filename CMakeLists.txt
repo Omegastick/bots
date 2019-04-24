@@ -14,8 +14,6 @@ set(GLAD_DIR ${LIB_DIR}/GLAD)
 set(GLM_DIR ${LIB_DIR}/GLM)
 set(SPDLOG_DIR ${LIB_DIR}/spdlog)
 set(IMGUI_DIR ${LIB_DIR}/imgui)
-set(ZMQ_DIR ${LIB_DIR}/libzmq)
-set(CPPZMQ_DIR ${LIB_DIR}/cppzmq)
 set(BOX2D_DIR ${LIB_DIR}/Box2D-cmake)
 set(MSGPACK_DIR ${LIB_DIR}/msgpack-c)
 set(DOCTEST_DIR ${LIB_DIR}/doctest)
@@ -53,6 +51,13 @@ foreach(target ${ST_TARGETS})
 endforeach(target ${ST_TARGETS})
 
 # Libraries included in repository
+## PyTorch
+if (NOT TORCH_FOUND)
+    find_package(Torch REQUIRED)
+    if (TORCH_CXX_FLAGS)
+        set(CMAKE_CXX_FLAGS ${TORCH_CXX_FLAGS})
+    endif(TORCH_CXX_FLAGS)
+endif (NOT TORCH_FOUND)
 ## CppRl
 option(CPPRL_BUILD_TESTS "" OFF)
 option(CPPRL_BUILD_EXAMPLE "" OFF)
@@ -77,9 +82,6 @@ if (NOT TARGET spdlog)
 endif(NOT TARGET spdlog)
 ## imgui
 add_subdirectory(${IMGUI_DIR})
-## ZMQ
-set(ZMQ_BUILD_TESTS OFF)
-add_subdirectory(${ZMQ_DIR})
 ## Box2D
 add_subdirectory(${BOX2D_DIR})
 ## Doctest
@@ -89,7 +91,7 @@ set(JSON_BuildTests OFF CACHE INTERNAL "")
 add_subdirectory(${JSON_DIR})
 
 # Link libraries
-target_link_libraries(Training libzmq-static TG::Box2D doctest)
+target_link_libraries(Training cpprl torch ${TORCH_LIBRARIES} TG::Box2D doctest)
 # UNIX systems sometimes need to explicitly link the threading library and filesystem library
 if (UNIX)
     target_link_libraries(Training pthread)
@@ -103,6 +105,7 @@ target_link_libraries(GraphicsPlayground Training Graphics)
 # Inlcudes
 set(INCLUDE_DIRS
     src
+    ${CPPRL_DIR}/include
     ${GLAD_DIR}/include 
     ${GLFW_DIR}/include 
     ${GLM_DIR} 
@@ -111,11 +114,10 @@ set(INCLUDE_DIRS
     ${IMGUI_DIR}/examples
     ${BOX2D_DIR}/Box2D
     ${MSGPACK_DIR}/include
-    ${CPPZMQ_DIR}
-    ${ZMQ_DIR}/include
     ${DOCTEST_DIR}/doctest
     ${ARGH_DIR}
     ${JSON_DIR}/include
+    ${TORCH_INCLUDE_DIRS}
 )
 target_include_directories(SingularityTrainer PUBLIC ${INCLUDE_DIRS})
 target_include_directories(HeadlessTrainer PUBLIC ${INCLUDE_DIRS})

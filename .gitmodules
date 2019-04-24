@@ -1,27 +1,27 @@
-[submodule "SingularityTrainer/lib/glfw"]
-	path = SingularityTrainer/lib/GLFW
+[submodule "lib/glfw"]
+	path = lib/GLFW
 	url = git@github.com:glfw/glfw.git
-[submodule "SingularityTrainer/lib/glm"]
-	path = SingularityTrainer/lib/GLM
+[submodule "lib/glm"]
+	path = lib/GLM
 	url = git@github.com:g-truc/glm.git
-[submodule "SingularityTrainer/lib/spdlog"]
-	path = SingularityTrainer/lib/spdlog
+[submodule "lib/spdlog"]
+	path = lib/spdlog
 	url = git@github.com:gabime/spdlog.git
-[submodule "SingularityTrainer/lib/imgui"]
-	path = SingularityTrainer/lib/imgui
+[submodule "lib/imgui"]
+	path = lib/imgui
 	url = git@github.com:Omegastick/imgui.git
-[submodule "SingularityTrainer/lib/Box2D-cmake"]
-	path = SingularityTrainer/lib/Box2D-cmake
+[submodule "lib/Box2D-cmake"]
+	path = lib/Box2D-cmake
 	url = git@github.com:tobanteGaming/Box2D-cmake.git
-[submodule "SingularityTrainer/lib/doctest"]
-	path = SingularityTrainer/lib/doctest
+[submodule "lib/doctest"]
+	path = lib/doctest
 	url = git@github.com:onqtam/doctest.git
-[submodule "SingularityTrainer/lib/argh"]
-	path = SingularityTrainer/lib/argh
+[submodule "lib/argh"]
+	path = lib/argh
 	url = git@github.com:adishavit/argh.git
-[submodule "SingularityTrainer/lib/json"]
-	path = SingularityTrainer/lib/json
+[submodule "lib/json"]
+	path = lib/json
 	url = git@github.com:nlohmann/json.git
-[submodule "SingularityTrainer/lib/pytorch-cpp-rl"]
-	path = SingularityTrainer/lib/pytorch-cpp-rl
+[submodule "lib/pytorch-cpp-rl"]
+	path = lib/pytorch-cpp-rl
 	url = git@github.com:Omegastick/pytorch-cpp-rl.git

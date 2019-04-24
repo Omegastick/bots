@@ -5,6 +5,7 @@
 #include <doctest.h>
 #include <glm/vec2.hpp>
 #include <nlohmann/json.hpp>
+#include <spdlog/spdlog.h>
 
 #include "graphics/colors.h"
 #include "resource_manager.h"

@@ -1,6 +1,5 @@
 #pragma once
 
-#include <Box2D/Box2D.h>
 #include <atomic>
 #include <future>
 #include <memory>
@@ -8,6 +7,9 @@
 #include <thread>
 #include <utility>
 #include <mutex>
+
+#include <Box2D/Box2D.h>
+#include <torch/torch.h>
 
 #include "training/environments/ienvironment.h"
 
@@ -45,10 +47,11 @@ class TargetEnv : public IEnvironment
     ~TargetEnv();
 
     virtual void start_thread();
-    virtual std::future<std::unique_ptr<StepInfo>> step(const std::vector<std::vector<int>> &actions, float step_length);
+    virtual std::future<StepInfo> step(torch::Tensor actions, float step_length);
     virtual void forward(float step_length);
-    virtual std::future<std::unique_ptr<StepInfo>> reset();
+    virtual std::future<StepInfo> reset();
     virtual void change_reward(int agent, float reward_delta);
+    virtual void change_reward(Agent *agent, float reward_delta);
     virtual void set_done();
     virtual RenderData get_render_data(bool lightweight = false);
     virtual float get_elapsed_time() const;

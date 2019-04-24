@@ -12,7 +12,6 @@
 #include "graphics/window.h"
 #include "graphics/colors.h"
 #include "graphics/renderers/renderer.h"
-#include "communicator.h"
 #include "random.h"
 #include "requests.h"
 #include "screen_manager.h"
@@ -185,12 +184,11 @@ int main(int argc, const char *argv[])
 
     ScreenManager screen_manager;
     ResourceManager resource_manager("assets/");
-    Communicator communicator("tcp://127.0.0.1:10201");
     Random rng(1);
     Renderer renderer(1920, 1080, resource_manager);
     window.set_renderer(&renderer);
 
-    std::shared_ptr<MainMenuScreen> test_screen = std::make_shared<MainMenuScreen>(resource_manager, communicator, screen_manager, rng);
+    std::shared_ptr<MainMenuScreen> test_screen = std::make_shared<MainMenuScreen>(resource_manager, screen_manager, rng);
     screen_manager.show_screen(test_screen);
 
     init_imgui(opengl_version_major, opengl_version_minor, window.window);
