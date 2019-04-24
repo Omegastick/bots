@@ -156,10 +156,10 @@ RenderData TargetEnv::get_render_data(bool lightweight)
     return render_data;
 }
 
-std::future<std::unique_ptr<StepInfo>> TargetEnv::step(const std::vector<std::vector<int>> &actions, float step_length)
+std::future<StepInfo> TargetEnv::step(torch::Tensor actions, float step_length)
 {
-    std::promise<std::unique_ptr<StepInfo>> promise;
-    std::future<std::unique_ptr<StepInfo>> future = promise.get_future();
+    std::promise<StepInfo> promise;
+    std::future<StepInfo> future = promise.get_future();
     ThreadCommand command{Commands::Step, std::move(promise), step_length, actions};
     command_queue_mutex.lock();
     command_queue.push(std::move(command));
@@ -171,7 +171,7 @@ std::future<std::unique_ptr<StepInfo>> TargetEnv::step(const std::vector<std::ve
 
 void TargetEnv::forward(float step_length)
 {
-    std::promise<std::unique_ptr<StepInfo>> promise;
+    std::promise<StepInfo> promise;
     ThreadCommand command{Commands::Forward, std::move(promise), step_length, {}};
     command_queue_mutex.lock();
     command_queue.push(std::move(command));
@@ -185,15 +185,20 @@ void TargetEnv::change_reward(int /*agent*/, float reward_delta)
     total_reward += reward_delta;
 }
 
+void TargetEnv::change_reward(Agent * /*agent*/, float reward_delta)
+{
+    change_reward(0, reward_delta);
+}
+
 void TargetEnv::set_done()
 {
     done = true;
 }
 
-std::future<std::unique_ptr<StepInfo>> TargetEnv::reset()
+std::future<StepInfo> TargetEnv::reset()
 {
-    std::promise<std::unique_ptr<StepInfo>> promise;
-    std::future<std::unique_ptr<StepInfo>> future = promise.get_future();
+    std::promise<StepInfo> promise;
+    std::future<StepInfo> future = promise.get_future();
     ThreadCommand command{Commands::Reset, std::move(promise), {}, {}};
     command_queue_mutex.lock();
     command_queue.push(std::move(command));
@@ -215,15 +220,17 @@ void TargetEnv::thread_loop()
         command_queue.pop();
         command_queue_mutex.unlock();
         command_queue_flag--;
-        std::unique_ptr<StepInfo> step_info = std::make_unique<StepInfo>();
-        switch (command.command)
+
+        if (command.command == Commands::Stop)
         {
-        case Commands::Stop:
             quit = true;
-            break;
-        case Commands::Step:
+        }
+        else if (command.command == Commands::Step)
+        {
             // Act
-            agent->act(command.actions[0]);
+            auto actions_tensor = command.actions[0].to(torch::kInt32).contiguous();
+            std::vector<int> actions(actions_tensor.data<int>(), actions_tensor.data<int>() + actions_tensor.numel());
+            agent->act(actions);
 
             // Step simulation
             world->Step(command.step_length, 3, 2);
@@ -234,9 +241,11 @@ void TargetEnv::thread_loop()
             done = done || step_counter >= max_steps;
 
             // Return step information
-            step_info->observation.push_back(agent->get_observation());
-            step_info->reward.push_back(reward);
-            step_info->done.push_back(done);
+            auto observation = agent->get_observation();
+            StepInfo step_info{
+                torch::from_blob(observation.data(), {static_cast<long>(observation.size())}),
+                torch::from_blob(&reward, {1}, torch::kFloat).clone(),
+                torch::from_blob(&done, {1}, torch::kBool).to(torch::kFloat)};
 
             // Reset reward
             reward = 0;
@@ -248,13 +257,15 @@ void TargetEnv::thread_loop()
             }
 
             // Return
-            command.promise.set_value(std::move(step_info));
-            break;
-        case Commands::Forward:
+            command.promise.set_value(step_info);
+        }
+        else if (command.command == Commands::Forward)
+        {
             world->Step(command.step_length, 3, 2);
             elapsed_time += command.step_length;
-            break;
-        case Commands::Reset:
+        }
+        else if (command.command == Commands::Reset)
+        {
             done = false;
             reward = 0;
             total_reward = 0;
@@ -271,13 +282,14 @@ void TargetEnv::thread_loop()
             target->rigid_body->body->SetTransform(b2Vec2(target_x, target_y), 0);
 
             // Fill in StepInfo
-            step_info->observation.push_back(agent->get_observation());
-            step_info->done.push_back(done);
-            step_info->reward.push_back(reward);
+            auto observation = agent->get_observation();
+            StepInfo step_info{
+                torch::from_blob(observation.data(), {static_cast<long>(observation.size())}),
+                torch::from_blob(&reward, {1}),
+                torch::from_blob(&done, {1})};
 
             // Return
             command.promise.set_value(std::move(step_info));
-            break;
         }
     }
 }

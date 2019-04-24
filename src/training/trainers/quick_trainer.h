@@ -2,20 +2,33 @@
 
 #include <vector>
 
+#include <cpprl/model/policy.h>
+#include <cpprl/storage.h>
+#include <torch/torch.h>
+
 #include "training/trainers/itrainer.h"
+
+namespace cpprl
+{
+class Algorithm;
+class NNBase;
+}
 
 namespace SingularityTrainer
 {
 class Random;
-class Communicator;
 class ScoreProcessor;
 
 class QuickTrainer : public ITrainer
 {
   private:
-    Communicator *communicator;
+    std::unique_ptr<cpprl::Algorithm> algorithm;
+    cpprl::Policy policy;
+    std::shared_ptr<cpprl::NNBase> nn_base;
+    cpprl::RolloutStorage rollout_storage;
+
     bool waiting;
-    std::vector<std::vector<std::vector<float>>> observations;
+    torch::Tensor observations;
     int env_count;
     int frame_counter;
     int action_frame_counter;
@@ -28,7 +41,7 @@ class QuickTrainer : public ITrainer
     void action_update();
 
   public:
-    QuickTrainer(Communicator *communicator, Random *rng, int env_count);
+    QuickTrainer(Random *rng, int env_count);
     ~QuickTrainer();
 
     virtual void begin_training();
@@ -36,6 +49,5 @@ class QuickTrainer : public ITrainer
     virtual void save_model();
     virtual void step();
     virtual void slow_step();
-    virtual bool waiting_for_server();
 };
 }

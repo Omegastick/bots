@@ -11,7 +11,6 @@ namespace SingularityTrainer
 class ITrainer;
 class ResourceManager;
 class Random;
-class Communicator;
 class Renderer;
 class PostProcLayer;
 
@@ -26,7 +25,7 @@ class TargetEnvScreen : public IScreen
     std::unique_ptr<PostProcLayer> crt_post_proc_layer;
 
   public:
-    TargetEnvScreen(ResourceManager &resource_manager, Communicator *communicator, Random *rng, int env_count);
+    TargetEnvScreen(ResourceManager &resource_manager, Random &rng, int env_count);
     ~TargetEnvScreen();
 
     virtual void draw(Renderer &renderer, bool lightweight = false);

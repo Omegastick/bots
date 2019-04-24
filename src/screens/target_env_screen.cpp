@@ -9,22 +9,20 @@
 #include "graphics/backend/shader.h"
 #include "graphics/post_proc_layer.h"
 #include "graphics/colors.h"
-#include "training/environments/koth_env.h"
 #include "training/trainers/quick_trainer.h"
-#include "communicator.h"
 #include "iscreen.h"
 #include "resource_manager.h"
 
 namespace SingularityTrainer
 {
-TargetEnvScreen::TargetEnvScreen(ResourceManager &resource_manager, Communicator *communicator, Random *rng, int env_count)
+TargetEnvScreen::TargetEnvScreen(ResourceManager &resource_manager, Random &rng, int env_count)
     : resource_manager(&resource_manager),
       lightweight_rendering(false),
       projection(glm::ortho(0.f, 1920.f, 0.f, 1080.f)),
       fast(false)
 
 {
-    trainer = std::make_unique<QuickTrainer>(communicator, rng, env_count);
+    trainer = std::make_unique<QuickTrainer>(&rng, env_count);
 
     resource_manager.load_texture("base_module", "images/base_module.png");
     resource_manager.load_texture("gun_module", "images/gun_module.png");
@@ -34,6 +32,8 @@ TargetEnvScreen::TargetEnvScreen(ResourceManager &resource_manager, Communicator
     resource_manager.load_texture("target", "images/target.png");
     resource_manager.load_texture("pixel", "images/pixel.png");
     resource_manager.load_shader("crt", "shaders/texture.vert", "shaders/crt.frag");
+    resource_manager.load_shader("font", "shaders/texture.vert", "shaders/font.frag");
+    resource_manager.load_font("roboto-16", "fonts/Roboto-Regular.ttf", 16);
 
     crt_post_proc_layer = std::make_unique<PostProcLayer>(resource_manager.shader_store.get("crt").get());
 
