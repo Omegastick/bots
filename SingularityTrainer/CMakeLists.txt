@@ -8,6 +8,7 @@ endif()
 
 # Configuration
 set(LIB_DIR lib)
+set(CPPRL_DIR ${LIB_DIR}/pytorch-cpp-rl)
 set(GLFW_DIR ${LIB_DIR}/GLFW)
 set(GLAD_DIR ${LIB_DIR}/GLAD)
 set(GLM_DIR ${LIB_DIR}/GLM)
@@ -52,6 +53,10 @@ foreach(target ${ST_TARGETS})
 endforeach(target ${ST_TARGETS})
 
 # Libraries included in repository
+## CppRl
+option(CPPRL_BUILD_TESTS "" OFF)
+option(CPPRL_BUILD_EXAMPLE "" OFF)
+add_subdirectory(${CPPRL_DIR})
 ## GLFW
 set(GLFW_BUILD_EXAMPLES OFF CACHE INTERNAL "Build the GLFW example programs")
 set(GLFW_BUILD_TESTS OFF CACHE INTERNAL "Build the GLFW test programs")
@@ -67,7 +72,9 @@ target_include_directories(glad PRIVATE ${GLAD_DIR}/include)
 set(GLM_TEST_ENABLE OFF)
 add_subdirectory(${GLM_DIR})
 ## spdlog
-add_subdirectory(${SPDLOG_DIR})
+if (NOT TARGET spdlog)
+    add_subdirectory(${SPDLOG_DIR})
+endif(NOT TARGET spdlog)
 ## imgui
 add_subdirectory(${IMGUI_DIR})
 ## ZMQ
