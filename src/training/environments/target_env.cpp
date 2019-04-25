@@ -243,9 +243,9 @@ void TargetEnv::thread_loop()
             // Return step information
             auto observation = agent->get_observation();
             StepInfo step_info{
-                torch::from_blob(observation.data(), {static_cast<long>(observation.size())}).clone(),
-                torch::from_blob(&reward, {1}, torch::kFloat).clone(),
-                torch::from_blob(&done, {1}, torch::kBool).to(torch::kFloat)};
+                torch::from_blob(observation.data(), {1, static_cast<long>(observation.size())}).clone(),
+                torch::from_blob(&reward, {1, 1}, torch::kFloat).clone(),
+                torch::from_blob(&done, {1, 1}, torch::kBool).to(torch::kFloat)};
 
             // Reset reward
             reward = 0;
@@ -284,9 +284,9 @@ void TargetEnv::thread_loop()
             // Fill in StepInfo
             auto observation = agent->get_observation();
             StepInfo step_info{
-                torch::from_blob(observation.data(), {static_cast<long>(observation.size())}).clone(),
-                torch::from_blob(&reward, {1}, torch::kFloat).clone(),
-                torch::from_blob(&done, {1}, torch::kBool).to(torch::kFloat)};
+                torch::from_blob(observation.data(), {1, static_cast<long>(observation.size())}).clone(),
+                torch::from_blob(&reward, {1, 1}, torch::kFloat).clone(),
+                torch::from_blob(&done, {1, 1}, torch::kBool).to(torch::kFloat)};
 
             // Return
             command.promise.set_value(std::move(step_info));

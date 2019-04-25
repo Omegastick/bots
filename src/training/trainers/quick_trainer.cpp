@@ -19,7 +19,7 @@ namespace SingularityTrainer
 {
 QuickTrainer::QuickTrainer(Random *rng, int env_count)
     : policy(nullptr),
-      rollout_storage(512, env_count, {23}, {"MultiBinary", {4}}, {24}, torch::kCPU),
+      rollout_storage(32, env_count, {23}, {"MultiBinary", {4}}, {24}, torch::kCPU),
       waiting(false),
       env_count(env_count),
       frame_counter(0),
@@ -29,6 +29,9 @@ QuickTrainer::QuickTrainer(Random *rng, int env_count)
       score_processor(std::make_unique<ScoreProcessor>(1, 0.99)),
       agents_per_env(1)
 {
+    torch::set_num_threads(1);
+    torch::manual_seed(0);
+
     for (int i = 0; i < env_count; ++i)
     {
         environments.push_back(std::make_unique<TargetEnv>(460, 40, 1, 100, i));
@@ -53,16 +56,18 @@ void QuickTrainer::begin_training()
             observation_futures[i] = environments[i]->step(actions, 1.f / 10.f);
         }
     }
-    std::vector<torch::Tensor> observations_(env_count);
+    observations = torch::zeros({env_count * agents_per_env, 23});
     for (int i = 0; i < env_count; ++i)
     {
-        observations_[i] = observation_futures[i].get().observation;
+        for (int j = 0; j < agents_per_env; ++j)
+        {
+            observations[i * agents_per_env + j] = observation_futures[i].get().observation[j];
+        }
     }
-    observations = torch::stack(observations_);
 
     nn_base = std::make_shared<cpprl::MlpBase>(23, false, 24);
     policy = cpprl::Policy(cpprl::ActionSpace{"MultiBinary", {4}}, nn_base);
-    algorithm = std::make_unique<cpprl::PPO>(policy, 0.2, 10, env_count, 0.5, 0.01, 1e-4);
+    algorithm = std::make_unique<cpprl::PPO>(policy, 0.2, 3, env_count, 0.5, 0.001, 3e-4);
 
     rollout_storage.set_first_observation(observations);
 }
@@ -121,14 +126,16 @@ void QuickTrainer::save_model()
 
 void QuickTrainer::action_update()
 {
+    auto update_start_time = std::chrono::high_resolution_clock::now();
     // Get actions from policy
     std::vector<torch::Tensor> act_result;
     {
         torch::NoGradGuard no_grad;
-        act_result = policy->act(rollout_storage.get_observations()[action_frame_counter % 512],
-                                 rollout_storage.get_hidden_states()[action_frame_counter % 512],
-                                 rollout_storage.get_masks()[action_frame_counter % 512]);
+        act_result = policy->act(rollout_storage.get_observations()[action_frame_counter % 32],
+                                 rollout_storage.get_hidden_states()[action_frame_counter % 32],
+                                 rollout_storage.get_masks()[action_frame_counter % 32]);
     }
+    std::chrono::duration<double> update_time = std::chrono::high_resolution_clock::now() - update_start_time;
 
     // Step environments
     torch::Tensor dones = torch::zeros({env_count * agents_per_env, 1});
@@ -142,11 +149,11 @@ void QuickTrainer::action_update()
     for (unsigned int i = 0; i < environments.size(); ++i)
     {
         auto step_info = step_info_futures[i].get();
-        observations[i] = step_info.observation;
         for (int j = 0; j < agents_per_env; ++j)
         {
-            dones[i * agents_per_env + j][0] = step_info.done[j];
-            rewards[i * agents_per_env + j][0] = step_info.reward[j];
+            observations[i * agents_per_env + j] = step_info.observation[j];
+            dones[i * agents_per_env + j] = step_info.done[j];
+            rewards[i * agents_per_env + j] = step_info.reward[j];
         }
         for (unsigned int j = 0; j < step_info.reward.size(0); ++j)
         {
@@ -170,7 +177,7 @@ void QuickTrainer::action_update()
     action_frame_counter++;
 
     // Train
-    if (action_frame_counter % 512 == 0)
+    if (action_frame_counter % 32 == 0)
     {
         torch::Tensor next_value;
         {
@@ -196,68 +203,6 @@ void QuickTrainer::action_update()
         spdlog::info("Average reward: {}", fmt::join(score_averages, " "));
     }
 
-    // // Get actions from training server
-    // std::shared_ptr<GetActionsParam> get_actions_param = std::make_shared<GetActionsParam>();
-    // get_actions_param->inputs = interleave_vectors<std::vector<float>>(observations);
-    // get_actions_param->session_id = 0;
-    // Request<GetActionsParam> get_actions_request("get_actions", get_actions_param, 2);
-    // communicator->send_request(get_actions_request);
-    // auto actions = communicator->get_response<GetActionsResult>()->result.actions;
-
-    // // Step environments
-    // std::vector<std::vector<bool>> dones;
-    // std::vector<std::vector<float>> rewards;
-    // std::vector<std::future<std::unique_ptr<StepInfo>>> step_info_futures(environments.size());
-    // for (unsigned int j = 0; j < environments.size(); ++j)
-    // {
-    //     std::vector<std::vector<int>> env_actions;
-    //     for (int k = 0; k < agents_per_env; ++k)
-    //     {
-    //         env_actions.push_back(actions[(j * agents_per_env) + k]);
-    //     }
-    //     step_info_futures[j] = environments[j]->step(env_actions, 1. / 60.);
-    // }
-    // for (unsigned int i = 0; i < environments.size(); ++i)
-    // {
-    //     std::unique_ptr<StepInfo> step_info = step_info_futures[i].get();
-    //     observations[i] = step_info->observation;
-    //     dones.push_back(step_info->done);
-    //     rewards.push_back(step_info->reward);
-    //     for (unsigned int j = 0; j < step_info->reward.size(); ++j)
-    //     {
-    //         env_scores[i] += step_info->reward[j];
-    //         if (step_info->done[j])
-    //         {
-    //             score_processor->add_score(0, env_scores[i]);
-    //             env_scores[i] = 0;
-    //         }
-    //     }
-    // }
-    // if (action_frame_counter % 1000 == 0)
-    // {
-    //     std::vector<float> score_averages = score_processor->get_scores();
-    //     spdlog::info("Average reward: {}", fmt::join(score_averages, " "));
-    // }
-
-    // // Send result to training server
-    // std::shared_ptr<GiveRewardsParam> give_rewards_param = std::make_shared<GiveRewardsParam>();
-    // give_rewards_param->rewards = interleave_vectors<float>(rewards);
-    // give_rewards_param->dones = interleave_vectors<bool>(dones);
-    // give_rewards_param->session_id = 0;
-    // Request<GiveRewardsParam> give_rewards_request("give_rewards", give_rewards_param, 3);
-    // communicator->send_request<GiveRewardsParam>(give_rewards_request);
-    // if (action_frame_counter % 512 != 0)
-    // {
-    //     communicator->get_response<GiveRewardsResult>();
-    // }
-    // else
-    // {
-    //     waiting = true;
-    //     std::thread response_thread = std::thread([this]() {
-    //         communicator->get_response<GiveRewardsResult>();
-    //         waiting = false;
-    //     });
-    //     response_thread.detach();
-    // }
+    spdlog::debug("Update took {}s", update_time.count());
 }
 }
