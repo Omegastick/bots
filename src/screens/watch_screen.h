@@ -3,9 +3,16 @@
 #include <vector>
 #include <memory>
 
+#include <cpprl/model/policy.h>
+#include <cpprl/storage.h>
 #include <glm/mat4x4.hpp>
 
 #include "iscreen.h"
+
+namespace cpprl
+{
+class NNBase;
+}
 
 namespace SingularityTrainer
 {
@@ -28,6 +35,9 @@ class WatchScreen : public IScreen
         BROWSING = 0,
         WATCHING = 1
     };
+    cpprl::Policy policy;
+    std::shared_ptr<cpprl::NNBase> nn_base;
+    cpprl::RolloutStorage rollout_storage;
     glm::mat4 projection;
     ResourceManager *resource_manager;
     Communicator *communicator;
@@ -36,11 +46,11 @@ class WatchScreen : public IScreen
     std::unique_ptr<IEnvironment> environment;
     int selected_file;
     int frame_counter;
-    std::vector<std::vector<float>> observations;
+    torch::Tensor observations, hidden_states, masks;
     std::vector<std::vector<float>> scores;
 
   public:
-    WatchScreen(ResourceManager &resource_manager, Communicator &communicator, Random &rng);
+    WatchScreen(ResourceManager &resource_manager, Random &rng);
     ~WatchScreen();
 
     virtual void draw(Renderer &renderer, bool lightweight = false);

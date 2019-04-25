@@ -10,6 +10,7 @@
 #include "graphics/colors.h"
 #include "resource_manager.h"
 #include "training/agents/agent.h"
+#include "training/environments/ienvironment.h"
 #include "training/modules/base_module.h"
 #include "training/modules/imodule.h"
 #include "training/modules/module_link.h"
@@ -47,6 +48,10 @@ std::vector<float> BaseModule::get_sensor_reading()
 {
     b2Vec2 linear_velocity = agent->get_rigid_body()->body->GetLinearVelocity();
     float angular_velocity = agent->get_rigid_body()->body->GetAngularVelocity();
+    if (abs(linear_velocity.x) + abs(linear_velocity.y) < 0.001)
+    {
+        agent->get_environment()->change_reward(agent, -0.1);
+    }
     return {linear_velocity.x, linear_velocity.y, angular_velocity};
 }
 

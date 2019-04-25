@@ -3,15 +3,16 @@
 #include <filesystem>
 #include <future>
 
+#include <cpprl/cpprl.h>
 #include <glm/mat4x4.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <imgui.h>
+#include <spdlog/fmt/fmt.h>
 
 #include "screens/watch_screen.h"
 #include "graphics/renderers/renderer.h"
 #include "graphics/post_proc_layer.h"
-#include "training/environments/koth_env.h"
-#include "communicator.h"
+#include "training/environments/target_env.h"
 #include "resource_manager.h"
 #include "requests.h"
 
@@ -19,16 +20,17 @@ namespace fs = std::filesystem;
 
 namespace SingularityTrainer
 {
-WatchScreen::WatchScreen(ResourceManager &resource_manager, Communicator &communicator, Random & /*rng*/)
-    : projection(glm::ortho(0.f, 1920.f, 0.f, 1080.f)),
+WatchScreen::WatchScreen(ResourceManager &resource_manager, Random & /*rng*/)
+    : policy(nullptr),
+      rollout_storage(128, 1, {23}, {"MultiBinary", {4}}, {24}, torch::kCPU),
+      projection(glm::ortho(0.f, 1920.f, 0.f, 1080.f)),
       resource_manager(&resource_manager),
-      communicator(&communicator),
       state(States::BROWSING),
       selected_file(-1),
       frame_counter(0),
-      scores({{0}, {0}})
+      scores({{0}})
 {
-    environment = std::make_unique<KothEnv>(460, 40, 1, 600, 0);
+    environment = std::make_unique<TargetEnv>(460, 40, 1, 600, 0);
 
     resource_manager.load_texture("base_module", "images/base_module.png");
     resource_manager.load_texture("gun_module", "images/gun_module.png");
@@ -44,17 +46,7 @@ WatchScreen::WatchScreen(ResourceManager &resource_manager, Communicator &commun
     crt_post_proc_layer = std::make_unique<PostProcLayer>(resource_manager.shader_store.get("crt").get());
 }
 
-WatchScreen::~WatchScreen()
-{
-    if (state == States::WATCHING)
-    {
-        std::shared_ptr<EndSessionParam> end_session_param = std::make_shared<EndSessionParam>();
-        end_session_param->session_id = 0;
-        Request<EndSessionParam> end_session_request("end_session", end_session_param, 4);
-        communicator->send_request<EndSessionParam>(end_session_request);
-        communicator->get_response<EndSessionResult>();
-    }
-}
+WatchScreen::~WatchScreen() {}
 
 void WatchScreen::update(const float /*delta_time*/)
 {
@@ -101,22 +93,24 @@ void WatchScreen::draw(Renderer &renderer, bool /*lightweight*/)
 
 void WatchScreen::action_update()
 {
-    // Get actions
-    auto get_actions_param = std::make_shared<GetActionsParam>();
-    get_actions_param->inputs = {observations};
-    get_actions_param->session_id = 0;
-    Request<GetActionsParam> get_actions_request("get_actions", get_actions_param, 2);
-    communicator->send_request(get_actions_request);
-    auto actions = communicator->get_response<GetActionsResult>()->result.actions;
+    // Get actions from policy
+    std::vector<torch::Tensor> act_result;
+    {
+        torch::NoGradGuard no_grad;
+        act_result = policy->act(observations,
+                                 hidden_states,
+                                 masks);
+    }
+    hidden_states = act_result[3];
 
     // Step environment
-    auto step_info = environment->step(actions, 1. / 60.).get();
-    observations = step_info->observation;
+    auto step_info = environment->step(act_result[1], 1. / 60.).get();
+    observations = step_info.observation.view({1, -1});
     for (unsigned int i = 0; i < scores.size(); ++i)
     {
-        scores[i].push_back(scores[i].back() + step_info->reward[i]);
+        scores[i].push_back(scores[i].back() + step_info.reward[i].item().toFloat());
     }
-    if (step_info->done[0])
+    if (step_info.done[0].item().toBool())
     {
         for (auto &agent_scores : scores)
         {
@@ -133,7 +127,7 @@ void WatchScreen::show_checkpoint_selector()
 
     // Enumerate all model files
     std::vector<std::string> files;
-    for (const auto &file : fs::directory_iterator(fs::current_path().parent_path()))
+    for (const auto &file : fs::directory_iterator(fs::current_path()))
     {
         if (file.path().extension().string() == ".pth")
         {
@@ -152,19 +146,16 @@ void WatchScreen::show_checkpoint_selector()
 
     if (ImGui::Button("Select"))
     {
-        auto begin_session_param = std::make_shared<BeginSessionParam>();
-        Model model{12, 4, true, true};
-        begin_session_param->model = model;
-        begin_session_param->contexts = 2;
-        begin_session_param->session_id = 0;
-        begin_session_param->training = false;
-        begin_session_param->model_path = fs::current_path().parent_path().append(files[selected_file] + ".pth").string();
-        Request<BeginSessionParam> request("begin_session", begin_session_param, 0);
-        communicator->send_request<BeginSessionParam>(request);
-        communicator->get_response<BeginSessionResult>();
 
         environment->start_thread();
-        observations = environment->reset().get()->observation;
+        observations = environment->reset().get().observation.view({1, -1});
+        masks = torch::zeros({1, 1});
+        hidden_states = torch::zeros({1, 24});
+
+        nn_base = std::make_shared<cpprl::MlpBase>(23, true, 24);
+        policy = cpprl::Policy(cpprl::ActionSpace{"MultiBinary", {4}}, nn_base);
+
+        rollout_storage.set_first_observation(observations);
 
         state = States::WATCHING;
     }
@@ -173,14 +164,13 @@ void WatchScreen::show_checkpoint_selector()
 
 void WatchScreen::show_agent_scores()
 {
-    ImGui::Begin("Agent 1", NULL, ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoResize);
-    ImGui::Text("Score: %.0f", scores[0].back());
-    ImGui::PlotLines("", &scores[0].front(), scores[0].size());
-    ImGui::End();
-
-    ImGui::Begin("Agent 2", NULL, ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoResize);
-    ImGui::Text("Score: %.0f", scores[1].back());
-    ImGui::PlotLines("", &scores[1].front(), scores[1].size());
-    ImGui::End();
+    for (int i = 0; i < scores.size(); ++i)
+    {
+        std::string title = fmt::format("Agent {}", i + 1);
+        ImGui::Begin(title.c_str(), NULL, ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoResize);
+        ImGui::Text("Score: %.0f", scores[0].back());
+        ImGui::PlotLines("", &scores[0].front(), scores[0].size());
+        ImGui::End();
+    }
 }
 }
