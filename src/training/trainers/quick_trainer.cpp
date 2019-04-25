@@ -19,7 +19,7 @@ namespace SingularityTrainer
 {
 QuickTrainer::QuickTrainer(Random *rng, int env_count)
     : policy(nullptr),
-      rollout_storage(32, env_count, {12}, {"MultiBinary", {4}}, {24}, torch::kCPU),
+      rollout_storage(512, env_count, {23}, {"MultiBinary", {4}}, {24}, torch::kCPU),
       waiting(false),
       env_count(env_count),
       frame_counter(0),
@@ -60,9 +60,9 @@ void QuickTrainer::begin_training()
     }
     observations = torch::stack(observations_);
 
-    nn_base = std::make_shared<cpprl::MlpBase>(12, true, 24);
+    nn_base = std::make_shared<cpprl::MlpBase>(23, false, 24);
     policy = cpprl::Policy(cpprl::ActionSpace{"MultiBinary", {4}}, nn_base);
-    algorithm = std::make_unique<cpprl::PPO>(policy, 0.2, 3, 7, 0.5, 0.001, 3e-4);
+    algorithm = std::make_unique<cpprl::PPO>(policy, 0.2, 10, env_count, 0.5, 0.01, 1e-4);
 
     rollout_storage.set_first_observation(observations);
 }
@@ -125,9 +125,9 @@ void QuickTrainer::action_update()
     std::vector<torch::Tensor> act_result;
     {
         torch::NoGradGuard no_grad;
-        act_result = policy->act(rollout_storage.get_observations()[action_frame_counter % 32],
-                                 rollout_storage.get_hidden_states()[action_frame_counter % 32],
-                                 rollout_storage.get_masks()[action_frame_counter % 32]);
+        act_result = policy->act(rollout_storage.get_observations()[action_frame_counter % 512],
+                                 rollout_storage.get_hidden_states()[action_frame_counter % 512],
+                                 rollout_storage.get_masks()[action_frame_counter % 512]);
     }
 
     // Step environments
@@ -170,7 +170,7 @@ void QuickTrainer::action_update()
     action_frame_counter++;
 
     // Train
-    if (action_frame_counter % 32 == 0)
+    if (action_frame_counter % 512 == 0)
     {
         torch::Tensor next_value;
         {
