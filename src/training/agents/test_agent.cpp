@@ -25,7 +25,7 @@ TestAgent::TestAgent(b2World &world, Random *rng, IEnvironment &environment) : A
     auto gun_module_left = std::make_shared<GunModule>();
     auto thruster_module_left = std::make_shared<ThrusterModule>();
     auto thruster_module_right = std::make_shared<ThrusterModule>();
-    auto laser_sensor_module = std::make_shared<LaserSensorModule>();
+    auto laser_sensor_module = std::make_shared<LaserSensorModule>(20, 180, 20);
 
     // Connect modules
     base_module->get_module_links()[1].link(&gun_module_right->get_module_links()[2]);

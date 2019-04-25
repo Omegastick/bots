@@ -1,8 +1,10 @@
 #include <string>
+#include <sstream>
 
 #include <Box2D/Box2D.h>
-#include <glm/glm.hpp>
 #include <doctest.h>
+#include <glm/glm.hpp>
+#include <torch/torch.h>
 
 #include "utilities.h"
 
@@ -36,6 +38,39 @@ b2Vec2 rotate_point_around_point(b2Vec2 point, b2Rot angle, b2Vec2 pivot)
     point.y += pivot.y;
 
     return point;
+}
+
+std::string print_tensor(torch::Tensor tensor)
+{
+    std::stringstream string_stream;
+    string_stream << "\n";
+    auto tensor_sizes = tensor.sizes();
+
+    if (tensor.numel() == 1)
+    {
+        string_stream << "[" << tensor.item().toFloat() << "]"
+                      << "\n";
+    }
+    else if (tensor_sizes.size() > 2)
+    {
+        string_stream << "Tensor too large\n";
+    }
+    else
+    {
+        string_stream << std::fixed << std::setprecision(2);
+        for (int i = 0; i < tensor_sizes[0]; ++i)
+        {
+            string_stream << "[";
+            for (int j = 0; j < tensor_sizes[1]; ++j)
+            {
+                string_stream << tensor[i][j].item().toFloat() << " ";
+            }
+            string_stream << "]\n";
+        }
+    }
+
+    string_stream << "Size: " << tensor.sizes();
+    return string_stream.str();
 }
 
 bool approx(const b2Vec2 &vector_1, const b2Vec2 &vector_2)
