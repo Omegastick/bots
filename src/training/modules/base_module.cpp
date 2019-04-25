@@ -47,7 +47,7 @@ std::vector<float> BaseModule::get_sensor_reading()
 {
     b2Vec2 linear_velocity = agent->get_rigid_body()->body->GetLinearVelocity();
     float angular_velocity = agent->get_rigid_body()->body->GetAngularVelocity();
-    return std::vector<float>{linear_velocity.x, linear_velocity.y, angular_velocity};
+    return {linear_velocity.x, linear_velocity.y, angular_velocity};
 }
 
 nlohmann::json BaseModule::to_json() const
