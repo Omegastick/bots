@@ -17,9 +17,9 @@
 
 namespace SingularityTrainer
 {
-static const int batch_size = 64;
+static const int batch_size = 2048;
 static const int epochs = 10;
-static const bool recurrent = true;
+static const bool recurrent = false;
 
 QuickTrainer::QuickTrainer(Random *rng, int env_count)
     : policy(nullptr),
@@ -34,7 +34,6 @@ QuickTrainer::QuickTrainer(Random *rng, int env_count)
       agents_per_env(1),
       last_update_time(std::chrono::high_resolution_clock::now())
 {
-    torch::set_num_threads(1);
     torch::manual_seed(0);
 
     for (int i = 0; i < env_count; ++i)
