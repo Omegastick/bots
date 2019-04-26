@@ -22,7 +22,6 @@ namespace SingularityTrainer
 {
 WatchScreen::WatchScreen(ResourceManager &resource_manager, Random & /*rng*/)
     : policy(nullptr),
-      rollout_storage(128, 1, {23}, {"MultiBinary", {4}}, {24}, torch::kCPU),
       projection(glm::ortho(0.f, 1920.f, 0.f, 1080.f)),
       resource_manager(&resource_manager),
       state(States::BROWSING),
@@ -146,16 +145,14 @@ void WatchScreen::show_checkpoint_selector()
 
     if (ImGui::Button("Select"))
     {
-
         environment->start_thread();
         observations = environment->reset().get().observation.view({1, -1});
         masks = torch::zeros({1, 1});
         hidden_states = torch::zeros({1, 24});
 
-        nn_base = std::make_shared<cpprl::MlpBase>(23, true, 24);
+        nn_base = std::make_shared<cpprl::MlpBase>(23, false, 24);
         policy = cpprl::Policy(cpprl::ActionSpace{"MultiBinary", {4}}, nn_base);
-
-        rollout_storage.set_first_observation(observations);
+        torch::load(policy, files[selected_file] + ".pth");
 
         state = States::WATCHING;
     }
