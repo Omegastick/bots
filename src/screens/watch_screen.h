@@ -37,7 +37,6 @@ class WatchScreen : public IScreen
     };
     cpprl::Policy policy;
     std::shared_ptr<cpprl::NNBase> nn_base;
-    cpprl::RolloutStorage rollout_storage;
     glm::mat4 projection;
     ResourceManager *resource_manager;
     Communicator *communicator;
