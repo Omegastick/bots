@@ -1,6 +1,6 @@
 #pragma once
 
-#include <atomic>
+#include <condition_variable>
 #include <future>
 #include <memory>
 #include <queue>
@@ -29,18 +29,19 @@ class TargetEnv : public IEnvironment
     std::vector<std::unique_ptr<Wall>> walls;
     std::unique_ptr<Target> target;
     std::unique_ptr<b2ContactListener> contact_listener;
-    std::atomic<int> command_queue_flag;
     float reward;
     int step_counter;
     bool done;
     std::thread *thread;
     std::queue<ThreadCommand> command_queue;
     std::mutex command_queue_mutex;
+    std::condition_variable command_queue_condvar;
     int total_reward;
     std::unique_ptr<Random> rng;
     float elapsed_time;
 
     void thread_loop();
+    void reset_impl();
 
   public:
     TargetEnv(float x, float y, float scale, int max_steps, int seed);
