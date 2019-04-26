@@ -1,5 +1,6 @@
 #pragma once
 
+#include <chrono>
 #include <vector>
 
 #include <cpprl/model/policy.h>
@@ -37,6 +38,7 @@ class QuickTrainer : public ITrainer
     std::unique_ptr<ScoreProcessor> score_processor;
     std::vector<float> env_scores;
     int agents_per_env;
+    std::chrono::time_point<std::chrono::high_resolution_clock> last_update_time;
 
     void action_update();
 

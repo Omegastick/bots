@@ -17,9 +17,13 @@
 
 namespace SingularityTrainer
 {
+static const int batch_size = 64;
+static const int epochs = 10;
+static const bool recurrent = true;
+
 QuickTrainer::QuickTrainer(Random *rng, int env_count)
     : policy(nullptr),
-      rollout_storage(512, env_count, {23}, {"MultiBinary", {4}}, {24}, torch::kCPU),
+      rollout_storage(batch_size, env_count, {23}, {"MultiBinary", {4}}, {24}, torch::kCPU),
       waiting(false),
       env_count(env_count),
       frame_counter(0),
@@ -27,7 +31,8 @@ QuickTrainer::QuickTrainer(Random *rng, int env_count)
       rng(rng),
       elapsed_time(0),
       score_processor(std::make_unique<ScoreProcessor>(1, 0.99)),
-      agents_per_env(1)
+      agents_per_env(1),
+      last_update_time(std::chrono::high_resolution_clock::now())
 {
     torch::set_num_threads(1);
     torch::manual_seed(0);
@@ -65,9 +70,9 @@ void QuickTrainer::begin_training()
         }
     }
 
-    nn_base = std::make_shared<cpprl::MlpBase>(23, false, 24);
+    nn_base = std::make_shared<cpprl::MlpBase>(23, recurrent, 24);
     policy = cpprl::Policy(cpprl::ActionSpace{"MultiBinary", {4}}, nn_base);
-    algorithm = std::make_unique<cpprl::PPO>(policy, 0.2, 3, env_count, 0.5, 0.001, 3e-4);
+    algorithm = std::make_unique<cpprl::PPO>(policy, 0.2, epochs, env_count, 0.5, 0.001, 3e-4);
 
     rollout_storage.set_first_observation(observations);
 }
@@ -130,9 +135,9 @@ void QuickTrainer::action_update()
     std::vector<torch::Tensor> act_result;
     {
         torch::NoGradGuard no_grad;
-        act_result = policy->act(rollout_storage.get_observations()[action_frame_counter % 512],
-                                 rollout_storage.get_hidden_states()[action_frame_counter % 512],
-                                 rollout_storage.get_masks()[action_frame_counter % 512]);
+        act_result = policy->act(rollout_storage.get_observations()[action_frame_counter % batch_size],
+                                 rollout_storage.get_hidden_states()[action_frame_counter % batch_size],
+                                 rollout_storage.get_masks()[action_frame_counter % batch_size]);
     }
 
     // Step environments
@@ -175,8 +180,10 @@ void QuickTrainer::action_update()
     action_frame_counter++;
 
     // Train
-    if (action_frame_counter % 512 == 0)
+    if (action_frame_counter % batch_size == 0)
     {
+        auto update_start_time = std::chrono::high_resolution_clock::now();
+
         torch::Tensor next_value;
         {
             torch::NoGradGuard no_grad;
@@ -193,12 +200,19 @@ void QuickTrainer::action_update()
 
         spdlog::info("---");
         spdlog::info("Total frames: {}", action_frame_counter * env_count);
+        double fps = (batch_size * env_count) / static_cast<std::chrono::duration<double>>(update_start_time - last_update_time).count();
+        spdlog::info("FPS: {:.2f}", fps);
         for (const auto &datum : update_data)
         {
             spdlog::info("{}: {}", datum.name, datum.value);
         }
         std::vector<float> score_averages = score_processor->get_scores();
-        spdlog::info("Average reward: {}", fmt::join(score_averages, " "));
+        spdlog::info("Average reward: {:.2f}", fmt::join(score_averages, " "));
+        auto update_end_time = std::chrono::high_resolution_clock::now();
+        std::chrono::duration<double> update_duration = update_end_time - update_start_time;
+        spdlog::info("Update took {:.2f}s", update_duration.count());
+
+        last_update_time = update_end_time;
     }
 }
 }
