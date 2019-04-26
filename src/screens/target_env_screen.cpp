@@ -45,7 +45,7 @@ TargetEnvScreen::~TargetEnvScreen()
     trainer->end_training();
 }
 
-void TargetEnvScreen::update(const float /*delta_time*/)
+void TargetEnvScreen::update(const double /*delta_time*/)
 {
     ImGui::Begin("Speed");
     ImGui::Checkbox("Fast?", &fast);

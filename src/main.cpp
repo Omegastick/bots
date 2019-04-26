@@ -193,7 +193,7 @@ int main(int argc, const char *argv[])
 
     init_imgui(opengl_version_major, opengl_version_minor, window.window);
 
-    float time = glfwGetTime();
+    double time = glfwGetTime();
 
     while (!window.should_close())
     {
@@ -205,8 +205,8 @@ int main(int argc, const char *argv[])
         /*
          *  Update
          */
-        float new_time = glfwGetTime();
-        float delta_time = new_time - time;
+        double new_time = glfwGetTime();
+        double delta_time = new_time - time;
         time = new_time;
 
         ImGui_ImplOpenGL3_NewFrame();

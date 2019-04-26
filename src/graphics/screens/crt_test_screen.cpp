@@ -44,7 +44,7 @@ CrtTestScreen::CrtTestScreen(
 
 CrtTestScreen::~CrtTestScreen() {}
 
-void CrtTestScreen::update(const float delta_time)
+void CrtTestScreen::update(const double delta_time)
 {
     display_test_dialog("CRT test", *screens, *screen_names, delta_time, *screen_manager);
     sprite->rotate(1.f * delta_time);

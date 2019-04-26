@@ -36,7 +36,7 @@ class TextureTestScreen : public IScreen
     TextureTestScreen(ScreenManager *screen_manager, std::vector<std::shared_ptr<IScreen>> *screens, std::vector<std::string> *screen_names);
     ~TextureTestScreen();
 
-    virtual void update(const float delta_time);
+    virtual void update(const double delta_time);
     virtual void draw(Renderer &renderer, bool lightweight = false);
 };
 }

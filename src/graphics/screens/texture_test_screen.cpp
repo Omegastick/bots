@@ -53,7 +53,7 @@ TextureTestScreen::TextureTestScreen(ScreenManager *screen_manager, std::vector<
 
 TextureTestScreen::~TextureTestScreen() {}
 
-void TextureTestScreen::update(const float delta_time)
+void TextureTestScreen::update(const double delta_time)
 {
     display_test_dialog("Texture test", *screens, *screen_names, delta_time, *screen_manager);
     rotation += 1.f * delta_time;

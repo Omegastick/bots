@@ -39,8 +39,8 @@ class ParticleRenderer
   public:
     ParticleRenderer(int max_particles, ResourceManager &resource_manager);
 
-    void add_particles(std::vector<Particle> &particles, float time);
+    void add_particles(std::vector<Particle> &particles, double time);
     void clear_particles();
-    void draw(float time, glm::mat4 view);
+    void draw(double time, glm::mat4 view);
 };
 }

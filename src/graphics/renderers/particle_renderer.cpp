@@ -91,7 +91,7 @@ ParticleRenderer::ParticleRenderer(int max_particles, ResourceManager &resource_
     glVertexAttribDivisor(7, 1);
 }
 
-void ParticleRenderer::add_particles(std::vector<Particle> &particles, float time)
+void ParticleRenderer::add_particles(std::vector<Particle> &particles, double time)
 {
     for (const auto &particle : particles)
     {
@@ -108,7 +108,7 @@ void ParticleRenderer::add_particles(std::vector<Particle> &particles, float tim
     }
 }
 
-void ParticleRenderer::draw(float time, glm::mat4 view)
+void ParticleRenderer::draw(double time, glm::mat4 view)
 {
     position_vertex_buffer->clear();
     position_vertex_buffer->add_sub_data(&particle_positions[0], 0, particle_count * sizeof(glm::vec2));

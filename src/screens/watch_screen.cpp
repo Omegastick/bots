@@ -47,7 +47,7 @@ WatchScreen::WatchScreen(ResourceManager &resource_manager, Random & /*rng*/)
 
 WatchScreen::~WatchScreen() {}
 
-void WatchScreen::update(const float /*delta_time*/)
+void WatchScreen::update(const double /*delta_time*/)
 {
     if (state == States::BROWSING)
     {

@@ -51,7 +51,7 @@ QuadScreen::QuadScreen(ScreenManager *screen_manager, std::vector<std::shared_pt
 
 QuadScreen::~QuadScreen() {}
 
-void QuadScreen::update(const float delta_time)
+void QuadScreen::update(const double delta_time)
 {
     display_test_dialog("Quad test", *screens, *screen_names, delta_time, *screen_manager);
 }

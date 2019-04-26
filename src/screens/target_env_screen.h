@@ -29,6 +29,6 @@ class TargetEnvScreen : public IScreen
     ~TargetEnvScreen();
 
     virtual void draw(Renderer &renderer, bool lightweight = false);
-    void update(const float delta_time);
+    void update(const double delta_time);
 };
 }

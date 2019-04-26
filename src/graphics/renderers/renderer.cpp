@@ -70,7 +70,7 @@ void Renderer::draw(const Text &text, const glm::mat4 &view)
     text_renderer->draw(text, view);
 }
 
-void Renderer::draw(RenderData &render_data, const glm::mat4 &view, float time, bool lightweight)
+void Renderer::draw(RenderData &render_data, const glm::mat4 &view, double time, bool lightweight)
 {
     for (const auto &sprite : render_data.sprites)
     {
