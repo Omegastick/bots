@@ -3,7 +3,6 @@
 #include <vector>
 
 #include <Box2D/Box2D.h>
-#include <spdlog/spdlog.h>
 
 #include "training/environments/target_env.h"
 #include "graphics/colors.h"
@@ -92,7 +91,6 @@ class ContactListener : public b2ContactListener
 
 TargetEnv::TargetEnv(float /*x*/, float /*y*/, float /*scale*/, int max_steps, int seed)
     : max_steps(max_steps),
-      command_queue_flag(0),
       reward(0),
       step_counter(0),
       done(false),
@@ -120,10 +118,11 @@ TargetEnv::TargetEnv(float /*x*/, float /*y*/, float /*scale*/, int max_steps, i
 TargetEnv::~TargetEnv()
 {
     ThreadCommand command{Commands::Stop, {}, {}, {}};
-    command_queue_mutex.lock();
-    command_queue.push(std::move(command));
-    command_queue_mutex.unlock();
-    command_queue_flag++;
+    {
+        std::lock_guard lock_guard(command_queue_mutex);
+        command_queue.push(std::move(command));
+        command_queue_condvar.notify_one();
+    }
     thread->join();
 }
 
@@ -161,11 +160,11 @@ std::future<StepInfo> TargetEnv::step(torch::Tensor actions, float step_length)
     std::promise<StepInfo> promise;
     std::future<StepInfo> future = promise.get_future();
     ThreadCommand command{Commands::Step, std::move(promise), step_length, actions};
-    command_queue_mutex.lock();
-    command_queue.push(std::move(command));
-    command_queue_mutex.unlock();
-    command_queue_flag++;
-
+    {
+        std::lock_guard lock_guard(command_queue_mutex);
+        command_queue.push(std::move(command));
+        command_queue_condvar.notify_one();
+    }
     return future;
 }
 
@@ -173,10 +172,11 @@ void TargetEnv::forward(float step_length)
 {
     std::promise<StepInfo> promise;
     ThreadCommand command{Commands::Forward, std::move(promise), step_length, {}};
-    command_queue_mutex.lock();
-    command_queue.push(std::move(command));
-    command_queue_mutex.unlock();
-    command_queue_flag++;
+    {
+        std::lock_guard lock_guard(command_queue_mutex);
+        command_queue.push(std::move(command));
+        command_queue_condvar.notify_one();
+    }
 }
 
 void TargetEnv::change_reward(int /*agent*/, float reward_delta)
@@ -200,10 +200,11 @@ std::future<StepInfo> TargetEnv::reset()
     std::promise<StepInfo> promise;
     std::future<StepInfo> future = promise.get_future();
     ThreadCommand command{Commands::Reset, std::move(promise), {}, {}};
-    command_queue_mutex.lock();
-    command_queue.push(std::move(command));
-    command_queue_mutex.unlock();
-    command_queue_flag++;
+    {
+        std::lock_guard lock_guard(command_queue_mutex);
+        command_queue.push(std::move(command));
+        command_queue_condvar.notify_one();
+    }
     return future;
 }
 
@@ -212,15 +213,10 @@ void TargetEnv::thread_loop()
     bool quit = false;
     while (!quit)
     {
-        while (command_queue_flag == 0)
-        {
-        }
-        command_queue_mutex.lock();
-        ThreadCommand command = std::move(command_queue.front());
+        std::unique_lock lock(command_queue_mutex);
+        command_queue_condvar.wait(lock, [this] { return !command_queue.empty(); });
+        auto command = std::move(command_queue.front());
         command_queue.pop();
-        command_queue_mutex.unlock();
-        command_queue_flag--;
-
         if (command.command == Commands::Stop)
         {
             quit = true;
@@ -228,7 +224,7 @@ void TargetEnv::thread_loop()
         else if (command.command == Commands::Step)
         {
             // Act
-            auto actions_tensor = command.actions[0].to(torch::kInt32).contiguous();
+            auto actions_tensor = command.actions[0].to(torch::kInt).contiguous();
             std::vector<int> actions(actions_tensor.data<int>(), actions_tensor.data<int>() + actions_tensor.numel());
             agent->act(actions);
 
@@ -253,7 +249,7 @@ void TargetEnv::thread_loop()
             // Increment step counter
             if (done)
             {
-                reset();
+                reset_impl();
             }
 
             // Return
@@ -266,20 +262,7 @@ void TargetEnv::thread_loop()
         }
         else if (command.command == Commands::Reset)
         {
-            done = false;
-            reward = 0;
-            total_reward = 0;
-            step_counter = 0;
-
-            // Reset agent position
-            agent->get_rigid_body()->body->SetTransform(b2Vec2_zero, 0);
-            agent->get_rigid_body()->body->SetAngularVelocity(0);
-            agent->get_rigid_body()->body->SetLinearVelocity(b2Vec2_zero);
-
-            // Change target position
-            float target_x = rng->next_float(0, 18) - 9;
-            float target_y = rng->next_float(0, 18) - 9;
-            target->rigid_body->body->SetTransform(b2Vec2(target_x, target_y), 0);
+            reset_impl();
 
             // Fill in StepInfo
             auto observation = agent->get_observation();
@@ -292,5 +275,23 @@ void TargetEnv::thread_loop()
             command.promise.set_value(std::move(step_info));
         }
     }
+}
+
+void TargetEnv::reset_impl()
+{
+    done = false;
+    reward = 0;
+    total_reward = 0;
+    step_counter = 0;
+
+    // Reset agent position
+    agent->get_rigid_body()->body->SetTransform(b2Vec2_zero, 0);
+    agent->get_rigid_body()->body->SetAngularVelocity(0);
+    agent->get_rigid_body()->body->SetLinearVelocity(b2Vec2_zero);
+
+    // Change target position
+    float target_x = rng->next_float(0, 18) - 9;
+    float target_y = rng->next_float(0, 18) - 9;
+    target->rigid_body->body->SetTransform(b2Vec2(target_x, target_y), 0);
 }
 }

@@ -164,7 +164,7 @@ void WatchScreen::show_checkpoint_selector()
 
 void WatchScreen::show_agent_scores()
 {
-    for (int i = 0; i < scores.size(); ++i)
+    for (unsigned int i = 0; i < scores.size(); ++i)
     {
         std::string title = fmt::format("Agent {}", i + 1);
         ImGui::Begin(title.c_str(), NULL, ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoResize);

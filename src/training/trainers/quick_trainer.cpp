@@ -19,7 +19,7 @@ namespace SingularityTrainer
 {
 QuickTrainer::QuickTrainer(Random *rng, int env_count)
     : policy(nullptr),
-      rollout_storage(32, env_count, {23}, {"MultiBinary", {4}}, {24}, torch::kCPU),
+      rollout_storage(512, env_count, {23}, {"MultiBinary", {4}}, {24}, torch::kCPU),
       waiting(false),
       env_count(env_count),
       frame_counter(0),
@@ -126,16 +126,14 @@ void QuickTrainer::save_model()
 
 void QuickTrainer::action_update()
 {
-    auto update_start_time = std::chrono::high_resolution_clock::now();
     // Get actions from policy
     std::vector<torch::Tensor> act_result;
     {
         torch::NoGradGuard no_grad;
-        act_result = policy->act(rollout_storage.get_observations()[action_frame_counter % 32],
-                                 rollout_storage.get_hidden_states()[action_frame_counter % 32],
-                                 rollout_storage.get_masks()[action_frame_counter % 32]);
+        act_result = policy->act(rollout_storage.get_observations()[action_frame_counter % 512],
+                                 rollout_storage.get_hidden_states()[action_frame_counter % 512],
+                                 rollout_storage.get_masks()[action_frame_counter % 512]);
     }
-    std::chrono::duration<double> update_time = std::chrono::high_resolution_clock::now() - update_start_time;
 
     // Step environments
     torch::Tensor dones = torch::zeros({env_count * agents_per_env, 1});
@@ -177,7 +175,7 @@ void QuickTrainer::action_update()
     action_frame_counter++;
 
     // Train
-    if (action_frame_counter % 32 == 0)
+    if (action_frame_counter % 512 == 0)
     {
         torch::Tensor next_value;
         {
@@ -202,7 +200,5 @@ void QuickTrainer::action_update()
         std::vector<float> score_averages = score_processor->get_scores();
         spdlog::info("Average reward: {}", fmt::join(score_averages, " "));
     }
-
-    spdlog::debug("Update took {}s", update_time.count());
 }
 }
