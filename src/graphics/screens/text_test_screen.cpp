@@ -45,7 +45,7 @@ TextTestScreen::TextTestScreen(
 
 TextTestScreen::~TextTestScreen() {}
 
-void TextTestScreen::update(const float delta_time)
+void TextTestScreen::update(const double delta_time)
 {
     display_test_dialog("Text test", *screens, *screen_names, delta_time, *screen_manager);
 }

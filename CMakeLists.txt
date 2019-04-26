@@ -63,10 +63,10 @@ option(CPPRL_BUILD_TESTS "" OFF)
 option(CPPRL_BUILD_EXAMPLE "" OFF)
 add_subdirectory(${CPPRL_DIR})
 ## GLFW
-set(GLFW_BUILD_EXAMPLES OFF CACHE INTERNAL "Build the GLFW example programs")
-set(GLFW_BUILD_TESTS OFF CACHE INTERNAL "Build the GLFW test programs")
-set(GLFW_BUILD_DOCS OFF CACHE INTERNAL "Build the GLFW documentation")
-set(GLFW_INSTALL OFF CACHE INTERNAL "Generate installation target")
+option(GLFW_BUILD_EXAMPLES "" OFF)
+option(GLFW_BUILD_TESTS "" OFF)
+option(GLFW_BUILD_DOCS "" OFF)
+option(GLFW_INSTALL "" OFF)
 target_compile_definitions(SingularityTrainer PRIVATE "GLFW_INCLUDE_NONE")
 target_compile_definitions(GraphicsPlayground PRIVATE "GLFW_INCLUDE_NONE")
 add_subdirectory(${GLFW_DIR})
@@ -74,7 +74,7 @@ add_subdirectory(${GLFW_DIR})
 add_library(glad ${GLAD_DIR}/src/glad.c)
 target_include_directories(glad PRIVATE ${GLAD_DIR}/include)
 ## GLM
-set(GLM_TEST_ENABLE OFF)
+option(GLM_TEST_ENABLE "" OFF)
 add_subdirectory(${GLM_DIR})
 ## spdlog
 if (NOT TARGET spdlog)
@@ -87,7 +87,7 @@ add_subdirectory(${BOX2D_DIR})
 ## Doctest
 add_subdirectory(${DOCTEST_DIR})
 ## Json
-set(JSON_BuildTests OFF CACHE INTERNAL "")
+option(JSON_BuildTests "" OFF)
 add_subdirectory(${JSON_DIR})
 
 # Link libraries

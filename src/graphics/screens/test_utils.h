@@ -17,7 +17,7 @@ inline void display_test_dialog(
     const std::string &test_title,
     std::vector<std::shared_ptr<IScreen>> &screens,
     std::vector<std::string> &screen_names,
-    float delta_time,
+    double delta_time,
     ScreenManager &screen_manager)
 {
     ImGui::Begin("Screens", NULL, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_AlwaysAutoResize);

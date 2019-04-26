@@ -40,7 +40,7 @@ class TextTestScreen : public IScreen
         std::vector<std::string> *screen_names);
     ~TextTestScreen();
 
-    virtual void update(const float delta_time);
+    virtual void update(const double delta_time);
     virtual void draw(Renderer &renderer, bool lightweight = false);
 };
 }

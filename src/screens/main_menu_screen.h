@@ -20,6 +20,6 @@ class MainMenuScreen : public IScreen
     MainMenuScreen(ResourceManager &resource_manager, ScreenManager &screen_manager, Random &random);
 
     void draw(Renderer &renderer, bool lightweight = false);
-    void update(float delta_time);
+    void update(double delta_time);
 };
 }

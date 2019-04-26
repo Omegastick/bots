@@ -46,7 +46,7 @@ KothEnvScreen::~KothEnvScreen()
     trainer->end_training();
 }
 
-void KothEnvScreen::update(const float /*delta_time*/)
+void KothEnvScreen::update(const double /*delta_time*/)
 {
     ImGui::Begin("Speed", NULL, ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoResize);
     ImGui::Checkbox("Fast", &fast);

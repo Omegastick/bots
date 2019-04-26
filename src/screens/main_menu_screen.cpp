@@ -18,7 +18,7 @@ MainMenuScreen::MainMenuScreen(ResourceManager &resource_manager, ScreenManager 
 {
 }
 
-void MainMenuScreen::update(float /*delta_time*/)
+void MainMenuScreen::update(double /*delta_time*/)
 {
     ImGui::PushStyleColor(ImGuiCol_WindowBg, {0, 0, 0, 0});
     ImGui::PushStyleColor(ImGuiCol_Button, {0, 0, 0, 0});

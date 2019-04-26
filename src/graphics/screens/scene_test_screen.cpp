@@ -48,7 +48,7 @@ SceneTestScreen::SceneTestScreen(
 
 SceneTestScreen::~SceneTestScreen() {}
 
-void SceneTestScreen::update(const float delta_time)
+void SceneTestScreen::update(const double delta_time)
 {
     elapsed_time += delta_time;
     display_test_dialog("Scene test", *screens, *screen_names, delta_time, *screen_manager);
