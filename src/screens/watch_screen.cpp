@@ -30,7 +30,7 @@ WatchScreen::WatchScreen(ResourceManager &resource_manager, Random & /*rng*/)
       frame_counter(0),
       scores({{0}})
 {
-    environment = std::make_unique<TargetEnv>(460, 40, 1, 600, 0);
+    environment = std::make_unique<TargetEnv>(460, 40, 1, 100, 0);
 
     resource_manager.load_texture("base_module", "images/base_module.png");
     resource_manager.load_texture("gun_module", "images/gun_module.png");
