@@ -17,8 +17,8 @@
 
 namespace SingularityTrainer
 {
-static const int batch_size = 2048;
-static const float entropy_coef = 0.01;
+static const int batch_size = 1024;
+static const float entropy_coef = 0.001;
 static const int epochs = 10;
 static const bool recurrent = false;
 
