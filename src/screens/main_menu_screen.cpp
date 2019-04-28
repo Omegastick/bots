@@ -28,7 +28,7 @@ void MainMenuScreen::update(double /*delta_time*/)
     auto io = ImGui::GetIO();
     ImGui::PushFont(io.Fonts->Fonts[1]);
 
-    ImGui::SetNextWindowPosCenter();
+    ImGui::SetNextWindowPosCenter(ImGuiCond_Always);
     ImGui::Begin("Main menu :)", NULL, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoTitleBar);
     if (ImGui::Button("Train Agent"))
     {

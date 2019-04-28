@@ -121,7 +121,7 @@ void WatchScreen::action_update()
 void WatchScreen::show_checkpoint_selector()
 {
     // Load agent window
-    ImGui::SetNextWindowPosCenter();
+    ImGui::SetNextWindowPosCenter(ImGuiCond_Always);
     ImGui::Begin("Pick a checkpoint", NULL, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoTitleBar);
 
     // Enumerate all model files
