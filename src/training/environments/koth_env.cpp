@@ -4,6 +4,7 @@
 
 #include <Box2D/Box2D.h>
 #include <spdlog/spdlog.h>
+#include <torch/torch.h>
 
 #include "training/environments/koth_env.h"
 #include "graphics/colors.h"
@@ -99,7 +100,6 @@ KothEnv::KothEnv(float /*x*/, float /*y*/, float /*scale*/, int max_steps, int s
       done(false),
       rewards({0, 0}),
       step_counter(0),
-      command_queue_flag(0),
       total_rewards({0, 0})
 {
     // Box2D world
@@ -122,14 +122,12 @@ KothEnv::KothEnv(float /*x*/, float /*y*/, float /*scale*/, int max_steps, int s
 KothEnv::~KothEnv()
 {
     ThreadCommand command{Commands::Stop, {}, {}, {}};
-    command_queue_mutex.lock();
-    command_queue.push(std::move(command));
-    command_queue_mutex.unlock();
-    command_queue_flag++;
-    if (thread.get() != nullptr)
     {
-        thread->join();
+        std::lock_guard lock_guard(command_queue_mutex);
+        command_queue.push(std::move(command));
+        command_queue_condvar.notify_one();
     }
+    thread->join();
 }
 
 float KothEnv::get_elapsed_time() const
@@ -162,27 +160,28 @@ RenderData KothEnv::get_render_data(bool lightweight)
     return render_data;
 }
 
-std::future<std::unique_ptr<StepInfo>> KothEnv::step(const std::vector<std::vector<int>> &actions, float step_length)
+std::future<StepInfo> KothEnv::step(const torch::Tensor actions, float step_length)
 {
-    std::promise<std::unique_ptr<StepInfo>> promise;
-    std::future<std::unique_ptr<StepInfo>> future = promise.get_future();
+    std::promise<StepInfo> promise;
+    std::future<StepInfo> future = promise.get_future();
     ThreadCommand command{Commands::Step, std::move(promise), step_length, actions};
-    command_queue_mutex.lock();
-    command_queue.push(std::move(command));
-    command_queue_mutex.unlock();
-    command_queue_flag++;
-
+    {
+        std::lock_guard lock_guard(command_queue_mutex);
+        command_queue.push(std::move(command));
+        command_queue_condvar.notify_one();
+    }
     return future;
 }
 
 void KothEnv::forward(float step_length)
 {
-    std::promise<std::unique_ptr<StepInfo>> promise;
+    std::promise<StepInfo> promise;
     ThreadCommand command{Commands::Forward, std::move(promise), step_length, {}};
-    command_queue_mutex.lock();
-    command_queue.push(std::move(command));
-    command_queue_mutex.unlock();
-    command_queue_flag++;
+    {
+        std::lock_guard lock_guard(command_queue_mutex);
+        command_queue.push(std::move(command));
+        command_queue_condvar.notify_one();
+    }
 }
 
 void KothEnv::change_reward(int agent, float reward_delta)
@@ -201,15 +200,16 @@ void KothEnv::set_done()
     done = true;
 }
 
-std::future<std::unique_ptr<StepInfo>> KothEnv::reset()
+std::future<StepInfo> KothEnv::reset()
 {
-    std::promise<std::unique_ptr<StepInfo>> promise;
-    std::future<std::unique_ptr<StepInfo>> future = promise.get_future();
+    std::promise<StepInfo> promise;
+    std::future<StepInfo> future = promise.get_future();
     ThreadCommand command{Commands::Reset, std::move(promise), {}, {}};
-    command_queue_mutex.lock();
-    command_queue.push(std::move(command));
-    command_queue_mutex.unlock();
-    command_queue_flag++;
+    {
+        std::lock_guard lock_guard(command_queue_mutex);
+        command_queue.push(std::move(command));
+        command_queue_condvar.notify_one();
+    }
     return future;
 }
 
@@ -218,25 +218,23 @@ void KothEnv::thread_loop()
     bool quit = false;
     while (!quit)
     {
-        while (command_queue_flag == 0)
-        {
-        }
-        command_queue_mutex.lock();
-        ThreadCommand command = std::move(command_queue.front());
+        std::unique_lock lock(command_queue_mutex);
+        command_queue_condvar.wait(lock, [this] { return !command_queue.empty(); });
+        auto command = std::move(command_queue.front());
         command_queue.pop();
-        command_queue_mutex.unlock();
-        command_queue_flag--;
-        std::unique_ptr<StepInfo> step_info = std::make_unique<StepInfo>();
-        std::vector<Agent *> hill_occupants;
-        switch (command.command)
+        if (command.command == Commands::Stop)
         {
-        case Commands::Stop:
             quit = true;
-            break;
-        case Commands::Step:
+        }
+        else if (command.command == Commands::Step)
+        {
             // Act
-            agent_1->act(command.actions[0]);
-            agent_2->act(command.actions[1]);
+            auto actions_tensor_1 = command.actions[0].to(torch::kInt).contiguous();
+            std::vector<int> actions_1(actions_tensor_1.data<int>(), actions_tensor_1.data<int>() + actions_tensor_1.numel());
+            auto actions_tensor_2 = command.actions[1].to(torch::kInt).contiguous();
+            std::vector<int> actions_2(actions_tensor_2.data<int>(), actions_tensor_2.data<int>() + actions_tensor_2.numel());
+            agent_1->act(actions_1);
+            agent_2->act(actions_2);
 
             // Step simulation
             world.Step(command.step_length, 3, 2);
@@ -264,10 +262,16 @@ void KothEnv::thread_loop()
             done = done || step_counter >= max_steps;
 
             // Return step information
-            step_info->observation.push_back(agent_1->get_observation());
-            step_info->observation.push_back(agent_2->get_observation());
-            step_info->reward = rewards;
-            step_info->done = {done, done};
+            auto observation_1 = agent_1->get_observation();
+            auto observation_2 = agent_2->get_observation();
+            observation_1.insert(observation_1.begin(), observation_2.begin(),
+                                 observation_2.end());
+            StepInfo step_info{
+                torch::from_blob(observation_1.data(),
+                                 {2, static_cast<long>(observation_1.size()) / 2})
+                    .clone(),
+                torch::from_blob(rewards.data(), {2, 1}, torch::kFloat).clone(),
+                torch::from_blob(&done, {1, 1}, torch::kBool).to(torch::kFloat).expand({2, 1})};
 
             // Reset reward
             rewards = {0, 0};
@@ -275,47 +279,59 @@ void KothEnv::thread_loop()
             // Increment step counter
             if (done)
             {
-                reset();
+                reset_impl();
             }
 
             // Return
             command.promise.set_value(std::move(step_info));
-            break;
-        case Commands::Forward:
+        }
+        else if (command.command == Commands::Forward)
+        {
             world.Step(command.step_length, 3, 2);
             elapsed_time += command.step_length;
-            break;
-        case Commands::Reset:
-            done = false;
-            rewards = {0, 0};
-            total_rewards = {0, 0};
-            step_counter = 0;
-
-            // Reset agent position
-            agent_1->get_rigid_body()->body->SetTransform({0, -10}, 0);
-            agent_1->get_rigid_body()->body->SetAngularVelocity(0);
-            agent_1->get_rigid_body()->body->SetLinearVelocity(b2Vec2_zero);
-            agent_2->get_rigid_body()->body->SetTransform({0, 10}, glm::radians(180.f));
-            agent_2->get_rigid_body()->body->SetAngularVelocity(0);
-            agent_2->get_rigid_body()->body->SetLinearVelocity(b2Vec2_zero);
-
-            // Reset agent hp
-            agent_1->reset();
-            agent_2->reset();
-
-            // Reset hill
-            hill->reset();
+        }
+        else if (command.command == Commands::Reset)
+        {
+            reset_impl();
 
             // Fill in StepInfo
-            step_info->observation.push_back(agent_1->get_observation());
-            step_info->observation.push_back(agent_2->get_observation());
-            step_info->done = {done, done};
-            step_info->reward = rewards;
+            auto observation_1 = agent_1->get_observation();
+            auto observation_2 = agent_2->get_observation();
+            observation_1.insert(observation_1.begin(), observation_2.begin(),
+                                 observation_2.end());
+            StepInfo step_info{
+                torch::from_blob(observation_1.data(),
+                                 {2, static_cast<long>(observation_1.size()) / 2})
+                    .clone(),
+                torch::from_blob(rewards.data(), {2, 1}, torch::kFloat).clone(),
+                torch::from_blob(&done, {1, 1}, torch::kBool).to(torch::kFloat).expand({2, 1})};
 
             // Return
             command.promise.set_value(std::move(step_info));
-            break;
         }
     }
+}
+
+void KothEnv::reset_impl()
+{
+    done = false;
+    rewards = {0, 0};
+    total_rewards = {0, 0};
+    step_counter = 0;
+
+    // Reset agent position
+    agent_1->get_rigid_body()->body->SetTransform({0, -10}, 0);
+    agent_1->get_rigid_body()->body->SetAngularVelocity(0);
+    agent_1->get_rigid_body()->body->SetLinearVelocity(b2Vec2_zero);
+    agent_2->get_rigid_body()->body->SetTransform({0, 10}, glm::radians(180.f));
+    agent_2->get_rigid_body()->body->SetAngularVelocity(0);
+    agent_2->get_rigid_body()->body->SetLinearVelocity(b2Vec2_zero);
+
+    // Reset agent hp
+    agent_1->reset();
+    agent_2->reset();
+
+    // Reset hill
+    hill->reset();
 }
 }

@@ -2,8 +2,8 @@
 #include <spdlog/spdlog.h>
 
 #include "screens/main_menu_screen.h"
-// #include "screens/koth_env_screen.h"
-#include "screens/target_env_screen.h"
+#include "screens/koth_env_screen.h"
+// #include "screens/target_env_screen.h"
 #include "screens/watch_screen.h"
 #include "graphics/renderers/renderer.h"
 #include "screen_manager.h"
@@ -32,7 +32,7 @@ void MainMenuScreen::update(double /*delta_time*/)
     ImGui::Begin("Main menu :)", NULL, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoTitleBar);
     if (ImGui::Button("Train Agent"))
     {
-        screen_manager->show_screen(std::make_shared<TargetEnvScreen>(*resource_manager, *rng, 7));
+        screen_manager->show_screen(std::make_shared<KothEnvScreen>(*resource_manager, *rng, 7));
     }
     if (ImGui::Button("Load Agent"))
     {
