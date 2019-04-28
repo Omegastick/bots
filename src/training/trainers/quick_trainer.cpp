@@ -9,7 +9,7 @@
 
 #include "random.h"
 #include "resource_manager.h"
-#include "training/environments/target_env.h"
+#include "training/environments/koth_env.h"
 #include "training/trainers/quick_trainer.h"
 #include "training/score_processor.h"
 #include "utilities.h"
@@ -20,11 +20,13 @@ namespace SingularityTrainer
 static const int batch_size = 1024;
 static const float entropy_coef = 0.001;
 static const int epochs = 10;
+static const int game_length = 600;
 static const bool recurrent = false;
 
 QuickTrainer::QuickTrainer(Random *rng, int env_count)
-    : policy(nullptr),
-      rollout_storage(batch_size, env_count, {23}, {"MultiBinary", {4}}, {24}, torch::kCPU),
+    : agents_per_env(2),
+      policy(nullptr),
+      rollout_storage(batch_size, env_count * agents_per_env, {23}, {"MultiBinary", {4}}, {24}, torch::kCPU),
       waiting(false),
       env_count(env_count),
       frame_counter(0),
@@ -32,14 +34,13 @@ QuickTrainer::QuickTrainer(Random *rng, int env_count)
       rng(rng),
       elapsed_time(0),
       score_processor(std::make_unique<ScoreProcessor>(1, 0.99)),
-      agents_per_env(1),
       last_update_time(std::chrono::high_resolution_clock::now())
 {
     torch::manual_seed(0);
 
     for (int i = 0; i < env_count; ++i)
     {
-        environments.push_back(std::make_unique<TargetEnv>(460, 40, 1, 100, i));
+        environments.push_back(std::make_unique<KothEnv>(460, 40, 1, game_length, i));
     }
     env_scores.resize(env_count);
 }
@@ -64,9 +65,10 @@ void QuickTrainer::begin_training()
     observations = torch::zeros({env_count * agents_per_env, 23});
     for (int i = 0; i < env_count; ++i)
     {
+        auto env_observation = observation_futures[i].get();
         for (int j = 0; j < agents_per_env; ++j)
         {
-            observations[i * agents_per_env + j] = observation_futures[i].get().observation[j];
+            observations[i * agents_per_env + j] = env_observation.observation[j];
         }
     }
 
@@ -146,7 +148,7 @@ void QuickTrainer::action_update()
     std::vector<std::future<StepInfo>> step_info_futures(environments.size());
     for (unsigned int i = 0; i < environments.size(); ++i)
     {
-        step_info_futures[i] = environments[i]->step(act_result[1][i].view({agents_per_env, -1}),
+        step_info_futures[i] = environments[i]->step(act_result[1].narrow(0, i, agents_per_env).view({agents_per_env, -1}),
                                                      1. / 60.);
     }
     for (unsigned int i = 0; i < environments.size(); ++i)

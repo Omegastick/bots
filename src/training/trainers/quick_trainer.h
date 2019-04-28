@@ -23,11 +23,11 @@ class ScoreProcessor;
 class QuickTrainer : public ITrainer
 {
   private:
+    int agents_per_env;
     std::unique_ptr<cpprl::Algorithm> algorithm;
     cpprl::Policy policy;
     std::shared_ptr<cpprl::NNBase> nn_base;
     cpprl::RolloutStorage rollout_storage;
-
     bool waiting;
     torch::Tensor observations;
     int env_count;
@@ -37,7 +37,6 @@ class QuickTrainer : public ITrainer
     float elapsed_time;
     std::unique_ptr<ScoreProcessor> score_processor;
     std::vector<float> env_scores;
-    int agents_per_env;
     std::chrono::time_point<std::chrono::high_resolution_clock> last_update_time;
 
     void action_update();
