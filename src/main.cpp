@@ -4,6 +4,7 @@
 #include <GLFW/glfw3.h>
 #include <spdlog/spdlog.h>
 #include <imgui.h>
+#include <imgui_internal.h>
 #include <imgui_impl_glfw.h>
 #include <imgui_impl_opengl3.h>
 #include <argh.h>
@@ -25,6 +26,9 @@ const int resolution_y = 1080;
 const std::string window_title = "Singularity Trainer";
 const int opengl_version_major = 4;
 const int opengl_version_minor = 3;
+
+int last_resolution_x = resolution_x;
+int last_resolution_y = resolution_y;
 
 void error_callback(int error, const char *description)
 {
@@ -127,6 +131,7 @@ void init_imgui(const int opengl_version_major, const int opengl_version_minor, 
     io.Fonts->ClearFonts();
     io.Fonts->AddFontFromFileTTF("assets/fonts/Roboto-Regular.ttf", 16, &font_config);
     io.Fonts->AddFontFromFileTTF("assets/fonts/Roboto-Regular.ttf", 32, &font_config);
+    io.IniFilename = NULL;
 
     reset_imgui_style();
 }
@@ -140,13 +145,28 @@ void resize_window_callback(GLFWwindow *glfw_window, int x, int y)
     spdlog::debug("Resizing window to {}x{}", x, y);
     glViewport(0, 0, x, y);
 
+    // Reset all ImGui windows
     reset_imgui_style();
-    float relative_scale = (float)x / (float)resolution_x;
+    float relative_scale_reset = static_cast<float>(resolution_x) / last_resolution_x;
+    for (const auto &viewport : ImGui::GetCurrentContext()->Viewports)
+    {
+        ImGui::ScaleWindowsInViewport(viewport, relative_scale_reset);
+    }
+
+    // Scale them to the appropriate size
+    float relative_scale = static_cast<float>(x) / resolution_x;
+    for (const auto &viewport : ImGui::GetCurrentContext()->Viewports)
+    {
+        ImGui::ScaleWindowsInViewport(viewport, relative_scale);
+    }
     ImGui::GetStyle().ScaleAllSizes(relative_scale);
     ImGui::GetIO().FontGlobalScale = relative_scale;
 
     Window *window = static_cast<Window *>(glfwGetWindowUserPointer(glfw_window));
     window->get_renderer().resize(x, y);
+
+    last_resolution_x = x;
+    last_resolution_y = y;
 }
 
 int run_tests(int argc, const char *argv[], const argh::parser &args)
