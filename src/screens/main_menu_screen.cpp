@@ -42,7 +42,7 @@ void MainMenuScreen::update(double /*delta_time*/)
     ImGui::PopFont();
     ImGui::PopStyleColor(5);
 
-    ImGui::ShowStyleEditor();
+    ImGui::ShowDemoWindow();
 }
 
 void MainMenuScreen::draw(Renderer &renderer, bool /*lightweight*/)
