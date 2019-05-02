@@ -3,7 +3,7 @@
 
 #include "screens/main_menu_screen.h"
 #include "screens/koth_env_screen.h"
-// #include "screens/target_env_screen.h"
+#include "screens/build_screen.h"
 #include "screens/watch_screen.h"
 #include "graphics/renderers/renderer.h"
 #include "screen_manager.h"
@@ -37,6 +37,10 @@ void MainMenuScreen::update(double /*delta_time*/)
     if (ImGui::Button("Load Agent"))
     {
         screen_manager->show_screen(std::make_shared<WatchScreen>(*resource_manager, *rng));
+    }
+    if (ImGui::Button("Build Ship"))
+    {
+        screen_manager->show_screen(std::make_shared<BuildScreen>(*resource_manager, *screen_manager));
     }
     ImGui::End();
     ImGui::PopFont();
