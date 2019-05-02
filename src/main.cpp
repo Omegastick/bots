@@ -148,20 +148,16 @@ void resize_window_callback(GLFWwindow *glfw_window, int x, int y)
     spdlog::debug("Resizing window to {}x{}", x, y);
     glViewport(0, 0, x, y);
 
-    // Reset all ImGui windows
-    reset_imgui_style();
-    float relative_scale_reset = static_cast<float>(resolution_x) / last_resolution_x;
+    // Scale windows (lossy)
+    float window_relative_scale = static_cast<float>(x) / last_resolution_x;
     for (const auto &viewport : ImGui::GetCurrentContext()->Viewports)
     {
-        ImGui::ScaleWindowsInViewport(viewport, relative_scale_reset);
+        ImGui::ScaleWindowsInViewport(viewport, window_relative_scale);
     }
 
-    // Scale them to the appropriate size
+    // Scale styles (not lossy)
+    reset_imgui_style();
     float relative_scale = static_cast<float>(x) / resolution_x;
-    for (const auto &viewport : ImGui::GetCurrentContext()->Viewports)
-    {
-        ImGui::ScaleWindowsInViewport(viewport, relative_scale);
-    }
     ImGui::GetStyle().ScaleAllSizes(relative_scale);
     ImGui::GetIO().FontGlobalScale = relative_scale;
 
