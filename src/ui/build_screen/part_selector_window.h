@@ -1,12 +1,20 @@
 #pragma once
 
+#include <string>
+#include <vector>
+
 namespace SingularityTrainer
 {
+class ResourceManager;
+
 class PartSelectorWindow
 {
-  public:
-    PartSelectorWindow();
+  private:
+    ResourceManager *resource_manager;
 
-    void update();
+  public:
+    PartSelectorWindow(ResourceManager &resource_manager);
+
+    std::string update(std::vector<std::string> &parts);
 };
 }

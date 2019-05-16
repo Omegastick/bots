@@ -23,6 +23,6 @@ class Texture
 
     inline int get_width() const { return width; }
     inline int get_height() const { return height; }
-    inline int get_id() const { return id; }
+    inline unsigned int get_id() const { return id; }
 };
 }

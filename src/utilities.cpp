@@ -80,6 +80,11 @@ bool approx(const b2Vec2 &vector_1, const b2Vec2 &vector_2)
     return x && y;
 }
 
+ImVec4 glm_to_im(const glm::vec4 &in)
+{
+    return {in.x, in.y, in.z, in.w};
+}
+
 TEST_CASE("Rotating around a point produces expected results")
 {
     SUBCASE("Rotate {0, 1} 90 degrees right")

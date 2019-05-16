@@ -4,7 +4,7 @@
 
 #include <Box2D/Box2D.h>
 #include <glm/vec2.hpp>
-#include <spdlog/fmt/ostr.h>
+#include <imgui.h>
 
 namespace torch
 {
@@ -13,6 +13,7 @@ class Tensor;
 
 namespace SingularityTrainer
 {
+ImVec4 glm_to_im(const glm::vec4 &in);
 glm::vec2 radial_distort(glm::vec2 coordinate, glm::vec2 resolution, float strength);
 b2Vec2 rotate_point_around_point(b2Vec2 point, b2Rot angle, b2Vec2 pivot);
 std::string print_tensor(torch::Tensor tensor);

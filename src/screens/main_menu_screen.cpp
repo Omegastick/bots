@@ -1,11 +1,12 @@
 #include <imgui.h>
 #include <spdlog/spdlog.h>
 
+#include "graphics/renderers/renderer.h"
+#include "graphics/sprite.h"
 #include "screens/main_menu_screen.h"
 #include "screens/koth_env_screen.h"
 #include "screens/build_screen.h"
 #include "screens/watch_screen.h"
-#include "graphics/renderers/renderer.h"
 #include "screen_manager.h"
 #include "resource_manager.h"
 

@@ -18,6 +18,7 @@
 #include "screen_manager.h"
 #include "resource_manager.h"
 #include "screens/main_menu_screen.h"
+#include "utilities.h"
 
 using namespace SingularityTrainer;
 
@@ -33,11 +34,6 @@ int last_resolution_y = resolution_y;
 void error_callback(int error, const char *description)
 {
     spdlog::error("GLFW error: [{}] {}", error, description);
-}
-
-ImVec4 glm_to_im(const glm::vec4 &in)
-{
-    return {in.x, in.y, in.z, in.w};
 }
 
 void reset_imgui_style()
