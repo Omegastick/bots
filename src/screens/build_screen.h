@@ -11,6 +11,7 @@
 
 namespace SingularityTrainer
 {
+class IO;
 class Renderer;
 class ResourceManager;
 class ScreenManager;
@@ -21,6 +22,7 @@ class BuildScreen : public IScreen
   private:
     ResourceManager *resource_manager;
     ScreenManager *screen_manager;
+    IO *io;
     std::unique_ptr<PartSelectorWindow> part_selector_window;
     std::vector<std::string> available_parts;
     std::string selected_part;
@@ -28,7 +30,7 @@ class BuildScreen : public IScreen
     glm::mat4 projection;
 
   public:
-    BuildScreen(ResourceManager &resource_manager, ScreenManager &screen_manager);
+    BuildScreen(ResourceManager &resource_manager, ScreenManager &screen_manager, IO &io);
 
     void draw(Renderer &renderer, bool lightweight = false);
     void update(double delta_time);
