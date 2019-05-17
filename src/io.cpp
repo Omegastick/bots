@@ -7,12 +7,12 @@ namespace SingularityTrainer
 {
 IO::IO() : cursor_x(0), cursor_y(0), resolution_x(0), resolution_y(0) {}
 
-glm::vec<2, double> IO::get_cursor_position()
+glm::dvec2 IO::get_cursor_position()
 {
     return {cursor_x, cursor_y};
 }
 
-glm::vec<2, int> IO::get_resolution()
+glm::ivec2 IO::get_resolution()
 {
     return {resolution_x, resolution_y};
 }

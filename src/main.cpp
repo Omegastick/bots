@@ -138,8 +138,9 @@ void init_imgui(const int opengl_version_major, const int opengl_version_minor, 
     reset_imgui_style();
 }
 
-void cursor_pos_callback(GLFWwindow *glfw_window, double x, double y)
+void cursor_pos_callback(GLFWwindow * /*glfw_window*/, double x, double y)
 {
+    y = io.get_resolution().y - y;
     io.set_cursor_position(x, y);
 }
 
@@ -215,7 +216,7 @@ int main(int argc, const char *argv[])
     window.set_renderer(&renderer);
     io.set_resolution(resolution_x, resolution_y);
 
-    std::shared_ptr<MainMenuScreen> test_screen = std::make_shared<MainMenuScreen>(resource_manager, screen_manager, rng);
+    std::shared_ptr<MainMenuScreen> test_screen = std::make_shared<MainMenuScreen>(resource_manager, screen_manager, rng, io);
     screen_manager.show_screen(test_screen);
 
     init_imgui(opengl_version_major, opengl_version_minor, window.window);

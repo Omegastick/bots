@@ -6,6 +6,7 @@
 
 #include "graphics/renderers/renderer.h"
 #include "graphics/sprite.h"
+#include "io.h"
 #include "screens/build_screen.h"
 #include "resource_manager.h"
 #include "screen_manager.h"
@@ -13,9 +14,10 @@
 
 namespace SingularityTrainer
 {
-BuildScreen::BuildScreen(ResourceManager &resource_manager, ScreenManager &screen_manager)
+BuildScreen::BuildScreen(ResourceManager &resource_manager, ScreenManager &screen_manager, IO &io)
     : resource_manager(&resource_manager),
       screen_manager(&screen_manager),
+      io(&io),
       part_selector_window(std::make_unique<PartSelectorWindow>(resource_manager)),
       available_parts({"base_module", "gun_module", "thruster_module", "laser_sensor_module"}),
       selected_part(),
@@ -49,7 +51,8 @@ void BuildScreen::draw(Renderer &renderer, bool /*lightweight*/)
 
     if (selected_part != "")
     {
-        auto cursor_pos = ImGui::GetCursorPos();
+        auto cursor_pos = io->get_cursor_position();
+        cursor_pos *= glm::vec2(1920, 1080) / static_cast<glm::vec2>(io->get_resolution());
         ghost->set_position({cursor_pos.x, cursor_pos.y});
         renderer.draw(*ghost, projection);
     }
