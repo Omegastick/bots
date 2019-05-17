@@ -164,6 +164,10 @@ bool Window::should_close()
     return glfwWindowShouldClose(window);
 }
 
+void Window::set_cursor_pos_callback(void (*callback)(GLFWwindow *, double, double))
+{
+    glfwSetCursorPosCallback(window, callback);
+}
 void Window::set_resize_callback(void (*callback)(GLFWwindow *, int, int))
 {
     glfwSetWindowSizeCallback(window, callback);
