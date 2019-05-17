@@ -13,6 +13,7 @@
 #include "graphics/window.h"
 #include "graphics/colors.h"
 #include "graphics/renderers/renderer.h"
+#include "io.h"
 #include "random.h"
 #include "requests.h"
 #include "screen_manager.h"
@@ -30,6 +31,8 @@ const int opengl_version_minor = 3;
 
 int last_resolution_x = resolution_x;
 int last_resolution_y = resolution_y;
+
+IO io;
 
 void error_callback(int error, const char *description)
 {
@@ -135,6 +138,11 @@ void init_imgui(const int opengl_version_major, const int opengl_version_minor, 
     reset_imgui_style();
 }
 
+void cursor_pos_callback(GLFWwindow *glfw_window, double x, double y)
+{
+    io.set_cursor_position(x, y);
+}
+
 void resize_window_callback(GLFWwindow *glfw_window, int x, int y)
 {
     if (x == 0 || y == 0)
@@ -159,6 +167,8 @@ void resize_window_callback(GLFWwindow *glfw_window, int x, int y)
 
     Window *window = static_cast<Window *>(glfwGetWindowUserPointer(glfw_window));
     window->get_renderer().resize(x, y);
+
+    io.set_resolution(x, y);
 
     last_resolution_x = x;
     last_resolution_y = y;
@@ -196,12 +206,14 @@ int main(int argc, const char *argv[])
     // Create window
     Window window = Window(resolution_x, resolution_y, window_title, opengl_version_major, opengl_version_minor);
     window.set_resize_callback(resize_window_callback);
+    window.set_cursor_pos_callback(cursor_pos_callback);
 
     ScreenManager screen_manager;
     ResourceManager resource_manager("assets/");
     Random rng(1);
-    Renderer renderer(1920, 1080, resource_manager);
+    Renderer renderer(resolution_x, resolution_y, resource_manager);
     window.set_renderer(&renderer);
+    io.set_resolution(resolution_x, resolution_y);
 
     std::shared_ptr<MainMenuScreen> test_screen = std::make_shared<MainMenuScreen>(resource_manager, screen_manager, rng);
     screen_manager.show_screen(test_screen);
