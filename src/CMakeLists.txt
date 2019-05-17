@@ -5,6 +5,7 @@ PUBLIC
     ${CMAKE_CURRENT_LIST_DIR}/screen_manager.cpp
     ${CMAKE_CURRENT_LIST_DIR}/utilities.cpp
     ${CMAKE_CURRENT_LIST_DIR}/random.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/io.cpp
 )
 
 target_sources(HeadlessTrainer
