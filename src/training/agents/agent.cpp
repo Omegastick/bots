@@ -274,7 +274,8 @@ void Agent::update_body()
             fixture_def.shape = &screen_shape;
             fixture_def.density = 1;
             fixture_def.friction = 1;
-            rigid_body->body->CreateFixture(&fixture_def);
+            auto fixture = rigid_body->body->CreateFixture(&fixture_def);
+            fixture->SetUserData(module.get());
         }
     }
 }
