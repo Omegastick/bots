@@ -1,23 +1,35 @@
 #include <memory>
 
+#include <Box2D/Box2D.h>
 #include <doctest/doctest.h>
 #include <glm/glm.hpp>
 #include <nlohmann/json.hpp>
 
 #include "ui/build_screen/ship_builder.h"
+#include "random.h"
 #include "training/agents/agent.h"
+#include "training/modules/base_module.h"
 #include "training/modules/module_link.h"
 
 namespace SingularityTrainer
 {
-ShipBuilder::ShipBuilder() {}
-IModule *ShipBuilder::get_module_at_point(glm::vec2 /*point*/) { return nullptr; }
+ShipBuilder::ShipBuilder(b2World &b2_world, Random &rng)
+    : agent(std::make_unique<Agent>(b2_world, &rng))
+{
+    auto base_module = std::make_shared<BaseModule>();
+    agent->add_module(base_module);
+    agent->update_body();
+}
+
+IModule *ShipBuilder::get_module_at_point(glm::vec2 /*point*/) { return agent->get_modules()[0].get(); }
 ModuleLinkAndDistance ShipBuilder::get_nearest_module_link(glm::vec2 /*point*/) { return {}; }
 void ShipBuilder::update() {}
 
 TEST_CASE("ShipBuilder")
 {
-    ShipBuilder ship_builder;
+    b2World b2_world({0, 0});
+    Random rng(0);
+    ShipBuilder ship_builder(b2_world, rng);
 
     SUBCASE("Starts with only a single base module")
     {

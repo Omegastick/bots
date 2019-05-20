@@ -2,11 +2,14 @@
 
 #include <glm/vec2.hpp>
 
+class b2World;
+
 namespace SingularityTrainer
 {
 class Agent;
-class ModuleLink;
 class IModule;
+class ModuleLink;
+class Random;
 
 struct ModuleLinkAndDistance
 {
@@ -20,7 +23,7 @@ class ShipBuilder
     std::unique_ptr<Agent> agent;
 
   public:
-    ShipBuilder();
+    ShipBuilder(b2World &b2_world, Random &rng);
 
     IModule *get_module_at_point(glm::vec2 point);
     ModuleLinkAndDistance get_nearest_module_link(glm::vec2 point);
