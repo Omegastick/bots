@@ -234,6 +234,7 @@ int main(int argc, const char *argv[])
     Window window = Window(resolution_x, resolution_y, window_title, opengl_version_major, opengl_version_minor);
     window.set_resize_callback(resize_window_callback);
     window.set_cursor_pos_callback(cursor_pos_callback);
+    window.set_mouse_button_callback(mouse_button_callback);
 
     ScreenManager screen_manager;
     ResourceManager resource_manager("assets/");
