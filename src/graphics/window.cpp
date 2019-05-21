@@ -168,6 +168,12 @@ void Window::set_cursor_pos_callback(void (*callback)(GLFWwindow *, double, doub
 {
     glfwSetCursorPosCallback(window, callback);
 }
+
+void Window::set_mouse_button_callback(void (*callback)(GLFWwindow *, int, int, int))
+{
+    glfwSetMouseButtonCallback(window, callback);
+}
+
 void Window::set_resize_callback(void (*callback)(GLFWwindow *, int, int))
 {
     glfwSetWindowSizeCallback(window, callback);

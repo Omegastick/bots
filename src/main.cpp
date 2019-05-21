@@ -175,6 +175,32 @@ void resize_window_callback(GLFWwindow *glfw_window, int x, int y)
     last_resolution_y = y;
 }
 
+void mouse_button_callback(GLFWwindow * /*window*/, int button, int action, int /*mods*/)
+{
+    if (button == GLFW_MOUSE_BUTTON_LEFT)
+    {
+        if (action == GLFW_RELEASE && !io.get_left_click())
+        {
+            io.set_left_click(true);
+        }
+        else
+        {
+            io.set_left_click(false);
+        }
+    }
+    else if (button == GLFW_MOUSE_BUTTON_RIGHT)
+    {
+        if (action == GLFW_RELEASE && !io.get_right_click())
+        {
+            io.set_right_click(true);
+        }
+        else
+        {
+            io.set_right_click(false);
+        }
+    }
+}
+
 int run_tests(int argc, const char *argv[], const argh::parser &args)
 {
     if (!args["--with-logs"])
