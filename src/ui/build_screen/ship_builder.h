@@ -42,7 +42,7 @@ class ShipBuilder
 
     IModule *get_module_at_point(glm::vec2 point);
     ModuleLinkAndDistance get_nearest_module_link(glm::vec2 point);
-    void update();
+    IModule *update(IModule *selected_module);
 
     inline Agent *get_agent() const { return agent.get(); }
 };

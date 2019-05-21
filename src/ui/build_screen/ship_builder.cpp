@@ -93,7 +93,19 @@ ModuleLinkAndDistance ShipBuilder::get_nearest_module_link(glm::vec2 point)
     return {closest_link, closest_distance};
 }
 
-void ShipBuilder::update() {}
+IModule *ShipBuilder::update(IModule *selected_module)
+{
+    if (selected_module == nullptr)
+    {
+        // Handle selecting already placed modules
+    }
+    else
+    {
+        // Handle placing modules
+    }
+
+    return nullptr;
+}
 
 TEST_CASE("ShipBuilder")
 {
@@ -144,6 +156,21 @@ TEST_CASE("ShipBuilder")
             auto expected_link = &ship_builder.get_agent()->get_modules()[0]->get_module_links()[0];
 
             CHECK(selected_link == expected_link);
+        }
+
+        SUBCASE("Returns a nullptr if there are no available module links")
+        {
+            for (const auto &module : ship_builder.get_agent()->get_modules())
+            {
+                for (auto &module_link : module->get_module_links())
+                {
+                    module_link.linked = true;
+                }
+            }
+
+            auto selected_link = ship_builder.get_nearest_module_link({960, 0}).module_link;
+
+            CHECK(selected_link == nullptr);
         }
     }
 }
