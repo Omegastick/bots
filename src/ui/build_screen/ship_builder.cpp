@@ -36,13 +36,14 @@ ShipBuilder::ShipBuilder(b2World &b2_world, Random &rng, IO &io)
 IModule *ShipBuilder::get_module_at_point(glm::vec2 point)
 {
     auto resolution = static_cast<glm::vec2>(io->get_resolution());
-    auto centered_point = point - (resolution / 2.f);
-    auto normalized_point = centered_point / resolution;
-    auto world_point = glm::vec2(normalized_point.x * 9.6, normalized_point.y * 5.4);
+    point.y = resolution.y - point.y;
+    point = point - (resolution / 2.f);
+    point = point / resolution;
+    point = glm::vec2(point.x * (1. / projection[0][0]), point.y * (1. / projection[1][1]));
 
     GetAllQueryCallback query_callback;
-    b2_world->QueryAABB(&query_callback, {{world_point.x, world_point.y},
-                                          {world_point.x, world_point.y}});
+    b2_world->QueryAABB(&query_callback, {{point.x, point.y},
+                                          {point.x, point.y}});
 
     auto collisions = query_callback.get_collisions();
     if (collisions.size() == 0)
@@ -60,7 +61,38 @@ IModule *ShipBuilder::get_module_at_point(glm::vec2 point)
     return static_cast<IModule *>(fixture->GetUserData());
 }
 
-ModuleLinkAndDistance ShipBuilder::get_nearest_module_link(glm::vec2 /*point*/) { return {}; }
+ModuleLinkAndDistance ShipBuilder::get_nearest_module_link(glm::vec2 point)
+{
+    auto resolution = static_cast<glm::vec2>(io->get_resolution());
+    point.y = resolution.y - point.y;
+    point = point - (resolution / 2.f);
+    point = point / resolution;
+    point = glm::vec2(point.x * (1. / projection[0][0]), point.y * (1. / projection[1][1]));
+    b2Vec2 b2_point(point.x, point.y);
+
+    ModuleLink *closest_link = nullptr;
+    double closest_distance = INFINITY;
+
+    for (const auto &module : agent->get_modules())
+    {
+        for (auto &module_link : module->get_module_links())
+        {
+            if (module_link.linked)
+            {
+                continue;
+            }
+            double distance = (module_link.transform.p - b2_point).LengthSquared();
+            if (distance < closest_distance)
+            {
+                closest_link = &module_link;
+                closest_distance = distance;
+            }
+        }
+    }
+
+    return {closest_link, closest_distance};
+}
+
 void ShipBuilder::update() {}
 
 TEST_CASE("ShipBuilder")
