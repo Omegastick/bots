@@ -21,6 +21,7 @@ class Window
     void swap_buffers();
     bool should_close();
     void set_cursor_pos_callback(void (*callback)(GLFWwindow *, double, double));
+    void set_mouse_button_callback(void (*callback)(GLFWwindow *, int, int, int));
     void set_resize_callback(void (*callback)(GLFWwindow *, int, int));
     void set_renderer(Renderer *renderer);
 
