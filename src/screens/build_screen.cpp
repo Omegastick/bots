@@ -25,11 +25,12 @@ BuildScreen::BuildScreen(ResourceManager &resource_manager, ScreenManager &scree
       part_selector_window(PartSelectorWindow(resource_manager)),
       available_parts({"base_module", "gun_module", "thruster_module", "laser_sensor_module"}),
       selected_part(),
-      ghost(Sprite("")),
+      ghost(""),
       projection(glm::ortho(0.f, 1920.f, 0.f, 1080.f)),
-      b2_world(b2World(b2Vec2(0, 0))),
-      ship_builder(ShipBuilder(b2_world, rng, io)),
-      module_to_place(nullptr)
+      b2_world(b2Vec2(0, 0)),
+      ship_builder(b2_world, rng, io),
+      module_to_place(nullptr),
+      test_sprite("laser_sensor_module")
 {
     resource_manager.load_texture("base_module", "images/base_module.png");
     for (const auto &part : available_parts)
@@ -39,6 +40,10 @@ BuildScreen::BuildScreen(ResourceManager &resource_manager, ScreenManager &scree
     resource_manager.load_shader("texture", "shaders/texture.vert", "shaders/texture.frag");
     resource_manager.load_shader("font", "shaders/texture.vert", "shaders/font.frag");
     resource_manager.load_font("roboto-16", "fonts/Roboto-Regular.ttf", 16);
+
+    test_sprite.set_scale({0.2, 0.2});
+    test_sprite.set_origin(test_sprite.get_center());
+    test_sprite.set_color(cl_white);
 }
 
 void BuildScreen::update(double /*delta_time*/)
@@ -78,6 +83,16 @@ void BuildScreen::draw(Renderer &renderer, bool lightweight)
 
     auto ship_builder_render_data = ship_builder.get_render_data();
     renderer.draw(ship_builder_render_data, ship_builder.get_projection(), 0., lightweight);
+
+    if (module_to_place != nullptr)
+    {
+        for (const auto &link : module_to_place->get_module_links())
+        {
+            test_sprite.set_position({link.get_global_transform().p.x, link.get_global_transform().p.y});
+            test_sprite.set_rotation(link.get_global_transform().q.GetAngle());
+            renderer.draw(test_sprite, ship_builder.get_projection());
+        }
+    }
 
     renderer.end();
 }
