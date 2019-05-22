@@ -1,9 +1,11 @@
 #include <Box2D/Box2D.h>
 
+#include <doctest/doctest.h>
 #include <glm/glm.hpp>
 
 #include "graphics/idrawable.h"
 #include "graphics/render_data.h"
+#include "training/modules/base_module.h"
 #include "training/modules/imodule.h"
 #include "training/modules/module_link.h"
 #include "utilities.h"
@@ -41,5 +43,28 @@ void ModuleLink::link(ModuleLink *other)
     other->pair_link = this;
 }
 
+b2Transform ModuleLink::get_global_transform() const
+{
+    return b2Mul(parent_module->get_global_transform(), transform);
+}
+
 RenderData ModuleLink::get_render_data(bool /*lightweight*/) { return RenderData(); }
+
+TEST_CASE("ModuleLink")
+{
+    SUBCASE("Returns correct location for global transform")
+    {
+        BaseModule module;
+        module.get_transform().p = {2, 3};
+        module.get_transform().q = b2Rot(glm::radians(-90.f));
+
+        auto module_link = module.get_module_links()[1];
+        auto global_transform = module_link.get_global_transform();
+
+        CHECK(global_transform.p.x == doctest::Approx(2));
+        CHECK(global_transform.p.y == doctest::Approx(2.5));
+        CHECK(global_transform.q.s == doctest::Approx(0));
+        CHECK(global_transform.q.c == doctest::Approx(1));
+    }
+}
 }

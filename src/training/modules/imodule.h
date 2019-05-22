@@ -30,6 +30,7 @@ class IModule : public IDrawable
     Agent *agent;
 
   public:
+    IModule();
     virtual ~IModule() = 0;
 
     virtual void update();

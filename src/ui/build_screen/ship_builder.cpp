@@ -11,11 +11,14 @@
 #include "random.h"
 #include "training/agents/agent.h"
 #include "training/modules/base_module.h"
+#include "training/modules/gun_module.h"
 #include "training/modules/module_link.h"
 #include "training/rigid_body.h"
 
 namespace SingularityTrainer
 {
+const double max_link_distance = 1;
+
 bool GetAllQueryCallback::ReportFixture(b2Fixture *fixture)
 {
     fixtures.push_back(fixture);
@@ -33,7 +36,7 @@ ShipBuilder::ShipBuilder(b2World &b2_world, Random &rng, IO &io)
     agent->update_body();
 }
 
-IModule *ShipBuilder::get_module_at_point(glm::vec2 point)
+std::shared_ptr<IModule> ShipBuilder::get_module_at_screen_position(glm::vec2 point)
 {
     auto resolution = static_cast<glm::vec2>(io->get_resolution());
     point.y = resolution.y - point.y;
@@ -58,16 +61,11 @@ IModule *ShipBuilder::get_module_at_point(glm::vec2 point)
         return nullptr;
     }
 
-    return static_cast<IModule *>(fixture->GetUserData());
+    return *static_cast<std::shared_ptr<IModule> *>(fixture->GetUserData());
 }
 
-ModuleLinkAndDistance ShipBuilder::get_nearest_module_link(glm::vec2 point)
+ModuleLinkAndDistance ShipBuilder::get_nearest_module_link_to_world_position(glm::vec2 point)
 {
-    auto resolution = static_cast<glm::vec2>(io->get_resolution());
-    point.y = resolution.y - point.y;
-    point = point - (resolution / 2.f);
-    point = point / resolution;
-    point = glm::vec2(point.x * (1. / projection[0][0]), point.y * (1. / projection[1][1]));
     b2Vec2 b2_point(point.x, point.y);
 
     ModuleLink *closest_link = nullptr;
@@ -93,18 +91,52 @@ ModuleLinkAndDistance ShipBuilder::get_nearest_module_link(glm::vec2 point)
     return {closest_link, closest_distance};
 }
 
-IModule *ShipBuilder::update(IModule *selected_module)
+std::shared_ptr<IModule> ShipBuilder::click(std::shared_ptr<IModule> selected_module)
 {
     if (selected_module == nullptr)
     {
-        // Handle selecting already placed modules
+        // Select the module under the cursor
+        return get_module_at_screen_position(io->get_cursor_position());
     }
     else
     {
         // Handle placing modules
-    }
+        double closest_distance = INFINITY;
+        ModuleLink *closest_link = nullptr;
+        ModuleLink *origin_link = nullptr;
 
-    return nullptr;
+        for (auto &module_link : selected_module->get_module_links())
+        {
+            auto world_position = module_link.get_global_transform().p;
+            auto link_and_distance = get_nearest_module_link_to_world_position({world_position.x, world_position.y});
+            if (link_and_distance.module_link == nullptr)
+            {
+                continue;
+            }
+            else
+            {
+                if (link_and_distance.distance < max_link_distance && link_and_distance.distance < closest_distance)
+                {
+                    closest_distance = link_and_distance.distance;
+                    closest_link = link_and_distance.module_link;
+                    origin_link = &module_link;
+                }
+            }
+        }
+
+        if (closest_link == nullptr)
+        {
+            return nullptr;
+        }
+        else
+        {
+            closest_link->link(origin_link);
+            agent->add_module(selected_module);
+            agent->update_body();
+            agent->register_actions();
+            return selected_module;
+        }
+    }
 }
 
 TEST_CASE("ShipBuilder")
@@ -130,29 +162,60 @@ TEST_CASE("ShipBuilder")
         CHECK(json["type"] == "base");
     }
 
-    SUBCASE("get_module_at_point()")
+    SUBCASE("click()")
+    {
+        SUBCASE("Correctly selects the initial base module")
+        {
+            io.set_cursor_position(960, 540);
+            auto selected_module = ship_builder.click(nullptr);
+            auto base_module = ship_builder.get_agent()->get_modules()[0];
+
+            CHECK(selected_module == base_module);
+        }
+
+        SUBCASE("Returns nullptr when clicking in empty space")
+        {
+            io.set_cursor_position(0, 0);
+            auto selected_module = ship_builder.click(nullptr);
+
+            CHECK(selected_module == nullptr);
+        }
+
+        SUBCASE("Correctly places gun module")
+        {
+            auto gun_module = std::make_shared<GunModule>();
+            io.set_cursor_position(960, 600);
+
+            auto selected_module = ship_builder.click(gun_module);
+
+            CHECK(selected_module == gun_module);
+            CHECK(ship_builder.get_agent()->get_modules().size() == 2);
+        }
+    }
+
+    SUBCASE("get_module_at_screen_position()")
     {
         SUBCASE("Correctly selects the base module at 0, 0")
         {
-            auto selected_module = ship_builder.get_module_at_point({960, 540});
-            auto base_module = ship_builder.get_agent()->get_modules()[0].get();
+            auto selected_module = ship_builder.get_module_at_screen_position({960, 540});
+            auto base_module = ship_builder.get_agent()->get_modules()[0];
 
             CHECK(selected_module == base_module);
         }
 
         SUBCASE("Returns a nullptr if no module at exists at the point")
         {
-            auto selected_module = ship_builder.get_module_at_point({1000, 1000});
+            auto selected_module = ship_builder.get_module_at_screen_position({1000, 1000});
 
             CHECK(selected_module == nullptr);
         }
     }
 
-    SUBCASE("get_nearest_module_link()")
+    SUBCASE("get_nearest_module_link_to_world_position()")
     {
         SUBCASE("Selects the correct link under normal use")
         {
-            auto selected_link = ship_builder.get_nearest_module_link({960, 0}).module_link;
+            auto selected_link = ship_builder.get_nearest_module_link_to_world_position({0, 10}).module_link;
             auto expected_link = &ship_builder.get_agent()->get_modules()[0]->get_module_links()[0];
 
             CHECK(selected_link == expected_link);
@@ -168,7 +231,7 @@ TEST_CASE("ShipBuilder")
                 }
             }
 
-            auto selected_link = ship_builder.get_nearest_module_link({960, 0}).module_link;
+            auto selected_link = ship_builder.get_nearest_module_link_to_world_position({0, 10}).module_link;
 
             CHECK(selected_link == nullptr);
         }

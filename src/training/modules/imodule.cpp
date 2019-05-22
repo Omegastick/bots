@@ -11,6 +11,9 @@
 
 namespace SingularityTrainer
 {
+IModule::IModule()
+    : agent(nullptr) {}
+
 std::vector<IModule *> IModule::get_children()
 {
     return get_children(std::vector<IModule *>());
@@ -49,6 +52,10 @@ RenderData IModule::get_render_data(bool /*lightweight*/)
 
 b2Transform IModule::get_global_transform()
 {
+    if (agent == nullptr)
+    {
+        return transform;
+    }
     b2Body *body = agent->get_rigid_body()->body;
     b2Transform agent_transform = body->GetTransform();
 

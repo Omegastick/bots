@@ -252,7 +252,7 @@ void Agent::update_body()
         rigid_body->body->DestroyFixture(f);
     }
 
-    for (const auto &module : modules)
+    for (auto &module : modules)
     {
         // Copy the module's screen_shape
         // It's important we leave the original intact in case we need to do this again
@@ -275,7 +275,7 @@ void Agent::update_body()
             fixture_def.density = 1;
             fixture_def.friction = 1;
             auto fixture = rigid_body->body->CreateFixture(&fixture_def);
-            fixture->SetUserData(module.get());
+            fixture->SetUserData(&module);
         }
     }
 }
