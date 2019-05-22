@@ -40,9 +40,9 @@ class ShipBuilder
   public:
     ShipBuilder(b2World &b2_world, Random &rng, IO &io);
 
-    IModule *get_module_at_point(glm::vec2 point);
-    ModuleLinkAndDistance get_nearest_module_link(glm::vec2 point);
-    IModule *update(IModule *selected_module);
+    std::shared_ptr<IModule> get_module_at_screen_position(glm::vec2 point);
+    ModuleLinkAndDistance get_nearest_module_link_to_world_position(glm::vec2 point);
+    std::shared_ptr<IModule> click(std::shared_ptr<IModule> selected_module);
 
     inline Agent *get_agent() const { return agent.get(); }
 };
