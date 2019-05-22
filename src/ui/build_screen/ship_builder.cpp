@@ -41,9 +41,9 @@ std::shared_ptr<IModule> ShipBuilder::get_module_at_screen_position(glm::vec2 po
 {
     auto resolution = static_cast<glm::vec2>(io->get_resolution());
     point.y = resolution.y - point.y;
-    point = point - (resolution / 2.f);
     point = point / resolution;
-    point = glm::vec2(point.x * (1. / projection[0][0]), point.y * (1. / projection[1][1]));
+    point -= 0.5;
+    point = {point.x * (1. / (projection[0][0] * 2)), point.y * (1. / (projection[1][1] * 2))};
 
     GetAllQueryCallback query_callback;
     b2_world->QueryAABB(&query_callback, {{point.x, point.y},
@@ -104,9 +104,9 @@ std::shared_ptr<IModule> ShipBuilder::click(std::shared_ptr<IModule> selected_mo
         glm::vec2 point = io->get_cursor_position();
         auto resolution = static_cast<glm::vec2>(io->get_resolution());
         point.y = resolution.y - point.y;
-        point = point - (resolution / 2.f);
         point = point / resolution;
-        point = glm::vec2(point.x * (1. / projection[0][0]), point.y * (1. / projection[1][1]));
+        point -= 0.5;
+        point = {point.x * (1. / (projection[0][0] * 2)), point.y * (1. / (projection[1][1] * 2))};
         selected_module->get_transform().p = {point.x, point.y};
 
         // Handle placing modules
@@ -195,15 +195,18 @@ TEST_CASE("ShipBuilder")
             CHECK(selected_module == nullptr);
         }
 
-        SUBCASE("Correctly places gun module")
+        SUBCASE("Correctly places a gun module")
         {
             auto gun_module = std::make_shared<GunModule>();
-            io.set_cursor_position(960, 600);
+            io.set_cursor_position(1030, 545);
 
             auto selected_module = ship_builder.click(gun_module);
 
             CHECK(selected_module == gun_module);
             CHECK(ship_builder.get_agent()->get_modules().size() == 2);
+
+            CHECK(ship_builder.get_agent()->get_modules()[1]->get_transform().q.s == b2Rot(0).s);
+            CHECK(ship_builder.get_agent()->get_modules()[1]->get_transform().q.c == b2Rot(0).c);
         }
     }
 
