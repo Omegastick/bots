@@ -270,6 +270,9 @@ int main(int argc, const char *argv[])
 
         screen_manager.update(delta_time);
 
+        io.set_left_click(false);
+        io.set_right_click(false);
+
         /*
          *  Draw
          */

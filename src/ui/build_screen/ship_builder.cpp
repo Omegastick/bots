@@ -7,6 +7,7 @@
 #include <nlohmann/json.hpp>
 
 #include "ui/build_screen/ship_builder.h"
+#include "graphics/render_data.h"
 #include "io.h"
 #include "random.h"
 #include "training/agents/agent.h"
@@ -26,14 +27,14 @@ bool GetAllQueryCallback::ReportFixture(b2Fixture *fixture)
 }
 
 ShipBuilder::ShipBuilder(b2World &b2_world, Random &rng, IO &io)
-    : agent(std::make_unique<Agent>(b2_world, &rng)),
+    : agent(Agent(b2_world, &rng)),
       io(&io),
       b2_world(&b2_world),
       projection(glm::ortho(-9.6f, 9.6f, -5.4f, 5.4f))
 {
     auto base_module = std::make_shared<BaseModule>();
-    agent->add_module(base_module);
-    agent->update_body();
+    agent.add_module(base_module);
+    agent.update_body();
 }
 
 std::shared_ptr<IModule> ShipBuilder::get_module_at_screen_position(glm::vec2 point)
@@ -71,7 +72,7 @@ ModuleLinkAndDistance ShipBuilder::get_nearest_module_link_to_world_position(glm
     ModuleLink *closest_link = nullptr;
     double closest_distance = INFINITY;
 
-    for (const auto &module : agent->get_modules())
+    for (const auto &module : agent.get_modules())
     {
         for (auto &module_link : module->get_module_links())
         {
@@ -100,6 +101,14 @@ std::shared_ptr<IModule> ShipBuilder::click(std::shared_ptr<IModule> selected_mo
     }
     else
     {
+        glm::vec2 point = io->get_cursor_position();
+        auto resolution = static_cast<glm::vec2>(io->get_resolution());
+        point.y = resolution.y - point.y;
+        point = point - (resolution / 2.f);
+        point = point / resolution;
+        point = glm::vec2(point.x * (1. / projection[0][0]), point.y * (1. / projection[1][1]));
+        selected_module->get_transform().p = {point.x, point.y};
+
         // Handle placing modules
         double closest_distance = INFINITY;
         ModuleLink *closest_link = nullptr;
@@ -131,12 +140,17 @@ std::shared_ptr<IModule> ShipBuilder::click(std::shared_ptr<IModule> selected_mo
         else
         {
             closest_link->link(origin_link);
-            agent->add_module(selected_module);
-            agent->update_body();
-            agent->register_actions();
+            agent.add_module(selected_module);
+            agent.update_body();
+            agent.register_actions();
             return selected_module;
         }
     }
+}
+
+RenderData ShipBuilder::get_render_data(bool lightweight)
+{
+    return agent.get_render_data(lightweight);
 }
 
 TEST_CASE("ShipBuilder")
