@@ -290,81 +290,78 @@ void Agent::reset()
     hp = 10;
 }
 
-TEST_CASE("Agents can have modules added")
+TEST_CASE("Agent")
 {
     Random rng(1);
     b2World b2_world({0, 0});
-    Agent agent(b2_world, &rng);
 
-    CHECK(agent.get_modules().size() == 0);
-
-    auto module = std::make_shared<BaseModule>();
-    agent.add_module(module);
-
-    CHECK(agent.get_modules().size() == 1);
-
-    SUBCASE("Added modules have their parent agent set correctly")
+    SUBCASE("Can have modules added")
     {
-        CHECK(agent.get_modules()[0]->get_agent() == &agent);
-    }
-}
+        Agent agent(b2_world, &rng);
 
-TEST_CASE("Agents can be saved to Json and loaded back")
-{
-    Random rng(1);
-    b2World b2_world({0, 0});
-    Agent agent(b2_world, &rng);
+        CHECK(agent.get_modules().size() == 0);
 
-    auto base_module = std::make_shared<BaseModule>();
-    auto thruster_module = std::make_shared<ThrusterModule>();
-    auto gun_module = std::make_shared<GunModule>();
+        auto module = std::make_shared<BaseModule>();
+        agent.add_module(module);
 
-    base_module->get_module_links()[0].link(gun_module->get_module_links()[0]);
-    gun_module->get_module_links()[2].link(thruster_module->get_module_links()[0]);
+        CHECK(agent.get_modules().size() == 1);
 
-    agent.add_module(base_module);
-    agent.add_module(gun_module);
-    agent.add_module(thruster_module);
-
-    agent.update_body();
-    agent.register_actions();
-
-    auto json = agent.to_json();
-    auto pretty_json = json.dump(2);
-    INFO("Json: " << pretty_json);
-    Agent loaded_agent(b2_world, &rng, json);
-
-    SUBCASE("Loaded Agents have the same number of modules")
-    {
-        CHECK(loaded_agent.get_modules().size() == agent.get_modules().size());
+        SUBCASE("Added modules have their parent agent set correctly")
+        {
+            CHECK(agent.get_modules()[0]->get_agent() == &agent);
+        }
     }
 
-    SUBCASE("Loaded Agents have the same number of actions")
+    SUBCASE("Can be saved to Json and loaded back")
     {
-        CHECK(loaded_agent.get_actions().size() == agent.get_actions().size());
+        Agent agent(b2_world, &rng);
+
+        auto base_module = std::make_shared<BaseModule>();
+        auto thruster_module = std::make_shared<ThrusterModule>();
+        auto gun_module = std::make_shared<GunModule>();
+
+        base_module->get_module_links()[0].link(gun_module->get_module_links()[0]);
+        gun_module->get_module_links()[2].link(thruster_module->get_module_links()[0]);
+
+        agent.add_module(base_module);
+        agent.add_module(gun_module);
+        agent.add_module(thruster_module);
+
+        agent.update_body();
+        agent.register_actions();
+
+        auto json = agent.to_json();
+        auto pretty_json = json.dump(2);
+        INFO("Json: " << pretty_json);
+        Agent loaded_agent(b2_world, &rng, json);
+
+        SUBCASE("Loaded Agents have the same number of modules")
+        {
+            CHECK(loaded_agent.get_modules().size() == agent.get_modules().size());
+        }
+
+        SUBCASE("Loaded Agents have the same number of actions")
+        {
+            CHECK(loaded_agent.get_actions().size() == agent.get_actions().size());
+        }
     }
-}
 
-TEST_CASE("Agents with no modules are converted to Json correctly")
-{
-    Random rng(1);
-    b2World b2_world({0, 0});
-    Agent agent(b2_world, &rng);
+    SUBCASE("With no modules are converted to Json correctly")
+    {
+        Agent agent(b2_world, &rng);
 
-    auto json = agent.to_json();
-    auto pretty_json = json.dump(2);
-    INFO("Json :" << pretty_json);
+        auto json = agent.to_json();
+        auto pretty_json = json.dump(2);
+        INFO("Json :" << pretty_json);
 
-    CHECK(json["base_module"] == nullptr);
-}
+        CHECK(json["base_module"] == nullptr);
+    }
 
-TEST_CASE("Load Json errors on invalid schema version")
-{
-    Random rng(1);
-    b2World b2_world({0, 0});
+    SUBCASE("Load Json errors on invalid schema version")
+    {
+        auto json = "{\"schema\": \"bad_schema\"}"_json;
 
-    auto json = "{\"schema\": \"bad_schema\"}"_json;
-
-    CHECK_THROWS(Agent agent(b2_world, &rng, json));
+        CHECK_THROWS(Agent agent(b2_world, &rng, json));
+    }
 }
 }

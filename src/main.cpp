@@ -175,28 +175,32 @@ void resize_window_callback(GLFWwindow *glfw_window, int x, int y)
     last_resolution_y = y;
 }
 
+void key_callback(GLFWwindow *, int key, int /*scancode*/, int actions, int /*mod*/)
+{
+    if (actions == GLFW_PRESS)
+    {
+        io.press_key(key);
+    }
+    else if (actions == GLFW_RELEASE)
+    {
+        io.release_key(key);
+    }
+}
+
 void mouse_button_callback(GLFWwindow * /*window*/, int button, int action, int /*mods*/)
 {
     if (button == GLFW_MOUSE_BUTTON_LEFT)
     {
         if (action == GLFW_RELEASE && !io.get_left_click())
         {
-            io.set_left_click(true);
-        }
-        else
-        {
-            io.set_left_click(false);
+            io.left_click();
         }
     }
     else if (button == GLFW_MOUSE_BUTTON_RIGHT)
     {
         if (action == GLFW_RELEASE && !io.get_right_click())
         {
-            io.set_right_click(true);
-        }
-        else
-        {
-            io.set_right_click(false);
+            io.right_click();
         }
     }
 }
@@ -234,6 +238,7 @@ int main(int argc, const char *argv[])
     Window window = Window(resolution_x, resolution_y, window_title, opengl_version_major, opengl_version_minor);
     window.set_resize_callback(resize_window_callback);
     window.set_cursor_pos_callback(cursor_pos_callback);
+    window.set_key_callback(key_callback);
     window.set_mouse_button_callback(mouse_button_callback);
 
     ScreenManager screen_manager;
@@ -270,8 +275,7 @@ int main(int argc, const char *argv[])
 
         screen_manager.update(delta_time);
 
-        io.set_left_click(false);
-        io.set_right_click(false);
+        io.tick();
 
         /*
          *  Draw
