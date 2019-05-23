@@ -66,8 +66,8 @@ NearestModuleLinkResult ShipBuilder::get_nearest_module_link_to_world_position(g
 {
     b2Vec2 b2_point(point.x, point.y);
 
-    ModuleLink *closest_link = nullptr;
-    double closest_distance = INFINITY;
+    ModuleLink *nearest_link = nullptr;
+    double nearest_distance = INFINITY;
 
     for (const auto &module : agent.get_modules())
     {
@@ -78,43 +78,36 @@ NearestModuleLinkResult ShipBuilder::get_nearest_module_link_to_world_position(g
                 continue;
             }
             double distance = (module_link.get_global_transform().p - b2_point).LengthSquared();
-            if (distance < closest_distance)
+            if (distance < nearest_distance)
             {
-                closest_link = &module_link;
-                closest_distance = distance;
+                nearest_link = &module_link;
+                nearest_distance = distance;
             }
         }
     }
 
-    return {closest_link, nullptr, closest_distance};
+    return {nearest_link, nullptr, nearest_distance};
 }
 
 NearestModuleLinkResult ShipBuilder::get_nearest_module_link_to_module(IModule &module)
 {
-    double closest_distance = INFINITY;
-    ModuleLink *closest_link = nullptr;
+    double nearest_distance = INFINITY;
+    ModuleLink *nearest_link = nullptr;
     ModuleLink *origin_link = nullptr;
 
     for (auto &module_link : module.get_module_links())
     {
         auto world_position = module_link.get_global_transform().p;
         auto link_and_distance = get_nearest_module_link_to_world_position({world_position.x, world_position.y});
-        if (link_and_distance.nearest_link == nullptr)
+        if (link_and_distance.nearest_link != nullptr && link_and_distance.distance < nearest_distance)
         {
-            continue;
-        }
-        else
-        {
-            if (link_and_distance.distance < closest_distance)
-            {
-                closest_distance = link_and_distance.distance;
-                closest_link = link_and_distance.nearest_link;
-                origin_link = &module_link;
-            }
+            nearest_distance = link_and_distance.distance;
+            nearest_link = link_and_distance.nearest_link;
+            origin_link = &module_link;
         }
     }
 
-    return {closest_link, origin_link, closest_distance};
+    return {nearest_link, origin_link, nearest_distance};
 }
 
 std::shared_ptr<IModule> ShipBuilder::click(std::shared_ptr<IModule> selected_module)

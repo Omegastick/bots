@@ -32,7 +32,8 @@ BuildScreen::BuildScreen(ResourceManager &resource_manager, ScreenManager &scree
       b2_world(b2Vec2(0, 0)),
       ship_builder(b2_world, rng, io),
       module_to_place(nullptr),
-      test_sprite("laser_sensor_module")
+      test_sprite("laser_sensor_module"),
+      current_rotation(0)
 {
     resource_manager.load_texture("base_module", "images/base_module.png");
     for (const auto &part : available_parts)
@@ -68,11 +69,11 @@ void BuildScreen::update(double /*delta_time*/)
 
     if (io->get_key_pressed_this_frame(GLFW_KEY_Q))
     {
-        module_to_place->get_transform().q = b2Mul(module_to_place->get_transform().q, b2Rot(glm::radians(90.f)));
+        current_rotation += 1;
     }
     else if (io->get_key_pressed_this_frame(GLFW_KEY_E))
     {
-        module_to_place->get_transform().q = b2Mul(module_to_place->get_transform().q, b2Rot(glm::radians(-90.f)));
+        current_rotation -= 1;
     }
 }
 
@@ -88,6 +89,8 @@ void BuildScreen::draw(Renderer &renderer, bool lightweight)
                                                            io->get_resolution(),
                                                            ship_builder.get_projection());
         module_to_place->get_transform().p = {cursor_world_position.x, cursor_world_position.y};
+        module_to_place->get_transform().q = b2Rot(glm::radians(current_rotation * 90.f));
+
         auto nearest_link_result = ship_builder.get_nearest_module_link_to_module(*module_to_place);
         if (nearest_link_result.nearest_link != nullptr && nearest_link_result.distance < 1)
         {
@@ -95,6 +98,14 @@ void BuildScreen::draw(Renderer &renderer, bool lightweight)
         }
 
         render_data.append(module_to_place->get_render_data());
+
+        for (const auto &link : module_to_place->get_module_links())
+        {
+            auto transform = link.get_global_transform();
+            test_sprite.set_position({transform.p.x, transform.p.y});
+            test_sprite.set_rotation(transform.q.GetAngle());
+            renderer.draw(test_sprite, ship_builder.get_projection());
+        }
     }
 
     render_data.append(ship_builder.get_render_data());
