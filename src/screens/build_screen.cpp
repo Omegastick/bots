@@ -25,7 +25,8 @@ BuildScreen::BuildScreen(ResourceManager &resource_manager, ScreenManager &scree
     : resource_manager(&resource_manager),
       screen_manager(&screen_manager),
       io(&io),
-      part_selector_window(PartSelectorWindow(resource_manager)),
+      part_detail_window(io),
+      part_selector_window(io, resource_manager),
       available_parts({"base_module", "gun_module", "thruster_module", "laser_sensor_module"}),
       projection(glm::ortho(0.f, 1920.f, 0.f, 1080.f)),
       b2_world(b2Vec2(0, 0)),
@@ -56,11 +57,13 @@ void BuildScreen::update(double /*delta_time*/)
         module_to_place = std::make_shared<GunModule>();
     }
 
-    if (io->get_left_click())
+    if (io->get_left_click() && !ImGui::GetIO().WantCaptureMouse)
     {
-        if (ship_builder.click(module_to_place) != nullptr)
+        selected_module = ship_builder.click(module_to_place);
+        if (selected_module != nullptr)
         {
             module_to_place = nullptr;
+            part_detail_window.select_part(selected_module.get());
         }
     }
 
@@ -72,6 +75,8 @@ void BuildScreen::update(double /*delta_time*/)
     {
         current_rotation -= 1;
     }
+
+    part_detail_window.update();
 }
 
 void BuildScreen::draw(Renderer &renderer, bool lightweight)

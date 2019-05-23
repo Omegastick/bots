@@ -4,18 +4,18 @@
 #include <vector>
 
 #include <imgui.h>
-#include <spdlog/spdlog.h>
 
 #include "graphics/backend/texture.h"
 #include "graphics/colors.h"
+#include "io.h"
 #include "resource_manager.h"
 #include "ui/build_screen/part_selector_window.h"
 #include "utilities.h"
 
 namespace SingularityTrainer
 {
-PartSelectorWindow::PartSelectorWindow(ResourceManager &resource_manager)
-    : resource_manager(&resource_manager)
+PartSelectorWindow::PartSelectorWindow(IO &io, ResourceManager &resource_manager)
+    : io(&io), resource_manager(&resource_manager)
 {
 }
 
@@ -26,7 +26,10 @@ std::string PartSelectorWindow::update(std::vector<std::string> &parts)
     ImGui::PushStyleColor(ImGuiCol_ButtonHovered, glm_to_im(cl_base03));
     ImGui::PushStyleColor(ImGuiCol_ButtonActive, glm_to_im(cl_base02));
     ImGui::PushStyleVar(ImGuiStyleVar_FrameRounding, 5);
-    ImGui::SetNextWindowSize({400, 600}, ImGuiCond_FirstUseEver);
+    auto resolution = io->get_resolution();
+    ImGui::SetNextWindowSize({resolution.x * 0.2f, resolution.y * 0.9f}, ImGuiCond_FirstUseEver);
+    ImGui::SetNextWindowPos({resolution.x * 0.75f, resolution.y * 0.05f},
+                            ImGuiCond_FirstUseEver);
     ImGui::Begin("Part Selector");
     auto style = ImGui::GetStyle();
     auto image_size = ((ImGui::GetContentRegionAvailWidth() - style.ScrollbarSize * 2) / 3) - style.ItemSpacing.x;
