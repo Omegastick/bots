@@ -80,6 +80,8 @@ void BuildScreen::draw(Renderer &renderer, bool lightweight)
 {
     renderer.begin();
 
+    RenderData render_data;
+
     if (selected_part != "")
     {
         auto cursor_world_position = screen_to_world_space(io->get_cursor_position(),
@@ -92,12 +94,23 @@ void BuildScreen::draw(Renderer &renderer, bool lightweight)
             nearest_link_result.origin_link->snap_to_other(*nearest_link_result.nearest_link);
         }
 
-        auto module_to_place_render_data = module_to_place->get_render_data();
-        renderer.draw(module_to_place_render_data, ship_builder.get_projection(), 0, lightweight);
+        render_data.append(module_to_place->get_render_data());
     }
 
-    auto ship_builder_render_data = ship_builder.get_render_data();
-    renderer.draw(ship_builder_render_data, ship_builder.get_projection(), 0., lightweight);
+    render_data.append(ship_builder.get_render_data());
+
+    for (const auto &module : ship_builder.get_agent()->get_modules())
+    {
+        for (const auto &link : module->get_module_links())
+        {
+            auto transform = link.get_global_transform();
+            test_sprite.set_position({transform.p.x, transform.p.y});
+            test_sprite.set_rotation(transform.q.GetAngle());
+            renderer.draw(test_sprite, ship_builder.get_projection());
+        }
+    }
+
+    renderer.draw(render_data, ship_builder.get_projection(), 0., lightweight);
 
     renderer.end();
 }

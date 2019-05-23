@@ -77,7 +77,7 @@ NearestModuleLinkResult ShipBuilder::get_nearest_module_link_to_world_position(g
             {
                 continue;
             }
-            double distance = (module_link.transform.p - b2_point).LengthSquared();
+            double distance = (module_link.get_global_transform().p - b2_point).LengthSquared();
             if (distance < closest_distance)
             {
                 closest_link = &module_link;
