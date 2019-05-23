@@ -1,5 +1,7 @@
 #include <memory>
 
+#include <GLFW/glfw3.h>
+#include <glad/glad.h>
 #include <Box2D/Box2D.h>
 #include <glm/mat4x4.hpp>
 #include <glm/gtc/matrix_transform.hpp>
@@ -62,6 +64,15 @@ void BuildScreen::update(double /*delta_time*/)
             module_to_place == nullptr;
             selected_part = "";
         }
+    }
+
+    if (io->get_key_pressed_this_frame(GLFW_KEY_Q))
+    {
+        module_to_place->get_transform().q = b2Mul(module_to_place->get_transform().q, b2Rot(glm::radians(90.f)));
+    }
+    else if (io->get_key_pressed_this_frame(GLFW_KEY_E))
+    {
+        module_to_place->get_transform().q = b2Mul(module_to_place->get_transform().q, b2Rot(glm::radians(-90.f)));
     }
 }
 

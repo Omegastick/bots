@@ -37,10 +37,10 @@ void ModuleLink::link(ModuleLink &other)
 
 void ModuleLink::snap_to_other(ModuleLink &other)
 {
-    // Calculate own transform
-    b2Transform other_transform = b2Mul(other.parent_module->get_transform(), transform);
-
     // Calculate other module's transform
+    b2Transform other_transform = b2Mul(other.parent_module->get_transform(), other.transform);
+
+    // Calculate own transform
     b2Rot inverse_rotation = b2Mul(other_transform.q, b2Rot(b2_pi));
     parent_module->get_transform().q = b2Rot(inverse_rotation.GetAngle() - transform.q.GetAngle());
     parent_module->get_transform().p = b2Mul(parent_module->get_transform().q, transform.p);
