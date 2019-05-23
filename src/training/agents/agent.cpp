@@ -198,7 +198,7 @@ void Agent::recurse_json_modules(const nlohmann::json &module_json, IModule *par
 
     if (parent_module != nullptr)
     {
-        parent_module->get_module_links()[parent_link].link(&module->get_module_links()[child_link]);
+        parent_module->get_module_links()[parent_link].link(module->get_module_links()[child_link]);
     }
 
     for (unsigned int i = 0; i < module_json["links"].size(); ++i)
@@ -319,8 +319,8 @@ TEST_CASE("Agents can be saved to Json and loaded back")
     auto thruster_module = std::make_shared<ThrusterModule>();
     auto gun_module = std::make_shared<GunModule>();
 
-    base_module->get_module_links()[0].link(&gun_module->get_module_links()[0]);
-    gun_module->get_module_links()[2].link(&thruster_module->get_module_links()[0]);
+    base_module->get_module_links()[0].link(gun_module->get_module_links()[0]);
+    gun_module->get_module_links()[2].link(thruster_module->get_module_links()[0]);
 
     agent.add_module(base_module);
     agent.add_module(gun_module);

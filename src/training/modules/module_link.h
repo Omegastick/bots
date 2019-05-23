@@ -17,7 +17,8 @@ class ModuleLink : IDrawable
 
     b2Transform get_global_transform() const;
     virtual RenderData get_render_data(bool lightweight = false);
-    void link(ModuleLink *other);
+    void link(ModuleLink &other);
+    void snap_to_other(ModuleLink &other);
 
     bool is_parent;
     bool linked;

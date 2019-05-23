@@ -20,27 +20,32 @@ ModuleLink::ModuleLink(float x, float y, float rot, IModule *parent)
 }
 ModuleLink::~ModuleLink() {}
 
-void ModuleLink::link(ModuleLink *other)
+void ModuleLink::link(ModuleLink &other)
 {
-    // Calculate own transform
-    b2Transform own_transform = b2Mul(parent_module->get_transform(), transform);
-
-    // Calculate other module's transform
-    b2Rot inverse_rotation = b2Mul(own_transform.q, b2Rot(b2_pi));
-    other->parent_module->get_transform().q = b2Rot(inverse_rotation.GetAngle() - other->transform.q.GetAngle());
-    other->parent_module->get_transform().p = b2Mul(other->parent_module->get_transform().q, other->transform.p);
-    other->parent_module->get_transform().p *= -1;
-    other->parent_module->get_transform().p += own_transform.p;
+    other.snap_to_other(*this);
 
     // Set linked flags and pointers
     is_parent = true;
     linked = true;
-    linked_module = other->parent_module;
-    pair_link = other;
-    other->is_parent = false;
-    other->linked = true;
-    other->linked_module = parent_module;
-    other->pair_link = this;
+    linked_module = other.parent_module;
+    pair_link = &other;
+    other.is_parent = false;
+    other.linked = true;
+    other.linked_module = parent_module;
+    other.pair_link = this;
+}
+
+void ModuleLink::snap_to_other(ModuleLink &other)
+{
+    // Calculate own transform
+    b2Transform other_transform = b2Mul(other.parent_module->get_transform(), transform);
+
+    // Calculate other module's transform
+    b2Rot inverse_rotation = b2Mul(other_transform.q, b2Rot(b2_pi));
+    parent_module->get_transform().q = b2Rot(inverse_rotation.GetAngle() - transform.q.GetAngle());
+    parent_module->get_transform().p = b2Mul(parent_module->get_transform().q, transform.p);
+    parent_module->get_transform().p *= -1;
+    parent_module->get_transform().p += other_transform.p;
 }
 
 b2Transform ModuleLink::get_global_transform() const

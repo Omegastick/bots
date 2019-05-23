@@ -15,6 +15,7 @@
 #include "screen_manager.h"
 #include "ui/build_screen/part_selector_window.h"
 #include "ui/build_screen/ship_builder.h"
+#include "utilities.h"
 
 namespace SingularityTrainer
 {
@@ -25,7 +26,6 @@ BuildScreen::BuildScreen(ResourceManager &resource_manager, ScreenManager &scree
       part_selector_window(PartSelectorWindow(resource_manager)),
       available_parts({"base_module", "gun_module", "thruster_module", "laser_sensor_module"}),
       selected_part(),
-      ghost(""),
       projection(glm::ortho(0.f, 1920.f, 0.f, 1080.f)),
       b2_world(b2Vec2(0, 0)),
       ship_builder(b2_world, rng, io),
@@ -52,10 +52,6 @@ void BuildScreen::update(double /*delta_time*/)
     if (selected_part_ != "")
     {
         selected_part = selected_part_;
-        ghost.set_texture(selected_part);
-        ghost.set_scale(glm::vec2(100, 100));
-        ghost.set_origin(ghost.get_center());
-        ghost.set_color(cl_white);
         module_to_place = std::make_shared<GunModule>();
     }
 
@@ -75,33 +71,22 @@ void BuildScreen::draw(Renderer &renderer, bool lightweight)
 
     if (selected_part != "")
     {
-        auto cursor_pos = io->get_cursor_position();
-        cursor_pos *= glm::vec2(1920, 1080) / static_cast<glm::vec2>(io->get_resolution());
-        ghost.set_position({cursor_pos.x, cursor_pos.y});
-        renderer.draw(ghost, projection);
+        auto cursor_world_position = screen_to_world_space(io->get_cursor_position(),
+                                                           io->get_resolution(),
+                                                           ship_builder.get_projection());
+        module_to_place->get_transform().p = {cursor_world_position.x, cursor_world_position.y};
+        auto nearest_link_result = ship_builder.get_nearest_module_link_to_module(*module_to_place);
+        if (nearest_link_result.nearest_link != nullptr && nearest_link_result.distance < 1)
+        {
+            nearest_link_result.origin_link->snap_to_other(*nearest_link_result.nearest_link);
+        }
+
+        auto module_to_place_render_data = module_to_place->get_render_data();
+        renderer.draw(module_to_place_render_data, ship_builder.get_projection(), 0, lightweight);
     }
 
     auto ship_builder_render_data = ship_builder.get_render_data();
     renderer.draw(ship_builder_render_data, ship_builder.get_projection(), 0., lightweight);
-
-    if (module_to_place != nullptr)
-    {
-        for (const auto &link : module_to_place->get_module_links())
-        {
-            test_sprite.set_position({link.get_global_transform().p.x, link.get_global_transform().p.y});
-            test_sprite.set_rotation(link.get_global_transform().q.GetAngle());
-            renderer.draw(test_sprite, ship_builder.get_projection());
-        }
-    }
-
-    for (int x = -10; x < 10; ++x)
-    {
-        for (int y = -10; y < 10; ++y)
-        {
-            test_sprite.set_position({x, y});
-            renderer.draw(test_sprite, ship_builder.get_projection());
-        }
-    }
 
     renderer.end();
 }

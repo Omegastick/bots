@@ -33,7 +33,6 @@ class BuildScreen : public IScreen
     PartSelectorWindow part_selector_window;
     std::vector<std::string> available_parts;
     std::string selected_part;
-    Sprite ghost;
     glm::mat4 projection;
     b2World b2_world;
     ShipBuilder ship_builder;
