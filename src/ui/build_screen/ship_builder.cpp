@@ -203,7 +203,7 @@ TEST_CASE("ShipBuilder")
             auto selected_module = ship_builder.click(gun_module);
 
             CHECK(selected_module == gun_module);
-            CHECK(ship_builder.get_agent()->get_modules().size() == 2);
+            REQUIRE(ship_builder.get_agent()->get_modules().size() == 2);
 
             CHECK(ship_builder.get_agent()->get_modules()[1]->get_transform().q.s == doctest::Approx(b2Rot(0).s));
             CHECK(ship_builder.get_agent()->get_modules()[1]->get_transform().q.c == doctest::Approx(b2Rot(0).c));
@@ -220,7 +220,24 @@ TEST_CASE("ShipBuilder")
             auto selected_module = ship_builder.click(gun_module_2);
 
             CHECK(selected_module == gun_module_2);
-            CHECK(ship_builder.get_agent()->get_modules().size() == 3);
+            REQUIRE(ship_builder.get_agent()->get_modules().size() == 3);
+
+            CHECK(ship_builder.get_agent()->get_modules()[2]->get_transform().q.s == doctest::Approx(b2Rot(0).s));
+            CHECK(ship_builder.get_agent()->get_modules()[2]->get_transform().q.c == doctest::Approx(b2Rot(0).c));
+        }
+
+        SUBCASE("Can chain modules")
+        {
+            auto gun_module_1 = std::make_shared<GunModule>();
+            io.set_cursor_position(1030, 545);
+            ship_builder.click(gun_module_1);
+
+            auto gun_module_2 = std::make_shared<GunModule>();
+            io.set_cursor_position(1160, 545);
+            auto selected_module = ship_builder.click(gun_module_2);
+
+            CHECK(selected_module == gun_module_2);
+            REQUIRE(ship_builder.get_agent()->get_modules().size() == 3);
 
             CHECK(ship_builder.get_agent()->get_modules()[2]->get_transform().q.s == doctest::Approx(b2Rot(0).s));
             CHECK(ship_builder.get_agent()->get_modules()[2]->get_transform().q.c == doctest::Approx(b2Rot(0).c));
