@@ -38,6 +38,7 @@ class BuildScreen : public IScreen
     ShipBuilder ship_builder;
     std::shared_ptr<GunModule> module_to_place;
     Sprite test_sprite;
+    int current_rotation;
 
   public:
     BuildScreen(ResourceManager &resource_manager, ScreenManager &screen_manager, IO &io, Random &rng);
