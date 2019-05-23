@@ -15,6 +15,7 @@
 #include "training/modules/gun_module.h"
 #include "training/modules/module_link.h"
 #include "training/rigid_body.h"
+#include "utilities.h"
 
 namespace SingularityTrainer
 {
@@ -39,11 +40,7 @@ ShipBuilder::ShipBuilder(b2World &b2_world, Random &rng, IO &io)
 
 std::shared_ptr<IModule> ShipBuilder::get_module_at_screen_position(glm::vec2 point)
 {
-    auto resolution = static_cast<glm::vec2>(io->get_resolution());
-    point.y = resolution.y - point.y;
-    point = point / resolution;
-    point -= 0.5;
-    point = {point.x * (1. / (projection[0][0] * 2)), point.y * (1. / (projection[1][1] * 2))};
+    point = screen_to_world_space(point, static_cast<glm::vec2>(io->get_resolution()), projection);
 
     GetAllQueryCallback query_callback;
     b2_world->QueryAABB(&query_callback, {{point.x, point.y},
@@ -102,11 +99,7 @@ std::shared_ptr<IModule> ShipBuilder::click(std::shared_ptr<IModule> selected_mo
     else
     {
         glm::vec2 point = io->get_cursor_position();
-        auto resolution = static_cast<glm::vec2>(io->get_resolution());
-        point.y = resolution.y - point.y;
-        point = point / resolution;
-        point -= 0.5;
-        point = {point.x * (1. / (projection[0][0] * 2)), point.y * (1. / (projection[1][1] * 2))};
+        point = screen_to_world_space(point, static_cast<glm::vec2>(io->get_resolution()), projection);
         selected_module->get_transform().p = {point.x, point.y};
 
         // Handle placing modules

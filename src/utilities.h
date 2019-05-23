@@ -3,7 +3,7 @@
 #include <vector>
 
 #include <Box2D/Box2D.h>
-#include <glm/vec2.hpp>
+#include <glm/glm.hpp>
 #include <imgui.h>
 
 namespace torch
@@ -17,6 +17,7 @@ ImVec4 glm_to_im(const glm::vec4 &in);
 glm::vec2 radial_distort(glm::vec2 coordinate, glm::vec2 resolution, float strength);
 b2Vec2 rotate_point_around_point(b2Vec2 point, b2Rot angle, b2Vec2 pivot);
 std::string print_tensor(torch::Tensor tensor);
+glm::vec2 screen_to_world_space(glm::vec2 point, glm::vec2 resolution, glm::mat4 projection);
 
 template <typename T>
 std::vector<T> interleave_vectors(const std::vector<std::vector<T>> &vectors)
