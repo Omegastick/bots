@@ -27,9 +27,10 @@ class GetAllQueryCallback : public b2QueryCallback
     inline std::vector<b2Fixture *> &get_collisions() { return fixtures; }
 };
 
-struct ModuleLinkAndDistance
+struct NearestModuleLinkResult
 {
-    ModuleLink *module_link;
+    ModuleLink *nearest_link;
+    ModuleLink *origin_link;
     double distance;
 };
 
@@ -45,7 +46,8 @@ class ShipBuilder
     ShipBuilder(b2World &b2_world, Random &rng, IO &io);
 
     std::shared_ptr<IModule> get_module_at_screen_position(glm::vec2 point);
-    ModuleLinkAndDistance get_nearest_module_link_to_world_position(glm::vec2 point);
+    NearestModuleLinkResult get_nearest_module_link_to_world_position(glm::vec2 point);
+    NearestModuleLinkResult get_nearest_module_link_to_module(IModule &module);
     RenderData get_render_data(bool lightweight = false);
     std::shared_ptr<IModule> click(std::shared_ptr<IModule> selected_module);
 

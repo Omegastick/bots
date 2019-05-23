@@ -139,7 +139,7 @@ TEST_CASE("ThrusterModule converts to correct Json")
     {
         // Attach gun module
         GunModule gun_module;
-        module.get_module_links()[0].link(&gun_module.get_module_links()[0]);
+        module.get_module_links()[0].link(gun_module.get_module_links()[0]);
 
         // Update json
         json = module.to_json();

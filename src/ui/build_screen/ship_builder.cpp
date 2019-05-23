@@ -62,7 +62,7 @@ std::shared_ptr<IModule> ShipBuilder::get_module_at_screen_position(glm::vec2 po
     return *static_cast<std::shared_ptr<IModule> *>(fixture->GetUserData());
 }
 
-ModuleLinkAndDistance ShipBuilder::get_nearest_module_link_to_world_position(glm::vec2 point)
+NearestModuleLinkResult ShipBuilder::get_nearest_module_link_to_world_position(glm::vec2 point)
 {
     b2Vec2 b2_point(point.x, point.y);
 
@@ -86,7 +86,35 @@ ModuleLinkAndDistance ShipBuilder::get_nearest_module_link_to_world_position(glm
         }
     }
 
-    return {closest_link, closest_distance};
+    return {closest_link, nullptr, closest_distance};
+}
+
+NearestModuleLinkResult ShipBuilder::get_nearest_module_link_to_module(IModule &module)
+{
+    double closest_distance = INFINITY;
+    ModuleLink *closest_link = nullptr;
+    ModuleLink *origin_link = nullptr;
+
+    for (auto &module_link : module.get_module_links())
+    {
+        auto world_position = module_link.get_global_transform().p;
+        auto link_and_distance = get_nearest_module_link_to_world_position({world_position.x, world_position.y});
+        if (link_and_distance.nearest_link == nullptr)
+        {
+            continue;
+        }
+        else
+        {
+            if (link_and_distance.distance < closest_distance)
+            {
+                closest_distance = link_and_distance.distance;
+                closest_link = link_and_distance.nearest_link;
+                origin_link = &module_link;
+            }
+        }
+    }
+
+    return {closest_link, origin_link, closest_distance};
 }
 
 std::shared_ptr<IModule> ShipBuilder::click(std::shared_ptr<IModule> selected_module)
@@ -102,37 +130,16 @@ std::shared_ptr<IModule> ShipBuilder::click(std::shared_ptr<IModule> selected_mo
         point = screen_to_world_space(point, static_cast<glm::vec2>(io->get_resolution()), projection);
         selected_module->get_transform().p = {point.x, point.y};
 
-        // Handle placing modules
-        double closest_distance = INFINITY;
-        ModuleLink *closest_link = nullptr;
-        ModuleLink *origin_link = nullptr;
+        // Handle placing modules]
+        auto nearest_link_result = get_nearest_module_link_to_module(*selected_module);
 
-        for (auto &module_link : selected_module->get_module_links())
-        {
-            auto world_position = module_link.get_global_transform().p;
-            auto link_and_distance = get_nearest_module_link_to_world_position({world_position.x, world_position.y});
-            if (link_and_distance.module_link == nullptr)
-            {
-                continue;
-            }
-            else
-            {
-                if (link_and_distance.distance < max_link_distance && link_and_distance.distance < closest_distance)
-                {
-                    closest_distance = link_and_distance.distance;
-                    closest_link = link_and_distance.module_link;
-                    origin_link = &module_link;
-                }
-            }
-        }
-
-        if (closest_link == nullptr)
+        if (nearest_link_result.nearest_link == nullptr || nearest_link_result.distance > max_link_distance)
         {
             return nullptr;
         }
         else
         {
-            closest_link->link(origin_link);
+            nearest_link_result.nearest_link->link(*nearest_link_result.origin_link);
             agent.add_module(selected_module);
             agent.update_body();
             agent.register_actions();
@@ -242,7 +249,7 @@ TEST_CASE("ShipBuilder")
     {
         SUBCASE("Selects the correct link under normal use")
         {
-            auto selected_link = ship_builder.get_nearest_module_link_to_world_position({0, 10}).module_link;
+            auto selected_link = ship_builder.get_nearest_module_link_to_world_position({0, 10}).nearest_link;
             auto expected_link = &ship_builder.get_agent()->get_modules()[0]->get_module_links()[0];
 
             CHECK(selected_link == expected_link);
@@ -258,7 +265,7 @@ TEST_CASE("ShipBuilder")
                 }
             }
 
-            auto selected_link = ship_builder.get_nearest_module_link_to_world_position({0, 10}).module_link;
+            auto selected_link = ship_builder.get_nearest_module_link_to_world_position({0, 10}).nearest_link;
 
             CHECK(selected_link == nullptr);
         }
