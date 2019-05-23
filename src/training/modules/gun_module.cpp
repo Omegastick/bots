@@ -34,9 +34,9 @@ GunModule::GunModule() : cooldown(3), steps_since_last_shot(0)
     transform.SetIdentity();
 
     // Module links
-    module_links.push_back(ModuleLink(0.5, -0.167, 90, this));
+    module_links.push_back(ModuleLink(-0.5, -0.167, 90, this));
     module_links.push_back(ModuleLink(0, -0.5, 180, this));
-    module_links.push_back(ModuleLink(-0.5, -0.167, 270, this));
+    module_links.push_back(ModuleLink(0.5, -0.167, 270, this));
 
     actions.push_back(std::make_unique<ActivateAction>(this));
 }

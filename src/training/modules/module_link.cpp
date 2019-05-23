@@ -63,13 +63,26 @@ TEST_CASE("ModuleLink")
         module.get_transform().p = {2, 3};
         module.get_transform().q = b2Rot(glm::radians(-90.f));
 
-        auto module_link = module.get_module_links()[1];
+        auto module_link = module.get_module_links()[3];
         auto global_transform = module_link.get_global_transform();
 
         CHECK(global_transform.p.x == doctest::Approx(2));
         CHECK(global_transform.p.y == doctest::Approx(2.5));
-        CHECK(global_transform.q.s == doctest::Approx(0));
-        CHECK(global_transform.q.c == doctest::Approx(1));
+        CHECK(global_transform.q.s == doctest::Approx(b2Rot(glm::radians(180.f)).s));
+        CHECK(global_transform.q.c == doctest::Approx(b2Rot(glm::radians(180.f)).c));
+    }
+
+    SUBCASE("Correctly links two modules")
+    {
+        BaseModule module_1;
+        BaseModule module_2;
+
+        module_1.get_module_links()[1].link(module_2.get_module_links()[3]);
+
+        CHECK(module_2.get_transform().p.x == doctest::Approx(-1));
+        CHECK(module_2.get_transform().p.y == doctest::Approx(0));
+        CHECK(module_2.get_transform().q.c == doctest::Approx(b2Rot(0).c));
+        CHECK(module_2.get_transform().q.s == doctest::Approx(b2Rot(0).s));
     }
 }
 }
