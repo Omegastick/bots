@@ -27,7 +27,6 @@ BuildScreen::BuildScreen(ResourceManager &resource_manager, ScreenManager &scree
       io(&io),
       part_selector_window(PartSelectorWindow(resource_manager)),
       available_parts({"base_module", "gun_module", "thruster_module", "laser_sensor_module"}),
-      selected_part(),
       projection(glm::ortho(0.f, 1920.f, 0.f, 1080.f)),
       b2_world(b2Vec2(0, 0)),
       ship_builder(b2_world, rng, io),
@@ -51,10 +50,9 @@ BuildScreen::BuildScreen(ResourceManager &resource_manager, ScreenManager &scree
 
 void BuildScreen::update(double /*delta_time*/)
 {
-    auto selected_part_ = part_selector_window.update(available_parts);
-    if (selected_part_ != "")
+    auto selected_part = part_selector_window.update(available_parts);
+    if (selected_part != "")
     {
-        selected_part = selected_part_;
         module_to_place = std::make_shared<GunModule>();
     }
 
@@ -62,8 +60,7 @@ void BuildScreen::update(double /*delta_time*/)
     {
         if (ship_builder.click(module_to_place) != nullptr)
         {
-            module_to_place == nullptr;
-            selected_part = "";
+            module_to_place = nullptr;
         }
     }
 
@@ -83,7 +80,7 @@ void BuildScreen::draw(Renderer &renderer, bool lightweight)
 
     RenderData render_data;
 
-    if (selected_part != "")
+    if (module_to_place != nullptr)
     {
         auto cursor_world_position = screen_to_world_space(io->get_cursor_position(),
                                                            io->get_resolution(),
@@ -98,28 +95,9 @@ void BuildScreen::draw(Renderer &renderer, bool lightweight)
         }
 
         render_data.append(module_to_place->get_render_data());
-
-        for (const auto &link : module_to_place->get_module_links())
-        {
-            auto transform = link.get_global_transform();
-            test_sprite.set_position({transform.p.x, transform.p.y});
-            test_sprite.set_rotation(transform.q.GetAngle());
-            renderer.draw(test_sprite, ship_builder.get_projection());
-        }
     }
 
     render_data.append(ship_builder.get_render_data());
-
-    for (const auto &module : ship_builder.get_agent()->get_modules())
-    {
-        for (const auto &link : module->get_module_links())
-        {
-            auto transform = link.get_global_transform();
-            test_sprite.set_position({transform.p.x, transform.p.y});
-            test_sprite.set_rotation(transform.q.GetAngle());
-            renderer.draw(test_sprite, ship_builder.get_projection());
-        }
-    }
 
     renderer.draw(render_data, ship_builder.get_projection(), 0., lightweight);
 
