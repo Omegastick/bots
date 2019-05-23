@@ -94,6 +94,15 @@ void BuildScreen::draw(Renderer &renderer, bool lightweight)
         }
     }
 
+    for (int x = -10; x < 10; ++x)
+    {
+        for (int y = -10; y < 10; ++y)
+        {
+            test_sprite.set_position({x, y});
+            renderer.draw(test_sprite, ship_builder.get_projection());
+        }
+    }
+
     renderer.end();
 }
 }
