@@ -38,6 +38,8 @@ ShipBuilder::ShipBuilder(b2World &b2_world, Random &rng, IO &io)
     agent.update_body();
 }
 
+void ShipBuilder::delete_module(std::shared_ptr<IModule> module) {}
+
 std::shared_ptr<IModule> ShipBuilder::get_module_at_screen_position(glm::vec2 point)
 {
     point = screen_to_world_space(point, static_cast<glm::vec2>(io->get_resolution()), projection);
@@ -159,6 +161,28 @@ TEST_CASE("ShipBuilder")
 
         auto json = modules[0]->to_json();
         CHECK(json["type"] == "base");
+    }
+
+    SUBCASE("delete_module()")
+    {
+        SUBCASE("Correctly deletes a module")
+        {
+            auto gun_module = std::make_shared<GunModule>();
+            io.set_cursor_position(1030, 545);
+            auto placed_module = ship_builder.place_module(gun_module);
+
+            ship_builder.delete_module(placed_module);
+
+            CHECK(ship_builder.get_agent()->get_modules().size() == 1);
+        }
+
+        SUBCASE("Won't delete base module")
+        {
+            auto base_module = ship_builder.get_agent()->get_modules()[0];
+            ship_builder.delete_module(base_module);
+
+            CHECK(ship_builder.get_agent()->get_modules().size() == 1);
+        }
     }
 
     SUBCASE("place_module()")
