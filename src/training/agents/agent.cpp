@@ -247,9 +247,12 @@ nlohmann::json Agent::to_json() const
 void Agent::update_body()
 {
     // Destroy all fixtures
-    for (b2Fixture *f = rigid_body->body->GetFixtureList(); f; f = f->GetNext())
+    auto fixture = rigid_body->body->GetFixtureList();
+    while (fixture)
     {
-        rigid_body->body->DestroyFixture(f);
+        auto next_fixture = fixture->GetNext();
+        rigid_body->body->DestroyFixture(fixture);
+        fixture = next_fixture;
     }
 
     for (auto &module : modules)
