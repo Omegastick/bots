@@ -49,7 +49,7 @@ class ShipBuilder
     NearestModuleLinkResult get_nearest_module_link_to_world_position(glm::vec2 point);
     NearestModuleLinkResult get_nearest_module_link_to_module(IModule &module);
     RenderData get_render_data(bool lightweight = false);
-    std::shared_ptr<IModule> click(std::shared_ptr<IModule> selected_module);
+    std::shared_ptr<IModule> place_module(std::shared_ptr<IModule> selected_module);
 
     inline Agent *get_agent() { return &agent; }
     inline glm::mat4 &get_projection() { return projection; }
