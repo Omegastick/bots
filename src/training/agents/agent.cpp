@@ -244,6 +244,33 @@ nlohmann::json Agent::to_json() const
     return json;
 }
 
+void Agent::unlink_module(std::shared_ptr<IModule> module)
+{
+    ModuleLink *main_link;
+    for (auto &link : module->get_module_links())
+    {
+        if (link.linked)
+        {
+            if (link.is_parent)
+            {
+                throw std::runtime_error("Can't unlink module with children");
+            }
+            main_link = &link;
+        }
+    }
+
+    main_link->pair_link->linked = false;
+    main_link->pair_link->pair_link = nullptr;
+    main_link->pair_link->is_parent = false;
+    main_link->pair_link->linked_module = nullptr;
+
+    main_link->linked = false;
+    main_link->pair_link = nullptr;
+    main_link->linked_module = nullptr;
+
+    modules.erase(std::find_if(modules.begin(), modules.end(), [module](const auto &i) { return module.get() == i.get(); }));
+}
+
 void Agent::update_body()
 {
     // Destroy all fixtures
@@ -365,6 +392,52 @@ TEST_CASE("Agent")
         auto json = "{\"schema\": \"bad_schema\"}"_json;
 
         CHECK_THROWS(Agent agent(b2_world, &rng, json));
+    }
+
+    SUBCASE("unlink()")
+    {
+        SUBCASE("Removes the module from the Agent")
+        {
+            Agent agent(b2_world, &rng);
+
+            auto base_module = std::make_shared<BaseModule>();
+            auto gun_module = std::make_shared<GunModule>();
+
+            base_module->get_module_links()[0].link(gun_module->get_module_links()[0]);
+
+            agent.add_module(base_module);
+            agent.add_module(gun_module);
+
+            agent.update_body();
+            agent.register_actions();
+
+            agent.unlink_module(gun_module);
+            agent.update_body();
+            agent.register_actions();
+
+            CHECK(agent.get_modules().size() == 1);
+        }
+
+        SUBCASE("Throws when trying to remove module with children")
+        {
+            Agent agent(b2_world, &rng);
+
+            auto base_module = std::make_shared<BaseModule>();
+            auto thruster_module = std::make_shared<ThrusterModule>();
+            auto gun_module = std::make_shared<GunModule>();
+
+            base_module->get_module_links()[0].link(gun_module->get_module_links()[0]);
+            gun_module->get_module_links()[2].link(thruster_module->get_module_links()[0]);
+
+            agent.add_module(base_module);
+            agent.add_module(gun_module);
+            agent.add_module(thruster_module);
+
+            agent.update_body();
+            agent.register_actions();
+
+            CHECK_THROWS(agent.unlink_module(gun_module));
+        }
     }
 }
 }
