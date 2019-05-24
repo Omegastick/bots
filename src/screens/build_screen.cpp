@@ -57,7 +57,7 @@ void BuildScreen::update(double /*delta_time*/)
         module_to_place = std::make_shared<GunModule>();
     }
 
-    if (io->get_left_click() && !ImGui::GetIO().WantCaptureMouse)
+    if (io->get_left_click())
     {
         selected_module = ship_builder.click(module_to_place);
         if (selected_module != nullptr)
