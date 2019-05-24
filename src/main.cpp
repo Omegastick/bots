@@ -177,30 +177,36 @@ void resize_window_callback(GLFWwindow *glfw_window, int x, int y)
 
 void key_callback(GLFWwindow *, int key, int /*scancode*/, int actions, int /*mod*/)
 {
-    if (actions == GLFW_PRESS)
+    if (!ImGui::GetIO().WantCaptureKeyboard)
     {
-        io.press_key(key);
-    }
-    else if (actions == GLFW_RELEASE)
-    {
-        io.release_key(key);
+        if (actions == GLFW_PRESS)
+        {
+            io.press_key(key);
+        }
+        else if (actions == GLFW_RELEASE)
+        {
+            io.release_key(key);
+        }
     }
 }
 
 void mouse_button_callback(GLFWwindow * /*window*/, int button, int action, int /*mods*/)
 {
-    if (button == GLFW_MOUSE_BUTTON_LEFT)
+    if (!ImGui::GetIO().WantCaptureMouse)
     {
-        if (action == GLFW_RELEASE && !io.get_left_click())
+        if (button == GLFW_MOUSE_BUTTON_LEFT)
         {
-            io.left_click();
+            if (action == GLFW_RELEASE && !io.get_left_click())
+            {
+                io.left_click();
+            }
         }
-    }
-    else if (button == GLFW_MOUSE_BUTTON_RIGHT)
-    {
-        if (action == GLFW_RELEASE && !io.get_right_click())
+        else if (button == GLFW_MOUSE_BUTTON_RIGHT)
         {
-            io.right_click();
+            if (action == GLFW_RELEASE && !io.get_right_click())
+            {
+                io.right_click();
+            }
         }
     }
 }
