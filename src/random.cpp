@@ -33,22 +33,24 @@ TEST_CASE("Random")
 
     SUBCASE("Generated floats should be in the right range")
     {
+        bool out_of_range = false;
         for (int i = 0; i < 20; ++i)
         {
             auto number = rng.next_float(-10, 10);
-            CHECK(number >= -10);
-            CHECK(number <= 10);
+            out_of_range = out_of_range || number < -10 || number > 10;
         }
+        CHECK(!out_of_range);
     }
 
     SUBCASE("Generated ints should be in the right range")
     {
+        bool out_of_range = false;
         for (int i = 0; i < 20; ++i)
         {
             auto number = rng.next_int(-10, 10);
-            CHECK(number >= -10);
-            CHECK(number <= 10);
+            out_of_range = out_of_range || number < -10 || number > 10;
         }
+        CHECK(!out_of_range);
     }
 }
 }

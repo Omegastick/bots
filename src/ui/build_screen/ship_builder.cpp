@@ -110,34 +110,26 @@ NearestModuleLinkResult ShipBuilder::get_nearest_module_link_to_module(IModule &
     return {nearest_link, origin_link, nearest_distance};
 }
 
-std::shared_ptr<IModule> ShipBuilder::click(std::shared_ptr<IModule> selected_module)
+std::shared_ptr<IModule> ShipBuilder::place_module(std::shared_ptr<IModule> selected_module)
 {
-    if (selected_module == nullptr)
+    glm::vec2 point = io->get_cursor_position();
+    point = screen_to_world_space(point, static_cast<glm::vec2>(io->get_resolution()), projection);
+    selected_module->get_transform().p = {point.x, point.y};
+
+    // Handle placing modules]
+    auto nearest_link_result = get_nearest_module_link_to_module(*selected_module);
+
+    if (nearest_link_result.nearest_link == nullptr || nearest_link_result.distance > max_link_distance)
     {
-        // Select the module under the cursor
-        return get_module_at_screen_position(io->get_cursor_position());
+        return nullptr;
     }
     else
     {
-        glm::vec2 point = io->get_cursor_position();
-        point = screen_to_world_space(point, static_cast<glm::vec2>(io->get_resolution()), projection);
-        selected_module->get_transform().p = {point.x, point.y};
-
-        // Handle placing modules]
-        auto nearest_link_result = get_nearest_module_link_to_module(*selected_module);
-
-        if (nearest_link_result.nearest_link == nullptr || nearest_link_result.distance > max_link_distance)
-        {
-            return nullptr;
-        }
-        else
-        {
-            nearest_link_result.nearest_link->link(*nearest_link_result.origin_link);
-            agent.add_module(selected_module);
-            agent.update_body();
-            agent.register_actions();
-            return selected_module;
-        }
+        nearest_link_result.nearest_link->link(*nearest_link_result.origin_link);
+        agent.add_module(selected_module);
+        agent.update_body();
+        agent.register_actions();
+        return selected_module;
     }
 }
 
@@ -169,31 +161,14 @@ TEST_CASE("ShipBuilder")
         CHECK(json["type"] == "base");
     }
 
-    SUBCASE("click()")
+    SUBCASE("place_module()")
     {
-        SUBCASE("Correctly selects the initial base module")
-        {
-            io.set_cursor_position(960, 540);
-            auto selected_module = ship_builder.click(nullptr);
-            auto base_module = ship_builder.get_agent()->get_modules()[0];
-
-            CHECK(selected_module == base_module);
-        }
-
-        SUBCASE("Returns nullptr when clicking in empty space")
-        {
-            io.set_cursor_position(0, 0);
-            auto selected_module = ship_builder.click(nullptr);
-
-            CHECK(selected_module == nullptr);
-        }
-
         SUBCASE("Correctly places a gun module")
         {
             auto gun_module = std::make_shared<GunModule>();
             io.set_cursor_position(1030, 545);
 
-            auto selected_module = ship_builder.click(gun_module);
+            auto selected_module = ship_builder.place_module(gun_module);
 
             CHECK(selected_module == gun_module);
             REQUIRE(ship_builder.get_agent()->get_modules().size() == 2);
@@ -206,11 +181,11 @@ TEST_CASE("ShipBuilder")
         {
             auto gun_module_1 = std::make_shared<GunModule>();
             io.set_cursor_position(1030, 545);
-            ship_builder.click(gun_module_1);
+            ship_builder.place_module(gun_module_1);
 
             auto gun_module_2 = std::make_shared<GunModule>();
             io.set_cursor_position(960, 625);
-            auto selected_module = ship_builder.click(gun_module_2);
+            auto selected_module = ship_builder.place_module(gun_module_2);
 
             CHECK(selected_module == gun_module_2);
             REQUIRE(ship_builder.get_agent()->get_modules().size() == 3);
@@ -223,11 +198,11 @@ TEST_CASE("ShipBuilder")
         {
             auto gun_module_1 = std::make_shared<GunModule>();
             io.set_cursor_position(1030, 545);
-            ship_builder.click(gun_module_1);
+            ship_builder.place_module(gun_module_1);
 
             auto gun_module_2 = std::make_shared<GunModule>();
             io.set_cursor_position(1160, 545);
-            auto selected_module = ship_builder.click(gun_module_2);
+            auto selected_module = ship_builder.place_module(gun_module_2);
 
             CHECK(selected_module == gun_module_2);
             REQUIRE(ship_builder.get_agent()->get_modules().size() == 3);

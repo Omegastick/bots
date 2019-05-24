@@ -59,7 +59,15 @@ void BuildScreen::update(double /*delta_time*/)
 
     if (io->get_left_click())
     {
-        selected_module = ship_builder.click(module_to_place);
+        if (module_to_place == nullptr)
+        {
+            selected_module = ship_builder.get_module_at_screen_position(io->get_cursor_position());
+        }
+        else
+        {
+            selected_module = ship_builder.place_module(module_to_place);
+        }
+
         if (selected_module != nullptr)
         {
             module_to_place = nullptr;
