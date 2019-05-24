@@ -5,6 +5,7 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/glm.hpp>
 #include <nlohmann/json.hpp>
+#include <spdlog/spdlog.h>
 
 #include "ui/build_screen/ship_builder.h"
 #include "graphics/render_data.h"
@@ -38,7 +39,16 @@ ShipBuilder::ShipBuilder(b2World &b2_world, Random &rng, IO &io)
     agent.update_body();
 }
 
-void ShipBuilder::delete_module(std::shared_ptr<IModule> module) {}
+void ShipBuilder::delete_module(std::shared_ptr<IModule> module)
+{
+    if (module == agent.get_modules()[0])
+    {
+        spdlog::error("Can't delete base module");
+        return;
+    }
+    agent.unlink_module(module);
+    agent.update_body();
+}
 
 std::shared_ptr<IModule> ShipBuilder::get_module_at_screen_position(glm::vec2 point)
 {

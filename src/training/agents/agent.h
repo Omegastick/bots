@@ -49,6 +49,7 @@ class Agent : public ICollidable
     void register_actions();
     void reset();
     nlohmann::json to_json() const;
+    void unlink_module(std::shared_ptr<IModule> module);
     void update_body();
 
     inline const std::vector<IAction *> &get_actions() const { return actions; }
