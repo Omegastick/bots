@@ -46,7 +46,7 @@ set(ST_TARGETS
 # Enable all warnings
 foreach(target ${ST_TARGETS})
     if(MSVC)
-    target_compile_options(${target} PRIVATE /W4 /WX)
+    target_compile_options(${target} PRIVATE /W0)
     else(MSVC)
     target_compile_options(${target} PRIVATE -Wall -Wextra -pedantic)
     endif(MSVC)    
@@ -94,12 +94,12 @@ add_subdirectory(${JSON_DIR})
 
 # Link libraries
 target_link_libraries(Misc doctest)
-target_link_libraries(Training Graphics cpprl torch ${TORCH_LIBRARIES} TG::Box2D doctest stdc++)
+target_link_libraries(Training Graphics cpprl torch ${TORCH_LIBRARIES} TG::Box2D doctest)
 # UNIX systems sometimes need to explicitly link the threading library and filesystem library
 if (UNIX)
-    target_link_libraries(Training pthread)
+    target_link_libraries(Training pthread stdc++)
     target_link_libraries(SingularityTrainer stdc++fs)
-endif()
+endif(UNIX)
 target_link_libraries(Graphics glad glfw ${GLFW_LIBRARIES} glm imgui doctest)
 target_link_libraries(SingularityTrainer Graphics Misc Training nlohmann_json::nlohmann_json)
 target_link_libraries(HeadlessTrainer Graphics Misc Training)
