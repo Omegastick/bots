@@ -5,7 +5,7 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 
-#include "iscreen.h"
+#include "screens/iscreen.h"
 #include "graphics/renderers/renderer.h"
 #include "graphics/backend/vertex_array.h"
 #include "graphics/backend/vertex_buffer.h"

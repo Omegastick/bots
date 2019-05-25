@@ -2,7 +2,7 @@
 
 #include <doctest.h>
 
-#include "random.h"
+#include "misc/random.h"
 
 namespace SingularityTrainer
 {

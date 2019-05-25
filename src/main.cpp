@@ -13,13 +13,12 @@
 #include "graphics/window.h"
 #include "graphics/colors.h"
 #include "graphics/renderers/renderer.h"
-#include "io.h"
-#include "random.h"
-#include "requests.h"
-#include "screen_manager.h"
-#include "resource_manager.h"
+#include "misc/io.h"
+#include "misc/random.h"
+#include "misc/screen_manager.h"
+#include "misc/resource_manager.h"
 #include "screens/main_menu_screen.h"
-#include "utilities.h"
+#include "misc/utilities.h"
 
 using namespace SingularityTrainer;
 

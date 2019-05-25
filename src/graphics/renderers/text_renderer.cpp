@@ -9,7 +9,7 @@
 #include "graphics/backend/element_buffer.h"
 #include "graphics/font.h"
 #include "graphics/render_data.h"
-#include "resource_manager.h"
+#include "misc/resource_manager.h"
 
 namespace SingularityTrainer
 {

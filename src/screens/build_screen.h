@@ -8,7 +8,7 @@
 #include <glm/mat4x4.hpp>
 
 #include "graphics/sprite.h"
-#include "iscreen.h"
+#include "screens/iscreen.h"
 #include "training/modules/gun_module.h"
 #include "ui/build_screen/part_detail_window.h"
 #include "ui/build_screen/part_selector_window.h"

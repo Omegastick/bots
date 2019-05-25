@@ -16,9 +16,9 @@
 #include "graphics/post_proc_layer.h"
 #include "graphics/sprite.h"
 #include "graphics/backend/texture.h"
-#include "resource_manager.h"
-#include "screen_manager.h"
-#include "iscreen.h"
+#include "misc/resource_manager.h"
+#include "misc/screen_manager.h"
+#include "screens/iscreen.h"
 
 namespace SingularityTrainer
 {

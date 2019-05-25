@@ -6,8 +6,8 @@
 
 #include <glm/glm.hpp>
 
-#include "iscreen.h"
-#include "random.h"
+#include "screens/iscreen.h"
+#include "misc/random.h"
 
 class b2World;
 

@@ -10,14 +10,14 @@
 #include <nlohmann/json.hpp>
 
 #include "graphics/colors.h"
-#include "resource_manager.h"
+#include "misc/resource_manager.h"
 #include "training/actions/activate_action.h"
 #include "training/agents/agent.h"
 #include "training/modules/imodule.h"
 #include "training/modules/thruster_module.h"
 #include "training/modules/gun_module.h"
 #include "training/rigid_body.h"
-#include "random.h"
+#include "misc/random.h"
 
 namespace SingularityTrainer
 {

@@ -1,9 +1,9 @@
 #include <iterator>
 
-#include <doctest/doctest.h>
+#include <doctest.h>
 #include <glm/glm.hpp>
 
-#include "io.h"
+#include "misc/io.h"
 
 namespace SingularityTrainer
 {

@@ -9,14 +9,14 @@
 
 #include "ui/build_screen/ship_builder.h"
 #include "graphics/render_data.h"
-#include "io.h"
-#include "random.h"
+#include "misc/io.h"
+#include "misc/random.h"
 #include "training/agents/agent.h"
 #include "training/modules/base_module.h"
 #include "training/modules/gun_module.h"
 #include "training/modules/module_link.h"
 #include "training/rigid_body.h"
-#include "utilities.h"
+#include "misc/utilities.h"
 
 namespace SingularityTrainer
 {

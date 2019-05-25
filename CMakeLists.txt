@@ -31,14 +31,16 @@ set(CMAKE_CXX_FLAGS_RELEASE -O3)
 add_executable(SingularityTrainer "")
 add_executable(HeadlessTrainer "")
 add_executable(GraphicsPlayground "")
-add_library(Training "")
 add_library(Graphics "")
+add_library(Misc "")
+add_library(Training "")
 set(ST_TARGETS
     SingularityTrainer
     HeadlessTrainer
     GraphicsPlayground
-    Training
     Graphics
+    Misc
+    Training
 )
 
 # Enable all warnings
@@ -91,16 +93,17 @@ option(JSON_BuildTests "" OFF)
 add_subdirectory(${JSON_DIR})
 
 # Link libraries
-target_link_libraries(Training cpprl torch ${TORCH_LIBRARIES} TG::Box2D doctest stdc++)
+target_link_libraries(Misc doctest)
+target_link_libraries(Training Graphics cpprl torch ${TORCH_LIBRARIES} TG::Box2D doctest stdc++)
 # UNIX systems sometimes need to explicitly link the threading library and filesystem library
 if (UNIX)
     target_link_libraries(Training pthread)
     target_link_libraries(SingularityTrainer stdc++fs)
 endif()
 target_link_libraries(Graphics glad glfw ${GLFW_LIBRARIES} glm imgui doctest)
-target_link_libraries(SingularityTrainer Training Graphics nlohmann_json::nlohmann_json)
-target_link_libraries(HeadlessTrainer Training Graphics)
-target_link_libraries(GraphicsPlayground Training Graphics)
+target_link_libraries(SingularityTrainer Graphics Misc Training nlohmann_json::nlohmann_json)
+target_link_libraries(HeadlessTrainer Graphics Misc Training)
+target_link_libraries(GraphicsPlayground Graphics Misc Training)
 
 # Inlcudes
 set(INCLUDE_DIRS
@@ -122,7 +125,8 @@ set(INCLUDE_DIRS
 target_include_directories(SingularityTrainer PUBLIC ${INCLUDE_DIRS})
 target_include_directories(HeadlessTrainer PUBLIC ${INCLUDE_DIRS})
 target_include_directories(GraphicsPlayground PUBLIC ${INCLUDE_DIRS})
-target_include_directories(Training PUBLIC ${INCLUDE_DIRS})
 target_include_directories(Graphics PUBLIC ${INCLUDE_DIRS})
+target_include_directories(Misc PUBLIC ${INCLUDE_DIRS})
+target_include_directories(Training PUBLIC ${INCLUDE_DIRS})
 
 add_subdirectory(src)

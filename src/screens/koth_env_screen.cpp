@@ -11,8 +11,8 @@
 #include "graphics/colors.h"
 #include "training/environments/koth_env.h"
 #include "training/trainers/quick_trainer.h"
-#include "iscreen.h"
-#include "resource_manager.h"
+#include "screens/iscreen.h"
+#include "misc/resource_manager.h"
 
 namespace SingularityTrainer
 {

@@ -8,7 +8,7 @@
 #include <spdlog/spdlog.h>
 
 #include "graphics/colors.h"
-#include "resource_manager.h"
+#include "misc/resource_manager.h"
 #include "training/agents/agent.h"
 #include "training/environments/ienvironment.h"
 #include "training/modules/base_module.h"

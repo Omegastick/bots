@@ -3,7 +3,7 @@
 
 #include <spdlog/spdlog.h>
 
-#include "resource_manager.h"
+#include "misc/resource_manager.h"
 #include "graphics/backend/texture.h"
 #include "graphics/backend/shader.h"
 #include "graphics/font.h"

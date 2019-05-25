@@ -7,7 +7,7 @@
 #include <nlohmann/json.hpp>
 
 #include "graphics/sprite.h"
-#include "resource_manager.h"
+#include "misc/resource_manager.h"
 #include "training/actions/activate_action.h"
 #include "training/agents/agent.h"
 #include "training/entities/bullet.h"

@@ -13,7 +13,7 @@
 #include "training/entities/wall.h"
 #include "training/entities/hill.h"
 #include "training/rigid_body.h"
-#include "random.h"
+#include "misc/random.h"
 
 namespace SingularityTrainer
 {

@@ -7,7 +7,7 @@
 #include <nlohmann/json.hpp>
 
 #include "graphics/colors.h"
-#include "resource_manager.h"
+#include "misc/resource_manager.h"
 #include "training/agents/agent.h"
 #include "training/modules/base_module.h"
 #include "training/modules/imodule.h"
@@ -15,7 +15,7 @@
 #include "training/modules/module_link.h"
 #include "training/modules/gun_module.h"
 #include "training/rigid_body.h"
-#include "utilities.h"
+#include "misc/utilities.h"
 
 namespace SingularityTrainer
 {

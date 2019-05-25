@@ -11,9 +11,9 @@
 #include "graphics/backend/shader.h"
 #include "graphics/renderers/renderer.h"
 #include "graphics/sprite.h"
-#include "resource_manager.h"
-#include "screen_manager.h"
-#include "iscreen.h"
+#include "misc/resource_manager.h"
+#include "misc/screen_manager.h"
+#include "screens/iscreen.h"
 
 namespace SingularityTrainer
 {

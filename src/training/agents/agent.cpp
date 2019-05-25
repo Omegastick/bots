@@ -7,7 +7,7 @@
 #include <nlohmann/json.hpp>
 #include <spdlog/spdlog.h>
 
-#include "random.h"
+#include "misc/random.h"
 #include "training/agents/agent.h"
 #include "training/environments/ienvironment.h"
 #include "training/modules/base_module.h"
@@ -16,8 +16,8 @@
 #include "training/modules/laser_sensor_module.h"
 #include "training/rigid_body.h"
 #include "graphics/colors.h"
-#include "utilities.h"
-#include "random.h"
+#include "misc/utilities.h"
+#include "misc/random.h"
 
 namespace SingularityTrainer
 {

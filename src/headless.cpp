@@ -6,8 +6,7 @@
 #include <spdlog/spdlog.h>
 
 #include "training/trainers/quick_trainer.h"
-#include "random.h"
-#include "requests.h"
+#include "misc/random.h"
 
 using namespace SingularityTrainer;
 

@@ -6,7 +6,7 @@
 
 #include <glm/glm.hpp>
 
-#include "iscreen.h"
+#include "screens/iscreen.h"
 #include "graphics/font.h"
 #include "graphics/render_data.h"
 

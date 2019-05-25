@@ -2,7 +2,7 @@
 
 #include <string>
 
-#include "asset_store.h"
+#include "misc/asset_store.h"
 
 namespace SingularityTrainer
 {

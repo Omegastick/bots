@@ -6,7 +6,7 @@
 #include <glm/glm.hpp>
 #include <torch/torch.h>
 
-#include "utilities.h"
+#include "misc/utilities.h"
 
 namespace SingularityTrainer
 {

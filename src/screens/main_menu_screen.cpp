@@ -5,12 +5,12 @@
 #include "screens/main_menu_screen.h"
 #include "graphics/renderers/renderer.h"
 #include "graphics/sprite.h"
-#include "io.h"
-#include "resource_manager.h"
+#include "misc/io.h"
+#include "misc/resource_manager.h"
 #include "screens/koth_env_screen.h"
 #include "screens/build_screen.h"
 #include "screens/watch_screen.h"
-#include "screen_manager.h"
+#include "misc/screen_manager.h"
 
 namespace SingularityTrainer
 {

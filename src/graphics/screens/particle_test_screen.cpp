@@ -17,8 +17,8 @@
 #include "graphics/backend/vertex_buffer.h"
 #include "graphics/colors.h"
 #include "graphics/render_data.h"
-#include "resource_manager.h"
-#include "screen_manager.h"
+#include "misc/resource_manager.h"
+#include "misc/screen_manager.h"
 
 namespace SingularityTrainer
 {
