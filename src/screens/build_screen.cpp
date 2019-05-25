@@ -12,12 +12,13 @@
 #include "graphics/render_data.h"
 #include "graphics/sprite.h"
 #include "misc/io.h"
+#include "misc/module_factory.h"
 #include "misc/random.h"
 #include "misc/resource_manager.h"
 #include "misc/screen_manager.h"
+#include "misc/utilities.h"
 #include "ui/build_screen/part_selector_window.h"
 #include "ui/build_screen/ship_builder.h"
-#include "misc/utilities.h"
 
 namespace SingularityTrainer
 {
@@ -27,7 +28,7 @@ BuildScreen::BuildScreen(ResourceManager &resource_manager, ScreenManager &scree
       io(&io),
       part_detail_window(io),
       part_selector_window(io, resource_manager),
-      available_parts({"base_module", "gun_module", "thruster_module", "laser_sensor_module"}),
+      available_parts({"base", "gun", "thruster", "laser_sensor"}),
       projection(glm::ortho(0.f, 1920.f, 0.f, 1080.f)),
       b2_world(b2Vec2(0, 0)),
       ship_builder(b2_world, rng, io),
@@ -38,7 +39,7 @@ BuildScreen::BuildScreen(ResourceManager &resource_manager, ScreenManager &scree
     resource_manager.load_texture("base_module", "images/base_module.png");
     for (const auto &part : available_parts)
     {
-        resource_manager.load_texture(part, "images/" + part + ".png");
+        resource_manager.load_texture(part + "_module", "images/" + part + "_module.png");
     }
     resource_manager.load_shader("texture", "shaders/texture.vert", "shaders/texture.frag");
     resource_manager.load_shader("font", "shaders/texture.vert", "shaders/font.frag");
@@ -54,7 +55,7 @@ void BuildScreen::update(double /*delta_time*/)
     auto selected_part = part_selector_window.update(available_parts);
     if (selected_part != "")
     {
-        module_to_place = std::make_shared<GunModule>();
+        module_to_place = ModuleFactory::create_module(selected_part);
     }
 
     if (io->get_left_click())
