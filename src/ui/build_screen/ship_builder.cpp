@@ -124,11 +124,6 @@ NearestModuleLinkResult ShipBuilder::get_nearest_module_link_to_module(IModule &
 
 std::shared_ptr<IModule> ShipBuilder::place_module(std::shared_ptr<IModule> selected_module)
 {
-    glm::vec2 point = io->get_cursor_position();
-    point = screen_to_world_space(point, static_cast<glm::vec2>(io->get_resolution()), projection);
-    selected_module->get_transform().p = {point.x, point.y};
-
-    // Handle placing modules]
     auto nearest_link_result = get_nearest_module_link_to_module(*selected_module);
 
     if (nearest_link_result.nearest_link == nullptr || nearest_link_result.distance > max_link_distance)
@@ -178,7 +173,8 @@ TEST_CASE("ShipBuilder")
         SUBCASE("Correctly deletes a module")
         {
             auto gun_module = std::make_shared<GunModule>();
-            io.set_cursor_position(1030, 545);
+            auto point = screen_to_world_space({1030, 545}, io.get_resolution(), ship_builder.get_projection());
+            gun_module->get_transform().p = {point.x, point.y};
             auto placed_module = ship_builder.place_module(gun_module);
 
             ship_builder.delete_module(placed_module);
@@ -200,7 +196,8 @@ TEST_CASE("ShipBuilder")
         SUBCASE("Correctly places a gun module")
         {
             auto gun_module = std::make_shared<GunModule>();
-            io.set_cursor_position(1030, 545);
+            auto point = screen_to_world_space({1030, 545}, io.get_resolution(), ship_builder.get_projection());
+            gun_module->get_transform().p = {point.x, point.y};
 
             auto selected_module = ship_builder.place_module(gun_module);
 
@@ -214,11 +211,13 @@ TEST_CASE("ShipBuilder")
         SUBCASE("Correctly places two gun modules")
         {
             auto gun_module_1 = std::make_shared<GunModule>();
-            io.set_cursor_position(1030, 545);
+            auto point = screen_to_world_space({1030, 545}, io.get_resolution(), ship_builder.get_projection());
+            gun_module_1->get_transform().p = {point.x, point.y};
             ship_builder.place_module(gun_module_1);
 
             auto gun_module_2 = std::make_shared<GunModule>();
-            io.set_cursor_position(960, 625);
+            point = screen_to_world_space({960, 625}, io.get_resolution(), ship_builder.get_projection());
+            gun_module_2->get_transform().p = {point.x, point.y};
             auto selected_module = ship_builder.place_module(gun_module_2);
 
             CHECK(selected_module == gun_module_2);
@@ -231,11 +230,13 @@ TEST_CASE("ShipBuilder")
         SUBCASE("Can chain modules")
         {
             auto gun_module_1 = std::make_shared<GunModule>();
-            io.set_cursor_position(1030, 545);
+            auto point = screen_to_world_space({1030, 545}, io.get_resolution(), ship_builder.get_projection());
+            gun_module_1->get_transform().p = {point.x, point.y};
             ship_builder.place_module(gun_module_1);
 
             auto gun_module_2 = std::make_shared<GunModule>();
-            io.set_cursor_position(1160, 545);
+            point = screen_to_world_space({1160, 545}, io.get_resolution(), ship_builder.get_projection());
+            gun_module_2->get_transform().p = {point.x, point.y};
             auto selected_module = ship_builder.place_module(gun_module_2);
 
             CHECK(selected_module == gun_module_2);
