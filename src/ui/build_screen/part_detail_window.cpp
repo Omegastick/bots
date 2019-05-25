@@ -4,7 +4,7 @@
 #include <nlohmann/json.hpp>
 
 #include "ui/build_screen/part_detail_window.h"
-#include "io.h"
+#include "misc/io.h"
 #include "training/modules/imodule.h"
 
 namespace SingularityTrainer

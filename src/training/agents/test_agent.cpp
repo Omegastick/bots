@@ -4,7 +4,7 @@
 
 #include <Box2D/Box2D.h>
 
-#include "random.h"
+#include "misc/random.h"
 #include "training/agents/test_agent.h"
 #include "training/modules/base_module.h"
 #include "training/modules/gun_module.h"
@@ -13,7 +13,7 @@
 #include "training/environments/ienvironment.h"
 #include "training/rigid_body.h"
 #include "graphics/colors.h"
-#include "utilities.h"
+#include "misc/utilities.h"
 
 namespace SingularityTrainer
 {

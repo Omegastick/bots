@@ -22,9 +22,9 @@
 #include "graphics/screens/line_test_screen.h"
 #include "graphics/screens/crt_test_screen.h"
 #include "graphics/screens/text_test_screen.h"
-#include "screen_manager.h"
-#include "resource_manager.h"
-#include "iscreen.h"
+#include "misc/screen_manager.h"
+#include "misc/resource_manager.h"
+#include "screens/iscreen.h"
 
 using namespace SingularityTrainer;
 

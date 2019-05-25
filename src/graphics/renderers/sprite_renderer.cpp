@@ -8,7 +8,7 @@
 #include "graphics/backend/shader.h"
 #include "graphics/backend/element_buffer.h"
 #include "graphics/sprite.h"
-#include "resource_manager.h"
+#include "misc/resource_manager.h"
 
 namespace SingularityTrainer
 {

@@ -7,7 +7,7 @@
 #include <cpprl/storage.h>
 #include <glm/mat4x4.hpp>
 
-#include "iscreen.h"
+#include "screens/iscreen.h"
 
 namespace cpprl
 {

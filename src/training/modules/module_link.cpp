@@ -8,7 +8,7 @@
 #include "training/modules/base_module.h"
 #include "training/modules/imodule.h"
 #include "training/modules/module_link.h"
-#include "utilities.h"
+#include "misc/utilities.h"
 
 namespace SingularityTrainer
 {

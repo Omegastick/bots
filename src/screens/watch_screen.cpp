@@ -13,8 +13,7 @@
 #include "graphics/renderers/renderer.h"
 #include "graphics/post_proc_layer.h"
 #include "training/environments/target_env.h"
-#include "resource_manager.h"
-#include "requests.h"
+#include "misc/resource_manager.h"
 
 namespace fs = std::filesystem;
 

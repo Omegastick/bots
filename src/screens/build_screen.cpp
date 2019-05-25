@@ -11,13 +11,13 @@
 #include "graphics/renderers/renderer.h"
 #include "graphics/render_data.h"
 #include "graphics/sprite.h"
-#include "io.h"
-#include "random.h"
-#include "resource_manager.h"
-#include "screen_manager.h"
+#include "misc/io.h"
+#include "misc/random.h"
+#include "misc/resource_manager.h"
+#include "misc/screen_manager.h"
 #include "ui/build_screen/part_selector_window.h"
 #include "ui/build_screen/ship_builder.h"
-#include "utilities.h"
+#include "misc/utilities.h"
 
 namespace SingularityTrainer
 {

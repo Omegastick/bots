@@ -7,7 +7,7 @@
 #include "training/modules/imodule.h"
 #include "training/agents/agent.h"
 #include "training/rigid_body.h"
-#include "utilities.h"
+#include "misc/utilities.h"
 
 namespace SingularityTrainer
 {

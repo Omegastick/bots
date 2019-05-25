@@ -4,7 +4,7 @@
 
 #include <glm/mat4x4.hpp>
 
-#include "iscreen.h"
+#include "screens/iscreen.h"
 
 namespace SingularityTrainer
 {

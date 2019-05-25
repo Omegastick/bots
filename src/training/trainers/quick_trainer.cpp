@@ -7,13 +7,13 @@
 #include <spdlog/fmt/fmt.h>
 #include <torch/torch.h>
 
-#include "random.h"
-#include "resource_manager.h"
+#include "misc/random.h"
+#include "misc/resource_manager.h"
 #include "training/environments/koth_env.h"
 #include "training/trainers/quick_trainer.h"
 #include "training/score_processor.h"
-#include "utilities.h"
-#include "date.h"
+#include "misc/utilities.h"
+#include "misc/date.h"
 
 namespace SingularityTrainer
 {

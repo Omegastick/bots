@@ -3,8 +3,8 @@
 
 #include <spdlog/spdlog.h>
 
-#include "iscreen.h"
-#include "screen_manager.h"
+#include "screens/iscreen.h"
+#include "misc/screen_manager.h"
 
 namespace SingularityTrainer
 {

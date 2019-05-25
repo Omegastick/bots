@@ -6,7 +6,7 @@
 
 #include <glm/glm.hpp>
 
-#include "iscreen.h"
+#include "screens/iscreen.h"
 #include "graphics/renderers/particle_renderer.h"
 
 namespace SingularityTrainer

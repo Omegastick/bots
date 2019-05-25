@@ -1,6 +1,6 @@
 #pragma once
 
-#include "iscreen.h"
+#include "screens/iscreen.h"
 
 namespace SingularityTrainer
 {

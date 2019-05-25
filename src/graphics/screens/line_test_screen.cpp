@@ -12,9 +12,9 @@
 #include "graphics/screens/test_utils.h"
 #include "graphics/renderers/renderer.h"
 #include "graphics/render_data.h"
-#include "resource_manager.h"
-#include "screen_manager.h"
-#include "iscreen.h"
+#include "misc/resource_manager.h"
+#include "misc/screen_manager.h"
+#include "screens/iscreen.h"
 #include "training/agents/test_agent.h"
 
 namespace SingularityTrainer

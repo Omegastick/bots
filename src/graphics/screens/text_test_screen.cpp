@@ -17,9 +17,9 @@
 #include "graphics/backend/vertex_array.h"
 #include "graphics/backend/vertex_buffer.h"
 #include "graphics/backend/element_buffer.h"
-#include "resource_manager.h"
-#include "screen_manager.h"
-#include "iscreen.h"
+#include "misc/resource_manager.h"
+#include "misc/screen_manager.h"
+#include "screens/iscreen.h"
 
 namespace SingularityTrainer
 {

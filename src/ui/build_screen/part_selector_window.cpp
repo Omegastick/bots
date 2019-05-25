@@ -7,10 +7,10 @@
 
 #include "graphics/backend/texture.h"
 #include "graphics/colors.h"
-#include "io.h"
-#include "resource_manager.h"
+#include "misc/io.h"
+#include "misc/resource_manager.h"
 #include "ui/build_screen/part_selector_window.h"
-#include "utilities.h"
+#include "misc/utilities.h"
 
 namespace SingularityTrainer
 {
