@@ -37,7 +37,7 @@ class BuildScreen : public IScreen
     glm::mat4 projection;
     b2World b2_world;
     ShipBuilder ship_builder;
-    std::shared_ptr<GunModule> module_to_place;
+    std::shared_ptr<IModule> module_to_place;
     std::shared_ptr<IModule> selected_module;
     Sprite test_sprite;
     int current_rotation;

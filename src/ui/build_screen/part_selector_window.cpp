@@ -39,7 +39,7 @@ std::string PartSelectorWindow::update(std::vector<std::string> &parts)
         {
             ImGui::SameLine();
         }
-        auto texture = resource_manager->texture_store.get(parts[i]);
+        auto texture = resource_manager->texture_store.get(parts[i] + "_module");
         if (ImGui::ImageButton(ImTextureID(texture->get_id()), ImVec2(image_size, image_size), {1, 1}, {0, 0}))
         {
             selected_part = parts[i];
