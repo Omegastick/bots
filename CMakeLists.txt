@@ -91,7 +91,7 @@ option(JSON_BuildTests "" OFF)
 add_subdirectory(${JSON_DIR})
 
 # Link libraries
-target_link_libraries(Training cpprl torch ${TORCH_LIBRARIES} TG::Box2D doctest)
+target_link_libraries(Training cpprl torch ${TORCH_LIBRARIES} TG::Box2D doctest stdc++)
 # UNIX systems sometimes need to explicitly link the threading library and filesystem library
 if (UNIX)
     target_link_libraries(Training pthread)
