@@ -98,7 +98,7 @@ void reset_imgui_style()
     style.Colors[ImGuiCol_Tab] = glm_to_im(cl_base2);
     style.Colors[ImGuiCol_TabHovered] = glm_to_im(cl_base1_l);
     style.Colors[ImGuiCol_TabActive] = glm_to_im(cl_base1_l);
-    style.Colors[ImGuiCol_Header] = glm_to_im(cl_base2);
+    style.Colors[ImGuiCol_Header] = glm_to_im(cl_base1_l);
     style.Colors[ImGuiCol_HeaderHovered] = glm_to_im(cl_base1_l);
     style.Colors[ImGuiCol_HeaderActive] = glm_to_im(cl_base1_l);
     style.Colors[ImGuiCol_ResizeGrip] = glm_to_im(cl_base2);

@@ -123,7 +123,10 @@ TargetEnv::~TargetEnv()
         command_queue.push(std::move(command));
         command_queue_condvar.notify_one();
     }
-    thread->join();
+    if (thread != nullptr)
+    {
+        thread->join();
+    }
 }
 
 float TargetEnv::get_elapsed_time() const
