@@ -8,6 +8,7 @@
 #include <glm/mat4x4.hpp>
 
 #include "screens/iscreen.h"
+#include "ui/watch_screen/checkpoint_selector_window.h"
 
 namespace cpprl
 {
@@ -16,12 +17,13 @@ class NNBase;
 
 namespace SingularityTrainer
 {
-class ResourceManager;
-class Random;
 class Communicator;
-class Renderer;
-class PostProcLayer;
 class IEnvironment;
+class IO;
+class PostProcLayer;
+class Random;
+class Renderer;
+class ResourceManager;
 
 class WatchScreen : public IScreen
 {
@@ -35,6 +37,7 @@ class WatchScreen : public IScreen
         BROWSING = 0,
         WATCHING = 1
     };
+    CheckpointSelectorWindow checkpoint_selector_window;
     cpprl::Policy policy;
     std::shared_ptr<cpprl::NNBase> nn_base;
     glm::mat4 projection;
@@ -43,13 +46,12 @@ class WatchScreen : public IScreen
     States state;
     std::unique_ptr<PostProcLayer> crt_post_proc_layer;
     std::unique_ptr<IEnvironment> environment;
-    int selected_file;
     int frame_counter;
     torch::Tensor observations, hidden_states, masks;
     std::vector<std::vector<float>> scores;
 
   public:
-    WatchScreen(ResourceManager &resource_manager, Random &rng);
+    WatchScreen(ResourceManager &resource_manager, IO &io);
     ~WatchScreen();
 
     virtual void draw(Renderer &renderer, bool lightweight = false);

@@ -19,12 +19,12 @@ namespace fs = std::filesystem;
 
 namespace SingularityTrainer
 {
-WatchScreen::WatchScreen(ResourceManager &resource_manager, Random & /*rng*/)
-    : policy(nullptr),
+WatchScreen::WatchScreen(ResourceManager &resource_manager, IO &io)
+    : checkpoint_selector_window(io),
+      policy(nullptr),
       projection(glm::ortho(0.f, 1920.f, 0.f, 1080.f)),
       resource_manager(&resource_manager),
       state(States::BROWSING),
-      selected_file(-1),
       frame_counter(0),
       scores({{0}})
 {
@@ -50,7 +50,17 @@ void WatchScreen::update(const double /*delta_time*/)
 {
     if (state == States::BROWSING)
     {
-        show_checkpoint_selector();
+        auto policy_ = checkpoint_selector_window.update();
+        if (policy_ != nullptr)
+        {
+            policy = *policy_;
+            environment->start_thread();
+            observations = environment->reset().get().observation.view({1, -1});
+            masks = torch::zeros({1, 1});
+            hidden_states = torch::zeros({1, 24});
+
+            state = States::WATCHING;
+        }
     }
     else if (state == States::WATCHING)
     {
@@ -119,43 +129,6 @@ void WatchScreen::action_update()
 
 void WatchScreen::show_checkpoint_selector()
 {
-    // Load agent window
-    ImGui::SetNextWindowPosCenter(ImGuiCond_Always);
-    ImGui::Begin("Pick a checkpoint", NULL, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoTitleBar);
-
-    // Enumerate all model files
-    std::vector<std::string> files;
-    for (const auto &file : fs::directory_iterator(fs::current_path()))
-    {
-        if (file.path().extension().string() == ".pth")
-        {
-            auto filename = file.path().filename().string();
-            files.push_back(filename.substr(0, filename.size() - 4));
-        }
-    }
-    std::sort(files.begin(), files.end());
-    // Display list of model files
-    std::vector<char *> c_strings;
-    for (auto &string : files)
-    {
-        c_strings.push_back(&string.front());
-    }
-    ImGui::ListBox("", &selected_file, &c_strings.front(), files.size());
-
-    if (ImGui::Button("Select"))
-    {
-        environment->start_thread();
-        observations = environment->reset().get().observation.view({1, -1});
-        masks = torch::zeros({1, 1});
-        hidden_states = torch::zeros({1, 24});
-
-        nn_base = std::make_shared<cpprl::MlpBase>(23, false, 24);
-        policy = cpprl::Policy(cpprl::ActionSpace{"MultiBinary", {4}}, nn_base);
-        torch::load(policy, files[selected_file] + ".pth");
-
-        state = States::WATCHING;
-    }
-    ImGui::End();
 }
 
 void WatchScreen::show_agent_scores()

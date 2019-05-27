@@ -40,7 +40,7 @@ void MainMenuScreen::update(double /*delta_time*/)
     }
     if (ImGui::Button("Load Agent"))
     {
-        screen_manager->show_screen(std::make_shared<WatchScreen>(*resource_manager, *rng));
+        screen_manager->show_screen(std::make_shared<WatchScreen>(*resource_manager, *io));
     }
     if (ImGui::Button("Build Ship"))
     {
@@ -50,7 +50,7 @@ void MainMenuScreen::update(double /*delta_time*/)
     ImGui::PopFont();
     ImGui::PopStyleColor(5);
 
-    // ImGui::ShowDemoWindow();
+    // ImGui::ShowStyleEditor();
 }
 
 void MainMenuScreen::draw(Renderer &renderer, bool /*lightweight*/)
