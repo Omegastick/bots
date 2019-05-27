@@ -31,8 +31,6 @@ const int opengl_version_minor = 3;
 int last_resolution_x = resolution_x;
 int last_resolution_y = resolution_y;
 
-IO io;
-
 void error_callback(int error, const char *description)
 {
     spdlog::error("GLFW error: [{}] {}", error, description);
@@ -141,8 +139,9 @@ void init_imgui(const int opengl_version_major, const int opengl_version_minor, 
     reset_imgui_style();
 }
 
-void cursor_pos_callback(GLFWwindow * /*glfw_window*/, double x, double y)
+void cursor_pos_callback(GLFWwindow *glfw_window, double x, double y)
 {
+    auto io = static_cast<Window *>(glfwGetWindowUserPointer(glfw_window))->get_io();
     y = io.get_resolution().y - y;
     io.set_cursor_position(x, y);
 }
@@ -172,14 +171,16 @@ void resize_window_callback(GLFWwindow *glfw_window, int x, int y)
     Window *window = static_cast<Window *>(glfwGetWindowUserPointer(glfw_window));
     window->get_renderer().resize(x, y);
 
+    auto io = window->get_io();
     io.set_resolution(x, y);
 
     last_resolution_x = x;
     last_resolution_y = y;
 }
 
-void key_callback(GLFWwindow *, int key, int /*scancode*/, int actions, int /*mod*/)
+void key_callback(GLFWwindow *glfw_window, int key, int /*scancode*/, int actions, int /*mod*/)
 {
+    auto io = static_cast<Window *>(glfwGetWindowUserPointer(glfw_window))->get_io();
     if (!ImGui::GetIO().WantCaptureKeyboard)
     {
         if (actions == GLFW_PRESS)
@@ -193,8 +194,9 @@ void key_callback(GLFWwindow *, int key, int /*scancode*/, int actions, int /*mo
     }
 }
 
-void mouse_button_callback(GLFWwindow * /*window*/, int button, int action, int /*mods*/)
+void mouse_button_callback(GLFWwindow *glfw_window, int button, int action, int /*mods*/)
 {
+    auto io = static_cast<Window *>(glfwGetWindowUserPointer(glfw_window))->get_io();
     if (!ImGui::GetIO().WantCaptureMouse)
     {
         if (button == GLFW_MOUSE_BUTTON_LEFT)
@@ -254,7 +256,9 @@ int main(int argc, const char *argv[])
     ResourceManager resource_manager("assets/");
     Random rng(1);
     Renderer renderer(resolution_x, resolution_y, resource_manager);
-    window.set_renderer(&renderer);
+    window.set_renderer(renderer);
+    IO io;
+    window.set_io(io);
     io.set_resolution(resolution_x, resolution_y);
 
     std::shared_ptr<MainMenuScreen> test_screen = std::make_shared<MainMenuScreen>(resource_manager, screen_manager, rng, io);
