@@ -27,8 +27,8 @@ std::string PartSelectorWindow::update(std::vector<std::string> &parts)
     ImGui::PushStyleColor(ImGuiCol_ButtonActive, glm_to_im(cl_base02));
     ImGui::PushStyleVar(ImGuiStyleVar_FrameRounding, 5);
     auto resolution = io->get_resolution();
-    ImGui::SetNextWindowSize({resolution.x * 0.2f, resolution.y * 0.9f}, ImGuiCond_FirstUseEver);
-    ImGui::SetNextWindowPos({resolution.x * 0.75f, resolution.y * 0.05f},
+    ImGui::SetNextWindowSize({resolution.x * 0.2f, resolution.y * 0.95f}, ImGuiCond_FirstUseEver);
+    ImGui::SetNextWindowPos({resolution.x * 0.775f, resolution.y * 0.025f},
                             ImGuiCond_FirstUseEver);
     ImGui::Begin("Part Selector");
     auto style = ImGui::GetStyle();

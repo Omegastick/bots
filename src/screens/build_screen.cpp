@@ -31,6 +31,7 @@ BuildScreen::BuildScreen(ResourceManager &resource_manager, ScreenManager &scree
       available_parts({"base", "gun", "thruster", "laser_sensor"}),
       projection(glm::ortho(0.f, 1920.f, 0.f, 1080.f)),
       b2_world(b2Vec2(0, 0)),
+      save_ship_window(io),
       ship_builder(b2_world, rng, io),
       module_to_place(nullptr),
       test_sprite("laser_sensor_module"),
@@ -86,6 +87,7 @@ void BuildScreen::update(double /*delta_time*/)
     }
 
     part_detail_window.update();
+    save_ship_window.update(*ship_builder.get_agent());
 }
 
 void BuildScreen::draw(Renderer &renderer, bool lightweight)
