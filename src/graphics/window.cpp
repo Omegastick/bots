@@ -184,8 +184,13 @@ void Window::set_resize_callback(void (*callback)(GLFWwindow *, int, int))
     glfwSetWindowSizeCallback(window, callback);
 }
 
-void Window::set_renderer(Renderer *renderer)
+void Window::set_renderer(Renderer &renderer)
 {
-    this->renderer = renderer;
+    this->renderer = &renderer;
+}
+
+void Window::set_io(IO &io)
+{
+    this->io = &io;
 }
 }
