@@ -1,6 +1,7 @@
 #pragma once
 
 #include <memory>
+#include <string>
 #include <vector>
 
 #include <nlohmann/json_fwd.hpp>
@@ -28,6 +29,7 @@ class Agent : public ICollidable
     Random *rng;
     float hp;
     IEnvironment *environment;
+    std::string name;
 
     void load_json(const nlohmann::json &json);
     void recurse_json_modules(const nlohmann::json &module_json, IModule *parent_module = nullptr, int parent_link = 0, int child_link = 0);
@@ -54,10 +56,12 @@ class Agent : public ICollidable
 
     inline const std::vector<IAction *> &get_actions() const { return actions; }
     inline IEnvironment *get_environment() const { return environment; }
-    inline void set_environment() { this->environment = environment; }
     inline float get_hp() const { return hp; }
     inline const std::vector<std::shared_ptr<IModule>> &get_modules() const { return modules; }
+    inline std::string &get_name() { return name; }
     inline RigidBody *get_rigid_body() const { return rigid_body.get(); }
     inline Random *get_rng() const { return rng; }
+    inline void set_environment() { this->environment = environment; }
+    inline void set_name(std::string &name) { this->name = name; }
 };
 }

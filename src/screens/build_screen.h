@@ -12,6 +12,7 @@
 #include "training/modules/gun_module.h"
 #include "ui/build_screen/part_detail_window.h"
 #include "ui/build_screen/part_selector_window.h"
+#include "ui/build_screen/save_ship_window.h"
 #include "ui/build_screen/ship_builder.h"
 
 class b2World;
@@ -23,7 +24,6 @@ class Random;
 class Renderer;
 class ResourceManager;
 class ScreenManager;
-class ShipBuilder;
 
 class BuildScreen : public IScreen
 {
@@ -36,6 +36,7 @@ class BuildScreen : public IScreen
     std::vector<std::string> available_parts;
     glm::mat4 projection;
     b2World b2_world;
+    SaveShipWindow save_ship_window;
     ShipBuilder ship_builder;
     std::shared_ptr<IModule> module_to_place;
     std::shared_ptr<IModule> selected_module;

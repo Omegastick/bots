@@ -231,7 +231,7 @@ nlohmann::json Agent::to_json() const
     auto json = nlohmann::json::object();
 
     json["schema"] = "v1alpha1";
-    json["name"] = "Bob";
+    json["name"] = name;
     if (modules.size() > 0)
     {
         json["base_module"] = modules[0]->get_root_module()->to_json();
