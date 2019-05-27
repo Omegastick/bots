@@ -119,6 +119,11 @@ void init_imgui(const int opengl_version_major, const int opengl_version_minor, 
     IMGUI_CHECKVERSION();
     ImGui::CreateContext();
     ImGui::StyleColorsDark();
+
+    ImGuiIO &io = ImGui::GetIO();
+    io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard; // Enable Keyboard Controls
+    io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;     // Enable Docking
+
     ImGui_ImplGlfw_InitForOpenGL(window, true);
     std::stringstream string_stream;
     string_stream << "#version " << opengl_version_major << opengl_version_minor << "0 core";
@@ -128,7 +133,6 @@ void init_imgui(const int opengl_version_major, const int opengl_version_minor, 
     ImFontConfig font_config;
     font_config.OversampleH = 3;
     font_config.OversampleV = 3;
-    ImGuiIO &io = ImGui::GetIO();
     io.Fonts->ClearFonts();
     io.Fonts->AddFontFromFileTTF("assets/fonts/Roboto-Regular.ttf", 16, &font_config);
     io.Fonts->AddFontFromFileTTF("assets/fonts/Roboto-Regular.ttf", 32, &font_config);
