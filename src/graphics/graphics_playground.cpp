@@ -2,28 +2,22 @@
 #include <sstream>
 #include <vector>
 
-#include "glad/glad.h"
-#include "GLFW/glfw3.h"
-#include "glm/glm.hpp"
-#include "glm/gtc/matrix_transform.hpp"
-#include "spdlog/spdlog.h"
-#include "imgui.h"
-#include "imgui_impl_glfw.h"
-#include "imgui_impl_opengl3.h"
+#include <glad/glad.h>
+#include <GLFW/glfw3.h>
+#include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
+#include <spdlog/spdlog.h>
+#include <imgui.h>
+#include <imgui_internal.h>
+#include <imgui_impl_glfw.h>
+#include <imgui_impl_opengl3.h>
 
 #include "graphics/window.h"
 #include "graphics/renderers/renderer.h"
-#include "graphics/screens/quad_screen.h"
-#include "graphics/screens/texture_test_screen.h"
-#include "graphics/screens/sprite_test_screen.h"
-#include "graphics/screens/post_proc_screen.h"
-#include "graphics/screens/particle_test_screen.h"
-// #include "graphics/screens/scene_test_screen.h"
-#include "graphics/screens/line_test_screen.h"
-#include "graphics/screens/crt_test_screen.h"
-#include "graphics/screens/text_test_screen.h"
-#include "misc/screen_manager.h"
+#include "graphics/screens/screens.h"
+#include "misc/io.h"
 #include "misc/resource_manager.h"
+#include "misc/screen_manager.h"
 #include "screens/iscreen.h"
 
 using namespace SingularityTrainer;
@@ -33,6 +27,9 @@ const int resolution_y = 1080;
 const std::string window_title = "Graphics Playground";
 const int opengl_version_major = 4;
 const int opengl_version_minor = 3;
+
+int last_resolution_x = resolution_x;
+int last_resolution_y = resolution_y;
 
 void error_callback(int error, const char *description)
 {
@@ -92,18 +89,31 @@ void reset_imgui_style()
 
 void resize_window_callback(GLFWwindow *glfw_window, int x, int y)
 {
+    if (x == 0 || y == 0)
+    {
+        return;
+    }
     spdlog::debug("Resizing window to {}x{}", x, y);
     glViewport(0, 0, x, y);
 
+    // Scale windows (lossy)
+    float window_relative_scale = static_cast<float>(x) / last_resolution_x;
+    for (const auto &viewport : ImGui::GetCurrentContext()->Viewports)
+    {
+        ImGui::ScaleWindowsInViewport(viewport, window_relative_scale);
+    }
+
+    // Scale styles (not lossy)
     reset_imgui_style();
-    ImGuiStyle &style = ImGui::GetStyle();
-    float relative_scale = (float)x / (float)resolution_x;
-    style.ScaleAllSizes(relative_scale);
-    ImGuiIO &io = ImGui::GetIO();
-    io.FontGlobalScale = relative_scale;
+    float relative_scale = static_cast<float>(x) / resolution_x;
+    ImGui::GetStyle().ScaleAllSizes(relative_scale);
+    ImGui::GetIO().FontGlobalScale = relative_scale;
 
     Window *window = static_cast<Window *>(glfwGetWindowUserPointer(glfw_window));
     window->get_renderer().resize(x, y);
+
+    last_resolution_x = x;
+    last_resolution_y = y;
 }
 
 void init_imgui(const int opengl_version_major, const int opengl_version_minor, GLFWwindow *window)
@@ -160,9 +170,6 @@ int main(int /*argc*/, const char * /*argv*/ [])
     spdlog::debug("Initializing particle test");
     screens.push_back(std::make_shared<ParticleTestScreen>(&screen_manager, resource_manager, &screens, &screen_names));
     screen_names.push_back("Particle test");
-    // spdlog::debug("Initializing scene test");
-    // screens.push_back(std::make_shared<SceneTestScreen>(&screen_manager, resource_manager, &screens, &screen_names));
-    // screen_names.push_back("Scene test");
     spdlog::debug("Initializing line test");
     screens.push_back(std::make_shared<LineTestScreen>(&screen_manager, resource_manager, &screens, &screen_names));
     screen_names.push_back("Line test");
@@ -175,7 +182,7 @@ int main(int /*argc*/, const char * /*argv*/ [])
     screen_manager.show_screen(screens[0]);
 
     spdlog::debug("Initializing renderer");
-    Renderer renderer(1920, 1080, resource_manager);
+    Renderer renderer(resolution_x, resolution_y, resource_manager);
     window.set_renderer(renderer);
     window.set_resize_callback(resize_window_callback);
 
