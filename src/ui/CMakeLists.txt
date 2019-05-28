@@ -1,2 +1,3 @@
 add_subdirectory(build_screen)
+add_subdirectory(shared)
 add_subdirectory(watch_screen)
