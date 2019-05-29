@@ -8,17 +8,18 @@ endif()
 
 # Configuration
 set(LIB_DIR lib)
+set(ARGH_DIR ${LIB_DIR}/argh)
+set(BOX2D_DIR ${LIB_DIR}/Box2D-cmake)
 set(CPPRL_DIR ${LIB_DIR}/pytorch-cpp-rl)
+set(DOCTEST_DIR ${LIB_DIR}/doctest)
 set(GLFW_DIR ${LIB_DIR}/GLFW)
 set(GLAD_DIR ${LIB_DIR}/GLAD)
 set(GLM_DIR ${LIB_DIR}/GLM)
-set(SPDLOG_DIR ${LIB_DIR}/spdlog)
 set(IMGUI_DIR ${LIB_DIR}/imgui)
-set(BOX2D_DIR ${LIB_DIR}/Box2D-cmake)
-set(MSGPACK_DIR ${LIB_DIR}/msgpack-c)
-set(DOCTEST_DIR ${LIB_DIR}/doctest)
-set(ARGH_DIR ${LIB_DIR}/argh)
 set(JSON_DIR ${LIB_DIR}/json)
+set(MSGPACK_DIR ${LIB_DIR}/msgpack-c)
+set(SPDLOG_DIR ${LIB_DIR}/spdlog)
+set(TWEENY_DIR ${LIB_DIR}/tweeny)
 
 # CMake Properties
 if (NOT CMAKE_BUILD_TYPE)
@@ -121,6 +122,7 @@ set(INCLUDE_DIRS
     ${ARGH_DIR}
     ${JSON_DIR}/include
     ${TORCH_INCLUDE_DIRS}
+    ${TWEENY_DIR}/include
 )
 target_include_directories(SingularityTrainer PUBLIC ${INCLUDE_DIRS})
 target_include_directories(HeadlessTrainer PUBLIC ${INCLUDE_DIRS})
