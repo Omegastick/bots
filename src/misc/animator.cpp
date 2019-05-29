@@ -36,7 +36,7 @@ void Animator::update(double delta_time)
 {
     for (auto &animation : animations)
     {
-        animation.step_function(delta_time);
+        animation.step_function(delta_time / animation.length);
         animation.elapsed_time += delta_time;
     }
 
@@ -121,20 +121,33 @@ TEST_CASE("Animator")
 
     SUBCASE("Final callback is called when an animation finishes")
     {
-        bool called = false;
+        bool finished = false;
         Animation animation{
             [](double) {},
             1.,
-            [&] { called = true; }};
+            [&] { finished = true; }};
         animator.add_animation(animation);
 
         animator.update(0.5);
 
-        CHECK(called == false);
+        CHECK(finished == false);
 
         animator.update(0.5);
 
-        CHECK(called == true);
+        CHECK(finished == true);
+    }
+
+    SUBCASE("Animations step callbacks are called with the percentage by which to step forward")
+    {
+        double passed_value = false;
+        Animation animation{
+            [&](double step_percent) { passed_value = step_percent; },
+            2.};
+        animator.add_animation(animation);
+
+        animator.update(1);
+
+        CHECK(passed_value == doctest::Approx(0.5));
     }
 }
 }
