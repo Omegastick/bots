@@ -27,7 +27,7 @@ AnimationTestScreen::AnimationTestScreen(
     std::vector<std::string> *screen_names)
     : animation_finished(true),
       animator(&animator),
-      direction(Directions::Right),
+      direction(Direction::Right),
       screens(screens),
       screen_names(screen_names),
       screen_manager(screen_manager),
@@ -50,7 +50,7 @@ void AnimationTestScreen::update(const double delta_time)
     if (animation_finished)
     {
         std::shared_ptr<tweeny::tween<double>> tween;
-        if (direction == Directions::Right)
+        if (direction == Direction::Right)
         {
             tween = std::make_shared<tweeny::tween<double>>(tweeny::from(100.).to(1820.).during(1000).via(tweeny::easing::circularInOut));
         }
@@ -63,7 +63,7 @@ void AnimationTestScreen::update(const double delta_time)
             3,
             [this] {
                 animation_finished = true;
-                direction = direction == Directions::Right ? Directions::Left : Directions::Right;
+                direction = direction == Direction::Right ? Direction::Left : Direction::Right;
             }};
         animator->add_animation(animation);
         animation_finished = false;
