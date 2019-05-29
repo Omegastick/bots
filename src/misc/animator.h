@@ -9,6 +9,7 @@ struct Animation
 {
     std::function<void(double)> step_function;
     double length;
+    std::function<void()> finish_callback = [] {};
     double elapsed_time = 0;
 };
 
