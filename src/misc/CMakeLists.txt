@@ -1,5 +1,6 @@
 target_sources(Misc
 PRIVATE
+    ${CMAKE_CURRENT_LIST_DIR}/animator.cpp
     ${CMAKE_CURRENT_LIST_DIR}/io.cpp
     ${CMAKE_CURRENT_LIST_DIR}/module_factory.cpp
     ${CMAKE_CURRENT_LIST_DIR}/random.cpp
