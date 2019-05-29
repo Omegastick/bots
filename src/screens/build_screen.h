@@ -12,8 +12,8 @@
 #include "training/modules/gun_module.h"
 #include "ui/build_screen/part_detail_window.h"
 #include "ui/build_screen/part_selector_window.h"
-#include "ui/build_screen/save_ship_window.h"
-#include "ui/build_screen/ship_builder.h"
+#include "ui/build_screen/save_body_window.h"
+#include "ui/build_screen/body_builder.h"
 
 class b2World;
 
@@ -36,8 +36,8 @@ class BuildScreen : public IScreen
     std::vector<std::string> available_parts;
     glm::mat4 projection;
     b2World b2_world;
-    SaveShipWindow save_ship_window;
-    ShipBuilder ship_builder;
+    SaveBodyWindow save_body_window;
+    BodyBuilder body_builder;
     std::shared_ptr<IModule> module_to_place;
     std::shared_ptr<IModule> selected_module;
     Sprite test_sprite;

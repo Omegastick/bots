@@ -7,14 +7,14 @@ namespace SingularityTrainer
 class Agent;
 class IO;
 
-class SaveShipWindow
+class SaveBodyWindow
 {
   private:
     IO *io;
     std::string name;
 
   public:
-    SaveShipWindow(IO &io);
+    SaveBodyWindow(IO &io);
 
     bool update(Agent &agent);
 };

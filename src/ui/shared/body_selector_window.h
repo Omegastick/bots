@@ -10,14 +10,14 @@ class Agent;
 class IO;
 class Random;
 
-class ShipSelectorWindow
+class BodySelectorWindow
 {
   private:
     int selected_file;
     IO *io;
 
   public:
-    ShipSelectorWindow(IO &io);
+    BodySelectorWindow(IO &io);
 
     std::unique_ptr<Agent> update(Random &rng, b2World &b2_world);
 };

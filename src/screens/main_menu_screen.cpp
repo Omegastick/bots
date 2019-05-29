@@ -42,7 +42,7 @@ void MainMenuScreen::update(double /*delta_time*/)
     {
         screen_manager->show_screen(std::make_shared<WatchScreen>(*resource_manager, *io));
     }
-    if (ImGui::Button("Build Ship"))
+    if (ImGui::Button("Build Body"))
     {
         screen_manager->show_screen(std::make_shared<BuildScreen>(*resource_manager, *screen_manager, *io, *rng));
     }

@@ -7,7 +7,7 @@
 #include <nlohmann/json.hpp>
 #include <spdlog/spdlog.h>
 
-#include "ui/build_screen/ship_builder.h"
+#include "ui/build_screen/body_builder.h"
 #include "graphics/render_data.h"
 #include "misc/io.h"
 #include "misc/random.h"
@@ -28,7 +28,7 @@ bool GetAllQueryCallback::ReportFixture(b2Fixture *fixture)
     return true;
 }
 
-ShipBuilder::ShipBuilder(b2World &b2_world, Random &rng, IO &io)
+BodyBuilder::BodyBuilder(b2World &b2_world, Random &rng, IO &io)
     : agent(Agent(b2_world, &rng)),
       io(&io),
       b2_world(&b2_world),
@@ -39,7 +39,7 @@ ShipBuilder::ShipBuilder(b2World &b2_world, Random &rng, IO &io)
     agent.update_body();
 }
 
-void ShipBuilder::delete_module(std::shared_ptr<IModule> module)
+void BodyBuilder::delete_module(std::shared_ptr<IModule> module)
 {
     if (module == agent.get_modules()[0])
     {
@@ -50,7 +50,7 @@ void ShipBuilder::delete_module(std::shared_ptr<IModule> module)
     agent.update_body();
 }
 
-std::shared_ptr<IModule> ShipBuilder::get_module_at_screen_position(glm::vec2 point)
+std::shared_ptr<IModule> BodyBuilder::get_module_at_screen_position(glm::vec2 point)
 {
     point = screen_to_world_space(point, static_cast<glm::vec2>(io->get_resolution()), projection);
 
@@ -74,7 +74,7 @@ std::shared_ptr<IModule> ShipBuilder::get_module_at_screen_position(glm::vec2 po
     return *static_cast<std::shared_ptr<IModule> *>(fixture->GetUserData());
 }
 
-NearestModuleLinkResult ShipBuilder::get_nearest_module_link_to_world_position(glm::vec2 point)
+NearestModuleLinkResult BodyBuilder::get_nearest_module_link_to_world_position(glm::vec2 point)
 {
     b2Vec2 b2_point(point.x, point.y);
 
@@ -101,7 +101,7 @@ NearestModuleLinkResult ShipBuilder::get_nearest_module_link_to_world_position(g
     return {nearest_link, nullptr, nearest_distance};
 }
 
-NearestModuleLinkResult ShipBuilder::get_nearest_module_link_to_module(IModule &module)
+NearestModuleLinkResult BodyBuilder::get_nearest_module_link_to_module(IModule &module)
 {
     double nearest_distance = INFINITY;
     ModuleLink *nearest_link = nullptr;
@@ -122,7 +122,7 @@ NearestModuleLinkResult ShipBuilder::get_nearest_module_link_to_module(IModule &
     return {nearest_link, origin_link, nearest_distance};
 }
 
-std::shared_ptr<IModule> ShipBuilder::place_module(std::shared_ptr<IModule> selected_module)
+std::shared_ptr<IModule> BodyBuilder::place_module(std::shared_ptr<IModule> selected_module)
 {
     auto nearest_link_result = get_nearest_module_link_to_module(*selected_module);
 
@@ -140,22 +140,22 @@ std::shared_ptr<IModule> ShipBuilder::place_module(std::shared_ptr<IModule> sele
     }
 }
 
-RenderData ShipBuilder::get_render_data(bool lightweight)
+RenderData BodyBuilder::get_render_data(bool lightweight)
 {
     return agent.get_render_data(lightweight);
 }
 
-TEST_CASE("ShipBuilder")
+TEST_CASE("BodyBuilder")
 {
     b2World b2_world({0, 0});
     Random rng(0);
     IO io;
     io.set_resolution(1920, 1080);
-    ShipBuilder ship_builder(b2_world, rng, io);
+    BodyBuilder body_builder(b2_world, rng, io);
 
     SUBCASE("Starts with only a single base module")
     {
-        auto agent = ship_builder.get_agent();
+        auto agent = body_builder.get_agent();
         auto modules = agent->get_modules();
 
         CHECK(modules.size() == 1);
@@ -173,21 +173,21 @@ TEST_CASE("ShipBuilder")
         SUBCASE("Correctly deletes a module")
         {
             auto gun_module = std::make_shared<GunModule>();
-            auto point = screen_to_world_space({1030, 545}, io.get_resolution(), ship_builder.get_projection());
+            auto point = screen_to_world_space({1030, 545}, io.get_resolution(), body_builder.get_projection());
             gun_module->get_transform().p = {point.x, point.y};
-            auto placed_module = ship_builder.place_module(gun_module);
+            auto placed_module = body_builder.place_module(gun_module);
 
-            ship_builder.delete_module(placed_module);
+            body_builder.delete_module(placed_module);
 
-            CHECK(ship_builder.get_agent()->get_modules().size() == 1);
+            CHECK(body_builder.get_agent()->get_modules().size() == 1);
         }
 
         SUBCASE("Won't delete base module")
         {
-            auto base_module = ship_builder.get_agent()->get_modules()[0];
-            ship_builder.delete_module(base_module);
+            auto base_module = body_builder.get_agent()->get_modules()[0];
+            body_builder.delete_module(base_module);
 
-            CHECK(ship_builder.get_agent()->get_modules().size() == 1);
+            CHECK(body_builder.get_agent()->get_modules().size() == 1);
         }
     }
 
@@ -196,54 +196,54 @@ TEST_CASE("ShipBuilder")
         SUBCASE("Correctly places a gun module")
         {
             auto gun_module = std::make_shared<GunModule>();
-            auto point = screen_to_world_space({1030, 545}, io.get_resolution(), ship_builder.get_projection());
+            auto point = screen_to_world_space({1030, 545}, io.get_resolution(), body_builder.get_projection());
             gun_module->get_transform().p = {point.x, point.y};
 
-            auto selected_module = ship_builder.place_module(gun_module);
+            auto selected_module = body_builder.place_module(gun_module);
 
             CHECK(selected_module == gun_module);
-            REQUIRE(ship_builder.get_agent()->get_modules().size() == 2);
+            REQUIRE(body_builder.get_agent()->get_modules().size() == 2);
 
-            CHECK(ship_builder.get_agent()->get_modules()[1]->get_transform().q.s == doctest::Approx(b2Rot(0).s));
-            CHECK(ship_builder.get_agent()->get_modules()[1]->get_transform().q.c == doctest::Approx(b2Rot(0).c));
+            CHECK(body_builder.get_agent()->get_modules()[1]->get_transform().q.s == doctest::Approx(b2Rot(0).s));
+            CHECK(body_builder.get_agent()->get_modules()[1]->get_transform().q.c == doctest::Approx(b2Rot(0).c));
         }
 
         SUBCASE("Correctly places two gun modules")
         {
             auto gun_module_1 = std::make_shared<GunModule>();
-            auto point = screen_to_world_space({1030, 545}, io.get_resolution(), ship_builder.get_projection());
+            auto point = screen_to_world_space({1030, 545}, io.get_resolution(), body_builder.get_projection());
             gun_module_1->get_transform().p = {point.x, point.y};
-            ship_builder.place_module(gun_module_1);
+            body_builder.place_module(gun_module_1);
 
             auto gun_module_2 = std::make_shared<GunModule>();
-            point = screen_to_world_space({960, 625}, io.get_resolution(), ship_builder.get_projection());
+            point = screen_to_world_space({960, 625}, io.get_resolution(), body_builder.get_projection());
             gun_module_2->get_transform().p = {point.x, point.y};
-            auto selected_module = ship_builder.place_module(gun_module_2);
+            auto selected_module = body_builder.place_module(gun_module_2);
 
             CHECK(selected_module == gun_module_2);
-            REQUIRE(ship_builder.get_agent()->get_modules().size() == 3);
+            REQUIRE(body_builder.get_agent()->get_modules().size() == 3);
 
-            CHECK(ship_builder.get_agent()->get_modules()[2]->get_transform().q.s == doctest::Approx(b2Rot(0).s));
-            CHECK(ship_builder.get_agent()->get_modules()[2]->get_transform().q.c == doctest::Approx(b2Rot(0).c));
+            CHECK(body_builder.get_agent()->get_modules()[2]->get_transform().q.s == doctest::Approx(b2Rot(0).s));
+            CHECK(body_builder.get_agent()->get_modules()[2]->get_transform().q.c == doctest::Approx(b2Rot(0).c));
         }
 
         SUBCASE("Can chain modules")
         {
             auto gun_module_1 = std::make_shared<GunModule>();
-            auto point = screen_to_world_space({1030, 545}, io.get_resolution(), ship_builder.get_projection());
+            auto point = screen_to_world_space({1030, 545}, io.get_resolution(), body_builder.get_projection());
             gun_module_1->get_transform().p = {point.x, point.y};
-            ship_builder.place_module(gun_module_1);
+            body_builder.place_module(gun_module_1);
 
             auto gun_module_2 = std::make_shared<GunModule>();
-            point = screen_to_world_space({1160, 545}, io.get_resolution(), ship_builder.get_projection());
+            point = screen_to_world_space({1160, 545}, io.get_resolution(), body_builder.get_projection());
             gun_module_2->get_transform().p = {point.x, point.y};
-            auto selected_module = ship_builder.place_module(gun_module_2);
+            auto selected_module = body_builder.place_module(gun_module_2);
 
             CHECK(selected_module == gun_module_2);
-            REQUIRE(ship_builder.get_agent()->get_modules().size() == 3);
+            REQUIRE(body_builder.get_agent()->get_modules().size() == 3);
 
-            CHECK(ship_builder.get_agent()->get_modules()[2]->get_transform().q.s == doctest::Approx(b2Rot(0).s));
-            CHECK(ship_builder.get_agent()->get_modules()[2]->get_transform().q.c == doctest::Approx(b2Rot(0).c));
+            CHECK(body_builder.get_agent()->get_modules()[2]->get_transform().q.s == doctest::Approx(b2Rot(0).s));
+            CHECK(body_builder.get_agent()->get_modules()[2]->get_transform().q.c == doctest::Approx(b2Rot(0).c));
         }
     }
 
@@ -251,15 +251,15 @@ TEST_CASE("ShipBuilder")
     {
         SUBCASE("Correctly selects the base module at 0, 0")
         {
-            auto selected_module = ship_builder.get_module_at_screen_position({960, 540});
-            auto base_module = ship_builder.get_agent()->get_modules()[0];
+            auto selected_module = body_builder.get_module_at_screen_position({960, 540});
+            auto base_module = body_builder.get_agent()->get_modules()[0];
 
             CHECK(selected_module == base_module);
         }
 
         SUBCASE("Returns a nullptr if no module at exists at the point")
         {
-            auto selected_module = ship_builder.get_module_at_screen_position({1000, 1000});
+            auto selected_module = body_builder.get_module_at_screen_position({1000, 1000});
 
             CHECK(selected_module == nullptr);
         }
@@ -269,15 +269,15 @@ TEST_CASE("ShipBuilder")
     {
         SUBCASE("Selects the correct link under normal use")
         {
-            auto selected_link = ship_builder.get_nearest_module_link_to_world_position({0, 10}).nearest_link;
-            auto expected_link = &ship_builder.get_agent()->get_modules()[0]->get_module_links()[0];
+            auto selected_link = body_builder.get_nearest_module_link_to_world_position({0, 10}).nearest_link;
+            auto expected_link = &body_builder.get_agent()->get_modules()[0]->get_module_links()[0];
 
             CHECK(selected_link == expected_link);
         }
 
         SUBCASE("Returns a nullptr if there are no available module links")
         {
-            for (const auto &module : ship_builder.get_agent()->get_modules())
+            for (const auto &module : body_builder.get_agent()->get_modules())
             {
                 for (auto &module_link : module->get_module_links())
                 {
@@ -285,7 +285,7 @@ TEST_CASE("ShipBuilder")
                 }
             }
 
-            auto selected_link = ship_builder.get_nearest_module_link_to_world_position({0, 10}).nearest_link;
+            auto selected_link = body_builder.get_nearest_module_link_to_world_position({0, 10}).nearest_link;
 
             CHECK(selected_link == nullptr);
         }

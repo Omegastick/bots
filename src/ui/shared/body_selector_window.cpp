@@ -7,7 +7,7 @@
 #include <imgui.h>
 #include <nlohmann/json.hpp>
 
-#include "ui/shared/ship_selector_window.h"
+#include "ui/shared/body_selector_window.h"
 #include "misc/random.h"
 #include "training/agents/agent.h"
 
@@ -15,9 +15,9 @@ namespace fs = std::filesystem;
 
 namespace SingularityTrainer
 {
-ShipSelectorWindow::ShipSelectorWindow(IO &io) : selected_file(-1), io(&io) {}
+BodySelectorWindow::BodySelectorWindow(IO &io) : selected_file(-1), io(&io) {}
 
-std::unique_ptr<Agent> ShipSelectorWindow::update(Random &rng, b2World &b2_world)
+std::unique_ptr<Agent> BodySelectorWindow::update(Random &rng, b2World &b2_world)
 {
     // Load agent window
     ImGui::SetNextWindowPosCenter(ImGuiCond_Always);
@@ -25,9 +25,9 @@ std::unique_ptr<Agent> ShipSelectorWindow::update(Random &rng, b2World &b2_world
 
     // Enumerate all model files
     std::vector<std::string> files;
-    auto ships_directory = fs::current_path();
-    ships_directory += "/ships";
-    for (const auto &file : fs::directory_iterator(ships_directory))
+    auto bodys_directory = fs::current_path();
+    bodys_directory += "/bodys";
+    for (const auto &file : fs::directory_iterator(bodys_directory))
     {
         if (file.path().extension().string() == ".json")
         {
@@ -49,7 +49,7 @@ std::unique_ptr<Agent> ShipSelectorWindow::update(Random &rng, b2World &b2_world
     std::unique_ptr<Agent> agent = nullptr;
     if (ImGui::Button("Select"))
     {
-        auto json_file_path = ships_directory;
+        auto json_file_path = bodys_directory;
         json_file_path += "/" + files[selected_file] + ".json";
         std::ifstream json_file(json_file_path);
         auto json = nlohmann::json::parse(json_file);

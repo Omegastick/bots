@@ -18,7 +18,7 @@
 #include "misc/screen_manager.h"
 #include "misc/utilities.h"
 #include "ui/build_screen/part_selector_window.h"
-#include "ui/build_screen/ship_builder.h"
+#include "ui/build_screen/body_builder.h"
 
 namespace SingularityTrainer
 {
@@ -31,8 +31,8 @@ BuildScreen::BuildScreen(ResourceManager &resource_manager, ScreenManager &scree
       available_parts({"base", "gun", "thruster", "laser_sensor"}),
       projection(glm::ortho(0.f, 1920.f, 0.f, 1080.f)),
       b2_world(b2Vec2(0, 0)),
-      save_ship_window(io),
-      ship_builder(b2_world, rng, io),
+      save_body_window(io),
+      body_builder(b2_world, rng, io),
       module_to_place(nullptr),
       test_sprite("laser_sensor_module"),
       current_rotation(0)
@@ -63,11 +63,11 @@ void BuildScreen::update(double /*delta_time*/)
     {
         if (module_to_place == nullptr)
         {
-            selected_module = ship_builder.get_module_at_screen_position(io->get_cursor_position());
+            selected_module = body_builder.get_module_at_screen_position(io->get_cursor_position());
         }
         else
         {
-            selected_module = ship_builder.place_module(module_to_place);
+            selected_module = body_builder.place_module(module_to_place);
         }
 
         if (selected_module != nullptr)
@@ -87,7 +87,7 @@ void BuildScreen::update(double /*delta_time*/)
     }
 
     part_detail_window.update();
-    save_ship_window.update(*ship_builder.get_agent());
+    save_body_window.update(*body_builder.get_agent());
 }
 
 void BuildScreen::draw(Renderer &renderer, bool lightweight)
@@ -100,11 +100,11 @@ void BuildScreen::draw(Renderer &renderer, bool lightweight)
     {
         auto cursor_world_position = screen_to_world_space(io->get_cursor_position(),
                                                            io->get_resolution(),
-                                                           ship_builder.get_projection());
+                                                           body_builder.get_projection());
         module_to_place->get_transform().p = {cursor_world_position.x, cursor_world_position.y};
         module_to_place->get_transform().q = b2Rot(glm::radians(current_rotation * 90.f));
 
-        auto nearest_link_result = ship_builder.get_nearest_module_link_to_module(*module_to_place);
+        auto nearest_link_result = body_builder.get_nearest_module_link_to_module(*module_to_place);
         if (nearest_link_result.nearest_link != nullptr && nearest_link_result.distance < 1)
         {
             nearest_link_result.origin_link->snap_to_other(*nearest_link_result.nearest_link);
@@ -113,9 +113,9 @@ void BuildScreen::draw(Renderer &renderer, bool lightweight)
         render_data.append(module_to_place->get_render_data());
     }
 
-    render_data.append(ship_builder.get_render_data());
+    render_data.append(body_builder.get_render_data());
 
-    renderer.draw(render_data, ship_builder.get_projection(), 0., lightweight);
+    renderer.draw(render_data, body_builder.get_projection(), 0., lightweight);
 
     renderer.end();
 }
