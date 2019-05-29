@@ -19,14 +19,14 @@ class Renderer;
 class AnimationTestScreen : public IScreen
 {
   private:
-    enum Directions
+    enum Direction
     {
         Left,
         Right
     };
     bool animation_finished;
     Animator *animator;
-    Directions direction;
+    Direction direction;
     std::vector<std::shared_ptr<IScreen>> *screens;
     std::vector<std::string> *screen_names;
     std::unique_ptr<Sprite> sprite;
