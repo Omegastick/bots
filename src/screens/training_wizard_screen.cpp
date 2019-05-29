@@ -1,6 +1,7 @@
 #include <memory>
 
 #include <imgui.h>
+#include <nlohmann/json.hpp>
 
 #include "screens/training_wizard_screen.h"
 #include "graphics/renderers/renderer.h"
@@ -9,11 +10,12 @@
 #include "misc/resource_manager.h"
 #include "misc/screen_manager.h"
 #include "training/agents/agent.h"
+#include "ui/training_wizard_screen/body_selector_window.h"
 
 namespace SingularityTrainer
 {
 TrainingWizardScreen::TrainingWizardScreen(ResourceManager &resource_manager, ScreenManager &screen_manager, Random &rng, IO &io)
-    : agent(nullptr),
+    : agent(std::make_unique<Agent>()),
       b2_world({0, 0}),
       body_selector_window(io),
       io(&io),
@@ -36,13 +38,18 @@ void TrainingWizardScreen::algorithm()
 }
 void TrainingWizardScreen::body()
 {
-    ImGui::Begin("Body", nullptr, ImGuiWindowFlags_AlwaysAutoResize);
-    ImGui::Text("Body");
-    if (ImGui::Button("Next"))
+    if (body_selector_window.update(*rng, b2_world, *agent))
     {
         state = State::Checkpoint;
     }
-    ImGui::End();
+
+    if (agent != nullptr)
+    {
+        ImGui::SetNextWindowSize({0, 0});
+        ImGui::Begin("Output");
+        ImGui::Text("%s", agent->to_json().dump(4).c_str());
+        ImGui::End();
+    }
 }
 void TrainingWizardScreen::checkpoint()
 {

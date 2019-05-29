@@ -23,6 +23,10 @@ namespace SingularityTrainer
 {
 static const std::string schema_version = "v1alpha1";
 
+Agent::Agent()
+{
+}
+
 Agent::Agent(b2World &world, Random *rng, const nlohmann::json &json) : Agent(world, rng)
 {
     load_json(json);
@@ -42,6 +46,36 @@ Agent::Agent(b2World &world, Random *rng) : rng(rng), hp(0)
 {
     // Rigid body
     rigid_body = std::make_unique<RigidBody>(b2_dynamicBody, b2Vec2_zero, world, this, RigidBody::ParentTypes::Agent);
+}
+
+Agent::Agent(Agent &&other)
+{
+    (*this) = std::move(other);
+}
+
+Agent &Agent::operator=(Agent &&other)
+{
+    if (this != &other)
+    {
+        modules = std::move(other.modules);
+        other.modules = {};
+        actions = other.actions;
+        other.actions = {};
+        rigid_body = std::move(other.rigid_body);
+        other.rigid_body = nullptr;
+        debug_draw = other.debug_draw;
+        other.debug_draw = false;
+        rng = other.rng;
+        other.rng = nullptr;
+        hp = other.hp;
+        other.hp = 0;
+        environment = other.environment;
+        other.environment = nullptr;
+        name = other.name;
+        other.name = "";
+    }
+
+    return *this;
 }
 
 void Agent::act(std::vector<int> action_flags)
