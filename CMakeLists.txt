@@ -61,6 +61,11 @@ if (NOT TORCH_FOUND)
         set(CMAKE_CXX_FLAGS ${TORCH_CXX_FLAGS})
     endif(TORCH_CXX_FLAGS)
 endif (NOT TORCH_FOUND)
+## spdlog
+if (NOT TARGET spdlog)
+    option(SPDLOG_BUILD_TESTING "" OFF)
+    add_subdirectory(${SPDLOG_DIR})
+endif(NOT TARGET spdlog)
 ## CppRl
 option(CPPRL_BUILD_TESTS "" OFF)
 option(CPPRL_BUILD_EXAMPLE "" OFF)
@@ -79,10 +84,6 @@ target_include_directories(glad PRIVATE ${GLAD_DIR}/include)
 ## GLM
 option(GLM_TEST_ENABLE "" OFF)
 add_subdirectory(${GLM_DIR})
-## spdlog
-if (NOT TARGET spdlog)
-    add_subdirectory(${SPDLOG_DIR})
-endif(NOT TARGET spdlog)
 ## imgui
 add_subdirectory(${IMGUI_DIR})
 ## Box2D
@@ -95,7 +96,7 @@ add_subdirectory(${JSON_DIR})
 
 # Link libraries
 target_link_libraries(Misc doctest)
-target_link_libraries(Training Graphics cpprl torch ${TORCH_LIBRARIES} TG::Box2D doctest)
+target_link_libraries(Training Graphics cpprl torch ${TORCH_LIBRARIES} tobanteGaming::Box2D doctest)
 # UNIX systems sometimes need to explicitly link the threading library and filesystem library
 if (UNIX)
     target_link_libraries(Training pthread stdc++)
