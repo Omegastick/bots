@@ -7,8 +7,8 @@
 #include "graphics/sprite.h"
 #include "misc/io.h"
 #include "misc/resource_manager.h"
-#include "screens/koth_env_screen.h"
 #include "screens/build_screen.h"
+#include "screens/training_wizard_screen.h"
 #include "screens/watch_screen.h"
 #include "misc/screen_manager.h"
 
@@ -36,7 +36,7 @@ void MainMenuScreen::update(double /*delta_time*/)
     ImGui::Begin("Main menu :)", NULL, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoTitleBar);
     if (ImGui::Button("Train Agent"))
     {
-        screen_manager->show_screen(std::make_shared<KothEnvScreen>(*resource_manager, *rng, 7));
+        screen_manager->show_screen(std::make_shared<TrainingWizardScreen>(*resource_manager, *screen_manager, *rng, *io));
     }
     if (ImGui::Button("Load Agent"))
     {
