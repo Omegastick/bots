@@ -27,9 +27,9 @@ bool BodySelectorWindow::update(Random &rng, b2World &b2_world, Agent &agent)
 
     // Enumerate all model files
     std::vector<std::string> files;
-    auto bodys_directory = fs::current_path();
-    bodys_directory += "/bodies";
-    for (const auto &file : fs::directory_iterator(bodys_directory))
+    auto bodies_directory = fs::current_path();
+    bodies_directory += "/bodies";
+    for (const auto &file : fs::directory_iterator(bodies_directory))
     {
         if (file.path().extension().string() == ".json")
         {
@@ -50,7 +50,7 @@ bool BodySelectorWindow::update(Random &rng, b2World &b2_world, Agent &agent)
     // Load model
     if (selected_file != last_selected_file)
     {
-        auto json_file_path = bodys_directory;
+        auto json_file_path = bodies_directory;
         json_file_path += "/" + files[selected_file] + ".json";
         std::ifstream json_file(json_file_path);
         auto json = nlohmann::json::parse(json_file);

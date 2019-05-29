@@ -58,11 +58,8 @@ Agent &Agent::operator=(Agent &&other)
     if (this != &other)
     {
         modules = std::move(other.modules);
-        other.modules = {};
-        actions = other.actions;
-        other.actions = {};
+        actions = std::move(other.actions);
         rigid_body = std::move(other.rigid_body);
-        other.rigid_body = nullptr;
         debug_draw = other.debug_draw;
         other.debug_draw = false;
         rng = other.rng;
@@ -73,6 +70,11 @@ Agent &Agent::operator=(Agent &&other)
         other.environment = nullptr;
         name = other.name;
         other.name = "";
+
+        for (const auto &module : modules)
+        {
+            module->set_agent(this);
+        }
     }
 
     return *this;

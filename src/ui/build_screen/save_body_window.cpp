@@ -27,15 +27,15 @@ bool SaveBodyWindow::update(Agent &agent)
     if (ImGui::Button("Save"))
     {
         // Check bodys directory exists
-        auto bodys_directory = fs::current_path();
-        bodys_directory += "/bodys";
-        if (!fs::exists(bodys_directory))
+        auto bodies_directory = fs::current_path();
+        bodies_directory += "/bodies";
+        if (!fs::exists(bodies_directory))
         {
-            spdlog::debug("Bodys directory does not exist, making it now");
-            fs::create_directories(bodys_directory);
+            spdlog::debug("Bodies directory does not exist, making it now");
+            fs::create_directories(bodies_directory);
         }
 
-        auto file_name = bodys_directory;
+        auto file_name = bodies_directory;
         file_name += "/" + name + ".json";
         spdlog::debug("Saving body to {}", file_name.c_str());
 

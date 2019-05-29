@@ -1,6 +1,7 @@
 #pragma once
 
 #include <Box2D/Box2D.h>
+#include <glm/mat4x4.hpp>
 
 #include <memory>
 
@@ -40,6 +41,7 @@ class TrainingWizardScreen : public IScreen
     ScreenManager *screen_manager;
     State state;
     TrainingProgram program;
+    glm::mat4 projection;
 
   public:
     TrainingWizardScreen(ResourceManager &resource_manager, ScreenManager &screen_manager, Random &random, IO &io);
