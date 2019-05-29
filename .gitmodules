@@ -25,3 +25,6 @@
 [submodule "lib/pytorch-cpp-rl"]
 	path = lib/pytorch-cpp-rl
 	url = git@github.com:Omegastick/pytorch-cpp-rl.git
+[submodule "lib/tweeny"]
+	path = lib/tweeny
+	url = git@github.com:mobius3/tweeny.git
