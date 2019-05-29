@@ -34,7 +34,7 @@ struct NearestModuleLinkResult
     double distance;
 };
 
-class ShipBuilder
+class BodyBuilder
 {
   private:
     Agent agent;
@@ -43,7 +43,7 @@ class ShipBuilder
     glm::mat4 projection;
 
   public:
-    ShipBuilder(b2World &b2_world, Random &rng, IO &io);
+    BodyBuilder(b2World &b2_world, Random &rng, IO &io);
 
     void delete_module(std::shared_ptr<IModule> module);
     std::shared_ptr<IModule> get_module_at_screen_position(glm::vec2 point);

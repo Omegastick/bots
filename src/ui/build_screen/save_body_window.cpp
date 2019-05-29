@@ -7,7 +7,7 @@
 #include <nlohmann/json.hpp>
 #include <spdlog/spdlog.h>
 
-#include "ui/build_screen/save_ship_window.h"
+#include "ui/build_screen/save_body_window.h"
 #include "misc/io.h"
 #include "training/agents/agent.h"
 
@@ -15,29 +15,29 @@ namespace fs = std::filesystem;
 
 namespace SingularityTrainer
 {
-SaveShipWindow::SaveShipWindow(IO &io) : io(&io), name("") {}
+SaveBodyWindow::SaveBodyWindow(IO &io) : io(&io), name("") {}
 
-bool SaveShipWindow::update(Agent &agent)
+bool SaveBodyWindow::update(Agent &agent)
 {
     bool saved = false;
-    ImGui::Begin("Save ship");
+    ImGui::Begin("Save body");
 
     ImGui::InputText("Name", &name);
 
     if (ImGui::Button("Save"))
     {
-        // Check ships directory exists
-        auto ships_directory = fs::current_path();
-        ships_directory += "/ships";
-        if (!fs::exists(ships_directory))
+        // Check bodys directory exists
+        auto bodys_directory = fs::current_path();
+        bodys_directory += "/bodys";
+        if (!fs::exists(bodys_directory))
         {
-            spdlog::debug("Ships directory does not exist, making it now");
-            fs::create_directories(ships_directory);
+            spdlog::debug("Bodys directory does not exist, making it now");
+            fs::create_directories(bodys_directory);
         }
 
-        auto file_name = ships_directory;
+        auto file_name = bodys_directory;
         file_name += "/" + name + ".json";
-        spdlog::debug("Saving ship to {}", file_name.c_str());
+        spdlog::debug("Saving body to {}", file_name.c_str());
 
         agent.set_name(name);
         auto json = agent.to_json().dump();
