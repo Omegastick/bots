@@ -2,6 +2,7 @@ target_sources(Training
 PRIVATE
     ${CMAKE_CURRENT_LIST_DIR}/rigid_body.cpp
     ${CMAKE_CURRENT_LIST_DIR}/score_processor.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/training_program.cpp
 )
 
 add_subdirectory(actions)

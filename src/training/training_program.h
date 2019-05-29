@@ -20,6 +20,7 @@ struct HyperParameters
 
 struct TrainingProgram
 {
+    TrainingProgram();
     TrainingProgram(nlohmann::json &json);
 
     std::unique_ptr<Agent> agent;
