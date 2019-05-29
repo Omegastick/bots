@@ -1,5 +1,7 @@
 #include <memory>
 
+#include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
 #include <imgui.h>
 #include <nlohmann/json.hpp>
 
@@ -24,6 +26,21 @@ TrainingWizardScreen::TrainingWizardScreen(ResourceManager &resource_manager, Sc
       screen_manager(&screen_manager),
       state(State::Body)
 {
+    resource_manager.load_texture("base_module", "images/base_module.png");
+    resource_manager.load_texture("gun_module", "images/gun_module.png");
+    resource_manager.load_texture("thruster_module", "images/thruster_module.png");
+    resource_manager.load_texture("laser_sensor_module", "images/laser_sensor_module.png");
+    resource_manager.load_shader("texture", "shaders/texture.vert", "shaders/texture.frag");
+    resource_manager.load_shader("font", "shaders/texture.vert", "shaders/font.frag");
+    resource_manager.load_font("roboto-16", "fonts/Roboto-Regular.ttf", 16);
+
+    glm::vec2 size{19.2f, 10.8f};
+    glm::vec2 half_size = size * 0.5f;
+    glm::vec2 center = {(size.x * 0.333) - half_size.x, (size.y * 0.5) - half_size.y};
+    projection = glm::ortho(center.x - half_size.x,
+                            center.x + half_size.x,
+                            center.y - half_size.y,
+                            center.y + half_size.y);
 }
 
 void TrainingWizardScreen::algorithm()
@@ -36,6 +53,7 @@ void TrainingWizardScreen::algorithm()
     }
     ImGui::End();
 }
+
 void TrainingWizardScreen::body()
 {
     if (body_selector_window.update(*rng, b2_world, *agent))
@@ -43,7 +61,7 @@ void TrainingWizardScreen::body()
         state = State::Checkpoint;
     }
 
-    if (agent != nullptr)
+    if (agent->get_modules().size() > 0)
     {
         ImGui::SetNextWindowSize({0, 0});
         ImGui::Begin("Output");
@@ -51,6 +69,7 @@ void TrainingWizardScreen::body()
         ImGui::End();
     }
 }
+
 void TrainingWizardScreen::checkpoint()
 {
     ImGui::Begin("Checkpoint", nullptr, ImGuiWindowFlags_AlwaysAutoResize);
@@ -65,6 +84,13 @@ void TrainingWizardScreen::checkpoint()
 void TrainingWizardScreen::draw(Renderer &renderer, bool /*lightweight*/)
 {
     renderer.begin();
+
+    if (agent->get_modules().size() > 0)
+    {
+        auto render_data = agent->get_render_data();
+        renderer.draw(render_data, projection, 0);
+    }
+
     renderer.end();
 }
 

@@ -141,7 +141,7 @@ void init_imgui(const int opengl_version_major, const int opengl_version_minor, 
 
 void cursor_pos_callback(GLFWwindow *glfw_window, double x, double y)
 {
-    auto io = static_cast<Window *>(glfwGetWindowUserPointer(glfw_window))->get_io();
+    auto &io = static_cast<Window *>(glfwGetWindowUserPointer(glfw_window))->get_io();
     y = io.get_resolution().y - y;
     io.set_cursor_position(x, y);
 }
@@ -171,7 +171,7 @@ void resize_window_callback(GLFWwindow *glfw_window, int x, int y)
     Window *window = static_cast<Window *>(glfwGetWindowUserPointer(glfw_window));
     window->get_renderer().resize(x, y);
 
-    auto io = window->get_io();
+    auto &io = window->get_io();
     io.set_resolution(x, y);
 
     last_resolution_x = x;
@@ -180,7 +180,7 @@ void resize_window_callback(GLFWwindow *glfw_window, int x, int y)
 
 void key_callback(GLFWwindow *glfw_window, int key, int /*scancode*/, int actions, int /*mod*/)
 {
-    auto io = static_cast<Window *>(glfwGetWindowUserPointer(glfw_window))->get_io();
+    auto &io = static_cast<Window *>(glfwGetWindowUserPointer(glfw_window))->get_io();
     if (!ImGui::GetIO().WantCaptureKeyboard)
     {
         if (actions == GLFW_PRESS)
@@ -196,7 +196,7 @@ void key_callback(GLFWwindow *glfw_window, int key, int /*scancode*/, int action
 
 void mouse_button_callback(GLFWwindow *glfw_window, int button, int action, int /*mods*/)
 {
-    auto io = static_cast<Window *>(glfwGetWindowUserPointer(glfw_window))->get_io();
+    auto &io = static_cast<Window *>(glfwGetWindowUserPointer(glfw_window))->get_io();
     if (!ImGui::GetIO().WantCaptureMouse)
     {
         if (button == GLFW_MOUSE_BUTTON_LEFT)
