@@ -6,15 +6,16 @@
 #include <GLFW/glfw3.h>
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
-#include <spdlog/spdlog.h>
 #include <imgui.h>
 #include <imgui_internal.h>
 #include <imgui_impl_glfw.h>
 #include <imgui_impl_opengl3.h>
+#include <spdlog/spdlog.h>
 
 #include "graphics/window.h"
 #include "graphics/renderers/renderer.h"
 #include "graphics/screens/screens.h"
+#include "misc/animator.h"
 #include "misc/io.h"
 #include "misc/resource_manager.h"
 #include "misc/screen_manager.h"
@@ -149,6 +150,7 @@ int main(int /*argc*/, const char * /*argv*/ [])
     Window window = Window(resolution_x, resolution_y, window_title, opengl_version_major, opengl_version_minor);
 
     ResourceManager resource_manager("assets/");
+    Animator animator;
 
     // Screens
     spdlog::debug("Initializing screens");
@@ -179,6 +181,9 @@ int main(int /*argc*/, const char * /*argv*/ [])
     spdlog::debug("Initializing text test");
     screens.push_back(std::make_shared<TextTestScreen>(&screen_manager, resource_manager, &screens, &screen_names));
     screen_names.push_back("Text test");
+    spdlog::debug("Initializing animation test");
+    screens.push_back(std::make_shared<AnimationTestScreen>(&screen_manager, resource_manager, animator, &screens, &screen_names));
+    screen_names.push_back("Animation test");
     screen_manager.show_screen(screens[0]);
 
     spdlog::debug("Initializing renderer");
@@ -207,6 +212,7 @@ int main(int /*argc*/, const char * /*argv*/ [])
         ImGui_ImplGlfw_NewFrame();
         ImGui::NewFrame();
 
+        animator.update(delta_time);
         screen_manager.update(delta_time);
 
         // Draw
