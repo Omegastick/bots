@@ -6,7 +6,7 @@
 
 #include "screens/iscreen.h"
 #include "training/training_program.h"
-#include "ui/shared/body_selector_window.h"
+#include "ui/training_wizard_screen/body_selector_window.h"
 
 namespace SingularityTrainer
 {

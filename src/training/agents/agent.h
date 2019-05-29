@@ -35,10 +35,14 @@ class Agent : public ICollidable
     void recurse_json_modules(const nlohmann::json &module_json, IModule *parent_module = nullptr, int parent_link = 0, int child_link = 0);
 
   public:
+    Agent();
     Agent(b2World &world, Random *rng);
     Agent(b2World &world, Random *rng, const nlohmann::json &json);
     Agent(b2World &world, Random *rng, IEnvironment &environment);
     Agent(b2World &world, Random *rng, IEnvironment &environment, const nlohmann::json &json);
+    Agent(const Agent &) = delete;
+    Agent(Agent &&other);
+    Agent &operator=(Agent &&other);
 
     void act(std::vector<int> action_flags);
     void add_module(const std::shared_ptr<IModule> module);
