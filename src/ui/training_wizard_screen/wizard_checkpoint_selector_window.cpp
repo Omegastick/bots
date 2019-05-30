@@ -24,6 +24,21 @@ WizardAction WizardCheckpointSelectorWindow::update(cpprl::Policy &policy)
     ImGui::SetNextWindowPos({resolution.x * 0.05f, resolution.y * 0.05f});
     ImGui::Begin("Pick a checkpoint");
 
+    auto action = WizardAction::None;
+
+    // Start from scratch
+    if (ImGui::Button("Start from scratch"))
+    {
+        auto nn_base = std::make_shared<cpprl::MlpBase>(23, false, 24);
+        policy = cpprl::Policy(cpprl::ActionSpace{"MultiBinary", {4}}, nn_base);
+        action = WizardAction::Next;
+    }
+
+    ImGui::Separator();
+
+    // Pick a checkpoint
+    ImGui::Text("Load a checkpoint");
+
     // Enumerate all model files
     std::vector<std::string> files;
     for (const auto &file : fs::directory_iterator(fs::current_path()))
@@ -55,7 +70,6 @@ WizardAction WizardCheckpointSelectorWindow::update(cpprl::Policy &policy)
     last_selected_file = selected_file;
 
     // Cancel, back, next
-    auto action = WizardAction::None;
 
     ImGui::SetCursorPosY(ImGui::GetWindowHeight() -
                          ImGui::GetTextLineHeight() * 2.5);

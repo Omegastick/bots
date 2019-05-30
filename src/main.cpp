@@ -303,10 +303,7 @@ int main(int argc, const char *argv[])
     }
 
     // Allow screens to perform cleanup
-    while (screen_manager.stack_size() > 0)
-    {
-        screen_manager.close_screen();
-    }
+    screen_manager.exit();
 
     return 0;
 }
