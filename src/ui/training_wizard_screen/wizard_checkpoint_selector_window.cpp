@@ -77,9 +77,19 @@ WizardAction WizardCheckpointSelectorWindow::update(cpprl::Policy &policy)
 
     ImGui::SameLine();
 
-    if (ImGui::Button("Next", {50, 20}))
+    if (selected_file != -1)
     {
-        action = WizardAction::Next;
+        if (ImGui::Button("Next", {50, 20}))
+        {
+            action = WizardAction::Next;
+        }
+    }
+    else
+    {
+        auto old_alpha = ImGui::GetStyle().Alpha;
+        ImGui::GetStyle().Alpha = 0.5;
+        ImGui::Button("Next", {50, 20});
+        ImGui::GetStyle().Alpha = old_alpha;
     }
 
     ImGui::End();

@@ -91,9 +91,19 @@ WizardAction BodySelectorWindow::update(Random &rng, b2World &b2_world, Agent &a
 
     ImGui::SameLine();
 
-    if (ImGui::Button("Next", {50, 20}))
+    if (agent.get_modules().size() > 0)
     {
-        action = WizardAction::Next;
+        if (ImGui::Button("Next", {50, 20}))
+        {
+            action = WizardAction::Next;
+        }
+    }
+    else
+    {
+        auto old_alpha = ImGui::GetStyle().Alpha;
+        ImGui::GetStyle().Alpha = 0.5;
+        ImGui::Button("Next", {50, 20});
+        ImGui::GetStyle().Alpha = old_alpha;
     }
 
     ImGui::End();
