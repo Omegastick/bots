@@ -60,14 +60,6 @@ void TrainingWizardScreen::body()
     {
         state = State::Checkpoint;
     }
-
-    if (agent->get_modules().size() > 0)
-    {
-        ImGui::SetNextWindowSize({0, 0});
-        ImGui::Begin("Output");
-        ImGui::Text("%s", agent->to_json().dump(4).c_str());
-        ImGui::End();
-    }
 }
 
 void TrainingWizardScreen::checkpoint()

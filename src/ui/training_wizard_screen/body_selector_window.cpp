@@ -7,6 +7,7 @@
 #include <nlohmann/json.hpp>
 
 #include "ui/training_wizard_screen/body_selector_window.h"
+#include "misc/io.h"
 #include "misc/random.h"
 #include "training/agents/agent.h"
 
@@ -22,8 +23,12 @@ BodySelectorWindow::BodySelectorWindow(IO &io)
 bool BodySelectorWindow::update(Random &rng, b2World &b2_world, Agent &agent)
 {
     // Load agent window
-    ImGui::SetNextWindowSize({0, 0});
+    auto resolution = io->get_resolution();
+    ImGui::SetNextWindowSize({resolution.x * 0.333f, resolution.y * 0.5f});
+    ImGui::SetNextWindowPos({resolution.x * 0.05f, resolution.y * 0.05f});
     ImGui::Begin("Pick a checkpoint");
+
+    ImGui::Columns(2);
 
     // Enumerate all model files
     std::vector<std::string> files;
@@ -47,7 +52,7 @@ bool BodySelectorWindow::update(Random &rng, b2World &b2_world, Agent &agent)
     }
     ImGui::ListBox("", &selected_file, &c_strings.front(), files.size());
 
-    // Load model
+    // Load body
     if (selected_file != last_selected_file)
     {
         auto json_file_path = bodies_directory;
@@ -56,14 +61,29 @@ bool BodySelectorWindow::update(Random &rng, b2World &b2_world, Agent &agent)
         auto json = nlohmann::json::parse(json_file);
         agent = Agent(b2_world, &rng, json);
     }
-    ImGui::End();
 
     last_selected_file = selected_file;
 
+    ImGui::NextColumn();
+
+    if (agent.get_modules().size() > 0)
+    {
+        ImGui::Text("%s", agent.to_json().dump(2).c_str());
+    }
+
+    auto next = false;
+
+    ImGui::SetCursorPosY(ImGui::GetWindowContentRegionMax().y -
+                         ImGui::GetTextLineHeight() * 2);
+    ImGui::SetCursorPosX(ImGui::GetWindowContentRegionWidth() -
+                         ImGui::CalcTextSize("Next").x * 2);
     if (ImGui::Button("Next"))
     {
-        return true;
+        next = true;
     }
-    return false;
+
+    ImGui::End();
+
+    return next;
 }
 }
