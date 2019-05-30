@@ -30,7 +30,7 @@ void MainMenuScreen::update(double /*delta_time*/)
     ImGui::PushStyleColor(ImGuiCol_ButtonActive, {1, 1, 1, 0.05});
     ImGui::PushStyleColor(ImGuiCol_Text, {cl_base3.r, cl_base3.g, cl_base3.b, 1});
     auto imgui_io = ImGui::GetIO();
-    ImGui::PushFont(imgui_io.Fonts->Fonts[1]);
+    ImGui::PushFont(imgui_io.Fonts->Fonts[2]);
 
     ImGui::SetNextWindowPosCenter(ImGuiCond_Always);
     ImGui::Begin("Main menu :)", NULL, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoTitleBar);
@@ -51,6 +51,7 @@ void MainMenuScreen::update(double /*delta_time*/)
     ImGui::PopStyleColor(5);
 
     // ImGui::ShowStyleEditor();
+    // ImGui::ShowDemoWindow();
 }
 
 void MainMenuScreen::draw(Renderer &renderer, bool /*lightweight*/)

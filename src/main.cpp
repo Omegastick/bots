@@ -133,6 +133,7 @@ void init_imgui(const int opengl_version_major, const int opengl_version_minor, 
     font_config.OversampleV = 3;
     io.Fonts->ClearFonts();
     io.Fonts->AddFontFromFileTTF("assets/fonts/Roboto-Regular.ttf", 16, &font_config);
+    io.Fonts->AddFontFromFileTTF("assets/fonts/Roboto-Regular.ttf", 24, &font_config);
     io.Fonts->AddFontFromFileTTF("assets/fonts/Roboto-Regular.ttf", 32, &font_config);
     io.IniFilename = NULL;
 
