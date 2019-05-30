@@ -38,6 +38,7 @@ class TrainingWizardScreen : public IScreen
     b2World b2_world;
     BodySelectorWindow body_selector_window;
     WizardCheckpointSelectorWindow checkpoint_selector_window;
+    double elapsed_time;
     IO *io;
     cpprl::Policy policy;
     ResourceManager *resource_manager;

@@ -6,7 +6,8 @@ namespace SingularityTrainer
 {
 RigidBody::RigidBody(b2BodyType type, b2Vec2 position, b2World &world, void *parent, RigidBody::ParentTypes parent_type)
     : parent(parent),
-      parent_type(parent_type)
+      parent_type(parent_type),
+      world(&world)
 {
     // Rigidbody
     body_def.type = type;
@@ -16,4 +17,10 @@ RigidBody::RigidBody(b2BodyType type, b2Vec2 position, b2World &world, void *par
 }
 
 RigidBody::~RigidBody() {}
+
+void RigidBody::destroy()
+{
+    world->DestroyBody(body);
+    body = nullptr;
+}
 }
