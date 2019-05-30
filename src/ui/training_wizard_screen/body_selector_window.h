@@ -2,6 +2,8 @@
 
 class b2World;
 
+#include "ui/training_wizard_screen/wizard_action.h"
+
 namespace SingularityTrainer
 {
 class Agent;
@@ -18,6 +20,6 @@ class BodySelectorWindow
   public:
     BodySelectorWindow(IO &io);
 
-    bool update(Random &rng, b2World &b2_world, Agent &agent);
+    WizardAction update(Random &rng, b2World &b2_world, Agent &agent);
 };
 }

@@ -1,13 +1,15 @@
 #pragma once
 
+#include <memory>
+
+#include <cpprl/model/policy.h>
 #include <Box2D/Box2D.h>
 #include <glm/mat4x4.hpp>
-
-#include <memory>
 
 #include "screens/iscreen.h"
 #include "training/training_program.h"
 #include "ui/training_wizard_screen/body_selector_window.h"
+#include "ui/training_wizard_screen/wizard_checkpoint_selector_window.h"
 
 namespace SingularityTrainer
 {
@@ -35,7 +37,9 @@ class TrainingWizardScreen : public IScreen
     std::unique_ptr<Agent> agent;
     b2World b2_world;
     BodySelectorWindow body_selector_window;
+    WizardCheckpointSelectorWindow checkpoint_selector_window;
     IO *io;
+    cpprl::Policy policy;
     ResourceManager *resource_manager;
     Random *rng;
     ScreenManager *screen_manager;

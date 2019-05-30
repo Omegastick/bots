@@ -1,5 +1,6 @@
 #include <memory>
 
+#include <cpprl/cpprl.h>
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <imgui.h>
@@ -13,6 +14,7 @@
 #include "misc/screen_manager.h"
 #include "training/agents/agent.h"
 #include "ui/training_wizard_screen/body_selector_window.h"
+#include "ui/training_wizard_screen/wizard_action.h"
 
 namespace SingularityTrainer
 {
@@ -20,7 +22,9 @@ TrainingWizardScreen::TrainingWizardScreen(ResourceManager &resource_manager, Sc
     : agent(std::make_unique<Agent>()),
       b2_world({0, 0}),
       body_selector_window(io),
+      checkpoint_selector_window(io),
       io(&io),
+      policy(nullptr),
       resource_manager(&resource_manager),
       rng(&rng),
       screen_manager(&screen_manager),
@@ -56,21 +60,32 @@ void TrainingWizardScreen::algorithm()
 
 void TrainingWizardScreen::body()
 {
-    if (body_selector_window.update(*rng, b2_world, *agent))
+    auto action = body_selector_window.update(*rng, b2_world, *agent);
+    if (action == WizardAction::Next)
     {
         state = State::Checkpoint;
+    }
+    else if (action == WizardAction::Cancel)
+    {
+        screen_manager->close_screen();
     }
 }
 
 void TrainingWizardScreen::checkpoint()
 {
-    ImGui::Begin("Checkpoint", nullptr, ImGuiWindowFlags_AlwaysAutoResize);
-    ImGui::Text("Checkpoint");
-    if (ImGui::Button("Next"))
+    auto action = checkpoint_selector_window.update(policy);
+    if (action == WizardAction::Next)
     {
         state = State::Algorithm;
     }
-    ImGui::End();
+    else if (action == WizardAction::Back)
+    {
+        state = State::Body;
+    }
+    else if (action == WizardAction::Cancel)
+    {
+        screen_manager->close_screen();
+    }
 }
 
 void TrainingWizardScreen::draw(Renderer &renderer, bool /*lightweight*/)
