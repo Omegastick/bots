@@ -58,6 +58,11 @@ WizardAction BodySelectorWindow::update(Random &rng, b2World &b2_world, Agent &a
         json_file_path += "/" + files[selected_file] + ".json";
         std::ifstream json_file(json_file_path);
         auto json = nlohmann::json::parse(json_file);
+        if (agent.get_rigid_body() != nullptr &&
+            agent.get_rigid_body()->body != nullptr)
+        {
+            agent.get_rigid_body()->destroy();
+        }
         agent = Agent(b2_world, &rng, json);
     }
 
@@ -78,7 +83,7 @@ WizardAction BodySelectorWindow::update(Random &rng, b2World &b2_world, Agent &a
     ImGui::SetCursorPosX(ImGui::GetWindowContentRegionMax().x -
                          100 -
                          ImGui::GetStyle().ItemSpacing.x * 1);
-                         
+
     if (ImGui::Button("Cancel", {50, 20}))
     {
         action = WizardAction::Cancel;

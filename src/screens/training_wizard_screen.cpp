@@ -5,11 +5,13 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <imgui.h>
 #include <nlohmann/json.hpp>
+#include <torch/torch.h>
 
 #include "screens/training_wizard_screen.h"
 #include "graphics/renderers/renderer.h"
 #include "graphics/sprite.h"
 #include "misc/io.h"
+#include "misc/random.h"
 #include "misc/resource_manager.h"
 #include "misc/screen_manager.h"
 #include "training/agents/agent.h"
@@ -23,6 +25,7 @@ TrainingWizardScreen::TrainingWizardScreen(ResourceManager &resource_manager, Sc
       b2_world({0, 0}),
       body_selector_window(io),
       checkpoint_selector_window(io),
+      elapsed_time(0),
       io(&io),
       policy(nullptr),
       resource_manager(&resource_manager),
@@ -34,6 +37,9 @@ TrainingWizardScreen::TrainingWizardScreen(ResourceManager &resource_manager, Sc
     resource_manager.load_texture("gun_module", "images/gun_module.png");
     resource_manager.load_texture("thruster_module", "images/thruster_module.png");
     resource_manager.load_texture("laser_sensor_module", "images/laser_sensor_module.png");
+    resource_manager.load_texture("bullet", "images/bullet.png");
+    resource_manager.load_texture("pixel", "images/pixel.png");
+    resource_manager.load_texture("target", "images/target.png");
     resource_manager.load_shader("texture", "shaders/texture.vert", "shaders/texture.frag");
     resource_manager.load_shader("font", "shaders/texture.vert", "shaders/font.frag");
     resource_manager.load_font("roboto-16", "fonts/Roboto-Regular.ttf", 16);
@@ -101,8 +107,10 @@ void TrainingWizardScreen::draw(Renderer &renderer, bool /*lightweight*/)
     renderer.end();
 }
 
-void TrainingWizardScreen::update(double /*delta_time*/)
+void TrainingWizardScreen::update(double delta_time)
 {
+    elapsed_time += delta_time;
+
     switch (state)
     {
     case Body:
@@ -114,6 +122,20 @@ void TrainingWizardScreen::update(double /*delta_time*/)
     case Algorithm:
         algorithm();
         break;
+    }
+
+    b2_world.Step(delta_time, 3, 3);
+
+    if (agent->get_modules().size() > 0 && elapsed_time >= 0.1)
+    {
+        elapsed_time = 0;
+        auto num_actions = agent->get_actions().size();
+        std::vector<int> actions;
+        for (unsigned int i = 0; i < num_actions; ++i)
+        {
+            actions.push_back(rng->next_int(0, 2));
+        }
+        agent->act(actions);
     }
 }
 }
