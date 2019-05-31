@@ -26,7 +26,9 @@ TrainingWizardScreen::TrainingWizardScreen(ResourceManager &resource_manager, Sc
       body_selector_window(io),
       checkpoint_selector_window(io),
       elapsed_time(0),
+      hidden_state(torch::zeros({1, 64})),
       io(&io),
+      last_action_time(0),
       policy(nullptr),
       resource_manager(&resource_manager),
       rng(&rng),
@@ -79,7 +81,9 @@ void TrainingWizardScreen::body()
 
 void TrainingWizardScreen::checkpoint()
 {
-    auto action = checkpoint_selector_window.update(policy);
+    auto action = checkpoint_selector_window.update(policy,
+                                                    agent->get_observation().size(),
+                                                    agent->get_actions().size());
     if (action == WizardAction::Next)
     {
         state = State::Algorithm;
@@ -101,7 +105,7 @@ void TrainingWizardScreen::draw(Renderer &renderer, bool /*lightweight*/)
     if (agent->get_modules().size() > 0)
     {
         auto render_data = agent->get_render_data();
-        renderer.draw(render_data, projection, 0);
+        renderer.draw(render_data, projection, elapsed_time);
     }
 
     renderer.end();
@@ -126,15 +130,20 @@ void TrainingWizardScreen::update(double delta_time)
 
     b2_world.Step(delta_time, 3, 3);
 
-    if (agent->get_modules().size() > 0 && elapsed_time >= 0.1)
+    if (!policy.is_empty() && elapsed_time - last_action_time >= 0.1)
     {
-        elapsed_time = 0;
-        auto num_actions = agent->get_actions().size();
-        std::vector<int> actions;
-        for (unsigned int i = 0; i < num_actions; ++i)
+        last_action_time = elapsed_time;
+        auto hidden_state_size = policy->get_hidden_size();
+        if (hidden_state.size(0) != hidden_state_size)
         {
-            actions.push_back(rng->next_int(0, 2));
+            hidden_state = torch::zeros({1, hidden_state_size});
         }
+        auto observation_vec = agent->get_observation();
+        auto observation = torch::from_blob(observation_vec.data(), {1, static_cast<long>(observation_vec.size())});
+        auto mask = torch::ones({1, 1});
+        auto act_result = policy->act(observation, hidden_state, mask);
+        auto actions_tensor = act_result[1][0].to(torch::kInt).contiguous();
+        std::vector<int> actions(actions_tensor.data<int>(), actions_tensor.data<int>() + actions_tensor.numel());
         agent->act(actions);
     }
 }

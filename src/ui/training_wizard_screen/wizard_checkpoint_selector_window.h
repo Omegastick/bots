@@ -23,6 +23,6 @@ class WizardCheckpointSelectorWindow
   public:
     WizardCheckpointSelectorWindow(IO &io);
 
-    WizardAction update(cpprl::Policy &policy);
+    WizardAction update(cpprl::Policy &policy, int num_inputs, int num_outputs);
 };
 }
