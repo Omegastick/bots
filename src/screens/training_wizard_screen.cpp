@@ -46,13 +46,7 @@ TrainingWizardScreen::TrainingWizardScreen(ResourceManager &resource_manager, Sc
     resource_manager.load_shader("font", "shaders/texture.vert", "shaders/font.frag");
     resource_manager.load_font("roboto-16", "fonts/Roboto-Regular.ttf", 16);
 
-    glm::vec2 size{19.2f, 10.8f};
-    glm::vec2 half_size = size * 0.5f;
-    glm::vec2 center = {(size.x * 0.333) - half_size.x, (size.y * 0.5) - half_size.y};
-    projection = glm::ortho(center.x - half_size.x,
-                            center.x + half_size.x,
-                            center.y - half_size.y,
-                            center.y + half_size.y);
+    center_camera_on_body();
 }
 
 void TrainingWizardScreen::algorithm()
@@ -96,6 +90,27 @@ void TrainingWizardScreen::checkpoint()
     {
         screen_manager->close_screen();
     }
+}
+
+void TrainingWizardScreen::center_camera_on_body()
+{
+    glm::vec2 size{19.2f, 10.8f};
+    glm::vec2 half_size = size * 0.5f;
+    glm::vec2 offset{(size.x * 0.333) - half_size.x, (size.y * 0.5) - half_size.y};
+    b2Vec2 agent_position;
+    if (agent->get_modules().size() > 0)
+    {
+        agent_position = agent->get_rigid_body()->body->GetTransform().p;
+    }
+    else
+    {
+        agent_position = {0, 0};
+    }
+    glm::vec2 center{agent_position.x + offset.x, agent_position.y + offset.y};
+    projection = glm::ortho(center.x - half_size.x,
+                            center.x + half_size.x,
+                            center.y - half_size.y,
+                            center.y + half_size.y);
 }
 
 void TrainingWizardScreen::draw(Renderer &renderer, bool /*lightweight*/)
@@ -145,6 +160,11 @@ void TrainingWizardScreen::update(double delta_time)
         auto actions_tensor = act_result[1][0].to(torch::kInt).contiguous();
         std::vector<int> actions(actions_tensor.data<int>(), actions_tensor.data<int>() + actions_tensor.numel());
         agent->act(actions);
+    }
+
+    if (agent->get_modules().size() > 0)
+    {
+        center_camera_on_body();
     }
 }
 }
