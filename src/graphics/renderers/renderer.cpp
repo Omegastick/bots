@@ -21,14 +21,19 @@
 
 namespace SingularityTrainer
 {
-Renderer::Renderer(int width, int height, ResourceManager &resource_manager)
+Renderer::Renderer(int width, int height,
+                   ResourceManager &resource_manager,
+                   SpriteRenderer &sprite_renderer,
+                   ParticleRenderer &particle_renderer,
+                   LineRenderer &line_renderer,
+                   TextRenderer &text_renderer)
     : width(width),
       height(height),
-      resource_manager(&resource_manager),
-      sprite_renderer(std::make_unique<SpriteRenderer>(resource_manager)),
-      particle_renderer(std::make_unique<ParticleRenderer>(100000, resource_manager)),
-      line_renderer(std::make_unique<LineRenderer>(resource_manager)),
-      text_renderer(std::make_unique<TextRenderer>(resource_manager))
+      resource_manager(resource_manager),
+      sprite_renderer(sprite_renderer),
+      particle_renderer(particle_renderer),
+      line_renderer(line_renderer),
+      text_renderer(text_renderer)
 {
     base_frame_buffer = std::make_unique<FrameBuffer>();
     base_frame_buffer->set_render_buffer(width, height, 4);
@@ -62,35 +67,35 @@ void Renderer::draw(const VertexArray &vertex_array, const ElementBuffer &elemen
 
 void Renderer::draw(const Sprite &sprite, const glm::mat4 &view)
 {
-    sprite_renderer->draw(sprite, view);
+    sprite_renderer.draw(sprite, view);
 }
 
 void Renderer::draw(const Text &text, const glm::mat4 &view)
 {
-    text_renderer->draw(text, view);
+    text_renderer.draw(text, view);
 }
 
 void Renderer::draw(RenderData &render_data, const glm::mat4 &view, double time, bool lightweight)
 {
     for (const auto &sprite : render_data.sprites)
     {
-        sprite_renderer->draw(sprite, view);
+        sprite_renderer.draw(sprite, view);
     }
 
-    particle_renderer->add_particles(render_data.particles, time);
+    particle_renderer.add_particles(render_data.particles, time);
     if (!lightweight)
     {
-        particle_renderer->draw(time, view);
+        particle_renderer.draw(time, view);
     }
 
     for (const auto &line : render_data.lines)
     {
-        line_renderer->draw(line, view);
+        line_renderer.draw(line, view);
     }
 
     for (const auto &text : render_data.texts)
     {
-        text_renderer->draw(text, view);
+        text_renderer.draw(text, view);
     }
 }
 

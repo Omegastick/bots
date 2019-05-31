@@ -94,7 +94,7 @@ std::vector<LineData> get_polyline(const Line &line)
 }
 
 LineRenderer::LineRenderer(ResourceManager &resource_manager)
-    : resource_manager(&resource_manager)
+    : resource_manager(resource_manager)
 {
     vertex_array = std::make_unique<VertexArray>();
     vertex_buffer = std::make_unique<VertexBuffer>(nullptr, 0);
@@ -128,7 +128,7 @@ void LineRenderer::draw(const Line &line, const glm::mat4 &view)
     }
     element_buffer->set_data(&indices[0], quad_count * 6);
 
-    auto shader = resource_manager->shader_store.get("line");
+    auto shader = resource_manager.shader_store.get("line");
     shader->set_uniform_mat4f("u_mvp", view);
 
     glDrawElements(GL_TRIANGLES, element_buffer->get_count(), GL_UNSIGNED_INT, 0);
