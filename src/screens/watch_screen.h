@@ -57,4 +57,20 @@ class WatchScreen : public IScreen
     virtual void draw(Renderer &renderer, bool lightweight = false);
     void update(const double delta_time);
 };
+
+class WatchScreenFactory : public IScreenFactory
+{
+  private:
+    ResourceManager &resource_manager;
+    IO &io;
+
+  public:
+    WatchScreenFactory(ResourceManager &resource_manager, IO &io)
+        : resource_manager(resource_manager), io(io) {}
+
+    inline std::shared_ptr<IScreen> make()
+    {
+        return std::make_shared<WatchScreen>(resource_manager, io);
+    }
+};
 }

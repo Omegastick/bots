@@ -1,27 +1,23 @@
-#include <memory>
-
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
-#include <spdlog/spdlog.h>
+#include <argh.h>
+#include <doctest.h>
 #include <imgui.h>
 #include <imgui_internal.h>
 #include <imgui_impl_glfw.h>
 #include <imgui_impl_opengl3.h>
-#include <argh.h>
-#include <doctest.h>
+#include <spdlog/spdlog.h>
 
-#include "graphics/window.h"
-#include "graphics/colors.h"
+#include "misc/app.h"
 #include "graphics/renderers/renderer.h"
+#include "graphics/window.h"
 #include "misc/io.h"
-#include "misc/random.h"
 #include "misc/screen_manager.h"
-#include "misc/resource_manager.h"
-#include "screens/main_menu_screen.h"
 #include "misc/utilities.h"
+#include "screens/main_menu_screen.h"
 
-using namespace SingularityTrainer;
-
+namespace SingularityTrainer
+{
 const int resolution_x = 1920;
 const int resolution_y = 1080;
 const std::string window_title = "Singularity Trainer";
@@ -30,11 +26,6 @@ const int opengl_version_minor = 3;
 
 int last_resolution_x = resolution_x;
 int last_resolution_y = resolution_y;
-
-void error_callback(int error, const char *description)
-{
-    spdlog::error("GLFW error: [{}] {}", error, description);
-}
 
 void reset_imgui_style()
 {
@@ -140,6 +131,11 @@ void init_imgui(const int opengl_version_major, const int opengl_version_minor, 
     reset_imgui_style();
 }
 
+void error_callback(int error, const char *description)
+{
+    spdlog::error("GLFW error: [{}] {}", error, description);
+}
+
 void cursor_pos_callback(GLFWwindow *glfw_window, double x, double y)
 {
     auto &io = static_cast<Window *>(glfwGetWindowUserPointer(glfw_window))->get_io();
@@ -217,7 +213,83 @@ void mouse_button_callback(GLFWwindow *glfw_window, int button, int action, int 
     }
 }
 
-int run_tests(int argc, const char *argv[], const argh::parser &args)
+App::App(IO &io, Renderer &renderer, MainMenuScreenFactory &main_menu_screen_factory, ScreenManager &screen_manager, Window &window)
+    : io(io),
+      renderer(renderer),
+      screen_manager(screen_manager),
+      time(0),
+      window(window)
+{
+    // Logging
+    spdlog::set_level(spdlog::level::debug);
+    spdlog::set_pattern("%^[%T %7l] %v%$");
+    glfwSetErrorCallback(error_callback);
+
+    // Create window
+    window.set_resize_callback(resize_window_callback);
+    window.set_cursor_pos_callback(cursor_pos_callback);
+    window.set_key_callback(key_callback);
+    window.set_mouse_button_callback(mouse_button_callback);
+
+    window.set_renderer(renderer);
+    window.set_io(io);
+    io.set_resolution(resolution_x, resolution_y);
+
+    screen_manager.show_screen(main_menu_screen_factory.make());
+
+    init_imgui(opengl_version_major, opengl_version_minor, window.window);
+}
+
+int App::run(int argc, char *argv[])
+{
+    argh::parser args(argv);
+    if (args[{"-t", "--test"}])
+    {
+        return run_tests(argc, argv, args);
+    }
+
+    time = glfwGetTime();
+
+    while (!window.should_close())
+    {
+        /*
+         *  Input
+         */
+        glfwPollEvents();
+
+        /*
+         *  Update
+         */
+        double new_time = glfwGetTime();
+        double delta_time = new_time - time;
+        time = new_time;
+
+        ImGui_ImplOpenGL3_NewFrame();
+        ImGui_ImplGlfw_NewFrame();
+        ImGui::NewFrame();
+
+        screen_manager.update(delta_time);
+
+        io.tick();
+
+        /*
+         *  Draw
+         */
+        screen_manager.draw(renderer);
+
+        ImGui::Render();
+        ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+
+        window.swap_buffers();
+    }
+
+    // Allow screens to perform cleanup
+    screen_manager.exit();
+
+    return 0;
+}
+
+int App::run_tests(int argc, char *argv[], const argh::parser &args)
 {
     if (!args["--with-logs"])
     {
@@ -231,9 +303,4 @@ int run_tests(int argc, const char *argv[], const argh::parser &args)
 
     return context.run();
 }
-
-int main(int argc, const char *argv[])
-{
-
-        return 0;
 }

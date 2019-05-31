@@ -14,4 +14,14 @@ class IScreen
 };
 
 inline IScreen::~IScreen() {}
+
+class IScreenFactory
+{
+  public:
+    virtual ~IScreenFactory() = 0;
+
+    virtual std::shared_ptr<IScreen> make() = 0;
+};
+
+inline IScreenFactory::~IScreenFactory() {}
 }
