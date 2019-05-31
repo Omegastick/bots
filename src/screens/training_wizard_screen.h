@@ -59,4 +59,22 @@ class TrainingWizardScreen : public IScreen
     void draw(Renderer &renderer, bool lightweight = false);
     void update(double delta_time);
 };
+
+class TrainingWizardScreenFactory : public IScreenFactory
+{
+  private:
+    ResourceManager &resource_manager;
+    ScreenManager &screen_manager;
+    IO &io;
+    Random &rng;
+
+  public:
+    TrainingWizardScreenFactory(ResourceManager &resource_manager, ScreenManager &screen_manager, IO &io, Random &rng)
+        : resource_manager(resource_manager), screen_manager(screen_manager), io(io), rng(rng) {}
+
+    inline std::shared_ptr<IScreen> make()
+    {
+        return std::make_shared<TrainingWizardScreen>(resource_manager, screen_manager, rng, io);
+    }
+};
 }
