@@ -27,17 +27,22 @@ class Renderer
 {
   private:
     int width, height;
-    ResourceManager *resource_manager;
-    std::unique_ptr<SpriteRenderer> sprite_renderer;
-    std::unique_ptr<ParticleRenderer> particle_renderer;
-    std::unique_ptr<LineRenderer> line_renderer;
-    std::unique_ptr<TextRenderer> text_renderer;
+    ResourceManager &resource_manager;
+    SpriteRenderer &sprite_renderer;
+    ParticleRenderer &particle_renderer;
+    LineRenderer &line_renderer;
+    TextRenderer &text_renderer;
     std::vector<PostProcLayer *> post_proc_layers;
     std::unique_ptr<FrameBuffer> base_frame_buffer;
     std::unique_ptr<FrameBuffer> texture_frame_buffer;
 
   public:
-    Renderer(int width, int height, ResourceManager &resource_manager);
+    Renderer(int width, int height,
+             ResourceManager &resource_manager,
+             SpriteRenderer &sprite_renderer,
+             ParticleRenderer &particle_renderer,
+             LineRenderer &line_renderer,
+             TextRenderer &text_renderer);
     ~Renderer();
 
     void resize(int width, int height);

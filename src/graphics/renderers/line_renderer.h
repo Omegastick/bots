@@ -4,11 +4,12 @@
 
 #include <glm/mat4x4.hpp>
 
+#include "graphics/backend/element_buffer.h"
+#include "graphics/backend/vertex_array.h"
+#include "graphics/backend/vertex_buffer.h"
+
 namespace SingularityTrainer
 {
-class VertexArray;
-class VertexBuffer;
-class ElementBuffer;
 class ResourceManager;
 class Line;
 
@@ -18,7 +19,7 @@ class LineRenderer
     std::unique_ptr<VertexArray> vertex_array;
     std::unique_ptr<VertexBuffer> vertex_buffer;
     std::unique_ptr<ElementBuffer> element_buffer;
-    ResourceManager *resource_manager;
+    ResourceManager &resource_manager;
 
   public:
     LineRenderer(ResourceManager &resource_manager);

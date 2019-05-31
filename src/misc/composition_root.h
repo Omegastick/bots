@@ -2,7 +2,11 @@
 
 #include <memory>
 
+#include "graphics/renderers/line_renderer.h"
+#include "graphics/renderers/particle_renderer.h"
 #include "graphics/renderers/renderer.h"
+#include "graphics/renderers/sprite_renderer.h"
+#include "graphics/renderers/text_renderer.h"
 #include "graphics/window.h"
 #include "misc/app.h"
 #include "misc/io.h"
@@ -20,10 +24,15 @@ class CompositionRoot
 
     std::unique_ptr<IO> io;
     std::unique_ptr<ResourceManager> resource_manager;
-    std::unique_ptr<Renderer> renderer;
     std::unique_ptr<ScreenManager> screen_manager;
     std::unique_ptr<Window> window;
     std::unique_ptr<Random> rng;
+
+    std::unique_ptr<LineRenderer> line_renderer;
+    std::unique_ptr<ParticleRenderer> particle_renderer;
+    std::unique_ptr<SpriteRenderer> sprite_renderer;
+    std::unique_ptr<TextRenderer> text_renderer;
+    std::unique_ptr<Renderer> renderer;
 
     std::unique_ptr<MainMenuScreenFactory> main_menu_screen_factory;
 
