@@ -35,6 +35,8 @@ class TrainingWizardScreen : public IScreen
     void body();
     void checkpoint();
 
+    void center_camera_on_body();
+
     std::unique_ptr<Agent> agent;
     b2World b2_world;
     BodySelectorWindow body_selector_window;
