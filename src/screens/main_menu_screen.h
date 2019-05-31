@@ -37,7 +37,7 @@ class MainMenuScreenFactory : public IScreenFactory
     MainMenuScreenFactory(ResourceManager &resource_manager, ScreenManager &screen_manager, IO &io, Random &rng)
         : resource_manager(resource_manager), screen_manager(screen_manager), io(io), rng(rng) {}
 
-    inline std::shared_ptr<IScreen> make()
+    virtual std::shared_ptr<IScreen> make()
     {
         return std::make_shared<MainMenuScreen>(resource_manager, screen_manager, rng, io);
     }

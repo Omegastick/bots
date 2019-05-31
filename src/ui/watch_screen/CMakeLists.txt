@@ -1,4 +1,4 @@
 target_sources(SingularityTrainer
-PUBLIC
+PRIVATE
     ${CMAKE_CURRENT_LIST_DIR}/checkpoint_selector_window.cpp
 )
