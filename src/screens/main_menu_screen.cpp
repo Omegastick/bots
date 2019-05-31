@@ -7,6 +7,7 @@
 #include "graphics/sprite.h"
 #include "misc/io.h"
 #include "misc/resource_manager.h"
+#include "screens/iscreen.h"
 #include "screens/build_screen.h"
 #include "screens/training_wizard_screen.h"
 #include "screens/watch_screen.h"

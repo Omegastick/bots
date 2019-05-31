@@ -1,10 +1,10 @@
 target_sources(SingularityTrainer
-PUBLIC
+PRIVATE
     ${CMAKE_CURRENT_LIST_DIR}/main.cpp
 )
 
 target_sources(HeadlessTrainer
-PUBLIC
+PRIVATE
     ${CMAKE_CURRENT_LIST_DIR}/headless.cpp
 )
 
