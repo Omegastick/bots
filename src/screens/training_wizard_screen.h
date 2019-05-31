@@ -5,6 +5,7 @@
 #include <cpprl/model/policy.h>
 #include <Box2D/Box2D.h>
 #include <glm/mat4x4.hpp>
+#include <torch/torch.h>
 
 #include "screens/iscreen.h"
 #include "training/training_program.h"
@@ -39,7 +40,9 @@ class TrainingWizardScreen : public IScreen
     BodySelectorWindow body_selector_window;
     WizardCheckpointSelectorWindow checkpoint_selector_window;
     double elapsed_time;
+    torch::Tensor hidden_state;
     IO *io;
+    double last_action_time;
     cpprl::Policy policy;
     ResourceManager *resource_manager;
     Random *rng;

@@ -17,7 +17,7 @@ WizardCheckpointSelectorWindow::WizardCheckpointSelectorWindow(IO &io)
       selected_file(-1),
       io(&io) {}
 
-WizardAction WizardCheckpointSelectorWindow::update(cpprl::Policy &policy)
+WizardAction WizardCheckpointSelectorWindow::update(cpprl::Policy &policy, int num_inputs, int num_outputs)
 {
     auto resolution = io->get_resolution();
     ImGui::SetNextWindowSize({resolution.x * 0.333f, resolution.y * 0.5f});
@@ -29,8 +29,8 @@ WizardAction WizardCheckpointSelectorWindow::update(cpprl::Policy &policy)
     // Start from scratch
     if (ImGui::Button("Start from scratch"))
     {
-        auto nn_base = std::make_shared<cpprl::MlpBase>(23, false, 24);
-        policy = cpprl::Policy(cpprl::ActionSpace{"MultiBinary", {4}}, nn_base);
+        auto nn_base = std::make_shared<cpprl::MlpBase>(num_inputs, false, 24);
+        policy = cpprl::Policy(cpprl::ActionSpace{"MultiBinary", {num_outputs}}, nn_base);
         action = WizardAction::Next;
     }
 
