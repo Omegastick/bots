@@ -15,11 +15,14 @@
 
 namespace SingularityTrainer
 {
-MainMenuScreen::MainMenuScreen(ResourceManager &resource_manager, ScreenManager &screen_manager, Random &rng, IO &io)
-    : resource_manager(&resource_manager),
-      screen_manager(&screen_manager),
-      rng(&rng),
-      io(&io)
+MainMenuScreen::MainMenuScreen(ScreenManager &screen_manager,
+                               BuildScreenFactory &build_screen_factory,
+                               TrainingWizardScreenFactory &training_wizard_screen_factory,
+                               WatchScreenFactory &watch_screen_factory)
+    : screen_manager(screen_manager),
+      build_screen_factory(build_screen_factory),
+      training_wizard_screen_factory(training_wizard_screen_factory),
+      watch_screen_factory(watch_screen_factory)
 {
 }
 
@@ -37,15 +40,15 @@ void MainMenuScreen::update(double /*delta_time*/)
     ImGui::Begin("Main menu :)", NULL, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoTitleBar);
     if (ImGui::Button("Train Agent"))
     {
-        screen_manager->show_screen(std::make_shared<TrainingWizardScreen>(*resource_manager, *screen_manager, *rng, *io));
+        screen_manager.show_screen(training_wizard_screen_factory.make());
     }
     if (ImGui::Button("Load Agent"))
     {
-        screen_manager->show_screen(std::make_shared<WatchScreen>(*resource_manager, *io));
+        screen_manager.show_screen(watch_screen_factory.make());
     }
     if (ImGui::Button("Build Body"))
     {
-        screen_manager->show_screen(std::make_shared<BuildScreen>(*resource_manager, *screen_manager, *io, *rng));
+        screen_manager.show_screen(build_screen_factory.make());
     }
     ImGui::End();
     ImGui::PopFont();

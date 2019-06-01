@@ -11,7 +11,10 @@
 #include "misc/random.h"
 #include "misc/resource_manager.h"
 #include "misc/screen_manager.h"
+#include "screens/build_screen.h"
 #include "screens/main_menu_screen.h"
+#include "screens/training_wizard_screen.h"
+#include "screens/watch_screen.h"
 #include "third_party/di.hpp"
 
 using namespace boost;
