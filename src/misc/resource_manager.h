@@ -3,6 +3,7 @@
 #include <string>
 
 #include "misc/asset_store.h"
+#include "third_party/di.hpp"
 
 namespace SingularityTrainer
 {
@@ -10,10 +11,12 @@ class Texture;
 class Shader;
 class Font;
 
+auto AssetsPath = [] {};
+
 class ResourceManager
 {
   public:
-    ResourceManager(std::string path_to_assets_folder);
+    BOOST_DI_INJECT(ResourceManager, (named = AssetsPath) std::string path_to_assets_folder);
     ~ResourceManager();
 
     void load_texture(const std::string &id, const std::string &path);

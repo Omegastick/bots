@@ -8,7 +8,7 @@
 #include <imgui_impl_opengl3.h>
 #include <spdlog/spdlog.h>
 
-#include "misc/app.h"
+#include "app.h"
 #include "graphics/renderers/renderer.h"
 #include "graphics/window.h"
 #include "misc/io.h"
@@ -247,18 +247,6 @@ int App::run(int argc, char *argv[])
     {
         return run_tests(argc, argv, args);
     }
-    else if (args[{"-h", "--headless"}])
-    {
-        return run_headless();
-    }
-    else
-    {
-        return run_game();
-    }
-}
-
-int App::run_game()
-{
     time = glfwGetTime();
 
     while (!window.should_close())
@@ -297,11 +285,6 @@ int App::run_game()
     // Allow screens to perform cleanup
     screen_manager.exit();
 
-    return 0;
-}
-
-int App::run_headless()
-{
     return 0;
 }
 

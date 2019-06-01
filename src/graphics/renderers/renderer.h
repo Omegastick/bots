@@ -6,6 +6,7 @@
 #include <glm/glm.hpp>
 
 #include "graphics/colors.h"
+#include "third_party/di.hpp"
 
 namespace SingularityTrainer
 {
@@ -23,6 +24,9 @@ class ParticleRenderer;
 class LineRenderer;
 class TextRenderer;
 
+auto ResolutionX = [] {};
+auto ResolutionY = [] {};
+
 class Renderer
 {
   private:
@@ -37,12 +41,14 @@ class Renderer
     std::unique_ptr<FrameBuffer> texture_frame_buffer;
 
   public:
-    Renderer(int width, int height,
-             ResourceManager &resource_manager,
-             SpriteRenderer &sprite_renderer,
-             ParticleRenderer &particle_renderer,
-             LineRenderer &line_renderer,
-             TextRenderer &text_renderer);
+    BOOST_DI_INJECT(Renderer,
+                    (named = ResolutionX) int width,
+                    (named = ResolutionY) int height,
+                    ResourceManager &resource_manager,
+                    SpriteRenderer &sprite_renderer,
+                    ParticleRenderer &particle_renderer,
+                    LineRenderer &line_renderer,
+                    TextRenderer &text_renderer);
     ~Renderer();
 
     void resize(int width, int height);

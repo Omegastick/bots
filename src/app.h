@@ -19,8 +19,6 @@ class App
     double time;
     Window &window;
 
-    int run_game();
-    int run_headless();
     int run_tests(int argc, char *argv[], const argh::parser &args);
 
   public:
