@@ -1,5 +1,6 @@
 target_sources(SingularityTrainer
 PRIVATE
+    ${CMAKE_CURRENT_LIST_DIR}/app.cpp
     ${CMAKE_CURRENT_LIST_DIR}/main.cpp
 )
 

@@ -6,10 +6,15 @@
 #include <GLFW/glfw3.h>
 
 #include "graphics/renderers/renderer.h"
+#include "third_party/di.hpp"
 
 namespace SingularityTrainer
 {
 class IO;
+
+auto Title = [] {};
+auto MajorOpenGLVersion = [] {};
+auto MinorOpenGLVersion = [] {};
 
 class Window
 {
@@ -18,7 +23,12 @@ class Window
     IO *io;
 
   public:
-    Window(int x, int y, std::string title, int major_opengl_version, int minor_opengl_version);
+    BOOST_DI_INJECT(Window,
+                    (named = ResolutionX) int x,
+                    (named = ResolutionY) int y,
+                    (named = Title) std::string title,
+                    (named = MajorOpenGLVersion) int major_opengl_version,
+                    (named = MinorOpenGLVersion) int minor_opengl_version);
     ~Window();
 
     void swap_buffers();

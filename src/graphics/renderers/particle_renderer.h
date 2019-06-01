@@ -5,12 +5,16 @@
 
 #include <glm/glm.hpp>
 
+#include "third_party/di.hpp"
+
 namespace SingularityTrainer
 {
 class VertexArray;
 class VertexBuffer;
 class ResourceManager;
 class Particle;
+
+auto MaxParticles = [] {};
 
 class ParticleRenderer
 {
@@ -37,7 +41,7 @@ class ParticleRenderer
     std::vector<glm::vec4> particle_end_colors;
 
   public:
-    ParticleRenderer(int max_particles, ResourceManager &resource_manager);
+    BOOST_DI_INJECT(ParticleRenderer, (named = MaxParticles) int max_particles, ResourceManager &resource_manager);
 
     void add_particles(std::vector<Particle> &particles, double time);
     void clear_particles();
