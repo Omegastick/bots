@@ -165,6 +165,7 @@ void TrainingWizardScreen::update(double delta_time)
     if (agent->get_modules().size() > 0)
     {
         center_camera_on_body();
+        agent->get_rigid_body()->body->SetLinearVelocity({0, 0});
     }
 }
 }
