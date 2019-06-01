@@ -4,22 +4,25 @@
 
 namespace SingularityTrainer
 {
-class IO;
-class Random;
+class BuildScreenFactory;
 class Renderer;
-class ResourceManager;
 class ScreenManager;
+class TrainingWizardScreenFactory;
+class WatchScreenFactory;
 
 class MainMenuScreen : public IScreen
 {
   private:
-    ResourceManager *resource_manager;
-    ScreenManager *screen_manager;
-    Random *rng;
-    IO *io;
+    ScreenManager &screen_manager;
+    BuildScreenFactory &build_screen_factory;
+    TrainingWizardScreenFactory &training_wizard_screen_factory;
+    WatchScreenFactory &watch_screen_factory;
 
   public:
-    MainMenuScreen(ResourceManager &resource_manager, ScreenManager &screen_manager, Random &random, IO &io);
+    MainMenuScreen(ScreenManager &screen_manager,
+                   BuildScreenFactory &build_screen_factory,
+                   TrainingWizardScreenFactory &training_wizard_screen_factory,
+                   WatchScreenFactory &watch_screen_factory);
 
     void draw(Renderer &renderer, bool lightweight = false);
     void update(double delta_time);
@@ -28,18 +31,24 @@ class MainMenuScreen : public IScreen
 class MainMenuScreenFactory : public IScreenFactory
 {
   private:
-    ResourceManager &resource_manager;
     ScreenManager &screen_manager;
-    IO &io;
-    Random &rng;
+    BuildScreenFactory &build_screen_factory;
+    TrainingWizardScreenFactory &training_wizard_screen_factory;
+    WatchScreenFactory &watch_screen_factory;
 
   public:
-    MainMenuScreenFactory(ResourceManager &resource_manager, ScreenManager &screen_manager, IO &io, Random &rng)
-        : resource_manager(resource_manager), screen_manager(screen_manager), io(io), rng(rng) {}
+    MainMenuScreenFactory(ScreenManager &screen_manager,
+                          TrainingWizardScreenFactory &training_wizard_screen_factory,
+                          WatchScreenFactory &watch_screen_factory,
+                          BuildScreenFactory &build_screen_factory)
+        : screen_manager(screen_manager),
+          build_screen_factory(build_screen_factory),
+          training_wizard_screen_factory(training_wizard_screen_factory),
+          watch_screen_factory(watch_screen_factory) {}
 
     virtual std::shared_ptr<IScreen> make()
     {
-        return std::make_shared<MainMenuScreen>(resource_manager, screen_manager, rng, io);
+        return std::make_shared<MainMenuScreen>(screen_manager, build_screen_factory, training_wizard_screen_factory, watch_screen_factory);
     }
 };
 }
