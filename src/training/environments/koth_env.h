@@ -10,11 +10,11 @@
 #include <mutex>
 #include <unordered_map>
 
+#include "misc/random.h"
 #include "training/environments/ienvironment.h"
 
 namespace SingularityTrainer
 {
-class Random;
 class ResourceManager;
 class Agent;
 class Wall;
@@ -24,7 +24,7 @@ class KothEnv : public IEnvironment
 {
   private:
     int max_steps;
-    std::unique_ptr<Random> rng;
+    Random rng;
     b2World world;
     std::vector<std::unique_ptr<Wall>> walls;
     std::unique_ptr<Hill> hill;
@@ -44,7 +44,7 @@ class KothEnv : public IEnvironment
     void reset_impl();
 
   public:
-    KothEnv(float x, float y, float scale, int max_steps, int seed);
+    KothEnv(int max_steps, Random &rng);
     ~KothEnv();
 
     virtual void start_thread();
