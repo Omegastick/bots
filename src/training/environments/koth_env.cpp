@@ -91,9 +91,9 @@ class KothContactListener : public b2ContactListener
     }
 };
 
-KothEnv::KothEnv(float /*x*/, float /*y*/, float /*scale*/, int max_steps, int seed)
+KothEnv::KothEnv(int max_steps, Random &rng)
     : max_steps(max_steps),
-      rng(std::make_unique<Random>(seed)),
+      rng(std::move(rng)),
       world({0, 0}),
       hill(std::make_unique<Hill>(0, 0, world, *this)),
       elapsed_time(0),
@@ -107,9 +107,9 @@ KothEnv::KothEnv(float /*x*/, float /*y*/, float /*scale*/, int max_steps, int s
     world.SetContactListener(contact_listener.get());
 
     // Agent
-    agent_1 = std::make_unique<TestAgent>(world, rng.get(), *this);
+    agent_1 = std::make_unique<TestAgent>(world, &rng, *this);
     agent_numbers[agent_1.get()] = 0;
-    agent_2 = std::make_unique<TestAgent>(world, rng.get(), *this);
+    agent_2 = std::make_unique<TestAgent>(world, &rng, *this);
     agent_numbers[agent_2.get()] = 1;
 
     // Walls

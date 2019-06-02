@@ -23,7 +23,7 @@ static const int epochs = 10;
 static const int game_length = 600;
 static const bool recurrent = false;
 
-QuickTrainer::QuickTrainer(Random *rng, int env_count)
+QuickTrainer::QuickTrainer(int env_count)
     : agents_per_env(2),
       policy(nullptr),
       rollout_storage(batch_size, env_count * agents_per_env, {23}, {"MultiBinary", {4}}, {24}, torch::kCPU),
@@ -31,7 +31,6 @@ QuickTrainer::QuickTrainer(Random *rng, int env_count)
       env_count(env_count),
       frame_counter(0),
       action_frame_counter(0),
-      rng(rng),
       elapsed_time(0),
       score_processor(std::make_unique<ScoreProcessor>(1, 0.99)),
       last_update_time(std::chrono::high_resolution_clock::now())
@@ -40,7 +39,8 @@ QuickTrainer::QuickTrainer(Random *rng, int env_count)
 
     for (int i = 0; i < env_count; ++i)
     {
-        environments.push_back(std::make_unique<KothEnv>(460, 40, 1, game_length, i));
+        Random rng(i);
+        environments.push_back(std::make_unique<KothEnv>(game_length, rng));
     }
     env_scores.resize(env_count);
 }

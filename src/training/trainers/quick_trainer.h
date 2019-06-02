@@ -33,7 +33,6 @@ class QuickTrainer : public ITrainer
     int env_count;
     int frame_counter;
     int action_frame_counter;
-    Random *rng;
     float elapsed_time;
     std::unique_ptr<ScoreProcessor> score_processor;
     std::vector<float> env_scores;
@@ -42,7 +41,7 @@ class QuickTrainer : public ITrainer
     void action_update();
 
   public:
-    QuickTrainer(Random *rng, int env_count);
+    QuickTrainer(int env_count);
     ~QuickTrainer();
 
     virtual void begin_training();
