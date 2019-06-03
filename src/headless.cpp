@@ -3,6 +3,8 @@
 #include "headless_app.h"
 #include "misc/random.h"
 #include "third_party/di.hpp"
+#include "training/environments/ienvironment.h"
+#include "training/environments/koth_env.h"
 #include "training/trainers/itrainer.h"
 #include "training/trainers/quick_trainer.h"
 
@@ -14,7 +16,8 @@ int main(int argc, char *argv[])
 {
     const auto injector = di::make_injector(
         di::bind<ITrainer>.to<QuickTrainer>(),
-        di::bind<int>.named(EnvCount).to(atoi(argv[1])));
+        di::bind<int>.named(EnvCount).to(atoi(argv[1])),
+        di::bind<IEnvironmentFactory>.to<KothEnvFactory>());
     auto app = injector.create<HeadlessApp>();
     app.run(argc, argv);
 }
