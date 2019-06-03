@@ -14,6 +14,7 @@ class App
 {
   private:
     IO &io;
+    MainMenuScreenFactory &main_menu_screen_factory;
     Renderer &renderer;
     ScreenManager &screen_manager;
     double time;
