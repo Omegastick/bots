@@ -13,7 +13,11 @@
 #include <spdlog/spdlog.h>
 
 #include "graphics/window.h"
+#include "graphics/renderers/line_renderer.h"
+#include "graphics/renderers/particle_renderer.h"
 #include "graphics/renderers/renderer.h"
+#include "graphics/renderers/sprite_renderer.h"
+#include "graphics/renderers/text_renderer.h"
 #include "graphics/screens/screens.h"
 #include "misc/animator.h"
 #include "misc/io.h"
@@ -187,7 +191,11 @@ int main(int /*argc*/, const char * /*argv*/ [])
     screen_manager.show_screen(screens[0]);
 
     spdlog::debug("Initializing renderer");
-    Renderer renderer(resolution_x, resolution_y, resource_manager);
+    LineRenderer line_renderer(resource_manager);
+    ParticleRenderer particle_renderer(100000, resource_manager);
+    SpriteRenderer sprite_renderer(resource_manager);
+    TextRenderer text_renderer(resource_manager);
+    Renderer renderer(resolution_x, resolution_y, resource_manager, sprite_renderer, particle_renderer, line_renderer, text_renderer);
     window.set_renderer(renderer);
     window.set_resize_callback(resize_window_callback);
 
