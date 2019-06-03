@@ -7,6 +7,7 @@ PRIVATE
 target_sources(HeadlessTrainer
 PRIVATE
     ${CMAKE_CURRENT_LIST_DIR}/headless.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/headless_app.cpp
 )
 
 add_subdirectory(graphics)

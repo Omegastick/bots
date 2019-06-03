@@ -7,6 +7,7 @@
 #include <cpprl/storage.h>
 #include <torch/torch.h>
 
+#include "third_party/di.hpp"
 #include "training/trainers/itrainer.h"
 
 namespace cpprl
@@ -19,6 +20,8 @@ namespace SingularityTrainer
 {
 class Random;
 class ScoreProcessor;
+
+auto EnvCount = [] {};
 
 class QuickTrainer : public ITrainer
 {
@@ -41,7 +44,7 @@ class QuickTrainer : public ITrainer
     void action_update();
 
   public:
-    QuickTrainer(int env_count);
+    BOOST_DI_INJECT(QuickTrainer, (named = EnvCount) int env_count);
     ~QuickTrainer();
 
     virtual void begin_training();
