@@ -215,6 +215,7 @@ void mouse_button_callback(GLFWwindow *glfw_window, int button, int action, int 
 
 App::App(IO &io, Renderer &renderer, MainMenuScreenFactory &main_menu_screen_factory, ScreenManager &screen_manager, Window &window)
     : io(io),
+      main_menu_screen_factory(main_menu_screen_factory),
       renderer(renderer),
       screen_manager(screen_manager),
       time(0),
@@ -235,8 +236,6 @@ App::App(IO &io, Renderer &renderer, MainMenuScreenFactory &main_menu_screen_fac
     window.set_io(io);
     io.set_resolution(resolution_x, resolution_y);
 
-    screen_manager.show_screen(main_menu_screen_factory.make());
-
     init_imgui(opengl_version_major, opengl_version_minor, window.window);
 }
 
@@ -247,6 +246,9 @@ int App::run(int argc, char *argv[])
     {
         return run_tests(argc, argv, args);
     }
+
+    screen_manager.show_screen(main_menu_screen_factory.make());
+
     time = glfwGetTime();
 
     while (!window.should_close())
