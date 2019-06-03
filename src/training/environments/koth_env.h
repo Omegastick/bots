@@ -44,7 +44,7 @@ class KothEnv : public IEnvironment
     void reset_impl();
 
   public:
-    KothEnv(int max_steps, Random &rng);
+    KothEnv(int max_steps, Random &&rng);
     ~KothEnv();
 
     virtual void start_thread();
@@ -59,5 +59,19 @@ class KothEnv : public IEnvironment
 
     std::unique_ptr<Agent> agent_1;
     std::unique_ptr<Agent> agent_2;
+};
+
+class KothEnvFactory : public IEnvironmentFactory
+{
+  private:
+    int max_steps;
+
+  public:
+    KothEnvFactory(int max_steps) : max_steps(max_steps) {}
+
+    std::unique_ptr<IEnvironment> make(int seed)
+    {
+        return std::make_unique<KothEnv>(max_steps, Random(seed));
+    }
 };
 }

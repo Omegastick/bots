@@ -91,7 +91,7 @@ class KothContactListener : public b2ContactListener
     }
 };
 
-KothEnv::KothEnv(int max_steps, Random &rng)
+KothEnv::KothEnv(int max_steps, Random &&rng)
     : max_steps(max_steps),
       rng(std::move(rng)),
       world({0, 0}),

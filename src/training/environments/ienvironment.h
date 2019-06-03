@@ -50,4 +50,14 @@ class IEnvironment : public IDrawable
 };
 
 inline IEnvironment::~IEnvironment() {}
+
+class IEnvironmentFactory
+{
+  public:
+    virtual ~IEnvironmentFactory() = 0;
+
+    virtual std::unique_ptr<IEnvironment> make(int seed) = 0;
+};
+
+inline IEnvironmentFactory::~IEnvironmentFactory() {}
 }

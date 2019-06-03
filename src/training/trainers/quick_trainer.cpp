@@ -9,7 +9,7 @@
 
 #include "misc/random.h"
 #include "misc/resource_manager.h"
-#include "training/environments/koth_env.h"
+#include "training/environments/ienvironment.h"
 #include "training/trainers/quick_trainer.h"
 #include "training/score_processor.h"
 #include "misc/utilities.h"
@@ -23,7 +23,7 @@ static const int epochs = 10;
 static const int game_length = 600;
 static const bool recurrent = false;
 
-QuickTrainer::QuickTrainer(int env_count)
+QuickTrainer::QuickTrainer(int env_count, IEnvironmentFactory &env_factory)
     : agents_per_env(2),
       policy(nullptr),
       rollout_storage(batch_size, env_count * agents_per_env, {23}, {"MultiBinary", {4}}, {24}, torch::kCPU),
@@ -39,8 +39,7 @@ QuickTrainer::QuickTrainer(int env_count)
 
     for (int i = 0; i < env_count; ++i)
     {
-        Random rng(i);
-        environments.push_back(std::make_unique<KothEnv>(game_length, rng));
+        environments.push_back(env_factory.make(i));
     }
     env_scores.resize(env_count);
 }

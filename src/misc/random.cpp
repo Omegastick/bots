@@ -8,6 +8,8 @@ namespace SingularityTrainer
 {
 Random::Random(int seed) : rng(seed) {}
 
+Random::Random(Random &&other) : rng(std::move(other.rng)) {}
+
 Random::~Random() {}
 
 int Random::next_int(int min, int max)
