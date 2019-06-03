@@ -17,8 +17,9 @@
 #include "screens/watch_screen.h"
 #include "third_party/di.hpp"
 
-using namespace boost;
 using namespace SingularityTrainer;
+
+namespace di = boost::di;
 
 int main(int argc, char *argv[])
 {

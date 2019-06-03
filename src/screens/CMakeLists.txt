@@ -1,4 +1,4 @@
-target_sources(Misc
+target_sources(SingularityTrainer
 PRIVATE
     ${CMAKE_CURRENT_LIST_DIR}/build_screen.cpp
     ${CMAKE_CURRENT_LIST_DIR}/main_menu_screen.cpp
