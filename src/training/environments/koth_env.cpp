@@ -91,11 +91,17 @@ class KothContactListener : public b2ContactListener
     }
 };
 
-KothEnv::KothEnv(int max_steps, Random &&rng)
-    : max_steps(max_steps),
+KothEnv::KothEnv(int max_steps,
+                 std::unique_ptr<Agent> agent_1,
+                 std::unique_ptr<Agent> agent_2,
+                 std::unique_ptr<b2World> world,
+                 std::unique_ptr<Random> rng)
+    : agent_1(std::move(agent_1)),
+      agent_2(std::move(agent_2)),
+      max_steps(max_steps),
       rng(std::move(rng)),
-      world({0, 0}),
-      hill(std::make_unique<Hill>(0, 0, world, *this)),
+      world(std::move(world)),
+      hill(std::make_unique<Hill>(0, 0, *this->world, *this)),
       elapsed_time(0),
       done(false),
       rewards({0, 0}),
@@ -104,19 +110,23 @@ KothEnv::KothEnv(int max_steps, Random &&rng)
 {
     // Box2D world
     contact_listener = std::make_unique<KothContactListener>();
-    world.SetContactListener(contact_listener.get());
+    this->world->SetContactListener(contact_listener.get());
 
-    // Agent
-    agent_1 = std::make_unique<TestAgent>(world, &rng, *this);
+    // Agents
+    this->agent_1->get_rigid_body()->set_world(this->world.get());
+    this->agent_2->get_rigid_body()->set_world(this->world.get());
+    this->agent_1->set_environment(*this);
+    this->agent_2->set_environment(*this);
+    this->agent_1->set_rng(*this->rng);
+    this->agent_2->set_rng(*this->rng);
     agent_numbers[agent_1.get()] = 0;
-    agent_2 = std::make_unique<TestAgent>(world, &rng, *this);
     agent_numbers[agent_2.get()] = 1;
 
     // Walls
-    walls.push_back(std::make_unique<Wall>(-10, -20, 20, 0.1, world));
-    walls.push_back(std::make_unique<Wall>(-10, -20, 0.1, 40, world));
-    walls.push_back(std::make_unique<Wall>(-10, 19.9, 20, 0.1, world));
-    walls.push_back(std::make_unique<Wall>(9.9, -20, 0.1, 40, world));
+    walls.push_back(std::make_unique<Wall>(-10, -20, 20, 0.1, *this->world));
+    walls.push_back(std::make_unique<Wall>(-10, -20, 0.1, 40, *this->world));
+    walls.push_back(std::make_unique<Wall>(-10, 19.9, 20, 0.1, *this->world));
+    walls.push_back(std::make_unique<Wall>(9.9, -20, 0.1, 40, *this->world));
 }
 
 KothEnv::~KothEnv()
@@ -237,7 +247,7 @@ void KothEnv::thread_loop()
             agent_2->act(actions_2);
 
             // Step simulation
-            world.Step(command.step_length, 3, 2);
+            world->Step(command.step_length, 3, 2);
             elapsed_time += command.step_length;
 
             // Hill score
@@ -287,7 +297,7 @@ void KothEnv::thread_loop()
         }
         else if (command.command == Commands::Forward)
         {
-            world.Step(command.step_length, 3, 2);
+            world->Step(command.step_length, 3, 2);
             elapsed_time += command.step_length;
         }
         else if (command.command == Commands::Reset)

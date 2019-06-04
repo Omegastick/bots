@@ -21,31 +21,36 @@
 
 namespace SingularityTrainer
 {
-static const std::string schema_version = "v1alpha1";
+static const std::string schema_version = "v1alpha2";
 
-Agent::Agent()
+Agent::Agent(Random &rng) : hp(0), rng(&rng)
 {
 }
 
-Agent::Agent(b2World &world, Random *rng, const nlohmann::json &json) : Agent(world, rng)
+Agent::Agent(std::unique_ptr<RigidBody> rigid_body, Random &rng, const nlohmann::json &json)
+    : Agent(std::move(rigid_body), rng)
 {
     load_json(json);
 }
 
-Agent::Agent(b2World &world, Random *rng, IEnvironment &environment) : Agent(world, rng)
+Agent::Agent(std::unique_ptr<RigidBody> rigid_body, Random &rng, IEnvironment &environment)
+    : Agent(std::move(rigid_body), rng)
 {
     this->environment = &environment;
 }
 
-Agent::Agent(b2World &world, Random *rng, IEnvironment &environment, const nlohmann::json &json) : Agent(world, rng, environment)
+Agent::Agent(std::unique_ptr<RigidBody> rigid_body, Random &rng, IEnvironment &environment, const nlohmann::json &json)
+    : Agent(std::move(rigid_body), rng, environment)
 {
     load_json(json);
 }
 
-Agent::Agent(b2World &world, Random *rng) : rng(rng), hp(0)
+Agent::Agent(std::unique_ptr<RigidBody> rigid_body, Random &rng)
+    : hp(0),
+      rigid_body(std::move(rigid_body)),
+      rng(&rng)
 {
-    // Rigid body
-    rigid_body = std::make_unique<RigidBody>(b2_dynamicBody, b2Vec2_zero, world, this, RigidBody::ParentTypes::Agent);
+    init_rigid_body();
 }
 
 Agent::Agent(Agent &&other)
@@ -193,13 +198,29 @@ RenderData Agent::get_render_data(bool lightweight)
     // }
 }
 
+void Agent::init_rigid_body()
+{
+    rigid_body->parent = this;
+    rigid_body->parent_type = RigidBody::ParentTypes::Agent;
+}
+
 void Agent::load_json(const nlohmann::json &json)
 {
     if (json["schema"] != schema_version)
     {
-        spdlog::error("Invalid Agent Json schema version: {}. Excpected: {}", static_cast<std::string>(json["schema"]), schema_version);
-        throw std::exception();
+        auto error_text = fmt::format("Invalid Agent Json schema version: {}. Excpected: {}",
+                                      static_cast<std::string>(json["schema"]),
+                                      schema_version);
+        throw std::runtime_error(error_text);
     }
+
+    if (json["name"] == nullptr)
+    {
+        throw std::runtime_error("Malformed Json - No name");
+    }
+
+    name = json["name"];
+    modules = {};
 
     if (json["base_module"] != nullptr)
     {
@@ -262,11 +283,17 @@ void Agent::register_actions()
     }
 }
 
+void Agent::set_rigid_body(std::unique_ptr<RigidBody> rigid_body)
+{
+    this->rigid_body = std::move(rigid_body);
+    init_rigid_body();
+}
+
 nlohmann::json Agent::to_json() const
 {
     auto json = nlohmann::json::object();
 
-    json["schema"] = "v1alpha1";
+    json["schema"] = "v1alpha2";
     json["name"] = name;
     if (modules.size() > 0)
     {
@@ -360,10 +387,15 @@ TEST_CASE("Agent")
 {
     Random rng(1);
     b2World b2_world({0, 0});
+    auto rigid_body = std::make_unique<RigidBody>(b2_dynamicBody,
+                                                  b2Vec2_zero,
+                                                  b2_world,
+                                                  nullptr,
+                                                  RigidBody::ParentTypes::Agent);
 
     SUBCASE("Can have modules added")
     {
-        Agent agent(b2_world, &rng);
+        Agent agent(std::move(rigid_body), rng);
 
         CHECK(agent.get_modules().size() == 0);
 
@@ -380,7 +412,7 @@ TEST_CASE("Agent")
 
     SUBCASE("Can be saved to Json and loaded back")
     {
-        Agent agent(b2_world, &rng);
+        Agent agent(std::move(rigid_body), rng);
 
         auto base_module = std::make_shared<BaseModule>();
         auto thruster_module = std::make_shared<ThrusterModule>();
@@ -399,7 +431,12 @@ TEST_CASE("Agent")
         auto json = agent.to_json();
         auto pretty_json = json.dump(2);
         INFO("Json: " << pretty_json);
-        Agent loaded_agent(b2_world, &rng, json);
+        rigid_body = std::make_unique<RigidBody>(b2_dynamicBody,
+                                                 b2Vec2_zero,
+                                                 b2_world,
+                                                 nullptr,
+                                                 RigidBody::ParentTypes::Agent);
+        Agent loaded_agent(std::move(rigid_body), rng, json);
 
         SUBCASE("Loaded Agents have the same number of modules")
         {
@@ -414,7 +451,7 @@ TEST_CASE("Agent")
 
     SUBCASE("With no modules are converted to Json correctly")
     {
-        Agent agent(b2_world, &rng);
+        Agent agent(std::move(rigid_body), rng);
 
         auto json = agent.to_json();
         auto pretty_json = json.dump(2);
@@ -427,14 +464,14 @@ TEST_CASE("Agent")
     {
         auto json = "{\"schema\": \"bad_schema\"}"_json;
 
-        CHECK_THROWS(Agent agent(b2_world, &rng, json));
+        CHECK_THROWS(Agent agent(std::move(rigid_body), rng, json));
     }
 
     SUBCASE("unlink()")
     {
         SUBCASE("Removes the module from the Agent")
         {
-            Agent agent(b2_world, &rng);
+            Agent agent(std::move(rigid_body), rng);
 
             auto base_module = std::make_shared<BaseModule>();
             auto gun_module = std::make_shared<GunModule>();
@@ -456,7 +493,7 @@ TEST_CASE("Agent")
 
         SUBCASE("Throws when trying to remove module with children")
         {
-            Agent agent(b2_world, &rng);
+            Agent agent(std::move(rigid_body), rng);
 
             auto base_module = std::make_shared<BaseModule>();
             auto thruster_module = std::make_shared<ThrusterModule>();

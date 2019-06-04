@@ -15,6 +15,8 @@
 #include "screens/main_menu_screen.h"
 #include "screens/training_wizard_screen.h"
 #include "screens/watch_screen.h"
+#include "training/environments/ienvironment.h"
+#include "training/environments/koth_env.h"
 #include "third_party/di.hpp"
 
 using namespace SingularityTrainer;
@@ -30,7 +32,9 @@ int main(int argc, char *argv[])
         di::bind<int>.named(MajorOpenGLVersion).to(4),
         di::bind<int>.named(MinorOpenGLVersion).to(3),
         di::bind<std::string>.named(AssetsPath).to("assets/"),
-        di::bind<int>.named(MaxParticles).to(100000));
+        di::bind<int>.named(MaxParticles).to(100000),
+        di::bind<IEnvironmentFactory>.to<KothEnvFactory>(),
+        di::bind<AgentFactory>.to<TestAgentFactory>());
     auto app = injector.create<App>();
     app.run(argc, argv);
 }

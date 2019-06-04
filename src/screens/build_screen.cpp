@@ -22,7 +22,10 @@
 
 namespace SingularityTrainer
 {
-BuildScreen::BuildScreen(ResourceManager &resource_manager, ScreenManager &screen_manager, IO &io, Random &rng)
+BuildScreen::BuildScreen(BodyBuilder &&body_builder,
+                         ResourceManager &resource_manager,
+                         ScreenManager &screen_manager,
+                         IO &io)
     : resource_manager(&resource_manager),
       screen_manager(&screen_manager),
       io(&io),
@@ -32,7 +35,7 @@ BuildScreen::BuildScreen(ResourceManager &resource_manager, ScreenManager &scree
       projection(glm::ortho(0.f, 1920.f, 0.f, 1080.f)),
       b2_world(b2Vec2(0, 0)),
       save_body_window(io),
-      body_builder(b2_world, rng, io),
+      body_builder(std::move(body_builder)),
       module_to_place(nullptr),
       test_sprite("laser_sensor_module"),
       current_rotation(0)
@@ -87,7 +90,7 @@ void BuildScreen::update(double /*delta_time*/)
     }
 
     part_detail_window.update();
-    save_body_window.update(*body_builder.get_agent());
+    save_body_window.update(body_builder.get_agent());
 }
 
 void BuildScreen::draw(Renderer &renderer, bool lightweight)

@@ -2,7 +2,6 @@
 #include <filesystem>
 #include <fstream>
 
-#include <Box2D/Box2D.h>
 #include <imgui.h>
 #include <nlohmann/json.hpp>
 
@@ -10,17 +9,18 @@
 #include "misc/io.h"
 #include "misc/random.h"
 #include "training/agents/agent.h"
+#include "training/rigid_body.h"
 
 namespace fs = std::filesystem;
 
 namespace SingularityTrainer
 {
 BodySelectorWindow::BodySelectorWindow(IO &io)
-    : last_selected_file(-1),
-      selected_file(-1),
-      io(&io) {}
+    : io(&io),
+      last_selected_file(-1),
+      selected_file(-1) {}
 
-WizardAction BodySelectorWindow::update(Random &rng, b2World &b2_world, Agent &agent)
+WizardAction BodySelectorWindow::update(Agent &agent)
 {
     auto resolution = io->get_resolution();
     ImGui::SetNextWindowSize({resolution.x * 0.333f, resolution.y * 0.5f});
@@ -58,12 +58,7 @@ WizardAction BodySelectorWindow::update(Random &rng, b2World &b2_world, Agent &a
         json_file_path += "/" + files[selected_file] + ".json";
         std::ifstream json_file(json_file_path);
         auto json = nlohmann::json::parse(json_file);
-        if (agent.get_rigid_body() != nullptr &&
-            agent.get_rigid_body()->body != nullptr)
-        {
-            agent.get_rigid_body()->destroy();
-        }
-        agent = Agent(b2_world, &rng, json);
+        agent.load_json(json);
     }
 
     last_selected_file = selected_file;

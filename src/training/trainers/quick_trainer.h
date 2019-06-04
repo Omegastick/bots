@@ -19,6 +19,8 @@ class NNBase;
 
 namespace SingularityTrainer
 {
+class Agent;
+class AgentFactory;
 class IEnvironmentFactory;
 class Random;
 class ScoreProcessor;
@@ -46,7 +48,10 @@ class QuickTrainer : public ITrainer
     void action_update();
 
   public:
-    BOOST_DI_INJECT(QuickTrainer, (named = EnvCount) int env_count, IEnvironmentFactory &env_factory);
+    BOOST_DI_INJECT(QuickTrainer,
+                    (named = EnvCount) int env_count,
+                    IEnvironmentFactory &env_factory,
+                    AgentFactory &agent_factory);
     ~QuickTrainer();
 
     virtual void begin_training();

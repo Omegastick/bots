@@ -37,13 +37,13 @@ struct NearestModuleLinkResult
 class BodyBuilder
 {
   private:
-    Agent agent;
-    IO *io;
-    b2World *b2_world;
+    std::unique_ptr<Agent> agent;
+    IO &io;
     glm::mat4 projection;
+    std::unique_ptr<b2World> world;
 
   public:
-    BodyBuilder(b2World &b2_world, Random &rng, IO &io);
+    BodyBuilder(std::unique_ptr<Agent> agent, std::unique_ptr<b2World> world, IO &io);
 
     void delete_module(std::shared_ptr<IModule> module);
     std::shared_ptr<IModule> get_module_at_screen_position(glm::vec2 point);
@@ -52,7 +52,26 @@ class BodyBuilder
     RenderData get_render_data(bool lightweight = false);
     std::shared_ptr<IModule> place_module(std::shared_ptr<IModule> selected_module);
 
-    inline Agent *get_agent() { return &agent; }
+    inline Agent &get_agent() { return *agent; }
     inline glm::mat4 &get_projection() { return projection; }
+};
+
+class BodyBuilderFactory
+{
+  private:
+    AgentFactory &agent_factory;
+    IO &io;
+    Random &rng;
+
+  public:
+    BodyBuilderFactory(AgentFactory &agent_factory, IO &io, Random &rng)
+        : agent_factory(agent_factory), io(io), rng(rng) {}
+
+    std::unique_ptr<BodyBuilder> make()
+    {
+        auto world = std::make_unique<b2World>(b2Vec2_zero);
+        auto agent = agent_factory.make(*world, rng);
+        return std::make_unique<BodyBuilder>(std::move(agent), std::move(world), io);
+    }
 };
 }
