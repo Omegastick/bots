@@ -1,5 +1,6 @@
 #include <memory>
 
+#include <Box2D/Box2D.h>
 #include <cpprl/cpprl.h>
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
@@ -20,9 +21,12 @@
 
 namespace SingularityTrainer
 {
-TrainingWizardScreen::TrainingWizardScreen(ResourceManager &resource_manager, ScreenManager &screen_manager, Random &rng, IO &io)
-    : agent(std::make_unique<Agent>()),
-      b2_world({0, 0}),
+TrainingWizardScreen::TrainingWizardScreen(std::unique_ptr<Agent> agent,
+                                           std::unique_ptr<b2World> world,
+                                           ResourceManager &resource_manager,
+                                           ScreenManager &screen_manager,
+                                           IO &io)
+    : agent(std::move(agent)),
       body_selector_window(io),
       checkpoint_selector_window(io),
       elapsed_time(0),
@@ -31,9 +35,9 @@ TrainingWizardScreen::TrainingWizardScreen(ResourceManager &resource_manager, Sc
       last_action_time(0),
       policy(nullptr),
       resource_manager(&resource_manager),
-      rng(&rng),
       screen_manager(&screen_manager),
-      state(State::Body)
+      state(State::Body),
+      world(std::move(world))
 {
     resource_manager.load_texture("base_module", "images/base_module.png");
     resource_manager.load_texture("gun_module", "images/gun_module.png");
@@ -62,7 +66,7 @@ void TrainingWizardScreen::algorithm()
 
 void TrainingWizardScreen::body()
 {
-    auto action = body_selector_window.update(*rng, b2_world, *agent);
+    auto action = body_selector_window.update(*agent);
     if (action == WizardAction::Next)
     {
         state = State::Checkpoint;
@@ -143,7 +147,7 @@ void TrainingWizardScreen::update(double delta_time)
         break;
     }
 
-    b2_world.Step(delta_time, 3, 3);
+    world->Step(delta_time, 3, 3);
 
     if (!policy.is_empty() && elapsed_time - last_action_time >= 0.1)
     {

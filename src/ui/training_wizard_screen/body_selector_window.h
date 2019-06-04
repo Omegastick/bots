@@ -13,13 +13,13 @@ class Random;
 class BodySelectorWindow
 {
   private:
+    IO *io;
     int last_selected_file;
     int selected_file;
-    IO *io;
 
   public:
     BodySelectorWindow(IO &io);
 
-    WizardAction update(Random &rng, b2World &b2_world, Agent &agent);
+    WizardAction update(Agent &agent);
 };
 }

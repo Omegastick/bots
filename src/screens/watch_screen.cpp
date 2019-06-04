@@ -12,15 +12,16 @@
 #include "screens/watch_screen.h"
 #include "graphics/renderers/renderer.h"
 #include "graphics/post_proc_layer.h"
-#include "training/environments/target_env.h"
+#include "training/environments/ienvironment.h"
 #include "misc/resource_manager.h"
 
 namespace fs = std::filesystem;
 
 namespace SingularityTrainer
 {
-WatchScreen::WatchScreen(ResourceManager &resource_manager, IO &io)
+WatchScreen::WatchScreen(std::unique_ptr<IEnvironment> environment, ResourceManager &resource_manager, IO &io)
     : checkpoint_selector_window(io),
+      environment(std::move(environment)),
       policy(nullptr),
       projection(glm::ortho(0.f, 1920.f, 0.f, 1080.f)),
       resource_manager(&resource_manager),
@@ -28,8 +29,6 @@ WatchScreen::WatchScreen(ResourceManager &resource_manager, IO &io)
       frame_counter(0),
       scores({{0}})
 {
-    environment = std::make_unique<TargetEnv>(460, 40, 1, 100, 0);
-
     resource_manager.load_texture("base_module", "images/base_module.png");
     resource_manager.load_texture("gun_module", "images/gun_module.png");
     resource_manager.load_texture("thruster_module", "images/thruster_module.png");

@@ -103,7 +103,7 @@ TargetEnv::TargetEnv(float /*x*/, float /*y*/, float /*scale*/, int max_steps, i
     world->SetContactListener(contact_listener.get());
 
     // Agent
-    agent = std::make_unique<TestAgent>(*world, rng.get(), *this);
+    agent = std::make_unique<TestAgent>(*world, *rng, *this);
 
     // Target
     target = std::make_unique<Target>(4, 4, *world, *this);

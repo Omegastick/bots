@@ -8,13 +8,13 @@
 #include <torch/torch.h>
 
 #include "screens/iscreen.h"
+#include "training/agents/agent.h"
 #include "training/training_program.h"
 #include "ui/training_wizard_screen/body_selector_window.h"
 #include "ui/training_wizard_screen/wizard_checkpoint_selector_window.h"
 
 namespace SingularityTrainer
 {
-class Agent;
 class IO;
 class Random;
 class Renderer;
@@ -38,7 +38,6 @@ class TrainingWizardScreen : public IScreen
     void center_camera_on_body();
 
     std::unique_ptr<Agent> agent;
-    b2World b2_world;
     BodySelectorWindow body_selector_window;
     WizardCheckpointSelectorWindow checkpoint_selector_window;
     double elapsed_time;
@@ -47,14 +46,18 @@ class TrainingWizardScreen : public IScreen
     double last_action_time;
     cpprl::Policy policy;
     ResourceManager *resource_manager;
-    Random *rng;
     ScreenManager *screen_manager;
     State state;
     TrainingProgram program;
     glm::mat4 projection;
+    std::unique_ptr<b2World> world;
 
   public:
-    TrainingWizardScreen(ResourceManager &resource_manager, ScreenManager &screen_manager, Random &random, IO &io);
+    TrainingWizardScreen(std::unique_ptr<Agent> agent,
+                         std::unique_ptr<b2World> world,
+                         ResourceManager &resource_manager,
+                         ScreenManager &screen_manager,
+                         IO &io);
 
     void draw(Renderer &renderer, bool lightweight = false);
     void update(double delta_time);
@@ -63,18 +66,33 @@ class TrainingWizardScreen : public IScreen
 class TrainingWizardScreenFactory : public IScreenFactory
 {
   private:
+    AgentFactory &agent_factory;
     ResourceManager &resource_manager;
+    Random &rng;
     ScreenManager &screen_manager;
     IO &io;
-    Random &rng;
 
   public:
-    TrainingWizardScreenFactory(ResourceManager &resource_manager, ScreenManager &screen_manager, IO &io, Random &rng)
-        : resource_manager(resource_manager), screen_manager(screen_manager), io(io), rng(rng) {}
+    TrainingWizardScreenFactory(AgentFactory &agent_factory,
+                                ResourceManager &resource_manager,
+                                Random &rng,
+                                ScreenManager &screen_manager,
+                                IO &io)
+        : agent_factory(agent_factory),
+          resource_manager(resource_manager),
+          rng(rng),
+          screen_manager(screen_manager),
+          io(io) {}
 
     inline std::shared_ptr<IScreen> make()
     {
-        return std::make_shared<TrainingWizardScreen>(resource_manager, screen_manager, rng, io);
+        auto world = std::make_unique<b2World>(b2Vec2_zero);
+        auto agent = agent_factory.make(*world, rng);
+        return std::make_shared<TrainingWizardScreen>(std::move(agent),
+                                                      std::move(world),
+                                                      resource_manager,
+                                                      screen_manager,
+                                                      io);
     }
 };
 }

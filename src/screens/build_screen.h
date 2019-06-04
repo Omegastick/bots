@@ -44,7 +44,10 @@ class BuildScreen : public IScreen
     int current_rotation;
 
   public:
-    BuildScreen(ResourceManager &resource_manager, ScreenManager &screen_manager, IO &io, Random &rng);
+    BuildScreen(BodyBuilder &&body_builder,
+                ResourceManager &resource_manager,
+                ScreenManager &screen_manager,
+                IO &io);
 
     void draw(Renderer &renderer, bool lightweight = false);
     void update(double delta_time);
@@ -53,18 +56,24 @@ class BuildScreen : public IScreen
 class BuildScreenFactory : public IScreenFactory
 {
   private:
+    BodyBuilderFactory &body_builder_factory;
     ResourceManager &resource_manager;
     ScreenManager &screen_manager;
     IO &io;
-    Random &rng;
 
   public:
-    BuildScreenFactory(ResourceManager &resource_manager, ScreenManager &screen_manager, IO &io, Random &rng)
-        : resource_manager(resource_manager), screen_manager(screen_manager), io(io), rng(rng) {}
+    BuildScreenFactory(BodyBuilderFactory &body_builder_factory,
+                       ResourceManager &resource_manager,
+                       ScreenManager &screen_manager,
+                       IO &io)
+        : body_builder_factory(body_builder_factory),
+          resource_manager(resource_manager),
+          screen_manager(screen_manager),
+          io(io) {}
 
     inline std::shared_ptr<IScreen> make()
     {
-        return std::make_shared<BuildScreen>(resource_manager, screen_manager, io, rng);
+        return std::make_shared<BuildScreen>(std::move(*body_builder_factory.make()), resource_manager, screen_manager, io);
     }
 };
 }

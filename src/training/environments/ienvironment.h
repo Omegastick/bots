@@ -4,9 +4,11 @@
 #include <memory>
 #include <vector>
 
+#include <Box2D/Box2D.h>
 #include <torch/torch.h>
 
 #include "graphics/idrawable.h"
+#include "misc/random.h"
 
 namespace SingularityTrainer
 {
@@ -56,7 +58,9 @@ class IEnvironmentFactory
   public:
     virtual ~IEnvironmentFactory() = 0;
 
-    virtual std::unique_ptr<IEnvironment> make(int seed) = 0;
+    virtual std::unique_ptr<IEnvironment> make(std::unique_ptr<Random> rng,
+                                               std::unique_ptr<b2World> world,
+                                               std::vector<std::unique_ptr<Agent>> agents) = 0;
 };
 
 inline IEnvironmentFactory::~IEnvironmentFactory() {}

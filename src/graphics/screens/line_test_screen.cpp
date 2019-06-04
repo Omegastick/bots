@@ -15,7 +15,6 @@
 #include "misc/resource_manager.h"
 #include "misc/screen_manager.h"
 #include "screens/iscreen.h"
-#include "training/agents/test_agent.h"
 
 namespace SingularityTrainer
 {

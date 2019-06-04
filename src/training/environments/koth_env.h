@@ -1,6 +1,5 @@
 #pragma once
 
-#include <Box2D/Box2D.h>
 #include <atomic>
 #include <future>
 #include <memory>
@@ -10,8 +9,11 @@
 #include <mutex>
 #include <unordered_map>
 
+#include <Box2D/Box2D.h>
+
 #include "misc/random.h"
 #include "training/environments/ienvironment.h"
+#include "training/agents/test_agent.h"
 
 namespace SingularityTrainer
 {
@@ -23,9 +25,11 @@ class Hill;
 class KothEnv : public IEnvironment
 {
   private:
+    std::unique_ptr<Agent> agent_1;
+    std::unique_ptr<Agent> agent_2;
     int max_steps;
-    Random rng;
-    b2World world;
+    std::unique_ptr<Random> rng;
+    std::unique_ptr<b2World> world;
     std::vector<std::unique_ptr<Wall>> walls;
     std::unique_ptr<Hill> hill;
     std::unique_ptr<b2ContactListener> contact_listener;
@@ -44,7 +48,11 @@ class KothEnv : public IEnvironment
     void reset_impl();
 
   public:
-    KothEnv(int max_steps, Random &&rng);
+    KothEnv(int max_steps,
+            std::unique_ptr<Agent> agent_1,
+            std::unique_ptr<Agent> agent_2,
+            std::unique_ptr<b2World> world,
+            std::unique_ptr<Random> rng);
     ~KothEnv();
 
     virtual void start_thread();
@@ -57,8 +65,8 @@ class KothEnv : public IEnvironment
     virtual RenderData get_render_data(bool lightweight = false);
     virtual float get_elapsed_time() const;
 
-    std::unique_ptr<Agent> agent_1;
-    std::unique_ptr<Agent> agent_2;
+    inline std::vector<Agent *> get_agents() { return {agent_1.get(), agent_2.get()}; }
+    inline Random &get_rng() { return *rng; }
 };
 
 class KothEnvFactory : public IEnvironmentFactory
@@ -69,9 +77,16 @@ class KothEnvFactory : public IEnvironmentFactory
   public:
     KothEnvFactory(int max_steps) : max_steps(max_steps) {}
 
-    std::unique_ptr<IEnvironment> make(int seed)
+    virtual std::unique_ptr<IEnvironment> make(
+        std::unique_ptr<Random> rng,
+        std::unique_ptr<b2World> world,
+        std::vector<std::unique_ptr<Agent>> agents)
     {
-        return std::make_unique<KothEnv>(max_steps, Random(seed));
+        return std::make_unique<KothEnv>(max_steps,
+                                         std::move(agents[0]),
+                                         std::move(agents[1]),
+                                         std::move(world),
+                                         std::move(rng));
     }
 };
 }

@@ -9,6 +9,7 @@
 
 #include "misc/random.h"
 #include "misc/resource_manager.h"
+#include "training/agents/agent.h"
 #include "training/environments/ienvironment.h"
 #include "training/trainers/quick_trainer.h"
 #include "training/score_processor.h"
@@ -23,7 +24,9 @@ static const int epochs = 10;
 static const int game_length = 600;
 static const bool recurrent = false;
 
-QuickTrainer::QuickTrainer(int env_count, IEnvironmentFactory &env_factory)
+QuickTrainer::QuickTrainer(int env_count,
+                           IEnvironmentFactory &env_factory,
+                           AgentFactory &agent_factory)
     : agents_per_env(2),
       policy(nullptr),
       rollout_storage(batch_size, env_count * agents_per_env, {23}, {"MultiBinary", {4}}, {24}, torch::kCPU),
@@ -39,7 +42,12 @@ QuickTrainer::QuickTrainer(int env_count, IEnvironmentFactory &env_factory)
 
     for (int i = 0; i < env_count; ++i)
     {
-        environments.push_back(env_factory.make(i));
+        auto world = std::make_unique<b2World>(b2Vec2_zero);
+        auto rng = std::make_unique<Random>(i);
+        std::vector<std::unique_ptr<Agent>> agents;
+        agents.push_back(agent_factory.make(*world, *rng));
+        agents.push_back(agent_factory.make(*world, *rng));
+        environments.push_back(env_factory.make(std::move(rng), std::move(world), std::move(agents)));
     }
     env_scores.resize(env_count);
 }

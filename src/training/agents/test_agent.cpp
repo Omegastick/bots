@@ -17,7 +17,18 @@
 
 namespace SingularityTrainer
 {
-TestAgent::TestAgent(b2World &world, Random *rng, IEnvironment &environment) : Agent(world, rng, environment)
+TestAgent::TestAgent(std::unique_ptr<RigidBody> rigid_body,
+                     Random &rng,
+                     IEnvironment &environment) : Agent(std::move(rigid_body), rng, environment)
+{
+    setup();
+}
+
+TestAgent::TestAgent(Random &rng) : Agent(rng)
+{
+}
+
+void TestAgent::setup()
 {
     // Instantiate modules
     auto base_module = std::make_shared<BaseModule>();

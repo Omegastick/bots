@@ -9,6 +9,9 @@ namespace SingularityTrainer
 {
 class RigidBody
 {
+  private:
+    void create_body();
+
   public:
     enum ParentTypes
     {
@@ -30,5 +33,11 @@ class RigidBody
     b2Body *body;
     b2BodyDef body_def;
     b2World *world;
+
+    inline void set_world(b2World *world)
+    {
+        this->world = world;
+        create_body();
+    }
 };
 }

@@ -8,6 +8,8 @@
 #include <glm/mat4x4.hpp>
 
 #include "screens/iscreen.h"
+#include "training/agents/agent.h"
+#include "training/environments/ienvironment.h"
 #include "ui/watch_screen/checkpoint_selector_window.h"
 
 namespace cpprl
@@ -18,7 +20,6 @@ class NNBase;
 namespace SingularityTrainer
 {
 class Communicator;
-class IEnvironment;
 class IO;
 class PostProcLayer;
 class Random;
@@ -38,6 +39,7 @@ class WatchScreen : public IScreen
         WATCHING = 1
     };
     CheckpointSelectorWindow checkpoint_selector_window;
+    std::unique_ptr<IEnvironment> environment;
     cpprl::Policy policy;
     std::shared_ptr<cpprl::NNBase> nn_base;
     glm::mat4 projection;
@@ -45,13 +47,12 @@ class WatchScreen : public IScreen
     Communicator *communicator;
     States state;
     std::unique_ptr<PostProcLayer> crt_post_proc_layer;
-    std::unique_ptr<IEnvironment> environment;
     int frame_counter;
     torch::Tensor observations, hidden_states, masks;
     std::vector<std::vector<float>> scores;
 
   public:
-    WatchScreen(ResourceManager &resource_manager, IO &io);
+    WatchScreen(std::unique_ptr<IEnvironment> environment, ResourceManager &resource_manager, IO &io);
     ~WatchScreen();
 
     virtual void draw(Renderer &renderer, bool lightweight = false);
@@ -61,16 +62,32 @@ class WatchScreen : public IScreen
 class WatchScreenFactory : public IScreenFactory
 {
   private:
-    ResourceManager &resource_manager;
+    AgentFactory &agent_factory;
+    IEnvironmentFactory &env_factory;
     IO &io;
+    ResourceManager &resource_manager;
+    Random &rng;
 
   public:
-    WatchScreenFactory(ResourceManager &resource_manager, IO &io)
-        : resource_manager(resource_manager), io(io) {}
+    WatchScreenFactory(AgentFactory &agent_factory,
+                       IEnvironmentFactory &env_factory,
+                       IO &io,
+                       ResourceManager &resource_manager,
+                       Random &rng)
+        : agent_factory(agent_factory),
+          env_factory(env_factory),
+          io(io),
+          resource_manager(resource_manager),
+          rng(rng) {}
 
     inline std::shared_ptr<IScreen> make()
     {
-        return std::make_shared<WatchScreen>(resource_manager, io);
+        auto world = std::make_unique<b2World>(b2Vec2_zero);
+        std::vector<std::unique_ptr<Agent>> agents;
+        agents.push_back(agent_factory.make(*world, rng));
+        agents.push_back(agent_factory.make(*world, rng));
+        return std::make_shared<WatchScreen>(env_factory.make(0, std::move(world), std::move(agents)),
+                                             resource_manager, io);
     }
 };
 }
