@@ -235,8 +235,6 @@ App::App(IO &io, Renderer &renderer, MainMenuScreenFactory &main_menu_screen_fac
     window.set_renderer(renderer);
     window.set_io(io);
     io.set_resolution(resolution_x, resolution_y);
-
-    init_imgui(opengl_version_major, opengl_version_minor, window.window);
 }
 
 int App::run(int argc, char *argv[])
@@ -246,6 +244,8 @@ int App::run(int argc, char *argv[])
     {
         return run_tests(argc, argv, args);
     }
+
+    init_imgui(opengl_version_major, opengl_version_minor, window.window);
 
     screen_manager.show_screen(main_menu_screen_factory.make());
 
