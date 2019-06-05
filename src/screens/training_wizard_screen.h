@@ -15,6 +15,7 @@
 
 namespace SingularityTrainer
 {
+class Animator;
 class IO;
 class Random;
 class Renderer;
@@ -38,6 +39,7 @@ class TrainingWizardScreen : public IScreen
     void center_camera_on_body();
 
     std::unique_ptr<Agent> agent;
+    Animator &animator;
     BodySelectorWindow body_selector_window;
     WizardCheckpointSelectorWindow checkpoint_selector_window;
     double elapsed_time;
@@ -51,10 +53,12 @@ class TrainingWizardScreen : public IScreen
     TrainingProgram program;
     glm::mat4 projection;
     std::unique_ptr<b2World> world;
+    double x_offset;
 
   public:
     TrainingWizardScreen(std::unique_ptr<Agent> agent,
                          std::unique_ptr<b2World> world,
+                         Animator &animator,
                          ResourceManager &resource_manager,
                          ScreenManager &screen_manager,
                          IO &io);
@@ -67,6 +71,7 @@ class TrainingWizardScreenFactory : public IScreenFactory
 {
   private:
     AgentFactory &agent_factory;
+    Animator &animator;
     ResourceManager &resource_manager;
     Random &rng;
     ScreenManager &screen_manager;
@@ -74,11 +79,13 @@ class TrainingWizardScreenFactory : public IScreenFactory
 
   public:
     TrainingWizardScreenFactory(AgentFactory &agent_factory,
+                                Animator &animator,
                                 ResourceManager &resource_manager,
                                 Random &rng,
                                 ScreenManager &screen_manager,
                                 IO &io)
         : agent_factory(agent_factory),
+          animator(animator),
           resource_manager(resource_manager),
           rng(rng),
           screen_manager(screen_manager),
@@ -90,6 +97,7 @@ class TrainingWizardScreenFactory : public IScreenFactory
         auto agent = agent_factory.make(*world, rng);
         return std::make_shared<TrainingWizardScreen>(std::move(agent),
                                                       std::move(world),
+                                                      animator,
                                                       resource_manager,
                                                       screen_manager,
                                                       io);

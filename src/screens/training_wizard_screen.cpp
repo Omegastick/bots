@@ -7,10 +7,12 @@
 #include <imgui.h>
 #include <nlohmann/json.hpp>
 #include <torch/torch.h>
+#include <tweeny.h>
 
 #include "screens/training_wizard_screen.h"
 #include "graphics/renderers/renderer.h"
 #include "graphics/sprite.h"
+#include "misc/animator.h"
 #include "misc/io.h"
 #include "misc/random.h"
 #include "misc/resource_manager.h"
@@ -23,10 +25,12 @@ namespace SingularityTrainer
 {
 TrainingWizardScreen::TrainingWizardScreen(std::unique_ptr<Agent> agent,
                                            std::unique_ptr<b2World> world,
+                                           Animator &animator,
                                            ResourceManager &resource_manager,
                                            ScreenManager &screen_manager,
                                            IO &io)
     : agent(std::move(agent)),
+      animator(animator),
       body_selector_window(io),
       checkpoint_selector_window(io),
       elapsed_time(0),
@@ -37,7 +41,8 @@ TrainingWizardScreen::TrainingWizardScreen(std::unique_ptr<Agent> agent,
       resource_manager(&resource_manager),
       screen_manager(&screen_manager),
       state(State::Body),
-      world(std::move(world))
+      world(std::move(world)),
+      x_offset(0.333)
 {
     resource_manager.load_texture("base_module", "images/base_module.png");
     resource_manager.load_texture("gun_module", "images/gun_module.png");
@@ -84,6 +89,14 @@ void TrainingWizardScreen::checkpoint()
                                                     agent->get_actions().size());
     if (action == WizardAction::Next)
     {
+        auto tween = std::make_shared<tweeny::tween<double>>(tweeny::from(x_offset)
+                                                                 .to(0.5)
+                                                                 .during(1000)
+                                                                 .via(tweeny::easing::sinusoidalInOut));
+        animator.add_animation({[this, tween](float step_percentage) {
+                                    this->x_offset = tween->step(step_percentage);
+                                },
+                                3});
         state = State::Algorithm;
     }
     else if (action == WizardAction::Back)
@@ -100,7 +113,7 @@ void TrainingWizardScreen::center_camera_on_body()
 {
     glm::vec2 size{19.2f, 10.8f};
     glm::vec2 half_size = size * 0.5f;
-    glm::vec2 offset{(size.x * 0.333) - half_size.x, (size.y * 0.5) - half_size.y};
+    glm::vec2 offset{(size.x * x_offset) - half_size.x, (size.y * 0.5) - half_size.y};
     b2Vec2 agent_position;
     if (agent->get_modules().size() > 0)
     {

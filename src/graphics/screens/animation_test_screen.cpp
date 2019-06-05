@@ -52,11 +52,11 @@ void AnimationTestScreen::update(const double delta_time)
         std::shared_ptr<tweeny::tween<double>> tween;
         if (direction == Direction::Right)
         {
-            tween = std::make_shared<tweeny::tween<double>>(tweeny::from(100.).to(1820.).during(1000).via(tweeny::easing::circularInOut));
+            tween = std::make_shared<tweeny::tween<double>>(tweeny::from(100.).to(1820.).during(1000).via(tweeny::easing::sinusoidalInOut));
         }
         else
         {
-            tween = std::make_shared<tweeny::tween<double>>(tweeny::from(1820.).to(100.).during(1000).via(tweeny::easing::circularInOut));
+            tween = std::make_shared<tweeny::tween<double>>(tweeny::from(1820.).to(100.).during(1000).via(tweeny::easing::sinusoidalInOut));
         }
         Animation animation{
             [this, tween](float step_percentage) { sprite->set_position({tween->step(step_percentage), 540}); },
@@ -65,7 +65,7 @@ void AnimationTestScreen::update(const double delta_time)
                 animation_finished = true;
                 direction = direction == Direction::Right ? Direction::Left : Direction::Right;
             }};
-        animator->add_animation(animation);
+        animator->add_animation(std::move(animation));
         animation_finished = false;
     }
 
