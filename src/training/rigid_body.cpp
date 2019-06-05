@@ -9,6 +9,8 @@ RigidBody::RigidBody(b2BodyType type, b2Vec2 position, b2World &world, void *par
       parent_type(parent_type),
       world(&world)
 {
+    body_def.type = type;
+    body_def.position = position;
     create_body();
 }
 
