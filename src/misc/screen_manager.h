@@ -1,5 +1,6 @@
 #pragma once
 
+#include <deque>
 #include <memory>
 #include <stack>
 
@@ -21,7 +22,18 @@ class ScreenManager
     void update(double delta_time);
 
   private:
+    enum CommandType
+    {
+        Push,
+        Pop
+    };
+    struct Command
+    {
+        CommandType type;
+        std::shared_ptr<IScreen> screen = {};
+    };
+
     std::stack<std::shared_ptr<IScreen>> screens;
-    int screens_to_pop;
+    std::deque<Command> command_queue;
 };
 }
