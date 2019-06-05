@@ -7,6 +7,7 @@
 #include "graphics/renderers/sprite_renderer.h"
 #include "graphics/renderers/text_renderer.h"
 #include "graphics/window.h"
+#include "misc/animator.h"
 #include "misc/io.h"
 #include "misc/random.h"
 #include "misc/resource_manager.h"

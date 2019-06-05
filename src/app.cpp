@@ -11,6 +11,7 @@
 #include "app.h"
 #include "graphics/renderers/renderer.h"
 #include "graphics/window.h"
+#include "misc/animator.h"
 #include "misc/io.h"
 #include "misc/screen_manager.h"
 #include "misc/utilities.h"
@@ -213,8 +214,14 @@ void mouse_button_callback(GLFWwindow *glfw_window, int button, int action, int 
     }
 }
 
-App::App(IO &io, Renderer &renderer, MainMenuScreenFactory &main_menu_screen_factory, ScreenManager &screen_manager, Window &window)
-    : io(io),
+App::App(Animator &animator,
+         IO &io,
+         Renderer &renderer,
+         MainMenuScreenFactory &main_menu_screen_factory,
+         ScreenManager &screen_manager,
+         Window &window)
+    : animator(animator),
+      io(io),
       main_menu_screen_factory(main_menu_screen_factory),
       renderer(renderer),
       screen_manager(screen_manager),
@@ -269,6 +276,7 @@ int App::run(int argc, char *argv[])
         ImGui_ImplGlfw_NewFrame();
         ImGui::NewFrame();
 
+        animator.update(delta_time);
         screen_manager.update(delta_time);
 
         io.tick();

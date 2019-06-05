@@ -27,9 +27,9 @@ ForwardIt remove_if_with_callback(ForwardIt first, ForwardIt last, UnaryPredicat
 
 Animator::Animator() {}
 
-void Animator::add_animation(Animation &animation)
+void Animator::add_animation(Animation &&animation)
 {
-    animations.push_back(animation);
+    animations.push_back(std::move(animation));
 }
 
 void Animator::update(double delta_time)
@@ -58,7 +58,7 @@ TEST_CASE("Animator")
         Animation animation{
             [&](double) { called = true; },
             1.};
-        animator.add_animation(animation);
+        animator.add_animation(std::move(animation));
 
         animator.update(1);
 
@@ -71,13 +71,13 @@ TEST_CASE("Animator")
         Animation animation_1{
             [&](double) { called_1 = true; },
             1.};
-        animator.add_animation(animation_1);
+        animator.add_animation(std::move(animation_1));
 
         bool called_2 = false;
         Animation animation_2{
             [&](double) { called_2 = true; },
             1.};
-        animator.add_animation(animation_2);
+        animator.add_animation(std::move(animation_2));
 
         animator.update(1);
 
@@ -91,7 +91,7 @@ TEST_CASE("Animator")
         Animation animation{
             [&](double) { called = !called; },
             1.};
-        animator.add_animation(animation);
+        animator.add_animation(std::move(animation));
 
         animator.update(1);
 
@@ -108,7 +108,7 @@ TEST_CASE("Animator")
         Animation animation{
             [&](double) { called = !called; },
             1.};
-        animator.add_animation(animation);
+        animator.add_animation(std::move(animation));
 
         animator.update(0.5);
 
@@ -126,7 +126,7 @@ TEST_CASE("Animator")
             [](double) {},
             1.,
             [&] { finished = true; }};
-        animator.add_animation(animation);
+        animator.add_animation(std::move(animation));
 
         animator.update(0.5);
 
@@ -143,7 +143,7 @@ TEST_CASE("Animator")
         Animation animation{
             [&](double step_percent) { passed_value = step_percent; },
             2.};
-        animator.add_animation(animation);
+        animator.add_animation(std::move(animation));
 
         animator.update(1);
 

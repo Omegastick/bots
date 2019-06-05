@@ -21,7 +21,7 @@ class Animator
   public:
     Animator();
 
-    void add_animation(Animation &animation);
+    void add_animation(Animation &&animation);
     void update(double delta_time);
 };
 }
