@@ -10,6 +10,7 @@
 #include "misc/random.h"
 #include "training/agents/agent.h"
 #include "training/rigid_body.h"
+#include "training/training_program.h"
 
 namespace fs = std::filesystem;
 
@@ -20,11 +21,11 @@ BodySelectorWindow::BodySelectorWindow(IO &io)
       last_selected_file(-1),
       selected_file(-1) {}
 
-WizardAction BodySelectorWindow::update(Agent &agent)
+WizardAction BodySelectorWindow::update(Agent &agent, TrainingProgram &program)
 {
     auto resolution = io->get_resolution();
-    ImGui::SetNextWindowSize({resolution.x * 0.333f, resolution.y * 0.5f});
-    ImGui::SetNextWindowPos({resolution.x * 0.05f, resolution.y * 0.05f});
+    ImGui::SetNextWindowSize({resolution.x * 0.333f, resolution.y * 0.5f}, ImGuiCond_Appearing);
+    ImGui::SetNextWindowPos({resolution.x * 0.05f, resolution.y * 0.05f}, ImGuiCond_Appearing);
     ImGui::Begin("Pick a body");
 
     ImGui::Columns(2);
@@ -59,6 +60,7 @@ WizardAction BodySelectorWindow::update(Agent &agent)
         std::ifstream json_file(json_file_path);
         auto json = nlohmann::json::parse(json_file);
         agent.load_json(json);
+        program.agent = json;
     }
 
     last_selected_file = selected_file;

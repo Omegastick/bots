@@ -4,9 +4,10 @@
 #include <cpprl/cpprl.h>
 #include <imgui.h>
 
-#include "ui/training_wizard_screen/wizard_checkpoint_selector_window.h"
+#include "wizard_checkpoint_selector_window.h"
 #include "misc/io.h"
-#include <ui/training_wizard_screen/wizard_action.h>
+#include "training/training_program.h"
+#include "ui/training_wizard_screen/wizard_action.h"
 
 namespace fs = std::filesystem;
 
@@ -17,11 +18,14 @@ WizardCheckpointSelectorWindow::WizardCheckpointSelectorWindow(IO &io)
       selected_file(-1),
       io(&io) {}
 
-WizardAction WizardCheckpointSelectorWindow::update(cpprl::Policy &policy, int num_inputs, int num_outputs)
+WizardAction WizardCheckpointSelectorWindow::update(cpprl::Policy &policy,
+                                                    int num_inputs,
+                                                    int num_outputs,
+                                                    TrainingProgram &program)
 {
     auto resolution = io->get_resolution();
-    ImGui::SetNextWindowSize({resolution.x * 0.333f, resolution.y * 0.5f});
-    ImGui::SetNextWindowPos({resolution.x * 0.05f, resolution.y * 0.05f});
+    ImGui::SetNextWindowSize({resolution.x * 0.333f, resolution.y * 0.5f}, ImGuiCond_Appearing);
+    ImGui::SetNextWindowPos({resolution.x * 0.05f, resolution.y * 0.05f}, ImGuiCond_Appearing);
     ImGui::Begin("Pick a checkpoint");
 
     auto action = WizardAction::None;
@@ -65,6 +69,7 @@ WizardAction WizardCheckpointSelectorWindow::update(cpprl::Policy &policy, int n
         auto nn_base = std::make_shared<cpprl::MlpBase>(23, false, 24);
         policy = cpprl::Policy(cpprl::ActionSpace{"MultiBinary", {4}}, nn_base);
         torch::load(policy, files[selected_file] + ".pth");
+        program.checkpoint = files[selected_file];
     }
 
     last_selected_file = selected_file;

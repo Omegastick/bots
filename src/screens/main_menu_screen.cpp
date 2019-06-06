@@ -11,6 +11,7 @@
 #include "screens/build_screen.h"
 #include "screens/training_wizard_screen.h"
 #include "screens/watch_screen.h"
+#include "training/training_program.h"
 #include "misc/screen_manager.h"
 
 namespace SingularityTrainer
@@ -40,7 +41,7 @@ void MainMenuScreen::update(double /*delta_time*/)
     ImGui::Begin("Main menu :)", NULL, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoTitleBar);
     if (ImGui::Button("Train Agent"))
     {
-        screen_manager.show_screen(training_wizard_screen_factory.make());
+        screen_manager.show_screen(training_wizard_screen_factory.make(program));
     }
     if (ImGui::Button("Load Agent"))
     {

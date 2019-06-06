@@ -2,7 +2,7 @@
 
 #include <memory>
 
-#include <nlohmann/json_fwd.hpp>
+#include <nlohmann/json.hpp>
 
 namespace SingularityTrainer
 {
@@ -23,7 +23,7 @@ struct TrainingProgram
     TrainingProgram();
     TrainingProgram(nlohmann::json &json);
 
-    std::unique_ptr<Agent> agent;
+    nlohmann::json agent;
     std::string checkpoint;
     Algorithm algorithm;
     std::unique_ptr<HyperParameters> hyper_parameters;
