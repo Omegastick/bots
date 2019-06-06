@@ -18,6 +18,7 @@ class FrameBuffer
   public:
     explicit FrameBuffer();
     ~FrameBuffer();
+    FrameBuffer &operator=(FrameBuffer &&other);
 
     void bind() const;
     void bind_read() const;

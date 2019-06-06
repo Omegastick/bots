@@ -11,7 +11,15 @@
 
 namespace SingularityTrainer
 {
-PostProcLayer::PostProcLayer(Shader *shader, int width, int height) : shader(shader), width(width), height(height)
+PostProcLayer::PostProcLayer()
+    : shader(nullptr),
+      width(0),
+      height(0) {}
+
+PostProcLayer::PostProcLayer(Shader *shader, int width, int height)
+    : shader(shader),
+      width(width),
+      height(height)
 {
     vertex_array = std::make_unique<VertexArray>();
 
@@ -36,6 +44,22 @@ PostProcLayer::PostProcLayer(Shader *shader, int width, int height) : shader(sha
     vertex_array->add_buffer(*vertex_buffer, layout);
 
     frame_buffer.set_texture(width, height);
+}
+
+PostProcLayer &PostProcLayer::operator=(PostProcLayer &&other)
+{
+    if (this != &other)
+    {
+        frame_buffer = std::move(other.frame_buffer);
+        shader = other.shader;
+        other.shader = nullptr;
+        vertex_array = std::move(other.vertex_array);
+        vertex_buffer = std::move(other.vertex_buffer);
+        element_buffer = std::move(other.element_buffer);
+        width = other.width;
+        height = other.height;
+    }
+    return *this;
 }
 
 FrameBuffer &PostProcLayer::render(Texture &input_texture, Renderer &renderer)
