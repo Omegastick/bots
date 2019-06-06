@@ -1,6 +1,7 @@
 #pragma once
 
 #include "screens/iscreen.h"
+#include "training/training_program.h"
 
 namespace SingularityTrainer
 {
@@ -15,6 +16,7 @@ class MainMenuScreen : public IScreen
   private:
     ScreenManager &screen_manager;
     BuildScreenFactory &build_screen_factory;
+    TrainingProgram program;
     TrainingWizardScreenFactory &training_wizard_screen_factory;
     WatchScreenFactory &watch_screen_factory;
 

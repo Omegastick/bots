@@ -9,6 +9,7 @@ namespace SingularityTrainer
 class Agent;
 class IO;
 class Random;
+class TrainingProgram;
 
 class BodySelectorWindow
 {
@@ -20,6 +21,6 @@ class BodySelectorWindow
   public:
     BodySelectorWindow(IO &io);
 
-    WizardAction update(Agent &agent);
+    WizardAction update(Agent &agent, TrainingProgram &program);
 };
 }

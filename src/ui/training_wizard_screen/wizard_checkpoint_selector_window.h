@@ -12,6 +12,7 @@ class Policy;
 namespace SingularityTrainer
 {
 class IO;
+class TrainingProgram;
 
 class WizardCheckpointSelectorWindow
 {
@@ -23,6 +24,6 @@ class WizardCheckpointSelectorWindow
   public:
     WizardCheckpointSelectorWindow(IO &io);
 
-    WizardAction update(cpprl::Policy &policy, int num_inputs, int num_outputs);
+    WizardAction update(cpprl::Policy &policy, int num_inputs, int num_outputs, TrainingProgram &program);
 };
 }

@@ -26,6 +26,7 @@ namespace SingularityTrainer
 TrainingWizardScreen::TrainingWizardScreen(std::unique_ptr<Agent> agent,
                                            std::unique_ptr<b2World> world,
                                            Animator &animator,
+                                           TrainingProgram &program,
                                            ResourceManager &resource_manager,
                                            ScreenManager &screen_manager,
                                            IO &io)
@@ -38,6 +39,7 @@ TrainingWizardScreen::TrainingWizardScreen(std::unique_ptr<Agent> agent,
       io(&io),
       last_action_time(0),
       policy(nullptr),
+      program(program),
       resource_manager(&resource_manager),
       screen_manager(&screen_manager),
       state(State::Body),
@@ -76,7 +78,7 @@ void TrainingWizardScreen::algorithm()
 
 void TrainingWizardScreen::body()
 {
-    auto action = body_selector_window.update(*agent);
+    auto action = body_selector_window.update(*agent, program);
     if (action == WizardAction::Next)
     {
         state = State::Checkpoint;
@@ -91,7 +93,8 @@ void TrainingWizardScreen::checkpoint()
 {
     auto action = checkpoint_selector_window.update(policy,
                                                     agent->get_observation().size(),
-                                                    agent->get_actions().size());
+                                                    agent->get_actions().size(),
+                                                    program);
     if (action == WizardAction::Next)
     {
         auto tween = std::make_shared<tweeny::tween<double>>(tweeny::from(x_offset)

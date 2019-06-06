@@ -23,7 +23,7 @@ static glm::vec4 hex_to_rgb(int hex)
 // const glm::vec4 cl_dark_neutral(0.42, 0.44, 0.34, 1.0);
 // const glm::vec4 cl_light_neutral(0.57, 0.67, 0.61, 1.0);
 
-const glm::vec4 cl_base03(hex_to_rgb(0x001214));
+const glm::vec4 cl_base03(hex_to_rgb(0x001e26));
 const glm::vec4 cl_base02(hex_to_rgb(0x073642));
 const glm::vec4 cl_base01(hex_to_rgb(0x586e75));
 const glm::vec4 cl_base00(hex_to_rgb(0x657b83));

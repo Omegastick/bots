@@ -10,7 +10,6 @@
 #include "graphics/post_proc_layer.h"
 #include "screens/iscreen.h"
 #include "training/agents/agent.h"
-#include "training/training_program.h"
 #include "ui/training_wizard_screen/body_selector_window.h"
 #include "ui/training_wizard_screen/wizard_checkpoint_selector_window.h"
 
@@ -22,6 +21,7 @@ class Random;
 class Renderer;
 class ResourceManager;
 class ScreenManager;
+class TrainingProgram;
 
 class TrainingWizardScreen : public IScreen
 {
@@ -48,11 +48,11 @@ class TrainingWizardScreen : public IScreen
     IO *io;
     double last_action_time;
     cpprl::Policy policy;
+    TrainingProgram &program;
     PostProcLayer crt_post_proc_layer;
     ResourceManager *resource_manager;
     ScreenManager *screen_manager;
     State state;
-    TrainingProgram program;
     glm::mat4 projection;
     std::unique_ptr<b2World> world;
     double x_offset;
@@ -61,6 +61,7 @@ class TrainingWizardScreen : public IScreen
     TrainingWizardScreen(std::unique_ptr<Agent> agent,
                          std::unique_ptr<b2World> world,
                          Animator &animator,
+                         TrainingProgram &program,
                          ResourceManager &resource_manager,
                          ScreenManager &screen_manager,
                          IO &io);
@@ -69,7 +70,7 @@ class TrainingWizardScreen : public IScreen
     void update(double delta_time);
 };
 
-class TrainingWizardScreenFactory : public IScreenFactory
+class TrainingWizardScreenFactory
 {
   private:
     AgentFactory &agent_factory;
@@ -93,13 +94,14 @@ class TrainingWizardScreenFactory : public IScreenFactory
           screen_manager(screen_manager),
           io(io) {}
 
-    inline std::shared_ptr<IScreen> make()
+    inline std::shared_ptr<IScreen> make(TrainingProgram &program)
     {
         auto world = std::make_unique<b2World>(b2Vec2_zero);
         auto agent = agent_factory.make(*world, rng);
         return std::make_shared<TrainingWizardScreen>(std::move(agent),
                                                       std::move(world),
                                                       animator,
+                                                      program,
                                                       resource_manager,
                                                       screen_manager,
                                                       io);
