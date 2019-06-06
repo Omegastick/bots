@@ -25,7 +25,9 @@ class PostProcLayer
     int width, height;
 
   public:
+    PostProcLayer();
     PostProcLayer(Shader *shader, int width = 1920, int height = 1080);
+    PostProcLayer &operator=(PostProcLayer &&other);
 
     FrameBuffer &render(Texture &input_texture, Renderer &renderer);
     void resize(int width, int height);

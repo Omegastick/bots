@@ -7,6 +7,7 @@
 #include <glm/mat4x4.hpp>
 #include <torch/torch.h>
 
+#include "graphics/post_proc_layer.h"
 #include "screens/iscreen.h"
 #include "training/agents/agent.h"
 #include "training/training_program.h"
@@ -47,6 +48,7 @@ class TrainingWizardScreen : public IScreen
     IO *io;
     double last_action_time;
     cpprl::Policy policy;
+    PostProcLayer crt_post_proc_layer;
     ResourceManager *resource_manager;
     ScreenManager *screen_manager;
     State state;

@@ -13,6 +13,19 @@ FrameBuffer::FrameBuffer() : id(-1), render_buffer(-1)
     glGenFramebuffers(1, &id);
 }
 
+FrameBuffer &FrameBuffer::operator=(FrameBuffer &&other)
+{
+    if (this != &other)
+    {
+        id = other.id;
+        other.id = 0;
+        render_buffer = other.render_buffer;
+        other.render_buffer = 0;
+        texture = std::move(other.texture);
+    }
+    return *this;
+}
+
 FrameBuffer::~FrameBuffer()
 {
     glDeleteFramebuffers(1, &id);
