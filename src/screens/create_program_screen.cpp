@@ -13,18 +13,22 @@
 #include "misc/screen_manager.h"
 #include "training/agents/agent.h"
 #include "training/environments/ienvironment.h"
+#include "training/environments/koth_env.h"
+#include "ui/create_program_screen/body_selector_window.h"
 #include "ui/create_program_screen/tabs.h"
 
 namespace SingularityTrainer
 {
 
-CreateProgramScreen::CreateProgramScreen(std::unique_ptr<IEnvironment> environment,
+CreateProgramScreen::CreateProgramScreen(std::unique_ptr<BodySelectorWindow> body_selector_window,
+                                         std::unique_ptr<IEnvironment> environment,
                                          std::unique_ptr<TrainingProgram> program,
                                          std::unique_ptr<Tabs> tabs,
                                          IO &io,
                                          ResourceManager &resource_manager,
                                          ScreenManager &screen_manager)
-    : environment(std::move(environment)),
+    : body_selector_window(std::move(body_selector_window)),
+      environment(std::move(environment)),
       io(io),
       program(std::move(program)),
       resource_manager(resource_manager),
@@ -47,6 +51,8 @@ CreateProgramScreen::CreateProgramScreen(std::unique_ptr<IEnvironment> environme
     crt_post_proc_layer = PostProcLayer(resource_manager.shader_store.get("crt").get(),
                                         io.get_resolution().x,
                                         io.get_resolution().y);
+
+    this->environment->start_thread();
 }
 
 void CreateProgramScreen::algorithm()
@@ -58,9 +64,14 @@ void CreateProgramScreen::algorithm()
 
 void CreateProgramScreen::body()
 {
-    ImGui::SetNextWindowSize({0, 0});
-    ImGui::Begin("Body");
-    ImGui::End();
+    auto json = body_selector_window->update();
+    if (!json.empty())
+    {
+        auto agents = environment->get_agents();
+        agents[0]->load_json(json);
+        agents[1]->load_json(json);
+        environment->reset();
+    }
 }
 
 void CreateProgramScreen::checkpoint()
@@ -99,8 +110,8 @@ void CreateProgramScreen::draw(Renderer &renderer, bool lightweight)
     auto crt_shader = resource_manager.shader_store.get("crt");
     crt_shader->set_uniform_2f("u_resolution", {renderer.get_width(), renderer.get_height()});
     crt_shader->set_uniform_1f("u_output_gamma", 1);
-    crt_shader->set_uniform_1f("u_strength", 0.5);
-    crt_shader->set_uniform_1f("u_distortion_factor", 0.1);
+    crt_shader->set_uniform_1f("u_strength", 0.3);
+    crt_shader->set_uniform_1f("u_distortion_factor", 0.05);
 
     renderer.end();
 }
@@ -140,7 +151,8 @@ std::shared_ptr<IScreen> CreateProgramScreenFactory::make()
     agents.push_back(agent_factory.make(*world, *rng));
     agents.push_back(agent_factory.make(*world, *rng));
     auto environment = env_factory.make(std::move(rng), std::move(world), std::move(agents));
-    return std::make_shared<CreateProgramScreen>(std::move(environment),
+    return std::make_shared<CreateProgramScreen>(std::make_unique<BodySelectorWindow>(io),
+                                                 std::move(environment),
                                                  std::make_unique<TrainingProgram>(),
                                                  std::make_unique<Tabs>(io),
                                                  io,
