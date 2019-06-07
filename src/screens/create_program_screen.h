@@ -5,6 +5,8 @@
 #include "graphics/post_proc_layer.h"
 #include "screens/iscreen.h"
 #include "training/training_program.h"
+#include "ui/create_program_screen/create_program_screen_state.h"
+#include "ui/create_program_screen/tabs.h"
 
 namespace SingularityTrainer
 {
@@ -16,17 +18,6 @@ class ScreenManager;
 class CreateProgramScreen : public IScreen
 {
   private:
-    enum State
-    {
-        Body,
-        Algorithm,
-        Rewards,
-        Checkpoint,
-        // Opponents,
-        // Schedule,
-        SaveLoad
-    };
-
     void algorithm();
     void body();
     void checkpoint();
@@ -38,10 +29,12 @@ class CreateProgramScreen : public IScreen
     PostProcLayer crt_post_proc_layer;
     ResourceManager &resource_manager;
     ScreenManager &screen_manager;
-    State state;
+    CreateProgramScreenState state;
+    std::unique_ptr<Tabs> tabs;
 
   public:
     CreateProgramScreen(std::unique_ptr<TrainingProgram> program,
+                        std::unique_ptr<Tabs> tabs,
                         IO &io,
                         ResourceManager &resource_manager,
                         ScreenManager &screen_manager);
@@ -68,6 +61,7 @@ class CreateProgramScreenFactory : public IScreenFactory
     inline std::shared_ptr<IScreen> make()
     {
         return std::make_shared<CreateProgramScreen>(std::make_unique<TrainingProgram>(),
+                                                     std::make_unique<Tabs>(io),
                                                      io,
                                                      resource_manager,
                                                      screen_manager);
