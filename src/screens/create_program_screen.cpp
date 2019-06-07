@@ -9,11 +9,13 @@
 #include "misc/io.h"
 #include "misc/resource_manager.h"
 #include "misc/screen_manager.h"
+#include "ui/create_program_screen/tabs.h"
 
 namespace SingularityTrainer
 {
 
 CreateProgramScreen::CreateProgramScreen(std::unique_ptr<TrainingProgram> program,
+                                         std::unique_ptr<Tabs> tabs,
                                          IO &io,
                                          ResourceManager &resource_manager,
                                          ScreenManager &screen_manager)
@@ -21,7 +23,8 @@ CreateProgramScreen::CreateProgramScreen(std::unique_ptr<TrainingProgram> progra
       program(std::move(program)),
       resource_manager(resource_manager),
       screen_manager(screen_manager),
-      state(State::Body)
+      state(CreateProgramScreenState::Body),
+      tabs(std::move(tabs))
 {
     resource_manager.load_texture("base_module", "images/base_module.png");
     resource_manager.load_texture("gun_module", "images/gun_module.png");
@@ -91,6 +94,8 @@ void CreateProgramScreen::draw(Renderer &renderer, bool /*lightweight*/)
 
 void CreateProgramScreen::update(double /*delta_time*/)
 {
+    state = tabs->update();
+
     switch (state)
     {
     case Algorithm:
@@ -107,6 +112,9 @@ void CreateProgramScreen::update(double /*delta_time*/)
         break;
     case SaveLoad:
         save_load();
+        break;
+    case Opponents:
+    case Schedule:
         break;
     }
 }
