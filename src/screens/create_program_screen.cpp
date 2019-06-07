@@ -4,6 +4,7 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <imgui.h>
+#include <spdlog/spdlog.h>
 
 #include "create_program_screen.h"
 #include "graphics/renderers/renderer.h"
@@ -68,8 +69,16 @@ void CreateProgramScreen::body()
     if (!json.empty())
     {
         auto agents = environment->get_agents();
-        agents[0]->load_json(json);
-        agents[1]->load_json(json);
+        try
+        {
+            agents[0]->load_json(json);
+            agents[1]->load_json(json);
+        }
+        catch (std::runtime_error &ex)
+        {
+            spdlog::error("Can't load JSON");
+        }
+
         environment->reset();
     }
 }
