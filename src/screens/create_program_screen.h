@@ -10,6 +10,7 @@
 namespace SingularityTrainer
 {
 class AgentFactory;
+class BodySelectorWindow;
 class IEnvironment;
 class IEnvironmentFactory;
 class IO;
@@ -27,6 +28,7 @@ class CreateProgramScreen : public IScreen
     void rewards();
     void save_load();
 
+    std::unique_ptr<BodySelectorWindow> body_selector_window;
     std::unique_ptr<IEnvironment> environment;
     IO &io;
     std::unique_ptr<TrainingProgram> program;
@@ -37,7 +39,8 @@ class CreateProgramScreen : public IScreen
     std::unique_ptr<Tabs> tabs;
 
   public:
-    CreateProgramScreen(std::unique_ptr<IEnvironment> environment,
+    CreateProgramScreen(std::unique_ptr<BodySelectorWindow> body_selector_window,
+                        std::unique_ptr<IEnvironment> environment,
                         std::unique_ptr<TrainingProgram> program,
                         std::unique_ptr<Tabs> tabs,
                         IO &io,

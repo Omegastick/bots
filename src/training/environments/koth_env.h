@@ -65,8 +65,11 @@ class KothEnv : public IEnvironment
     virtual RenderData get_render_data(bool lightweight = false);
     virtual float get_elapsed_time() const;
 
-    inline std::vector<Agent *> get_agents() { return {agent_1.get(), agent_2.get()}; }
+    virtual std::vector<Agent *> get_agents() { return {agent_1.get(), agent_2.get()}; }
     inline Random &get_rng() { return *rng; }
+    inline b2World &get_world() { return *world; };
+    inline void set_agent_1(std::unique_ptr<Agent> agent) { this->agent_1 = std::move(agent); }
+    inline void set_agent_2(std::unique_ptr<Agent> agent) { this->agent_2 = std::move(agent); }
 };
 
 class KothEnvFactory : public IEnvironmentFactory
