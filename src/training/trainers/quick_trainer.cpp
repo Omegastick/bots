@@ -81,7 +81,7 @@ void QuickTrainer::begin_training()
 
     nn_base = std::make_shared<cpprl::MlpBase>(23, recurrent, 24);
     policy = cpprl::Policy(cpprl::ActionSpace{"MultiBinary", {4}}, nn_base);
-    algorithm = std::make_unique<cpprl::PPO>(policy, 0.2, epochs, env_count, 0.5, entropy_coef, 3e-4);
+    algorithm = std::make_unique<cpprl::PPO>(policy, 0.2, epochs, env_count, 1, 0.5, entropy_coef, 3e-4);
 
     rollout_storage.set_first_observation(observations);
 }

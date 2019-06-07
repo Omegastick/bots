@@ -99,7 +99,7 @@ target_link_libraries(Misc doctest)
 target_link_libraries(Training Graphics cpprl torch ${TORCH_LIBRARIES} tobanteGaming::Box2D doctest)
 # UNIX systems sometimes need to explicitly link the threading library and filesystem library
 if (UNIX)
-    target_link_libraries(Training pthread stdc++)
+    target_link_libraries(Training pthread)
     target_link_libraries(SingularityTrainer stdc++fs)
 endif(UNIX)
 target_link_libraries(Graphics glad glfw ${GLFW_LIBRARIES} glm imgui doctest)

@@ -15,20 +15,23 @@
 #include "training/agents/agent.h"
 #include "training/environments/ienvironment.h"
 #include "training/environments/koth_env.h"
+#include "ui/create_program_screen/algorithm_window.h"
 #include "ui/create_program_screen/body_selector_window.h"
 #include "ui/create_program_screen/tabs.h"
 
 namespace SingularityTrainer
 {
 
-CreateProgramScreen::CreateProgramScreen(std::unique_ptr<BodySelectorWindow> body_selector_window,
+CreateProgramScreen::CreateProgramScreen(std::unique_ptr<AlgorithmWindow> algorithm_window,
+                                         std::unique_ptr<BodySelectorWindow> body_selector_window,
                                          std::unique_ptr<IEnvironment> environment,
                                          std::unique_ptr<TrainingProgram> program,
                                          std::unique_ptr<Tabs> tabs,
                                          IO &io,
                                          ResourceManager &resource_manager,
                                          ScreenManager &screen_manager)
-    : body_selector_window(std::move(body_selector_window)),
+    : algorithm_window(std::move(algorithm_window)),
+      body_selector_window(std::move(body_selector_window)),
       environment(std::move(environment)),
       io(io),
       program(std::move(program)),
@@ -58,9 +61,7 @@ CreateProgramScreen::CreateProgramScreen(std::unique_ptr<BodySelectorWindow> bod
 
 void CreateProgramScreen::algorithm()
 {
-    ImGui::SetNextWindowSize({0, 0});
-    ImGui::Begin("Algorithm");
-    ImGui::End();
+    algorithm_window->update(program->hyper_parameters);
 }
 
 void CreateProgramScreen::body()
@@ -160,7 +161,8 @@ std::shared_ptr<IScreen> CreateProgramScreenFactory::make()
     agents.push_back(agent_factory.make(*world, *rng));
     agents.push_back(agent_factory.make(*world, *rng));
     auto environment = env_factory.make(std::move(rng), std::move(world), std::move(agents));
-    return std::make_shared<CreateProgramScreen>(std::make_unique<BodySelectorWindow>(io),
+    return std::make_shared<CreateProgramScreen>(std::make_unique<AlgorithmWindow>(io),
+                                                 std::make_unique<BodySelectorWindow>(io),
                                                  std::move(environment),
                                                  std::make_unique<TrainingProgram>(),
                                                  std::make_unique<Tabs>(io),
