@@ -6,14 +6,17 @@
 #include "screens/iscreen.h"
 #include "training/training_program.h"
 #include "ui/create_program_screen/create_program_screen_state.h"
-#include "ui/create_program_screen/tabs.h"
 
 namespace SingularityTrainer
 {
+class AgentFactory;
+class IEnvironment;
+class IEnvironmentFactory;
 class IO;
 class Renderer;
 class ResourceManager;
 class ScreenManager;
+class Tabs;
 
 class CreateProgramScreen : public IScreen
 {
@@ -24,6 +27,7 @@ class CreateProgramScreen : public IScreen
     void rewards();
     void save_load();
 
+    std::unique_ptr<IEnvironment> environment;
     IO &io;
     std::unique_ptr<TrainingProgram> program;
     PostProcLayer crt_post_proc_layer;
@@ -33,7 +37,8 @@ class CreateProgramScreen : public IScreen
     std::unique_ptr<Tabs> tabs;
 
   public:
-    CreateProgramScreen(std::unique_ptr<TrainingProgram> program,
+    CreateProgramScreen(std::unique_ptr<IEnvironment> environment,
+                        std::unique_ptr<TrainingProgram> program,
                         std::unique_ptr<Tabs> tabs,
                         IO &io,
                         ResourceManager &resource_manager,
@@ -46,25 +51,24 @@ class CreateProgramScreen : public IScreen
 class CreateProgramScreenFactory : public IScreenFactory
 {
   private:
+    AgentFactory &agent_factory;
+    IEnvironmentFactory &env_factory;
     IO &io;
     ResourceManager &resource_manager;
     ScreenManager &screen_manager;
 
   public:
-    CreateProgramScreenFactory(IO &io,
+    CreateProgramScreenFactory(AgentFactory &agent_factory,
+                               IEnvironmentFactory &env_factory,
+                               IO &io,
                                ResourceManager &resource_manager,
                                ScreenManager &screen_manager)
-        : io(io),
+        : agent_factory(agent_factory),
+          env_factory(env_factory),
+          io(io),
           resource_manager(resource_manager),
           screen_manager(screen_manager) {}
 
-    inline std::shared_ptr<IScreen> make()
-    {
-        return std::make_shared<CreateProgramScreen>(std::make_unique<TrainingProgram>(),
-                                                     std::make_unique<Tabs>(io),
-                                                     io,
-                                                     resource_manager,
-                                                     screen_manager);
-    }
+    std::shared_ptr<IScreen> make();
 };
 }

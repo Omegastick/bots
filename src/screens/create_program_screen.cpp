@@ -1,5 +1,6 @@
 #include <memory>
 
+#include <Box2D/Box2D.h>
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <imgui.h>
@@ -7,19 +8,24 @@
 #include "create_program_screen.h"
 #include "graphics/renderers/renderer.h"
 #include "misc/io.h"
+#include "misc/random.h"
 #include "misc/resource_manager.h"
 #include "misc/screen_manager.h"
+#include "training/agents/agent.h"
+#include "training/environments/ienvironment.h"
 #include "ui/create_program_screen/tabs.h"
 
 namespace SingularityTrainer
 {
 
-CreateProgramScreen::CreateProgramScreen(std::unique_ptr<TrainingProgram> program,
+CreateProgramScreen::CreateProgramScreen(std::unique_ptr<IEnvironment> environment,
+                                         std::unique_ptr<TrainingProgram> program,
                                          std::unique_ptr<Tabs> tabs,
                                          IO &io,
                                          ResourceManager &resource_manager,
                                          ScreenManager &screen_manager)
-    : io(io),
+    : environment(std::move(environment)),
+      io(io),
       program(std::move(program)),
       resource_manager(resource_manager),
       screen_manager(screen_manager),
@@ -78,10 +84,17 @@ void CreateProgramScreen::save_load()
     ImGui::End();
 }
 
-void CreateProgramScreen::draw(Renderer &renderer, bool /*lightweight*/)
+void CreateProgramScreen::draw(Renderer &renderer, bool lightweight)
 {
     renderer.push_post_proc_layer(&crt_post_proc_layer);
     renderer.begin();
+
+    auto render_data = environment->get_render_data(lightweight);
+
+    const double view_height = 50;
+    auto view_top = view_height * 0.5;
+    auto view_right = view_top * 1.777777;
+    renderer.draw(render_data, glm::ortho(-view_right, view_right, -view_top, view_top), 0, lightweight);
 
     auto crt_shader = resource_manager.shader_store.get("crt");
     crt_shader->set_uniform_2f("u_resolution", {renderer.get_width(), renderer.get_height()});
@@ -117,5 +130,21 @@ void CreateProgramScreen::update(double /*delta_time*/)
     case Schedule:
         break;
     }
+}
+
+std::shared_ptr<IScreen> CreateProgramScreenFactory::make()
+{
+    auto world = std::make_unique<b2World>(b2Vec2_zero);
+    auto rng = std::make_unique<Random>(0);
+    std::vector<std::unique_ptr<Agent>> agents;
+    agents.push_back(agent_factory.make(*world, *rng));
+    agents.push_back(agent_factory.make(*world, *rng));
+    auto environment = env_factory.make(std::move(rng), std::move(world), std::move(agents));
+    return std::make_shared<CreateProgramScreen>(std::move(environment),
+                                                 std::make_unique<TrainingProgram>(),
+                                                 std::make_unique<Tabs>(io),
+                                                 io,
+                                                 resource_manager,
+                                                 screen_manager);
 }
 }
