@@ -137,7 +137,10 @@ KothEnv::~KothEnv()
         command_queue.push(std::move(command));
         command_queue_condvar.notify_one();
     }
-    thread->join();
+    if (thread != nullptr)
+    {
+        thread->join();
+    }
 }
 
 float KothEnv::get_elapsed_time() const
