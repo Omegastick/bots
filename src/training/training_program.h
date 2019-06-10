@@ -14,6 +14,18 @@ enum Algorithm
     PPO = 1
 };
 
+struct RewardConfig
+{
+    float victory_reward = 100;
+    float loss_punishment = -100;
+
+    float hit_enemy_reward = 1;
+    float hit_self_punishment = -1;
+
+    float hill_tick_reward = 0.1;
+    float enemy_hill_tick_punishment = -0.1;
+};
+
 struct HyperParameters
 {
     Algorithm algorithm;
@@ -38,6 +50,7 @@ struct TrainingProgram
     nlohmann::json agent;
     std::string checkpoint;
     HyperParameters hyper_parameters;
+    RewardConfig reward_config;
 
     nlohmann::json to_json() const;
 };

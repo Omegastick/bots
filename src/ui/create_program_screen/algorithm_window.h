@@ -15,6 +15,6 @@ class AlgorithmWindow
   public:
     AlgorithmWindow(IO &io);
 
-    void update(HyperParameters &program);
+    void update(HyperParameters &hyperparams);
 };
 }
