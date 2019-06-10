@@ -3,9 +3,12 @@
 #define IMGUI_DEFINE_MATH_OPERATORS
 #endif
 #include <imgui_internal.h>
+#include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
 
 #include "reward_windows.h"
 #include "misc/io.h"
+#include "misc/utilities.h"
 #include "training/training_program.h"
 
 namespace SingularityTrainer
@@ -25,11 +28,18 @@ RewardWindows::RewardWindows(IO &io)
 
 void RewardWindows::update(RewardConfig &reward_config)
 {
-    ImGui::Begin("Line test");
+    ImGui::Begin("Hill reward");
 
-    ImGui::Text("Hello there, I am bob");
-    auto resolution = io.get_resolution();
-    draw_line_to_point({resolution.x / 2., resolution.y / 2.});
+    ImGui::Text("Reward per 1/10th of a second spent with the hill captured");
+    auto window_size = ImGui::GetWindowSize();
+    auto window_pos = ImGui::GetWindowPos();
+    glm::vec2 window_center = glm::vec2{window_pos.x + window_size.x * 0.5, window_pos.y + window_size.y * 0.5} / static_cast<glm::vec2>(io.get_resolution());
+    glm::vec2 screen_center{0.5, 0.5};
+    auto direction_vector = window_center - screen_center;
+    float radius = 0.033;
+    auto line_end_point = direction_vector / glm::length(direction_vector) * radius * static_cast<float>(io.get_resolution().x);
+    line_end_point += io.get_resolution() / 2;
+    draw_line_to_point({line_end_point.x, line_end_point.y});
 
     ImGui::End();
 }
