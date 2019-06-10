@@ -31,6 +31,22 @@ void RewardWindows::update(RewardConfig &reward_config)
     ImGui::Begin("Hill reward");
 
     ImGui::Text("Reward per 1/10th of a second spent with the hill captured");
+    ImGui::InputFloat("##hill_reward",
+                      &reward_config.hill_tick_reward,
+                      0.1,
+                      0.5,
+                      "%.1f",
+                      ImGuiInputTextFlags_AutoSelectAll | ImGuiInputTextFlags_CharsScientific);
+
+    ImGui::Text("Reward per 1/10th of a second spent with the hill controlled by the enemy");
+    ImGui::InputFloat("##hill_punishment",
+                      &reward_config.enemy_hill_tick_punishment,
+                      0.1,
+                      0.5,
+                      "%.1f",
+                      ImGuiInputTextFlags_AutoSelectAll | ImGuiInputTextFlags_CharsScientific);
+
+    // Draw line to edge of hill
     auto window_size = ImGui::GetWindowSize();
     auto window_pos = ImGui::GetWindowPos();
     glm::vec2 window_center = glm::vec2{window_pos.x + window_size.x * 0.5, window_pos.y + window_size.y * 0.5} / static_cast<glm::vec2>(io.get_resolution());
