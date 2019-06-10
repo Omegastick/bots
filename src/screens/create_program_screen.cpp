@@ -17,6 +17,7 @@
 #include "training/environments/koth_env.h"
 #include "ui/create_program_screen/algorithm_window.h"
 #include "ui/create_program_screen/body_selector_window.h"
+#include "ui/create_program_screen/reward_windows.h"
 #include "ui/create_program_screen/tabs.h"
 
 namespace SingularityTrainer
@@ -24,6 +25,7 @@ namespace SingularityTrainer
 
 CreateProgramScreen::CreateProgramScreen(std::unique_ptr<AlgorithmWindow> algorithm_window,
                                          std::unique_ptr<BodySelectorWindow> body_selector_window,
+                                         std::unique_ptr<RewardWindows> reward_windows,
                                          std::unique_ptr<IEnvironment> environment,
                                          std::unique_ptr<TrainingProgram> program,
                                          std::unique_ptr<Tabs> tabs,
@@ -36,6 +38,7 @@ CreateProgramScreen::CreateProgramScreen(std::unique_ptr<AlgorithmWindow> algori
       io(io),
       program(std::move(program)),
       resource_manager(resource_manager),
+      reward_windows(std::move(reward_windows)),
       screen_manager(screen_manager),
       state(CreateProgramScreenState::Body),
       tabs(std::move(tabs))
@@ -93,9 +96,7 @@ void CreateProgramScreen::checkpoint()
 
 void CreateProgramScreen::rewards()
 {
-    ImGui::SetNextWindowSize({0, 0});
-    ImGui::Begin("Rewards");
-    ImGui::End();
+    reward_windows->update(program->reward_config);
 }
 
 void CreateProgramScreen::save_load()
@@ -163,6 +164,7 @@ std::shared_ptr<IScreen> CreateProgramScreenFactory::make()
     auto environment = env_factory.make(std::move(rng), std::move(world), std::move(agents));
     return std::make_shared<CreateProgramScreen>(std::make_unique<AlgorithmWindow>(io),
                                                  std::make_unique<BodySelectorWindow>(io),
+                                                 std::make_unique<RewardWindows>(io),
                                                  std::move(environment),
                                                  std::make_unique<TrainingProgram>(),
                                                  std::make_unique<Tabs>(io),
