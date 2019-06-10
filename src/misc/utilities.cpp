@@ -92,6 +92,15 @@ glm::vec2 screen_to_world_space(glm::vec2 point, glm::vec2 resolution, glm::mat4
     return {point.x * (1. / projection[0][0]) * 2, point.y * (1. / projection[1][1]) * 2};
 }
 
+glm::vec2 world_to_screen_space(glm::vec2 point, glm::vec2 resolution, glm::mat4 projection)
+{
+    auto projected_vec4 = projection * glm::vec4(point.x, point.y, 0, 0);
+    point = {projected_vec4.x, projected_vec4.y};
+    point *= 0.5;
+    point += 0.5;
+    return point * resolution;
+}
+
 TEST_CASE("Rotating around a point produces expected results")
 {
     SUBCASE("Rotate {0, 1} 90 degrees right")

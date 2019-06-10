@@ -32,12 +32,12 @@ class CreateProgramScreen : public IScreen
 
     std::unique_ptr<AlgorithmWindow> algorithm_window;
     std::unique_ptr<BodySelectorWindow> body_selector_window;
-    std::unique_ptr<RewardWindows> reward_windows;
     std::unique_ptr<IEnvironment> environment;
     IO &io;
     std::unique_ptr<TrainingProgram> program;
     PostProcLayer crt_post_proc_layer;
     ResourceManager &resource_manager;
+    std::unique_ptr<RewardWindows> reward_windows;
     ScreenManager &screen_manager;
     CreateProgramScreenState state;
     std::unique_ptr<Tabs> tabs;
