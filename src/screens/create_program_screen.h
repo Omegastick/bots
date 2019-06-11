@@ -2,6 +2,8 @@
 
 #include <memory>
 
+#include <glm/mat4x4.hpp>
+
 #include "graphics/post_proc_layer.h"
 #include "screens/iscreen.h"
 #include "training/training_program.h"
@@ -35,6 +37,7 @@ class CreateProgramScreen : public IScreen
     std::unique_ptr<IEnvironment> environment;
     IO &io;
     std::unique_ptr<TrainingProgram> program;
+    glm::mat4 projection;
     PostProcLayer crt_post_proc_layer;
     ResourceManager &resource_manager;
     std::unique_ptr<RewardWindows> reward_windows;

@@ -1,6 +1,7 @@
 #pragma once
 
 #include <vector>
+#include <torch/torch.h>
 
 #include <Box2D/Box2D.h>
 #include <glm/glm.hpp>

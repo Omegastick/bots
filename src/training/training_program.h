@@ -14,13 +14,21 @@ enum Algorithm
     PPO = 1
 };
 
+enum HpOrHit
+{
+    Hp = 0,
+    Hit = 1,
+};
+
 struct RewardConfig
 {
     float victory_reward = 100;
     float loss_punishment = -100;
 
     float hit_enemy_reward = 1;
+    HpOrHit hit_enemy_type = HpOrHit::Hp;
     float hit_self_punishment = -1;
+    HpOrHit hit_self_type = HpOrHit::Hp;
 
     float hill_tick_reward = 0.1;
     float enemy_hill_tick_punishment = -0.1;
