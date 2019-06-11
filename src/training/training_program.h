@@ -24,7 +24,6 @@ struct RewardConfig
 {
     RewardConfig();
     RewardConfig(nlohmann::json &json);
-    bool operator==(const RewardConfig &other) const;
 
     float victory_reward = 100;
     float loss_punishment = -100;
@@ -44,7 +43,6 @@ struct HyperParameters
 {
     HyperParameters();
     HyperParameters(nlohmann::json &json);
-    bool operator==(const HyperParameters &other) const;
 
     Algorithm algorithm = A2C;
     int batch_size = 2048;
@@ -66,7 +64,6 @@ struct TrainingProgram
 {
     TrainingProgram();
     TrainingProgram(nlohmann::json &json);
-    bool operator==(const TrainingProgram &other) const;
 
     nlohmann::json agent;
     std::string checkpoint;
