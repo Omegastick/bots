@@ -22,6 +22,10 @@ enum HpOrHit
 
 struct RewardConfig
 {
+    RewardConfig();
+    RewardConfig(nlohmann::json &json);
+    bool operator==(const RewardConfig &other) const;
+
     float victory_reward = 100;
     float loss_punishment = -100;
 
@@ -32,11 +36,17 @@ struct RewardConfig
 
     float hill_tick_reward = 0.1;
     float enemy_hill_tick_punishment = -0.1;
+
+    nlohmann::json to_json() const;
 };
 
 struct HyperParameters
 {
-    Algorithm algorithm;
+    HyperParameters();
+    HyperParameters(nlohmann::json &json);
+    bool operator==(const HyperParameters &other) const;
+
+    Algorithm algorithm = A2C;
     int batch_size = 2048;
     float discount_factor = 0.99;
     float entropy_coef = 0.001;
@@ -48,12 +58,15 @@ struct HyperParameters
     float clip_param = 0.2;
     int num_epoch = 3;
     int num_minibatch = 32;
+
+    nlohmann::json to_json() const;
 };
 
 struct TrainingProgram
 {
     TrainingProgram();
     TrainingProgram(nlohmann::json &json);
+    bool operator==(const TrainingProgram &other) const;
 
     nlohmann::json agent;
     std::string checkpoint;
