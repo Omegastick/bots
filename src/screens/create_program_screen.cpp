@@ -96,7 +96,7 @@ void CreateProgramScreen::checkpoint()
 
 void CreateProgramScreen::rewards()
 {
-    reward_windows->update(program->reward_config);
+    reward_windows->update(*environment, projection, program->reward_config);
 }
 
 void CreateProgramScreen::save_load()
@@ -113,10 +113,7 @@ void CreateProgramScreen::draw(Renderer &renderer, bool lightweight)
 
     auto render_data = environment->get_render_data(lightweight);
 
-    const double view_height = 50;
-    auto view_top = view_height * 0.5;
-    auto view_right = view_top * 1.777777;
-    renderer.draw(render_data, glm::ortho(-view_right, view_right, -view_top, view_top), 0, lightweight);
+    renderer.draw(render_data, projection, 0, lightweight);
 
     auto crt_shader = resource_manager.shader_store.get("crt");
     crt_shader->set_uniform_2f("u_resolution", {renderer.get_width(), renderer.get_height()});
@@ -129,6 +126,12 @@ void CreateProgramScreen::draw(Renderer &renderer, bool lightweight)
 
 void CreateProgramScreen::update(double /*delta_time*/)
 {
+    const double view_height = 50;
+    auto view_top = view_height * 0.5;
+    auto resolution = io.get_resolution();
+    auto view_right = view_top * (static_cast<double>(resolution.x) / resolution.y);
+    projection = glm::ortho(-view_right, view_right, -view_top, view_top);
+
     state = tabs->update();
 
     switch (state)
