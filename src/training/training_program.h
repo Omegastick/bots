@@ -48,6 +48,7 @@ struct HyperParameters
     int batch_size = 2048;
     float discount_factor = 0.99;
     float entropy_coef = 0.001;
+    int num_env = 8;
     float learning_rate = 0.0001;
     float actor_loss_coef = 0.5;
     float value_loss_coef = 0.5;
