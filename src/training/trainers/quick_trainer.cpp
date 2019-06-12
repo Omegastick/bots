@@ -35,7 +35,7 @@ QuickTrainer::QuickTrainer(int env_count,
       frame_counter(0),
       action_frame_counter(0),
       elapsed_time(0),
-      score_processor(std::make_unique<ScoreProcessor>(1, 0.99)),
+      score_processor(std::make_unique<ScoreProcessor>(agents_per_env, 0.99)),
       last_update_time(std::chrono::high_resolution_clock::now())
 {
     torch::manual_seed(0);
@@ -50,12 +50,7 @@ QuickTrainer::QuickTrainer(int env_count,
         environments.push_back(env_factory.make(std::move(rng), std::move(world), std::move(agents)));
     }
     env_scores.resize(env_count);
-}
 
-QuickTrainer::~QuickTrainer() {}
-
-void QuickTrainer::begin_training()
-{
     std::vector<std::future<StepInfo>> observation_futures(env_count);
     for (unsigned int i = 0; i < environments.size(); ++i)
     {
@@ -85,8 +80,6 @@ void QuickTrainer::begin_training()
 
     rollout_storage.set_first_observation(observations);
 }
-
-void QuickTrainer::end_training() {}
 
 void QuickTrainer::step()
 {

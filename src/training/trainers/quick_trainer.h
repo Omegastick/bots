@@ -3,19 +3,13 @@
 #include <chrono>
 #include <vector>
 
-#include <cpprl/model/policy.h>
-#include <cpprl/storage.h>
+#include <cpprl/cpprl.h>
 #include <torch/torch.h>
 
 #include "third_party/di.hpp"
 #include "training/environments/ienvironment.h"
+#include "training/score_processor.h"
 #include "training/trainers/itrainer.h"
-
-namespace cpprl
-{
-class Algorithm;
-class NNBase;
-}
 
 namespace SingularityTrainer
 {
@@ -23,7 +17,6 @@ class Agent;
 class AgentFactory;
 class IEnvironmentFactory;
 class Random;
-class ScoreProcessor;
 
 auto EnvCount = [] {};
 
@@ -52,10 +45,7 @@ class QuickTrainer : public ITrainer
                     (named = EnvCount) int env_count,
                     IEnvironmentFactory &env_factory,
                     AgentFactory &agent_factory);
-    ~QuickTrainer();
 
-    virtual void begin_training();
-    virtual void end_training();
     virtual void save_model();
     virtual void step();
     virtual void slow_step();

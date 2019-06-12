@@ -36,8 +36,6 @@ int HeadlessApp::run(int argc, char *argv[])
         return run_tests(argc, argv, args);
     }
 
-    trainer.begin_training();
-
     auto last_save_time = std::chrono::steady_clock::now();
 
     while (!stop)
