@@ -13,8 +13,6 @@ class ITrainer
   public:
     virtual ~ITrainer() = 0;
 
-    virtual void begin_training() = 0;
-    virtual void end_training() = 0;
     virtual void save_model() = 0;
     virtual void step() = 0;
     virtual void slow_step() = 0;
