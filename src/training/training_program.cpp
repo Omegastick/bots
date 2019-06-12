@@ -29,6 +29,7 @@ HyperParameters::HyperParameters(nlohmann::json &json)
     batch_size = json["batch_size"];
     discount_factor = json["discount_factor"];
     entropy_coef = json["entropy_coef"];
+    num_env = json["num_env"];
     learning_rate = json["learning_rate"];
     actor_loss_coef = json["actor_loss_coef"];
     value_loss_coef = json["value_loss_coef"];
@@ -70,6 +71,7 @@ nlohmann::json HyperParameters::to_json() const
     json["batch_size"] = batch_size;
     json["discount_factor"] = discount_factor;
     json["entropy_coef"] = entropy_coef;
+    json["num_env"] = num_env;
     json["learning_rate"] = learning_rate;
     json["actor_loss_coef"] = actor_loss_coef;
     json["value_loss_coef"] = value_loss_coef;
@@ -110,6 +112,7 @@ TEST_CASE("TrainingProgram")
         hyper_parameters["batch_size"] = 4;
         hyper_parameters["discount_factor"] = 0.2;
         hyper_parameters["entropy_coef"] = 0.3;
+        hyper_parameters["num_env"] = 2;
         hyper_parameters["learning_rate"] = 2.2;
         hyper_parameters["actor_loss_coef"] = 100.;
         hyper_parameters["value_loss_coef"] = 22.3;
@@ -137,6 +140,7 @@ TEST_CASE("TrainingProgram")
         CHECK(program.hyper_parameters.batch_size == doctest::Approx(4));
         CHECK(program.hyper_parameters.discount_factor == doctest::Approx(0.2));
         CHECK(program.hyper_parameters.entropy_coef == doctest::Approx(0.3));
+        CHECK(program.hyper_parameters.num_env == doctest::Approx(2));
         CHECK(program.hyper_parameters.learning_rate == doctest::Approx(2.2));
         CHECK(program.hyper_parameters.actor_loss_coef == doctest::Approx(100.));
         CHECK(program.hyper_parameters.value_loss_coef == doctest::Approx(22.3));
@@ -164,6 +168,7 @@ TEST_CASE("TrainingProgram")
         program.hyper_parameters.batch_size = 4;
         program.hyper_parameters.discount_factor = 0.2;
         program.hyper_parameters.entropy_coef = 0.3;
+        program.hyper_parameters.num_env = 2;
         program.hyper_parameters.learning_rate = 2.2;
         program.hyper_parameters.actor_loss_coef = 100.;
         program.hyper_parameters.value_loss_coef = 22.3;
@@ -190,6 +195,7 @@ TEST_CASE("TrainingProgram")
         CHECK(recreated_program.hyper_parameters.batch_size == doctest::Approx(4));
         CHECK(recreated_program.hyper_parameters.discount_factor == doctest::Approx(0.2));
         CHECK(recreated_program.hyper_parameters.entropy_coef == doctest::Approx(0.3));
+        CHECK(recreated_program.hyper_parameters.num_env == doctest::Approx(2));
         CHECK(recreated_program.hyper_parameters.learning_rate == doctest::Approx(2.2));
         CHECK(recreated_program.hyper_parameters.actor_loss_coef == doctest::Approx(100.));
         CHECK(recreated_program.hyper_parameters.value_loss_coef == doctest::Approx(22.3));
