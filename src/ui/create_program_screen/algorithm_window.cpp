@@ -51,6 +51,13 @@ PPO: More complex than A2C, but more stable and more sample efficient.)");
     help_marker(R"(How many samples to record before updating the AI. 10 samples is one second.
 Recommended: 4 - 1024)");
 
+    ImGui::Text("Number of parallel environments:");
+    ImGui::SameLine(label_spacing);
+    ImGui::SliderInt("##num_env", &hyperparams.num_env, 1, 16);
+    ImGui::SameLine();
+    help_marker(R"(How many environments to run in parallel. More parallel environments stabilizes training and can use more CPU cores.
+Recommended: 4 - 12)");
+
     ImGui::Text("Learning rate:");
     ImGui::SameLine(label_spacing);
     ImGui::InputFloat("##learning_rate",
