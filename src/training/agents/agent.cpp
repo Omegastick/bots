@@ -79,7 +79,12 @@ void Agent::add_module(const std::shared_ptr<IModule> module)
 {
     module->set_agent(this);
     modules.push_back(module);
+    register_actions();
+    update_body();
 }
+
+void Agent::begin_contact(RigidBody * /*other*/) {}
+void Agent::end_contact(RigidBody * /*other*/) {}
 
 std::vector<float> Agent::get_observation()
 {
@@ -92,8 +97,15 @@ std::vector<float> Agent::get_observation()
     return observation;
 }
 
-void Agent::begin_contact(RigidBody * /*other*/) {}
-void Agent::end_contact(RigidBody * /*other*/) {}
+int Agent::get_input_count() const
+{
+    int total_inputs = 0;
+    for (const auto &action : actions)
+    {
+        total_inputs += action->flag_count;
+    }
+    return total_inputs;
+}
 
 RenderData Agent::get_render_data(bool lightweight)
 {
@@ -372,16 +384,16 @@ TEST_CASE("Agent")
         Agent agent(rng);
         agent.set_rigid_body(std::move(rigid_body));
 
-        CHECK(agent.get_modules().size() == 0);
+        DOCTEST_CHECK(agent.get_modules().size() == 0);
 
         auto module = std::make_shared<BaseModule>();
         agent.add_module(module);
 
-        CHECK(agent.get_modules().size() == 1);
+        DOCTEST_CHECK(agent.get_modules().size() == 1);
 
         SUBCASE("Added modules have their parent agent set correctly")
         {
-            CHECK(agent.get_modules()[0]->get_agent() == &agent);
+            DOCTEST_CHECK(agent.get_modules()[0]->get_agent() == &agent);
         }
     }
 
@@ -418,12 +430,12 @@ TEST_CASE("Agent")
 
         SUBCASE("Loaded Agents have the same number of modules")
         {
-            CHECK(loaded_agent.get_modules().size() == agent.get_modules().size());
+            DOCTEST_CHECK(loaded_agent.get_modules().size() == agent.get_modules().size());
         }
 
         SUBCASE("Loaded Agents have the same number of actions")
         {
-            CHECK(loaded_agent.get_actions().size() == agent.get_actions().size());
+            DOCTEST_CHECK(loaded_agent.get_actions().size() == agent.get_actions().size());
         }
     }
 
@@ -436,7 +448,7 @@ TEST_CASE("Agent")
         auto pretty_json = json.dump(2);
         INFO("Json :" << pretty_json);
 
-        CHECK(json["base_module"] == nullptr);
+        DOCTEST_CHECK(json["base_module"] == nullptr);
     }
 
     SUBCASE("Load Json errors on invalid schema version")
@@ -445,6 +457,55 @@ TEST_CASE("Agent")
 
         Agent agent(rng);
         CHECK_THROWS(agent.load_json(json));
+    }
+
+    SUBCASE("get_input_count() returns correct number of inputs")
+    {
+        SUBCASE("0")
+        {
+            Agent agent(rng);
+            agent.set_rigid_body(std::move(rigid_body));
+
+            int num_inputs = agent.get_input_count();
+            DOCTEST_CHECK(num_inputs == 0);
+        }
+
+        SUBCASE("1")
+        {
+            Agent agent(rng);
+            agent.set_rigid_body(std::move(rigid_body));
+
+            auto base_module = std::make_shared<BaseModule>();
+            auto gun_module = std::make_shared<GunModule>();
+
+            base_module->get_module_links()[0].link(gun_module->get_module_links()[0]);
+
+            agent.add_module(base_module);
+            agent.add_module(gun_module);
+
+            int num_inputs = agent.get_input_count();
+            DOCTEST_CHECK(num_inputs == 1);
+        }
+
+        SUBCASE("2")
+        {
+            Agent agent(rng);
+            agent.set_rigid_body(std::move(rigid_body));
+
+            auto base_module = std::make_shared<BaseModule>();
+            auto gun_module = std::make_shared<GunModule>();
+            auto gun_module_2 = std::make_shared<GunModule>();
+
+            base_module->get_module_links()[0].link(gun_module->get_module_links()[0]);
+            base_module->get_module_links()[1].link(gun_module->get_module_links()[0]);
+
+            agent.add_module(base_module);
+            agent.add_module(gun_module);
+            agent.add_module(gun_module_2);
+
+            int num_inputs = agent.get_input_count();
+            DOCTEST_CHECK(num_inputs == 2);
+        }
     }
 
     SUBCASE("unlink()")
@@ -469,7 +530,7 @@ TEST_CASE("Agent")
             agent.update_body();
             agent.register_actions();
 
-            CHECK(agent.get_modules().size() == 1);
+            DOCTEST_CHECK(agent.get_modules().size() == 1);
         }
 
         SUBCASE("Throws when trying to remove module with children")
