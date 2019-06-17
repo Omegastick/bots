@@ -85,7 +85,7 @@ CreateProgramScreenState Tabs::update()
     ImGui::SameLine();
     ImGui::TabButton("Rewards", &selected_number, CreateProgramScreenState::Rewards);
     ImGui::SameLine();
-    ImGui::TabButton("Checkpoint", &selected_number, CreateProgramScreenState::Checkpoint);
+    ImGui::TabButton("Brain", &selected_number, CreateProgramScreenState::Brain);
     ImGui::SameLine();
     ImGui::TabButton("Save/Load", &selected_number, CreateProgramScreenState::SaveLoad);
     ImGui::End();

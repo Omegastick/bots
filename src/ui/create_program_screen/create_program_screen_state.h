@@ -7,7 +7,7 @@ enum CreateProgramScreenState
     Body,
     Algorithm,
     Rewards,
-    Checkpoint,
+    Brain,
     Opponents,
     Schedule,
     SaveLoad

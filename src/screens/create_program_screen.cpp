@@ -87,10 +87,10 @@ void CreateProgramScreen::body()
     }
 }
 
-void CreateProgramScreen::checkpoint()
+void CreateProgramScreen::brain()
 {
     ImGui::SetNextWindowSize({0, 0});
-    ImGui::Begin("Checkpoint");
+    ImGui::Begin("Brain");
     ImGui::End();
 }
 
@@ -142,8 +142,8 @@ void CreateProgramScreen::update(double /*delta_time*/)
     case Body:
         body();
         break;
-    case Checkpoint:
-        checkpoint();
+    case Brain:
+        brain();
         break;
     case Rewards:
         rewards();

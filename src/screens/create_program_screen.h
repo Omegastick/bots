@@ -28,7 +28,7 @@ class CreateProgramScreen : public IScreen
   private:
     void algorithm();
     void body();
-    void checkpoint();
+    void brain();
     void rewards();
     void save_load();
 
