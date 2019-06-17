@@ -50,7 +50,7 @@ void ThrusterModule::activate()
     active = true;
     b2Transform global_transform = get_global_transform();
     b2Vec2 velocity = b2Mul(global_transform.q, b2Vec2(0, 50));
-    agent->get_rigid_body()->body->ApplyForce(velocity, global_transform.p, true);
+    agent->get_rigid_body().body->ApplyForce(velocity, global_transform.p, true);
 }
 
 RenderData ThrusterModule::get_render_data(bool lightweight)
@@ -69,7 +69,7 @@ RenderData ThrusterModule::get_render_data(bool lightweight)
         end_color.a = 0;
         for (int i = 0; i < particle_count; ++i)
         {
-            float random_number = agent->get_rng()->next_float(distribution) - 0.5;
+            float random_number = agent->get_rng().next_float(distribution) - 0.5;
             b2Rot angle = b2Mul(edge_transform.q, b2Rot(random_number));
             Particle particle{
                 glm::vec2(edge_transform.p.x + edge_transform.q.s * random_number, edge_transform.p.y - edge_transform.q.c * random_number),

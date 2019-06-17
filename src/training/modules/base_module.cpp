@@ -46,9 +46,9 @@ BaseModule::~BaseModule() {}
 
 std::vector<float> BaseModule::get_sensor_reading()
 {
-    b2Vec2 linear_velocity = agent->get_rigid_body()->body->GetLinearVelocity();
-    linear_velocity = b2Mul(b2Rot(agent->get_rigid_body()->body->GetAngle()), linear_velocity);
-    float angular_velocity = agent->get_rigid_body()->body->GetAngularVelocity();
+    b2Vec2 linear_velocity = agent->get_rigid_body().body->GetLinearVelocity();
+    linear_velocity = b2Mul(b2Rot(agent->get_rigid_body().body->GetAngle()), linear_velocity);
+    float angular_velocity = agent->get_rigid_body().body->GetAngularVelocity();
     return {linear_velocity.x, linear_velocity.y, angular_velocity};
 }
 

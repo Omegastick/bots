@@ -55,7 +55,7 @@ std::vector<float> LaserSensorModule::get_sensor_reading()
         b2Rot angle(glm::radians((segment_width * i) - (fov / 2)));
         b2Vec2 laser = b2Mul(angle, b2Vec2(0, laser_length));
 
-        agent->get_rigid_body()->body->GetWorld()->RayCast(&raycast_callback, global_transform.p, b2Mul(global_transform, laser));
+        agent->get_rigid_body().body->GetWorld()->RayCast(&raycast_callback, global_transform.p, b2Mul(global_transform, laser));
         if (raycast_callback.distance == -1)
         {
             sensor_reading[i] = 1;

@@ -288,9 +288,9 @@ void TargetEnv::reset_impl()
     step_counter = 0;
 
     // Reset agent position
-    agent->get_rigid_body()->body->SetTransform(b2Vec2_zero, 0);
-    agent->get_rigid_body()->body->SetAngularVelocity(0);
-    agent->get_rigid_body()->body->SetLinearVelocity(b2Vec2_zero);
+    agent->get_rigid_body().body->SetTransform(b2Vec2_zero, 0);
+    agent->get_rigid_body().body->SetAngularVelocity(0);
+    agent->get_rigid_body().body->SetLinearVelocity(b2Vec2_zero);
 
     // Change target position
     float target_x = rng->next_float(0, 18) - 9;
