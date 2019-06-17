@@ -125,7 +125,7 @@ void TrainingWizardScreen::center_camera_on_body()
     b2Vec2 agent_position;
     if (agent->get_modules().size() > 0)
     {
-        agent_position = agent->get_rigid_body()->body->GetTransform().p;
+        agent_position = agent->get_rigid_body().body->GetTransform().p;
     }
     else
     {
@@ -197,7 +197,7 @@ void TrainingWizardScreen::update(double delta_time)
     if (agent->get_modules().size() > 0)
     {
         center_camera_on_body();
-        agent->get_rigid_body()->body->SetLinearVelocity({0, 0});
+        agent->get_rigid_body().body->SetLinearVelocity({0, 0});
     }
 }
 }

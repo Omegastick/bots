@@ -61,8 +61,8 @@ class Agent : public ICollidable
     inline float get_hp() const { return hp; }
     inline const std::vector<std::shared_ptr<IModule>> &get_modules() const { return modules; }
     inline std::string &get_name() { return name; }
-    inline RigidBody *get_rigid_body() const { return rigid_body.get(); }
-    inline Random *get_rng() const { return rng; }
+    inline RigidBody &get_rigid_body() const { return *rigid_body; }
+    inline Random &get_rng() const { return *rng; }
     inline void set_environment(IEnvironment &environment) { this->environment = &environment; }
     inline void set_name(std::string &name) { this->name = name; }
     inline void set_rng(Random &rng) { this->rng = &rng; }

@@ -56,7 +56,7 @@ b2Transform IModule::get_global_transform()
     {
         return transform;
     }
-    b2Body *body = agent->get_rigid_body()->body;
+    b2Body *body = agent->get_rigid_body().body;
     b2Transform agent_transform = body->GetTransform();
 
     return b2Mul(agent_transform, transform);

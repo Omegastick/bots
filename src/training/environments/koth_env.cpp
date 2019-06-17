@@ -113,8 +113,8 @@ KothEnv::KothEnv(int max_steps,
     this->world->SetContactListener(contact_listener.get());
 
     // Agents
-    this->agent_1->get_rigid_body()->set_world(this->world.get());
-    this->agent_2->get_rigid_body()->set_world(this->world.get());
+    this->agent_1->get_rigid_body().set_world(this->world.get());
+    this->agent_2->get_rigid_body().set_world(this->world.get());
     this->agent_1->set_environment(*this);
     this->agent_2->set_environment(*this);
     this->agent_1->set_rng(*this->rng);
@@ -333,12 +333,12 @@ void KothEnv::reset_impl()
     step_counter = 0;
 
     // Reset agent position
-    agent_1->get_rigid_body()->body->SetTransform({0, -10}, 0);
-    agent_1->get_rigid_body()->body->SetAngularVelocity(0);
-    agent_1->get_rigid_body()->body->SetLinearVelocity(b2Vec2_zero);
-    agent_2->get_rigid_body()->body->SetTransform({0, 10}, glm::radians(180.f));
-    agent_2->get_rigid_body()->body->SetAngularVelocity(0);
-    agent_2->get_rigid_body()->body->SetLinearVelocity(b2Vec2_zero);
+    agent_1->get_rigid_body().body->SetTransform({0, -10}, 0);
+    agent_1->get_rigid_body().body->SetAngularVelocity(0);
+    agent_1->get_rigid_body().body->SetLinearVelocity(b2Vec2_zero);
+    agent_2->get_rigid_body().body->SetTransform({0, 10}, glm::radians(180.f));
+    agent_2->get_rigid_body().body->SetAngularVelocity(0);
+    agent_2->get_rigid_body().body->SetLinearVelocity(b2Vec2_zero);
 
     // Reset agent hp
     agent_1->reset();

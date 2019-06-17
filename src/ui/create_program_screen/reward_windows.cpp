@@ -92,7 +92,7 @@ void RewardWindows::update(IEnvironment &environment, glm::mat4 &projection, Rew
     }
 
     // Draw line to enemy
-    auto enemy_position = environment.get_agents()[0]->get_rigid_body()->body->GetPosition();
+    auto enemy_position = environment.get_agents()[0]->get_rigid_body().body->GetPosition();
     auto enemy_position_screen = world_to_screen_space({enemy_position.x, enemy_position.y}, resolution, projection);
     draw_line_to_point({enemy_position_screen.x, enemy_position_screen.y});
 
@@ -120,7 +120,7 @@ void RewardWindows::update(IEnvironment &environment, glm::mat4 &projection, Rew
     }
 
     // Draw line to agent
-    auto agent_position = environment.get_agents()[1]->get_rigid_body()->body->GetPosition();
+    auto agent_position = environment.get_agents()[1]->get_rigid_body().body->GetPosition();
     auto agent_position_screen = world_to_screen_space({agent_position.x, agent_position.y}, resolution, projection);
     draw_line_to_point({agent_position_screen.x, agent_position_screen.y});
 
