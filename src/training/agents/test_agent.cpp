@@ -19,8 +19,10 @@ namespace SingularityTrainer
 {
 TestAgent::TestAgent(std::unique_ptr<RigidBody> rigid_body,
                      Random &rng,
-                     IEnvironment &environment) : Agent(std::move(rigid_body), rng, environment)
+                     IEnvironment &environment) : Agent(rng)
 {
+    set_rigid_body(std::move(rigid_body));
+    set_environment(environment);
     setup();
 }
 
