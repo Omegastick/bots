@@ -46,6 +46,7 @@ class Agent : public ICollidable
     void begin_contact(RigidBody *other);
     void end_contact(RigidBody *other);
     std::vector<float> get_observation();
+    int get_input_count() const;
     RenderData get_render_data(bool lightweight = false);
     void hit(float damage);
     void load_json(const nlohmann::json &json);
