@@ -36,14 +36,9 @@ class Agent : public ICollidable
     void recurse_json_modules(const nlohmann::json &module_json, IModule *parent_module = nullptr, int parent_link = 0, int child_link = 0);
 
   public:
-    Agent();
     Agent(Random &rng);
-    Agent(std::unique_ptr<RigidBody> rigid_body, Random &rng);
-    Agent(std::unique_ptr<RigidBody> rigid_body, Random &rng, const nlohmann::json &json);
-    Agent(std::unique_ptr<RigidBody> rigid_body, Random &rng, IEnvironment &environment);
-    Agent(std::unique_ptr<RigidBody> rigid_body, Random &rng, IEnvironment &environment, const nlohmann::json &json);
-    Agent(const Agent &) = delete;
     Agent(Agent &&other);
+    Agent(const Agent &) = delete;
     Agent &operator=(Agent &&other);
 
     void act(std::vector<int> action_flags);

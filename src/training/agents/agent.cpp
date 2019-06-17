@@ -27,32 +27,6 @@ Agent::Agent(Random &rng) : hp(0), rng(&rng)
 {
 }
 
-Agent::Agent(std::unique_ptr<RigidBody> rigid_body, Random &rng, const nlohmann::json &json)
-    : Agent(std::move(rigid_body), rng)
-{
-    load_json(json);
-}
-
-Agent::Agent(std::unique_ptr<RigidBody> rigid_body, Random &rng, IEnvironment &environment)
-    : Agent(std::move(rigid_body), rng)
-{
-    this->environment = &environment;
-}
-
-Agent::Agent(std::unique_ptr<RigidBody> rigid_body, Random &rng, IEnvironment &environment, const nlohmann::json &json)
-    : Agent(std::move(rigid_body), rng, environment)
-{
-    load_json(json);
-}
-
-Agent::Agent(std::unique_ptr<RigidBody> rigid_body, Random &rng)
-    : hp(0),
-      rigid_body(std::move(rigid_body)),
-      rng(&rng)
-{
-    init_rigid_body();
-}
-
 Agent::Agent(Agent &&other)
 {
     (*this) = std::move(other);
@@ -395,7 +369,8 @@ TEST_CASE("Agent")
 
     SUBCASE("Can have modules added")
     {
-        Agent agent(std::move(rigid_body), rng);
+        Agent agent(rng);
+        agent.set_rigid_body(std::move(rigid_body));
 
         CHECK(agent.get_modules().size() == 0);
 
@@ -412,7 +387,8 @@ TEST_CASE("Agent")
 
     SUBCASE("Can be saved to Json and loaded back")
     {
-        Agent agent(std::move(rigid_body), rng);
+        Agent agent(rng);
+        agent.set_rigid_body(std::move(rigid_body));
 
         auto base_module = std::make_shared<BaseModule>();
         auto thruster_module = std::make_shared<ThrusterModule>();
@@ -436,7 +412,9 @@ TEST_CASE("Agent")
                                                  b2_world,
                                                  nullptr,
                                                  RigidBody::ParentTypes::Agent);
-        Agent loaded_agent(std::move(rigid_body), rng, json);
+        Agent loaded_agent(rng);
+        loaded_agent.set_rigid_body(std::move(rigid_body));
+        loaded_agent.load_json(json);
 
         SUBCASE("Loaded Agents have the same number of modules")
         {
@@ -451,7 +429,8 @@ TEST_CASE("Agent")
 
     SUBCASE("With no modules are converted to Json correctly")
     {
-        Agent agent(std::move(rigid_body), rng);
+        Agent agent(rng);
+        agent.set_rigid_body(std::move(rigid_body));
 
         auto json = agent.to_json();
         auto pretty_json = json.dump(2);
@@ -464,14 +443,16 @@ TEST_CASE("Agent")
     {
         auto json = "{\"schema\": \"bad_schema\"}"_json;
 
-        CHECK_THROWS(Agent agent(std::move(rigid_body), rng, json));
+        Agent agent(rng);
+        CHECK_THROWS(agent.load_json(json));
     }
 
     SUBCASE("unlink()")
     {
         SUBCASE("Removes the module from the Agent")
         {
-            Agent agent(std::move(rigid_body), rng);
+            Agent agent(rng);
+            agent.set_rigid_body(std::move(rigid_body));
 
             auto base_module = std::make_shared<BaseModule>();
             auto gun_module = std::make_shared<GunModule>();
@@ -493,7 +474,8 @@ TEST_CASE("Agent")
 
         SUBCASE("Throws when trying to remove module with children")
         {
-            Agent agent(std::move(rigid_body), rng);
+            Agent agent(rng);
+            agent.set_rigid_body(std::move(rigid_body));
 
             auto base_module = std::make_shared<BaseModule>();
             auto thruster_module = std::make_shared<ThrusterModule>();
