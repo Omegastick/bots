@@ -3,6 +3,7 @@
 #include <glm/mat4x4.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <imgui.h>
+#include <spdlog/fmt/fmt.h>
 
 #include "train_screen.h"
 #include "graphics/renderers/renderer.h"
@@ -67,7 +68,7 @@ void TrainScreen::update(const double /*delta_time*/)
     {
         auto health = agent->get_hp();
         double max_health = 10;
-        ImGui::ProgressBar(health / max_health);
+        ImGui::ProgressBar(health / max_health, {-1, 0}, fmt::format("{}/{}", health, max_health).c_str());
     }
 
     ImGui::End();

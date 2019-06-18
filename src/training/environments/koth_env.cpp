@@ -258,13 +258,13 @@ void KothEnv::thread_loop()
             hill->update();
 
             // Check if agent is destroyed
-            if (agent_1->get_hp() < 0)
+            if (agent_1->get_hp() <= 0)
             {
                 change_reward(agent_1.get(), reward_config.loss_punishment);
                 change_reward(agent_2.get(), reward_config.victory_reward);
                 set_done();
             }
-            else if (agent_2->get_hp() < 0)
+            else if (agent_2->get_hp() <= 0)
             {
                 change_reward(agent_1.get(), reward_config.victory_reward);
                 change_reward(agent_2.get(), reward_config.loss_punishment);
