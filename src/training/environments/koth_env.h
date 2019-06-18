@@ -12,6 +12,7 @@
 #include <Box2D/Box2D.h>
 
 #include "misc/random.h"
+#include "third_party/di.hpp"
 #include "training/agents/test_agent.h"
 #include "training/environments/ienvironment.h"
 #include "training/training_program.h"
@@ -77,13 +78,16 @@ class KothEnv : public IEnvironment
     inline void set_agent_2(std::unique_ptr<Agent> agent) { this->agent_2 = std::move(agent); }
 };
 
+auto MaxSteps = [] {};
+
 class KothEnvFactory : public IEnvironmentFactory
 {
   private:
     int max_steps;
 
   public:
-    KothEnvFactory(int max_steps) : max_steps(max_steps) {}
+    BOOST_DI_INJECT(KothEnvFactory, (named = MaxSteps) int max_steps)
+        : max_steps(max_steps) {}
 
     virtual std::unique_ptr<IEnvironment> make(
         std::unique_ptr<Random> rng,

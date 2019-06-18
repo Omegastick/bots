@@ -1,0 +1,87 @@
+#include <memory>
+
+#include <glm/mat4x4.hpp>
+#include <glm/gtc/matrix_transform.hpp>
+#include <imgui.h>
+
+#include "train_screen.h"
+#include "graphics/renderers/renderer.h"
+#include "graphics/backend/shader.h"
+#include "graphics/post_proc_layer.h"
+#include "graphics/colors.h"
+#include "training/environments/koth_env.h"
+#include "training/trainers/quick_trainer.h"
+#include "screens/iscreen.h"
+#include "misc/resource_manager.h"
+
+namespace SingularityTrainer
+{
+TrainScreen::TrainScreen(std::unique_ptr<ITrainer> trainer,
+                         ResourceManager &resource_manager,
+                         Random &rng)
+    : crt_post_proc_layer(std::make_unique<PostProcLayer>(resource_manager.shader_store.get("crt").get())),
+      fast(false),
+      lightweight_rendering(false),
+      projection(glm::ortho(0.f, 1920.f, 0.f, 1080.f)),
+      resource_manager(resource_manager),
+      trainer(std::move(trainer))
+{
+    resource_manager.load_texture("base_module", "images/base_module.png");
+    resource_manager.load_texture("gun_module", "images/gun_module.png");
+    resource_manager.load_texture("thruster_module", "images/thruster_module.png");
+    resource_manager.load_texture("laser_sensor_module", "images/laser_sensor_module.png");
+    resource_manager.load_texture("bullet", "images/bullet.png");
+    resource_manager.load_texture("pixel", "images/pixel.png");
+    resource_manager.load_texture("target", "images/target.png");
+    resource_manager.load_shader("crt", "shaders/texture.vert", "shaders/crt.frag");
+    resource_manager.load_shader("font", "shaders/texture.vert", "shaders/font.frag");
+    resource_manager.load_font("roboto-16", "fonts/Roboto-Regular.ttf", 16);
+}
+
+void TrainScreen::update(const double /*delta_time*/)
+{
+    ImGui::Begin("Speed", NULL, ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoResize);
+    ImGui::Checkbox("Fast", &fast);
+    ImGui::End();
+    if (fast)
+    {
+        lightweight_rendering = true;
+        trainer->step();
+    }
+    else
+    {
+        lightweight_rendering = false;
+        trainer->slow_step();
+    }
+
+    ImGui::Begin("Health");
+
+    auto agents = trainer->environments[0]->get_agents();
+    for (const auto &agent : agents)
+    {
+        auto health = agent->get_hp();
+        double max_health = 10;
+        ImGui::ProgressBar(health / max_health);
+    }
+
+    ImGui::End();
+}
+
+void TrainScreen::draw(Renderer &renderer, bool /*lightweight*/)
+{
+    renderer.push_post_proc_layer(crt_post_proc_layer.get());
+    renderer.begin();
+
+    renderer.scissor(-10, -20, 10, 20, glm::ortho(-38.4f, 38.4f, -21.6f, 21.6f));
+    auto render_data = trainer->environments[0]->get_render_data(lightweight_rendering);
+    renderer.draw(render_data, glm::ortho(-38.4f, 38.4f, -21.6f, 21.6f), trainer->environments[0]->get_elapsed_time(), lightweight_rendering);
+
+    auto crt_shader = resource_manager.shader_store.get("crt");
+    crt_shader->set_uniform_2f("u_resolution", {renderer.get_width(), renderer.get_height()});
+    crt_shader->set_uniform_1f("u_output_gamma", 1);
+    crt_shader->set_uniform_1f("u_strength", 0.8);
+    crt_shader->set_uniform_1f("u_distortion_factor", 0.1);
+
+    renderer.end();
+}
+}

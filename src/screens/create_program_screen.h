@@ -22,6 +22,7 @@ class Renderer;
 class ResourceManager;
 class ScreenManager;
 class Tabs;
+class TrainScreenFactory;
 
 class CreateProgramScreen : public IScreen
 {
@@ -44,6 +45,7 @@ class CreateProgramScreen : public IScreen
     ScreenManager &screen_manager;
     CreateProgramScreenState state;
     std::unique_ptr<Tabs> tabs;
+    TrainScreenFactory &train_screen_factory;
 
   public:
     CreateProgramScreen(std::unique_ptr<AlgorithmWindow> algorithm_window,
@@ -54,7 +56,8 @@ class CreateProgramScreen : public IScreen
                         std::unique_ptr<Tabs> tabs,
                         IO &io,
                         ResourceManager &resource_manager,
-                        ScreenManager &screen_manager);
+                        ScreenManager &screen_manager,
+                        TrainScreenFactory &train_screen_factory);
 
     void draw(Renderer &renderer, bool lightweight = false);
     void update(double delta_time);
@@ -68,18 +71,21 @@ class CreateProgramScreenFactory : public IScreenFactory
     IO &io;
     ResourceManager &resource_manager;
     ScreenManager &screen_manager;
+    TrainScreenFactory &train_screen_factory;
 
   public:
     CreateProgramScreenFactory(AgentFactory &agent_factory,
                                IEnvironmentFactory &env_factory,
                                IO &io,
                                ResourceManager &resource_manager,
-                               ScreenManager &screen_manager)
+                               ScreenManager &screen_manager,
+                               TrainScreenFactory &train_screen_factory)
         : agent_factory(agent_factory),
           env_factory(env_factory),
           io(io),
           resource_manager(resource_manager),
-          screen_manager(screen_manager) {}
+          screen_manager(screen_manager),
+          train_screen_factory(train_screen_factory) {}
 
     std::shared_ptr<IScreen> make();
 };

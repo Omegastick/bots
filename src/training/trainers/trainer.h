@@ -3,6 +3,8 @@
 #include <chrono>
 #include <vector>
 
+#include <cpprl/algorithms/algorithm.h>
+#include <cpprl/model/nn_base.h>
 #include <cpprl/model/policy.h>
 #include <cpprl/storage.h>
 #include <torch/torch.h>
@@ -12,12 +14,6 @@
 #include "training/environments/ienvironment.h"
 #include "training/trainers/itrainer.h"
 #include "training/training_program.h"
-
-namespace cpprl
-{
-class Algorithm;
-class NNBase;
-}
 
 namespace SingularityTrainer
 {
