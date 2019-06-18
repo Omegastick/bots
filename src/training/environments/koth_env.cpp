@@ -116,14 +116,12 @@ KothEnv::KothEnv(int max_steps,
     this->world->SetContactListener(contact_listener.get());
 
     // Agents
-    this->agent_1->get_rigid_body().set_world(this->world.get());
-    this->agent_2->get_rigid_body().set_world(this->world.get());
     this->agent_1->set_environment(*this);
     this->agent_2->set_environment(*this);
     this->agent_1->set_rng(*this->rng);
     this->agent_2->set_rng(*this->rng);
-    agent_numbers[agent_1.get()] = 0;
-    agent_numbers[agent_2.get()] = 1;
+    agent_numbers[this->agent_1.get()] = 0;
+    agent_numbers[this->agent_2.get()] = 1;
 
     // Walls
     walls.push_back(std::make_unique<Wall>(-10, -20, 20, 0.1, *this->world));

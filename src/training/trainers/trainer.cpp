@@ -46,7 +46,7 @@ Trainer::Trainer(TrainingProgram program,
     temp_agent->load_json(program.agent);
     int num_observations = temp_agent->get_observation().size();
     int num_inputs = temp_agent->get_input_count();
-    rollout_storage = std::make_unique<cpprl::RolloutStorage>(game_length,
+    rollout_storage = std::make_unique<cpprl::RolloutStorage>(program.hyper_parameters.batch_size,
                                                               program.hyper_parameters.num_env * agents_per_env,
                                                               c10::IntArrayRef{num_observations},
                                                               cpprl::ActionSpace{"MultiBinary", {num_inputs}},
