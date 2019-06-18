@@ -10,6 +10,7 @@
 #include "training/agents/agent.h"
 #include "training/icollidable.h"
 #include "training/rigid_body.h"
+#include "training/training_program.h"
 
 namespace SingularityTrainer
 {
@@ -63,11 +64,30 @@ void Hill::end_contact(RigidBody *other)
 
 void Hill::update() const
 {
-    for (auto agent : occupants)
+    // First check if only one person is occupying the hill
+    int total_occupants = 0;
+    for (const auto &agent : occupants)
     {
         if (agent.second > 0)
         {
-            environment.change_reward(agent.first, 1);
+            total_occupants++;
+        }
+    }
+
+    // If so, apply the appropriate rewards to the agents
+    if (total_occupants == 1)
+    {
+        auto &reward_config = environment.get_reward_config();
+        for (auto agent : occupants)
+        {
+            if (agent.second > 0)
+            {
+                environment.change_reward(agent.first, reward_config.hill_tick_reward);
+            }
+            else
+            {
+                environment.change_reward(agent.first, reward_config.enemy_hill_tick_punishment);
+            }
         }
     }
 }

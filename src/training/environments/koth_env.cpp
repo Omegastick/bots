@@ -13,6 +13,7 @@
 #include "training/entities/wall.h"
 #include "training/entities/hill.h"
 #include "training/rigid_body.h"
+#include "training/training_program.h"
 #include "misc/random.h"
 
 namespace SingularityTrainer
@@ -95,7 +96,8 @@ KothEnv::KothEnv(int max_steps,
                  std::unique_ptr<Agent> agent_1,
                  std::unique_ptr<Agent> agent_2,
                  std::unique_ptr<b2World> world,
-                 std::unique_ptr<Random> rng)
+                 std::unique_ptr<Random> rng,
+                 RewardConfig reward_config)
     : agent_1(std::move(agent_1)),
       agent_2(std::move(agent_2)),
       max_steps(max_steps),
@@ -106,7 +108,8 @@ KothEnv::KothEnv(int max_steps,
       done(false),
       rewards({0, 0}),
       step_counter(0),
-      total_rewards({0, 0})
+      total_rewards({0, 0}),
+      reward_config(reward_config)
 {
     // Box2D world
     contact_listener = std::make_unique<KothContactListener>();
@@ -259,14 +262,14 @@ void KothEnv::thread_loop()
             // Check if agent is destroyed
             if (agent_1->get_hp() < 0)
             {
-                change_reward(agent_1.get(), -100);
-                change_reward(agent_2.get(), 100);
+                change_reward(agent_1.get(), reward_config.loss_punishment);
+                change_reward(agent_2.get(), reward_config.victory_reward);
                 set_done();
             }
             else if (agent_2->get_hp() < 0)
             {
-                change_reward(agent_1.get(), 100);
-                change_reward(agent_2.get(), -100);
+                change_reward(agent_1.get(), reward_config.victory_reward);
+                change_reward(agent_2.get(), reward_config.loss_punishment);
                 set_done();
             }
 

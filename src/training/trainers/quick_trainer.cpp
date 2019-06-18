@@ -12,6 +12,7 @@
 #include "training/agents/agent.h"
 #include "training/environments/ienvironment.h"
 #include "training/trainers/quick_trainer.h"
+#include "training/training_program.h"
 #include "training/score_processor.h"
 #include "misc/utilities.h"
 #include "misc/date.h"
@@ -47,7 +48,7 @@ QuickTrainer::QuickTrainer(int env_count,
         std::vector<std::unique_ptr<Agent>> agents;
         agents.push_back(agent_factory.make(*world, *rng));
         agents.push_back(agent_factory.make(*world, *rng));
-        environments.push_back(env_factory.make(std::move(rng), std::move(world), std::move(agents)));
+        environments.push_back(env_factory.make(std::move(rng), std::move(world), std::move(agents), RewardConfig()));
     }
     env_scores.resize(env_count);
 

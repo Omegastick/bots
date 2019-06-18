@@ -12,15 +12,16 @@
 #include <Box2D/Box2D.h>
 
 #include "misc/random.h"
-#include "training/environments/ienvironment.h"
 #include "training/agents/test_agent.h"
+#include "training/environments/ienvironment.h"
+#include "training/training_program.h"
 
 namespace SingularityTrainer
 {
-class ResourceManager;
 class Agent;
-class Wall;
 class Hill;
+class ResourceManager;
+class Wall;
 
 class KothEnv : public IEnvironment
 {
@@ -43,8 +44,10 @@ class KothEnv : public IEnvironment
     std::condition_variable command_queue_condvar;
     std::vector<float> total_rewards;
     std::unordered_map<Agent *, int> agent_numbers;
+    RewardConfig reward_config;
 
-    void thread_loop();
+    void
+    thread_loop();
     void reset_impl();
 
   public:
@@ -52,7 +55,8 @@ class KothEnv : public IEnvironment
             std::unique_ptr<Agent> agent_1,
             std::unique_ptr<Agent> agent_2,
             std::unique_ptr<b2World> world,
-            std::unique_ptr<Random> rng);
+            std::unique_ptr<Random> rng,
+            RewardConfig reward_config);
     ~KothEnv();
 
     virtual void start_thread();
@@ -65,7 +69,8 @@ class KothEnv : public IEnvironment
     virtual RenderData get_render_data(bool lightweight = false);
     virtual float get_elapsed_time() const;
 
-    virtual std::vector<Agent *> get_agents() { return {agent_1.get(), agent_2.get()}; }
+    inline std::vector<Agent *> get_agents() { return {agent_1.get(), agent_2.get()}; }
+    inline RewardConfig &get_reward_config() { return reward_config; }
     inline Random &get_rng() { return *rng; }
     inline b2World &get_world() { return *world; };
     inline void set_agent_1(std::unique_ptr<Agent> agent) { this->agent_1 = std::move(agent); }
@@ -83,13 +88,15 @@ class KothEnvFactory : public IEnvironmentFactory
     virtual std::unique_ptr<IEnvironment> make(
         std::unique_ptr<Random> rng,
         std::unique_ptr<b2World> world,
-        std::vector<std::unique_ptr<Agent>> agents)
+        std::vector<std::unique_ptr<Agent>> agents,
+        RewardConfig reward_config)
     {
         return std::make_unique<KothEnv>(max_steps,
                                          std::move(agents[0]),
                                          std::move(agents[1]),
                                          std::move(world),
-                                         std::move(rng));
+                                         std::move(rng),
+                                         reward_config);
     }
 };
 }

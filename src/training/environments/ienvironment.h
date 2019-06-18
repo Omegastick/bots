@@ -13,6 +13,7 @@
 namespace SingularityTrainer
 {
 class Agent;
+class RewardConfig;
 
 struct StepInfo
 {
@@ -48,8 +49,9 @@ class IEnvironment : public IDrawable
     virtual void change_reward(Agent *agent, float reward_delta) = 0;
     virtual void set_done() = 0;
     virtual std::vector<Agent *> get_agents() = 0;
-    virtual RenderData get_render_data(bool lightweight = false) = 0;
     virtual float get_elapsed_time() const = 0;
+    virtual RenderData get_render_data(bool lightweight = false) = 0;
+    virtual RewardConfig &get_reward_config() = 0;
     virtual b2World &get_world() = 0;
 };
 
@@ -62,7 +64,8 @@ class IEnvironmentFactory
 
     virtual std::unique_ptr<IEnvironment> make(std::unique_ptr<Random> rng,
                                                std::unique_ptr<b2World> world,
-                                               std::vector<std::unique_ptr<Agent>> agents) = 0;
+                                               std::vector<std::unique_ptr<Agent>> agents,
+                                               RewardConfig reward_config) = 0;
 };
 
 inline IEnvironmentFactory::~IEnvironmentFactory() {}
