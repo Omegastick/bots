@@ -129,8 +129,8 @@ void CreateProgramScreen::update(double /*delta_time*/)
 {
     const double view_height = 50;
     auto view_top = view_height * 0.5;
-    auto resolution = io.get_resolution();
-    auto view_right = view_top * (static_cast<double>(resolution.x) / resolution.y);
+    glm::vec2 resolution = io.get_resolution();
+    auto view_right = view_top * (resolution.x / resolution.y);
     projection = glm::ortho(-view_right, view_right, -view_top, view_top);
 
     state = tabs->update();
@@ -156,6 +156,21 @@ void CreateProgramScreen::update(double /*delta_time*/)
     case Schedule:
         break;
     }
+
+    ImGui::PushStyleColor(ImGuiCol_WindowBg, {0, 0, 0, 0});
+    ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, {12, 6});
+    auto imgui_io = ImGui::GetIO();
+    ImGui::PushFont(imgui_io.Fonts->Fonts[2]);
+    ImGui::SetNextWindowPos({resolution.x, resolution.y}, ImGuiCond_Always, {1, 1});
+    ImGui::Begin("##run_training", NULL, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoTitleBar);
+    if (ImGui::Button("Run"))
+    {
+        spdlog::debug("Running training");
+    }
+    ImGui::End();
+    ImGui::PopFont();
+    ImGui::PopStyleVar();
+    ImGui::PopStyleColor();
 }
 
 std::shared_ptr<IScreen> CreateProgramScreenFactory::make()
