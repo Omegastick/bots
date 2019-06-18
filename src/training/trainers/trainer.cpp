@@ -45,11 +45,11 @@ Trainer::Trainer(TrainingProgram program,
     auto temp_agent = agent_factory.make(b2_world, rng);
     temp_agent->load_json(program.agent);
     int num_observations = temp_agent->get_observation().size();
-    int num_inputs = temp_agent->get_input_count();
+    int num_actions = temp_agent->get_input_count();
     rollout_storage = std::make_unique<cpprl::RolloutStorage>(program.hyper_parameters.batch_size,
                                                               program.hyper_parameters.num_env * agents_per_env,
                                                               c10::IntArrayRef{num_observations},
-                                                              cpprl::ActionSpace{"MultiBinary", {num_inputs}},
+                                                              cpprl::ActionSpace{"MultiBinary", {num_actions}},
                                                               24,
                                                               torch::kCPU);
 
@@ -78,7 +78,7 @@ Trainer::Trainer(TrainingProgram program,
         // Start each environment with a different number of random steps to decorrelate the environments
         for (unsigned int current_step = 0; current_step < i * 12; current_step++)
         {
-            auto actions = torch::rand({agents_per_env, 4});
+            auto actions = torch::rand({agents_per_env, num_actions});
             observation_futures[i] = environments[i]->step(actions, 1.f / 10.f);
         }
     }
@@ -93,7 +93,7 @@ Trainer::Trainer(TrainingProgram program,
     }
 
     nn_base = std::make_shared<cpprl::MlpBase>(num_observations, recurrent, 24);
-    policy = cpprl::Policy(cpprl::ActionSpace{"MultiBinary", {4}}, nn_base);
+    policy = cpprl::Policy(cpprl::ActionSpace{"MultiBinary", {num_actions}}, nn_base);
     algorithm = std::make_unique<cpprl::PPO>(policy,
                                              program.hyper_parameters.clip_param,
                                              program.hyper_parameters.num_epoch,
