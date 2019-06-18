@@ -16,6 +16,7 @@
 #include "screens/main_menu_screen.h"
 #include "screens/create_program_screen.h"
 #include "screens/watch_screen.h"
+#include "training/agents/agent.h"
 #include "training/environments/ienvironment.h"
 #include "training/environments/koth_env.h"
 #include "third_party/di.hpp"
@@ -35,7 +36,7 @@ int main(int argc, char *argv[])
         di::bind<std::string>.named(AssetsPath).to("assets/"),
         di::bind<int>.named(MaxParticles).to(100000),
         di::bind<IEnvironmentFactory>.to<KothEnvFactory>(),
-        di::bind<AgentFactory>.to<TestAgentFactory>());
+        di::bind<AgentFactory>.to<AgentFactory>());
     auto app = injector.create<App>();
     app.run(argc, argv);
 }
