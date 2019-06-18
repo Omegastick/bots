@@ -47,7 +47,7 @@ Trainer::Trainer(TrainingProgram program,
     int num_observations = temp_agent->get_observation().size();
     int num_inputs = temp_agent->get_input_count();
     rollout_storage = std::make_unique<cpprl::RolloutStorage>(game_length,
-                                                              program.hyper_parameters.num_env,
+                                                              program.hyper_parameters.num_env * agents_per_env,
                                                               c10::IntArrayRef{num_observations},
                                                               cpprl::ActionSpace{"MultiBinary", {num_inputs}},
                                                               24,
@@ -60,6 +60,8 @@ Trainer::Trainer(TrainingProgram program,
         std::vector<std::unique_ptr<Agent>> agents;
         agents.push_back(agent_factory.make(*world, *rng));
         agents.push_back(agent_factory.make(*world, *rng));
+        agents[0]->load_json(program.agent);
+        agents[1]->load_json(program.agent);
         environments.push_back(env_factory.make(std::move(rng),
                                                 std::move(world),
                                                 std::move(agents),
@@ -80,7 +82,7 @@ Trainer::Trainer(TrainingProgram program,
             observation_futures[i] = environments[i]->step(actions, 1.f / 10.f);
         }
     }
-    observations = torch::zeros({env_count * agents_per_env, 23});
+    observations = torch::zeros({env_count * agents_per_env, num_observations});
     for (int i = 0; i < env_count; ++i)
     {
         auto env_observation = observation_futures[i].get();

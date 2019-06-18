@@ -12,6 +12,7 @@
 #include "misc/random.h"
 #include "misc/resource_manager.h"
 #include "misc/screen_manager.h"
+#include "screens/train_screen.h"
 #include "training/agents/agent.h"
 #include "training/environments/ienvironment.h"
 #include "training/environments/koth_env.h"
@@ -32,7 +33,8 @@ CreateProgramScreen::CreateProgramScreen(std::unique_ptr<AlgorithmWindow> algori
                                          std::unique_ptr<Tabs> tabs,
                                          IO &io,
                                          ResourceManager &resource_manager,
-                                         ScreenManager &screen_manager)
+                                         ScreenManager &screen_manager,
+                                         TrainScreenFactory &train_screen_factory)
     : algorithm_window(std::move(algorithm_window)),
       body_selector_window(std::move(body_selector_window)),
       environment(std::move(environment)),
@@ -42,7 +44,8 @@ CreateProgramScreen::CreateProgramScreen(std::unique_ptr<AlgorithmWindow> algori
       reward_windows(std::move(reward_windows)),
       screen_manager(screen_manager),
       state(CreateProgramScreenState::Body),
-      tabs(std::move(tabs))
+      tabs(std::move(tabs)),
+      train_screen_factory(train_screen_factory)
 {
     resource_manager.load_texture("base_module", "images/base_module.png");
     resource_manager.load_texture("gun_module", "images/gun_module.png");
@@ -85,6 +88,7 @@ void CreateProgramScreen::body()
         }
 
         environment->reset();
+        program->agent = json;
     }
 }
 
@@ -165,7 +169,8 @@ void CreateProgramScreen::update(double /*delta_time*/)
     ImGui::Begin("##run_training", NULL, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoTitleBar);
     if (ImGui::Button("Run"))
     {
-        spdlog::debug("Running training");
+        screen_manager.close_screen();
+        screen_manager.show_screen(train_screen_factory.make(*program));
     }
     ImGui::End();
     ImGui::PopFont();
@@ -192,6 +197,7 @@ std::shared_ptr<IScreen> CreateProgramScreenFactory::make()
                                                  std::make_unique<Tabs>(io),
                                                  io,
                                                  resource_manager,
-                                                 screen_manager);
+                                                 screen_manager,
+                                                 train_screen_factory);
 }
 }
