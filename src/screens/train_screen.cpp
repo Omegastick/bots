@@ -9,18 +9,21 @@
 #include "graphics/backend/shader.h"
 #include "graphics/post_proc_layer.h"
 #include "graphics/colors.h"
+#include "misc/io.h"
+#include "misc/resource_manager.h"
 #include "training/environments/koth_env.h"
 #include "training/trainers/quick_trainer.h"
 #include "screens/iscreen.h"
-#include "misc/resource_manager.h"
 
 namespace SingularityTrainer
 {
 TrainScreen::TrainScreen(std::unique_ptr<ITrainer> trainer,
+                         IO &io,
                          ResourceManager &resource_manager,
                          Random &rng)
     : crt_post_proc_layer(std::make_unique<PostProcLayer>(resource_manager.shader_store.get("crt").get())),
       fast(false),
+      io(io),
       lightweight_rendering(false),
       projection(glm::ortho(0.f, 1920.f, 0.f, 1080.f)),
       resource_manager(resource_manager),
@@ -54,6 +57,9 @@ void TrainScreen::update(const double /*delta_time*/)
         trainer->slow_step();
     }
 
+    glm::vec2 resolution = io.get_resolution();
+    ImGui::SetNextWindowSize({resolution.x * 0.2f, resolution.y * 0.1f});
+    ImGui::SetNextWindowPos({resolution.x * 0.05f, resolution.y * 0.3f});
     ImGui::Begin("Health");
 
     auto agents = trainer->environments[0]->get_agents();

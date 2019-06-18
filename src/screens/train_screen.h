@@ -11,6 +11,7 @@
 namespace SingularityTrainer
 {
 class Communicator;
+class IO;
 class PostProcLayer;
 class Random;
 class Renderer;
@@ -21,6 +22,7 @@ class TrainScreen : public IScreen
   private:
     std::unique_ptr<PostProcLayer> crt_post_proc_layer;
     bool fast;
+    IO &io;
     bool lightweight_rendering;
     glm::mat4 projection;
     ResourceManager &resource_manager;
@@ -28,6 +30,7 @@ class TrainScreen : public IScreen
 
   public:
     TrainScreen(std::unique_ptr<ITrainer> trainer,
+                IO &io,
                 ResourceManager &resource_manager,
                 Random &rng);
 
@@ -38,15 +41,18 @@ class TrainScreen : public IScreen
 class TrainScreenFactory
 {
   private:
+    IO &io;
     ResourceManager &resource_manager;
     Random &rng;
     TrainerFactory &trainer_factory;
 
   public:
-    TrainScreenFactory(ResourceManager &resource_manager,
+    TrainScreenFactory(IO &io,
+                       ResourceManager &resource_manager,
                        Random &rng,
                        TrainerFactory &trainer_factory)
-        : resource_manager(resource_manager),
+        : io(io),
+          resource_manager(resource_manager),
           rng(rng),
           trainer_factory(trainer_factory) {}
 
@@ -54,6 +60,7 @@ class TrainScreenFactory
     {
         auto trainer = trainer_factory.make(program);
         return std::make_unique<TrainScreen>(std::move(trainer),
+                                             io,
                                              resource_manager,
                                              rng);
     }
