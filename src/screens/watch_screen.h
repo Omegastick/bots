@@ -10,6 +10,7 @@
 #include "screens/iscreen.h"
 #include "training/agents/agent.h"
 #include "training/environments/ienvironment.h"
+#include "training/training_program.h"
 #include "ui/watch_screen/checkpoint_selector_window.h"
 
 namespace cpprl
@@ -86,7 +87,7 @@ class WatchScreenFactory : public IScreenFactory
         std::vector<std::unique_ptr<Agent>> agents;
         agents.push_back(agent_factory.make(*world, rng));
         agents.push_back(agent_factory.make(*world, rng));
-        return std::make_shared<WatchScreen>(env_factory.make(0, std::move(world), std::move(agents)),
+        return std::make_shared<WatchScreen>(env_factory.make(0, std::move(world), std::move(agents), RewardConfig()),
                                              resource_manager, io);
     }
 };

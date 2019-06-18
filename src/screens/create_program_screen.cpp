@@ -15,6 +15,7 @@
 #include "training/agents/agent.h"
 #include "training/environments/ienvironment.h"
 #include "training/environments/koth_env.h"
+#include "training/training_program.h"
 #include "ui/create_program_screen/algorithm_window.h"
 #include "ui/create_program_screen/body_selector_window.h"
 #include "ui/create_program_screen/reward_windows.h"
@@ -164,7 +165,10 @@ std::shared_ptr<IScreen> CreateProgramScreenFactory::make()
     std::vector<std::unique_ptr<Agent>> agents;
     agents.push_back(agent_factory.make(*world, *rng));
     agents.push_back(agent_factory.make(*world, *rng));
-    auto environment = env_factory.make(std::move(rng), std::move(world), std::move(agents));
+    auto environment = env_factory.make(std::move(rng),
+                                        std::move(world),
+                                        std::move(agents),
+                                        RewardConfig());
     return std::make_shared<CreateProgramScreen>(std::make_unique<AlgorithmWindow>(io),
                                                  std::make_unique<BodySelectorWindow>(io),
                                                  std::make_unique<RewardWindows>(io),

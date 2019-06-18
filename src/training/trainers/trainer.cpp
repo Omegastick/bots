@@ -60,7 +60,10 @@ Trainer::Trainer(TrainingProgram program,
         std::vector<std::unique_ptr<Agent>> agents;
         agents.push_back(agent_factory.make(*world, *rng));
         agents.push_back(agent_factory.make(*world, *rng));
-        environments.push_back(env_factory.make(std::move(rng), std::move(world), std::move(agents)));
+        environments.push_back(env_factory.make(std::move(rng),
+                                                std::move(world),
+                                                std::move(agents),
+                                                program.reward_config));
     }
     env_scores.resize(env_count);
 

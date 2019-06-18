@@ -7,11 +7,12 @@
 
 #include "graphics/colors.h"
 #include "graphics/idrawable.h"
+#include "training/agents/agent.h"
 #include "training/entities/bullet.h"
+#include "training/environments/ienvironment.h"
 #include "training/icollidable.h"
 #include "training/rigid_body.h"
-#include "training/agents/agent.h"
-#include "training/environments/ienvironment.h"
+#include "training/training_program.h"
 
 namespace SingularityTrainer
 {
@@ -95,9 +96,10 @@ void Bullet::begin_contact(RigidBody *other)
     // Agent
     if (other->parent_type == RigidBody::ParentTypes::Agent && !destroyed)
     {
-        owner->get_environment()->change_reward(owner, 1);
+        const auto &reward_config = owner->get_environment()->get_reward_config();
+        owner->get_environment()->change_reward(owner, reward_config.hit_enemy_reward);
         auto other_agent = static_cast<Agent *>(other->parent);
-        other_agent->get_environment()->change_reward(other_agent, -1);
+        other_agent->get_environment()->change_reward(other_agent, reward_config.hit_self_punishment);
         other_agent->hit(1);
     }
 

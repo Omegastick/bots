@@ -10,10 +10,11 @@
 
 namespace SingularityTrainer
 {
-class IEnvironment;
 class Agent;
-class Sprite;
+class IEnvironment;
+class RewardConfig;
 class RigidBody;
+class Sprite;
 
 class Hill : public IDrawable, public ICollidable
 {
