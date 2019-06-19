@@ -29,6 +29,10 @@ nlohmann::json BodySelectorWindow::update()
     std::vector<std::string> files;
     auto bodies_directory = fs::current_path();
     bodies_directory += "/bodies";
+    if (!fs::exists(bodies_directory))
+    {
+        fs::create_directories(bodies_directory);
+    }
     for (const auto &file : fs::directory_iterator(bodies_directory))
     {
         if (file.path().extension().string() == ".json")
@@ -47,7 +51,7 @@ nlohmann::json BodySelectorWindow::update()
     }
     ImGui::ListBox("", &selected_file, &c_strings.front(), files.size());
 
-    // Load body
+    // If the user selected a file, return the Json for that file
     nlohmann::json json;
     if (selected_file != last_selected_file)
     {

@@ -20,6 +20,7 @@ class IEnvironmentFactory;
 class IO;
 class Renderer;
 class ResourceManager;
+class SaveLoadWindow;
 class ScreenManager;
 class Tabs;
 class TrainScreenFactory;
@@ -42,6 +43,7 @@ class CreateProgramScreen : public IScreen
     PostProcLayer crt_post_proc_layer;
     ResourceManager &resource_manager;
     std::unique_ptr<RewardWindows> reward_windows;
+    std::unique_ptr<SaveLoadWindow> save_load_window;
     ScreenManager &screen_manager;
     CreateProgramScreenState state;
     std::unique_ptr<Tabs> tabs;
@@ -53,6 +55,7 @@ class CreateProgramScreen : public IScreen
                         std::unique_ptr<RewardWindows> reward_windows,
                         std::unique_ptr<IEnvironment> environment,
                         std::unique_ptr<TrainingProgram> program,
+                        std::unique_ptr<SaveLoadWindow> save_load_window,
                         std::unique_ptr<Tabs> tabs,
                         IO &io,
                         ResourceManager &resource_manager,

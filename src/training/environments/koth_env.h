@@ -73,6 +73,7 @@ class KothEnv : public IEnvironment
     inline std::vector<Agent *> get_agents() { return {agent_1.get(), agent_2.get()}; }
     inline RewardConfig &get_reward_config() { return reward_config; }
     inline Random &get_rng() { return *rng; }
+    inline std::vector<float> get_total_rewards() { return total_rewards; }
     inline b2World &get_world() { return *world; };
     inline void set_agent_1(std::unique_ptr<Agent> agent) { this->agent_1 = std::move(agent); }
     inline void set_agent_2(std::unique_ptr<Agent> agent) { this->agent_2 = std::move(agent); }

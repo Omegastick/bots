@@ -20,6 +20,7 @@
 #include "ui/create_program_screen/algorithm_window.h"
 #include "ui/create_program_screen/body_selector_window.h"
 #include "ui/create_program_screen/reward_windows.h"
+#include "ui/create_program_screen/save_load_window.h"
 #include "ui/create_program_screen/tabs.h"
 
 namespace SingularityTrainer
@@ -30,6 +31,7 @@ CreateProgramScreen::CreateProgramScreen(std::unique_ptr<AlgorithmWindow> algori
                                          std::unique_ptr<RewardWindows> reward_windows,
                                          std::unique_ptr<IEnvironment> environment,
                                          std::unique_ptr<TrainingProgram> program,
+                                         std::unique_ptr<SaveLoadWindow> save_load_window,
                                          std::unique_ptr<Tabs> tabs,
                                          IO &io,
                                          ResourceManager &resource_manager,
@@ -42,6 +44,7 @@ CreateProgramScreen::CreateProgramScreen(std::unique_ptr<AlgorithmWindow> algori
       program(std::move(program)),
       resource_manager(resource_manager),
       reward_windows(std::move(reward_windows)),
+      save_load_window(std::move(save_load_window)),
       screen_manager(screen_manager),
       state(CreateProgramScreenState::Body),
       tabs(std::move(tabs)),
@@ -106,9 +109,13 @@ void CreateProgramScreen::rewards()
 
 void CreateProgramScreen::save_load()
 {
-    ImGui::SetNextWindowSize({0, 0});
-    ImGui::Begin("Save/load");
-    ImGui::End();
+    if (save_load_window->update(*program))
+    {
+        auto agents = environment->get_agents();
+        agents[0]->load_json(program->agent);
+        agents[1]->load_json(program->agent);
+        environment->reset();
+    }
 }
 
 void CreateProgramScreen::draw(Renderer &renderer, bool lightweight)
@@ -194,6 +201,7 @@ std::shared_ptr<IScreen> CreateProgramScreenFactory::make()
                                                  std::make_unique<RewardWindows>(io),
                                                  std::move(environment),
                                                  std::make_unique<TrainingProgram>(),
+                                                 std::make_unique<SaveLoadWindow>(io),
                                                  std::make_unique<Tabs>(io),
                                                  io,
                                                  resource_manager,
