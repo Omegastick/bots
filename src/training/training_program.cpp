@@ -5,7 +5,7 @@
 
 namespace SingularityTrainer
 {
-static const std::string schema_version = "v1alpha1";
+static const std::string schema_version = "v1alpha2";
 
 TrainingProgram::TrainingProgram() {}
 HyperParameters::HyperParameters() {}
@@ -20,6 +20,7 @@ TrainingProgram::TrainingProgram(nlohmann::json &json)
     agent = json["agent"];
     checkpoint = json["checkpoint"];
     hyper_parameters = json["hyper_parameters"];
+    minutes_per_checkpoint = json["minutes_per_checkpoint"];
     reward_config = json["reward_config"];
 }
 
@@ -58,6 +59,7 @@ nlohmann::json TrainingProgram::to_json() const
     json["agent"] = agent;
     json["checkpoint"] = checkpoint;
     json["hyper_parameters"] = hyper_parameters.to_json();
+    json["minutes_per_checkpoint"] = minutes_per_checkpoint;
     json["reward_config"] = reward_config.to_json();
 
     return json;

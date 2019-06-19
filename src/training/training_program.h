@@ -69,6 +69,7 @@ struct TrainingProgram
     nlohmann::json agent;
     std::string checkpoint;
     HyperParameters hyper_parameters;
+    int minutes_per_checkpoint = 10;
     RewardConfig reward_config;
 
     nlohmann::json to_json() const;

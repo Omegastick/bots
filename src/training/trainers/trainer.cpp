@@ -1,5 +1,6 @@
-#include <memory>
 #include <chrono>
+#include <filesystem>
+#include <memory>
 
 #include <Box2D/Box2D.h>
 #include <cpprl/cpprl.h>
@@ -18,6 +19,8 @@
 #include "misc/utilities.h"
 #include "misc/date.h"
 
+namespace fs = std::filesystem;
+
 namespace SingularityTrainer
 {
 const int agent_per_env = 2;
@@ -32,6 +35,7 @@ Trainer::Trainer(TrainingProgram program,
       elapsed_time(0),
       env_count(program.hyper_parameters.num_env),
       frame_counter(0),
+      last_save_time(std::chrono::high_resolution_clock::now()),
       last_update_time(std::chrono::high_resolution_clock::now()),
       policy(nullptr),
       program(program),
@@ -152,8 +156,16 @@ void Trainer::slow_step()
 
 void Trainer::save_model()
 {
+    auto models_folder = fs::current_path();
+    models_folder += "/models";
+    if (!fs::exists(models_folder))
+    {
+        fs::create_directories(models_folder);
+    }
     auto date_time_string = date::format("%F-%H-%M", std::chrono::system_clock::now());
-    torch::save(policy, date_time_string + ".pth");
+    auto save_path = models_folder;
+    save_path += "/" + date_time_string + ".pth";
+    torch::save(policy, save_path);
 }
 
 void Trainer::action_update()
@@ -237,6 +249,14 @@ void Trainer::action_update()
         spdlog::info("Update took {:.2f}s", update_duration.count());
 
         last_update_time = update_end_time;
+
+        // Check if we need to save
+        if (std::chrono::high_resolution_clock::now() - last_save_time > std::chrono::duration<double>(program.minutes_per_checkpoint * 60.))
+        {
+            spdlog::info("Saving model");
+            save_model();
+            last_save_time = std::chrono::high_resolution_clock::now();
+        }
     }
 }
 }

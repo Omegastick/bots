@@ -31,6 +31,7 @@ class Trainer : public ITrainer
     int env_count;
     std::vector<float> env_scores;
     int frame_counter;
+    std::chrono::time_point<std::chrono::high_resolution_clock> last_save_time;
     std::chrono::time_point<std::chrono::high_resolution_clock> last_update_time;
     std::shared_ptr<cpprl::NNBase> nn_base;
     torch::Tensor observations;
