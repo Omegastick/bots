@@ -131,7 +131,7 @@ void Trainer::step()
         {
             break;
         }
-    } while (std::chrono::high_resolution_clock::now() - clock_start < std::chrono::duration<double>(1. / 60.));
+    } while (std::chrono::high_resolution_clock::now() - clock_start < std::chrono::milliseconds(1000 / 60));
 }
 
 void Trainer::slow_step()
@@ -251,7 +251,7 @@ void Trainer::action_update()
         last_update_time = update_end_time;
 
         // Check if we need to save
-        if (std::chrono::high_resolution_clock::now() - last_save_time > std::chrono::duration<double>(program.minutes_per_checkpoint * 60.))
+        if (std::chrono::high_resolution_clock::now() - last_save_time > std::chrono::minutes(program.minutes_per_checkpoint))
         {
             spdlog::info("Saving model");
             save_model();
