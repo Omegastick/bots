@@ -14,6 +14,7 @@ namespace SingularityTrainer
 class AgentFactory;
 class AlgorithmWindow;
 class BodySelectorWindow;
+class BrainWindow;
 class RewardWindows;
 class IEnvironment;
 class IEnvironmentFactory;
@@ -36,6 +37,7 @@ class CreateProgramScreen : public IScreen
 
     std::unique_ptr<AlgorithmWindow> algorithm_window;
     std::unique_ptr<BodySelectorWindow> body_selector_window;
+    std::unique_ptr<BrainWindow> brain_window;
     std::unique_ptr<IEnvironment> environment;
     IO &io;
     std::unique_ptr<TrainingProgram> program;
@@ -52,6 +54,7 @@ class CreateProgramScreen : public IScreen
   public:
     CreateProgramScreen(std::unique_ptr<AlgorithmWindow> algorithm_window,
                         std::unique_ptr<BodySelectorWindow> body_selector_window,
+                        std::unique_ptr<BrainWindow> brain_window,
                         std::unique_ptr<RewardWindows> reward_windows,
                         std::unique_ptr<IEnvironment> environment,
                         std::unique_ptr<TrainingProgram> program,

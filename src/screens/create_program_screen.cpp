@@ -19,6 +19,7 @@
 #include "training/training_program.h"
 #include "ui/create_program_screen/algorithm_window.h"
 #include "ui/create_program_screen/body_selector_window.h"
+#include "ui/create_program_screen/brain_window.h"
 #include "ui/create_program_screen/reward_windows.h"
 #include "ui/create_program_screen/save_load_window.h"
 #include "ui/create_program_screen/tabs.h"
@@ -28,6 +29,7 @@ namespace SingularityTrainer
 
 CreateProgramScreen::CreateProgramScreen(std::unique_ptr<AlgorithmWindow> algorithm_window,
                                          std::unique_ptr<BodySelectorWindow> body_selector_window,
+                                         std::unique_ptr<BrainWindow> brain_window,
                                          std::unique_ptr<RewardWindows> reward_windows,
                                          std::unique_ptr<IEnvironment> environment,
                                          std::unique_ptr<TrainingProgram> program,
@@ -39,6 +41,7 @@ CreateProgramScreen::CreateProgramScreen(std::unique_ptr<AlgorithmWindow> algori
                                          TrainScreenFactory &train_screen_factory)
     : algorithm_window(std::move(algorithm_window)),
       body_selector_window(std::move(body_selector_window)),
+      brain_window(std::move(brain_window)),
       environment(std::move(environment)),
       io(io),
       program(std::move(program)),
@@ -97,9 +100,7 @@ void CreateProgramScreen::body()
 
 void CreateProgramScreen::brain()
 {
-    ImGui::SetNextWindowSize({0, 0});
-    ImGui::Begin("Brain");
-    ImGui::End();
+    brain_window->update(*program);
 }
 
 void CreateProgramScreen::rewards()
@@ -198,6 +199,7 @@ std::shared_ptr<IScreen> CreateProgramScreenFactory::make()
                                         RewardConfig());
     return std::make_shared<CreateProgramScreen>(std::make_unique<AlgorithmWindow>(io),
                                                  std::make_unique<BodySelectorWindow>(io),
+                                                 std::make_unique<BrainWindow>(io),
                                                  std::make_unique<RewardWindows>(io),
                                                  std::move(environment),
                                                  std::make_unique<TrainingProgram>(),
