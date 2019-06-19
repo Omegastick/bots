@@ -110,6 +110,12 @@ Trainer::Trainer(TrainingProgram program,
     rollout_storage->set_first_observation(observations);
 }
 
+std::vector<float> Trainer::get_observation()
+{
+    auto observation = rollout_storage->get_observations()[action_frame_counter % program.hyper_parameters.batch_size][0];
+    return std::vector<float>(observation.data<float>(), observation.data<float>() + observation.numel());
+}
+
 void Trainer::step()
 {
     if (waiting)

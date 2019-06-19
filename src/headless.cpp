@@ -8,7 +8,7 @@
 #include "training/environments/ienvironment.h"
 #include "training/environments/koth_env.h"
 #include "training/trainers/itrainer.h"
-#include "training/trainers/quick_trainer.h"
+#include "training/trainers/trainer.h"
 
 using namespace SingularityTrainer;
 
@@ -17,8 +17,7 @@ namespace di = boost::di;
 int main(int argc, char *argv[])
 {
     const auto injector = di::make_injector(
-        di::bind<ITrainer>.to<QuickTrainer>(),
-        di::bind<int>.named(EnvCount).to(atoi(argv[1])),
+        di::bind<ITrainer>.to<Trainer>(),
         di::bind<IEnvironmentFactory>.to<KothEnvFactory>(),
         di::bind<AgentFactory>.to<TestAgentFactory>());
     auto app = injector.create<HeadlessApp>();

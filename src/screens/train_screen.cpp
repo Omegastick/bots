@@ -59,8 +59,8 @@ void TrainScreen::update(const double /*delta_time*/)
     }
 
     glm::vec2 resolution = io.get_resolution();
-    ImGui::SetNextWindowSize({resolution.x * 0.2f, resolution.y * 0.1f});
-    ImGui::SetNextWindowPos({resolution.x * 0.05f, resolution.y * 0.3f});
+    ImGui::SetNextWindowSize({resolution.x * 0.2f, resolution.y * 0.1f}, ImGuiCond_Once);
+    ImGui::SetNextWindowPos({resolution.x * 0.05f, resolution.y * 0.3f}, ImGuiCond_Once);
     ImGui::Begin("Health");
     auto agents = trainer->environments[0]->get_agents();
     for (const auto &agent : agents)
@@ -71,13 +71,20 @@ void TrainScreen::update(const double /*delta_time*/)
     }
     ImGui::End();
 
-    ImGui::SetNextWindowSize({resolution.x * 0.2f, resolution.y * 0.1f});
-    ImGui::SetNextWindowPos({resolution.x * 0.05f, resolution.y * 0.3f});
+    ImGui::SetNextWindowSize({resolution.x * 0.2f, resolution.y * 0.1f}, ImGuiCond_Once);
+    ImGui::SetNextWindowPos({resolution.x * 0.05f, resolution.y * 0.5f}, ImGuiCond_Once);
     ImGui::Begin("Rewards");
     for (const auto &reward : trainer->environments[0]->get_total_rewards())
     {
         ImGui::Text("%.1f", reward);
     }
+    ImGui::End();
+
+    // ImGui::SetNextWindowSize({resolution.x * 0.2f, resolution.y * 0.1f}, ImGuiCond_Once);
+    ImGui::SetNextWindowPos({resolution.x * 0.05f, resolution.y * 0.7f}, ImGuiCond_Once);
+    ImGui::Begin("Observations");
+    auto observations = trainer->get_observation();
+    ImGui::PlotLines("##observations", observations.data(), observations.size(), 0, nullptr, 0, 1);
     ImGui::End();
 }
 
