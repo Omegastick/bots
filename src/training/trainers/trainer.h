@@ -47,6 +47,7 @@ class Trainer : public ITrainer
             AgentFactory &agent_factory,
             IEnvironmentFactory &env_factory);
 
+    virtual std::vector<float> get_observation();
     virtual void save_model();
     virtual void step();
     virtual void slow_step();

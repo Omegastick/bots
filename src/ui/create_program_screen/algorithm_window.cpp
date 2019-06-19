@@ -25,8 +25,8 @@ AlgorithmWindow::AlgorithmWindow(IO &io)
 void AlgorithmWindow::update(HyperParameters &hyperparams)
 {
     auto resolution = io.get_resolution();
-    ImGui::SetNextWindowSize({resolution.x * 0.25f, resolution.y * 0.5f}, ImGuiCond_Appearing);
-    ImGui::SetNextWindowPos({resolution.x * 0.05f, resolution.y * 0.2f}, ImGuiCond_Appearing);
+    ImGui::SetNextWindowSize({resolution.x * 0.25f, resolution.y * 0.5f}, ImGuiCond_Once);
+    ImGui::SetNextWindowPos({resolution.x * 0.05f, resolution.y * 0.2f}, ImGuiCond_Once);
     ImGui::Begin("Select an algorithm");
 
     const float label_spacing = resolution.x * 0.06;

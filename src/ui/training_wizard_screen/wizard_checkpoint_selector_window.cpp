@@ -24,8 +24,8 @@ WizardAction WizardCheckpointSelectorWindow::update(cpprl::Policy &policy,
                                                     TrainingProgram &program)
 {
     auto resolution = io->get_resolution();
-    ImGui::SetNextWindowSize({resolution.x * 0.333f, resolution.y * 0.5f}, ImGuiCond_Appearing);
-    ImGui::SetNextWindowPos({resolution.x * 0.05f, resolution.y * 0.05f}, ImGuiCond_Appearing);
+    ImGui::SetNextWindowSize({resolution.x * 0.333f, resolution.y * 0.5f}, ImGuiCond_Once);
+    ImGui::SetNextWindowPos({resolution.x * 0.05f, resolution.y * 0.05f}, ImGuiCond_Once);
     ImGui::Begin("Pick a checkpoint");
 
     auto action = WizardAction::None;

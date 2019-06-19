@@ -19,8 +19,8 @@ void PartDetailWindow::select_part(IModule *part)
 void PartDetailWindow::update()
 {
     auto resolution = io->get_resolution();
-    ImGui::SetNextWindowSize({resolution.x * 0.15f, resolution.y * 0.45f}, ImGuiCond_FirstUseEver);
-    ImGui::SetNextWindowPos({resolution.x * 0.025f, resolution.y * 0.025f}, ImGuiCond_FirstUseEver);
+    ImGui::SetNextWindowSize({resolution.x * 0.15f, resolution.y * 0.45f}, ImGuiCond_Once);
+    ImGui::SetNextWindowPos({resolution.x * 0.025f, resolution.y * 0.025f}, ImGuiCond_Once);
     ImGui::Begin("Part Detail");
 
     if (selected_part != nullptr)
