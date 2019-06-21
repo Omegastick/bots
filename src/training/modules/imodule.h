@@ -39,13 +39,10 @@ class IModule : public IDrawable
     virtual std::vector<float> get_sensor_reading();
     virtual RenderData get_render_data(bool lightweight = false);
     virtual b2Transform get_global_transform();
+    virtual int get_observation_count() const = 0;
     virtual nlohmann::json to_json() const = 0;
 
-    inline const std::vector<std::unique_ptr<IAction>> &
-    get_actions() const
-    {
-        return actions;
-    }
+    inline const std::vector<std::unique_ptr<IAction>> &get_actions() const { return actions; }
     inline const Agent *get_agent() const { return agent; };
     inline void set_agent(Agent *agent) { this->agent = agent; };
     inline std::vector<ModuleLink> &get_module_links() { return module_links; }
