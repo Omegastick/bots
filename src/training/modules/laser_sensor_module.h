@@ -36,5 +36,7 @@ class LaserSensorModule : public IModule
     virtual std::vector<float> get_sensor_reading();
     virtual RenderData get_render_data(bool lightweight = false);
     virtual nlohmann::json to_json() const;
+
+    inline int get_observation_count() const { return laser_count; }
 };
 }

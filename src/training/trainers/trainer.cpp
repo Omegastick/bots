@@ -54,7 +54,7 @@ Trainer::Trainer(TrainingProgram program,
                                                               program.hyper_parameters.num_env * agents_per_env,
                                                               c10::IntArrayRef{num_observations},
                                                               cpprl::ActionSpace{"MultiBinary", {num_actions}},
-                                                              24,
+                                                              64,
                                                               torch::kCPU);
 
     for (int i = 0; i < env_count; ++i)
@@ -96,7 +96,7 @@ Trainer::Trainer(TrainingProgram program,
         }
     }
 
-    nn_base = std::make_shared<cpprl::MlpBase>(num_observations, recurrent, 24);
+    nn_base = std::make_shared<cpprl::MlpBase>(num_observations, recurrent);
     policy = cpprl::Policy(cpprl::ActionSpace{"MultiBinary", {num_actions}}, nn_base);
     algorithm = std::make_unique<cpprl::PPO>(policy,
                                              program.hyper_parameters.clip_param,

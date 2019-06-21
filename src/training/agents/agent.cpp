@@ -21,7 +21,7 @@
 
 namespace SingularityTrainer
 {
-static const std::string schema_version = "v1alpha2";
+static const std::string schema_version = "v1alpha3";
 
 Agent::Agent(Random &rng) : hp(0), rng(&rng)
 {
@@ -279,7 +279,7 @@ nlohmann::json Agent::to_json() const
 {
     auto json = nlohmann::json::object();
 
-    json["schema"] = "v1alpha2";
+    json["schema"] = schema_version;
     json["name"] = name;
     if (modules.size() > 0)
     {
@@ -289,6 +289,14 @@ nlohmann::json Agent::to_json() const
     {
         json["base_module"] = nullptr;
     }
+
+    int observation_count = 0;
+    for (const auto &module : modules)
+    {
+        observation_count += module->get_observation_count();
+    }
+    json["num_observations"] = observation_count;
+    json["num_actions"] = get_input_count();
 
     return json;
 }

@@ -28,5 +28,8 @@ class GunModule : public IModule, public IActivatable
     virtual void activate();
     virtual void update();
     virtual nlohmann::json to_json() const;
+
+    inline int get_observation_count() const { return 0; }
+
 };
 }

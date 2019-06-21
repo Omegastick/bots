@@ -108,6 +108,7 @@ TEST_CASE("TrainingProgram")
         json["schema"] = schema_version;
         json["agent"] = nlohmann::json("Agent");
         json["checkpoint"] = "12345";
+        json["minutes_per_checkpoint"] = 54321;
 
         nlohmann::json hyper_parameters;
         hyper_parameters["algorithm"] = 0;
@@ -137,6 +138,7 @@ TEST_CASE("TrainingProgram")
         TrainingProgram program(json);
         CHECK(program.agent == nlohmann::json("Agent"));
         CHECK(program.checkpoint == "12345");
+        CHECK(program.minutes_per_checkpoint == 54321);
 
         CHECK(program.hyper_parameters.algorithm == doctest::Approx(0));
         CHECK(program.hyper_parameters.batch_size == doctest::Approx(4));
@@ -165,6 +167,7 @@ TEST_CASE("TrainingProgram")
         TrainingProgram program;
         program.agent = nlohmann::json("Agent");
         program.checkpoint = "12345";
+        program.minutes_per_checkpoint = 54321;
 
         program.hyper_parameters.algorithm = Algorithm::A2C;
         program.hyper_parameters.batch_size = 4;
@@ -192,6 +195,7 @@ TEST_CASE("TrainingProgram")
 
         CHECK(recreated_program.agent == nlohmann::json("Agent"));
         CHECK(recreated_program.checkpoint == "12345");
+        CHECK(recreated_program.minutes_per_checkpoint == 54321);
 
         CHECK(recreated_program.hyper_parameters.algorithm == doctest::Approx(0));
         CHECK(recreated_program.hyper_parameters.batch_size == doctest::Approx(4));

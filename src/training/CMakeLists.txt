@@ -1,5 +1,7 @@
 target_sources(Training
 PRIVATE
+    ${CMAKE_CURRENT_LIST_DIR}/checkpointer.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/mock_saver.cpp
     ${CMAKE_CURRENT_LIST_DIR}/rigid_body.cpp
     ${CMAKE_CURRENT_LIST_DIR}/score_processor.cpp
     ${CMAKE_CURRENT_LIST_DIR}/training_program.cpp

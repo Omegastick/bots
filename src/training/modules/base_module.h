@@ -19,5 +19,7 @@ class BaseModule : public IModule
 
     virtual std::vector<float> get_sensor_reading();
     virtual nlohmann::json to_json() const;
+
+    inline int get_observation_count() const { return 3; }
 };
 }
