@@ -12,6 +12,7 @@ set(ARGH_DIR ${LIB_DIR}/argh)
 set(BOX2D_DIR ${LIB_DIR}/Box2D-cmake)
 set(CPPRL_DIR ${LIB_DIR}/pytorch-cpp-rl)
 set(DOCTEST_DIR ${LIB_DIR}/doctest)
+set(FMT_DIR ${LIB_DIR}/fmt)
 set(GLFW_DIR ${LIB_DIR}/GLFW)
 set(GLAD_DIR ${LIB_DIR}/GLAD)
 set(GLM_DIR ${LIB_DIR}/GLM)
@@ -54,6 +55,9 @@ foreach(target ${ST_TARGETS})
 endforeach(target ${ST_TARGETS})
 
 # Libraries included in repository
+set(SPDLOG_FMT_EXTERNAL true)
+## Fmt
+add_subdirectory(${FMT_DIR})
 ## PyTorch
 if (NOT TORCH_FOUND)
     find_package(Torch REQUIRED)
@@ -96,7 +100,7 @@ add_subdirectory(${JSON_DIR})
 
 # Link libraries
 target_link_libraries(Misc doctest)
-target_link_libraries(Training Graphics cpprl torch ${TORCH_LIBRARIES} tobanteGaming::Box2D doctest)
+target_link_libraries(Training Graphics cpprl torch ${TORCH_LIBRARIES} tobanteGaming::Box2D doctest fmt::fmt)
 # UNIX systems sometimes need to explicitly link the threading library and filesystem library
 if (UNIX)
     target_link_libraries(Training pthread stdc++fs)
