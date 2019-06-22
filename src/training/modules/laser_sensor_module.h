@@ -28,12 +28,13 @@ class LaserSensorModule : public IModule
     int laser_count;
     float fov;
     float laser_length;
-    std::vector<float> last_reading;
+
+    std::vector<float> cast_lasers() const;
 
   public:
     LaserSensorModule(int laser_count = 9, float fov = 180, float laser_length = 20);
 
-    virtual std::vector<float> get_sensor_reading();
+    virtual std::vector<float> get_sensor_reading() const;
     virtual RenderData get_render_data(bool lightweight = false);
     virtual nlohmann::json to_json() const;
 
