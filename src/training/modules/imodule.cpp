@@ -37,7 +37,7 @@ std::vector<IModule *> IModule::get_children(std::vector<IModule *> child_list)
     return child_list;
 }
 
-std::vector<float> IModule::get_sensor_reading() { return std::vector<float>(); }
+std::vector<float> IModule::get_sensor_reading() const { return std::vector<float>(); }
 
 RenderData IModule::get_render_data(bool /*lightweight*/)
 {
@@ -50,7 +50,7 @@ RenderData IModule::get_render_data(bool /*lightweight*/)
     return RenderData{{*sprite}, {}, {}, {}};
 }
 
-b2Transform IModule::get_global_transform()
+b2Transform IModule::get_global_transform() const
 {
     if (agent == nullptr)
     {

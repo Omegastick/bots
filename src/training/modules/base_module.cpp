@@ -44,7 +44,7 @@ BaseModule::BaseModule()
 
 BaseModule::~BaseModule() {}
 
-std::vector<float> BaseModule::get_sensor_reading()
+std::vector<float> BaseModule::get_sensor_reading() const
 {
     b2Vec2 linear_velocity = agent->get_rigid_body().body->GetLinearVelocity();
     linear_velocity = b2Mul(b2Rot(agent->get_rigid_body().body->GetAngle()), linear_velocity);

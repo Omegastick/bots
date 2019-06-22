@@ -86,7 +86,7 @@ void Agent::add_module(const std::shared_ptr<IModule> module)
 void Agent::begin_contact(RigidBody * /*other*/) {}
 void Agent::end_contact(RigidBody * /*other*/) {}
 
-std::vector<float> Agent::get_observation()
+std::vector<float> Agent::get_observation() const
 {
     std::vector<float> observation;
     for (const auto &module : modules)
@@ -150,10 +150,10 @@ RenderData Agent::get_render_data(bool lightweight)
     //     }
 
     //     // Draw module links
-    //     for (const const auto &module : modules)
+    //     for (const auto &module : modules)
     //     {
     //         b2Transform module_transform = module->get_global_transform();
-    //         for (const const auto &module_link : module->module_links)
+    //         for (const auto &module_link : module->module_links)
     //         {
     //             // Transform
     //             b2Transform link_transform = b2Mul(module_transform, module_link.transform);

@@ -40,10 +40,10 @@ LaserSensorModule::LaserSensorModule(int laser_count, float fov, float laser_len
     module_links.push_back(ModuleLink(0, -0.25, 180, this));
 }
 
-std::vector<float> LaserSensorModule::get_sensor_reading()
+std::vector<float> LaserSensorModule::cast_lasers() const
 {
-    std::vector<float> sensor_reading;
-    sensor_reading.resize(laser_count);
+    std::vector<float> lasers;
+    lasers.resize(laser_count);
 
     b2Transform global_transform = get_global_transform();
     float segment_width = fov / (laser_count - 1);
@@ -58,23 +58,28 @@ std::vector<float> LaserSensorModule::get_sensor_reading()
         agent->get_rigid_body().body->GetWorld()->RayCast(&raycast_callback, global_transform.p, b2Mul(global_transform, laser));
         if (raycast_callback.distance == -1)
         {
-            sensor_reading[i] = 1;
+            lasers[i] = 1;
         }
         else
         {
-            sensor_reading[i] = raycast_callback.distance;
+            lasers[i] = raycast_callback.distance;
         }
     }
 
-    last_reading = sensor_reading;
-    return sensor_reading;
+    return lasers;
+}
+
+std::vector<float> LaserSensorModule::get_sensor_reading() const
+{
+    return cast_lasers();
 }
 
 RenderData LaserSensorModule::get_render_data(bool lightweight)
 {
     auto render_data = IModule::get_render_data(lightweight);
 
-    if (!lightweight && last_reading.size() > 0)
+    auto sensor_reading = cast_lasers();
+    if (!lightweight && sensor_reading.size() > 0)
     {
         b2Transform global_transform = get_global_transform();
         float segment_width = fov / (laser_count - 1);
@@ -85,16 +90,16 @@ RenderData LaserSensorModule::get_render_data(bool lightweight)
 
         for (int i = 0; i < laser_count; ++i)
         {
-            if (last_reading[i] < 1)
+            if (sensor_reading[i] < 1)
             {
                 Line line;
                 b2Rot angle(glm::radians((segment_width * i) - (fov / 2)));
-                b2Vec2 laser = b2Mul(angle, b2Vec2(0, last_reading[i] * laser_length));
+                b2Vec2 laser = b2Mul(angle, b2Vec2(0, sensor_reading[i] * laser_length));
                 b2Vec2 laser_start = b2Mul(angle, b2Vec2(0, 0.35));
                 b2Vec2 transformed_end = b2Mul(global_transform, laser);
                 b2Vec2 transformed_start = b2Mul(global_transform, laser_start);
                 glm::vec4 end_color = start_color;
-                end_color.a = last_reading[i];
+                end_color.a = sensor_reading[i];
                 line.points.push_back({transformed_start.x, transformed_start.y});
                 line.colors.push_back(start_color);
                 line.widths.push_back(0.01);

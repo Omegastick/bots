@@ -20,8 +20,7 @@ namespace SingularityTrainer
 {
 TrainScreen::TrainScreen(std::unique_ptr<ITrainer> trainer,
                          IO &io,
-                         ResourceManager &resource_manager,
-                         Random &rng)
+                         ResourceManager &resource_manager)
     : crt_post_proc_layer(std::make_unique<PostProcLayer>(resource_manager.shader_store.get("crt").get())),
       fast(false),
       io(io),

@@ -36,9 +36,9 @@ class IModule : public IDrawable
     virtual void update();
     virtual std::vector<IModule *> get_children();
     virtual std::vector<IModule *> get_children(std::vector<IModule *> child_list);
-    virtual std::vector<float> get_sensor_reading();
+    virtual std::vector<float> get_sensor_reading() const;
     virtual RenderData get_render_data(bool lightweight = false);
-    virtual b2Transform get_global_transform();
+    virtual b2Transform get_global_transform() const;
     virtual int get_observation_count() const = 0;
     virtual nlohmann::json to_json() const = 0;
 
