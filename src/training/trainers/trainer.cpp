@@ -13,6 +13,7 @@
 #include "misc/random.h"
 #include "misc/resource_manager.h"
 #include "training/agents/agent.h"
+#include "training/checkpointer.h"
 #include "training/environments/ienvironment.h"
 #include "training/score_processor.h"
 #include "training/training_program.h"
@@ -29,15 +30,18 @@ const bool recurrent = false;
 
 Trainer::Trainer(TrainingProgram program,
                  AgentFactory &agent_factory,
+                 Checkpointer &checkpointer,
                  IEnvironmentFactory &env_factory)
     : action_frame_counter(0),
       agents_per_env(2),
+      checkpointer(checkpointer),
       elapsed_time(0),
       env_count(program.hyper_parameters.num_env),
       frame_counter(0),
       last_save_time(std::chrono::high_resolution_clock::now()),
       last_update_time(std::chrono::high_resolution_clock::now()),
       policy(nullptr),
+      previous_checkpoint(program.checkpoint),
       program(program),
       waiting(false)
 {
@@ -172,6 +176,8 @@ void Trainer::save_model()
     auto save_path = models_folder;
     save_path += "/" + date_time_string + ".pth";
     torch::save(policy, save_path);
+
+    previous_checkpoint = checkpointer.save(policy, program.agent, {}, previous_checkpoint);
 }
 
 void Trainer::action_update()

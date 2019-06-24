@@ -1,6 +1,7 @@
 #pragma once
 
 #include <chrono>
+#include <filesystem>
 #include <vector>
 
 #include <cpprl/algorithms/algorithm.h>
@@ -11,12 +12,12 @@
 
 #include "third_party/di.hpp"
 #include "training/agents/agent.h"
-#include "training/environments/ienvironment.h"
 #include "training/trainers/itrainer.h"
 #include "training/training_program.h"
 
 namespace SingularityTrainer
 {
+class Checkpointer;
 class IEnvironmentFactory;
 
 class Trainer : public ITrainer
@@ -27,6 +28,7 @@ class Trainer : public ITrainer
     int action_frame_counter;
     int agents_per_env;
     std::unique_ptr<cpprl::Algorithm> algorithm;
+    Checkpointer &checkpointer;
     float elapsed_time;
     int env_count;
     std::vector<float> env_scores;
@@ -36,6 +38,7 @@ class Trainer : public ITrainer
     std::shared_ptr<cpprl::NNBase> nn_base;
     torch::Tensor observations;
     cpprl::Policy policy;
+    std::filesystem::path previous_checkpoint;
     std::unique_ptr<cpprl::RolloutStorage> rollout_storage;
     TrainingProgram program;
     bool waiting;
@@ -45,6 +48,7 @@ class Trainer : public ITrainer
   public:
     Trainer(TrainingProgram program,
             AgentFactory &agent_factory,
+            Checkpointer &checkpointer,
             IEnvironmentFactory &env_factory);
 
     virtual std::vector<float> get_observation();
@@ -57,15 +61,20 @@ class TrainerFactory
 {
   private:
     AgentFactory &agent_factory;
+    Checkpointer &checkpointer;
     IEnvironmentFactory &env_factory;
 
   public:
-    TrainerFactory(AgentFactory &agent_factory, IEnvironmentFactory &env_factory)
-        : agent_factory(agent_factory), env_factory(env_factory) {}
+    TrainerFactory(AgentFactory &agent_factory,
+                   Checkpointer &checkpointer,
+                   IEnvironmentFactory &env_factory)
+        : agent_factory(agent_factory),
+          checkpointer(checkpointer),
+          env_factory(env_factory) {}
 
     std::unique_ptr<Trainer> make(TrainingProgram &program)
     {
-        return std::make_unique<Trainer>(program, agent_factory, env_factory);
+        return std::make_unique<Trainer>(program, agent_factory, checkpointer, env_factory);
     }
 };
 }
