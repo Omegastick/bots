@@ -14,6 +14,7 @@
 #include "misc/screen_manager.h"
 #include "screens/train_screen.h"
 #include "training/agents/agent.h"
+#include "training/checkpointer.h"
 #include "training/environments/ienvironment.h"
 #include "training/environments/koth_env.h"
 #include "training/training_program.h"
@@ -199,7 +200,7 @@ std::shared_ptr<IScreen> CreateProgramScreenFactory::make()
                                         RewardConfig());
     return std::make_shared<CreateProgramScreen>(std::make_unique<AlgorithmWindow>(io),
                                                  std::make_unique<BodySelectorWindow>(io),
-                                                 std::make_unique<BrainWindow>(io),
+                                                 std::make_unique<BrainWindow>(checkpointer, io),
                                                  std::make_unique<RewardWindows>(io),
                                                  std::move(environment),
                                                  std::make_unique<TrainingProgram>(),

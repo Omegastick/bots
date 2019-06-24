@@ -15,12 +15,13 @@ class AgentFactory;
 class AlgorithmWindow;
 class BodySelectorWindow;
 class BrainWindow;
-class RewardWindows;
+class Checkpointer;
 class IEnvironment;
 class IEnvironmentFactory;
 class IO;
 class Renderer;
 class ResourceManager;
+class RewardWindows;
 class SaveLoadWindow;
 class ScreenManager;
 class Tabs;
@@ -73,6 +74,7 @@ class CreateProgramScreenFactory : public IScreenFactory
 {
   private:
     AgentFactory &agent_factory;
+    Checkpointer &checkpointer;
     IEnvironmentFactory &env_factory;
     IO &io;
     ResourceManager &resource_manager;
@@ -81,12 +83,14 @@ class CreateProgramScreenFactory : public IScreenFactory
 
   public:
     CreateProgramScreenFactory(AgentFactory &agent_factory,
+                               Checkpointer &checkpointer,
                                IEnvironmentFactory &env_factory,
                                IO &io,
                                ResourceManager &resource_manager,
                                ScreenManager &screen_manager,
                                TrainScreenFactory &train_screen_factory)
         : agent_factory(agent_factory),
+        checkpointer(checkpointer),
           env_factory(env_factory),
           io(io),
           resource_manager(resource_manager),

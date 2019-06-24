@@ -78,35 +78,38 @@ RenderData LaserSensorModule::get_render_data(bool lightweight)
 {
     auto render_data = IModule::get_render_data(lightweight);
 
-    auto sensor_reading = cast_lasers();
-    if (!lightweight && sensor_reading.size() > 0)
+    if (agent != nullptr && !lightweight)
     {
-        b2Transform global_transform = get_global_transform();
-        float segment_width = fov / (laser_count - 1);
-
-        Line line;
-        glm::vec4 start_color = cl_white;
-        start_color.a = 0;
-
-        for (int i = 0; i < laser_count; ++i)
+        auto sensor_reading = cast_lasers();
+        if (sensor_reading.size() > 0)
         {
-            if (sensor_reading[i] < 1)
+            b2Transform global_transform = get_global_transform();
+            float segment_width = fov / (laser_count - 1);
+
+            Line line;
+            glm::vec4 start_color = cl_white;
+            start_color.a = 0;
+
+            for (int i = 0; i < laser_count; ++i)
             {
-                Line line;
-                b2Rot angle(glm::radians((segment_width * i) - (fov / 2)));
-                b2Vec2 laser = b2Mul(angle, b2Vec2(0, sensor_reading[i] * laser_length));
-                b2Vec2 laser_start = b2Mul(angle, b2Vec2(0, 0.35));
-                b2Vec2 transformed_end = b2Mul(global_transform, laser);
-                b2Vec2 transformed_start = b2Mul(global_transform, laser_start);
-                glm::vec4 end_color = start_color;
-                end_color.a = sensor_reading[i];
-                line.points.push_back({transformed_start.x, transformed_start.y});
-                line.colors.push_back(start_color);
-                line.widths.push_back(0.01);
-                line.points.push_back({transformed_end.x, transformed_end.y});
-                line.colors.push_back(end_color);
-                line.widths.push_back(0.01);
-                render_data.lines.push_back(line);
+                if (sensor_reading[i] < 1)
+                {
+                    Line line;
+                    b2Rot angle(glm::radians((segment_width * i) - (fov / 2)));
+                    b2Vec2 laser = b2Mul(angle, b2Vec2(0, sensor_reading[i] * laser_length));
+                    b2Vec2 laser_start = b2Mul(angle, b2Vec2(0, 0.35));
+                    b2Vec2 transformed_end = b2Mul(global_transform, laser);
+                    b2Vec2 transformed_start = b2Mul(global_transform, laser_start);
+                    glm::vec4 end_color = start_color;
+                    end_color.a = sensor_reading[i];
+                    line.points.push_back({transformed_start.x, transformed_start.y});
+                    line.colors.push_back(start_color);
+                    line.widths.push_back(0.01);
+                    line.points.push_back({transformed_end.x, transformed_end.y});
+                    line.colors.push_back(end_color);
+                    line.widths.push_back(0.01);
+                    render_data.lines.push_back(line);
+                }
             }
         }
     }

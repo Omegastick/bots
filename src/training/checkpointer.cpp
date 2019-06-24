@@ -7,6 +7,7 @@
 #include <doctest.h>
 #include <cpprl/cpprl.h>
 #include <nlohmann/json.hpp>
+#include <spdlog/spdlog.h>
 
 #include "checkpointer.h"
 #include "misc/date.h"
@@ -26,13 +27,18 @@ const std::string schema_version = "v1alpha1";
 Checkpointer::Checkpointer(std::string checkpoint_directory,
                            Random &random,
                            ISaver &saver)
-    : checkpoint_directory(checkpoint_directory),
+    : checkpoint_directory(fs::current_path() / checkpoint_directory),
       random(random),
       saver(saver)
 {
+    if (!fs::exists(this->checkpoint_directory))
+    {
+        spdlog::info("Creating directory {}", this->checkpoint_directory.string());
+        fs::create_directories(this->checkpoint_directory);
+    }
 }
 
-std::vector<std::filesystem::path> Checkpointer::enumerate_checkpoints()
+std::vector<fs::path> Checkpointer::enumerate_checkpoints()
 {
     std::vector<fs::path> paths;
     for (const auto &file : fs::directory_iterator(checkpoint_directory))
@@ -45,7 +51,7 @@ std::vector<std::filesystem::path> Checkpointer::enumerate_checkpoints()
     return paths;
 }
 
-Checkpoint Checkpointer::load(std::filesystem::path path)
+Checkpoint Checkpointer::load(fs::path path)
 {
     auto data = load_data(path);
 
@@ -60,7 +66,7 @@ Checkpoint Checkpointer::load(std::filesystem::path path)
     return {data, policy};
 }
 
-CheckpointData Checkpointer::load_data(std::filesystem::path path)
+CheckpointData Checkpointer::load_data(fs::path path)
 {
     auto json = saver.load_json(path);
     std::chrono::system_clock::time_point time_stamp;
@@ -72,10 +78,10 @@ CheckpointData Checkpointer::load_data(std::filesystem::path path)
             json["recurrent"],
             time_stamp};
 }
-std::filesystem::path Checkpointer::save(cpprl::Policy &policy,
-                                         nlohmann::json &body_spec,
-                                         std::map<std::string, double> data,
-                                         std::filesystem::path previous_checkpoint)
+fs::path Checkpointer::save(cpprl::Policy &policy,
+                            nlohmann::json &body_spec,
+                            std::map<std::string, double> data,
+                            fs::path previous_checkpoint)
 {
     std::string file_id;
     for (int i = 0; i < 10; ++i)
