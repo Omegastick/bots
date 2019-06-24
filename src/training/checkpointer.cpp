@@ -89,11 +89,9 @@ fs::path Checkpointer::save(cpprl::Policy &policy,
         file_id += alphanum[random.next_int(0, sizeof(alphanum) - 1)];
     }
 
-    auto save_path = checkpoint_directory;
-    save_path += file_id;
+    auto save_path = checkpoint_directory / file_id;
 
-    auto model_path = save_path;
-    model_path += ".pth";
+    auto model_path = save_path.replace_extension(".pth");
     saver.save(policy, model_path);
 
     nlohmann::json json;
@@ -103,8 +101,7 @@ fs::path Checkpointer::save(cpprl::Policy &policy,
     json["previous_checkpoint"] = previous_checkpoint;
     json["recurrent"] = policy->is_recurrent();
     json["timestamp"] = date::format("%F-%H-%M-%S", std::chrono::system_clock::now());
-    auto meta_path = save_path;
-    meta_path += ".meta";
+    auto meta_path = save_path.replace_extension(".meta");
     saver.save(json, meta_path);
 
     return meta_path;
