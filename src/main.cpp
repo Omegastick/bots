@@ -43,7 +43,7 @@ int main(int argc, char *argv[])
         di::bind<int>.named(MaxSteps).to(600),
         di::bind<AgentFactory>.to<AgentFactory>(),
         di::bind<ISaver>.to<Saver>(),
-        di::bind<std::string>.named(CheckpointDirectory).to("checkpoints/"));
+        di::bind<std::string>.named(CheckpointDirectory).to("checkpoints"));
     auto app = injector.create<App>();
     app.run(argc, argv);
 }
