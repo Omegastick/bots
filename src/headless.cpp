@@ -19,11 +19,9 @@ namespace di = boost::di;
 int main(int argc, char *argv[])
 {
     const auto injector = di::make_injector(
-        di::bind<ITrainer>.to<Trainer>(),
         di::bind<IEnvironmentFactory>.to<KothEnvFactory>(),
-        di::bind<AgentFactory>.to<TestAgentFactory>(),
         di::bind<ISaver>.to<Saver>(),
-        di::bind<std::string>.named(CheckpointDirectory).to("checkpoints/"));
+        di::bind<std::string>.named(CheckpointDirectory).to("checkpoints"));
     auto app = injector.create<HeadlessApp>();
     app.run(argc, argv);
 }

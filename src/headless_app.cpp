@@ -1,13 +1,16 @@
 #include <chrono>
+#include <fstream>
 #include <memory>
 #include <signal.h>
 #include <stdlib.h>
 
 #include <doctest.h>
+#include <nlohmann/json.hpp>
 #include <spdlog/spdlog.h>
 
 #include "headless_app.h"
 #include "training/trainers/itrainer.h"
+#include "training/trainers/trainer.h"
 
 namespace SingularityTrainer
 {
@@ -18,8 +21,8 @@ void inthand(int /*signum*/)
     stop = 1;
 }
 
-HeadlessApp::HeadlessApp(Random &rng, ITrainer &trainer)
-    : rng(rng), trainer(trainer)
+HeadlessApp::HeadlessApp(Random &rng, TrainerFactory &trainer_factory)
+    : rng(rng), trainer_factory(trainer_factory)
 {
     // Logging
     spdlog::set_level(spdlog::level::debug);
@@ -36,9 +39,14 @@ int HeadlessApp::run(int argc, char *argv[])
         return run_tests(argc, argv, args);
     }
 
+    std::ifstream file(args[1]);
+    auto json = nlohmann::json::parse(file);
+    TrainingProgram program(json);
+    auto trainer = trainer_factory.make(program);
+
     while (!stop)
     {
-        trainer.step();
+        trainer->step();
     }
 
     return 0;
