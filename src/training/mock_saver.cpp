@@ -12,10 +12,9 @@ nlohmann::json MockSaver::load_json(std::filesystem::path /*path*/)
     return json_to_load;
 }
 
-cpprl::Policy MockSaver::load_policy(std::filesystem::path /*path*/,
-                                     cpprl::Policy policy)
+void MockSaver::load_policy(std::filesystem::path /*path*/,
+                            cpprl::Policy &policy)
 {
-    return policy;
 }
 
 void MockSaver::save(cpprl::Policy /*policy*/, std::filesystem::path path)

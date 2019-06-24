@@ -5,7 +5,7 @@
 #include <sstream>
 
 #include <doctest.h>
-#include <cpprl/model/policy.h>
+#include <cpprl/cpprl.h>
 #include <nlohmann/json.hpp>
 
 #include "checkpointer.h"
@@ -23,7 +23,7 @@ static const char alphanum[] =
     "abcdefghijklmnopqrstuvwxyz";
 const std::string schema_version = "v1alpha1";
 
-Checkpointer::Checkpointer(std::filesystem::path checkpoint_directory,
+Checkpointer::Checkpointer(std::string checkpoint_directory,
                            Random &random,
                            ISaver &saver)
     : checkpoint_directory(checkpoint_directory),

@@ -7,6 +7,7 @@
 
 #include <nlohmann/json.hpp>
 
+#include "third_party/di.hpp"
 #include "training/isaver.h"
 
 namespace cpprl
@@ -33,6 +34,8 @@ struct Checkpoint
     cpprl::Policy policy;
 };
 
+auto CheckpointDirectory = [] {};
+
 class Checkpointer
 {
   private:
@@ -41,9 +44,10 @@ class Checkpointer
     ISaver &saver;
 
   public:
-    Checkpointer(std::filesystem::path checkpoint_directory,
-                 Random &random,
-                 ISaver &saver);
+    BOOST_DI_INJECT(Checkpointer,
+                    (named = CheckpointDirectory) std::string checkpoint_directory,
+                    Random &random,
+                    ISaver &saver);
 
     std::vector<std::filesystem::path> enumerate_checkpoints();
     Checkpoint load(std::filesystem::path path);
