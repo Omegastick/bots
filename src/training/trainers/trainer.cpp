@@ -100,8 +100,16 @@ Trainer::Trainer(TrainingProgram program,
         }
     }
 
-    nn_base = std::make_shared<cpprl::MlpBase>(num_observations, recurrent);
-    policy = cpprl::Policy(cpprl::ActionSpace{"MultiBinary", {num_actions}}, nn_base);
+    if (!program.checkpoint.empty())
+    {
+        auto checkpoint = checkpointer.load(program.checkpoint);
+        policy = checkpoint.policy;
+    }
+    else
+    {
+        auto nn_base = std::make_shared<cpprl::MlpBase>(num_observations, recurrent);
+        policy = cpprl::Policy(cpprl::ActionSpace{"MultiBinary", {num_actions}}, nn_base);
+    }
     algorithm = std::make_unique<cpprl::PPO>(policy,
                                              program.hyper_parameters.clip_param,
                                              program.hyper_parameters.num_epoch,
