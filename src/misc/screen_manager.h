@@ -22,7 +22,7 @@ class ScreenManager
     void update(double delta_time);
 
   private:
-    enum CommandType
+    enum class CommandType
     {
         Push,
         Pop

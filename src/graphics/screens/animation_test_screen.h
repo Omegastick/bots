@@ -19,7 +19,7 @@ class Renderer;
 class AnimationTestScreen : public IScreen
 {
   private:
-    enum Direction
+    enum class Direction
     {
         Left,
         Right

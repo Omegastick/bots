@@ -9,7 +9,7 @@
 
 namespace SingularityTrainer
 {
-class Agent;
+class Body;
 
 class BaseModule : public IModule
 {

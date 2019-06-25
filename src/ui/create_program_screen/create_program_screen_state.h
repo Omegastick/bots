@@ -2,7 +2,7 @@
 
 namespace SingularityTrainer
 {
-enum CreateProgramScreenState
+enum class CreateProgramScreenState
 {
     Body,
     Algorithm,

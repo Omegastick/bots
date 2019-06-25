@@ -9,7 +9,7 @@
 
 #include "graphics/post_proc_layer.h"
 #include "screens/iscreen.h"
-#include "training/agents/agent.h"
+#include "training/bodies/body.h"
 #include "ui/training_wizard_screen/body_selector_window.h"
 #include "ui/training_wizard_screen/wizard_checkpoint_selector_window.h"
 
@@ -26,7 +26,7 @@ class TrainingProgram;
 class TrainingWizardScreen : public IScreen
 {
   private:
-    enum State
+    enum class State
     {
         Body,
         Checkpoint,
@@ -39,7 +39,7 @@ class TrainingWizardScreen : public IScreen
 
     void center_camera_on_body();
 
-    std::unique_ptr<Agent> agent;
+    std::unique_ptr<Body> body;
     Animator &animator;
     BodySelectorWindow body_selector_window;
     WizardCheckpointSelectorWindow checkpoint_selector_window;
@@ -58,7 +58,7 @@ class TrainingWizardScreen : public IScreen
     double x_offset;
 
   public:
-    TrainingWizardScreen(std::unique_ptr<Agent> agent,
+    TrainingWizardScreen(std::unique_ptr<Body> body,
                          std::unique_ptr<b2World> world,
                          Animator &animator,
                          TrainingProgram &program,
@@ -73,7 +73,7 @@ class TrainingWizardScreen : public IScreen
 class TrainingWizardScreenFactory
 {
   private:
-    AgentFactory &agent_factory;
+    BodyFactory &body_factory;
     Animator &animator;
     ResourceManager &resource_manager;
     Random &rng;
@@ -81,13 +81,13 @@ class TrainingWizardScreenFactory
     IO &io;
 
   public:
-    TrainingWizardScreenFactory(AgentFactory &agent_factory,
+    TrainingWizardScreenFactory(BodyFactory &body_factory,
                                 Animator &animator,
                                 ResourceManager &resource_manager,
                                 Random &rng,
                                 ScreenManager &screen_manager,
                                 IO &io)
-        : agent_factory(agent_factory),
+        : body_factory(body_factory),
           animator(animator),
           resource_manager(resource_manager),
           rng(rng),
@@ -97,8 +97,8 @@ class TrainingWizardScreenFactory
     inline std::shared_ptr<IScreen> make(TrainingProgram &program)
     {
         auto world = std::make_unique<b2World>(b2Vec2_zero);
-        auto agent = agent_factory.make(*world, rng);
-        return std::make_shared<TrainingWizardScreen>(std::move(agent),
+        auto body = body_factory.make(*world, rng);
+        return std::make_shared<TrainingWizardScreen>(std::move(body),
                                                       std::move(world),
                                                       animator,
                                                       program,

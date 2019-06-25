@@ -9,7 +9,7 @@ PRIVATE
 )
 
 add_subdirectory(actions)
-add_subdirectory(agents)
+add_subdirectory(bodies)
 add_subdirectory(environments)
 add_subdirectory(modules)
 add_subdirectory(trainers)

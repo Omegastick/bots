@@ -81,7 +81,7 @@ Recommended: 0.00001 - 0.001)");
                       ImGuiInputTextFlags_AutoSelectAll | ImGuiInputTextFlags_CharsScientific);
     hyperparams.discount_factor = std::clamp(hyperparams.discount_factor, 0.f, 1.f);
     ImGui::SameLine();
-    help_marker(R"(How far ahead the agent should consider when making decisions. 0 doesn't consider other than the immediate future. 1 will plan infinitely far ahead.
+    help_marker(R"(How far ahead the body should consider when making decisions. 0 doesn't consider other than the immediate future. 1 will plan infinitely far ahead.
 Recommended: 0.8 - 0.999)");
 
     ImGui::Text("Entropy bonus:");
@@ -93,7 +93,7 @@ Recommended: 0.8 - 0.999)");
                       "%.5f",
                       ImGuiInputTextFlags_AutoSelectAll | ImGuiInputTextFlags_CharsScientific);
     ImGui::SameLine();
-    help_marker(R"(Higher values encourage the agent to explore its options rather than commiting to a strategy early in training.
+    help_marker(R"(Higher values encourage the body to explore its options rather than commiting to a strategy early in training.
 Recommended: 0 - 0.1)");
 
     ImGui::Text("Actor-critic weight:");

@@ -12,7 +12,7 @@
 
 namespace SingularityTrainer
 {
-class Agent;
+class Body;
 
 class GunModule : public IModule, public IActivatable
 {

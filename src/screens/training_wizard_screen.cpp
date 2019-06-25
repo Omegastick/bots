@@ -17,20 +17,20 @@
 #include "misc/random.h"
 #include "misc/resource_manager.h"
 #include "misc/screen_manager.h"
-#include "training/agents/agent.h"
+#include "training/bodies/body.h"
 #include "ui/training_wizard_screen/body_selector_window.h"
 #include "ui/training_wizard_screen/wizard_action.h"
 
 namespace SingularityTrainer
 {
-TrainingWizardScreen::TrainingWizardScreen(std::unique_ptr<Agent> agent,
+TrainingWizardScreen::TrainingWizardScreen(std::unique_ptr<Body> body,
                                            std::unique_ptr<b2World> world,
                                            Animator &animator,
                                            TrainingProgram &program,
                                            ResourceManager &resource_manager,
                                            ScreenManager &screen_manager,
                                            IO &io)
-    : agent(std::move(agent)),
+    : body(std::move(body)),
       animator(animator),
       body_selector_window(io),
       checkpoint_selector_window(io),
@@ -78,7 +78,7 @@ void TrainingWizardScreen::algorithm()
 
 void TrainingWizardScreen::body()
 {
-    auto action = body_selector_window.update(*agent, program);
+    auto action = body_selector_window.update(*body, program);
     if (action == WizardAction::Next)
     {
         state = State::Checkpoint;
@@ -92,8 +92,8 @@ void TrainingWizardScreen::body()
 void TrainingWizardScreen::checkpoint()
 {
     auto action = checkpoint_selector_window.update(policy,
-                                                    agent->get_observation().size(),
-                                                    agent->get_actions().size(),
+                                                    body->get_observation().size(),
+                                                    body->get_actions().size(),
                                                     program);
     if (action == WizardAction::Next)
     {
@@ -122,16 +122,16 @@ void TrainingWizardScreen::center_camera_on_body()
     glm::vec2 size{19.2f, 10.8f};
     glm::vec2 half_size = size * 0.5f;
     glm::vec2 offset{(size.x * x_offset) - half_size.x, (size.y * 0.5) - half_size.y};
-    b2Vec2 agent_position;
-    if (agent->get_modules().size() > 0)
+    b2Vec2 body_position;
+    if (body->get_modules().size() > 0)
     {
-        agent_position = agent->get_rigid_body().body->GetTransform().p;
+        body_position = body->get_rigid_body().body->GetTransform().p;
     }
     else
     {
-        agent_position = {0, 0};
+        body_position = {0, 0};
     }
-    glm::vec2 center{agent_position.x + offset.x, agent_position.y + offset.y};
+    glm::vec2 center{body_position.x + offset.x, body_position.y + offset.y};
     projection = glm::ortho(center.x - half_size.x,
                             center.x + half_size.x,
                             center.y - half_size.y,
@@ -143,9 +143,9 @@ void TrainingWizardScreen::draw(Renderer &renderer, bool /*lightweight*/)
     renderer.push_post_proc_layer(&crt_post_proc_layer);
     renderer.begin();
 
-    if (agent->get_modules().size() > 0)
+    if (body->get_modules().size() > 0)
     {
-        auto render_data = agent->get_render_data();
+        auto render_data = body->get_render_data();
         renderer.draw(render_data, projection, elapsed_time);
     }
 
@@ -185,19 +185,19 @@ void TrainingWizardScreen::update(double delta_time)
         {
             hidden_state = torch::zeros({1, hidden_state_size});
         }
-        auto observation_vec = agent->get_observation();
+        auto observation_vec = body->get_observation();
         auto observation = torch::from_blob(observation_vec.data(), {1, static_cast<long>(observation_vec.size())});
         auto mask = torch::ones({1, 1});
         auto act_result = policy->act(observation, hidden_state, mask);
         auto actions_tensor = act_result[1][0].to(torch::kInt).contiguous();
         std::vector<int> actions(actions_tensor.data<int>(), actions_tensor.data<int>() + actions_tensor.numel());
-        agent->act(actions);
+        body->act(actions);
     }
 
-    if (agent->get_modules().size() > 0)
+    if (body->get_modules().size() > 0)
     {
         center_camera_on_body();
-        agent->get_rigid_body().body->SetLinearVelocity({0, 0});
+        body->get_rigid_body().body->SetLinearVelocity({0, 0});
     }
 }
 }

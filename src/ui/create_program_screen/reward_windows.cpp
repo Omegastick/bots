@@ -9,7 +9,7 @@
 #include "reward_windows.h"
 #include "misc/io.h"
 #include "misc/utilities.h"
-#include "training/agents/agent.h"
+#include "training/bodies/body.h"
 #include "training/environments/ienvironment.h"
 #include "training/training_program.h"
 
@@ -92,7 +92,7 @@ void RewardWindows::update(IEnvironment &environment, glm::mat4 &projection, Rew
     }
 
     // Draw line to enemy
-    auto enemy_position = environment.get_agents()[0]->get_rigid_body().body->GetPosition();
+    auto enemy_position = environment.get_bodies()[0]->get_rigid_body().body->GetPosition();
     auto enemy_position_screen = world_to_screen_space({enemy_position.x, enemy_position.y}, resolution, projection);
     draw_line_to_point({enemy_position_screen.x, enemy_position_screen.y});
 
@@ -119,10 +119,10 @@ void RewardWindows::update(IEnvironment &environment, glm::mat4 &projection, Rew
         reward_config.hit_self_type = HpOrHit::Hit;
     }
 
-    // Draw line to agent
-    auto agent_position = environment.get_agents()[1]->get_rigid_body().body->GetPosition();
-    auto agent_position_screen = world_to_screen_space({agent_position.x, agent_position.y}, resolution, projection);
-    draw_line_to_point({agent_position_screen.x, agent_position_screen.y});
+    // Draw line to body
+    auto body_position = environment.get_bodies()[1]->get_rigid_body().body->GetPosition();
+    auto body_position_screen = world_to_screen_space({body_position.x, body_position.y}, resolution, projection);
+    draw_line_to_point({body_position_screen.x, body_position_screen.y});
 
     ImGui::End();
 

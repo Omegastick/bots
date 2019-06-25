@@ -7,7 +7,7 @@
 
 #include "graphics/colors.h"
 #include "graphics/idrawable.h"
-#include "training/agents/agent.h"
+#include "training/bodies/body.h"
 #include "training/entities/bullet.h"
 #include "training/environments/ienvironment.h"
 #include "training/icollidable.h"
@@ -16,7 +16,7 @@
 
 namespace SingularityTrainer
 {
-Bullet::Bullet(b2Vec2 position, b2Vec2 velocity, b2World &world, Agent *owner)
+Bullet::Bullet(b2Vec2 position, b2Vec2 velocity, b2World &world, Body *owner)
     : life(10),
       last_position(b2Vec2_zero),
       particle_color(cl_white),
@@ -93,14 +93,14 @@ void Bullet::begin_contact(RigidBody *other)
         return;
     }
 
-    // Agent
-    if (other->parent_type == RigidBody::ParentTypes::Agent && !destroyed)
+    // Body
+    if (other->parent_type == RigidBody::ParentTypes::Body && !destroyed)
     {
         const auto &reward_config = owner->get_environment()->get_reward_config();
         owner->get_environment()->change_reward(owner, reward_config.hit_enemy_reward);
-        auto other_agent = static_cast<Agent *>(other->parent);
-        other_agent->get_environment()->change_reward(other_agent, reward_config.hit_self_punishment);
-        other_agent->hit(1);
+        auto other_body = static_cast<Body *>(other->parent);
+        other_body->get_environment()->change_reward(other_body, reward_config.hit_self_punishment);
+        other_body->hit(1);
     }
 
     // Create particle effect and set destroyed flag

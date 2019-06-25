@@ -12,7 +12,7 @@
 #include "graphics/colors.h"
 #include "misc/resource_manager.h"
 #include "training/actions/activate_action.h"
-#include "training/agents/agent.h"
+#include "training/bodies/body.h"
 #include "training/modules/imodule.h"
 #include "training/modules/thruster_module.h"
 #include "training/modules/gun_module.h"
@@ -50,7 +50,7 @@ void ThrusterModule::activate()
     active = true;
     b2Transform global_transform = get_global_transform();
     b2Vec2 velocity = b2Mul(global_transform.q, b2Vec2(0, 50));
-    agent->get_rigid_body().body->ApplyForce(velocity, global_transform.p, true);
+    body->get_rigid_body().body->ApplyForce(velocity, global_transform.p, true);
 }
 
 RenderData ThrusterModule::get_render_data(bool lightweight)
@@ -69,7 +69,7 @@ RenderData ThrusterModule::get_render_data(bool lightweight)
         end_color.a = 0;
         for (int i = 0; i < particle_count; ++i)
         {
-            float random_number = agent->get_rng().next_float(distribution) - 0.5;
+            float random_number = body->get_rng().next_float(distribution) - 0.5;
             b2Rot angle = b2Mul(edge_transform.q, b2Rot(random_number));
             Particle particle{
                 glm::vec2(edge_transform.p.x + edge_transform.q.s * random_number, edge_transform.p.y - edge_transform.q.c * random_number),

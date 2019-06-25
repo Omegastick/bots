@@ -11,7 +11,7 @@
 
 namespace SingularityTrainer
 {
-class AgentFactory;
+class BodyFactory;
 class AlgorithmWindow;
 class BodySelectorWindow;
 class BrainWindow;
@@ -73,7 +73,7 @@ class CreateProgramScreen : public IScreen
 class CreateProgramScreenFactory : public IScreenFactory
 {
   private:
-    AgentFactory &agent_factory;
+    BodyFactory &body_factory;
     Checkpointer &checkpointer;
     IEnvironmentFactory &env_factory;
     IO &io;
@@ -82,14 +82,14 @@ class CreateProgramScreenFactory : public IScreenFactory
     TrainScreenFactory &train_screen_factory;
 
   public:
-    CreateProgramScreenFactory(AgentFactory &agent_factory,
+    CreateProgramScreenFactory(BodyFactory &body_factory,
                                Checkpointer &checkpointer,
                                IEnvironmentFactory &env_factory,
                                IO &io,
                                ResourceManager &resource_manager,
                                ScreenManager &screen_manager,
                                TrainScreenFactory &train_screen_factory)
-        : agent_factory(agent_factory),
+        : body_factory(body_factory),
         checkpointer(checkpointer),
           env_factory(env_factory),
           io(io),
