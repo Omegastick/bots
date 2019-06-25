@@ -142,6 +142,8 @@ nlohmann::json LaserSensorModule::to_json() const
         }
     }
 
+    json["laser_count"] = laser_count;
+
     return json;
 }
 
