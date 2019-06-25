@@ -15,6 +15,7 @@ class IAgent
     virtual std::vector<std::vector<int>> act_multiple(torch::Tensor observations,
                                                        torch::Tensor hidden_states,
                                                        torch::Tensor masks) = 0;
+    virtual int get_hidden_state_size() = 0;
 };
 
 inline IAgent::~IAgent() {}

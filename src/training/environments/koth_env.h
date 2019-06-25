@@ -89,6 +89,7 @@ class KothEnvFactory : public IEnvironmentFactory
     BOOST_DI_INJECT(KothEnvFactory, (named = MaxSteps) int max_steps)
         : max_steps(max_steps) {}
 
+    virtual int get_num_bodies() { return 2; }
     virtual std::unique_ptr<IEnvironment> make(
         std::unique_ptr<Random> rng,
         std::unique_ptr<b2World> world,

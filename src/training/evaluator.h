@@ -4,6 +4,7 @@
 
 namespace SingularityTrainer
 {
+class BodyFactory;
 class IAgent;
 class IEnvironmentFactory;
 
@@ -17,10 +18,11 @@ struct EvaluationResult
 class Evaluator
 {
   private:
+  BodyFactory &body_factory;
     IEnvironmentFactory &env_factory;
 
   public:
-    Evaluator(IEnvironmentFactory &env_factory);
+    Evaluator(BodyFactory &body_factory, IEnvironmentFactory &env_factory);
 
     EvaluationResult evaluate(IAgent &agent_1,
                               IAgent &agent_2,
