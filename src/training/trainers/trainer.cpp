@@ -110,14 +110,30 @@ Trainer::Trainer(TrainingProgram program,
         auto nn_base = std::make_shared<cpprl::MlpBase>(num_observations, recurrent);
         policy = cpprl::Policy(cpprl::ActionSpace{"MultiBinary", {num_actions}}, nn_base);
     }
-    algorithm = std::make_unique<cpprl::PPO>(policy,
-                                             program.hyper_parameters.clip_param,
-                                             program.hyper_parameters.num_epoch,
-                                             program.hyper_parameters.num_minibatch,
-                                             program.hyper_parameters.actor_loss_coef,
-                                             program.hyper_parameters.value_loss_coef,
-                                             program.hyper_parameters.entropy_coef,
-                                             program.hyper_parameters.learning_rate);
+
+    if (program.hyper_parameters.algorithm == Algorithm::A2C)
+    {
+        algorithm = std::make_unique<cpprl::A2C>(policy,
+                                                 program.hyper_parameters.actor_loss_coef,
+                                                 program.hyper_parameters.value_loss_coef,
+                                                 program.hyper_parameters.entropy_coef,
+                                                 program.hyper_parameters.learning_rate);
+    }
+    else if (program.hyper_parameters.algorithm == Algorithm::PPO)
+    {
+        algorithm = std::make_unique<cpprl::PPO>(policy,
+                                                 program.hyper_parameters.clip_param,
+                                                 program.hyper_parameters.num_epoch,
+                                                 program.hyper_parameters.num_minibatch,
+                                                 program.hyper_parameters.actor_loss_coef,
+                                                 program.hyper_parameters.value_loss_coef,
+                                                 program.hyper_parameters.entropy_coef,
+                                                 program.hyper_parameters.learning_rate);
+    }
+    else
+    {
+        throw std::runtime_error("Algorithm not supported");
+    }
 
     rollout_storage->set_first_observation(observations);
 }
