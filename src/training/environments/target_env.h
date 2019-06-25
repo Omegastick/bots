@@ -17,7 +17,7 @@ namespace SingularityTrainer
 {
 class Random;
 class ResourceManager;
-class Agent;
+class Body;
 class Target;
 class Wall;
 
@@ -51,12 +51,12 @@ class TargetEnv : public IEnvironment
     virtual std::future<StepInfo> step(torch::Tensor actions, float step_length);
     virtual void forward(float step_length);
     virtual std::future<StepInfo> reset();
-    virtual void change_reward(int agent, float reward_delta);
-    virtual void change_reward(Agent *agent, float reward_delta);
+    virtual void change_reward(int body, float reward_delta);
+    virtual void change_reward(Body *body, float reward_delta);
     virtual void set_done();
     virtual RenderData get_render_data(bool lightweight = false);
     virtual float get_elapsed_time() const;
 
-    std::unique_ptr<Agent> agent;
+    std::unique_ptr<Body> body;
 };
 }

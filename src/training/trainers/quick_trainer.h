@@ -13,8 +13,8 @@
 
 namespace SingularityTrainer
 {
-class Agent;
-class AgentFactory;
+class Body;
+class BodyFactory;
 class IEnvironmentFactory;
 class Random;
 
@@ -23,7 +23,7 @@ auto EnvCount = [] {};
 class QuickTrainer : public ITrainer
 {
   private:
-    int agents_per_env;
+    int bodies_per_env;
     std::unique_ptr<cpprl::Algorithm> algorithm;
     cpprl::Policy policy;
     std::shared_ptr<cpprl::NNBase> nn_base;
@@ -44,7 +44,7 @@ class QuickTrainer : public ITrainer
     BOOST_DI_INJECT(QuickTrainer,
                     (named = EnvCount) int env_count,
                     IEnvironmentFactory &env_factory,
-                    AgentFactory &agent_factory);
+                    BodyFactory &body_factory);
 
     virtual void save_model();
     virtual void step();

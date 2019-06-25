@@ -6,7 +6,7 @@
 
 #include "training/environments/target_env.h"
 #include "graphics/colors.h"
-#include "training/agents/test_agent.h"
+#include "training/bodies/test_body.h"
 #include "training/entities/bullet.h"
 #include "training/entities/target.h"
 #include "training/entities/wall.h"
@@ -35,8 +35,8 @@ class ContactListener : public b2ContactListener
 
                 switch (body->parent_type)
                 {
-                case RigidBody::ParentTypes::Agent:
-                    static_cast<Agent *>(body->parent)->begin_contact(other);
+                case RigidBody::ParentTypes::Body:
+                    static_cast<Body *>(body->parent)->begin_contact(other);
                     break;
                 case RigidBody::ParentTypes::Bullet:
                     static_cast<Bullet *>(body->parent)->begin_contact(other);
@@ -69,8 +69,8 @@ class ContactListener : public b2ContactListener
 
                 switch (body->parent_type)
                 {
-                case RigidBody::ParentTypes::Agent:
-                    static_cast<Agent *>(body->parent)->end_contact(other);
+                case RigidBody::ParentTypes::Body:
+                    static_cast<Body *>(body->parent)->end_contact(other);
                     break;
                 case RigidBody::ParentTypes::Bullet:
                     static_cast<Bullet *>(body->parent)->end_contact(other);
@@ -102,8 +102,8 @@ TargetEnv::TargetEnv(float /*x*/, float /*y*/, float /*scale*/, int max_steps, i
     contact_listener = std::make_unique<ContactListener>();
     world->SetContactListener(contact_listener.get());
 
-    // Agent
-    agent = std::make_unique<TestAgent>(*world, *rng, *this);
+    // Body
+    body = std::make_unique<TestBody>(*world, *rng, *this);
 
     // Target
     target = std::make_unique<Target>(4, 4, *world, *this);
@@ -143,8 +143,8 @@ RenderData TargetEnv::get_render_data(bool lightweight)
 {
     RenderData render_data;
 
-    auto agent_render_data = agent->get_render_data(lightweight);
-    render_data.append(agent_render_data);
+    auto body_render_data = body->get_render_data(lightweight);
+    render_data.append(body_render_data);
 
     for (auto &wall : walls)
     {
@@ -182,13 +182,13 @@ void TargetEnv::forward(float step_length)
     }
 }
 
-void TargetEnv::change_reward(int /*agent*/, float reward_delta)
+void TargetEnv::change_reward(int /*body*/, float reward_delta)
 {
     reward += reward_delta;
     total_reward += reward_delta;
 }
 
-void TargetEnv::change_reward(Agent * /*agent*/, float reward_delta)
+void TargetEnv::change_reward(Body * /*body*/, float reward_delta)
 {
     change_reward(0, reward_delta);
 }
@@ -229,7 +229,7 @@ void TargetEnv::thread_loop()
             // Act
             auto actions_tensor = command.actions[0].to(torch::kInt).contiguous();
             std::vector<int> actions(actions_tensor.data<int>(), actions_tensor.data<int>() + actions_tensor.numel());
-            agent->act(actions);
+            body->act(actions);
 
             // Step simulation
             world->Step(command.step_length, 3, 2);
@@ -240,7 +240,7 @@ void TargetEnv::thread_loop()
             done = done || step_counter >= max_steps;
 
             // Return step information
-            auto observation = agent->get_observation();
+            auto observation = body->get_observation();
             StepInfo step_info{
                 torch::from_blob(observation.data(), {1, static_cast<long>(observation.size())}).clone(),
                 torch::from_blob(&reward, {1, 1}, torch::kFloat).clone(),
@@ -268,7 +268,7 @@ void TargetEnv::thread_loop()
             reset_impl();
 
             // Fill in StepInfo
-            auto observation = agent->get_observation();
+            auto observation = body->get_observation();
             StepInfo step_info{
                 torch::from_blob(observation.data(), {1, static_cast<long>(observation.size())}).clone(),
                 torch::from_blob(&reward, {1, 1}, torch::kFloat).clone(),
@@ -287,10 +287,10 @@ void TargetEnv::reset_impl()
     total_reward = 0;
     step_counter = 0;
 
-    // Reset agent position
-    agent->get_rigid_body().body->SetTransform(b2Vec2_zero, 0);
-    agent->get_rigid_body().body->SetAngularVelocity(0);
-    agent->get_rigid_body().body->SetLinearVelocity(b2Vec2_zero);
+    // Reset body position
+    body->get_rigid_body().body->SetTransform(b2Vec2_zero, 0);
+    body->get_rigid_body().body->SetAngularVelocity(0);
+    body->get_rigid_body().body->SetLinearVelocity(b2Vec2_zero);
 
     // Change target position
     float target_x = rng->next_float(0, 18) - 9;

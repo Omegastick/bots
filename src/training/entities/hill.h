@@ -10,7 +10,7 @@
 
 namespace SingularityTrainer
 {
-class Agent;
+class Body;
 class IEnvironment;
 class RewardConfig;
 class RigidBody;
@@ -21,7 +21,7 @@ class Hill : public IDrawable, public ICollidable
   private:
     IEnvironment &environment;
     std::unique_ptr<Sprite> sprite;
-    std::unordered_map<Agent *, int> occupants;
+    std::unordered_map<Body *, int> occupants;
 
   public:
     Hill(float x, float y, b2World &world, IEnvironment &env);

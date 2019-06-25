@@ -13,7 +13,7 @@
 #include "misc/resource_manager.h"
 #include "misc/screen_manager.h"
 #include "screens/train_screen.h"
-#include "training/agents/agent.h"
+#include "training/bodies/body.h"
 #include "training/checkpointer.h"
 #include "training/environments/ienvironment.h"
 #include "training/environments/koth_env.h"
@@ -83,11 +83,11 @@ void CreateProgramScreen::body()
     auto json = body_selector_window->update();
     if (!json.empty())
     {
-        auto agents = environment->get_agents();
+        auto bodies = environment->get_bodies();
         try
         {
-            agents[0]->load_json(json);
-            agents[1]->load_json(json);
+            bodies[0]->load_json(json);
+            bodies[1]->load_json(json);
         }
         catch (std::runtime_error &ex)
         {
@@ -95,7 +95,7 @@ void CreateProgramScreen::body()
         }
 
         environment->reset();
-        program->agent = json;
+        program->body = json;
     }
 }
 
@@ -113,9 +113,9 @@ void CreateProgramScreen::save_load()
 {
     if (save_load_window->update(*program))
     {
-        auto agents = environment->get_agents();
-        agents[0]->load_json(program->agent);
-        agents[1]->load_json(program->agent);
+        auto bodies = environment->get_bodies();
+        bodies[0]->load_json(program->body);
+        bodies[1]->load_json(program->body);
         environment->reset();
     }
 }
@@ -150,23 +150,23 @@ void CreateProgramScreen::update(double /*delta_time*/)
 
     switch (state)
     {
-    case Algorithm:
+    case CreateProgramScreenState::Algorithm:
         algorithm();
         break;
-    case Body:
+    case CreateProgramScreenState::Body:
         body();
         break;
-    case Brain:
+    case CreateProgramScreenState::Brain:
         brain();
         break;
-    case Rewards:
+    case CreateProgramScreenState::Rewards:
         rewards();
         break;
-    case SaveLoad:
+    case CreateProgramScreenState::SaveLoad:
         save_load();
         break;
-    case Opponents:
-    case Schedule:
+    case CreateProgramScreenState::Opponents:
+    case CreateProgramScreenState::Schedule:
         break;
     }
 
@@ -191,12 +191,12 @@ std::shared_ptr<IScreen> CreateProgramScreenFactory::make()
 {
     auto world = std::make_unique<b2World>(b2Vec2_zero);
     auto rng = std::make_unique<Random>(0);
-    std::vector<std::unique_ptr<Agent>> agents;
-    agents.push_back(agent_factory.make(*world, *rng));
-    agents.push_back(agent_factory.make(*world, *rng));
+    std::vector<std::unique_ptr<Body>> bodies;
+    bodies.push_back(body_factory.make(*world, *rng));
+    bodies.push_back(body_factory.make(*world, *rng));
     auto environment = env_factory.make(std::move(rng),
                                         std::move(world),
-                                        std::move(agents),
+                                        std::move(bodies),
                                         RewardConfig());
     return std::make_shared<CreateProgramScreen>(std::make_unique<AlgorithmWindow>(io),
                                                  std::make_unique<BodySelectorWindow>(io),

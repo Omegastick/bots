@@ -4,7 +4,7 @@
 
 namespace SingularityTrainer
 {
-class Agent;
+class Body;
 class IO;
 
 class SaveBodyWindow
@@ -16,6 +16,6 @@ class SaveBodyWindow
   public:
     SaveBodyWindow(IO &io);
 
-    bool update(Agent &agent);
+    bool update(Body &body);
 };
 }

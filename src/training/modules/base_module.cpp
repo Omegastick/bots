@@ -9,7 +9,7 @@
 
 #include "graphics/colors.h"
 #include "misc/resource_manager.h"
-#include "training/agents/agent.h"
+#include "training/bodies/body.h"
 #include "training/environments/ienvironment.h"
 #include "training/modules/base_module.h"
 #include "training/modules/imodule.h"
@@ -46,9 +46,9 @@ BaseModule::~BaseModule() {}
 
 std::vector<float> BaseModule::get_sensor_reading() const
 {
-    b2Vec2 linear_velocity = agent->get_rigid_body().body->GetLinearVelocity();
-    linear_velocity = b2Mul(b2Rot(agent->get_rigid_body().body->GetAngle()), linear_velocity);
-    float angular_velocity = agent->get_rigid_body().body->GetAngularVelocity();
+    b2Vec2 linear_velocity = body->get_rigid_body().body->GetLinearVelocity();
+    linear_velocity = b2Mul(b2Rot(body->get_rigid_body().body->GetAngle()), linear_velocity);
+    float angular_velocity = body->get_rigid_body().body->GetAngularVelocity();
     return {linear_velocity.x, linear_velocity.y, angular_velocity};
 }
 

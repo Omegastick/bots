@@ -17,7 +17,7 @@ TrainingProgram::TrainingProgram(nlohmann::json &json)
     {
         throw std::runtime_error("Invalid schema version");
     }
-    agent = json["agent"];
+    body = json["body"];
     checkpoint = json["checkpoint"];
     hyper_parameters = json["hyper_parameters"];
     minutes_per_checkpoint = json["minutes_per_checkpoint"];
@@ -56,7 +56,7 @@ nlohmann::json TrainingProgram::to_json() const
     nlohmann::json json;
 
     json["schema"] = schema_version;
-    json["agent"] = agent;
+    json["body"] = body;
     json["checkpoint"] = checkpoint;
     json["hyper_parameters"] = hyper_parameters.to_json();
     json["minutes_per_checkpoint"] = minutes_per_checkpoint;
@@ -106,7 +106,7 @@ TEST_CASE("TrainingProgram")
     {
         nlohmann::json json;
         json["schema"] = schema_version;
-        json["agent"] = nlohmann::json("Agent");
+        json["body"] = nlohmann::json("Body");
         json["checkpoint"] = "12345";
         json["minutes_per_checkpoint"] = 54321;
 
@@ -136,11 +136,11 @@ TEST_CASE("TrainingProgram")
         json["reward_config"] = reward_config;
 
         TrainingProgram program(json);
-        CHECK(program.agent == nlohmann::json("Agent"));
+        CHECK(program.body == nlohmann::json("Body"));
         CHECK(program.checkpoint == "12345");
         CHECK(program.minutes_per_checkpoint == 54321);
 
-        CHECK(program.hyper_parameters.algorithm == doctest::Approx(0));
+        CHECK(program.hyper_parameters.algorithm == Algorithm::A2C);
         CHECK(program.hyper_parameters.batch_size == doctest::Approx(4));
         CHECK(program.hyper_parameters.discount_factor == doctest::Approx(0.2));
         CHECK(program.hyper_parameters.entropy_coef == doctest::Approx(0.3));
@@ -165,7 +165,7 @@ TEST_CASE("TrainingProgram")
     SUBCASE("Can be converted to Json and back")
     {
         TrainingProgram program;
-        program.agent = nlohmann::json("Agent");
+        program.body = nlohmann::json("Body");
         program.checkpoint = "12345";
         program.minutes_per_checkpoint = 54321;
 
@@ -193,11 +193,11 @@ TEST_CASE("TrainingProgram")
         auto json = program.to_json();
         TrainingProgram recreated_program(json);
 
-        CHECK(recreated_program.agent == nlohmann::json("Agent"));
+        CHECK(recreated_program.body == nlohmann::json("Body"));
         CHECK(recreated_program.checkpoint == "12345");
         CHECK(recreated_program.minutes_per_checkpoint == 54321);
 
-        CHECK(recreated_program.hyper_parameters.algorithm == doctest::Approx(0));
+        CHECK(recreated_program.hyper_parameters.algorithm == Algorithm::A2C);
         CHECK(recreated_program.hyper_parameters.batch_size == doctest::Approx(4));
         CHECK(recreated_program.hyper_parameters.discount_factor == doctest::Approx(0.2));
         CHECK(recreated_program.hyper_parameters.entropy_coef == doctest::Approx(0.3));

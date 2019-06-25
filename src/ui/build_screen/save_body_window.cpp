@@ -9,7 +9,7 @@
 
 #include "ui/build_screen/save_body_window.h"
 #include "misc/io.h"
-#include "training/agents/agent.h"
+#include "training/bodies/body.h"
 
 namespace fs = std::filesystem;
 
@@ -17,7 +17,7 @@ namespace SingularityTrainer
 {
 SaveBodyWindow::SaveBodyWindow(IO &io) : io(&io), name("") {}
 
-bool SaveBodyWindow::update(Agent &agent)
+bool SaveBodyWindow::update(Body &body)
 {
     bool saved = false;
     ImGui::Begin("Save body");
@@ -26,7 +26,7 @@ bool SaveBodyWindow::update(Agent &agent)
 
     if (ImGui::Button("Save"))
     {
-        // Check bodys directory exists
+        // Check bodies directory exists
         auto bodies_directory = fs::current_path();
         bodies_directory += "/bodies";
         if (!fs::exists(bodies_directory))
@@ -39,8 +39,8 @@ bool SaveBodyWindow::update(Agent &agent)
         file_name += "/" + name + ".json";
         spdlog::debug("Saving body to {}", file_name.c_str());
 
-        agent.set_name(name);
-        auto json = agent.to_json().dump();
+        body.set_name(name);
+        auto json = body.to_json().dump();
         std::ofstream file(file_name);
         file << json;
         saved = true;

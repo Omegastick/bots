@@ -11,7 +11,7 @@
 #include <torch/torch.h>
 
 #include "third_party/di.hpp"
-#include "training/agents/agent.h"
+#include "training/bodies/body.h"
 #include "training/trainers/itrainer.h"
 #include "training/training_program.h"
 
@@ -23,10 +23,10 @@ class IEnvironmentFactory;
 class Trainer : public ITrainer
 {
   private:
-    std::unique_ptr<Agent> example_agent;
+    std::unique_ptr<Body> example_body;
 
     int action_frame_counter;
-    int agents_per_env;
+    int bodies_per_env;
     std::unique_ptr<cpprl::Algorithm> algorithm;
     Checkpointer &checkpointer;
     float elapsed_time;
@@ -46,7 +46,7 @@ class Trainer : public ITrainer
 
   public:
     Trainer(TrainingProgram program,
-            AgentFactory &agent_factory,
+            BodyFactory &body_factory,
             Checkpointer &checkpointer,
             IEnvironmentFactory &env_factory);
 
@@ -59,21 +59,21 @@ class Trainer : public ITrainer
 class TrainerFactory
 {
   private:
-    AgentFactory &agent_factory;
+    BodyFactory &body_factory;
     Checkpointer &checkpointer;
     IEnvironmentFactory &env_factory;
 
   public:
-    TrainerFactory(AgentFactory &agent_factory,
+    TrainerFactory(BodyFactory &body_factory,
                    Checkpointer &checkpointer,
                    IEnvironmentFactory &env_factory)
-        : agent_factory(agent_factory),
+        : body_factory(body_factory),
           checkpointer(checkpointer),
           env_factory(env_factory) {}
 
     std::unique_ptr<Trainer> make(TrainingProgram &program)
     {
-        return std::make_unique<Trainer>(program, agent_factory, checkpointer, env_factory);
+        return std::make_unique<Trainer>(program, body_factory, checkpointer, env_factory);
     }
 };
 }

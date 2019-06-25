@@ -6,7 +6,7 @@ class b2World;
 
 namespace SingularityTrainer
 {
-class Agent;
+class Body;
 class IO;
 class Random;
 class TrainingProgram;
@@ -21,6 +21,6 @@ class BodySelectorWindow
   public:
     BodySelectorWindow(IO &io);
 
-    WizardAction update(Agent &agent, TrainingProgram &program);
+    WizardAction update(Body &body, TrainingProgram &program);
 };
 }

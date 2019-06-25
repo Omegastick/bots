@@ -13,13 +13,12 @@
 
 #include "misc/random.h"
 #include "third_party/di.hpp"
-#include "training/agents/test_agent.h"
+#include "training/bodies/test_body.h"
 #include "training/environments/ienvironment.h"
 #include "training/training_program.h"
 
 namespace SingularityTrainer
 {
-class Agent;
 class Hill;
 class ResourceManager;
 class Wall;
@@ -27,8 +26,8 @@ class Wall;
 class KothEnv : public IEnvironment
 {
   private:
-    std::unique_ptr<Agent> agent_1;
-    std::unique_ptr<Agent> agent_2;
+    std::unique_ptr<Body> body_1;
+    std::unique_ptr<Body> body_2;
     int max_steps;
     std::unique_ptr<Random> rng;
     std::unique_ptr<b2World> world;
@@ -44,7 +43,7 @@ class KothEnv : public IEnvironment
     std::mutex command_queue_mutex;
     std::condition_variable command_queue_condvar;
     std::vector<float> total_rewards;
-    std::unordered_map<Agent *, int> agent_numbers;
+    std::unordered_map<Body *, int> body_numbers;
     RewardConfig reward_config;
 
     void
@@ -53,8 +52,8 @@ class KothEnv : public IEnvironment
 
   public:
     KothEnv(int max_steps,
-            std::unique_ptr<Agent> agent_1,
-            std::unique_ptr<Agent> agent_2,
+            std::unique_ptr<Body> body_1,
+            std::unique_ptr<Body> body_2,
             std::unique_ptr<b2World> world,
             std::unique_ptr<Random> rng,
             RewardConfig reward_config);
@@ -64,19 +63,19 @@ class KothEnv : public IEnvironment
     virtual std::future<StepInfo> step(torch::Tensor actions, float step_length);
     virtual void forward(float step_length);
     virtual std::future<StepInfo> reset();
-    virtual void change_reward(int agent, float reward_delta);
-    virtual void change_reward(Agent *agent, float reward_delta);
+    virtual void change_reward(int body, float reward_delta);
+    virtual void change_reward(Body *body, float reward_delta);
     virtual void set_done();
     virtual RenderData get_render_data(bool lightweight = false);
     virtual float get_elapsed_time() const;
 
-    inline std::vector<Agent *> get_agents() { return {agent_1.get(), agent_2.get()}; }
+    inline std::vector<Body *> get_bodies() { return {body_1.get(), body_2.get()}; }
     inline RewardConfig &get_reward_config() { return reward_config; }
     inline Random &get_rng() { return *rng; }
     inline std::vector<float> get_total_rewards() { return total_rewards; }
     inline b2World &get_world() { return *world; };
-    inline void set_agent_1(std::unique_ptr<Agent> agent) { this->agent_1 = std::move(agent); }
-    inline void set_agent_2(std::unique_ptr<Agent> agent) { this->agent_2 = std::move(agent); }
+    inline void set_body_1(std::unique_ptr<Body> body) { this->body_1 = std::move(body); }
+    inline void set_body_2(std::unique_ptr<Body> body) { this->body_2 = std::move(body); }
 };
 
 auto MaxSteps = [] {};
@@ -93,12 +92,12 @@ class KothEnvFactory : public IEnvironmentFactory
     virtual std::unique_ptr<IEnvironment> make(
         std::unique_ptr<Random> rng,
         std::unique_ptr<b2World> world,
-        std::vector<std::unique_ptr<Agent>> agents,
+        std::vector<std::unique_ptr<Body>> bodies,
         RewardConfig reward_config)
     {
         return std::make_unique<KothEnv>(max_steps,
-                                         std::move(agents[0]),
-                                         std::move(agents[1]),
+                                         std::move(bodies[0]),
+                                         std::move(bodies[1]),
                                          std::move(world),
                                          std::move(rng),
                                          reward_config);

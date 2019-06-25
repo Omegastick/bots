@@ -4,6 +4,7 @@
 
 namespace SingularityTrainer
 {
+class Checkpointer;
 class IO;
 class TrainingProgram;
 
@@ -13,7 +14,7 @@ class BrainWindow
     IO &io;
 
   public:
-    BrainWindow(IO &io);
+    BrainWindow(Checkpointer &checkpointer, IO &io);
 
     void update(TrainingProgram &program);
 };

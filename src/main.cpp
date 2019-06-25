@@ -18,7 +18,7 @@
 #include "screens/create_program_screen.h"
 #include "screens/train_screen.h"
 #include "screens/watch_screen.h"
-#include "training/agents/agent.h"
+#include "training/bodies/body.h"
 #include "training/checkpointer.h"
 #include "training/environments/ienvironment.h"
 #include "training/environments/koth_env.h"
@@ -41,7 +41,7 @@ int main(int argc, char *argv[])
         di::bind<int>.named(MaxParticles).to(100000),
         di::bind<IEnvironmentFactory>.to<KothEnvFactory>(),
         di::bind<int>.named(MaxSteps).to(600),
-        di::bind<AgentFactory>.to<AgentFactory>(),
+        di::bind<BodyFactory>.to<BodyFactory>(),
         di::bind<ISaver>.to<Saver>(),
         di::bind<std::string>.named(CheckpointDirectory).to("checkpoints"));
     auto app = injector.create<App>();

@@ -8,7 +8,7 @@
 #include <glm/mat4x4.hpp>
 
 #include "screens/iscreen.h"
-#include "training/agents/agent.h"
+#include "training/bodies/body.h"
 #include "training/environments/ienvironment.h"
 #include "training/training_program.h"
 #include "ui/watch_screen/checkpoint_selector_window.h"
@@ -34,7 +34,7 @@ class WatchScreen : public IScreen
     void show_checkpoint_selector();
     void show_agent_scores();
 
-    enum States
+    enum class States
     {
         BROWSING = 0,
         WATCHING = 1
@@ -63,19 +63,19 @@ class WatchScreen : public IScreen
 class WatchScreenFactory : public IScreenFactory
 {
   private:
-    AgentFactory &agent_factory;
+    BodyFactory &body_factory;
     IEnvironmentFactory &env_factory;
     IO &io;
     ResourceManager &resource_manager;
     Random &rng;
 
   public:
-    WatchScreenFactory(AgentFactory &agent_factory,
+    WatchScreenFactory(BodyFactory &body_factory,
                        IEnvironmentFactory &env_factory,
                        IO &io,
                        ResourceManager &resource_manager,
                        Random &rng)
-        : agent_factory(agent_factory),
+        : body_factory(body_factory),
           env_factory(env_factory),
           io(io),
           resource_manager(resource_manager),
@@ -84,10 +84,10 @@ class WatchScreenFactory : public IScreenFactory
     inline std::shared_ptr<IScreen> make()
     {
         auto world = std::make_unique<b2World>(b2Vec2_zero);
-        std::vector<std::unique_ptr<Agent>> agents;
-        agents.push_back(agent_factory.make(*world, rng));
-        agents.push_back(agent_factory.make(*world, rng));
-        return std::make_shared<WatchScreen>(env_factory.make(0, std::move(world), std::move(agents), RewardConfig()),
+        std::vector<std::unique_ptr<Body>> bodies;
+        bodies.push_back(body_factory.make(*world, rng));
+        bodies.push_back(body_factory.make(*world, rng));
+        return std::make_shared<WatchScreen>(env_factory.make(0, std::move(world), std::move(bodies), RewardConfig()),
                                              resource_manager, io);
     }
 };

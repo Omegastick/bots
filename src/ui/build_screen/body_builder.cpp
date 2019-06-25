@@ -11,7 +11,7 @@
 #include "graphics/render_data.h"
 #include "misc/io.h"
 #include "misc/random.h"
-#include "training/agents/agent.h"
+#include "training/bodies/body.h"
 #include "training/modules/base_module.h"
 #include "training/modules/gun_module.h"
 #include "training/modules/module_link.h"
@@ -28,26 +28,26 @@ bool GetAllQueryCallback::ReportFixture(b2Fixture *fixture)
     return true;
 }
 
-BodyBuilder::BodyBuilder(std::unique_ptr<Agent> agent, std::unique_ptr<b2World> world, IO &io)
-    : agent(std::move(agent)),
+BodyBuilder::BodyBuilder(std::unique_ptr<Body> body, std::unique_ptr<b2World> world, IO &io)
+    : body(std::move(body)),
       io(io),
       projection(glm::ortho(-9.6f, 9.6f, -5.4f, 5.4f)),
       world(std::move(world))
 {
     auto base_module = std::make_shared<BaseModule>();
-    this->agent->add_module(base_module);
-    this->agent->update_body();
+    this->body->add_module(base_module);
+    this->body->update_body();
 }
 
 void BodyBuilder::delete_module(std::shared_ptr<IModule> module)
 {
-    if (module == agent->get_modules()[0])
+    if (module == body->get_modules()[0])
     {
         spdlog::error("Can't delete base module");
         return;
     }
-    agent->unlink_module(module);
-    agent->update_body();
+    body->unlink_module(module);
+    body->update_body();
 }
 
 std::shared_ptr<IModule> BodyBuilder::get_module_at_screen_position(glm::vec2 point)
@@ -66,7 +66,7 @@ std::shared_ptr<IModule> BodyBuilder::get_module_at_screen_position(glm::vec2 po
 
     auto fixture = collisions[0];
     auto rigid_body = static_cast<RigidBody *>(fixture->GetBody()->GetUserData());
-    if (rigid_body->parent_type != RigidBody::ParentTypes::Agent)
+    if (rigid_body->parent_type != RigidBody::ParentTypes::Body)
     {
         return nullptr;
     }
@@ -81,7 +81,7 @@ NearestModuleLinkResult BodyBuilder::get_nearest_module_link_to_world_position(g
     ModuleLink *nearest_link = nullptr;
     double nearest_distance = INFINITY;
 
-    for (const auto &module : agent->get_modules())
+    for (const auto &module : body->get_modules())
     {
         for (auto &module_link : module->get_module_links())
         {
@@ -133,32 +133,32 @@ std::shared_ptr<IModule> BodyBuilder::place_module(std::shared_ptr<IModule> sele
     else
     {
         nearest_link_result.nearest_link->link(*nearest_link_result.origin_link);
-        agent->add_module(selected_module);
-        agent->update_body();
-        agent->register_actions();
+        body->add_module(selected_module);
+        body->update_body();
+        body->register_actions();
         return selected_module;
     }
 }
 
 RenderData BodyBuilder::get_render_data(bool lightweight)
 {
-    return agent->get_render_data(lightweight);
+    return body->get_render_data(lightweight);
 }
 
 TEST_CASE("BodyBuilder")
 {
-    AgentFactory agent_factory;
+    BodyFactory body_factory;
     Random rng(0);
     IO io;
     io.set_resolution(1920, 1080);
     auto world = std::make_unique<b2World>(b2Vec2_zero);
-    auto agent = agent_factory.make(*world, rng);
-    BodyBuilder body_builder(std::move(agent), std::move(world), io);
+    auto body = body_factory.make(*world, rng);
+    BodyBuilder body_builder(std::move(body), std::move(world), io);
 
     SUBCASE("Starts with only a single base module")
     {
-        auto agent = &body_builder.get_agent();
-        auto modules = agent->get_modules();
+        auto body = &body_builder.get_body();
+        auto modules = body->get_modules();
 
         CHECK(modules.size() == 1);
 
@@ -181,15 +181,15 @@ TEST_CASE("BodyBuilder")
 
             body_builder.delete_module(placed_module);
 
-            CHECK(body_builder.get_agent().get_modules().size() == 1);
+            CHECK(body_builder.get_body().get_modules().size() == 1);
         }
 
         SUBCASE("Won't delete base module")
         {
-            auto base_module = body_builder.get_agent().get_modules()[0];
+            auto base_module = body_builder.get_body().get_modules()[0];
             body_builder.delete_module(base_module);
 
-            CHECK(body_builder.get_agent().get_modules().size() == 1);
+            CHECK(body_builder.get_body().get_modules().size() == 1);
         }
     }
 
@@ -204,10 +204,10 @@ TEST_CASE("BodyBuilder")
             auto selected_module = body_builder.place_module(gun_module);
 
             CHECK(selected_module == gun_module);
-            REQUIRE(body_builder.get_agent().get_modules().size() == 2);
+            REQUIRE(body_builder.get_body().get_modules().size() == 2);
 
-            CHECK(body_builder.get_agent().get_modules()[1]->get_transform().q.s == doctest::Approx(b2Rot(0).s));
-            CHECK(body_builder.get_agent().get_modules()[1]->get_transform().q.c == doctest::Approx(b2Rot(0).c));
+            CHECK(body_builder.get_body().get_modules()[1]->get_transform().q.s == doctest::Approx(b2Rot(0).s));
+            CHECK(body_builder.get_body().get_modules()[1]->get_transform().q.c == doctest::Approx(b2Rot(0).c));
         }
 
         SUBCASE("Correctly places two gun modules")
@@ -223,10 +223,10 @@ TEST_CASE("BodyBuilder")
             auto selected_module = body_builder.place_module(gun_module_2);
 
             CHECK(selected_module == gun_module_2);
-            REQUIRE(body_builder.get_agent().get_modules().size() == 3);
+            REQUIRE(body_builder.get_body().get_modules().size() == 3);
 
-            CHECK(body_builder.get_agent().get_modules()[2]->get_transform().q.s == doctest::Approx(b2Rot(0).s));
-            CHECK(body_builder.get_agent().get_modules()[2]->get_transform().q.c == doctest::Approx(b2Rot(0).c));
+            CHECK(body_builder.get_body().get_modules()[2]->get_transform().q.s == doctest::Approx(b2Rot(0).s));
+            CHECK(body_builder.get_body().get_modules()[2]->get_transform().q.c == doctest::Approx(b2Rot(0).c));
         }
 
         SUBCASE("Can chain modules")
@@ -242,10 +242,10 @@ TEST_CASE("BodyBuilder")
             auto selected_module = body_builder.place_module(gun_module_2);
 
             CHECK(selected_module == gun_module_2);
-            REQUIRE(body_builder.get_agent().get_modules().size() == 3);
+            REQUIRE(body_builder.get_body().get_modules().size() == 3);
 
-            CHECK(body_builder.get_agent().get_modules()[2]->get_transform().q.s == doctest::Approx(b2Rot(0).s));
-            CHECK(body_builder.get_agent().get_modules()[2]->get_transform().q.c == doctest::Approx(b2Rot(0).c));
+            CHECK(body_builder.get_body().get_modules()[2]->get_transform().q.s == doctest::Approx(b2Rot(0).s));
+            CHECK(body_builder.get_body().get_modules()[2]->get_transform().q.c == doctest::Approx(b2Rot(0).c));
         }
     }
 
@@ -254,7 +254,7 @@ TEST_CASE("BodyBuilder")
         SUBCASE("Correctly selects the base module at 0, 0")
         {
             auto selected_module = body_builder.get_module_at_screen_position({960, 540});
-            auto base_module = body_builder.get_agent().get_modules()[0];
+            auto base_module = body_builder.get_body().get_modules()[0];
 
             CHECK(selected_module == base_module);
         }
@@ -272,14 +272,14 @@ TEST_CASE("BodyBuilder")
         SUBCASE("Selects the correct link under normal use")
         {
             auto selected_link = body_builder.get_nearest_module_link_to_world_position({0, 10}).nearest_link;
-            auto expected_link = &body_builder.get_agent().get_modules()[0]->get_module_links()[0];
+            auto expected_link = &body_builder.get_body().get_modules()[0]->get_module_links()[0];
 
             CHECK(selected_link == expected_link);
         }
 
         SUBCASE("Returns a nullptr if there are no available module links")
         {
-            for (const auto &module : body_builder.get_agent().get_modules())
+            for (const auto &module : body_builder.get_body().get_modules())
             {
                 for (auto &module_link : module->get_module_links())
                 {

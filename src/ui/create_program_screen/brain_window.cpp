@@ -6,7 +6,7 @@
 
 namespace SingularityTrainer
 {
-BrainWindow::BrainWindow(IO &io) : io(io) {}
+BrainWindow::BrainWindow(Checkpointer & /*checkpointer*/, IO &io) : io(io) {}
 
 void BrainWindow::update(TrainingProgram &program)
 {

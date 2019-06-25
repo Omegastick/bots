@@ -8,7 +8,7 @@
 
 #include "training/environments/koth_env.h"
 #include "graphics/colors.h"
-#include "training/agents/test_agent.h"
+#include "training/bodies/test_body.h"
 #include "training/entities/bullet.h"
 #include "training/entities/wall.h"
 #include "training/entities/hill.h"
@@ -38,8 +38,8 @@ class KothContactListener : public b2ContactListener
 
                 switch (body->parent_type)
                 {
-                case RigidBody::ParentTypes::Agent:
-                    static_cast<Agent *>(body->parent)->begin_contact(other);
+                case RigidBody::ParentTypes::Body:
+                    static_cast<Body *>(body->parent)->begin_contact(other);
                     break;
                 case RigidBody::ParentTypes::Bullet:
                     static_cast<Bullet *>(body->parent)->begin_contact(other);
@@ -72,8 +72,8 @@ class KothContactListener : public b2ContactListener
 
                 switch (body->parent_type)
                 {
-                case RigidBody::ParentTypes::Agent:
-                    static_cast<Agent *>(body->parent)->end_contact(other);
+                case RigidBody::ParentTypes::Body:
+                    static_cast<Body *>(body->parent)->end_contact(other);
                     break;
                 case RigidBody::ParentTypes::Bullet:
                     static_cast<Bullet *>(body->parent)->end_contact(other);
@@ -93,13 +93,13 @@ class KothContactListener : public b2ContactListener
 };
 
 KothEnv::KothEnv(int max_steps,
-                 std::unique_ptr<Agent> agent_1,
-                 std::unique_ptr<Agent> agent_2,
+                 std::unique_ptr<Body> body_1,
+                 std::unique_ptr<Body> body_2,
                  std::unique_ptr<b2World> world,
                  std::unique_ptr<Random> rng,
                  RewardConfig reward_config)
-    : agent_1(std::move(agent_1)),
-      agent_2(std::move(agent_2)),
+    : body_1(std::move(body_1)),
+      body_2(std::move(body_2)),
       max_steps(max_steps),
       rng(std::move(rng)),
       world(std::move(world)),
@@ -115,13 +115,13 @@ KothEnv::KothEnv(int max_steps,
     contact_listener = std::make_unique<KothContactListener>();
     this->world->SetContactListener(contact_listener.get());
 
-    // Agents
-    this->agent_1->set_environment(*this);
-    this->agent_2->set_environment(*this);
-    this->agent_1->set_rng(*this->rng);
-    this->agent_2->set_rng(*this->rng);
-    agent_numbers[this->agent_1.get()] = 0;
-    agent_numbers[this->agent_2.get()] = 1;
+    // Bodys
+    this->body_1->set_environment(*this);
+    this->body_2->set_environment(*this);
+    this->body_1->set_rng(*this->rng);
+    this->body_2->set_rng(*this->rng);
+    body_numbers[this->body_1.get()] = 0;
+    body_numbers[this->body_2.get()] = 1;
 
     // Walls
     walls.push_back(std::make_unique<Wall>(-10, -20, 20, 0.1, *this->world));
@@ -160,10 +160,10 @@ RenderData KothEnv::get_render_data(bool lightweight)
 
     render_data.append(hill->get_render_data(lightweight));
 
-    auto agent_1_render_data = agent_1->get_render_data(lightweight);
-    render_data.append(agent_1_render_data);
-    auto agent_2_render_data = agent_2->get_render_data(lightweight);
-    render_data.append(agent_2_render_data);
+    auto body_1_render_data = body_1->get_render_data(lightweight);
+    render_data.append(body_1_render_data);
+    auto body_2_render_data = body_2->get_render_data(lightweight);
+    render_data.append(body_2_render_data);
 
     for (auto &wall : walls)
     {
@@ -198,15 +198,15 @@ void KothEnv::forward(float step_length)
     }
 }
 
-void KothEnv::change_reward(int agent, float reward_delta)
+void KothEnv::change_reward(int body, float reward_delta)
 {
-    rewards[agent] += reward_delta;
-    total_rewards[agent] += reward_delta;
+    rewards[body] += reward_delta;
+    total_rewards[body] += reward_delta;
 }
 
-void KothEnv::change_reward(Agent *agent, float reward_delta)
+void KothEnv::change_reward(Body *body, float reward_delta)
 {
-    change_reward(agent_numbers[agent], reward_delta);
+    change_reward(body_numbers[body], reward_delta);
 }
 
 void KothEnv::set_done()
@@ -247,8 +247,8 @@ void KothEnv::thread_loop()
             std::vector<int> actions_1(actions_tensor_1.data<int>(), actions_tensor_1.data<int>() + actions_tensor_1.numel());
             auto actions_tensor_2 = command.actions[1].to(torch::kInt).contiguous();
             std::vector<int> actions_2(actions_tensor_2.data<int>(), actions_tensor_2.data<int>() + actions_tensor_2.numel());
-            agent_1->act(actions_1);
-            agent_2->act(actions_2);
+            body_1->act(actions_1);
+            body_2->act(actions_2);
 
             // Step simulation
             world->Step(command.step_length, 3, 2);
@@ -257,17 +257,17 @@ void KothEnv::thread_loop()
             // Hill score
             hill->update();
 
-            // Check if agent is destroyed
-            if (agent_1->get_hp() <= 0)
+            // Check if body is destroyed
+            if (body_1->get_hp() <= 0)
             {
-                change_reward(agent_1.get(), reward_config.loss_punishment);
-                change_reward(agent_2.get(), reward_config.victory_reward);
+                change_reward(body_1.get(), reward_config.loss_punishment);
+                change_reward(body_2.get(), reward_config.victory_reward);
                 set_done();
             }
-            else if (agent_2->get_hp() <= 0)
+            else if (body_2->get_hp() <= 0)
             {
-                change_reward(agent_1.get(), reward_config.victory_reward);
-                change_reward(agent_2.get(), reward_config.loss_punishment);
+                change_reward(body_1.get(), reward_config.victory_reward);
+                change_reward(body_2.get(), reward_config.loss_punishment);
                 set_done();
             }
 
@@ -276,8 +276,8 @@ void KothEnv::thread_loop()
             done = done || step_counter >= max_steps;
 
             // Return step information
-            auto observation_1 = agent_1->get_observation();
-            auto observation_2 = agent_2->get_observation();
+            auto observation_1 = body_1->get_observation();
+            auto observation_2 = body_2->get_observation();
             observation_1.insert(observation_1.begin(), observation_2.begin(),
                                  observation_2.end());
             StepInfo step_info{
@@ -309,8 +309,8 @@ void KothEnv::thread_loop()
             reset_impl();
 
             // Fill in StepInfo
-            auto observation_1 = agent_1->get_observation();
-            auto observation_2 = agent_2->get_observation();
+            auto observation_1 = body_1->get_observation();
+            auto observation_2 = body_2->get_observation();
             observation_1.insert(observation_1.begin(), observation_2.begin(),
                                  observation_2.end());
             StepInfo step_info{
@@ -333,17 +333,17 @@ void KothEnv::reset_impl()
     total_rewards = {0, 0};
     step_counter = 0;
 
-    // Reset agent position
-    agent_1->get_rigid_body().body->SetTransform({0, -10}, 0);
-    agent_1->get_rigid_body().body->SetAngularVelocity(0);
-    agent_1->get_rigid_body().body->SetLinearVelocity(b2Vec2_zero);
-    agent_2->get_rigid_body().body->SetTransform({0, 10}, glm::radians(180.f));
-    agent_2->get_rigid_body().body->SetAngularVelocity(0);
-    agent_2->get_rigid_body().body->SetLinearVelocity(b2Vec2_zero);
+    // Reset body position
+    body_1->get_rigid_body().body->SetTransform({0, -10}, 0);
+    body_1->get_rigid_body().body->SetAngularVelocity(0);
+    body_1->get_rigid_body().body->SetLinearVelocity(b2Vec2_zero);
+    body_2->get_rigid_body().body->SetTransform({0, 10}, glm::radians(180.f));
+    body_2->get_rigid_body().body->SetAngularVelocity(0);
+    body_2->get_rigid_body().body->SetLinearVelocity(b2Vec2_zero);
 
-    // Reset agent hp
-    agent_1->reset();
-    agent_2->reset();
+    // Reset body hp
+    body_1->reset();
+    body_2->reset();
 
     // Reset hill
     hill->reset();

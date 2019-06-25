@@ -7,7 +7,7 @@
 #include "graphics/colors.h"
 #include "graphics/idrawable.h"
 #include "training/environments/ienvironment.h"
-#include "training/agents/agent.h"
+#include "training/bodies/body.h"
 #include "training/icollidable.h"
 #include "training/rigid_body.h"
 #include "training/training_program.h"
@@ -48,17 +48,17 @@ RenderData Hill::get_render_data(bool /*lightweight*/)
 
 void Hill::begin_contact(RigidBody *other)
 {
-    if (other->parent_type == RigidBody::ParentTypes::Agent)
+    if (other->parent_type == RigidBody::ParentTypes::Body)
     {
-        occupants[static_cast<Agent *>(other->parent)]++;
+        occupants[static_cast<Body *>(other->parent)]++;
     }
 }
 
 void Hill::end_contact(RigidBody *other)
 {
-    if (other->parent_type == RigidBody::ParentTypes::Agent)
+    if (other->parent_type == RigidBody::ParentTypes::Body)
     {
-        occupants[static_cast<Agent *>(other->parent)]--;
+        occupants[static_cast<Body *>(other->parent)]--;
     }
 }
 
@@ -66,27 +66,27 @@ void Hill::update() const
 {
     // First check if only one person is occupying the hill
     int total_occupants = 0;
-    for (const auto &agent : occupants)
+    for (const auto &body : occupants)
     {
-        if (agent.second > 0)
+        if (body.second > 0)
         {
             total_occupants++;
         }
     }
 
-    // If so, apply the appropriate rewards to the agents
+    // If so, apply the appropriate rewards to the bodies
     if (total_occupants == 1)
     {
         auto &reward_config = environment.get_reward_config();
-        for (auto agent : occupants)
+        for (auto body : occupants)
         {
-            if (agent.second > 0)
+            if (body.second > 0)
             {
-                environment.change_reward(agent.first, reward_config.hill_tick_reward);
+                environment.change_reward(body.first, reward_config.hill_tick_reward);
             }
             else
             {
-                environment.change_reward(agent.first, reward_config.enemy_hill_tick_punishment);
+                environment.change_reward(body.first, reward_config.enemy_hill_tick_punishment);
             }
         }
     }

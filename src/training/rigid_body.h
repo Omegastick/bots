@@ -13,9 +13,9 @@ class RigidBody
     void create_body();
 
   public:
-    enum ParentTypes
+    enum class ParentTypes
     {
-        Agent,
+        Body,
         Wall,
         Target,
         Bullet,

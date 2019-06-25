@@ -61,10 +61,10 @@ void TrainScreen::update(const double /*delta_time*/)
     ImGui::SetNextWindowSize({resolution.x * 0.2f, resolution.y * 0.1f}, ImGuiCond_Once);
     ImGui::SetNextWindowPos({resolution.x * 0.05f, resolution.y * 0.3f}, ImGuiCond_Once);
     ImGui::Begin("Health");
-    auto agents = trainer->environments[0]->get_agents();
-    for (const auto &agent : agents)
+    auto bodies = trainer->environments[0]->get_bodies();
+    for (const auto &body : bodies)
     {
-        auto health = agent->get_hp();
+        auto health = body->get_hp();
         double max_health = 10;
         ImGui::ProgressBar(health / max_health, {-1, 0}, fmt::format("{}/{}", health, max_health).c_str());
     }

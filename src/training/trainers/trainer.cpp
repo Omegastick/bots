@@ -12,7 +12,7 @@
 #include "trainer.h"
 #include "misc/random.h"
 #include "misc/resource_manager.h"
-#include "training/agents/agent.h"
+#include "training/bodies/body.h"
 #include "training/checkpointer.h"
 #include "training/environments/ienvironment.h"
 #include "training/score_processor.h"
@@ -24,16 +24,16 @@ namespace fs = std::filesystem;
 
 namespace SingularityTrainer
 {
-const int agent_per_env = 2;
+const int body_per_env = 2;
 const int game_length = 600;
 const bool recurrent = false;
 
 Trainer::Trainer(TrainingProgram program,
-                 AgentFactory &agent_factory,
+                 BodyFactory &body_factory,
                  Checkpointer &checkpointer,
                  IEnvironmentFactory &env_factory)
     : action_frame_counter(0),
-      agents_per_env(2),
+      bodies_per_env(2),
       checkpointer(checkpointer),
       elapsed_time(0),
       env_count(program.hyper_parameters.num_env),
@@ -50,12 +50,12 @@ Trainer::Trainer(TrainingProgram program,
     // Initialize rollout storage
     b2World b2_world({0, 0});
     Random rng(0);
-    auto temp_agent = agent_factory.make(b2_world, rng);
-    temp_agent->load_json(program.agent);
-    int num_observations = temp_agent->get_observation().size();
-    int num_actions = temp_agent->get_input_count();
+    auto temp_body = body_factory.make(b2_world, rng);
+    temp_body->load_json(program.body);
+    int num_observations = temp_body->get_observation().size();
+    int num_actions = temp_body->get_input_count();
     rollout_storage = std::make_unique<cpprl::RolloutStorage>(program.hyper_parameters.batch_size,
-                                                              program.hyper_parameters.num_env * agents_per_env,
+                                                              program.hyper_parameters.num_env * bodies_per_env,
                                                               c10::IntArrayRef{num_observations},
                                                               cpprl::ActionSpace{"MultiBinary", {num_actions}},
                                                               64,
@@ -65,14 +65,14 @@ Trainer::Trainer(TrainingProgram program,
     {
         auto world = std::make_unique<b2World>(b2Vec2_zero);
         auto rng = std::make_unique<Random>(i);
-        std::vector<std::unique_ptr<Agent>> agents;
-        agents.push_back(agent_factory.make(*world, *rng));
-        agents.push_back(agent_factory.make(*world, *rng));
-        agents[0]->load_json(program.agent);
-        agents[1]->load_json(program.agent);
+        std::vector<std::unique_ptr<Body>> bodies;
+        bodies.push_back(body_factory.make(*world, *rng));
+        bodies.push_back(body_factory.make(*world, *rng));
+        bodies[0]->load_json(program.body);
+        bodies[1]->load_json(program.body);
         environments.push_back(env_factory.make(std::move(rng),
                                                 std::move(world),
-                                                std::move(agents),
+                                                std::move(bodies),
                                                 program.reward_config));
     }
     env_scores.resize(env_count);
@@ -86,17 +86,17 @@ Trainer::Trainer(TrainingProgram program,
         // Start each environment with a different number of random steps to decorrelate the environments
         for (unsigned int current_step = 0; current_step < i * 12; current_step++)
         {
-            auto actions = torch::rand({agents_per_env, num_actions});
+            auto actions = torch::rand({bodies_per_env, num_actions});
             observation_futures[i] = environments[i]->step(actions, 1.f / 10.f);
         }
     }
-    observations = torch::zeros({env_count * agents_per_env, num_observations});
+    observations = torch::zeros({env_count * bodies_per_env, num_observations});
     for (int i = 0; i < env_count; ++i)
     {
         auto env_observation = observation_futures[i].get();
-        for (int j = 0; j < agents_per_env; ++j)
+        for (int j = 0; j < bodies_per_env; ++j)
         {
-            observations[i * agents_per_env + j] = env_observation.observation[j];
+            observations[i * bodies_per_env + j] = env_observation.observation[j];
         }
     }
 
@@ -201,7 +201,7 @@ void Trainer::save_model()
     save_path += "/" + date_time_string + ".pth";
     torch::save(policy, save_path);
 
-    previous_checkpoint = checkpointer.save(policy, program.agent, {}, previous_checkpoint);
+    previous_checkpoint = checkpointer.save(policy, program.body, {}, previous_checkpoint);
 }
 
 void Trainer::action_update()
@@ -216,22 +216,22 @@ void Trainer::action_update()
     }
 
     // Step environments
-    torch::Tensor dones = torch::zeros({env_count * agents_per_env, 1});
-    torch::Tensor rewards = torch::zeros({env_count * agents_per_env, 1});
+    torch::Tensor dones = torch::zeros({env_count * bodies_per_env, 1});
+    torch::Tensor rewards = torch::zeros({env_count * bodies_per_env, 1});
     std::vector<std::future<StepInfo>> step_info_futures(environments.size());
     for (unsigned int i = 0; i < environments.size(); ++i)
     {
-        step_info_futures[i] = environments[i]->step(act_result[1].narrow(0, i, agents_per_env).view({agents_per_env, -1}),
+        step_info_futures[i] = environments[i]->step(act_result[1].narrow(0, i, bodies_per_env).view({bodies_per_env, -1}),
                                                      1. / 60.);
     }
     for (unsigned int i = 0; i < environments.size(); ++i)
     {
         auto step_info = step_info_futures[i].get();
-        for (int j = 0; j < agents_per_env; ++j)
+        for (int j = 0; j < bodies_per_env; ++j)
         {
-            observations[i * agents_per_env + j] = step_info.observation[j];
-            dones[i * agents_per_env + j] = step_info.done[j];
-            rewards[i * agents_per_env + j] = step_info.reward[j];
+            observations[i * bodies_per_env + j] = step_info.observation[j];
+            dones[i * bodies_per_env + j] = step_info.done[j];
+            rewards[i * bodies_per_env + j] = step_info.reward[j];
         }
         for (unsigned int j = 0; j < step_info.reward.size(0); ++j)
         {

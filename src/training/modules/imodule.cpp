@@ -5,14 +5,14 @@
 
 #include "graphics/render_data.h"
 #include "training/modules/imodule.h"
-#include "training/agents/agent.h"
+#include "training/bodies/body.h"
 #include "training/rigid_body.h"
 #include "misc/utilities.h"
 
 namespace SingularityTrainer
 {
 IModule::IModule()
-    : agent(nullptr) {}
+    : body(nullptr) {}
 
 std::vector<IModule *> IModule::get_children()
 {
@@ -52,14 +52,14 @@ RenderData IModule::get_render_data(bool /*lightweight*/)
 
 b2Transform IModule::get_global_transform() const
 {
-    if (agent == nullptr)
+    if (body == nullptr)
     {
         return transform;
     }
-    b2Body *body = agent->get_rigid_body().body;
-    b2Transform agent_transform = body->GetTransform();
+    b2Body *b2_body = body->get_rigid_body().body;
+    b2Transform body_transform = b2_body->GetTransform();
 
-    return b2Mul(agent_transform, transform);
+    return b2Mul(body_transform, transform);
 }
 
 void IModule::update() {}

@@ -14,7 +14,7 @@ namespace SingularityTrainer
 {
 class ModuleLink;
 class IAction;
-class Agent;
+class Body;
 class RenderData;
 class Sprite;
 
@@ -27,7 +27,7 @@ class IModule : public IDrawable
     b2Transform transform;
     std::vector<b2PolygonShape> shapes;
     std::unique_ptr<Sprite> sprite;
-    Agent *agent;
+    Body *body;
 
   public:
     IModule();
@@ -43,8 +43,8 @@ class IModule : public IDrawable
     virtual nlohmann::json to_json() const = 0;
 
     inline const std::vector<std::unique_ptr<IAction>> &get_actions() const { return actions; }
-    inline const Agent *get_agent() const { return agent; };
-    inline void set_agent(Agent *agent) { this->agent = agent; };
+    inline const Body *get_body() const { return body; };
+    inline void set_body(Body *body) { this->body = body; };
     inline std::vector<ModuleLink> &get_module_links() { return module_links; }
     inline const IModule *get_root_module() const { return root; }
     inline const std::vector<b2PolygonShape> &get_shapes() const { return shapes; }

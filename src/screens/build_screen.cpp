@@ -90,7 +90,7 @@ void BuildScreen::update(double /*delta_time*/)
     }
 
     part_detail_window.update();
-    save_body_window.update(body_builder.get_agent());
+    save_body_window.update(body_builder.get_body());
 }
 
 void BuildScreen::draw(Renderer &renderer, bool lightweight)

@@ -8,7 +8,7 @@
 
 #include "graphics/colors.h"
 #include "misc/resource_manager.h"
-#include "training/agents/agent.h"
+#include "training/bodies/body.h"
 #include "training/modules/base_module.h"
 #include "training/modules/imodule.h"
 #include "training/modules/laser_sensor_module.h"
@@ -55,7 +55,7 @@ std::vector<float> LaserSensorModule::cast_lasers() const
         b2Rot angle(glm::radians((segment_width * i) - (fov / 2)));
         b2Vec2 laser = b2Mul(angle, b2Vec2(0, laser_length));
 
-        agent->get_rigid_body().body->GetWorld()->RayCast(&raycast_callback, global_transform.p, b2Mul(global_transform, laser));
+        body->get_rigid_body().body->GetWorld()->RayCast(&raycast_callback, global_transform.p, b2Mul(global_transform, laser));
         if (raycast_callback.distance == -1)
         {
             lasers[i] = 1;
@@ -78,7 +78,7 @@ RenderData LaserSensorModule::get_render_data(bool lightweight)
 {
     auto render_data = IModule::get_render_data(lightweight);
 
-    if (agent != nullptr && !lightweight)
+    if (body != nullptr && !lightweight)
     {
         auto sensor_reading = cast_lasers();
         if (sensor_reading.size() > 0)

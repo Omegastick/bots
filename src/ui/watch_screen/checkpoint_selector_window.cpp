@@ -14,7 +14,6 @@ CheckpointSelectorWindow::CheckpointSelectorWindow(IO &io) : selected_file(-1), 
 
 std::unique_ptr<cpprl::Policy> CheckpointSelectorWindow::update()
 {
-    // Load agent window
     ImGui::SetNextWindowPosCenter(ImGuiCond_Always);
     ImGui::Begin("Pick a checkpoint", NULL, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoTitleBar);
 

@@ -8,7 +8,7 @@
 
 namespace SingularityTrainer
 {
-class Agent;
+class Body;
 class RenderData;
 
 class ThrusterModule : public IModule, public IActivatable

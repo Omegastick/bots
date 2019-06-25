@@ -9,7 +9,7 @@
 #include "graphics/sprite.h"
 #include "misc/resource_manager.h"
 #include "training/actions/activate_action.h"
-#include "training/agents/agent.h"
+#include "training/bodies/body.h"
 #include "training/entities/bullet.h"
 #include "training/modules/gun_module.h"
 #include "training/modules/imodule.h"
@@ -49,7 +49,7 @@ void GunModule::activate()
         b2Transform global_transform = get_global_transform();
         b2Vec2 velocity = b2Mul(global_transform.q, b2Vec2(0, 100));
         b2Vec2 offset = b2Mul(global_transform.q, b2Vec2(0, 0.7));
-        bullets.push_back(std::make_unique<Bullet>(global_transform.p + offset, velocity, *agent->get_rigid_body().body->GetWorld(), agent));
+        bullets.push_back(std::make_unique<Bullet>(global_transform.p + offset, velocity, *body->get_rigid_body().body->GetWorld(), body));
     }
 }
 

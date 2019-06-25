@@ -6,15 +6,15 @@
 
 namespace SingularityTrainer
 {
-class Agent;
+class Body;
 
-enum Algorithm
+enum class Algorithm
 {
     A2C = 0,
     PPO = 1
 };
 
-enum HpOrHit
+enum class HpOrHit
 {
     Hp = 0,
     Hit = 1,
@@ -44,7 +44,7 @@ struct HyperParameters
     HyperParameters();
     HyperParameters(nlohmann::json &json);
 
-    Algorithm algorithm = A2C;
+    Algorithm algorithm = Algorithm::A2C;
     int batch_size = 2048;
     float discount_factor = 0.99;
     float entropy_coef = 0.001;
@@ -66,7 +66,7 @@ struct TrainingProgram
     TrainingProgram();
     TrainingProgram(nlohmann::json &json);
 
-    nlohmann::json agent;
+    nlohmann::json body;
     std::string checkpoint;
     HyperParameters hyper_parameters;
     int minutes_per_checkpoint = 10;

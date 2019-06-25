@@ -1,6 +1,6 @@
 #pragma once
 
-enum WizardAction
+enum class WizardAction
 {
     None,
     Next,
