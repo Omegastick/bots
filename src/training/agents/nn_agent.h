@@ -14,12 +14,9 @@ class NNAgent : public IAgent
   public:
     NNAgent(cpprl::Policy policy);
 
-    std::vector<int> act(torch::Tensor observation,
-                         torch::Tensor hidden_state,
-                         torch::Tensor mask);
-    std::vector<std::vector<int>> act_multiple(torch::Tensor observations,
-                                               torch::Tensor hidden_states,
-                                               torch::Tensor masks);
+    ActResult act(torch::Tensor observations,
+                  torch::Tensor hidden_states,
+                  torch::Tensor masks);
 
     inline int get_hidden_state_size() { return policy->get_hidden_size(); }
 };

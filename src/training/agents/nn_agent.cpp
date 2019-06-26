@@ -8,34 +8,21 @@ namespace SingularityTrainer
 NNAgent::NNAgent(cpprl::Policy policy)
     : policy(policy) {}
 
-std::vector<int> NNAgent::act(torch::Tensor observation,
-                              torch::Tensor hidden_state,
-                              torch::Tensor mask)
+ActResult NNAgent::act(torch::Tensor observations,
+                       torch::Tensor hidden_states,
+                       torch::Tensor masks)
 {
-    auto act_result = policy->act(observation.reshape({1, -1}),
-                                  hidden_state.reshape({1, -1}),
-                                  mask.reshape({1, -1}));
-    auto actions_tensor = act_result[1].to(torch::kInt).contiguous();
-    return std::vector<int>(actions_tensor.data<int>(),
-                            actions_tensor.data<int>() + actions_tensor.numel());
-}
-
-std::vector<std::vector<int>> NNAgent::act_multiple(torch::Tensor observations,
-                                                    torch::Tensor hidden_states,
-                                                    torch::Tensor masks)
-{
-    auto act_result = policy->act(observations, hidden_states, masks);
-    auto actions_tensor = act_result[1].to(torch::kInt).contiguous();
-    int num_bodies = observations.size(0);
-    std::vector<std::vector<int>> actions(num_bodies);
-    for (int i = 0; i < num_bodies; ++i)
+    if (observations.dim() == 1)
     {
-        actions[i] = std::vector<int>(actions_tensor[i].data<int>(),
-                                      actions_tensor[i].data<int>() + actions_tensor[i].numel());
+        observations = observations.unsqueeze(0);
+        hidden_states = hidden_states.unsqueeze(0);
+        masks = masks.unsqueeze(0);
     }
-    return actions;
+    auto act_result = policy->act(observations,
+                                  hidden_states,
+                                  masks);
+    return {act_result[1], act_result[3]};
 }
-
 TEST_CASE("NNAgent")
 {
     auto nn_base = std::make_shared<cpprl::MlpBase>(5, true, 6);
@@ -50,7 +37,8 @@ TEST_CASE("NNAgent")
                                      torch::zeros({6}),
                                      torch::zeros({1}));
 
-            DOCTEST_CHECK(actions.size() == 4);
+            DOCTEST_CHECK(std::get<0>(actions).size(0) == 1);
+            DOCTEST_CHECK(std::get<0>(actions).size(1) == 4);
         }
 
         SUBCASE("With [1, N] shaped tensor")
@@ -59,30 +47,18 @@ TEST_CASE("NNAgent")
                                      torch::zeros({1, 6}),
                                      torch::zeros({1, 1}));
 
-            DOCTEST_CHECK(actions.size() == 4);
-        }
-    }
-
-    SUBCASE("act_multiple() returns correctly sized actions")
-    {
-        SUBCASE("Dimension 1")
-        {
-            auto actions = agent.act_multiple(torch::zeros({3, 5}),
-                                              torch::zeros({3, 6}),
-                                              torch::zeros({3, 1}));
-
-            DOCTEST_CHECK(actions[0].size() == 4);
-            DOCTEST_CHECK(actions[1].size() == 4);
-            DOCTEST_CHECK(actions[2].size() == 4);
+            DOCTEST_CHECK(std::get<0>(actions).size(0) == 1);
+            DOCTEST_CHECK(std::get<0>(actions).size(1) == 4);
         }
 
-        SUBCASE("Dimension 0")
+        SUBCASE("Multiple parallel actions")
         {
-            auto actions = agent.act_multiple(torch::zeros({3, 5}),
-                                              torch::zeros({3, 6}),
-                                              torch::zeros({3, 1}));
+            auto actions = agent.act(torch::zeros({3, 5}),
+                                     torch::zeros({3, 6}),
+                                     torch::zeros({3, 1}));
 
-            DOCTEST_CHECK(actions.size() == 3);
+            DOCTEST_CHECK(std::get<0>(actions).size(0) == 3);
+            DOCTEST_CHECK(std::get<0>(actions).size(1) == 4);
         }
     }
 }

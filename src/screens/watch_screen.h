@@ -49,7 +49,8 @@ class WatchScreen : public IScreen
     States state;
     std::unique_ptr<PostProcLayer> crt_post_proc_layer;
     int frame_counter;
-    torch::Tensor observations, hidden_states, masks;
+    std::vector<torch::Tensor> observations;
+    torch::Tensor hidden_states, masks;
     std::vector<std::vector<float>> scores;
 
   public:

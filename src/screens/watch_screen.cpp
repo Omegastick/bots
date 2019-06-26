@@ -54,7 +54,7 @@ void WatchScreen::update(const double /*delta_time*/)
         {
             policy = *policy_;
             environment->start_thread();
-            observations = environment->reset().get().observation.view({1, -1});
+            observations = environment->reset().get().observation;
             masks = torch::zeros({1, 1});
             hidden_states = torch::zeros({1, 24});
 
@@ -111,7 +111,9 @@ void WatchScreen::action_update()
     hidden_states = act_result[3];
 
     // Step environment
-    auto step_info = environment->step(act_result[1], 1. / 60.).get();
+    auto step_info = environment->step({act_result[1][0], act_result[1][1]},
+                                       1. / 60.)
+                         .get();
     observations = step_info.observation.view({1, -1});
     for (unsigned int i = 0; i < scores.size(); ++i)
     {

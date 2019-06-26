@@ -17,7 +17,8 @@ class RewardConfig;
 
 struct StepInfo
 {
-    torch::Tensor observation, reward, done;
+    std::vector<torch::Tensor> observation;
+    torch::Tensor reward, done;
 };
 
 enum class Commands
@@ -33,7 +34,7 @@ struct ThreadCommand
     Commands command;
     std::promise<StepInfo> promise;
     float step_length;
-    torch::Tensor actions;
+    std::vector<torch::Tensor> actions;
 };
 
 class IEnvironment : public IDrawable
@@ -53,7 +54,7 @@ class IEnvironment : public IDrawable
     virtual std::future<StepInfo> reset() = 0;
     virtual void set_done() = 0;
     virtual void start_thread() = 0;
-    virtual std::future<StepInfo> step(torch::Tensor actions, float step_length) = 0;
+    virtual std::future<StepInfo> step(std::vector<torch::Tensor> actions, float step_length) = 0;
 };
 
 inline IEnvironment::~IEnvironment() {}

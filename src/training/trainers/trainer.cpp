@@ -86,7 +86,11 @@ Trainer::Trainer(TrainingProgram program,
         // Start each environment with a different number of random steps to decorrelate the environments
         for (unsigned int current_step = 0; current_step < i * 12; current_step++)
         {
-            auto actions = torch::rand({bodies_per_env, num_actions});
+            std::vector<torch::Tensor> actions;
+            for (int i = 0; i < bodies_per_env; ++i)
+            {
+                actions.push_back(torch::rand({1, num_actions}));
+            }
             observation_futures[i] = environments[i]->step(actions, 1.f / 10.f);
         }
     }
@@ -221,7 +225,7 @@ void Trainer::action_update()
     std::vector<std::future<StepInfo>> step_info_futures(environments.size());
     for (unsigned int i = 0; i < environments.size(); ++i)
     {
-        step_info_futures[i] = environments[i]->step(act_result[1].narrow(0, i, bodies_per_env).view({bodies_per_env, -1}),
+        step_info_futures[i] = environments[i]->step({act_result[1][i * 2], act_result[1][(i * 2) + 1]},
                                                      1. / 60.);
     }
     for (unsigned int i = 0; i < environments.size(); ++i)

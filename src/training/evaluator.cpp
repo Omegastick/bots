@@ -1,4 +1,5 @@
 #include <memory>
+#include <tuple>
 #include <vector>
 
 #include <doctest.h>
@@ -28,11 +29,7 @@ EvaluationResult Evaluator::evaluate(IAgent &agent_1,
                                      int number_of_trials)
 {
     // Initialize environments
-    std::vector<std::vector<float>> scores(number_of_trials);
-    for (auto &trial : scores)
-    {
-        trial = {0, 0};
-    }
+    std::vector<std::vector<float>> scores(number_of_trials, {0, 0});
 
     std::vector<std::unique_ptr<IEnvironment>> environments(number_of_trials);
     for (int i = 0; i < number_of_trials; ++i)
@@ -64,8 +61,8 @@ EvaluationResult Evaluator::evaluate(IAgent &agent_1,
     for (int i = 0; i < number_of_trials; ++i)
     {
         auto env_observation = observation_futures[i].get();
-        observations_1[i] = env_observation.observation[0];
-        observations_2[i] = env_observation.observation[1];
+        observations_1[i] = env_observation.observation[0].squeeze(0);
+        observations_2[i] = env_observation.observation[1].squeeze(0);
     }
 
     // Initialize masks and hidden states
@@ -75,19 +72,74 @@ EvaluationResult Evaluator::evaluate(IAgent &agent_1,
     auto masks_2 = torch::ones({number_of_trials, 1});
 
     // Run every environment to end
-    std::vector<bool> finished_trials(number_of_trials);
-    for (auto &&trial_finished : finished_trials)
-    {
-        trial_finished = false;
-    }
-
+    std::vector<bool> finished_trials(number_of_trials, false);
     int finished_count = 0;
     while (finished_count < number_of_trials)
     {
+        torch::Tensor actions_1;
+        torch::Tensor actions_2;
+        std::tie(actions_1, hidden_states_1) = agent_1.act(observations_1,
+                                                           hidden_states_1,
+                                                           masks_1);
+        std::tie(actions_2, hidden_states_2) = agent_2.act(observations_2,
+                                                           hidden_states_2,
+                                                           masks_2);
+        torch::Tensor dones = torch::zeros({number_of_trials, 1});
+        std::vector<std::future<StepInfo>> step_info_futures(number_of_trials);
+        int j = 0;
         for (int i = 0; i < number_of_trials; ++i)
         {
+            if (!finished_trials[i])
+            {
+                step_info_futures[i] = environments[i]->step({actions_1[j],
+                                                              actions_2[j]},
+                                                             1. / 60.);
+                j++;
+            }
+        }
+        auto observations_1 = torch::zeros({number_of_trials - finished_count, body_1_spec["num_observations"]});
+        auto observations_2 = torch::zeros({number_of_trials - finished_count, body_2_spec["num_observations"]});
+        j = 0;
+        for (int i = 0; i < number_of_trials; ++i)
+        {
+            if (!finished_trials[i])
+            {
+                auto step_info = step_info_futures[i].get();
+                observations_1[j] = step_info.observation[0].squeeze(0);
+                observations_2[j] = step_info.observation[1].squeeze(0);
+
+                if (step_info.done[0].item().toBool())
+                {
+                    scores[i] = environments[i]->get_total_rewards();
+                    scores[i][0] += step_info.reward[0].item().toFloat();
+                    scores[i][1] += step_info.reward[1].item().toFloat();
+                    finished_trials[i] = true;
+                    finished_count++;
+                }
+
+                j++;
+            }
         }
     }
+
+    EvaluationResult result;
+    for (const auto &score : scores)
+    {
+        if (score[0] > score[1])
+        {
+            result.agent_1++;
+        }
+        else if (score[1] > score[2])
+        {
+            result.agent_2++;
+        }
+        else
+        {
+            result.draw++;
+        }
+    }
+
+    return result;
 }
 
 TEST_CASE("Evaluator")
@@ -108,10 +160,10 @@ TEST_CASE("Evaluator")
                                           agent,
                                           body_spec,
                                           body_spec,
-                                          10);
+                                          4);
 
         int number_of_trials = results.agent_1 + results.agent_2 + results.draw;
-        DOCTEST_CHECK(number_of_trials == 10);
+        DOCTEST_CHECK(number_of_trials == 4);
     }
 }
 }

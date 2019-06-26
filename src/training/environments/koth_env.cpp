@@ -174,7 +174,7 @@ RenderData KothEnv::get_render_data(bool lightweight)
     return render_data;
 }
 
-std::future<StepInfo> KothEnv::step(const torch::Tensor actions, float step_length)
+std::future<StepInfo> KothEnv::step(const std::vector<torch::Tensor> actions, float step_length)
 {
     std::promise<StepInfo> promise;
     std::future<StepInfo> future = promise.get_future();
@@ -278,12 +278,11 @@ void KothEnv::thread_loop()
             // Return step information
             auto observation_1 = body_1->get_observation();
             auto observation_2 = body_2->get_observation();
-            observation_1.insert(observation_1.begin(), observation_2.begin(),
-                                 observation_2.end());
             StepInfo step_info{
-                torch::from_blob(observation_1.data(),
-                                 {2, static_cast<long>(observation_1.size()) / 2})
-                    .clone(),
+                {torch::from_blob(observation_1.data(), {1, static_cast<long>(observation_1.size())})
+                     .clone(),
+                 torch::from_blob(observation_2.data(), {1, static_cast<long>(observation_2.size())})
+                     .clone()},
                 torch::from_blob(rewards.data(), {2, 1}, torch::kFloat).clone(),
                 torch::from_blob(&done, {1, 1}, torch::kBool).to(torch::kFloat).expand({2, 1})};
 
@@ -311,12 +310,11 @@ void KothEnv::thread_loop()
             // Fill in StepInfo
             auto observation_1 = body_1->get_observation();
             auto observation_2 = body_2->get_observation();
-            observation_1.insert(observation_1.begin(), observation_2.begin(),
-                                 observation_2.end());
             StepInfo step_info{
-                torch::from_blob(observation_1.data(),
-                                 {2, static_cast<long>(observation_1.size()) / 2})
-                    .clone(),
+                {torch::from_blob(observation_1.data(), {1, static_cast<long>(observation_1.size())})
+                     .clone(),
+                 torch::from_blob(observation_2.data(), {1, static_cast<long>(observation_2.size())})
+                     .clone()},
                 torch::from_blob(rewards.data(), {2, 1}, torch::kFloat).clone(),
                 torch::from_blob(&done, {1, 1}, torch::kBool).to(torch::kFloat).expand({2, 1})};
 
