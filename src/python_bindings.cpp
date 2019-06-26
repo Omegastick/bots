@@ -1,24 +1,49 @@
+#include <string>
+
+#include <nlohmann/json.hpp>
 #include <pybind11/pybind11.h>
+#include <spdlog/spdlog.h>
 
 #include "misc/random.h"
+#include "third_party/di.hpp"
+#include "training/bodies/body.h"
+#include "training/checkpointer.h"
+#include "training/environments/ienvironment.h"
+#include "training/environments/koth_env.h"
+#include "training/saver.h"
+#include "training/trainers/itrainer.h"
+#include "training/trainers/trainer.h"
 
 namespace py = pybind11;
+namespace di = boost::di;
 
-namespace SingularityTrainer
+using namespace SingularityTrainer;
+PYBIND11_MODULE(singularity_trainer, m)
 {
-int add(int i, int j)
-{
-    return i + j;
-}
-
-PYBIND11_MODULE(example, m)
-{
-    m.doc() = "pybind11 example plugin"; // optional module docstring
-
-    m.def("add", &add, "A function which adds two numbers");
+    m.doc() = "Singularity Trainer Python bindings";
 
     py::class_<Random>(m, "Random")
         .def(py::init<int>())
         .def("next_float", py::overload_cast<float, float>(&Random::next_float));
-}
+
+    py::class_<Trainer>(m, "Trainer")
+        .def("step", &Trainer::step);
+
+    m.def("make_trainer", [](const std::string &program_json) {
+        // Logging
+        spdlog::set_level(spdlog::level::info);
+        spdlog::set_pattern("%^[%T %7l] %v%$");
+
+        auto json = nlohmann::json::parse(program_json);
+        TrainingProgram program(json);
+
+        const auto injector = di::make_injector(
+            di::bind<IEnvironmentFactory>.to<KothEnvFactory>(),
+            di::bind<ISaver>.to<Saver>(),
+            di::bind<std::string>.named(CheckpointDirectory).to("checkpoints"));
+        auto trainer_factory = injector.create<TrainerFactory>();
+
+        return trainer_factory.make(program);
+    },
+          "Make a Trainer");
 }
