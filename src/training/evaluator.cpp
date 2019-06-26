@@ -61,8 +61,8 @@ EvaluationResult Evaluator::evaluate(IAgent &agent_1,
     for (int i = 0; i < number_of_trials; ++i)
     {
         auto env_observation = observation_futures[i].get();
-        observations_1[i] = env_observation.observation[0].squeeze(0);
-        observations_2[i] = env_observation.observation[1].squeeze(0);
+        observations_1[i] = env_observation.observation[0];
+        observations_2[i] = env_observation.observation[1];
     }
 
     // Initialize masks and hidden states
@@ -105,8 +105,8 @@ EvaluationResult Evaluator::evaluate(IAgent &agent_1,
             if (!finished_trials[i])
             {
                 auto step_info = step_info_futures[i].get();
-                observations_1[j] = step_info.observation[0].squeeze(0);
-                observations_2[j] = step_info.observation[1].squeeze(0);
+                observations_1[j] = step_info.observation[0];
+                observations_2[j] = step_info.observation[1];
 
                 if (step_info.done[0].item().toBool())
                 {

@@ -38,7 +38,6 @@ Trainer::Trainer(TrainingProgram program,
       elapsed_time(0),
       env_count(program.hyper_parameters.num_env),
       frame_counter(0),
-      last_save_time(std::chrono::high_resolution_clock::now()),
       last_update_time(std::chrono::high_resolution_clock::now()),
       policy(nullptr),
       previous_checkpoint(program.checkpoint),
@@ -271,7 +270,7 @@ void Trainer::action_update()
                                    rollout_storage->get_masks()[-1])
                              .detach();
         }
-        rollout_storage->compute_returns(next_value, true, 0.99, 0.95);
+        rollout_storage->compute_returns(next_value, true, program.hyper_parameters.discount_factor, 0.95);
 
         auto update_data = algorithm->update(*rollout_storage);
         rollout_storage->after_update();
@@ -289,14 +288,6 @@ void Trainer::action_update()
         spdlog::info("Update took {:.2f}s", update_duration.count());
 
         last_update_time = update_end_time;
-
-        // Check if we need to save
-        if (std::chrono::high_resolution_clock::now() - last_save_time > std::chrono::minutes(program.minutes_per_checkpoint))
-        {
-            spdlog::info("Saving model");
-            save_model();
-            last_save_time = std::chrono::high_resolution_clock::now();
-        }
     }
 }
 }
