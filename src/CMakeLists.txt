@@ -10,6 +10,11 @@ PRIVATE
     ${CMAKE_CURRENT_LIST_DIR}/headless_app.cpp
 )
 
+target_sources(PythonBindings
+PRIVATE
+    ${CMAKE_CURRENT_LIST_DIR}/python_bindings.cpp
+)
+
 add_subdirectory(graphics)
 add_subdirectory(misc)
 add_subdirectory(screens)

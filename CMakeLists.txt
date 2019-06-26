@@ -19,6 +19,7 @@ set(GLM_DIR ${LIB_DIR}/GLM)
 set(IMGUI_DIR ${LIB_DIR}/imgui)
 set(JSON_DIR ${LIB_DIR}/json)
 set(MSGPACK_DIR ${LIB_DIR}/msgpack-c)
+set(PYBIND_DIR ${LIB_DIR}/pybind11)
 set(SPDLOG_DIR ${LIB_DIR}/spdlog)
 set(TWEENY_DIR ${LIB_DIR}/tweeny)
 
@@ -44,6 +45,11 @@ set(ST_TARGETS
     Misc
     Training
 )
+
+# Set position independent code
+set_target_properties(Graphics PROPERTIES POSITION_INDEPENDENT_CODE TRUE)
+set_target_properties(Misc PROPERTIES POSITION_INDEPENDENT_CODE TRUE)
+set_target_properties(Training PROPERTIES POSITION_INDEPENDENT_CODE TRUE)
 
 # Enable all warnings
 foreach(target ${ST_TARGETS})
@@ -74,6 +80,7 @@ endif(NOT TARGET spdlog)
 option(CPPRL_BUILD_TESTS "" OFF)
 option(CPPRL_BUILD_EXAMPLE "" OFF)
 add_subdirectory(${CPPRL_DIR})
+set_target_properties(cpprl PROPERTIES POSITION_INDEPENDENT_CODE TRUE)
 ## GLFW
 option(GLFW_BUILD_EXAMPLES "" OFF)
 option(GLFW_BUILD_TESTS "" OFF)
@@ -82,33 +89,43 @@ option(GLFW_INSTALL "" OFF)
 target_compile_definitions(SingularityTrainer PRIVATE "GLFW_INCLUDE_NONE")
 target_compile_definitions(GraphicsPlayground PRIVATE "GLFW_INCLUDE_NONE")
 add_subdirectory(${GLFW_DIR})
+set_target_properties(glfw PROPERTIES POSITION_INDEPENDENT_CODE TRUE)
 ## GLAD
 add_library(glad ${GLAD_DIR}/src/glad.c)
 target_include_directories(glad PRIVATE ${GLAD_DIR}/include)
+set_target_properties(glad PROPERTIES POSITION_INDEPENDENT_CODE TRUE)
 ## GLM
 option(GLM_TEST_ENABLE "" OFF)
 add_subdirectory(${GLM_DIR})
 ## imgui
 add_subdirectory(${IMGUI_DIR})
+set_target_properties(imgui PROPERTIES POSITION_INDEPENDENT_CODE TRUE)
 ## Box2D
 add_subdirectory(${BOX2D_DIR})
+set_target_properties(Box2D-cmake PROPERTIES POSITION_INDEPENDENT_CODE TRUE)
 ## Doctest
 add_subdirectory(${DOCTEST_DIR})
 ## Json
 option(JSON_BuildTests "" OFF)
 add_subdirectory(${JSON_DIR})
+## Python
+find_package(PythonLibs REQUIRED)
+## Pybind11
+add_subdirectory(${PYBIND_DIR})
+pybind11_add_module(PythonBindings "")
 
 # Link libraries
-target_link_libraries(Misc doctest)
-target_link_libraries(Training Graphics cpprl torch ${TORCH_LIBRARIES} tobanteGaming::Box2D doctest fmt::fmt)
+target_link_libraries(Misc PUBLIC doctest)
+target_link_libraries(Training PUBLIC Graphics cpprl torch ${TORCH_LIBRARIES} tobanteGaming::Box2D doctest fmt::fmt ${PYTHON_LIBRARIES})
 # UNIX systems sometimes need to explicitly link the threading library and filesystem library
 if (UNIX)
-    target_link_libraries(Training pthread stdc++fs)
+    target_link_libraries(Training PUBLIC pthread stdc++fs)
 endif(UNIX)
-target_link_libraries(Graphics glad glfw ${GLFW_LIBRARIES} glm imgui doctest)
-target_link_libraries(SingularityTrainer Graphics Misc Training nlohmann_json::nlohmann_json)
-target_link_libraries(HeadlessTrainer Graphics Misc Training)
-target_link_libraries(GraphicsPlayground Graphics Misc Training)
+target_link_libraries(Graphics PUBLIC glad glfw ${GLFW_LIBRARIES} glm imgui doctest)
+target_link_libraries(SingularityTrainer PUBLIC Graphics Misc Training nlohmann_json::nlohmann_json)
+target_link_libraries(HeadlessTrainer PUBLIC Graphics Misc Training)
+target_link_libraries(GraphicsPlayground PUBLIC Graphics Misc Training)
+target_link_libraries(PythonBindings PUBLIC Graphics Misc Training)
 
 # Inlcudes
 set(INCLUDE_DIRS
@@ -127,6 +144,8 @@ set(INCLUDE_DIRS
     ${JSON_DIR}/include
     ${TORCH_INCLUDE_DIRS}
     ${TWEENY_DIR}/include
+    ${PYBIND_DIR}/include
+    ${PYTHON_INCLUDE_DIRS}
 )
 target_include_directories(SingularityTrainer PUBLIC ${INCLUDE_DIRS})
 target_include_directories(HeadlessTrainer PUBLIC ${INCLUDE_DIRS})
@@ -134,5 +153,6 @@ target_include_directories(GraphicsPlayground PUBLIC ${INCLUDE_DIRS})
 target_include_directories(Graphics PUBLIC ${INCLUDE_DIRS})
 target_include_directories(Misc PUBLIC ${INCLUDE_DIRS})
 target_include_directories(Training PUBLIC ${INCLUDE_DIRS})
+target_include_directories(PythonBindings PUBLIC ${INCLUDE_DIRS})
 
 add_subdirectory(src)
