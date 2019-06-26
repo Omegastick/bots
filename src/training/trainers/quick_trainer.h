@@ -46,7 +46,7 @@ class QuickTrainer : public ITrainer
                     IEnvironmentFactory &env_factory,
                     BodyFactory &body_factory);
 
-    virtual void save_model();
+    virtual std::filesystem::path save_model();
     virtual void step();
     virtual void slow_step();
 };

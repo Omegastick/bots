@@ -22,11 +22,11 @@ PYBIND11_MODULE(singularity_trainer, m)
 {
     m.doc() = "Singularity Trainer Python bindings";
 
-    py::class_<Random>(m, "Random")
-        .def(py::init<int>())
-        .def("next_float", py::overload_cast<float, float>(&Random::next_float));
-
     py::class_<Trainer>(m, "Trainer")
+        .def("save_model", [](Trainer &trainer) {
+            auto path = trainer.save_model();
+            return path.string();
+        })
         .def("step", &Trainer::step);
 
     m.def("make_trainer", [](const std::string &program_json) {

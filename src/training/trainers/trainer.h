@@ -50,7 +50,7 @@ class Trainer : public ITrainer
             IEnvironmentFactory &env_factory);
 
     virtual std::vector<float> get_observation();
-    virtual void save_model();
+    virtual std::filesystem::path save_model();
     virtual void step();
     virtual void slow_step();
 };

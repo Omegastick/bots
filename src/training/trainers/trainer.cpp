@@ -191,7 +191,7 @@ void Trainer::slow_step()
     }
 }
 
-void Trainer::save_model()
+std::filesystem::path Trainer::save_model()
 {
     auto models_folder = fs::current_path();
     models_folder += "/models";
@@ -205,6 +205,8 @@ void Trainer::save_model()
     torch::save(policy, save_path);
 
     previous_checkpoint = checkpointer.save(policy, program.body, {}, previous_checkpoint);
+
+    return previous_checkpoint;
 }
 
 void Trainer::action_update()

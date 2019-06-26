@@ -1,5 +1,6 @@
 #pragma once
 
+#include <filesystem>
 #include <memory>
 #include <string>
 #include <vector>
@@ -14,7 +15,7 @@ class ITrainer
     virtual ~ITrainer() = 0;
 
     virtual std::vector<float> get_observation() = 0;
-    virtual void save_model() = 0;
+    virtual std::filesystem::path save_model() = 0;
     virtual void step() = 0;
     virtual void slow_step() = 0;
 
