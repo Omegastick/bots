@@ -126,7 +126,8 @@ target_link_libraries(SingularityTrainer PUBLIC Graphics Misc Training nlohmann_
 target_link_libraries(HeadlessTrainer PUBLIC Graphics Misc Training)
 target_link_libraries(GraphicsPlayground PUBLIC Graphics Misc Training)
 target_link_libraries(PythonBindings PUBLIC Graphics Misc Training)
-
+set_target_properties(PythonBindings PROPERTIES OUTPUT_NAME "singularity_trainer")
+set_target_properties(PythonBindings PROPERTIES SUFFIX ".so")
 # Inlcudes
 set(INCLUDE_DIRS
     src
