@@ -279,9 +279,9 @@ void KothEnv::thread_loop()
             auto observation_1 = body_1->get_observation();
             auto observation_2 = body_2->get_observation();
             StepInfo step_info{
-                {torch::from_blob(observation_1.data(), {1, static_cast<long>(observation_1.size())})
+                {torch::from_blob(observation_1.data(), {static_cast<long>(observation_1.size())})
                      .clone(),
-                 torch::from_blob(observation_2.data(), {1, static_cast<long>(observation_2.size())})
+                 torch::from_blob(observation_2.data(), {static_cast<long>(observation_2.size())})
                      .clone()},
                 torch::from_blob(rewards.data(), {2, 1}, torch::kFloat).clone(),
                 torch::from_blob(&done, {1, 1}, torch::kBool).to(torch::kFloat).expand({2, 1})};
@@ -311,9 +311,9 @@ void KothEnv::thread_loop()
             auto observation_1 = body_1->get_observation();
             auto observation_2 = body_2->get_observation();
             StepInfo step_info{
-                {torch::from_blob(observation_1.data(), {1, static_cast<long>(observation_1.size())})
+                {torch::from_blob(observation_1.data(), {static_cast<long>(observation_1.size())})
                      .clone(),
-                 torch::from_blob(observation_2.data(), {1, static_cast<long>(observation_2.size())})
+                 torch::from_blob(observation_2.data(), {static_cast<long>(observation_2.size())})
                      .clone()},
                 torch::from_blob(rewards.data(), {2, 1}, torch::kFloat).clone(),
                 torch::from_blob(&done, {1, 1}, torch::kBool).to(torch::kFloat).expand({2, 1})};
