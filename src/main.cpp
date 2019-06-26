@@ -17,7 +17,6 @@
 #include "screens/main_menu_screen.h"
 #include "screens/create_program_screen.h"
 #include "screens/train_screen.h"
-#include "screens/watch_screen.h"
 #include "training/bodies/body.h"
 #include "training/checkpointer.h"
 #include "training/environments/ienvironment.h"

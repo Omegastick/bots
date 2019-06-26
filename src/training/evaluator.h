@@ -10,15 +10,15 @@ class IEnvironmentFactory;
 
 struct EvaluationResult
 {
-    int agent_1;
-    int agent_2;
-    int draw;
+    int agent_1 = 0;
+    int agent_2 = 0;
+    int draw = 0;
 };
 
 class Evaluator
 {
   private:
-  BodyFactory &body_factory;
+    BodyFactory &body_factory;
     IEnvironmentFactory &env_factory;
 
   public:

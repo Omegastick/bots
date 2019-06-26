@@ -8,33 +8,18 @@ namespace SingularityTrainer
 RandomAgent::RandomAgent(int num_outputs, Random &rng)
     : num_outputs(num_outputs), rng(rng) {}
 
-std::vector<int> RandomAgent::act(torch::Tensor observation,
-                                  torch::Tensor hidden_state,
-                                  torch::Tensor mask)
+ActResult RandomAgent::act(torch::Tensor observations,
+                           torch::Tensor /*hidden_states*/,
+                           torch::Tensor /*masks*/)
 {
-    std::vector<int> actions(num_outputs);
-    for (int i = 0; i < num_outputs; ++i)
+    if (observations.dim() == 1)
     {
-        actions[i] = rng.next_int(0, 2);
+        return {torch::zeros({1, num_outputs}).random_(2), {}};
     }
-    return actions;
-}
-
-std::vector<std::vector<int>> RandomAgent::act_multiple(torch::Tensor observations,
-                                                        torch::Tensor hidden_states,
-                                                        torch::Tensor masks)
-{
-    int num_bodies = observations.size(0);
-    std::vector<std::vector<int>> actions(num_bodies);
-    for (int i = 0; i < num_bodies; ++i)
+    else
     {
-        actions[i].resize(num_outputs);
-        for (int j = 0; j < num_outputs; ++j)
-        {
-            actions[i][j] = rng.next_int(0, 2);
-        }
+        return {torch::zeros({observations.size(0), num_outputs}).random_(2), {}};
     }
-    return actions;
 }
 
 TEST_CASE("RandomAgent")
@@ -50,7 +35,8 @@ TEST_CASE("RandomAgent")
                                      torch::zeros({6}),
                                      torch::zeros({1}));
 
-            DOCTEST_CHECK(actions.size() == 4);
+            DOCTEST_CHECK(std::get<0>(actions).size(0) == 1);
+            DOCTEST_CHECK(std::get<0>(actions).size(1) == 4);
         }
 
         SUBCASE("With [1, N] shaped tensor")
@@ -59,30 +45,18 @@ TEST_CASE("RandomAgent")
                                      torch::zeros({1, 6}),
                                      torch::zeros({1, 1}));
 
-            DOCTEST_CHECK(actions.size() == 4);
-        }
-    }
-
-    SUBCASE("act_multiple() returns correctly sized actions")
-    {
-        SUBCASE("Dimension 1")
-        {
-            auto actions = agent.act_multiple(torch::zeros({3, 5}),
-                                              torch::zeros({3, 6}),
-                                              torch::zeros({3, 1}));
-
-            DOCTEST_CHECK(actions[0].size() == 4);
-            DOCTEST_CHECK(actions[1].size() == 4);
-            DOCTEST_CHECK(actions[2].size() == 4);
+            DOCTEST_CHECK(std::get<0>(actions).size(0) == 1);
+            DOCTEST_CHECK(std::get<0>(actions).size(1) == 4);
         }
 
-        SUBCASE("Dimension 0")
+        SUBCASE("Multiple parallel actions")
         {
-            auto actions = agent.act_multiple(torch::zeros({3, 5}),
-                                              torch::zeros({3, 6}),
-                                              torch::zeros({3, 1}));
+            auto actions = agent.act(torch::zeros({3, 5}),
+                                     torch::zeros({3, 6}),
+                                     torch::zeros({3, 1}));
 
-            DOCTEST_CHECK(actions.size() == 3);
+            DOCTEST_CHECK(std::get<0>(actions).size(0) == 3);
+            DOCTEST_CHECK(std::get<0>(actions).size(1) == 4);
         }
     }
 }

@@ -60,7 +60,7 @@ class KothEnv : public IEnvironment
     ~KothEnv();
 
     virtual void start_thread();
-    virtual std::future<StepInfo> step(torch::Tensor actions, float step_length);
+    virtual std::future<StepInfo> step(std::vector<torch::Tensor> actions, float step_length);
     virtual void forward(float step_length);
     virtual std::future<StepInfo> reset();
     virtual void change_reward(int body, float reward_delta);

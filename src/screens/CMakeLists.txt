@@ -7,5 +7,5 @@ PRIVATE
     ${CMAKE_CURRENT_LIST_DIR}/train_screen.cpp
     # ${CMAKE_CURRENT_LIST_DIR}/training_wizard_screen.cpp
     # ${CMAKE_CURRENT_LIST_DIR}/koth_env_screen.cpp
-    ${CMAKE_CURRENT_LIST_DIR}/watch_screen.cpp
+    # ${CMAKE_CURRENT_LIST_DIR}/watch_screen.cpp
 )
