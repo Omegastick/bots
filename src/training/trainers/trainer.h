@@ -18,6 +18,7 @@
 namespace SingularityTrainer
 {
 class Checkpointer;
+class BasicEvaluator;
 class IEnvironmentFactory;
 
 class Trainer : public ITrainer
@@ -32,6 +33,7 @@ class Trainer : public ITrainer
     float elapsed_time;
     int env_count;
     std::vector<float> env_scores;
+    BasicEvaluator &evaluator;
     int frame_counter;
     std::chrono::time_point<std::chrono::high_resolution_clock> last_update_time;
     torch::Tensor observations;
@@ -47,8 +49,10 @@ class Trainer : public ITrainer
     Trainer(TrainingProgram program,
             BodyFactory &body_factory,
             Checkpointer &checkpointer,
-            IEnvironmentFactory &env_factory);
+            IEnvironmentFactory &env_factory,
+            BasicEvaluator &evaluator);
 
+    virtual float evaluate(int number_of_trials);
     virtual std::vector<float> get_observation();
     virtual std::filesystem::path save_model();
     virtual void step();
@@ -61,18 +65,21 @@ class TrainerFactory
     BodyFactory &body_factory;
     Checkpointer &checkpointer;
     IEnvironmentFactory &env_factory;
+    BasicEvaluator &evaluator;
 
   public:
     TrainerFactory(BodyFactory &body_factory,
                    Checkpointer &checkpointer,
-                   IEnvironmentFactory &env_factory)
+                   IEnvironmentFactory &env_factory,
+                   BasicEvaluator &evaluator)
         : body_factory(body_factory),
           checkpointer(checkpointer),
-          env_factory(env_factory) {}
+          env_factory(env_factory),
+          evaluator(evaluator) {}
 
     std::unique_ptr<Trainer> make(TrainingProgram &program)
     {
-        return std::make_unique<Trainer>(program, body_factory, checkpointer, env_factory);
+        return std::make_unique<Trainer>(program, body_factory, checkpointer, env_factory, evaluator);
     }
 };
 }

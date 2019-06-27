@@ -10,6 +10,7 @@
 #include "training/checkpointer.h"
 #include "training/environments/ienvironment.h"
 #include "training/environments/koth_env.h"
+#include "training/evaluators/basic_evaluator.h"
 #include "training/saver.h"
 #include "training/trainers/itrainer.h"
 #include "training/trainers/trainer.h"
@@ -23,6 +24,7 @@ PYBIND11_MODULE(singularity_trainer, m)
     m.doc() = "Singularity Trainer Python bindings";
 
     py::class_<Trainer>(m, "Trainer")
+        .def("evaluate", &Trainer::evaluate)
         .def("save_model", [](Trainer &trainer) {
             auto path = trainer.save_model();
             return path.string();
@@ -39,6 +41,7 @@ PYBIND11_MODULE(singularity_trainer, m)
 
         const auto injector = di::make_injector(
             di::bind<IEnvironmentFactory>.to<KothEnvFactory>(),
+            di::bind<int>.named(MaxSteps).to(600),
             di::bind<ISaver>.to<Saver>(),
             di::bind<std::string>.named(CheckpointDirectory).to("checkpoints"));
         auto trainer_factory = injector.create<TrainerFactory>();
