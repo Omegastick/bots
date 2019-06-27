@@ -11,3 +11,4 @@ build/
 bodies/
 checkpoints/
 programs/
+!src/training/bodies

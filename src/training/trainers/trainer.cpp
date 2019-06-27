@@ -12,9 +12,13 @@
 #include "trainer.h"
 #include "misc/random.h"
 #include "misc/resource_manager.h"
+#include "training/agents/nn_agent.h"
+#include "training/agents/random_agent.h"
 #include "training/bodies/body.h"
+#include "training/bodies/test_body.h"
 #include "training/checkpointer.h"
 #include "training/environments/ienvironment.h"
+#include "training/evaluators/basic_evaluator.h"
 #include "training/score_processor.h"
 #include "training/training_program.h"
 #include "misc/utilities.h"
@@ -31,12 +35,14 @@ const bool recurrent = false;
 Trainer::Trainer(TrainingProgram program,
                  BodyFactory &body_factory,
                  Checkpointer &checkpointer,
-                 IEnvironmentFactory &env_factory)
+                 IEnvironmentFactory &env_factory,
+                 BasicEvaluator &evaluator)
     : action_frame_counter(0),
       bodies_per_env(2),
       checkpointer(checkpointer),
       elapsed_time(0),
       env_count(program.hyper_parameters.num_env),
+      evaluator(evaluator),
       frame_counter(0),
       last_update_time(std::chrono::high_resolution_clock::now()),
       policy(nullptr),
@@ -139,6 +145,12 @@ Trainer::Trainer(TrainingProgram program,
     }
 
     rollout_storage->set_first_observation(observations);
+}
+
+float Trainer::evaluate(int number_of_trials)
+{
+    auto results = evaluator.evaluate(policy, program.body, number_of_trials);
+    return (results.agent_1 + (results.draw * 0.5)) / (results.agent_1 + results.agent_2 + results.draw);
 }
 
 std::vector<float> Trainer::get_observation()

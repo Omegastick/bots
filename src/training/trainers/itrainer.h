@@ -14,6 +14,7 @@ class ITrainer
   public:
     virtual ~ITrainer() = 0;
 
+    virtual float evaluate(int number_of_trials) = 0;
     virtual std::vector<float> get_observation() = 0;
     virtual std::filesystem::path save_model() = 0;
     virtual void step() = 0;

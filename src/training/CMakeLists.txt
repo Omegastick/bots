@@ -1,7 +1,6 @@
 target_sources(Training
 PRIVATE
     ${CMAKE_CURRENT_LIST_DIR}/checkpointer.cpp
-    ${CMAKE_CURRENT_LIST_DIR}/evaluator.cpp
     ${CMAKE_CURRENT_LIST_DIR}/mock_saver.cpp
     ${CMAKE_CURRENT_LIST_DIR}/rigid_body.cpp
     ${CMAKE_CURRENT_LIST_DIR}/saver.cpp
@@ -13,6 +12,7 @@ add_subdirectory(actions)
 add_subdirectory(agents)
 add_subdirectory(bodies)
 add_subdirectory(environments)
+add_subdirectory(evaluators)
 add_subdirectory(modules)
 add_subdirectory(trainers)
 add_subdirectory(entities)
