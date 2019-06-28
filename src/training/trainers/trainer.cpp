@@ -111,11 +111,13 @@ Trainer::Trainer(TrainingProgram program,
 
     if (!program.checkpoint.empty())
     {
+        spdlog::debug("Loading {}", program.checkpoint);
         auto checkpoint = checkpointer.load(program.checkpoint);
         policy = checkpoint.policy;
     }
     else
     {
+        spdlog::debug("Making new agent");
         auto nn_base = std::make_shared<cpprl::MlpBase>(num_observations, recurrent);
         policy = cpprl::Policy(cpprl::ActionSpace{"MultiBinary", {num_actions}}, nn_base);
     }
@@ -205,17 +207,6 @@ void Trainer::slow_step()
 
 std::filesystem::path Trainer::save_model()
 {
-    auto models_folder = fs::current_path();
-    models_folder += "/models";
-    if (!fs::exists(models_folder))
-    {
-        fs::create_directories(models_folder);
-    }
-    auto date_time_string = date::format("%F-%H-%M", std::chrono::system_clock::now());
-    auto save_path = models_folder;
-    save_path += "/" + date_time_string + ".pth";
-    torch::save(policy, save_path);
-
     previous_checkpoint = checkpointer.save(policy, program.body, {}, previous_checkpoint);
 
     return previous_checkpoint;

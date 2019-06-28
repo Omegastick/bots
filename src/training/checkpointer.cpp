@@ -92,6 +92,7 @@ fs::path Checkpointer::save(cpprl::Policy &policy,
     auto save_path = checkpoint_directory / file_id;
 
     auto model_path = save_path.replace_extension(".pth");
+    spdlog::debug("Saving model to {}", model_path.string());
     saver.save(policy, model_path);
 
     nlohmann::json json;
