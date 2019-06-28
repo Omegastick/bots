@@ -1,9 +1,8 @@
 from hyperopt import hp
+import logging
 import numpy as np
-import pickle
 import json
 import os
-import random
 import ray
 import ray.tune as tune
 from ray.tune.suggest.hyperopt import HyperOptSearch
@@ -64,13 +63,12 @@ class HyperParameterSearch(tune.Trainable):
         with open(config["base_program"], 'r') as file:
             self.program = json.load(file)
         self.program["hyper_parameters"] = config
-        self.trainer = None
+        self.trainer = st.make_trainer(json.dumps(self.program, indent=0))
 
     def _train(self):
-        self.trainer = st.make_trainer(json.dumps(self.program, indent=0))
-        for _ in range(10000):
+        for _ in range(4000):
             self.trainer.step()
-        return {"winrate": self.trainer.evaluate(500)}
+        return {"winrate": self.trainer.evaluate(300)}
 
     def _save(self, directory):
         return self.trainer.save_model()
@@ -86,12 +84,12 @@ def main():
         time_attr="training_iteration",
         metric="winrate",
         mode="max",
-        max_t=20)
+        max_t=100)
     experiment = tune.Experiment(
         name="a2c_hyperparameter_search",
         run=HyperParameterSearch,
         stop={},
-        num_samples=32,
+        num_samples=128,
         loggers=[JsonLogger, CSVLogger, TFEagerLogger],
         resources_per_trial={"cpu": 4})
     algo = HyperOptSearch(
@@ -100,22 +98,23 @@ def main():
             "actor_loss_coef": hp.uniform("actor_loss_coef", 0.25, 1),
             "algorithm": 0,
             "batch_size": hp.qloguniform("batch_size", 1, 5, 1),
-            "clip_param": hp.uniform("clip_param", 0.075, 0.3),
+            "clip_param": 0.2,
             "discount_factor": hp.loguniform("discount_factor", -1, 0),
             "entropy_coef": hp.loguniform("entropy_coef", -15, -4),
             "learning_rate": 0.0001,
-            "num_env": 4,
+            "num_env": 8,
             "num_epoch": 3,
             "num_minibatch": 32,
             "value_loss_coef": hp.uniform("value_loss_coef", 0.25, 1)
         },
-        max_concurrent=999,
+        max_concurrent=8,
         metric="winrate",
         mode="max")
-    tune.run(experiment,
-             search_alg=algo,
-             scheduler=hyperband,
-             resume="prompt")
+    tune.run(
+        experiment,
+        search_alg=algo,
+        scheduler=hyperband,
+        resume="prompt")
 
 
 if __name__ == '__main__':

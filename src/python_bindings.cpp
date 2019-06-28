@@ -33,7 +33,7 @@ PYBIND11_MODULE(singularity_trainer, m)
 
     m.def("make_trainer", [](const std::string &program_json) {
         // Logging
-        spdlog::set_level(spdlog::level::info);
+        spdlog::set_level(spdlog::level::debug);
         spdlog::set_pattern("%^[%T %7l] %v%$");
 
         auto json = nlohmann::json::parse(program_json);
