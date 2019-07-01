@@ -25,9 +25,8 @@ PYBIND11_MODULE(singularity_trainer, m)
 
     py::class_<Trainer>(m, "Trainer")
         .def("evaluate", &Trainer::evaluate)
-        .def("save_model", [](Trainer &trainer) {
-            auto path = trainer.save_model();
-            return path.string();
+        .def("save_model", [](Trainer &trainer, std::string directory) {
+            return trainer.save_model(directory).string();
         })
         .def("step", &Trainer::step);
 

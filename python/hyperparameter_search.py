@@ -1,17 +1,15 @@
-from hyperopt import hp
-import logging
-import numpy as np
 import json
 import os
+import time
+from hyperopt import hp
+import numpy as np
 import ray
 import ray.tune as tune
 from ray.tune.suggest.hyperopt import HyperOptSearch
 from ray.tune.logger import Logger, JsonLogger, CSVLogger
-from ray.tune.result import (NODE_IP, TRAINING_ITERATION, TIME_TOTAL_S,
-                             TIMESTEPS_TOTAL)
+from ray.tune.result import TRAINING_ITERATION, TIME_TOTAL_S, TIMESTEPS_TOTAL
 import singularity_trainer as st
 import tensorflow as tf
-import time
 
 
 def to_tf_values(result, path):
@@ -66,55 +64,75 @@ class HyperParameterSearch(tune.Trainable):
         self.trainer = st.make_trainer(json.dumps(self.program, indent=0))
 
     def _train(self):
-        for _ in range(4000):
-            self.trainer.step()
+        start_time = time.time()
+        while time.time() - start_time < 540:
+            for _ in range(100):
+                self.trainer.step()
         return {"winrate": self.trainer.evaluate(300)}
 
     def _save(self, directory):
-        return self.trainer.save_model()
+        return self.trainer.save_model(directory)
 
     def _restore(self, checkpoint_path):
         self.program["checkpoint"] = checkpoint_path
-        self.trainer = st.make_trainer(json.dumps(program, indent=0))
+        self.trainer = st.make_trainer(json.dumps(self.program, indent=0))
 
 
 def main():
     ray.init()
-    hyperband = tune.schedulers.AsyncHyperBandScheduler(
+    hyperband = tune.schedulers.HyperBandScheduler(
         time_attr="training_iteration",
         metric="winrate",
         mode="max",
-        max_t=100)
+        max_t=18)
     experiment = tune.Experiment(
-        name="a2c_hyperparameter_search",
+        name="a2c_hyperparameter_search_2",
         run=HyperParameterSearch,
         stop={},
-        num_samples=128,
+        num_samples=32,
         loggers=[JsonLogger, CSVLogger, TFEagerLogger],
-        resources_per_trial={"cpu": 4})
+        resources_per_trial={"cpu": 8},
+        checkpoint_at_end=True)
     algo = HyperOptSearch(
         {
             "base_program": os.getcwd() + "/../programs/asd.json",
             "actor_loss_coef": hp.uniform("actor_loss_coef", 0.25, 1),
-            "algorithm": 0,
-            "batch_size": hp.qloguniform("batch_size", 1, 5, 1),
-            "clip_param": 0.2,
+            "algorithm": 1,
+            "batch_size": hp.qloguniform("batch_size", 2.5, 8, 1),
+            "clip_param": hp.uniform("clip_param", 0.05, 0.3),
             "discount_factor": hp.loguniform("discount_factor", -1, 0),
             "entropy_coef": hp.loguniform("entropy_coef", -15, -4),
-            "learning_rate": 0.0001,
+            "learning_rate": hp.choice("learning_rate", [0.001, 0.0001,
+                                                         0.00001]),
             "num_env": 8,
-            "num_epoch": 3,
-            "num_minibatch": 32,
+            "num_epoch": hp.choice("num_epoch", range(2, 9)),
+            "num_minibatch": 8,
             "value_loss_coef": hp.uniform("value_loss_coef", 0.25, 1)
         },
         max_concurrent=8,
         metric="winrate",
-        mode="max")
+        mode="max",
+        points_to_evaluate=[{
+            "actor_loss_coef": 0.7991172152254473,
+            "algorithm": 1,
+            "base_program": os.getcwd() + "/../programs/asd.json",
+            "batch_size": 29.0,
+            "clip_param": 0.24473265596039084,
+            "discount_factor": 0.6909978358762585,
+            "entropy_coef": 0.0010232892832943642,
+            "learning_rate": 1,
+            "num_env": 8,
+            "num_epoch": 3,
+            "num_minibatch": 8,
+            "value_loss_coef": 0.9719695761331772
+
+        }])
     tune.run(
         experiment,
         search_alg=algo,
         scheduler=hyperband,
-        resume="prompt")
+        resume="prompt",
+        queue_trials=True)
 
 
 if __name__ == '__main__':

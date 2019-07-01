@@ -205,9 +205,9 @@ void Trainer::slow_step()
     }
 }
 
-std::filesystem::path Trainer::save_model()
+std::filesystem::path Trainer::save_model(std::filesystem::path directory)
 {
-    previous_checkpoint = checkpointer.save(policy, program.body, {}, previous_checkpoint);
+    previous_checkpoint = checkpointer.save(policy, program.body, {}, previous_checkpoint, directory);
 
     return previous_checkpoint;
 }

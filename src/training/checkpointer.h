@@ -55,6 +55,7 @@ class Checkpointer
     std::filesystem::path save(cpprl::Policy &policy,
                                nlohmann::json &body_spec,
                                std::map<std::string, double> data,
-                               std::filesystem::path previous_checkpoint);
+                               std::filesystem::path previous_checkpoint,
+                               std::filesystem::path directory = {});
 };
 }
