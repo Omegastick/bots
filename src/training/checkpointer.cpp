@@ -81,7 +81,8 @@ CheckpointData Checkpointer::load_data(fs::path path)
 fs::path Checkpointer::save(cpprl::Policy &policy,
                             nlohmann::json &body_spec,
                             std::map<std::string, double> data,
-                            fs::path previous_checkpoint)
+                            fs::path previous_checkpoint,
+                            fs::path directory)
 {
     std::string file_id;
     for (int i = 0; i < 10; ++i)
@@ -89,7 +90,15 @@ fs::path Checkpointer::save(cpprl::Policy &policy,
         file_id += alphanum[random.next_int(0, sizeof(alphanum) - 1)];
     }
 
-    auto save_path = checkpoint_directory / file_id;
+    fs::path save_path;
+    if (directory.empty())
+    {
+        save_path = checkpoint_directory / file_id;
+    }
+    else
+    {
+        save_path = directory / file_id;
+    }
 
     auto model_path = save_path.replace_extension(".pth");
     spdlog::debug("Saving model to {}", model_path.string());

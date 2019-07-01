@@ -54,7 +54,7 @@ class Trainer : public ITrainer
 
     virtual float evaluate(int number_of_trials);
     virtual std::vector<float> get_observation();
-    virtual std::filesystem::path save_model();
+    virtual std::filesystem::path save_model(std::filesystem::path directory = {});
     virtual void step();
     virtual void slow_step();
 };
