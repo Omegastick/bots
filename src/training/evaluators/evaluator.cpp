@@ -47,22 +47,14 @@ EvaluationResult Evaluator::evaluate(IAgent &agent_1,
                                            RewardConfig());
     }
 
-    std::vector<std::future<StepInfo>> observation_futures;
-    observation_futures.reserve(number_of_trials);
-    for (auto &environment : environments)
-    {
-        environment->start_thread();
-        observation_futures.push_back(environment->reset());
-    }
-
     // Get first observations
     auto observations_1 = torch::zeros({number_of_trials, body_1_spec["num_observations"]});
     auto observations_2 = torch::zeros({number_of_trials, body_2_spec["num_observations"]});
     for (int i = 0; i < number_of_trials; ++i)
     {
-        auto env_observation = observation_futures[i].get();
-        observations_1[i] = env_observation.observation[0];
-        observations_2[i] = env_observation.observation[1];
+        auto env_observation = environments[i]->reset().observation;
+        observations_1[i] = env_observation[0];
+        observations_2[i] = env_observation[1];
     }
 
     // Initialize masks and hidden states
@@ -85,15 +77,15 @@ EvaluationResult Evaluator::evaluate(IAgent &agent_1,
                                                            hidden_states_2,
                                                            masks_2);
         torch::Tensor dones = torch::zeros({number_of_trials, 1});
-        std::vector<std::future<StepInfo>> step_info_futures(number_of_trials);
+        std::vector<StepInfo> step_infos(number_of_trials);
         int j = 0;
         for (int i = 0; i < number_of_trials; ++i)
         {
             if (!finished_trials[i])
             {
-                step_info_futures[i] = environments[i]->step({actions_1[j],
-                                                              actions_2[j]},
-                                                             1. / 60.);
+                step_infos[i] = environments[i]->step({actions_1[j],
+                                                       actions_2[j]},
+                                                      1. / 60.);
                 j++;
             }
         }
@@ -104,7 +96,7 @@ EvaluationResult Evaluator::evaluate(IAgent &agent_1,
         {
             if (!finished_trials[i])
             {
-                auto step_info = step_info_futures[i].get();
+                auto &step_info = step_infos[i];
                 observations_1[j] = step_info.observation[0];
                 observations_2[j] = step_info.observation[1];
 

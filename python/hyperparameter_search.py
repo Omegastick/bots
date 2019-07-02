@@ -1,5 +1,6 @@
 import json
 import os
+import sys
 import time
 from hyperopt import hp
 import numpy as np
@@ -64,38 +65,36 @@ class HyperParameterSearch(tune.Trainable):
         self.trainer = st.make_trainer(json.dumps(self.program, indent=0))
 
     def _train(self):
-        start_time = time.time()
-        while time.time() - start_time < 540:
-            for _ in range(100):
-                self.trainer.step()
+        for _ in range(1000):
+            self.trainer.step()
         return {"winrate": self.trainer.evaluate(300)}
 
-    def _save(self, directory):
-        return self.trainer.save_model(directory)
+    def _save(self, _):
+        return {"path": self.trainer.save_model("")}
 
-    def _restore(self, checkpoint_path):
-        self.program["checkpoint"] = checkpoint_path
+    def _restore(self, checkpoint):
+        self.program["checkpoint"] = checkpoint["path"]
         self.trainer = st.make_trainer(json.dumps(self.program, indent=0))
 
 
 def main():
-    ray.init()
+    ray.init(local_mode=False)
     hyperband = tune.schedulers.HyperBandScheduler(
         time_attr="training_iteration",
         metric="winrate",
         mode="max",
-        max_t=18)
+        max_t=100)
     experiment = tune.Experiment(
         name="a2c_hyperparameter_search_2",
         run=HyperParameterSearch,
         stop={},
-        num_samples=32,
+        num_samples=64,
         loggers=[JsonLogger, CSVLogger, TFEagerLogger],
-        resources_per_trial={"cpu": 8},
+        resources_per_trial={"cpu": 2},
         checkpoint_at_end=True)
     algo = HyperOptSearch(
         {
-            "base_program": os.getcwd() + "/../programs/asd.json",
+            "base_program": os.path.join(os.getcwd(), sys.argv[1]),
             "actor_loss_coef": hp.uniform("actor_loss_coef", 0.25, 1),
             "algorithm": 1,
             "batch_size": hp.qloguniform("batch_size", 2.5, 8, 1),
@@ -115,7 +114,7 @@ def main():
         points_to_evaluate=[{
             "actor_loss_coef": 0.7991172152254473,
             "algorithm": 1,
-            "base_program": os.getcwd() + "/../programs/asd.json",
+            "base_program": os.path.join(os.getcwd(), sys.argv[1]),
             "batch_size": 29.0,
             "clip_param": 0.24473265596039084,
             "discount_factor": 0.6909978358762585,
@@ -131,8 +130,7 @@ def main():
         experiment,
         search_alg=algo,
         scheduler=hyperband,
-        resume="prompt",
-        queue_trials=True)
+        resume="prompt")
 
 
 if __name__ == '__main__':

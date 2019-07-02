@@ -1,6 +1,5 @@
 #pragma once
 
-#include <future>
 #include <memory>
 #include <vector>
 
@@ -21,22 +20,6 @@ struct StepInfo
     torch::Tensor reward, done;
 };
 
-enum class Commands
-{
-    Step,
-    Forward,
-    Reset,
-    Stop
-};
-
-struct ThreadCommand
-{
-    Commands command;
-    std::promise<StepInfo> promise;
-    float step_length;
-    std::vector<torch::Tensor> actions;
-};
-
 class IEnvironment : public IDrawable
 {
   public:
@@ -51,10 +34,9 @@ class IEnvironment : public IDrawable
     virtual RewardConfig &get_reward_config() = 0;
     virtual std::vector<float> get_total_rewards() = 0;
     virtual b2World &get_world() = 0;
-    virtual std::future<StepInfo> reset() = 0;
+    virtual StepInfo reset() = 0;
     virtual void set_done() = 0;
-    virtual void start_thread() = 0;
-    virtual std::future<StepInfo> step(std::vector<torch::Tensor> actions, float step_length) = 0;
+    virtual StepInfo step(std::vector<torch::Tensor> actions, float step_length) = 0;
 };
 
 inline IEnvironment::~IEnvironment() {}
