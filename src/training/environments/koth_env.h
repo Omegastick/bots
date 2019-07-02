@@ -1,12 +1,8 @@
 #pragma once
 
 #include <atomic>
-#include <future>
 #include <memory>
-#include <queue>
-#include <thread>
 #include <utility>
-#include <mutex>
 #include <unordered_map>
 
 #include <Box2D/Box2D.h>
@@ -38,17 +34,9 @@ class KothEnv : public IEnvironment
     bool done;
     std::vector<float> rewards;
     int step_counter;
-    std::unique_ptr<std::thread> thread;
-    std::queue<ThreadCommand> command_queue;
-    std::mutex command_queue_mutex;
-    std::condition_variable command_queue_condvar;
     std::vector<float> total_rewards;
     std::unordered_map<Body *, int> body_numbers;
     RewardConfig reward_config;
-
-    void
-    thread_loop();
-    void reset_impl();
 
   public:
     KothEnv(int max_steps,
@@ -59,10 +47,9 @@ class KothEnv : public IEnvironment
             RewardConfig reward_config);
     ~KothEnv();
 
-    virtual void start_thread();
-    virtual std::future<StepInfo> step(std::vector<torch::Tensor> actions, float step_length);
+    virtual StepInfo step(std::vector<torch::Tensor> actions, float step_length);
     virtual void forward(float step_length);
-    virtual std::future<StepInfo> reset();
+    virtual StepInfo reset();
     virtual void change_reward(int body, float reward_delta);
     virtual void change_reward(Body *body, float reward_delta);
     virtual void set_done();

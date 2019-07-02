@@ -98,6 +98,11 @@ fs::path Checkpointer::save(cpprl::Policy &policy,
     else
     {
         save_path = directory / file_id;
+        if (!fs::exists(directory))
+        {
+            spdlog::info("Creating directory {}", directory.string());
+            fs::create_directories(directory);
+        }
     }
 
     auto model_path = save_path.replace_extension(".pth");

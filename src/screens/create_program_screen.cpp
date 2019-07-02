@@ -69,8 +69,6 @@ CreateProgramScreen::CreateProgramScreen(std::unique_ptr<AlgorithmWindow> algori
     crt_post_proc_layer = PostProcLayer(resource_manager.shader_store.get("crt").get(),
                                         io.get_resolution().x,
                                         io.get_resolution().y);
-
-    this->environment->start_thread();
 }
 
 void CreateProgramScreen::algorithm()

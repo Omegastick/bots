@@ -130,28 +130,11 @@ KothEnv::KothEnv(int max_steps,
     walls.push_back(std::make_unique<Wall>(9.9, -20, 0.1, 40, *this->world));
 }
 
-KothEnv::~KothEnv()
-{
-    ThreadCommand command{Commands::Stop, {}, {}, {}};
-    {
-        std::lock_guard lock_guard(command_queue_mutex);
-        command_queue.push(std::move(command));
-        command_queue_condvar.notify_one();
-    }
-    if (thread != nullptr)
-    {
-        thread->join();
-    }
-}
+KothEnv::~KothEnv() {}
 
 float KothEnv::get_elapsed_time() const
 {
     return elapsed_time;
-}
-
-void KothEnv::start_thread()
-{
-    thread = std::make_unique<std::thread>(&KothEnv::thread_loop, this);
 }
 
 RenderData KothEnv::get_render_data(bool lightweight)
@@ -174,28 +157,63 @@ RenderData KothEnv::get_render_data(bool lightweight)
     return render_data;
 }
 
-std::future<StepInfo> KothEnv::step(const std::vector<torch::Tensor> actions, float step_length)
+StepInfo KothEnv::step(const std::vector<torch::Tensor> actions, float step_length)
 {
-    std::promise<StepInfo> promise;
-    std::future<StepInfo> future = promise.get_future();
-    ThreadCommand command{Commands::Step, std::move(promise), step_length, actions};
+    // Act
+    auto actions_tensor_1 = actions[0].to(torch::kInt).contiguous();
+    std::vector<int> actions_1(actions_tensor_1.data<int>(), actions_tensor_1.data<int>() + actions_tensor_1.numel());
+    auto actions_tensor_2 = actions[1].to(torch::kInt).contiguous();
+    std::vector<int> actions_2(actions_tensor_2.data<int>(), actions_tensor_2.data<int>() + actions_tensor_2.numel());
+    body_1->act(actions_1);
+    body_2->act(actions_2);
+
+    // Step simulation
+    world->Step(step_length, 3, 2);
+    elapsed_time += step_length;
+
+    // Hill score
+    hill->update();
+
+    // Check if body is destroyed
+    if (body_1->get_hp() <= 0)
     {
-        std::lock_guard lock_guard(command_queue_mutex);
-        command_queue.push(std::move(command));
-        command_queue_condvar.notify_one();
+        change_reward(body_1.get(), reward_config.loss_punishment);
+        change_reward(body_2.get(), reward_config.victory_reward);
+        set_done();
     }
-    return future;
+    else if (body_2->get_hp() <= 0)
+    {
+        change_reward(body_1.get(), reward_config.victory_reward);
+        change_reward(body_2.get(), reward_config.loss_punishment);
+        set_done();
+    }
+
+    // Max episode length
+    step_counter++;
+    done = done || step_counter >= max_steps;
+
+    // Return step information
+    auto observation_1 = body_1->get_observation();
+    auto observation_2 = body_2->get_observation();
+    StepInfo step_info{
+        {torch::from_blob(observation_1.data(), {static_cast<long>(observation_1.size())})
+             .clone(),
+         torch::from_blob(observation_2.data(), {static_cast<long>(observation_2.size())})
+             .clone()},
+        torch::from_blob(rewards.data(), {2, 1}, torch::kFloat).clone(),
+        torch::from_blob(&done, {1, 1}, torch::kBool).to(torch::kFloat).expand({2, 1})};
+
+    // Reset reward
+    rewards = {0, 0};
+
+    // Return
+    return step_info;
 }
 
 void KothEnv::forward(float step_length)
 {
-    std::promise<StepInfo> promise;
-    ThreadCommand command{Commands::Forward, std::move(promise), step_length, {}};
-    {
-        std::lock_guard lock_guard(command_queue_mutex);
-        command_queue.push(std::move(command));
-        command_queue_condvar.notify_one();
-    }
+    world->Step(step_length, 3, 2);
+    elapsed_time += step_length;
 }
 
 void KothEnv::change_reward(int body, float reward_delta)
@@ -214,117 +232,7 @@ void KothEnv::set_done()
     done = true;
 }
 
-std::future<StepInfo> KothEnv::reset()
-{
-    std::promise<StepInfo> promise;
-    std::future<StepInfo> future = promise.get_future();
-    ThreadCommand command{Commands::Reset, std::move(promise), {}, {}};
-    {
-        std::lock_guard lock_guard(command_queue_mutex);
-        command_queue.push(std::move(command));
-        command_queue_condvar.notify_one();
-    }
-    return future;
-}
-
-void KothEnv::thread_loop()
-{
-    bool quit = false;
-    while (!quit)
-    {
-        std::unique_lock lock(command_queue_mutex);
-        command_queue_condvar.wait(lock, [this] { return !command_queue.empty(); });
-        auto command = std::move(command_queue.front());
-        command_queue.pop();
-        if (command.command == Commands::Stop)
-        {
-            quit = true;
-        }
-        else if (command.command == Commands::Step)
-        {
-            // Act
-            auto actions_tensor_1 = command.actions[0].to(torch::kInt).contiguous();
-            std::vector<int> actions_1(actions_tensor_1.data<int>(), actions_tensor_1.data<int>() + actions_tensor_1.numel());
-            auto actions_tensor_2 = command.actions[1].to(torch::kInt).contiguous();
-            std::vector<int> actions_2(actions_tensor_2.data<int>(), actions_tensor_2.data<int>() + actions_tensor_2.numel());
-            body_1->act(actions_1);
-            body_2->act(actions_2);
-
-            // Step simulation
-            world->Step(command.step_length, 3, 2);
-            elapsed_time += command.step_length;
-
-            // Hill score
-            hill->update();
-
-            // Check if body is destroyed
-            if (body_1->get_hp() <= 0)
-            {
-                change_reward(body_1.get(), reward_config.loss_punishment);
-                change_reward(body_2.get(), reward_config.victory_reward);
-                set_done();
-            }
-            else if (body_2->get_hp() <= 0)
-            {
-                change_reward(body_1.get(), reward_config.victory_reward);
-                change_reward(body_2.get(), reward_config.loss_punishment);
-                set_done();
-            }
-
-            // Max episode length
-            step_counter++;
-            done = done || step_counter >= max_steps;
-
-            // Return step information
-            auto observation_1 = body_1->get_observation();
-            auto observation_2 = body_2->get_observation();
-            StepInfo step_info{
-                {torch::from_blob(observation_1.data(), {static_cast<long>(observation_1.size())})
-                     .clone(),
-                 torch::from_blob(observation_2.data(), {static_cast<long>(observation_2.size())})
-                     .clone()},
-                torch::from_blob(rewards.data(), {2, 1}, torch::kFloat).clone(),
-                torch::from_blob(&done, {1, 1}, torch::kBool).to(torch::kFloat).expand({2, 1})};
-
-            // Reset reward
-            rewards = {0, 0};
-
-            // Increment step counter
-            if (done)
-            {
-                reset_impl();
-            }
-
-            // Return
-            command.promise.set_value(std::move(step_info));
-        }
-        else if (command.command == Commands::Forward)
-        {
-            world->Step(command.step_length, 3, 2);
-            elapsed_time += command.step_length;
-        }
-        else if (command.command == Commands::Reset)
-        {
-            reset_impl();
-
-            // Fill in StepInfo
-            auto observation_1 = body_1->get_observation();
-            auto observation_2 = body_2->get_observation();
-            StepInfo step_info{
-                {torch::from_blob(observation_1.data(), {static_cast<long>(observation_1.size())})
-                     .clone(),
-                 torch::from_blob(observation_2.data(), {static_cast<long>(observation_2.size())})
-                     .clone()},
-                torch::from_blob(rewards.data(), {2, 1}, torch::kFloat).clone(),
-                torch::from_blob(&done, {1, 1}, torch::kBool).to(torch::kFloat).expand({2, 1})};
-
-            // Return
-            command.promise.set_value(std::move(step_info));
-        }
-    }
-}
-
-void KothEnv::reset_impl()
+StepInfo KothEnv::reset()
 {
     done = false;
     rewards = {0, 0};
@@ -345,5 +253,15 @@ void KothEnv::reset_impl()
 
     // Reset hill
     hill->reset();
+
+    auto observation_1 = body_1->get_observation();
+    auto observation_2 = body_2->get_observation();
+
+    return StepInfo{{torch::from_blob(observation_1.data(), {static_cast<long>(observation_1.size())})
+                         .clone(),
+                     torch::from_blob(observation_2.data(), {static_cast<long>(observation_2.size())})
+                         .clone()},
+                    torch::from_blob(rewards.data(), {2, 1}, torch::kFloat).clone(),
+                    torch::from_blob(&done, {1, 1}, torch::kBool).to(torch::kFloat).expand({2, 1})};
 }
 }

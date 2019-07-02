@@ -1,11 +1,9 @@
 import os
 import logging
 from pathlib import Path
+import sys
 import singularity_trainer
 import time
-
-PROGRAM_FILE = '../programs/asd.json'
-
 
 def main():
     # If anything is logged during imports, it messes up our logging so we
@@ -19,7 +17,7 @@ def main():
                                 '[%(levelname)s]: %(message)s'),
                         datefmt='%Y%m%d %H:%M:%S')
 
-    with open(PROGRAM_FILE, 'r') as file:
+    with open(sys.argv[1], 'r') as file:
         trainer = singularity_trainer.make_trainer(file.read())
 
     try:

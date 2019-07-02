@@ -82,11 +82,14 @@ Trainer::Trainer(TrainingProgram program,
     }
     env_scores.resize(env_count);
 
-    std::vector<std::future<StepInfo>> observation_futures(env_count);
+    observations = torch::zeros({env_count * bodies_per_env, num_observations});
     for (unsigned int i = 0; i < environments.size(); ++i)
     {
-        environments[i]->start_thread();
-        observation_futures[i] = environments[i]->reset();
+        auto env_observation = environments[i]->reset().observation;
+        for (int j = 0; j < bodies_per_env; ++j)
+        {
+            observations[i * bodies_per_env + j] = env_observation[j];
+        }
 
         // Start each environment with a different number of random steps to decorrelate the environments
         for (unsigned int current_step = 0; current_step < i * 12; current_step++)
@@ -96,16 +99,14 @@ Trainer::Trainer(TrainingProgram program,
             {
                 actions.push_back(torch::rand({1, num_actions}));
             }
-            observation_futures[i] = environments[i]->step(actions, 1.f / 10.f);
-        }
-    }
-    observations = torch::zeros({env_count * bodies_per_env, num_observations});
-    for (int i = 0; i < env_count; ++i)
-    {
-        auto env_observation = observation_futures[i].get();
-        for (int j = 0; j < bodies_per_env; ++j)
-        {
-            observations[i * bodies_per_env + j] = env_observation.observation[j];
+            env_observation = environments[i]->step(actions, 1.f / 10.f).observation;
+            if (current_step == (i * 12) - 1)
+            {
+                for (int j = 0; j < bodies_per_env; ++j)
+                {
+                    observations[i * bodies_per_env + j] = env_observation[j];
+                }
+            }
         }
     }
 
@@ -226,15 +227,15 @@ void Trainer::action_update()
     // Step environments
     torch::Tensor dones = torch::zeros({env_count * bodies_per_env, 1});
     torch::Tensor rewards = torch::zeros({env_count * bodies_per_env, 1});
-    std::vector<std::future<StepInfo>> step_info_futures(environments.size());
+    std::vector<StepInfo> step_infos(environments.size());
     for (unsigned int i = 0; i < environments.size(); ++i)
     {
-        step_info_futures[i] = environments[i]->step({act_result[1][i * 2], act_result[1][(i * 2) + 1]},
-                                                     1. / 60.);
+        step_infos[i] = environments[i]->step({act_result[1][i * 2], act_result[1][(i * 2) + 1]},
+                                              1. / 60.);
     }
     for (unsigned int i = 0; i < environments.size(); ++i)
     {
-        auto step_info = step_info_futures[i].get();
+        auto &step_info = step_infos[i];
         for (int j = 0; j < bodies_per_env; ++j)
         {
             observations[i * bodies_per_env + j] = step_info.observation[j];
@@ -247,6 +248,7 @@ void Trainer::action_update()
             if (step_info.done[j].item().toBool())
             {
                 env_scores[i] = 0;
+                environments[i]->reset();
             }
         }
     }
