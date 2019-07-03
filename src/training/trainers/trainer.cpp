@@ -275,6 +275,7 @@ void Trainer::action_update()
             environments[i]->reset();
             int selected_opponent = rng.next_int(0, opponent_pool.size());
             opponents[i] = opponent_pool[selected_opponent].get();
+            opponent_hidden_states[i] = torch::zeros({opponents[i]->get_hidden_state_size(), 1});
         }
     }
 
@@ -325,6 +326,7 @@ void Trainer::action_update()
         {
             auto checkpoint_path = save_model();
             opponent_pool.push_back(std::make_unique<NNAgent>(policy, program.body));
+            last_save_time = now;
         }
     }
 }
