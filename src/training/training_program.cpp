@@ -5,7 +5,7 @@
 
 namespace SingularityTrainer
 {
-static const std::string schema_version = "v1alpha2";
+static const std::string schema_version = "v1alpha3";
 
 TrainingProgram::TrainingProgram() {}
 HyperParameters::HyperParameters() {}
@@ -21,6 +21,7 @@ TrainingProgram::TrainingProgram(nlohmann::json &json)
     checkpoint = json["checkpoint"];
     hyper_parameters = json["hyper_parameters"];
     minutes_per_checkpoint = json["minutes_per_checkpoint"];
+    opponent_pool = json["opponent_pool"].get<std::vector<std::string>>();
     reward_config = json["reward_config"];
 }
 
@@ -60,6 +61,7 @@ nlohmann::json TrainingProgram::to_json() const
     json["checkpoint"] = checkpoint;
     json["hyper_parameters"] = hyper_parameters.to_json();
     json["minutes_per_checkpoint"] = minutes_per_checkpoint;
+    json["opponent_pool"] = opponent_pool;
     json["reward_config"] = reward_config.to_json();
 
     return json;
@@ -109,6 +111,7 @@ TEST_CASE("TrainingProgram")
         json["body"] = nlohmann::json("Body");
         json["checkpoint"] = "12345";
         json["minutes_per_checkpoint"] = 54321;
+        json["opponent_pool"] = {"asd", "sdf"};
 
         nlohmann::json hyper_parameters;
         hyper_parameters["algorithm"] = 0;
@@ -139,6 +142,7 @@ TEST_CASE("TrainingProgram")
         CHECK(program.body == nlohmann::json("Body"));
         CHECK(program.checkpoint == "12345");
         CHECK(program.minutes_per_checkpoint == 54321);
+        CHECK(program.opponent_pool == std::vector<std::string>{"asd", "sdf"});
 
         CHECK(program.hyper_parameters.algorithm == Algorithm::A2C);
         CHECK(program.hyper_parameters.batch_size == doctest::Approx(4));
@@ -168,6 +172,7 @@ TEST_CASE("TrainingProgram")
         program.body = nlohmann::json("Body");
         program.checkpoint = "12345";
         program.minutes_per_checkpoint = 54321;
+        program.opponent_pool = {"asd", "sdf"};
 
         program.hyper_parameters.algorithm = Algorithm::A2C;
         program.hyper_parameters.batch_size = 4;
@@ -196,6 +201,7 @@ TEST_CASE("TrainingProgram")
         CHECK(recreated_program.body == nlohmann::json("Body"));
         CHECK(recreated_program.checkpoint == "12345");
         CHECK(recreated_program.minutes_per_checkpoint == 54321);
+        CHECK(recreated_program.opponent_pool == std::vector<std::string>{"asd", "sdf"});
 
         CHECK(recreated_program.hyper_parameters.algorithm == Algorithm::A2C);
         CHECK(recreated_program.hyper_parameters.batch_size == doctest::Approx(4));

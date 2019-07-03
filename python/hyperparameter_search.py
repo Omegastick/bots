@@ -65,9 +65,9 @@ class HyperParameterSearch(tune.Trainable):
         self.trainer = st.make_trainer(json.dumps(self.program, indent=0))
 
     def _train(self):
-        for _ in range(1000):
+        for _ in range(5000):
             self.trainer.step()
-        return {"winrate": self.trainer.evaluate(300)}
+        return {"winrate": self.trainer.evaluate(500)}
 
     def _save(self, _):
         return {"path": self.trainer.save_model("")}
@@ -85,13 +85,12 @@ def main():
         mode="max",
         max_t=100)
     experiment = tune.Experiment(
-        name="a2c_hyperparameter_search_2",
+        name="ppo_hyperparameter_search_1",
         run=HyperParameterSearch,
         stop={},
         num_samples=64,
         loggers=[JsonLogger, CSVLogger, TFEagerLogger],
-        resources_per_trial={"cpu": 2},
-        checkpoint_at_end=True)
+        resources_per_trial={"cpu": 2})
     algo = HyperOptSearch(
         {
             "base_program": os.path.join(os.getcwd(), sys.argv[1]),
@@ -121,7 +120,7 @@ def main():
             "entropy_coef": 0.0010232892832943642,
             "learning_rate": 1,
             "num_env": 8,
-            "num_epoch": 3,
+            "num_epoch": 1,
             "num_minibatch": 8,
             "value_loss_coef": 0.9719695761331772
 

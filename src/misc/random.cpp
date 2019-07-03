@@ -14,7 +14,7 @@ Random::~Random() {}
 
 int Random::next_int(int min, int max)
 {
-    std::uniform_int_distribution<int> distribution(min, max);
+    std::uniform_int_distribution<int> distribution(min, max - 1);
     return distribution(rng);
 }
 
@@ -50,7 +50,7 @@ TEST_CASE("Random")
         for (int i = 0; i < 20; ++i)
         {
             auto number = rng.next_int(-10, 10);
-            out_of_range = out_of_range || number < -10 || number > 10;
+            out_of_range = out_of_range || number < -10 || number >= 10;
         }
         CHECK(!out_of_range);
     }

@@ -12,6 +12,7 @@
 #include "trainer.h"
 #include "misc/random.h"
 #include "misc/resource_manager.h"
+#include "training/agents/iagent.h"
 #include "training/agents/nn_agent.h"
 #include "training/agents/random_agent.h"
 #include "training/bodies/body.h"
@@ -21,8 +22,9 @@
 #include "training/evaluators/basic_evaluator.h"
 #include "training/score_processor.h"
 #include "training/training_program.h"
-#include "misc/utilities.h"
 #include "misc/date.h"
+#include "misc/random.h"
+#include "misc/utilities.h"
 
 namespace fs = std::filesystem;
 
@@ -36,36 +38,38 @@ Trainer::Trainer(TrainingProgram program,
                  BodyFactory &body_factory,
                  Checkpointer &checkpointer,
                  IEnvironmentFactory &env_factory,
-                 BasicEvaluator &evaluator)
+                 BasicEvaluator &evaluator,
+                 Random &rng)
     : action_frame_counter(0),
-      bodies_per_env(2),
       checkpointer(checkpointer),
       elapsed_time(0),
       env_count(program.hyper_parameters.num_env),
       evaluator(evaluator),
       frame_counter(0),
+      last_save_time(std::chrono::high_resolution_clock::now()),
       last_update_time(std::chrono::high_resolution_clock::now()),
       policy(nullptr),
       previous_checkpoint(program.checkpoint),
       program(program),
+      rng(rng),
       waiting(false)
 {
     torch::manual_seed(0);
 
     // Initialize rollout storage
     b2World b2_world({0, 0});
-    Random rng(0);
     auto temp_body = body_factory.make(b2_world, rng);
     temp_body->load_json(program.body);
     int num_observations = temp_body->get_observation().size();
     int num_actions = temp_body->get_input_count();
     rollout_storage = std::make_unique<cpprl::RolloutStorage>(program.hyper_parameters.batch_size,
-                                                              program.hyper_parameters.num_env * bodies_per_env,
+                                                              program.hyper_parameters.num_env,
                                                               c10::IntArrayRef{num_observations},
                                                               cpprl::ActionSpace{"MultiBinary", {num_actions}},
                                                               64,
                                                               torch::kCPU);
 
+    // Initialize environments
     for (int i = 0; i < env_count; ++i)
     {
         auto world = std::make_unique<b2World>(b2Vec2_zero);
@@ -82,30 +86,43 @@ Trainer::Trainer(TrainingProgram program,
     }
     env_scores.resize(env_count);
 
-    observations = torch::zeros({env_count * bodies_per_env, num_observations});
+    // Initialize opponent pool
+    opponent_pool.push_back(std::make_unique<RandomAgent>(program.body, rng));
+    for (const auto &checkpoint_path : program.opponent_pool)
+    {
+        auto policy = checkpointer.load(checkpoint_path).policy;
+        opponent_pool.push_back(std::make_unique<NNAgent>(policy, program.body));
+    }
+
+    // Initialize opponents
+    opponents.resize(env_count);
+    for (int i = 0; i < env_count; ++i)
+    {
+        int selected_opponent = rng.next_int(0, opponent_pool.size());
+        opponents[i] = opponent_pool[selected_opponent].get();
+        opponent_hidden_states.push_back(torch::zeros({opponents[i]->get_hidden_state_size(), 1}));
+    }
+    opponent_masks = torch::ones({env_count, 1});
+
+    observations = torch::zeros({env_count, num_observations});
+    opponent_observations.clear();
     for (unsigned int i = 0; i < environments.size(); ++i)
     {
         auto env_observation = environments[i]->reset().observation;
-        for (int j = 0; j < bodies_per_env; ++j)
-        {
-            observations[i * bodies_per_env + j] = env_observation[j];
-        }
+        observations[i] = env_observation[0];
+        opponent_observations.push_back(env_observation[1]);
 
         // Start each environment with a different number of random steps to decorrelate the environments
         for (unsigned int current_step = 0; current_step < i * 12; current_step++)
         {
-            std::vector<torch::Tensor> actions;
-            for (int i = 0; i < bodies_per_env; ++i)
-            {
-                actions.push_back(torch::rand({1, num_actions}));
-            }
+            std::vector<torch::Tensor> actions{
+                torch::rand({1, num_actions}),
+                torch::rand({1, opponents[i]->get_action_size()})};
             env_observation = environments[i]->step(actions, 1.f / 10.f).observation;
             if (current_step == (i * 12) - 1)
             {
-                for (int j = 0; j < bodies_per_env; ++j)
-                {
-                    observations[i * bodies_per_env + j] = env_observation[j];
-                }
+                observations[i] = env_observation[0];
+                opponent_observations[i] = env_observation[1];
             }
         }
     }
@@ -223,33 +240,41 @@ void Trainer::action_update()
                                  rollout_storage->get_hidden_states()[action_frame_counter % program.hyper_parameters.batch_size],
                                  rollout_storage->get_masks()[action_frame_counter % program.hyper_parameters.batch_size]);
     }
+    std::vector<torch::Tensor> opponent_actions;
+    for (unsigned int i = 0; i < environments.size(); ++i)
+    {
+        auto opponent_act_result = opponents[i]->act(opponent_observations[i],
+                                                     opponent_hidden_states[i],
+                                                     opponent_masks[i]);
+        opponent_actions.push_back(std::get<0>(opponent_act_result));
+        opponent_hidden_states[i] = std::get<1>(opponent_act_result);
+    }
 
     // Step environments
-    torch::Tensor dones = torch::zeros({env_count * bodies_per_env, 1});
-    torch::Tensor rewards = torch::zeros({env_count * bodies_per_env, 1});
+    torch::Tensor dones = torch::zeros({env_count, 1});
+    torch::Tensor opponent_dones = torch::zeros({env_count, 1});
+    torch::Tensor rewards = torch::zeros({env_count, 1});
     std::vector<StepInfo> step_infos(environments.size());
     for (unsigned int i = 0; i < environments.size(); ++i)
     {
-        step_infos[i] = environments[i]->step({act_result[1][i * 2], act_result[1][(i * 2) + 1]},
+        step_infos[i] = environments[i]->step({act_result[1][i], opponent_actions[i]},
                                               1. / 60.);
     }
     for (unsigned int i = 0; i < environments.size(); ++i)
     {
         auto &step_info = step_infos[i];
-        for (int j = 0; j < bodies_per_env; ++j)
+        observations[i] = step_info.observation[0];
+        dones[i] = step_info.done[0];
+        rewards[i] = step_info.reward[0];
+        opponent_observations[i] = step_info.observation[1];
+        opponent_dones[i] = step_info.done[1];
+        env_scores[i] += step_info.reward[0].item().toFloat();
+        if (step_info.done[0].item().toBool())
         {
-            observations[i * bodies_per_env + j] = step_info.observation[j];
-            dones[i * bodies_per_env + j] = step_info.done[j];
-            rewards[i * bodies_per_env + j] = step_info.reward[j];
-        }
-        for (unsigned int j = 0; j < step_info.reward.size(0); ++j)
-        {
-            env_scores[i] += step_info.reward[j].item().toFloat();
-            if (step_info.done[j].item().toBool())
-            {
-                env_scores[i] = 0;
-                environments[i]->reset();
-            }
+            env_scores[i] = 0;
+            environments[i]->reset();
+            int selected_opponent = rng.next_int(0, opponent_pool.size());
+            opponents[i] = opponent_pool[selected_opponent].get();
         }
     }
 
@@ -290,11 +315,17 @@ void Trainer::action_update()
         {
             spdlog::info("{}: {}", datum.name, datum.value);
         }
-        auto update_end_time = std::chrono::high_resolution_clock::now();
-        std::chrono::duration<double> update_duration = update_end_time - update_start_time;
+        auto now = std::chrono::high_resolution_clock::now();
+        std::chrono::duration<double> update_duration = now - update_start_time;
         spdlog::info("Update took {:.2f}s", update_duration.count());
 
-        last_update_time = update_end_time;
+        last_update_time = now;
+
+        if (now - last_save_time > std::chrono::minutes(program.minutes_per_checkpoint))
+        {
+            auto checkpoint_path = save_model();
+            opponent_pool.push_back(std::make_unique<NNAgent>(policy, program.body));
+        }
     }
 }
 }

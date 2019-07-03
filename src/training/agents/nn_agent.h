@@ -1,6 +1,7 @@
 #pragma once
 
 #include <cpprl/model/policy.h>
+#include <nlohmann/json_fwd.hpp>
 
 #include "iagent.h"
 
@@ -12,7 +13,7 @@ class NNAgent : public IAgent
     cpprl::Policy policy;
 
   public:
-    NNAgent(cpprl::Policy policy);
+    NNAgent(cpprl::Policy policy, const nlohmann::json &body_spec);
 
     ActResult act(torch::Tensor observations,
                   torch::Tensor hidden_states,

@@ -139,14 +139,14 @@ TEST_CASE("Evaluator")
     SUBCASE("evaluate() runs the correct number of trials")
     {
         KothEnvFactory env_factory(100);
-        BodyFactory body_factory;
+        Random rng(0);
+        BodyFactory body_factory(rng);
         Evaluator evaluator(body_factory, env_factory);
 
-        Random rng(0);
         TestBody body(rng);
         auto body_spec = body.to_json();
 
-        RandomAgent agent(body.get_actions().size(), rng);
+        RandomAgent agent(body_spec, rng);
 
         auto results = evaluator.evaluate(agent,
                                           agent,

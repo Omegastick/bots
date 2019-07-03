@@ -147,8 +147,8 @@ RenderData BodyBuilder::get_render_data(bool lightweight)
 
 TEST_CASE("BodyBuilder")
 {
-    BodyFactory body_factory;
     Random rng(0);
+    BodyFactory body_factory(rng);
     IO io;
     io.set_resolution(1920, 1080);
     auto world = std::make_unique<b2World>(b2Vec2_zero);
