@@ -71,8 +71,14 @@ class Body : public ICollidable
 
 class BodyFactory
 {
+  private:
+    Random &rng;
+
   public:
-    virtual std::unique_ptr<Body> make(Random &rng)
+    BodyFactory(Random &rng)
+        : rng(rng) {}
+
+    virtual std::unique_ptr<Body> make()
     {
         return std::make_unique<Body>(rng);
     }

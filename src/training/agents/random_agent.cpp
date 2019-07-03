@@ -1,12 +1,16 @@
 #include <doctest.h>
+#include <nlohmann/json.hpp>
 
 #include "random_agent.h"
 #include "misc/random.h"
+#include "training/bodies/test_body.h"
 
 namespace SingularityTrainer
 {
-RandomAgent::RandomAgent(int num_outputs, Random &rng)
-    : num_outputs(num_outputs), rng(rng) {}
+RandomAgent::RandomAgent(const nlohmann::json &body_spec, Random &rng)
+    : IAgent(body_spec),
+      num_outputs(body_spec["num_actions"]),
+      rng(rng) {}
 
 ActResult RandomAgent::act(torch::Tensor observations,
                            torch::Tensor /*hidden_states*/,
@@ -25,7 +29,8 @@ ActResult RandomAgent::act(torch::Tensor observations,
 TEST_CASE("RandomAgent")
 {
     Random rng(0);
-    RandomAgent agent(4, rng);
+    TestBody body(rng);
+    RandomAgent agent(body.to_json(), rng);
 
     SUBCASE("act() returns correctly sized actions")
     {

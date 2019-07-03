@@ -1,12 +1,16 @@
 #include <doctest.h>
 #include <cpprl/cpprl.h>
+#include <nlohmann/json.hpp>
 
 #include "nn_agent.h"
+#include "misc/random.h"
+#include "training/bodies/test_body.h"
 
 namespace SingularityTrainer
 {
-NNAgent::NNAgent(cpprl::Policy policy)
-    : policy(policy) {}
+NNAgent::NNAgent(cpprl::Policy policy, const nlohmann::json &body_spec)
+    : IAgent(body_spec),
+      policy(policy) {}
 
 ActResult NNAgent::act(torch::Tensor observations,
                        torch::Tensor hidden_states,
@@ -27,7 +31,9 @@ TEST_CASE("NNAgent")
 {
     auto nn_base = std::make_shared<cpprl::MlpBase>(5, true, 6);
     auto policy = cpprl::Policy(cpprl::ActionSpace{"MultiBinary", {4}}, nn_base);
-    NNAgent agent(policy);
+    Random rng(0);
+    TestBody body(rng);
+    NNAgent agent(policy, body.to_json());
 
     SUBCASE("act() returns correctly sized actions")
     {

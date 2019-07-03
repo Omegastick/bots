@@ -1,6 +1,8 @@
 #pragma once
 
 #include <memory>
+#include <string>
+#include <vector>
 
 #include <nlohmann/json.hpp>
 
@@ -70,6 +72,7 @@ struct TrainingProgram
     std::string checkpoint;
     HyperParameters hyper_parameters;
     int minutes_per_checkpoint = 10;
+    std::vector<std::string> opponent_pool;
     RewardConfig reward_config;
 
     nlohmann::json to_json() const;

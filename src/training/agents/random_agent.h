@@ -1,5 +1,7 @@
 #pragma once
 
+#include <nlohmann/json_fwd.hpp>
+
 #include "iagent.h"
 
 namespace SingularityTrainer
@@ -13,7 +15,7 @@ class RandomAgent : public IAgent
     Random &rng;
 
   public:
-    RandomAgent(int num_outputs, Random &rng);
+    RandomAgent(const nlohmann::json &body_spec, Random &rng);
 
     ActResult act(torch::Tensor observations,
                   torch::Tensor hidden_states,
