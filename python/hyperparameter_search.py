@@ -74,6 +74,11 @@ class HyperParameterSearch(tune.Trainable):
 
     def _restore(self, checkpoint):
         self.program["checkpoint"] = checkpoint["path"]
+        checkpoint_dir = os.path.dirname(program["checkpoint"])
+        self.program["opponent_pool"] = []
+        for file in os.listdir(checkpoint_dir):
+            if file.endswith(".meta"):
+                self.program["opponent_pool"].append(file)
         self.trainer = st.make_trainer(json.dumps(self.program, indent=0))
 
 
@@ -85,10 +90,10 @@ def main():
         mode="max",
         max_t=100)
     experiment = tune.Experiment(
-        name="ppo_hyperparameter_search_1",
+        name="ppo_hyperparameter_search_2",
         run=HyperParameterSearch,
         stop={},
-        num_samples=64,
+        num_samples=32,
         loggers=[JsonLogger, CSVLogger, TFEagerLogger],
         resources_per_trial={"cpu": 2})
     algo = HyperOptSearch(
