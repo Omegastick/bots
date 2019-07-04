@@ -74,7 +74,7 @@ CheckpointData Checkpointer::load_data(fs::path path)
     string_stream >> date::parse("%F-%H-%M-%S", time_stamp);
     return {json["body_spec"],
             json["data"],
-            json["previous_checkpoint"],
+            json["previous_checkpoint"].get<std::string>(),
             json["recurrent"],
             time_stamp};
 }

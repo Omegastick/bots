@@ -81,7 +81,7 @@ void BrainWindow::update(TrainingProgram &program)
         }
         else
         {
-            program.checkpoint = checkpoints[selected_file - 1];
+            program.checkpoint = checkpoints[selected_file - 1].string();
         }
         last_selected_file = selected_file;
     }

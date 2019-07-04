@@ -28,13 +28,13 @@ nlohmann::json Saver::load_json(std::filesystem::path path)
 void Saver::load_policy(std::filesystem::path path,
                         cpprl::Policy &policy)
 {
-    torch::load(policy, path);
+    torch::load(policy, path.string());
 }
 
 void Saver::save(cpprl::Policy policy, std::filesystem::path path)
 {
     create_directory_if_doesnt_exist(path);
-    torch::save(policy, path);
+    torch::save(policy, path.string());
 }
 
 void Saver::save(nlohmann::json json, std::filesystem::path path)

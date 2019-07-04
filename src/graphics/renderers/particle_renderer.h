@@ -14,7 +14,7 @@ class VertexBuffer;
 class ResourceManager;
 class Particle;
 
-auto MaxParticles = [] {};
+static auto MaxParticles = [] {};
 
 class ParticleRenderer
 {

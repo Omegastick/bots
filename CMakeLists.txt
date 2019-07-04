@@ -31,9 +31,9 @@ set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_FLAGS_RELEASE -O3)
 
 # Executables and local libraries
-add_library(Graphics OBJECT "")
-add_library(Misc OBJECT "")
-add_library(Training OBJECT "")
+add_library(Graphics STATIC "")
+add_library(Misc STATIC "")
+add_library(Training STATIC "")
 add_executable(SingularityTrainer "")
 add_executable(HeadlessTrainer "")
 add_executable(GraphicsPlayground "")
@@ -53,6 +53,7 @@ set_target_properties(Training PROPERTIES POSITION_INDEPENDENT_CODE TRUE)
 
 # Enable all warnings
 foreach(target ${ST_TARGETS})
+    target_compile_definitions(${target} PUBLIC SPDLOG_FMT_EXTERNAL)
     if(MSVC)
     target_compile_options(${target} PRIVATE /W0)
     else(MSVC)
@@ -61,7 +62,7 @@ foreach(target ${ST_TARGETS})
 endforeach(target ${ST_TARGETS})
 
 # Libraries included in repository
-set(SPDLOG_FMT_EXTERNAL true)
+option(SPDLOG_FMT_EXTERNAL "" ON)
 ## Fmt
 add_subdirectory(${FMT_DIR})
 ## PyTorch
@@ -147,6 +148,7 @@ set(INCLUDE_DIRS
     ${TWEENY_DIR}/include
     ${PYBIND_DIR}/include
     ${PYTHON_INCLUDE_DIRS}
+    ${FMT_DIR}/include
 )
 target_include_directories(SingularityTrainer PUBLIC ${INCLUDE_DIRS})
 target_include_directories(HeadlessTrainer PUBLIC ${INCLUDE_DIRS})

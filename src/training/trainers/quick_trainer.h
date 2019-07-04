@@ -18,7 +18,7 @@ class BodyFactory;
 class IEnvironmentFactory;
 class Random;
 
-auto EnvCount = [] {};
+static auto EnvCount = [] {};
 
 class QuickTrainer : public ITrainer
 {

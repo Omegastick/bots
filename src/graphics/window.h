@@ -12,9 +12,9 @@ namespace SingularityTrainer
 {
 class IO;
 
-auto Title = [] {};
-auto MajorOpenGLVersion = [] {};
-auto MinorOpenGLVersion = [] {};
+static auto Title = [] {};
+static auto MajorOpenGLVersion = [] {};
+static auto MinorOpenGLVersion = [] {};
 
 class Window
 {

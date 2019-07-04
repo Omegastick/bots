@@ -3,8 +3,8 @@
 
 #include <cpprl/cpprl.h>
 #include <spdlog/spdlog.h>
-#include <spdlog/fmt/ostr.h>
-#include <spdlog/fmt/fmt.h>
+#include <fmt/ostr.h>
+#include <fmt/format.h>
 #include <torch/torch.h>
 
 #include "misc/random.h"

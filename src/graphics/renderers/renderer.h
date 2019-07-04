@@ -24,8 +24,8 @@ class ParticleRenderer;
 class LineRenderer;
 class TextRenderer;
 
-auto ResolutionX = [] {};
-auto ResolutionY = [] {};
+static auto ResolutionX = [] {};
+static auto ResolutionY = [] {};
 
 class Renderer
 {
