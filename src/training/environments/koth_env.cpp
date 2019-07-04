@@ -107,8 +107,8 @@ KothEnv::KothEnv(int max_steps,
       elapsed_time(0),
       done(false),
       rewards({0, 0}),
+      scores({0, 0}),
       step_counter(0),
-      total_rewards({0, 0}),
       reward_config(reward_config)
 {
     // Box2D world
@@ -128,9 +128,32 @@ KothEnv::KothEnv(int max_steps,
     walls.push_back(std::make_unique<Wall>(-10, -20, 0.1, 40, *this->world));
     walls.push_back(std::make_unique<Wall>(-10, 19.9, 20, 0.1, *this->world));
     walls.push_back(std::make_unique<Wall>(9.9, -20, 0.1, 40, *this->world));
+
+    hill->register_callback([&](const std::unordered_map<Body *, int> &bodies) {
+        if (bodies.size() == 1)
+        {
+            for (auto body : bodies)
+            {
+                if (body.second > 0)
+                {
+                    change_reward(body.first, reward_config.hill_tick_reward);
+                    change_score(body.first, 1);
+                }
+                else
+                {
+                    change_reward(body.first, reward_config.enemy_hill_tick_punishment);
+                }
+            }
+        }
+    });
 }
 
 KothEnv::~KothEnv() {}
+
+void KothEnv::change_score(Body *body, float score_delta)
+{
+    scores[body_numbers[body]] += score_delta;
+}
 
 float KothEnv::get_elapsed_time() const
 {
@@ -178,19 +201,36 @@ StepInfo KothEnv::step(const std::vector<torch::Tensor> actions, float step_leng
     if (body_1->get_hp() <= 0)
     {
         change_reward(body_1.get(), reward_config.loss_punishment);
+        change_score(body_2.get(), 100);
         change_reward(body_2.get(), reward_config.victory_reward);
         set_done();
     }
     else if (body_2->get_hp() <= 0)
     {
         change_reward(body_1.get(), reward_config.victory_reward);
-        change_reward(body_2.get(), reward_config.loss_punishment);
+        change_score(body_1.get(), 100);
         set_done();
     }
 
     // Max episode length
     step_counter++;
     done = done || step_counter >= max_steps;
+    int victor = -1;
+    if (done)
+    {
+        if (scores[0] > scores[1])
+        {
+            change_reward(body_1.get(), reward_config.victory_reward);
+            change_reward(body_2.get(), reward_config.loss_punishment);
+            victor = 0;
+        }
+        else if (scores[1] > scores[0])
+        {
+            change_reward(body_1.get(), reward_config.loss_punishment);
+            change_reward(body_2.get(), reward_config.victory_reward);
+            victor = 1;
+        }
+    }
 
     // Return step information
     auto observation_1 = body_1->get_observation();
@@ -201,7 +241,8 @@ StepInfo KothEnv::step(const std::vector<torch::Tensor> actions, float step_leng
          torch::from_blob(observation_2.data(), {static_cast<long>(observation_2.size())})
              .clone()},
         torch::from_blob(rewards.data(), {2, 1}, torch::kFloat).clone(),
-        torch::from_blob(&done, {1, 1}, torch::kBool).to(torch::kFloat).expand({2, 1})};
+        torch::from_blob(&done, {1, 1}, torch::kBool).to(torch::kFloat).expand({2, 1}),
+        victor};
 
     // Reset reward
     rewards = {0, 0};
@@ -219,7 +260,6 @@ void KothEnv::forward(float step_length)
 void KothEnv::change_reward(int body, float reward_delta)
 {
     rewards[body] += reward_delta;
-    total_rewards[body] += reward_delta;
 }
 
 void KothEnv::change_reward(Body *body, float reward_delta)
@@ -236,7 +276,7 @@ StepInfo KothEnv::reset()
 {
     done = false;
     rewards = {0, 0};
-    total_rewards = {0, 0};
+    scores = {0, 0};
     step_counter = 0;
 
     // Reset body position

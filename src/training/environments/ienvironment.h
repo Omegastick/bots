@@ -18,6 +18,7 @@ struct StepInfo
 {
     std::vector<torch::Tensor> observation;
     torch::Tensor reward, done;
+    int victor = -1;
 };
 
 class IEnvironment : public IDrawable
@@ -32,7 +33,7 @@ class IEnvironment : public IDrawable
     virtual float get_elapsed_time() const = 0;
     virtual RenderData get_render_data(bool lightweight = false) = 0;
     virtual RewardConfig &get_reward_config() = 0;
-    virtual std::vector<float> get_total_rewards() = 0;
+    virtual std::vector<float> get_scores() = 0;
     virtual b2World &get_world() = 0;
     virtual StepInfo reset() = 0;
     virtual void set_done() = 0;

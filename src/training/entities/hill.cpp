@@ -62,6 +62,11 @@ void Hill::end_contact(RigidBody *other)
     }
 }
 
+void Hill::register_callback(std::function<void(const std::unordered_map<Body *, int> &)> callback)
+{
+    this->callback = callback;
+}
+
 void Hill::update() const
 {
     // First check if only one person is occupying the hill
@@ -74,22 +79,12 @@ void Hill::update() const
         }
     }
 
-    // If so, apply the appropriate rewards to the bodies
-    if (total_occupants == 1)
+    if (callback)
     {
-        auto &reward_config = environment.get_reward_config();
-        for (auto body : occupants)
-        {
-            if (body.second > 0)
-            {
-                environment.change_reward(body.first, reward_config.hill_tick_reward);
-            }
-            else
-            {
-                environment.change_reward(body.first, reward_config.enemy_hill_tick_punishment);
-            }
-        }
+        callback(occupants);
     }
+
+    // If so, apply the appropriate rewards to the bodies
 }
 
 void Hill::reset()

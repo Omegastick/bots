@@ -90,7 +90,7 @@ def main():
         mode="max",
         max_t=100)
     experiment = tune.Experiment(
-        name="ppo_hyperparameter_search_2",
+        name="ppo_hyperparameter_search_3",
         run=HyperParameterSearch,
         stop={},
         num_samples=32,
@@ -116,19 +116,18 @@ def main():
         metric="winrate",
         mode="max",
         points_to_evaluate=[{
-            "actor_loss_coef": 0.7991172152254473,
+            "actor_loss_coef": 0.9858908897512276,
             "algorithm": 1,
             "base_program": os.path.join(os.getcwd(), sys.argv[1]),
-            "batch_size": 29.0,
-            "clip_param": 0.24473265596039084,
-            "discount_factor": 0.6909978358762585,
-            "entropy_coef": 0.0010232892832943642,
+            "batch_size": 203.0,
+            "clip_param": 0.2966414935576334,
+            "discount_factor": 0.850793792894193,
+            "entropy_coef": 0.011559455852253061,
             "learning_rate": 1,
             "num_env": 8,
-            "num_epoch": 1,
+            "num_epoch": 5,
             "num_minibatch": 8,
-            "value_loss_coef": 0.9719695761331772
-
+            "value_loss_coef": 0.5323687551335846
         }])
     tune.run(
         experiment,
