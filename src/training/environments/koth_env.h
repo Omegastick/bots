@@ -67,7 +67,7 @@ class KothEnv : public IEnvironment
     inline void set_body_2(std::unique_ptr<Body> body) { this->body_2 = std::move(body); }
 };
 
-auto MaxSteps = [] {};
+static auto MaxSteps = [] {};
 
 class KothEnvFactory : public IEnvironmentFactory
 {

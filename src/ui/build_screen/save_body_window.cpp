@@ -37,7 +37,7 @@ bool SaveBodyWindow::update(Body &body)
 
         auto file_name = bodies_directory;
         file_name += "/" + name + ".json";
-        spdlog::debug("Saving body to {}", file_name.c_str());
+        spdlog::debug("Saving body to {}", file_name.string());
 
         body.set_name(name);
         auto json = body.to_json().dump();

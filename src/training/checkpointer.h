@@ -34,7 +34,7 @@ struct Checkpoint
     cpprl::Policy policy;
 };
 
-auto CheckpointDirectory = [] {};
+static auto CheckpointDirectory = [] {};
 
 class Checkpointer
 {

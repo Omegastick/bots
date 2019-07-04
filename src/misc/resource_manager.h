@@ -11,7 +11,7 @@ class Texture;
 class Shader;
 class Font;
 
-auto AssetsPath = [] {};
+static auto AssetsPath = [] {};
 
 class ResourceManager
 {

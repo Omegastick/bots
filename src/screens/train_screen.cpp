@@ -3,7 +3,7 @@
 #include <glm/mat4x4.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <imgui.h>
-#include <spdlog/fmt/fmt.h>
+#include <fmt/format.h>
 
 #include "train_screen.h"
 #include "graphics/renderers/renderer.h"

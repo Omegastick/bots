@@ -2,10 +2,10 @@
 
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
+#include <spdlog/spdlog.h>
 
 #include "graphics/renderers/renderer.h"
 #include "graphics/window.h"
-#include <spdlog/spdlog.h>
 
 namespace SingularityTrainer
 {
