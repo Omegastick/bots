@@ -33,10 +33,12 @@ class KothEnv : public IEnvironment
     float elapsed_time;
     bool done;
     std::vector<float> rewards;
+    std::vector<float> scores;
     int step_counter;
-    std::vector<float> total_rewards;
     std::unordered_map<Body *, int> body_numbers;
     RewardConfig reward_config;
+
+    void change_score(Body *, float score_delta);
 
   public:
     KothEnv(int max_steps,
@@ -59,7 +61,7 @@ class KothEnv : public IEnvironment
     inline std::vector<Body *> get_bodies() { return {body_1.get(), body_2.get()}; }
     inline RewardConfig &get_reward_config() { return reward_config; }
     inline Random &get_rng() { return *rng; }
-    inline std::vector<float> get_total_rewards() { return total_rewards; }
+    inline std::vector<float> get_scores() { return scores; }
     inline b2World &get_world() { return *world; };
     inline void set_body_1(std::unique_ptr<Body> body) { this->body_1 = std::move(body); }
     inline void set_body_2(std::unique_ptr<Body> body) { this->body_2 = std::move(body); }

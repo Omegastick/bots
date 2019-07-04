@@ -29,7 +29,7 @@ EvaluationResult Evaluator::evaluate(IAgent &agent_1,
                                      int number_of_trials)
 {
     // Initialize environments
-    std::vector<std::vector<float>> scores(number_of_trials, {0, 0});
+    std::vector<int> scores(number_of_trials);
 
     std::vector<std::unique_ptr<IEnvironment>> environments(number_of_trials);
     for (int i = 0; i < number_of_trials; ++i)
@@ -102,9 +102,7 @@ EvaluationResult Evaluator::evaluate(IAgent &agent_1,
 
                 if (step_info.done[0].item().toBool())
                 {
-                    scores[i] = environments[i]->get_total_rewards();
-                    scores[i][0] += step_info.reward[0].item().toFloat();
-                    scores[i][1] += step_info.reward[1].item().toFloat();
+                    scores[i] = step_info.victor;
                     finished_trials[i] = true;
                     finished_count++;
                 }
@@ -117,11 +115,11 @@ EvaluationResult Evaluator::evaluate(IAgent &agent_1,
     EvaluationResult result;
     for (const auto &score : scores)
     {
-        if (score[0] > score[1])
+        if (score == 0)
         {
             result.agent_1++;
         }
-        else if (score[1] > score[2])
+        else if (score == 1)
         {
             result.agent_2++;
         }

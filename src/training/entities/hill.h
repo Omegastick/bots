@@ -1,5 +1,6 @@
 #pragma once
 
+#include <functional>
 #include <memory>
 #include <unordered_map>
 
@@ -19,6 +20,7 @@ class Sprite;
 class Hill : public IDrawable, public ICollidable
 {
   private:
+    std::function<void(const std::unordered_map<Body *, int> &)> callback;
     IEnvironment &environment;
     std::unique_ptr<Sprite> sprite;
     std::unordered_map<Body *, int> occupants;
@@ -31,6 +33,7 @@ class Hill : public IDrawable, public ICollidable
     void begin_contact(RigidBody *other);
     void end_contact(RigidBody *other);
     void update() const;
+    void register_callback(std::function<void(const std::unordered_map<Body *, int> &)> callback);
     void reset();
 
     std::unique_ptr<RigidBody> rigid_body;

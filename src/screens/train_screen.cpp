@@ -72,10 +72,10 @@ void TrainScreen::update(const double /*delta_time*/)
 
     ImGui::SetNextWindowSize({resolution.x * 0.2f, resolution.y * 0.1f}, ImGuiCond_Once);
     ImGui::SetNextWindowPos({resolution.x * 0.05f, resolution.y * 0.5f}, ImGuiCond_Once);
-    ImGui::Begin("Rewards");
-    for (const auto &reward : trainer->environments[0]->get_total_rewards())
+    ImGui::Begin("Scores");
+    for (const auto &score : trainer->environments[0]->get_scores())
     {
-        ImGui::Text("%.1f", reward);
+        ImGui::Text("%.1f", score);
     }
     ImGui::End();
 
