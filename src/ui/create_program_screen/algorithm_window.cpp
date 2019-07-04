@@ -29,7 +29,7 @@ void AlgorithmWindow::update(HyperParameters &hyperparams)
     ImGui::SetNextWindowPos({resolution.x * 0.05f, resolution.y * 0.2f}, ImGuiCond_Once);
     ImGui::Begin("Select an algorithm");
 
-    const float label_spacing = resolution.x * 0.06;
+    const float label_spacing = resolution.x * 0.08;
 
     const char *algorithms[] = {"A2C", "PPO"};
     auto selected_algorithm = static_cast<int>(hyperparams.algorithm);
@@ -44,14 +44,15 @@ PPO: More complex than A2C, but more stable and more sample efficient.)");
 
     ImGui::Text("Batch size:");
     ImGui::SameLine(label_spacing);
-    float batch_size = hyperparams.batch_size;
-    ImGui::SliderFloat("##batch_size", &batch_size, 1, 16384, "%.0f", 2);
-    hyperparams.batch_size = std::round(batch_size);
+    ImGui::InputInt("##batch_size",
+                    &hyperparams.batch_size,
+                    1,
+                    hyperparams.batch_size / 2);
     ImGui::SameLine();
     help_marker(R"(How many samples to record before updating the AI. 10 samples is one second.
 Recommended: 4 - 1024)");
 
-    ImGui::Text("Number of parallel environments:");
+    ImGui::Text("Number of parallel\nenvironments:");
     ImGui::SameLine(label_spacing);
     ImGui::SliderInt("##num_env", &hyperparams.num_env, 1, 16);
     ImGui::SameLine();
