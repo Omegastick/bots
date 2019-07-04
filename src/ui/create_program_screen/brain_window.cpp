@@ -5,6 +5,25 @@
 #include "training/checkpointer.h"
 #include "training/training_program.h"
 
+namespace ImGui
+{
+bool ListBox(const char *label,
+             int *current_item,
+             const std::vector<std::string> &items,
+             int height_in_items = -1)
+{
+    return ListBox(label,
+                   current_item,
+                   [](void *data, int idx, const char **out_text) {
+                       *out_text = (*static_cast<const std::vector<std::string> *>(data))[idx].c_str();
+                       return true;
+                   },
+                   (void *)&items,
+                   items.size(),
+                   height_in_items);
+}
+}
+
 namespace SingularityTrainer
 {
 BrainWindow::BrainWindow(Checkpointer &checkpointer, IO &io)
@@ -45,12 +64,14 @@ void BrainWindow::update(TrainingProgram &program)
         }
     }
 
-    std::vector<const char *> c_strings{"None"};
-    for (const auto &checkpoint : checkpoints)
-    {
-        c_strings.push_back(checkpoint.filename().replace_extension("").c_str());
-    }
-    ImGui::ListBox("", &selected_file, &c_strings.front(), c_strings.size());
+    std::vector<std::string> checkpoint_strings{"None"};
+    std::transform(checkpoints.begin(),
+                   checkpoints.end(),
+                   std::back_inserter(checkpoint_strings),
+                   [](const std::filesystem::path &path) {
+                       return path.filename().replace_extension("").string();
+                   });
+    ImGui::ListBox("", &selected_file, checkpoint_strings);
 
     if (selected_file != last_selected_file)
     {
