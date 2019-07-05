@@ -148,7 +148,7 @@ TEST_CASE("Checkpointer")
 
         SUBCASE("Saves files to the correct paths")
         {
-            DOCTEST_CHECK(saver.last_saved_path == "/tmp/checkpoints/YbjrbsYrQd.meta");
+            DOCTEST_CHECK(saver.last_saved_path.string().substr(0, 17) == "/tmp/checkpoints/");
         }
 
         SUBCASE("Saves correct Json")
