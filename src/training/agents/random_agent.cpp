@@ -14,7 +14,7 @@ RandomAgent::RandomAgent(const nlohmann::json &body_spec, Random &rng)
 
 ActResult RandomAgent::act(torch::Tensor observations,
                            torch::Tensor /*hidden_states*/,
-                           torch::Tensor /*masks*/)
+                           torch::Tensor /*masks*/) const
 {
     if (observations.dim() == 1)
     {
@@ -24,6 +24,11 @@ ActResult RandomAgent::act(torch::Tensor observations,
     {
         return {torch::zeros({observations.size(0), num_outputs}).random_(2), {}};
     }
+}
+
+std::unique_ptr<IAgent> RandomAgent::clone() const
+{
+    return std::make_unique<RandomAgent>(body_spec, rng);
 }
 
 TEST_CASE("RandomAgent")

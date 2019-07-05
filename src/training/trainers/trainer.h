@@ -19,7 +19,7 @@
 namespace SingularityTrainer
 {
 class Checkpointer;
-class BasicEvaluator;
+class EloEvaluator;
 class IEnvironmentFactory;
 class Random;
 
@@ -34,10 +34,11 @@ class Trainer : public ITrainer
     float elapsed_time;
     int env_count;
     std::vector<float> env_scores;
-    BasicEvaluator &evaluator;
+    EloEvaluator &evaluator;
     int frame_counter;
     std::chrono::time_point<std::chrono::high_resolution_clock> last_save_time;
     std::chrono::time_point<std::chrono::high_resolution_clock> last_update_time;
+    int new_opponents;
     torch::Tensor observations;
     std::vector<torch::Tensor> opponent_hidden_states;
     std::vector<torch::Tensor> opponent_observations;
@@ -58,10 +59,10 @@ class Trainer : public ITrainer
             BodyFactory &body_factory,
             Checkpointer &checkpointer,
             IEnvironmentFactory &env_factory,
-            BasicEvaluator &evaluator,
+            EloEvaluator &evaluator,
             Random &rng);
 
-    virtual float evaluate(int number_of_trials);
+    virtual float evaluate();
     virtual std::vector<float> get_observation();
     virtual std::filesystem::path save_model(std::filesystem::path directory = {});
     virtual void step();
@@ -74,14 +75,14 @@ class TrainerFactory
     BodyFactory &body_factory;
     Checkpointer &checkpointer;
     IEnvironmentFactory &env_factory;
-    BasicEvaluator &evaluator;
+    EloEvaluator &evaluator;
     Random &rng;
 
   public:
     TrainerFactory(BodyFactory &body_factory,
                    Checkpointer &checkpointer,
                    IEnvironmentFactory &env_factory,
-                   BasicEvaluator &evaluator,
+                   EloEvaluator &evaluator,
                    Random &rng)
         : body_factory(body_factory),
           checkpointer(checkpointer),

@@ -14,7 +14,7 @@ NNAgent::NNAgent(cpprl::Policy policy, const nlohmann::json &body_spec)
 
 ActResult NNAgent::act(torch::Tensor observations,
                        torch::Tensor hidden_states,
-                       torch::Tensor masks)
+                       torch::Tensor masks) const
 {
     if (observations.dim() == 1)
     {
@@ -27,6 +27,12 @@ ActResult NNAgent::act(torch::Tensor observations,
                                   masks);
     return {act_result[1], act_result[3]};
 }
+
+std::unique_ptr<IAgent> NNAgent::clone() const
+{
+    return std::make_unique<NNAgent>(policy, body_spec);
+}
+
 TEST_CASE("NNAgent")
 {
     auto nn_base = std::make_shared<cpprl::MlpBase>(5, true, 6);

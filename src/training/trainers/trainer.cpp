@@ -18,7 +18,7 @@
 #include "training/bodies/test_body.h"
 #include "training/checkpointer.h"
 #include "training/environments/ienvironment.h"
-#include "training/evaluators/basic_evaluator.h"
+#include "training/evaluators/elo_evaluator.h"
 #include "training/score_processor.h"
 #include "training/training_program.h"
 #include "misc/date.h"
@@ -37,7 +37,7 @@ Trainer::Trainer(TrainingProgram program,
                  BodyFactory &body_factory,
                  Checkpointer &checkpointer,
                  IEnvironmentFactory &env_factory,
-                 BasicEvaluator &evaluator,
+                 EloEvaluator &evaluator,
                  Random &rng)
     : action_frame_counter(0),
       checkpointer(checkpointer),
@@ -47,6 +47,7 @@ Trainer::Trainer(TrainingProgram program,
       frame_counter(0),
       last_save_time(std::chrono::high_resolution_clock::now()),
       last_update_time(std::chrono::high_resolution_clock::now()),
+      new_opponents(1 + program.opponent_pool.size()),
       policy(nullptr),
       previous_checkpoint(program.checkpoint),
       program(program),
@@ -166,10 +167,11 @@ Trainer::Trainer(TrainingProgram program,
     rollout_storage->set_first_observation(observations);
 }
 
-float Trainer::evaluate(int number_of_trials)
+float Trainer::evaluate()
 {
-    auto results = evaluator.evaluate(policy, program.body, number_of_trials);
-    return (results.agent_1 + (results.draw * 0.5)) / (results.agent_1 + results.agent_2 + results.draw);
+    std::vector<IAgent *> new_opponents_vec(opponents.end() - new_opponents, opponents.end());
+    new_opponents = 0;
+    return evaluator.evaluate(policy, program.body, new_opponents_vec);
 }
 
 std::vector<float> Trainer::get_observation()
@@ -325,6 +327,7 @@ void Trainer::action_update()
         {
             auto checkpoint_path = save_model();
             opponent_pool.push_back(std::make_unique<NNAgent>(policy, program.body));
+            new_opponents++;
             last_save_time = now;
         }
     }
