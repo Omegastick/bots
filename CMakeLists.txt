@@ -65,6 +65,7 @@ endforeach(target ${ST_TARGETS})
 option(SPDLOG_FMT_EXTERNAL "" ON)
 ## Fmt
 add_subdirectory(${FMT_DIR})
+set_target_properties(fmt PROPERTIES POSITION_INDEPENDENT_CODE TRUE)
 ## PyTorch
 if (NOT TORCH_FOUND)
     find_package(Torch REQUIRED)
