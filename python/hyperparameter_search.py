@@ -67,7 +67,7 @@ class HyperParameterSearch(tune.Trainable):
     def _train(self):
         for _ in range(5000):
             self.trainer.step()
-        return {"winrate": self.trainer.evaluate(500)}
+        return {"elo": self.trainer.evaluate()}
 
     def _save(self, _):
         return {"path": self.trainer.save_model("")}
@@ -86,14 +86,14 @@ def main():
     ray.init(local_mode=False)
     hyperband = tune.schedulers.HyperBandScheduler(
         time_attr="training_iteration",
-        metric="winrate",
+        metric="elo",
         mode="max",
-        max_t=100)
+        max_t=75)
     experiment = tune.Experiment(
-        name="ppo_hyperparameter_search_3",
+        name="ppo_hyperparameter_search_4",
         run=HyperParameterSearch,
         stop={},
-        num_samples=32,
+        num_samples=128,
         loggers=[JsonLogger, CSVLogger, TFEagerLogger],
         resources_per_trial={"cpu": 2})
     algo = HyperOptSearch(
@@ -113,7 +113,7 @@ def main():
             "value_loss_coef": hp.uniform("value_loss_coef", 0.25, 1)
         },
         max_concurrent=8,
-        metric="winrate",
+        metric="elo",
         mode="max",
         points_to_evaluate=[{
             "actor_loss_coef": 0.9858908897512276,
@@ -128,6 +128,20 @@ def main():
             "num_epoch": 5,
             "num_minibatch": 8,
             "value_loss_coef": 0.5323687551335846
+        },
+            {
+            "actor_loss_coef": 0.8185698586238065,
+            "algorithm": 1,
+            "base_program": os.path.join(os.getcwd(), sys.argv[1]),
+            "batch_size": 27.0,
+            "clip_param": 0.22135255042157442,
+            "discount_factor": 0.4871560553665869,
+            "entropy_coef": 1.2129990452636745e-06,
+            "learning_rate": 1,
+            "num_env": 8,
+            "num_epoch": 3,
+            "num_minibatch": 8,
+            "value_loss_coef": 0.3927127459992794
         }])
     tune.run(
         experiment,

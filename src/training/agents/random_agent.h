@@ -19,8 +19,9 @@ class RandomAgent : public IAgent
 
     ActResult act(torch::Tensor observations,
                   torch::Tensor hidden_states,
-                  torch::Tensor masks);
+                  torch::Tensor masks) const;
+    virtual std::unique_ptr<IAgent> clone() const;
 
-    inline int get_hidden_state_size() { return 0; }
+    inline int get_hidden_state_size() const { return 0; }
 };
 }

@@ -1,5 +1,6 @@
 #pragma once
 
+#include <memory>
 #include <tuple>
 
 #include <nlohmann/json.hpp>
@@ -22,11 +23,12 @@ class IAgent
 
     virtual ActResult act(torch::Tensor observations,
                           torch::Tensor hidden_states,
-                          torch::Tensor masks) = 0;
-    int get_action_size();
-    const nlohmann::json &get_body_spec();
-    virtual int get_hidden_state_size() = 0;
-    int get_observation_size();
+                          torch::Tensor masks) const = 0;
+    virtual std::unique_ptr<IAgent> clone() const = 0;
+    int get_action_size() const;
+    const nlohmann::json &get_body_spec() const;
+    virtual int get_hidden_state_size() const = 0;
+    int get_observation_size() const;
 };
 
 inline IAgent::~IAgent() {}

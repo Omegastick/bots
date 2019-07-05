@@ -5,6 +5,7 @@ import sys
 import singularity_trainer
 import time
 
+
 def main():
     # If anything is logged during imports, it messes up our logging so we
     # reset the logging module here
@@ -25,10 +26,10 @@ def main():
         test_number = 1
         while True:
             trainer.step()
-            if time.time() - last_test_time > 600:
+            if time.time() - last_test_time > 1:
                 logging.info("######## Testing ########")
-                winrate = trainer.evaluate(1000)
-                logging.info("Result: %f", winrate)
+                elo = trainer.evaluate()
+                logging.info("Result: %f", elo)
                 logging.info("######## Tested  ########")
                 last_test_time = time.time()
     except KeyboardInterrupt:

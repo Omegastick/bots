@@ -8,7 +8,7 @@
 #include "training/checkpointer.h"
 #include "training/environments/ienvironment.h"
 #include "training/environments/koth_env.h"
-#include "training/evaluators/basic_evaluator.h"
+#include "training/evaluators/elo_evaluator.h"
 #include "training/saver.h"
 #include "training/trainers/itrainer.h"
 #include "training/trainers/trainer.h"

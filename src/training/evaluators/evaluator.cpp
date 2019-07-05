@@ -22,11 +22,9 @@ Evaluator::Evaluator(BodyFactory &body_factory,
     : body_factory(body_factory),
       env_factory(env_factory) {}
 
-EvaluationResult Evaluator::evaluate(IAgent &agent_1,
-                                     IAgent &agent_2,
-                                     const nlohmann::json &body_1_spec,
-                                     const nlohmann::json &body_2_spec,
-                                     int number_of_trials)
+std::vector<EvaluationResult> Evaluator::evaluate(const IAgent &agent_1,
+                                                  const IAgent &agent_2,
+                                                  int number_of_trials)
 {
     // Initialize environments
     std::vector<int> scores(number_of_trials);
@@ -39,8 +37,8 @@ EvaluationResult Evaluator::evaluate(IAgent &agent_1,
         std::vector<std::unique_ptr<Body>> bodies;
         bodies.push_back(body_factory.make(*world, *rng));
         bodies.push_back(body_factory.make(*world, *rng));
-        bodies[0]->load_json(body_1_spec);
-        bodies[1]->load_json(body_2_spec);
+        bodies[0]->load_json(agent_1.get_body_spec());
+        bodies[1]->load_json(agent_2.get_body_spec());
         environments[i] = env_factory.make(std::move(rng),
                                            std::move(world),
                                            std::move(bodies),
@@ -48,8 +46,8 @@ EvaluationResult Evaluator::evaluate(IAgent &agent_1,
     }
 
     // Get first observations
-    auto observations_1 = torch::zeros({number_of_trials, body_1_spec["num_observations"]});
-    auto observations_2 = torch::zeros({number_of_trials, body_2_spec["num_observations"]});
+    auto observations_1 = torch::zeros({number_of_trials, agent_1.get_body_spec()["num_observations"]});
+    auto observations_2 = torch::zeros({number_of_trials, agent_2.get_body_spec()["num_observations"]});
     for (int i = 0; i < number_of_trials; ++i)
     {
         auto env_observation = environments[i]->reset().observation;
@@ -89,8 +87,8 @@ EvaluationResult Evaluator::evaluate(IAgent &agent_1,
                 j++;
             }
         }
-        auto observations_1 = torch::zeros({number_of_trials - finished_count, body_1_spec["num_observations"]});
-        auto observations_2 = torch::zeros({number_of_trials - finished_count, body_2_spec["num_observations"]});
+        auto observations_1 = torch::zeros({number_of_trials - finished_count, agent_1.get_body_spec()["num_observations"]});
+        auto observations_2 = torch::zeros({number_of_trials - finished_count, agent_2.get_body_spec()["num_observations"]});
         j = 0;
         for (int i = 0; i < number_of_trials; ++i)
         {
@@ -112,24 +110,25 @@ EvaluationResult Evaluator::evaluate(IAgent &agent_1,
         }
     }
 
-    EvaluationResult result;
+    std::vector<EvaluationResult> results;
+    results.reserve(number_of_trials);
     for (const auto &score : scores)
     {
         if (score == 0)
         {
-            result.agent_1++;
+            results.push_back(EvaluationResult::Agent1);
         }
         else if (score == 1)
         {
-            result.agent_2++;
+            results.push_back(EvaluationResult::Agent2);
         }
         else
         {
-            result.draw++;
+            results.push_back(EvaluationResult::Draw);
         }
     }
 
-    return result;
+    return results;
 }
 
 TEST_CASE("Evaluator")
@@ -148,12 +147,9 @@ TEST_CASE("Evaluator")
 
         auto results = evaluator.evaluate(agent,
                                           agent,
-                                          body_spec,
-                                          body_spec,
                                           4);
 
-        int number_of_trials = results.agent_1 + results.agent_2 + results.draw;
-        DOCTEST_CHECK(number_of_trials == 4);
+        DOCTEST_CHECK(results.size() == 4);
     }
 }
 }

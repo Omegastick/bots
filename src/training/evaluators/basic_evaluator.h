@@ -19,6 +19,6 @@ class BasicEvaluator : protected Evaluator
   public:
     BasicEvaluator(BodyFactory &body_factory, IEnvironmentFactory &env_factory, Random &rng);
 
-    EvaluationResult evaluate(cpprl::Policy policy, nlohmann::json &body_spec, int number_of_trials);
+    double evaluate(cpprl::Policy policy, nlohmann::json &body_spec, int number_of_trials);
 };
 }
