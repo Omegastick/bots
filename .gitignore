@@ -13,5 +13,6 @@ build/
 bodies/
 checkpoints/
 programs/
+runs/
 !src/training/bodies
 CMakeSettings.json
