@@ -22,11 +22,11 @@ double expected_win_chance(double a_rating, double b_rating)
     return 1. / (1. + pow(10., (b_rating - a_rating) / 400.));
 }
 
-std::tuple<double, double> calculate_elos(float a_rating, float b_rating, double k, EvaluationResult result)
+std::tuple<double, double> calculate_elos(double a_rating, double b_rating, double k, EvaluationResult result)
 {
 
-    float a_win_chance = expected_win_chance(a_rating, b_rating);
-    float b_win_chance = expected_win_chance(b_rating, a_rating);
+    double a_win_chance = expected_win_chance(a_rating, b_rating);
+    double b_win_chance = 1. - a_win_chance;
 
     if (result == EvaluationResult::Agent1)
     {
@@ -51,9 +51,7 @@ EloEvaluator::EloEvaluator(BodyFactory &body_factory,
                            IEnvironmentFactory &env_factory,
                            Random &rng)
     : Evaluator(body_factory, env_factory),
-      rng(rng)
-{
-}
+      rng(rng) {}
 
 double EloEvaluator::evaluate(cpprl::Policy policy,
                               nlohmann::json &body_spec,
@@ -63,7 +61,7 @@ double EloEvaluator::evaluate(cpprl::Policy policy,
     if (main_agent == nullptr)
     {
         main_agent = std::make_unique<NNAgent>(policy, body_spec);
-        elos[main_agent.get()] = 1500;
+        elos[main_agent.get()] = 0;
     }
     else
     {
@@ -74,7 +72,7 @@ double EloEvaluator::evaluate(cpprl::Policy policy,
     for (const auto &opponent : new_opponents)
     {
         opponents.push_back(opponent->clone());
-        elos[opponents.back().get()] = 1500;
+        elos[opponents.back().get()] = 0;
     }
 
     // Calculate new opponent elos
