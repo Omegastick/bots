@@ -4,8 +4,9 @@
 
 #include <Box2D/Box2D.h>
 #include <cpprl/cpprl.h>
-#include <spdlog/spdlog.h>
 #include <fmt/format.h>
+#include <spdlog/spdlog.h>
+#include <taskflow/taskflow.hpp>
 #include <torch/torch.h>
 
 #include "trainer.h"
@@ -204,6 +205,94 @@ void Trainer::step()
     } while (std::chrono::high_resolution_clock::now() - clock_start < std::chrono::milliseconds(1000 / 60));
 }
 
+void Trainer::step_batch()
+{
+    tf::Executor executor;
+    tf::Taskflow task_flow;
+
+    std::vector<cpprl::RolloutStorage> storages(program.hyper_parameters.num_env,
+                                                {program.hyper_parameters.batch_size,
+                                                 1,
+                                                 c10::IntArrayRef{12},
+                                                 cpprl::ActionSpace{"MultiBinary", {4}},
+                                                 64,
+                                                 torch::kCPU});
+
+    std::vector<cpprl::Policy> policies;
+    torch::save(policy, "/tmp/policy.pth");
+    for (int i = 0; i < program.hyper_parameters.num_env; ++i)
+    {
+        auto nn_base = std::make_shared<cpprl::MlpBase>(program.body["num_observations"], recurrent);
+        policies.push_back(cpprl::Policy(cpprl::ActionSpace{"MultiBinary", {program.body["num_actions"]}}, nn_base));
+        torch::load(policies[i], "/tmp/policy.pth");
+    }
+
+    for (int i = 0; i < program.hyper_parameters.num_env; ++i)
+    {
+        tf::Task last_task;
+        for (int step = 0; step < program.hyper_parameters.batch_size; ++step)
+        {
+            tf::Task task = task_flow.emplace([this, &storages, step, i, &policies] {
+                // Get action from policy
+                spdlog::debug("{}", fmt::join(storages[0].get_observations().sizes().vec(), " - "));
+                std::vector<torch::Tensor> act_result;
+                {
+                    torch::NoGradGuard no_grad;
+                    act_result = policies[i]->act(storages[i].get_observations()[step],
+                                                  storages[i].get_hidden_states()[step],
+                                                  storages[i].get_masks()[step]);
+                }
+
+                // Get opponent action
+                auto opponent_act_result = opponents[i]->act(opponent_observations[i],
+                                                             opponent_hidden_states[i],
+                                                             opponent_masks[i]);
+                opponent_hidden_states[i] = std::get<1>(opponent_act_result);
+
+                // Step environment
+                torch::Tensor dones = torch::zeros({1, 1});
+                torch::Tensor opponent_dones = torch::zeros({1, 1});
+                torch::Tensor rewards = torch::zeros({1, 1});
+                auto step_info = environments[i]->step({act_result[1], std::get<0>(opponent_act_result)},
+                                                       1. / 60.);
+                observations[i] = step_info.observation[0];
+                dones = step_info.done[0];
+                rewards = step_info.reward[0];
+                opponent_observations[i] = step_info.observation[1];
+                opponent_dones = step_info.done[1];
+                env_scores[i] += step_info.reward[0].item().toFloat();
+                if (step_info.done[0].item().toBool())
+                {
+                    env_scores[i] = 0;
+                    environments[i]->reset();
+                    int selected_opponent = rng.next_int(0, opponent_pool.size());
+                    opponents[i] = opponent_pool[selected_opponent].get();
+                    opponent_hidden_states[i] = torch::zeros({opponents[i]->get_hidden_state_size(), 1});
+                }
+
+                storages[i].insert(observations[i],
+                                   act_result[3],
+                                   act_result[1],
+                                   act_result[2],
+                                   act_result[0],
+                                   rewards,
+                                   1 - dones);
+            });
+
+            if (step != 0)
+            {
+                last_task.precede(task);
+            }
+            last_task = task;
+        }
+    }
+
+    executor.run(task_flow);
+    executor.wait_for_all();
+
+    learn();
+}
+
 void Trainer::slow_step()
 {
     if (waiting)
@@ -229,6 +318,47 @@ std::filesystem::path Trainer::save_model(std::filesystem::path directory)
     previous_checkpoint = checkpointer.save(policy, program.body, {}, previous_checkpoint, directory);
 
     return previous_checkpoint;
+}
+
+void Trainer::learn()
+{
+    auto update_start_time = std::chrono::high_resolution_clock::now();
+
+    torch::Tensor next_value;
+    {
+        torch::NoGradGuard no_grad;
+        next_value = policy->get_values(
+                               rollout_storage->get_observations()[-1],
+                               rollout_storage->get_hidden_states()[-1],
+                               rollout_storage->get_masks()[-1])
+                         .detach();
+    }
+    rollout_storage->compute_returns(next_value, true, program.hyper_parameters.discount_factor, 0.95);
+
+    auto update_data = algorithm->update(*rollout_storage);
+    rollout_storage->after_update();
+
+    spdlog::info("---");
+    spdlog::info("Total frames: {}", action_frame_counter * env_count);
+    double fps = (program.hyper_parameters.batch_size * env_count) / static_cast<std::chrono::duration<double>>(update_start_time - last_update_time).count();
+    spdlog::info("FPS: {:.2f}", fps);
+    for (const auto &datum : update_data)
+    {
+        spdlog::info("{}: {}", datum.name, datum.value);
+    }
+    auto now = std::chrono::high_resolution_clock::now();
+    std::chrono::duration<double> update_duration = now - update_start_time;
+    spdlog::info("Update took {:.2f}s", update_duration.count());
+
+    last_update_time = now;
+
+    if (now - last_save_time > std::chrono::minutes(program.minutes_per_checkpoint))
+    {
+        auto checkpoint_path = save_model();
+        opponent_pool.push_back(std::make_unique<NNAgent>(policy, program.body));
+        new_opponents++;
+        last_save_time = now;
+    }
 }
 
 void Trainer::action_update()
@@ -293,43 +423,7 @@ void Trainer::action_update()
     // Train
     if (action_frame_counter % program.hyper_parameters.batch_size == 0)
     {
-        auto update_start_time = std::chrono::high_resolution_clock::now();
-
-        torch::Tensor next_value;
-        {
-            torch::NoGradGuard no_grad;
-            next_value = policy->get_values(
-                                   rollout_storage->get_observations()[-1],
-                                   rollout_storage->get_hidden_states()[-1],
-                                   rollout_storage->get_masks()[-1])
-                             .detach();
-        }
-        rollout_storage->compute_returns(next_value, true, program.hyper_parameters.discount_factor, 0.95);
-
-        auto update_data = algorithm->update(*rollout_storage);
-        rollout_storage->after_update();
-
-        spdlog::info("---");
-        spdlog::info("Total frames: {}", action_frame_counter * env_count);
-        double fps = (program.hyper_parameters.batch_size * env_count) / static_cast<std::chrono::duration<double>>(update_start_time - last_update_time).count();
-        spdlog::info("FPS: {:.2f}", fps);
-        for (const auto &datum : update_data)
-        {
-            spdlog::info("{}: {}", datum.name, datum.value);
-        }
-        auto now = std::chrono::high_resolution_clock::now();
-        std::chrono::duration<double> update_duration = now - update_start_time;
-        spdlog::info("Update took {:.2f}s", update_duration.count());
-
-        last_update_time = now;
-
-        if (now - last_save_time > std::chrono::minutes(program.minutes_per_checkpoint))
-        {
-            auto checkpoint_path = save_model();
-            opponent_pool.push_back(std::make_unique<NNAgent>(policy, program.body));
-            new_opponents++;
-            last_save_time = now;
-        }
+        learn();
     }
 }
 }
