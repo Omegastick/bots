@@ -34,3 +34,6 @@
 [submodule "lib/pybind11"]
 	path = lib/pybind11
 	url = git@github.com:pybind/pybind11.git
+[submodule "lib/cpp-taskflow"]
+	path = lib/cpp-taskflow
+	url = git@github.com:cpp-taskflow/cpp-taskflow.git

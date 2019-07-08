@@ -21,6 +21,7 @@ set(JSON_DIR ${LIB_DIR}/json)
 set(MSGPACK_DIR ${LIB_DIR}/msgpack-c)
 set(PYBIND_DIR ${LIB_DIR}/pybind11)
 set(SPDLOG_DIR ${LIB_DIR}/spdlog)
+set(TASKFLOW_DIR ${LIB_DIR}/cpp-taskflow)
 set(TWEENY_DIR ${LIB_DIR}/tweeny)
 
 # CMake Properties
@@ -150,6 +151,7 @@ set(INCLUDE_DIRS
     ${PYBIND_DIR}/include
     ${PYTHON_INCLUDE_DIRS}
     ${FMT_DIR}/include
+    ${TASKFLOW_DIR}
 )
 target_include_directories(SingularityTrainer PUBLIC ${INCLUDE_DIRS})
 target_include_directories(HeadlessTrainer PUBLIC ${INCLUDE_DIRS})

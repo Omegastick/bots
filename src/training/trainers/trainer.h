@@ -54,6 +54,7 @@ class Trainer
     bool waiting;
 
     void action_update();
+    void learn();
 
   public:
     Trainer(TrainingProgram program,
@@ -67,6 +68,7 @@ class Trainer
     std::vector<float> get_observation();
     std::filesystem::path save_model(std::filesystem::path directory = {});
     void step();
+    void step_batch();
     void slow_step();
 
     std::vector<std::unique_ptr<IEnvironment>> &get_environments() { return environments; }
