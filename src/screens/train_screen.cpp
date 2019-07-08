@@ -13,12 +13,11 @@
 #include "misc/io.h"
 #include "misc/resource_manager.h"
 #include "training/environments/koth_env.h"
-#include "training/trainers/quick_trainer.h"
 #include "screens/iscreen.h"
 
 namespace SingularityTrainer
 {
-TrainScreen::TrainScreen(std::unique_ptr<ITrainer> trainer,
+TrainScreen::TrainScreen(std::unique_ptr<Trainer> trainer,
                          IO &io,
                          ResourceManager &resource_manager)
     : crt_post_proc_layer(std::make_unique<PostProcLayer>(resource_manager.shader_store.get("crt").get())),
@@ -61,7 +60,7 @@ void TrainScreen::update(const double /*delta_time*/)
     ImGui::SetNextWindowSize({resolution.x * 0.2f, resolution.y * 0.1f}, ImGuiCond_Once);
     ImGui::SetNextWindowPos({resolution.x * 0.05f, resolution.y * 0.3f}, ImGuiCond_Once);
     ImGui::Begin("Health");
-    auto bodies = trainer->environments[0]->get_bodies();
+    auto bodies = trainer->get_environments()[0]->get_bodies();
     for (const auto &body : bodies)
     {
         auto health = body->get_hp();
@@ -73,7 +72,7 @@ void TrainScreen::update(const double /*delta_time*/)
     ImGui::SetNextWindowSize({resolution.x * 0.2f, resolution.y * 0.1f}, ImGuiCond_Once);
     ImGui::SetNextWindowPos({resolution.x * 0.05f, resolution.y * 0.5f}, ImGuiCond_Once);
     ImGui::Begin("Scores");
-    for (const auto &score : trainer->environments[0]->get_scores())
+    for (const auto &score : trainer->get_environments()[0]->get_scores())
     {
         ImGui::Text("%.1f", score);
     }
@@ -93,8 +92,8 @@ void TrainScreen::draw(Renderer &renderer, bool /*lightweight*/)
     renderer.begin();
 
     renderer.scissor(-10, -20, 10, 20, glm::ortho(-38.4f, 38.4f, -21.6f, 21.6f));
-    auto render_data = trainer->environments[0]->get_render_data(lightweight_rendering);
-    renderer.draw(render_data, glm::ortho(-38.4f, 38.4f, -21.6f, 21.6f), trainer->environments[0]->get_elapsed_time(), lightweight_rendering);
+    auto render_data = trainer->get_environments()[0]->get_render_data(lightweight_rendering);
+    renderer.draw(render_data, glm::ortho(-38.4f, 38.4f, -21.6f, 21.6f), trainer->get_environments()[0]->get_elapsed_time(), lightweight_rendering);
 
     auto crt_shader = resource_manager.shader_store.get("crt");
     crt_shader->set_uniform_2f("u_resolution", {renderer.get_width(), renderer.get_height()});

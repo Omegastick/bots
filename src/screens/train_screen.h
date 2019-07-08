@@ -15,6 +15,7 @@ class IO;
 class PostProcLayer;
 class Renderer;
 class ResourceManager;
+class Trainer;
 
 class TrainScreen : public IScreen
 {
@@ -25,10 +26,10 @@ class TrainScreen : public IScreen
     bool lightweight_rendering;
     glm::mat4 projection;
     ResourceManager &resource_manager;
-    std::unique_ptr<ITrainer> trainer;
+    std::unique_ptr<Trainer> trainer;
 
   public:
-    TrainScreen(std::unique_ptr<ITrainer> trainer,
+    TrainScreen(std::unique_ptr<Trainer> trainer,
                 IO &io,
                 ResourceManager &resource_manager);
 

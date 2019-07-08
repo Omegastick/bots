@@ -12,8 +12,8 @@
 
 #include "third_party/di.hpp"
 #include "training/agents/iagent.h"
+#include "training/environments/ienvironment.h"
 #include "training/bodies/body.h"
-#include "training/trainers/itrainer.h"
 #include "training/training_program.h"
 
 namespace SingularityTrainer
@@ -23,7 +23,7 @@ class EloEvaluator;
 class IEnvironmentFactory;
 class Random;
 
-class Trainer : public ITrainer
+class Trainer
 {
   private:
     std::unique_ptr<Body> example_body;
@@ -34,6 +34,7 @@ class Trainer : public ITrainer
     float elapsed_time;
     int env_count;
     std::vector<float> env_scores;
+    std::vector<std::unique_ptr<IEnvironment>> environments;
     EloEvaluator &evaluator;
     int frame_counter;
     std::chrono::time_point<std::chrono::high_resolution_clock> last_save_time;
@@ -62,11 +63,13 @@ class Trainer : public ITrainer
             EloEvaluator &evaluator,
             Random &rng);
 
-    virtual float evaluate();
-    virtual std::vector<float> get_observation();
-    virtual std::filesystem::path save_model(std::filesystem::path directory = {});
-    virtual void step();
-    virtual void slow_step();
+    float evaluate();
+    std::vector<float> get_observation();
+    std::filesystem::path save_model(std::filesystem::path directory = {});
+    void step();
+    void slow_step();
+
+    std::vector<std::unique_ptr<IEnvironment>> &get_environments() { return environments; }
 };
 
 class TrainerFactory
