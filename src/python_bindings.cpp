@@ -12,7 +12,6 @@
 #include "training/environments/koth_env.h"
 #include "training/evaluators/elo_evaluator.h"
 #include "training/saver.h"
-#include "training/trainers/itrainer.h"
 #include "training/trainers/trainer.h"
 
 namespace py = pybind11;

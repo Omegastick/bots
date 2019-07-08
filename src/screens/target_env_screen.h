@@ -8,17 +8,17 @@
 
 namespace SingularityTrainer
 {
-class ITrainer;
+class PostProcLayer;
 class ResourceManager;
 class Random;
 class Renderer;
-class PostProcLayer;
+class Trainer;
 
 class TargetEnvScreen : public IScreen
 {
   private:
     ResourceManager *resource_manager;
-    std::unique_ptr<ITrainer> trainer;
+    std::unique_ptr<Trainer> trainer;
     bool lightweight_rendering;
     glm::mat4 projection;
     bool fast;

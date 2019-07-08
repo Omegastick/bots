@@ -9,7 +9,6 @@
 #include <spdlog/spdlog.h>
 
 #include "headless_app.h"
-#include "training/trainers/itrainer.h"
 #include "training/trainers/trainer.h"
 
 namespace SingularityTrainer
