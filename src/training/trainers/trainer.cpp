@@ -105,7 +105,7 @@ Trainer::Trainer(TrainingProgram program,
     }
     opponent_masks = torch::ones({env_count, 1});
 
-    observations = torch::zeros({env_count, num_observations});
+    auto observations = torch::zeros({env_count, num_observations});
     opponent_observations.clear();
     for (unsigned int i = 0; i < environments.size(); ++i)
     {
@@ -254,7 +254,6 @@ void Trainer::step_batch()
                 torch::Tensor rewards = torch::zeros({1, 1});
                 auto step_info = environments[i]->step({act_result[1], std::get<0>(opponent_act_result)},
                                                        1. / 60.);
-                observations[i] = step_info.observation[0];
                 dones = step_info.done[0];
                 rewards = step_info.reward[0];
                 opponent_observations[i] = step_info.observation[1];
@@ -268,8 +267,7 @@ void Trainer::step_batch()
                     opponents[i] = opponent_pool[selected_opponent].get();
                     opponent_hidden_states[i] = torch::zeros({opponents[i]->get_hidden_state_size(), 1});
                 }
-
-                storages[i].insert(observations[i],
+                storages[i].insert(step_info.observation[0],
                                    act_result[3],
                                    act_result[1],
                                    act_result[2],
@@ -290,6 +288,11 @@ void Trainer::step_batch()
     executor.wait_for_all();
 
     batch_number++;
+
+    std::vector<cpprl::RolloutStorage *> storage_ptrs;
+    std::transform(storages.begin(), storages.end(), std::back_inserter(storage_ptrs),
+                   [](cpprl::RolloutStorage &storage) { return &storage; });
+    rollout_storage = std::make_unique<cpprl::RolloutStorage>(storage_ptrs, torch::kCPU);
 
     learn();
 }
@@ -340,7 +343,8 @@ void Trainer::learn()
     rollout_storage->after_update();
 
     spdlog::info("---");
-    spdlog::info("Total frames: {}", batch_number * program.hyper_parameters.batch_size * env_count);
+    long total_frames = static_cast<long>(batch_number) * program.hyper_parameters.batch_size * env_count;
+    spdlog::info("Total frames: {}", total_frames);
     double fps = (program.hyper_parameters.batch_size * env_count) / static_cast<std::chrono::duration<double>>(update_start_time - last_update_time).count();
     spdlog::info("FPS: {:.2f}", fps);
     for (const auto &datum : update_data)
@@ -386,6 +390,7 @@ void Trainer::action_update()
     torch::Tensor dones = torch::zeros({env_count, 1});
     torch::Tensor opponent_dones = torch::zeros({env_count, 1});
     torch::Tensor rewards = torch::zeros({env_count, 1});
+    torch::Tensor observations = torch::zeros({env_count, program.body["num_observations"]});
     std::vector<StepInfo> step_infos(environments.size());
     for (unsigned int i = 0; i < environments.size(); ++i)
     {
