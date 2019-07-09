@@ -58,7 +58,12 @@ void Hill::end_contact(RigidBody *other)
 {
     if (other->parent_type == RigidBody::ParentTypes::Body)
     {
-        occupants[static_cast<Body *>(other->parent)]--;
+        auto other_body = static_cast<Body *>(other->parent);
+        occupants[other_body]--;
+        if (occupants[other_body] == 0)
+        {
+            occupants.erase(other_body);
+        }
     }
 }
 
@@ -69,22 +74,10 @@ void Hill::register_callback(std::function<void(const std::unordered_map<Body *,
 
 void Hill::update() const
 {
-    // First check if only one person is occupying the hill
-    int total_occupants = 0;
-    for (const auto &body : occupants)
-    {
-        if (body.second > 0)
-        {
-            total_occupants++;
-        }
-    }
-
     if (callback)
     {
         callback(occupants);
     }
-
-    // If so, apply the appropriate rewards to the bodies
 }
 
 void Hill::reset()
