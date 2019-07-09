@@ -30,6 +30,7 @@ class Trainer
 
     int action_frame_counter;
     std::unique_ptr<cpprl::Algorithm> algorithm;
+    int batch_number;
     Checkpointer &checkpointer;
     float elapsed_time;
     int env_count;

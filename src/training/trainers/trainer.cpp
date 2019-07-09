@@ -213,8 +213,8 @@ void Trainer::step_batch()
     std::vector<cpprl::RolloutStorage> storages(program.hyper_parameters.num_env,
                                                 {program.hyper_parameters.batch_size,
                                                  1,
-                                                 c10::IntArrayRef{12},
-                                                 cpprl::ActionSpace{"MultiBinary", {4}},
+                                                 c10::IntArrayRef{program.body["num_observations"]},
+                                                 cpprl::ActionSpace{"MultiBinary", {program.body["num_actions"]}},
                                                  64,
                                                  torch::kCPU});
 
@@ -234,7 +234,6 @@ void Trainer::step_batch()
         {
             tf::Task task = task_flow.emplace([this, &storages, step, i, &policies] {
                 // Get action from policy
-                spdlog::debug("{}", fmt::join(storages[0].get_observations().sizes().vec(), " - "));
                 std::vector<torch::Tensor> act_result;
                 {
                     torch::NoGradGuard no_grad;
@@ -290,6 +289,8 @@ void Trainer::step_batch()
     executor.run(task_flow);
     executor.wait_for_all();
 
+    batch_number++;
+
     learn();
 }
 
@@ -339,7 +340,7 @@ void Trainer::learn()
     rollout_storage->after_update();
 
     spdlog::info("---");
-    spdlog::info("Total frames: {}", action_frame_counter * env_count);
+    spdlog::info("Total frames: {}", batch_number * program.hyper_parameters.batch_size * env_count);
     double fps = (program.hyper_parameters.batch_size * env_count) / static_cast<std::chrono::duration<double>>(update_start_time - last_update_time).count();
     spdlog::info("FPS: {:.2f}", fps);
     for (const auto &datum : update_data)

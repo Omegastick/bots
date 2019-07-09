@@ -31,7 +31,7 @@ def main():
         last_test_time = time.time()
         test_number = 0
         while True:
-            trainer.step()
+            trainer.step_batch()
             if time.time() - last_test_time > 600:
                 test_number += 1
                 logging.info("######## Testing ########")
