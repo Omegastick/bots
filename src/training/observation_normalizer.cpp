@@ -8,17 +8,37 @@ namespace SingularityTrainer
 RunningMeanStd::RunningMeanStd(int size)
     : count(1e-4),
       mean(torch::zeros({size})),
-      variance(torch::zeros({size})) {}
+      variance(torch::ones({size})) {}
 
 RunningMeanStd::RunningMeanStd(std::vector<float> means, std::vector<float> variances)
     : count(1e-4),
-      mean(torch::zeros({1})),
-      variance(torch::zeros({1})) {}
+      mean(torch::from_blob(means.data(), {static_cast<long>(means.size())})),
+      variance(torch::from_blob(variances.data(), {static_cast<long>(variances.size())})) {}
 
-void RunningMeanStd::update(torch::Tensor observation) {}
+void RunningMeanStd::update(torch::Tensor observation)
+{
+    observation = observation.reshape({-1, mean.size(0)});
+    auto batch_mean = observation.mean(0);
+    auto batch_var = observation.var(0, false, false);
+    auto batch_count = observation.size(0);
+
+    update_from_moments(batch_mean, batch_var, batch_count);
+}
+
 void RunningMeanStd::update_from_moments(torch::Tensor batch_mean,
                                          torch::Tensor batch_var,
-                                         torch::Tensor batch_count) {}
+                                         int batch_count)
+{
+    auto delta = batch_mean - mean;
+    float total_count = count + batch_count;
+
+    mean = mean + delta * batch_count / total_count;
+    auto m_a = variance * count;
+    auto m_b = batch_var * batch_count;
+    auto m2 = m_a + m_b + torch::pow(delta, 2) * count * batch_count / total_count;
+    variance = m2 / total_count;
+    count = total_count;
+}
 
 ObservationNormalizer::ObservationNormalizer(int size, float clip)
     : clip(clip),
@@ -45,7 +65,7 @@ TEST_CASE("RunningMeanStd")
         rms.update(observations[2]);
 
         auto expected_mean = observations.mean(0);
-        auto expected_variance = observations.std(0);
+        auto expected_variance = observations.var(0, false, false);
 
         auto actual_mean = rms.get_mean();
         auto actual_variance = rms.get_variance();
@@ -53,9 +73,11 @@ TEST_CASE("RunningMeanStd")
         for (int i = 0; i < 5; ++i)
         {
             DOCTEST_CHECK(expected_mean[i].item().toFloat() ==
-                          doctest::Approx(actual_mean[i].item().toFloat()));
+                          doctest::Approx(actual_mean[i].item().toFloat())
+                              .epsilon(0.001));
             DOCTEST_CHECK(expected_variance[i].item().toFloat() ==
-                          doctest::Approx(actual_variance[i].item().toFloat()));
+                          doctest::Approx(actual_variance[i].item().toFloat())
+                              .epsilon(0.001));
         }
     }
 }
