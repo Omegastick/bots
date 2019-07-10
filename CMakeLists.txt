@@ -32,9 +32,9 @@ set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_FLAGS_RELEASE -O3)
 
 # Executables and local libraries
-add_library(Graphics STATIC "")
-add_library(Misc STATIC "")
-add_library(Training STATIC "")
+add_library(Graphics OBJECT "")
+add_library(Misc OBJECT "")
+add_library(Training OBJECT "")
 add_executable(SingularityTrainer "")
 add_executable(HeadlessTrainer "")
 add_executable(GraphicsPlayground "")
