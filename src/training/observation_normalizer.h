@@ -18,7 +18,7 @@ class RunningMeanStd
 
     void update_from_moments(torch::Tensor batch_mean,
                              torch::Tensor batch_var,
-                             torch::Tensor batch_count);
+                             int batch_count);
 
   public:
     explicit RunningMeanStd(int size);
