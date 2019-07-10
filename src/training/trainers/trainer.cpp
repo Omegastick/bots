@@ -41,6 +41,7 @@ Trainer::Trainer(TrainingProgram program,
                  EloEvaluator &evaluator,
                  Random &rng)
     : action_frame_counter(0),
+      batch_number(0),
       checkpointer(checkpointer),
       elapsed_time(0),
       env_count(program.hyper_parameters.num_env),
