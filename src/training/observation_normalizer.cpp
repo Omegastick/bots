@@ -98,12 +98,11 @@ ObservationNormalizer::ObservationNormalizer(const std::vector<ObservationNormal
 
     rms = RunningMeanStd(mean_means, mean_variances);
 
-    int mean_count = std::accumulate(others.begin(), others.end(), 0,
-                                     [](int accumulator, const ObservationNormalizer &other) {
-                                         return accumulator + other.get_step_count();
-                                     }) /
-                     others.size();
-    rms.set_count(mean_count);
+    int total_count = std::accumulate(others.begin(), others.end(), 0,
+                                      [](int accumulator, const ObservationNormalizer &other) {
+                                          return accumulator + other.get_step_count();
+                                      });
+    rms.set_count(total_count);
 }
 
 torch::Tensor ObservationNormalizer::process_observation(torch::Tensor observation)
@@ -262,7 +261,7 @@ TEST_CASE("ObservationNormalizer")
             DOCTEST_CHECK(actual_mean_means[i] == doctest::Approx(mean_means[i]));
             DOCTEST_CHECK(actual_mean_variances[i] == doctest::Approx(actual_mean_variances[i]));
         }
-        DOCTEST_CHECK(combined_normalizer.get_step_count() == 1);
+        DOCTEST_CHECK(combined_normalizer.get_step_count() == 6);
     }
 }
 }
