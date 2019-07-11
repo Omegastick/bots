@@ -14,6 +14,7 @@
 #include "training/agents/iagent.h"
 #include "training/environments/ienvironment.h"
 #include "training/bodies/body.h"
+#include "training/observation_normalizer.h"
 #include "training/training_program.h"
 
 namespace SingularityTrainer
@@ -41,6 +42,7 @@ class Trainer
     std::chrono::time_point<std::chrono::high_resolution_clock> last_save_time;
     std::chrono::time_point<std::chrono::high_resolution_clock> last_update_time;
     int new_opponents;
+    ObservationNormalizer observation_normalizer;
     std::vector<torch::Tensor> opponent_hidden_states;
     std::vector<torch::Tensor> opponent_observations;
     torch::Tensor opponent_masks;
