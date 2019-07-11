@@ -1,14 +1,11 @@
 #pragma once
 
-#include <tuple>
 #include <vector>
 
 #include <torch/torch.h>
 
 namespace SingularityTrainer
 {
-typedef std::tuple<std::vector<float>, std::vector<float>> MeanVar;
-
 // https://github.com/openai/baselines/blob/master/baselines/common/running_mean_std.py
 class RunningMeanStd
 {
@@ -26,8 +23,8 @@ class RunningMeanStd
 
     void update(torch::Tensor observation);
 
-    inline torch::Tensor get_mean() { return mean.clone(); }
-    inline torch::Tensor get_variance() { return variance.clone(); }
+    inline torch::Tensor get_mean() const { return mean.clone(); }
+    inline torch::Tensor get_variance() const { return variance.clone(); }
 };
 
 class ObservationNormalizer
@@ -39,11 +36,15 @@ class ObservationNormalizer
 
   public:
     explicit ObservationNormalizer(int size, float clip = 10.);
-    ObservationNormalizer(std::vector<float> means,
-                          std::vector<float> variances,
+    ObservationNormalizer(const std::vector<float> &means,
+                          const std::vector<float> &variances,
                           float clip = 10.);
 
     torch::Tensor process_observation(torch::Tensor observation);
-    MeanVar get_mean_and_var() const;
+    std::vector<float> get_mean() const;
+    std::vector<float> get_variance() const;
+
+    inline void train() { training = true; }
+    inline void evaluate() { training = false; }
 };
 }

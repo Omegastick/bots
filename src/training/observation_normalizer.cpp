@@ -12,8 +12,10 @@ RunningMeanStd::RunningMeanStd(int size)
 
 RunningMeanStd::RunningMeanStd(std::vector<float> means, std::vector<float> variances)
     : count(1e-4),
-      mean(torch::from_blob(means.data(), {static_cast<long>(means.size())})),
-      variance(torch::from_blob(variances.data(), {static_cast<long>(variances.size())})) {}
+      mean(torch::from_blob(means.data(), {static_cast<long>(means.size())})
+               .clone()),
+      variance(torch::from_blob(variances.data(), {static_cast<long>(variances.size())})
+                   .clone()) {}
 
 void RunningMeanStd::update(torch::Tensor observation)
 {
@@ -44,15 +46,19 @@ ObservationNormalizer::ObservationNormalizer(int size, float clip)
     : clip(clip),
       rms(size),
       training(true) {}
-ObservationNormalizer::ObservationNormalizer(std::vector<float> means,
-                                             std::vector<float> variances,
+
+ObservationNormalizer::ObservationNormalizer(const std::vector<float> &means,
+                                             const std::vector<float> &variances,
                                              float clip)
     : clip(clip),
       rms(means, variances),
       training(true) {}
 
 torch::Tensor ObservationNormalizer::process_observation(torch::Tensor observation) {}
-MeanVar ObservationNormalizer::get_mean_and_var() const {}
+
+std::vector<float> ObservationNormalizer::get_mean() const {}
+
+std::vector<float> ObservationNormalizer::get_variance() const {}
 
 TEST_CASE("RunningMeanStd")
 {
@@ -79,6 +85,20 @@ TEST_CASE("RunningMeanStd")
                           doctest::Approx(actual_variance[i].item().toFloat())
                               .epsilon(0.001));
         }
+    }
+
+    SUBCASE("Correctly loads mean and variance from constructor")
+    {
+        RunningMeanStd rms({1, 2, 3}, {4, 5, 6});
+
+        auto mean = rms.get_mean();
+        auto variance = rms.get_variance();
+        DOCTEST_CHECK(mean[0].item().toFloat() == doctest::Approx(1));
+        DOCTEST_CHECK(mean[1].item().toFloat() == doctest::Approx(2));
+        DOCTEST_CHECK(mean[2].item().toFloat() == doctest::Approx(3));
+        DOCTEST_CHECK(variance[0].item().toFloat() == doctest::Approx(4));
+        DOCTEST_CHECK(variance[1].item().toFloat() == doctest::Approx(5));
+        DOCTEST_CHECK(variance[2].item().toFloat() == doctest::Approx(6));
     }
 }
 
