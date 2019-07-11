@@ -23,8 +23,10 @@ class RunningMeanStd
 
     void update(torch::Tensor observation);
 
+    inline int get_count() const { return static_cast<int>(count); }
     inline torch::Tensor get_mean() const { return mean.clone(); }
     inline torch::Tensor get_variance() const { return variance.clone(); }
+    inline void set_count(int count) { this->count = count + 1e-8; }
 };
 
 class ObservationNormalizer
@@ -39,12 +41,15 @@ class ObservationNormalizer
     ObservationNormalizer(const std::vector<float> &means,
                           const std::vector<float> &variances,
                           float clip = 10.);
+    explicit ObservationNormalizer(const std::vector<ObservationNormalizer> &others);
 
     torch::Tensor process_observation(torch::Tensor observation);
     std::vector<float> get_mean() const;
     std::vector<float> get_variance() const;
 
-    inline void train() { training = true; }
     inline void evaluate() { training = false; }
+    inline float get_clip_value() const { return clip; }
+    inline int get_step_count() const { return rms.get_count(); }
+    inline void train() { training = true; }
 };
 }

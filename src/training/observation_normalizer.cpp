@@ -54,6 +54,58 @@ ObservationNormalizer::ObservationNormalizer(const std::vector<float> &means,
       rms(means, variances),
       training(true) {}
 
+ObservationNormalizer::ObservationNormalizer(const std::vector<ObservationNormalizer> &others)
+    : clip(0),
+      rms(1),
+      training(true)
+{
+    // Calculate mean clip
+    for (const auto &other : others)
+    {
+        clip += other.get_clip_value();
+    }
+    clip /= others.size();
+
+    // Calculate mean mean
+    std::vector<float> mean_means(others[0].get_mean().size(), 0);
+    for (const auto &other : others)
+    {
+        auto other_mean = other.get_mean();
+        for (unsigned int i = 0; i < mean_means.size(); ++i)
+        {
+            mean_means[i] += other_mean[i];
+        }
+    }
+    for (auto &mean : mean_means)
+    {
+        mean /= others.size();
+    }
+
+    // Calculate mean variances
+    std::vector<float> mean_variances(others[0].get_variance().size(), 0);
+    for (const auto &other : others)
+    {
+        auto other_variances = other.get_variance();
+        for (unsigned int i = 0; i < mean_variances.size(); ++i)
+        {
+            mean_variances[i] += other_variances[i];
+        }
+    }
+    for (auto &variance : mean_variances)
+    {
+        variance /= others.size();
+    }
+
+    rms = RunningMeanStd(mean_means, mean_variances);
+
+    int mean_count = std::accumulate(others.begin(), others.end(), 0,
+                                     [](int accumulator, const ObservationNormalizer &other) {
+                                         return accumulator + other.get_step_count();
+                                     }) /
+                     others.size();
+    rms.set_count(mean_count);
+}
+
 torch::Tensor ObservationNormalizer::process_observation(torch::Tensor observation)
 {
     if (training)
@@ -168,6 +220,49 @@ TEST_CASE("ObservationNormalizer")
         DOCTEST_CHECK(variance[0] == doctest::Approx(4));
         DOCTEST_CHECK(variance[1] == doctest::Approx(5));
         DOCTEST_CHECK(variance[2] == doctest::Approx(6));
+    }
+
+    SUBCASE("Is constructed from other normalizers correctly")
+    {
+        std::vector<ObservationNormalizer> normalizers;
+        for (int i = 0; i < 3; ++i)
+        {
+            normalizers.push_back(ObservationNormalizer(3));
+            for (int j = 0; j < i; ++j)
+            {
+                normalizers[i].process_observation(torch::rand({3}));
+            }
+        }
+
+        ObservationNormalizer combined_normalizer(normalizers);
+
+        std::vector<std::vector<float>> means;
+        std::transform(normalizers.begin(), normalizers.end(), std::back_inserter(means),
+                       [](const ObservationNormalizer &normalizer) { return normalizer.get_mean(); });
+        std::vector<std::vector<float>> variances;
+        std::transform(normalizers.begin(), normalizers.end(), std::back_inserter(variances),
+                       [](const ObservationNormalizer &normalizer) { return normalizer.get_variance(); });
+
+        std::vector<float> mean_means;
+        for (int i = 0; i < 3; ++i)
+        {
+            mean_means.push_back((means[0][i] + means[1][i] + means[2][i]) / 3);
+        }
+        std::vector<float> mean_variances;
+        for (int i = 0; i < 3; ++i)
+        {
+            mean_variances.push_back((variances[0][i] + variances[1][i] + variances[2][i]) / 3);
+        }
+
+        auto actual_mean_means = combined_normalizer.get_mean();
+        auto actual_mean_variances = combined_normalizer.get_variance();
+
+        for (int i = 0; i < 3; ++i)
+        {
+            DOCTEST_CHECK(actual_mean_means[i] == doctest::Approx(mean_means[i]));
+            DOCTEST_CHECK(actual_mean_variances[i] == doctest::Approx(actual_mean_variances[i]));
+        }
+        DOCTEST_CHECK(combined_normalizer.get_step_count() == 1);
     }
 }
 }

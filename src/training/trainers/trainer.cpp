@@ -20,6 +20,7 @@
 #include "training/checkpointer.h"
 #include "training/environments/ienvironment.h"
 #include "training/evaluators/elo_evaluator.h"
+#include "training/observation_normalizer.h"
 #include "training/score_processor.h"
 #include "training/training_program.h"
 #include "misc/date.h"
@@ -50,6 +51,7 @@ Trainer::Trainer(TrainingProgram program,
       last_save_time(std::chrono::high_resolution_clock::now()),
       last_update_time(std::chrono::high_resolution_clock::now()),
       new_opponents(1 + program.opponent_pool.size()),
+      observation_normalizer(program.body["num_observations"]),
       policy(nullptr),
       previous_checkpoint(program.checkpoint),
       program(program),
@@ -166,7 +168,7 @@ Trainer::Trainer(TrainingProgram program,
         throw std::runtime_error("Algorithm not supported");
     }
 
-    rollout_storage->set_first_observation(observations);
+    rollout_storage->set_first_observation(observation_normalizer.process_observation(observations));
 }
 
 float Trainer::evaluate()
@@ -211,13 +213,18 @@ void Trainer::step_batch()
     tf::Executor executor;
     tf::Taskflow task_flow;
 
-    std::vector<cpprl::RolloutStorage> storages(program.hyper_parameters.num_env,
-                                                {program.hyper_parameters.batch_size,
-                                                 1,
-                                                 c10::IntArrayRef{program.body["num_observations"]},
-                                                 cpprl::ActionSpace{"MultiBinary", {program.body["num_actions"]}},
-                                                 64,
-                                                 torch::kCPU});
+    std::vector<cpprl::RolloutStorage> storages;
+
+    for (int i = 0; i < program.hyper_parameters.num_env; ++i)
+    {
+        storages.push_back({program.hyper_parameters.batch_size,
+                            1,
+                            c10::IntArrayRef{program.body["num_observations"]},
+                            cpprl::ActionSpace{"MultiBinary", {program.body["num_actions"]}},
+                            64,
+                            torch::kCPU});
+        storages[i].set_first_observation(rollout_storage->get_observations()[0][i]);
+    }
 
     std::vector<cpprl::Policy> policies;
     torch::save(policy, "/tmp/policy.pth");
@@ -228,12 +235,14 @@ void Trainer::step_batch()
         torch::load(policies[i], "/tmp/policy.pth");
     }
 
+    std::vector<ObservationNormalizer> normalizers(program.hyper_parameters.num_env, observation_normalizer);
+
     for (int i = 0; i < program.hyper_parameters.num_env; ++i)
     {
         tf::Task last_task;
         for (int step = 0; step < program.hyper_parameters.batch_size; ++step)
         {
-            tf::Task task = task_flow.emplace([this, &storages, step, i, &policies] {
+            tf::Task task = task_flow.emplace([this, &storages, step, i, &policies, &normalizers] {
                 // Get action from policy
                 std::vector<torch::Tensor> act_result;
                 {
@@ -257,7 +266,7 @@ void Trainer::step_batch()
                                                        1. / 60.);
                 dones = step_info.done[0];
                 rewards = step_info.reward[0];
-                opponent_observations[i] = step_info.observation[1];
+                opponent_observations[i] = normalizers[i].process_observation(step_info.observation[1]);
                 opponent_dones = step_info.done[1];
                 env_scores[i] += step_info.reward[0].item().toFloat();
                 if (step_info.done[0].item().toBool())
@@ -268,7 +277,7 @@ void Trainer::step_batch()
                     opponents[i] = opponent_pool[selected_opponent].get();
                     opponent_hidden_states[i] = torch::zeros({opponents[i]->get_hidden_state_size(), 1});
                 }
-                storages[i].insert(step_info.observation[0],
+                storages[i].insert(normalizers[i].process_observation(step_info.observation[0]),
                                    act_result[3],
                                    act_result[1],
                                    act_result[2],
@@ -294,6 +303,8 @@ void Trainer::step_batch()
     std::transform(storages.begin(), storages.end(), std::back_inserter(storage_ptrs),
                    [](cpprl::RolloutStorage &storage) { return &storage; });
     rollout_storage = std::make_unique<cpprl::RolloutStorage>(storage_ptrs, torch::kCPU);
+
+    observation_normalizer = ObservationNormalizer(normalizers);
 
     learn();
 }
