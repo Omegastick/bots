@@ -54,15 +54,32 @@ ObservationNormalizer::ObservationNormalizer(const std::vector<float> &means,
       rms(means, variances),
       training(true) {}
 
-torch::Tensor ObservationNormalizer::process_observation(torch::Tensor observation) {}
+torch::Tensor ObservationNormalizer::process_observation(torch::Tensor observation)
+{
+    if (training)
+    {
+        rms.update(observation);
+    }
+    auto normalized_obs = (observation - rms.get_mean()) /
+                          torch::sqrt(rms.get_variance() + 1e-8);
+    return torch::clamp(normalized_obs, -clip, clip);
+}
 
-std::vector<float> ObservationNormalizer::get_mean() const {}
+std::vector<float> ObservationNormalizer::get_mean() const
+{
+    auto mean = rms.get_mean();
+    return std::vector<float>(mean.data<float>(), mean.data<float>() + mean.numel());
+}
 
-std::vector<float> ObservationNormalizer::get_variance() const {}
+std::vector<float> ObservationNormalizer::get_variance() const
+{
+    auto variance = rms.get_variance();
+    return std::vector<float>(variance.data<float>(), variance.data<float>() + variance.numel());
+}
 
 TEST_CASE("RunningMeanStd")
 {
-    SUBCASE("Correctly calculates mean and variance")
+    SUBCASE("Calculates mean and variance correctly")
     {
         RunningMeanStd rms(5);
         auto observations = torch::rand({3, 5});
@@ -87,7 +104,7 @@ TEST_CASE("RunningMeanStd")
         }
     }
 
-    SUBCASE("Correctly loads mean and variance from constructor")
+    SUBCASE("Loads mean and variance from constructor correctly")
     {
         RunningMeanStd rms({1, 2, 3}, {4, 5, 6});
 
@@ -112,7 +129,7 @@ TEST_CASE("ObservationNormalizer")
         auto processed_observation = normalizer.process_observation(observation);
 
         auto has_too_large_values = (processed_observation > 1).any().item().toBool();
-        auto has_too_small_values = (processed_observation < 1).any().item().toBool();
+        auto has_too_small_values = (processed_observation < -1).any().item().toBool();
         DOCTEST_CHECK(!has_too_large_values);
         DOCTEST_CHECK(!has_too_small_values);
     }
@@ -130,13 +147,27 @@ TEST_CASE("ObservationNormalizer")
 
         normalizer.process_observation(obs_1);
         normalizer.process_observation(obs_2);
-        auto processed_observation = normalizer.process_observation(obs_1);
+        auto processed_observation = normalizer.process_observation(obs_3);
 
-        DOCTEST_CHECK(processed_observation[0].item().toFloat() == doctest::Approx(3.39915672));
-        DOCTEST_CHECK(processed_observation[1].item().toFloat() == doctest::Approx(1.00002499));
-        DOCTEST_CHECK(processed_observation[2].item().toFloat() == doctest::Approx(-2.9932713));
-        DOCTEST_CHECK(processed_observation[3].item().toFloat() == doctest::Approx(2.18947446));
-        DOCTEST_CHECK(processed_observation[4].item().toFloat() == doctest::Approx(0.23080011));
+        DOCTEST_CHECK(processed_observation[0].item().toFloat() == doctest::Approx(1.26008659));
+        DOCTEST_CHECK(processed_observation[1].item().toFloat() == doctest::Approx(0.70712887));
+        DOCTEST_CHECK(processed_observation[2].item().toFloat() == doctest::Approx(-1.2240818));
+        DOCTEST_CHECK(processed_observation[3].item().toFloat() == doctest::Approx(1.10914509));
+        DOCTEST_CHECK(processed_observation[4].item().toFloat() == doctest::Approx(1.31322402));
+    }
+
+    SUBCASE("Loads mean and variance from constructor correctly")
+    {
+        ObservationNormalizer normalizer({1, 2, 3}, {4, 5, 6});
+
+        auto mean = normalizer.get_mean();
+        auto variance = normalizer.get_variance();
+        DOCTEST_CHECK(mean[0] == doctest::Approx(1));
+        DOCTEST_CHECK(mean[1] == doctest::Approx(2));
+        DOCTEST_CHECK(mean[2] == doctest::Approx(3));
+        DOCTEST_CHECK(variance[0] == doctest::Approx(4));
+        DOCTEST_CHECK(variance[1] == doctest::Approx(5));
+        DOCTEST_CHECK(variance[2] == doctest::Approx(6));
     }
 }
 }
