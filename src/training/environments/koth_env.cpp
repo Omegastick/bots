@@ -34,7 +34,7 @@ class KothContactListener : public b2ContactListener
             for (int i = 0; i < 2; i++)
             {
                 RigidBody *body = bodies[i];
-                RigidBody *other = bodies[1 - i];
+                RigidBody *other = bodies[(i + 1) % 2];
 
                 switch (body->parent_type)
                 {
@@ -68,7 +68,7 @@ class KothContactListener : public b2ContactListener
             for (int i = 0; i < 2; i++)
             {
                 RigidBody *body = bodies[i];
-                RigidBody *other = bodies[1 - i];
+                RigidBody *other = bodies[(i + 1) % 2];
 
                 switch (body->parent_type)
                 {
@@ -218,6 +218,7 @@ StepInfo KothEnv::step(const std::vector<torch::Tensor> actions, float step_leng
     int victor = -1;
     if (done)
     {
+        spdlog::debug(scores);
         if (scores[0] > scores[1])
         {
             change_reward(body_1.get(), reward_config.victory_reward);
