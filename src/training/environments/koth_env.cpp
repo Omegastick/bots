@@ -218,7 +218,6 @@ StepInfo KothEnv::step(const std::vector<torch::Tensor> actions, float step_leng
     int victor = -1;
     if (done)
     {
-        spdlog::debug(scores);
         if (scores[0] > scores[1])
         {
             change_reward(body_1.get(), reward_config.victory_reward);
