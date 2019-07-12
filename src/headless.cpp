@@ -19,6 +19,7 @@ namespace di = boost::di;
 int main(int argc, char *argv[])
 {
     const auto injector = di::make_injector(
+        di::bind<int>.named(MaxSteps).to(600),
         di::bind<IEnvironmentFactory>.to<KothEnvFactory>(),
         di::bind<ISaver>.to<Saver>(),
         di::bind<std::string>.named(CheckpointDirectory).to("checkpoints"));
