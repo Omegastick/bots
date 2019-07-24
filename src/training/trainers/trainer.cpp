@@ -228,7 +228,7 @@ void Trainer::step_batch()
     for (int i = 0; i < program.hyper_parameters.num_env; ++i)
     {
         auto nn_base = std::make_shared<cpprl::MlpBase>(program.body["num_observations"], recurrent);
-        policies.push_back(cpprl::Policy(cpprl::ActionSpace{"MultiBinary", {program.body["num_actions"]}}, nn_base));
+        policies.push_back(cpprl::Policy(cpprl::ActionSpace{"MultiBinary", {program.body["num_actions"]}}, nn_base, true));
         torch::load(policies[i], "/tmp/policy.pth");
     }
 
