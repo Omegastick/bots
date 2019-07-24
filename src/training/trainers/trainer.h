@@ -42,7 +42,6 @@ class Trainer
     std::chrono::time_point<std::chrono::high_resolution_clock> last_save_time;
     std::chrono::time_point<std::chrono::high_resolution_clock> last_update_time;
     int new_opponents;
-    ObservationNormalizer observation_normalizer;
     std::vector<torch::Tensor> opponent_hidden_states;
     std::vector<torch::Tensor> opponent_observations;
     torch::Tensor opponent_masks;
