@@ -30,8 +30,6 @@ namespace fs = std::filesystem;
 
 namespace SingularityTrainer
 {
-const int body_per_env = 2;
-const int game_length = 600;
 const bool recurrent = false;
 
 Trainer::Trainer(TrainingProgram program,
@@ -53,6 +51,7 @@ Trainer::Trainer(TrainingProgram program,
       policy(nullptr),
       previous_checkpoint(program.checkpoint),
       program(program),
+      returns_rms(1),
       rng(rng),
       waiting(false)
 {
@@ -343,6 +342,15 @@ void Trainer::learn()
                                rollout_storage->get_masks()[-1])
                          .detach();
     }
+    // Divide rewards by return variance
+    rollout_storage->compute_returns(next_value, false, program.hyper_parameters.discount_factor, 0.95);
+    returns_rms->update(rollout_storage->get_returns());
+    rollout_storage->set_rewards(torch::clamp(
+        rollout_storage->get_rewards() / (returns_rms->get_variance().sqrt() + 1e-8),
+        -10,
+        10));
+
+    // Calculate the returns for real this time
     rollout_storage->compute_returns(next_value, true, program.hyper_parameters.discount_factor, 0.95);
 
     auto update_data = algorithm->update(*rollout_storage);
