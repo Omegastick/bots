@@ -7,6 +7,7 @@
 #include <cpprl/algorithms/algorithm.h>
 #include <cpprl/model/nn_base.h>
 #include <cpprl/model/policy.h>
+#include <cpprl/running_mean_std.h>
 #include <cpprl/storage.h>
 #include <torch/torch.h>
 
@@ -49,6 +50,7 @@ class Trainer
     cpprl::Policy policy;
     std::filesystem::path previous_checkpoint;
     TrainingProgram program;
+    cpprl::RunningMeanStd returns_rms;
     Random &rng;
     std::unique_ptr<cpprl::RolloutStorage> rollout_storage;
     bool waiting;
