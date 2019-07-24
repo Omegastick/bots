@@ -14,7 +14,6 @@
 #include "training/agents/iagent.h"
 #include "training/environments/ienvironment.h"
 #include "training/bodies/body.h"
-#include "training/observation_normalizer.h"
 #include "training/training_program.h"
 
 namespace SingularityTrainer
