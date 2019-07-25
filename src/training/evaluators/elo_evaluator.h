@@ -19,15 +19,13 @@ class EloEvaluator : protected Evaluator
 {
   private:
     std::unordered_map<const IAgent *, double> elos;
-    std::unique_ptr<NNAgent> main_agent;
+    std::unique_ptr<IAgent> main_agent;
     std::vector<std::unique_ptr<IAgent>> opponents;
     Random &rng;
 
   public:
     EloEvaluator(BodyFactory &body_factory, IEnvironmentFactory &env_factory, Random &rng);
 
-    double evaluate(cpprl::Policy policy,
-                    nlohmann::json &body_spec,
-                    const std::vector<IAgent *> &new_opponents);
+    double evaluate(IAgent &agent, const std::vector<IAgent *> &new_opponents);
 };
 }
