@@ -2,6 +2,7 @@
 
 #include <nlohmann/json.hpp>
 #include <pybind11/pybind11.h>
+#include <pybind11/stl.h>
 #include <spdlog/spdlog.h>
 
 #include "misc/random.h"
