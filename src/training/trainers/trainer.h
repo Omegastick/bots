@@ -2,6 +2,7 @@
 
 #include <chrono>
 #include <filesystem>
+#include <string>
 #include <vector>
 
 #include <cpprl/algorithms/algorithm.h>
@@ -56,7 +57,7 @@ class Trainer
     bool waiting;
 
     void action_update();
-    void learn();
+    std::vector<std::pair<std::string, float>> learn();
 
   public:
     Trainer(TrainingProgram program,
@@ -70,7 +71,7 @@ class Trainer
     std::vector<float> get_observation();
     std::filesystem::path save_model(std::filesystem::path directory = {});
     void step();
-    void step_batch();
+    std::vector<std::pair<std::string, float>> step_batch();
     void slow_step();
 
     std::vector<std::unique_ptr<IEnvironment>> &get_environments() { return environments; }

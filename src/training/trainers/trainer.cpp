@@ -206,7 +206,7 @@ void Trainer::step()
     } while (std::chrono::high_resolution_clock::now() - clock_start < std::chrono::milliseconds(1000 / 60));
 }
 
-void Trainer::step_batch()
+std::vector<std::pair<std::string, float>> Trainer::step_batch()
 {
     tf::Executor executor;
     tf::Taskflow task_flow;
@@ -300,7 +300,8 @@ void Trainer::step_batch()
                    [](cpprl::RolloutStorage &storage) { return &storage; });
     rollout_storage = std::make_unique<cpprl::RolloutStorage>(storage_ptrs, torch::kCPU);
 
-    learn();
+    auto update_data = learn();
+    return update_data;
 }
 
 void Trainer::slow_step()
@@ -330,7 +331,7 @@ std::filesystem::path Trainer::save_model(std::filesystem::path directory)
     return previous_checkpoint;
 }
 
-void Trainer::learn()
+std::vector<std::pair<std::string, float>> Trainer::learn()
 {
     auto update_start_time = std::chrono::high_resolution_clock::now();
 
@@ -379,6 +380,18 @@ void Trainer::learn()
         new_opponents++;
         last_save_time = now;
     }
+
+    std::vector<std::pair<std::string, float>> update_pairs;
+    std::transform(update_data.begin(), update_data.end(),
+                   std::back_inserter(update_pairs),
+                   [](const cpprl::UpdateDatum &datum) {
+                       return std::pair<std::string, float>{datum.name, datum.value};
+                   });
+    update_pairs.push_back({"FPS", fps});
+    update_pairs.push_back({"Total Frames", total_frames});
+    update_pairs.push_back({"Update Duration", update_duration.count()});
+
+    return update_pairs;
 }
 
 void Trainer::action_update()
