@@ -8,9 +8,13 @@
 #include <spdlog/spdlog.h>
 
 #include "elo_evaluator.h"
+#include "misc/random.h"
 #include "training/agents/iagent.h"
 #include "training/agents/nn_agent.h"
+#include "training/agents/random_agent.h"
+#include "training/environments/koth_env.h"
 #include "training/bodies/body.h"
+#include "training/bodies/test_body.h"
 
 namespace SingularityTrainer
 {
@@ -53,19 +57,19 @@ EloEvaluator::EloEvaluator(BodyFactory &body_factory,
     : Evaluator(body_factory, env_factory),
       rng(rng) {}
 
-double EloEvaluator::evaluate(cpprl::Policy policy,
-                              nlohmann::json &body_spec,
-                              const std::vector<IAgent *> &new_opponents)
+double EloEvaluator::evaluate(IAgent &agent, const std::vector<IAgent *> &new_opponents)
 {
-    // Initialize main agent
     if (main_agent == nullptr)
     {
-        main_agent = std::make_unique<NNAgent>(policy, body_spec);
+        main_agent = agent.clone();
         elos[main_agent.get()] = 0;
     }
     else
     {
-        main_agent->set_policy(policy);
+        auto new_main_agent_temp = agent.clone();
+        elos[new_main_agent_temp.get()] = elos[main_agent.get()];
+        elos.erase(main_agent.get());
+        main_agent = std::move(new_main_agent_temp);
     }
 
     // Add new opponents to opponent pool
@@ -139,6 +143,33 @@ TEST_CASE("EloEvaluator")
         auto result = calculate_elos(3000, -1000, 32, EvaluationResult::Agent1);
         DOCTEST_CHECK(std::get<0>(result) == doctest::Approx(3000));
         DOCTEST_CHECK(std::get<1>(result) == doctest::Approx(-1000));
+    }
+
+    SUBCASE("Calculates elos within expected boundaries when evaluating random agents")
+    {
+        Random rng(0);
+        BodyFactory body_factory(rng);
+        KothEnvFactory env_factory(100);
+        EloEvaluator evaluator(body_factory, env_factory, rng);
+
+        auto body_spec = TestBody(rng).to_json();
+
+        RandomAgent agent_1(body_spec, rng);
+        RandomAgent agent_2(body_spec, rng);
+        RandomAgent agent_3(body_spec, rng);
+        RandomAgent agent_4(body_spec, rng);
+
+        std::vector<IAgent *> new_opponents;
+
+        new_opponents.push_back(&agent_2);
+        evaluator.evaluate(agent_1, new_opponents);
+        new_opponents[0] = &agent_3;
+        evaluator.evaluate(agent_1, new_opponents);
+        new_opponents[0] = &agent_4;
+        auto elo = evaluator.evaluate(agent_1, new_opponents);
+
+        DOCTEST_CHECK(elo < 40);
+        DOCTEST_CHECK(elo > -40);
     }
 }
 }

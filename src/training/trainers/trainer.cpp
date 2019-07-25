@@ -172,7 +172,8 @@ float Trainer::evaluate()
 {
     std::vector<IAgent *> new_opponents_vec(opponents.end() - new_opponents, opponents.end());
     new_opponents = 0;
-    return evaluator.evaluate(policy, program.body, new_opponents_vec);
+    NNAgent agent(policy, program.body);
+    return evaluator.evaluate(agent, new_opponents_vec);
 }
 
 std::vector<float> Trainer::get_observation()

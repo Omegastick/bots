@@ -24,6 +24,8 @@ class TestBody : public Body
 class TestBodyFactory : public BodyFactory
 {
   public:
+    TestBodyFactory(Random &rng) : BodyFactory(rng) {}
+
     std::unique_ptr<Body> make(Random &rng)
     {
         return std::make_unique<TestBody>(rng);
