@@ -88,11 +88,11 @@ Trainer::Trainer(TrainingProgram program,
     env_scores.resize(env_count);
 
     // Initialize opponent pool
-    opponent_pool.push_back(std::make_unique<RandomAgent>(program.body, rng));
+    opponent_pool.push_back(std::make_unique<RandomAgent>(program.body, rng, "Random Agent"));
     for (const auto &checkpoint_path : program.opponent_pool)
     {
         auto policy = checkpointer.load(checkpoint_path).policy;
-        opponent_pool.push_back(std::make_unique<NNAgent>(policy, program.body));
+        opponent_pool.push_back(std::make_unique<NNAgent>(policy, program.body, checkpoint_path));
     }
 
     // Initialize opponents
@@ -172,7 +172,7 @@ float Trainer::evaluate()
 {
     std::vector<IAgent *> new_opponents_vec(opponents.end() - new_opponents, opponents.end());
     new_opponents = 0;
-    NNAgent agent(policy, program.body);
+    NNAgent agent(policy, program.body, "Current Agent");
     return evaluator.evaluate(agent, new_opponents_vec);
 }
 
@@ -376,7 +376,7 @@ std::vector<std::pair<std::string, float>> Trainer::learn()
     if (now - last_save_time > std::chrono::minutes(program.minutes_per_checkpoint))
     {
         auto checkpoint_path = save_model();
-        opponent_pool.push_back(std::make_unique<NNAgent>(policy, program.body));
+        opponent_pool.push_back(std::make_unique<NNAgent>(policy, program.body, date::format("%F-%H-%M-%S", now)));
         new_opponents++;
         last_save_time = now;
     }

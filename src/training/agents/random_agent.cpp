@@ -7,8 +7,8 @@
 
 namespace SingularityTrainer
 {
-RandomAgent::RandomAgent(const nlohmann::json &body_spec, Random &rng)
-    : IAgent(body_spec),
+RandomAgent::RandomAgent(const nlohmann::json &body_spec, Random &rng, const std::string &name)
+    : IAgent(body_spec, name),
       num_outputs(body_spec["num_actions"]),
       rng(rng) {}
 
@@ -28,14 +28,14 @@ ActResult RandomAgent::act(torch::Tensor observations,
 
 std::unique_ptr<IAgent> RandomAgent::clone() const
 {
-    return std::make_unique<RandomAgent>(body_spec, rng);
+    return std::make_unique<RandomAgent>(body_spec, rng, name);
 }
 
 TEST_CASE("RandomAgent")
 {
     Random rng(0);
     TestBody body(rng);
-    RandomAgent agent(body.to_json(), rng);
+    RandomAgent agent(body.to_json(), rng, "Test");
 
     SUBCASE("act() returns correctly sized actions")
     {

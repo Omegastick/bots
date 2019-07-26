@@ -15,7 +15,7 @@ class RandomAgent : public IAgent
     Random &rng;
 
   public:
-    RandomAgent(const nlohmann::json &body_spec, Random &rng);
+    RandomAgent(const nlohmann::json &body_spec, Random &rng, const std::string &name);
 
     ActResult act(torch::Tensor observations,
                   torch::Tensor hidden_states,

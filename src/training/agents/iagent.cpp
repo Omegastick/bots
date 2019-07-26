@@ -4,8 +4,8 @@
 
 namespace SingularityTrainer
 {
-IAgent::IAgent(const nlohmann::json &body_spec)
-    : body_spec(body_spec) {}
+IAgent::IAgent(const nlohmann::json &body_spec, const std::string &name)
+    : body_spec(body_spec), name(name) {}
 
 int IAgent::get_action_size() const
 {

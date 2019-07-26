@@ -143,7 +143,7 @@ TEST_CASE("Evaluator")
         TestBody body(rng);
         auto body_spec = body.to_json();
 
-        RandomAgent agent(body_spec, rng);
+        RandomAgent agent(body_spec, rng, "Random Agent");
 
         auto results = evaluator.evaluate(agent,
                                           agent,

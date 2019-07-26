@@ -6,6 +6,7 @@
 #include <cpprl/model/policy.h>
 #include <nlohmann/json.hpp>
 #include <spdlog/spdlog.h>
+#include <fmt/ostream.h>
 
 #include "elo_evaluator.h"
 #include "misc/random.h"
@@ -123,6 +124,12 @@ double EloEvaluator::evaluate(IAgent &agent, const std::vector<IAgent *> &new_op
         }
     }
 
+    spdlog::debug("{}: {}", main_agent->get_name(), elos[main_agent.get()]);
+    for (const auto &opponent : opponents)
+    {
+        spdlog::debug("{}: {}", opponent->get_name(), elos[opponent.get()]);
+    }
+
     return elos[main_agent.get()];
 }
 
@@ -154,10 +161,10 @@ TEST_CASE("EloEvaluator")
 
         auto body_spec = TestBody(rng).to_json();
 
-        RandomAgent agent_1(body_spec, rng);
-        RandomAgent agent_2(body_spec, rng);
-        RandomAgent agent_3(body_spec, rng);
-        RandomAgent agent_4(body_spec, rng);
+        RandomAgent agent_1(body_spec, rng, "Agent 1");
+        RandomAgent agent_2(body_spec, rng, "Agent 2");
+        RandomAgent agent_3(body_spec, rng, "Agent 3");
+        RandomAgent agent_4(body_spec, rng, "Agent 4");
 
         std::vector<IAgent *> new_opponents;
 

@@ -18,8 +18,8 @@ double BasicEvaluator::evaluate(cpprl::Policy policy, nlohmann::json &body_spec,
 {
     TestBody test_body(rng);
     auto test_body_json = test_body.to_json();
-    RandomAgent random_agent(test_body_json, rng);
-    NNAgent nn_agent(policy, body_spec);
+    RandomAgent random_agent(test_body_json, rng, "Random Agent");
+    NNAgent nn_agent(policy, body_spec, "Main Agent");
 
     auto results = Evaluator::evaluate(nn_agent, random_agent, number_of_trials);
 
