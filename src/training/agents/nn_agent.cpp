@@ -8,8 +8,8 @@
 
 namespace SingularityTrainer
 {
-NNAgent::NNAgent(cpprl::Policy policy, const nlohmann::json &body_spec)
-    : IAgent(body_spec),
+NNAgent::NNAgent(cpprl::Policy policy, const nlohmann::json &body_spec, const std::string &name)
+    : IAgent(body_spec, name),
       policy(policy) {}
 
 ActResult NNAgent::act(torch::Tensor observations,
@@ -30,7 +30,7 @@ ActResult NNAgent::act(torch::Tensor observations,
 
 std::unique_ptr<IAgent> NNAgent::clone() const
 {
-    return std::make_unique<NNAgent>(policy, body_spec);
+    return std::make_unique<NNAgent>(policy, body_spec, name);
 }
 
 TEST_CASE("NNAgent")
@@ -39,7 +39,7 @@ TEST_CASE("NNAgent")
     auto policy = cpprl::Policy(cpprl::ActionSpace{"MultiBinary", {4}}, nn_base);
     Random rng(0);
     TestBody body(rng);
-    NNAgent agent(policy, body.to_json());
+    NNAgent agent(policy, body.to_json(), "Test");
 
     SUBCASE("act() returns correctly sized actions")
     {

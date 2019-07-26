@@ -1,8 +1,8 @@
 #pragma once
 
 #include <memory>
-#include <unordered_map>
 #include <vector>
+#include <map>
 
 #include <cpprl/model/policy.h>
 #include <nlohmann/json_fwd.hpp>
@@ -18,7 +18,7 @@ class Random;
 class EloEvaluator : protected Evaluator
 {
   private:
-    std::unordered_map<const IAgent *, double> elos;
+    std::map<const IAgent *, double> elos;
     std::unique_ptr<IAgent> main_agent;
     std::vector<std::unique_ptr<IAgent>> opponents;
     Random &rng;

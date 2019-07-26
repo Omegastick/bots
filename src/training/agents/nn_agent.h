@@ -13,7 +13,7 @@ class NNAgent : public IAgent
     mutable cpprl::Policy policy;
 
   public:
-    NNAgent(cpprl::Policy policy, const nlohmann::json &body_spec);
+    NNAgent(cpprl::Policy policy, const nlohmann::json &body_spec, const std::string &name);
 
     ActResult act(torch::Tensor observations,
                   torch::Tensor hidden_states,
