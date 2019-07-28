@@ -30,7 +30,7 @@ namespace fs = std::filesystem;
 
 namespace SingularityTrainer
 {
-const bool recurrent = false;
+const bool recurrent = true;
 
 Trainer::Trainer(TrainingProgram program,
                  BodyFactory &body_factory,
@@ -170,7 +170,11 @@ Trainer::Trainer(TrainingProgram program,
 
 float Trainer::evaluate()
 {
-    std::vector<IAgent *> new_opponents_vec(opponents.end() - new_opponents, opponents.end());
+    std::vector<IAgent *> new_opponents_vec;
+    for (unsigned int i = opponent_pool.size() - new_opponents; i < opponent_pool.size(); ++i)
+    {
+        new_opponents_vec.push_back(opponent_pool[i].get());
+    }
     new_opponents = 0;
     NNAgent agent(policy, program.body, "Current Agent");
     return evaluator.evaluate(agent, new_opponents_vec);

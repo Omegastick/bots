@@ -46,6 +46,7 @@ int HeadlessApp::run(int argc, char *argv[])
     while (!stop)
     {
         trainer->step_batch();
+        trainer->evaluate();
     }
 
     return 0;
