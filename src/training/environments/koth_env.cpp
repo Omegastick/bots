@@ -128,8 +128,8 @@ KothEnv::KothEnv(int max_steps,
     walls.push_back(std::make_unique<Wall>(-10, -20, 0.1, 40, *this->world));
     walls.push_back(std::make_unique<Wall>(-10, 19.9, 20, 0.1, *this->world));
     walls.push_back(std::make_unique<Wall>(9.9, -20, 0.1, 40, *this->world));
-    walls.push_back(std::make_unique<Wall>(-5, -9.9, 10, 0.2, *this->world));
-    walls.push_back(std::make_unique<Wall>(-5, 10.1, 10, 0.2, *this->world));
+    walls.push_back(std::make_unique<Wall>(-2.5, -9.9, 5, 0.2, *this->world));
+    walls.push_back(std::make_unique<Wall>(-2.5, 10.1, 5, 0.2, *this->world));
 
     hill->register_callback([&](const std::unordered_map<Body *, int> &bodies) {
         if (bodies.size() == 1)

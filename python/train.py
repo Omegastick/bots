@@ -43,13 +43,13 @@ def main():
                 for stat in training_stats:
                     tf.summary.scalar(stat[0], stat[1], step=batch_number)
             if time.time() - last_test_time > 600:
+                last_test_time = time.time()
                 logging.info("######## Testing ########")
                 elo = trainer.evaluate()
                 logging.info("Result: %f", elo)
                 with writer.as_default():
                     tf.summary.scalar("Elo", elo, step=batch_number)
                 logging.info("######## Tested  ########")
-                last_test_time = time.time()
     except KeyboardInterrupt:
         return
 
