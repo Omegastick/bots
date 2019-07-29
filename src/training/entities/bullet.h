@@ -7,6 +7,7 @@
 #include <glm/vec4.hpp>
 
 #include "graphics/idrawable.h"
+#include "ientity.h"
 #include "training/icollidable.h"
 
 namespace SingularityTrainer
@@ -17,7 +18,7 @@ class RigidBody;
 class Body;
 class IEnvironment;
 
-class Bullet : public IDrawable, public ICollidable
+class Bullet : public ICollidable, public IEntity
 {
   private:
     int life;
@@ -27,17 +28,19 @@ class Bullet : public IDrawable, public ICollidable
     glm::vec4 particle_color;
     Body *owner;
     std::mutex particle_mutex;
+    bool destroyed;
 
   public:
     Bullet(b2Vec2 position, b2Vec2 velocity, b2World &world, Body *owner);
     ~Bullet();
 
-    virtual RenderData get_render_data(bool lightweight = false);
     virtual void begin_contact(RigidBody *other);
+    virtual void destroy();
     virtual void end_contact(RigidBody *other);
-    void update();
+    virtual RenderData get_render_data(bool lightweight = false);
+    virtual bool should_destroy();
+    virtual void update();
 
-    bool destroyed;
     std::unique_ptr<RigidBody> rigid_body;
 };
 }

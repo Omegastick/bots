@@ -19,7 +19,6 @@ class GunModule : public IModule, public IActivatable
   private:
     int cooldown;
     int steps_since_last_shot;
-    std::vector<std::unique_ptr<Bullet>> bullets;
 
   public:
     GunModule();

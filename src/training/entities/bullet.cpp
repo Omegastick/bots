@@ -45,6 +45,11 @@ Bullet::Bullet(b2Vec2 position, b2Vec2 velocity, b2World &world, Body *owner)
 
 Bullet::~Bullet() {}
 
+void Bullet::destroy()
+{
+    rigid_body->body->GetWorld()->DestroyBody(rigid_body->body);
+}
+
 RenderData Bullet::get_render_data(bool /*lightweight*/)
 {
     RenderData render_data;
@@ -131,6 +136,11 @@ void Bullet::begin_contact(RigidBody *other)
 }
 
 void Bullet::end_contact(RigidBody * /*other*/) {}
+
+bool Bullet::should_destroy()
+{
+    return destroyed;
+}
 
 void Bullet::update()
 {
