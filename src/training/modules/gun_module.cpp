@@ -11,6 +11,7 @@
 #include "training/actions/activate_action.h"
 #include "training/bodies/body.h"
 #include "training/entities/bullet.h"
+#include "training/environments/ienvironment.h"
 #include "training/modules/gun_module.h"
 #include "training/modules/imodule.h"
 #include "training/rigid_body.h"
@@ -49,17 +50,13 @@ void GunModule::activate()
         b2Transform global_transform = get_global_transform();
         b2Vec2 velocity = b2Mul(global_transform.q, b2Vec2(0, 100));
         b2Vec2 offset = b2Mul(global_transform.q, b2Vec2(0, 0.7));
-        bullets.push_back(std::make_unique<Bullet>(global_transform.p + offset, velocity, *body->get_rigid_body().body->GetWorld(), body));
+        body->get_environment()->add_entity(std::make_unique<Bullet>(global_transform.p + offset, velocity, *body->get_rigid_body().body->GetWorld(), body));
     }
 }
 
 RenderData GunModule::get_render_data(bool lightweight)
 {
     auto render_data = IModule::get_render_data(lightweight);
-    for (const auto &bullet : bullets)
-    {
-        render_data.append(bullet->get_render_data(lightweight));
-    }
     return render_data;
 }
 
@@ -94,21 +91,6 @@ nlohmann::json GunModule::to_json() const
 void GunModule::update()
 {
     steps_since_last_shot++;
-
-    for (const auto &bullet : bullets)
-    {
-        bullet->update();
-    }
-
-    for (unsigned int i = 0; i < bullets.size(); ++i)
-    {
-        if (bullets[i]->destroyed)
-        {
-            b2Body *body = bullets[i]->rigid_body->body;
-            body->GetWorld()->DestroyBody(body);
-            bullets.erase(bullets.begin() + i);
-        }
-    }
 }
 
 TEST_CASE("GunModule converts to correct Json")

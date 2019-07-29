@@ -10,8 +10,9 @@
 #include "graphics/colors.h"
 #include "training/bodies/test_body.h"
 #include "training/entities/bullet.h"
-#include "training/entities/wall.h"
+#include "training/entities/ientity.h"
 #include "training/entities/hill.h"
+#include "training/entities/wall.h"
 #include "training/rigid_body.h"
 #include "training/training_program.h"
 #include "misc/random.h"
@@ -152,6 +153,11 @@ KothEnv::KothEnv(int max_steps,
 
 KothEnv::~KothEnv() {}
 
+void KothEnv::add_entity(std::unique_ptr<IEntity> entity)
+{
+    entities.push_back(std::move(entity));
+}
+
 void KothEnv::change_score(Body *body, float score_delta)
 {
     scores[body_numbers[body]] += score_delta;
@@ -179,6 +185,11 @@ RenderData KothEnv::get_render_data(bool lightweight)
         render_data.append(wall_render_data);
     }
 
+    for (auto &entity : entities)
+    {
+        render_data.append(entity->get_render_data());
+    }
+
     return render_data;
 }
 
@@ -191,6 +202,26 @@ StepInfo KothEnv::step(const std::vector<torch::Tensor> actions, float step_leng
     std::vector<int> actions_2(actions_tensor_2.data<int>(), actions_tensor_2.data<int>() + actions_tensor_2.numel());
     body_1->act(actions_1);
     body_2->act(actions_2);
+
+    // Update entities
+    for (const auto &entity : entities)
+    {
+        entity->update();
+    }
+
+    // Destroy destroyable entities
+    for (auto iter = entities.begin(); iter != entities.end();)
+    {
+        if ((*iter)->should_destroy())
+        {
+            (*iter)->destroy();
+            iter = entities.erase(iter);
+        }
+        else
+        {
+            ++iter;
+        }
+    }
 
     // Step simulation
     world->Step(step_length, 3, 2);

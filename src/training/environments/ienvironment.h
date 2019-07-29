@@ -12,6 +12,7 @@
 namespace SingularityTrainer
 {
 class Body;
+class IEntity;
 class RewardConfig;
 
 struct StepInfo
@@ -26,6 +27,7 @@ class IEnvironment : public IDrawable
   public:
     virtual ~IEnvironment() = 0;
 
+    virtual void add_entity(std::unique_ptr<IEntity> entity) = 0;
     virtual void change_reward(int body, float reward_delta) = 0;
     virtual void change_reward(Body *body, float reward_delta) = 0;
     virtual void forward(float step_length) = 0;

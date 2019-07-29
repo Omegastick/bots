@@ -15,6 +15,7 @@
 
 namespace SingularityTrainer
 {
+class IEntity;
 class Hill;
 class ResourceManager;
 class Wall;
@@ -24,6 +25,7 @@ class KothEnv : public IEnvironment
   private:
     std::unique_ptr<Body> body_1;
     std::unique_ptr<Body> body_2;
+    std::vector<std::unique_ptr<IEntity>> entities;
     int max_steps;
     std::unique_ptr<Random> rng;
     std::unique_ptr<b2World> world;
@@ -49,6 +51,7 @@ class KothEnv : public IEnvironment
             RewardConfig reward_config);
     ~KothEnv();
 
+    virtual void add_entity(std::unique_ptr<IEntity> entity);
     virtual StepInfo step(std::vector<torch::Tensor> actions, float step_length);
     virtual void forward(float step_length);
     virtual StepInfo reset();
