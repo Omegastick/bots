@@ -48,6 +48,10 @@ set(ST_TARGETS
     Training
 )
 
+# Disable HeadlessTrainer and GraphicsPlayground by default
+set_target_properties(HeadlessTrainer PROPERTIES EXCLUDE_FROM_ALL TRUE)
+set_target_properties(GraphicsPlayground PROPERTIES EXCLUDE_FROM_ALL TRUE)
+
 # Set position independent code
 set_target_properties(Graphics PROPERTIES POSITION_INDEPENDENT_CODE TRUE)
 set_target_properties(Misc PROPERTIES POSITION_INDEPENDENT_CODE TRUE)
