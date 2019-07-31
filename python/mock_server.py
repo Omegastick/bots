@@ -10,7 +10,7 @@ from queue import Queue
 import msgpack
 import zmq
 
-GAME_LENGTH = 100
+GOAL = 25
 ID_LENGTH = 8
 PLAYERS_PER_GAME = 2
 TICK_LENGTH = 1
@@ -28,11 +28,12 @@ class Game:
     Very simple 'game' that just adds numbers.
     """
 
-    def __init__(self, number_of_players, length):
+    def __init__(self, number_of_players, goal):
         self._last_tick_time = time.time()
-        self._length = length
+        self._goal = goal
 
         self.actions = {0: [0 for _ in range(number_of_players)]}
+        self.action_received = {0: [False for _ in range(number_of_players)]}
         self.current_tick = 0
         self.players = []
         self.state = [0 for _ in range(number_of_players)]
@@ -40,20 +41,33 @@ class Game:
     def tick(self):
         """
         Tick the game once.
-        Returns True if the game should continue, False if not.
+        Returns True if the game is finished, False if not.
         """
         self._last_tick_time = time.time()
 
         if self.current_tick not in self.actions:
             self.actions[self.current_tick] = [0 for _ in
                                                range(len(self.state))]
+            self.action_received[self.current_tick] = [False for _ in
+                                                       range(len(self.state))]
 
         for i, _ in enumerate(self.state):
+            # If we haven't received an action for this step, use the latest
+            # received action
+            if not self.action_received[self.current_tick][i]:
+                for step in sorted(self.action_received, reverse=True):
+                    if self.action_received[step][i]:
+                        self.actions[self.current_tick][i] = \
+                            self.actions[step][i]
+                        break
             self.state[i] += self.actions[self.current_tick][i]
 
         self.current_tick += 1
 
-        return self.current_tick < self._length
+        victors = [state >= self._goal for state in self.state]
+        if not any(victors):
+            return None
+        return victors.index(True)
 
     def ready_to_tick(self, current_time: float):
         """
@@ -103,13 +117,15 @@ class Server:
         """
         while self._waiting_players.qsize() >= PLAYERS_PER_GAME:
             game_id = generate_id()
-            self._games[game_id] = Game(PLAYERS_PER_GAME, GAME_LENGTH)
+            self._games[game_id] = Game(PLAYERS_PER_GAME, GOAL)
             for _ in range(PLAYERS_PER_GAME):
                 player_id = self._waiting_players.get()
                 self._ingame_players[player_id] = game_id
                 self._games[game_id].players.append(player_id)
-                self._router.send_multipart([player_id,
-                                             b'Ready'])
+                self._router.send_multipart([
+                    player_id,
+                    msgpack.packb(len(self._games[game_id].players) - 1)
+                ])
 
     def _handle_message(self, address: bytearray, message: bytearray):
         """
@@ -130,9 +146,12 @@ class Server:
             index = game.players.index(address)
             decoded_message = msgpack.unpackb(message)
             if decoded_message[0] not in game.actions:
-                game.actions[decoded_message[0]] = [0 for _ in
-                                                    range(len(game.state))]
+                game.actions[decoded_message[0]] = [
+                    0 for _ in range(len(game.state))]
+                game.action_received[decoded_message[0]] = [
+                    False for _ in range(len(game.state))]
             game.actions[decoded_message[0]][index] = decoded_message[1]
+            game.action_received[decoded_message[0]][index] = True
 
         return
 
@@ -143,12 +162,21 @@ class Server:
         current_time = time.time()
         for game_id in self._games:
             game = self._games[game_id]
-            if game.ready_to_tick(current_time) and 0 in game.actions:
-                game.tick()
+            if (game.ready_to_tick(current_time)
+                    and all(game.action_received[0])):
+                victor = game.tick()
+                done = False
+                if victor is not None:
+                    done = True
                 for player_id in self._games[game_id].players:
                     self._router.send_multipart([
                         player_id,
-                        msgpack.packb([game.current_tick, game.state])
+                        msgpack.packb([
+                            game.current_tick,
+                            game.state,
+                            done,
+                            victor
+                        ])
                     ])
 
 
