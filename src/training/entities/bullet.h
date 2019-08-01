@@ -35,12 +35,9 @@ class Bullet : public ICollidable, public IEntity
     ~Bullet();
 
     virtual void begin_contact(RigidBody *other);
-    virtual void destroy();
     virtual void end_contact(RigidBody *other);
     virtual RenderData get_render_data(bool lightweight = false);
     virtual bool should_destroy();
     virtual void update();
-
-    std::unique_ptr<RigidBody> rigid_body;
 };
 }
