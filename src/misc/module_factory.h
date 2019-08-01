@@ -6,13 +6,16 @@
 namespace SingularityTrainer
 {
 class IModule;
+class Random;
 
 class ModuleFactory
 {
   private:
-    ModuleFactory() {}
+    Random &rng;
 
   public:
-    static std::shared_ptr<IModule> create_module(std::string &module_id);
+    ModuleFactory(Random &rng) : rng(rng) {}
+
+    std::shared_ptr<IModule> create_module(std::string &module_id);
 };
 }

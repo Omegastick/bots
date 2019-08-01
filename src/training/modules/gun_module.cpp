@@ -7,6 +7,7 @@
 #include <nlohmann/json.hpp>
 
 #include "graphics/sprite.h"
+#include "misc/random.h"
 #include "misc/resource_manager.h"
 #include "training/actions/activate_action.h"
 #include "training/bodies/body.h"
@@ -18,7 +19,7 @@
 
 namespace SingularityTrainer
 {
-GunModule::GunModule() : cooldown(3), steps_since_last_shot(0)
+GunModule::GunModule(Random &rng) : cooldown(3), rng(rng), steps_since_last_shot(0)
 {
     // Sprite
     sprite = std::make_unique<Sprite>("gun_module");
@@ -50,7 +51,11 @@ void GunModule::activate()
         b2Transform global_transform = get_global_transform();
         b2Vec2 velocity = b2Mul(global_transform.q, b2Vec2(0, 100));
         b2Vec2 offset = b2Mul(global_transform.q, b2Vec2(0, 0.7));
-        body->get_environment()->add_entity(std::make_unique<Bullet>(global_transform.p + offset, velocity, *body->get_rigid_body().body->GetWorld(), body));
+        body->get_environment()->add_entity(std::make_unique<Bullet>(global_transform.p + offset,
+                                                                     velocity,
+                                                                     *body->get_rigid_body().body->GetWorld(),
+                                                                     body,
+                                                                     rng.next_int(0, 65535)));
     }
 }
 
@@ -95,7 +100,8 @@ void GunModule::update()
 
 TEST_CASE("GunModule converts to correct Json")
 {
-    GunModule module;
+    Random rng(0);
+    GunModule module(rng);
 
     auto json = module.to_json();
 
@@ -112,7 +118,7 @@ TEST_CASE("GunModule converts to correct Json")
     SUBCASE("Nested modules are represented correctly in Json")
     {
         // Attach gun module
-        GunModule gun_module;
+        GunModule gun_module(rng);
         module.get_module_links()[0].link(gun_module.get_module_links()[0]);
 
         // Update json

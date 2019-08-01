@@ -10,6 +10,7 @@
 #include "graphics/window.h"
 #include "misc/animator.h"
 #include "misc/io.h"
+#include "misc/module_factory.h"
 #include "misc/random.h"
 #include "misc/resource_manager.h"
 #include "misc/screen_manager.h"

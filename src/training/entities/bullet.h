@@ -31,7 +31,7 @@ class Bullet : public ICollidable, public IEntity
     bool destroyed;
 
   public:
-    Bullet(b2Vec2 position, b2Vec2 velocity, b2World &world, Body *owner);
+    Bullet(b2Vec2 position, b2Vec2 velocity, b2World &world, Body *owner, unsigned int id);
     ~Bullet();
 
     virtual void begin_contact(RigidBody *other);

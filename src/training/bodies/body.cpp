@@ -229,7 +229,7 @@ void Body::recurse_json_modules(const nlohmann::json &module_json, IModule *pare
     }
     else if (module_json["type"] == "gun")
     {
-        module = std::make_shared<GunModule>();
+        module = std::make_shared<GunModule>(*rng);
     }
     else if (module_json["type"] == "thruster")
     {
@@ -415,7 +415,7 @@ TEST_CASE("Body")
 
         auto base_module = std::make_shared<BaseModule>();
         auto thruster_module = std::make_shared<ThrusterModule>();
-        auto gun_module = std::make_shared<GunModule>();
+        auto gun_module = std::make_shared<GunModule>(rng);
 
         base_module->get_module_links()[0].link(gun_module->get_module_links()[0]);
         gun_module->get_module_links()[2].link(thruster_module->get_module_links()[0]);
@@ -487,7 +487,7 @@ TEST_CASE("Body")
             body.set_rigid_body(std::move(rigid_body));
 
             auto base_module = std::make_shared<BaseModule>();
-            auto gun_module = std::make_shared<GunModule>();
+            auto gun_module = std::make_shared<GunModule>(rng);
 
             base_module->get_module_links()[0].link(gun_module->get_module_links()[0]);
 
@@ -504,8 +504,8 @@ TEST_CASE("Body")
             body.set_rigid_body(std::move(rigid_body));
 
             auto base_module = std::make_shared<BaseModule>();
-            auto gun_module = std::make_shared<GunModule>();
-            auto gun_module_2 = std::make_shared<GunModule>();
+            auto gun_module = std::make_shared<GunModule>(rng);
+            auto gun_module_2 = std::make_shared<GunModule>(rng);
 
             base_module->get_module_links()[0].link(gun_module->get_module_links()[0]);
             base_module->get_module_links()[1].link(gun_module->get_module_links()[0]);
@@ -527,7 +527,7 @@ TEST_CASE("Body")
             body.set_rigid_body(std::move(rigid_body));
 
             auto base_module = std::make_shared<BaseModule>();
-            auto gun_module = std::make_shared<GunModule>();
+            auto gun_module = std::make_shared<GunModule>(rng);
 
             base_module->get_module_links()[0].link(gun_module->get_module_links()[0]);
 
@@ -551,7 +551,7 @@ TEST_CASE("Body")
 
             auto base_module = std::make_shared<BaseModule>();
             auto thruster_module = std::make_shared<ThrusterModule>();
-            auto gun_module = std::make_shared<GunModule>();
+            auto gun_module = std::make_shared<GunModule>(rng);
 
             base_module->get_module_links()[0].link(gun_module->get_module_links()[0]);
             gun_module->get_module_links()[2].link(thruster_module->get_module_links()[0]);

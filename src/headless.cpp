@@ -1,6 +1,7 @@
 #include <string>
 
 #include "headless_app.h"
+#include "misc/module_factory.h"
 #include "misc/random.h"
 #include "third_party/di.hpp"
 #include "training/bodies/body.h"
