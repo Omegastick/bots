@@ -20,6 +20,7 @@ class b2World;
 namespace SingularityTrainer
 {
 class IO;
+class ModuleFactory;
 class Random;
 class Renderer;
 class ResourceManager;
@@ -28,6 +29,7 @@ class ScreenManager;
 class BuildScreen : public IScreen
 {
   private:
+    ModuleFactory &module_factory;
     ResourceManager *resource_manager;
     ScreenManager *screen_manager;
     IO *io;
@@ -45,6 +47,7 @@ class BuildScreen : public IScreen
 
   public:
     BuildScreen(BodyBuilder &&body_builder,
+                ModuleFactory &module_factory,
                 ResourceManager &resource_manager,
                 ScreenManager &screen_manager,
                 IO &io);
@@ -57,23 +60,30 @@ class BuildScreenFactory : public IScreenFactory
 {
   private:
     BodyBuilderFactory &body_builder_factory;
+    ModuleFactory &module_factory;
     ResourceManager &resource_manager;
     ScreenManager &screen_manager;
     IO &io;
 
   public:
     BuildScreenFactory(BodyBuilderFactory &body_builder_factory,
+                       ModuleFactory &module_factory,
                        ResourceManager &resource_manager,
                        ScreenManager &screen_manager,
                        IO &io)
         : body_builder_factory(body_builder_factory),
+          module_factory(module_factory),
           resource_manager(resource_manager),
           screen_manager(screen_manager),
           io(io) {}
 
     inline std::shared_ptr<IScreen> make()
     {
-        return std::make_shared<BuildScreen>(std::move(*body_builder_factory.make()), resource_manager, screen_manager, io);
+        return std::make_shared<BuildScreen>(std::move(*body_builder_factory.make()),
+                                             module_factory,
+                                             resource_manager,
+                                             screen_manager,
+                                             io);
     }
 };
 }

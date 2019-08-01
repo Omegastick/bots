@@ -13,7 +13,7 @@
 #include "training/modules/imodule.h"
 #include "training/modules/laser_sensor_module.h"
 #include "training/modules/module_link.h"
-#include "training/modules/gun_module.h"
+#include "training/modules/thruster_module.h"
 #include "training/rigid_body.h"
 #include "misc/utilities.h"
 
@@ -179,16 +179,16 @@ TEST_CASE("LaserSensorModule converts to correct Json")
 
     SUBCASE("Nested modules are represented correctly in Json")
     {
-        // Attach gun module
-        GunModule gun_module;
-        module.get_module_links()[0].link(gun_module.get_module_links()[0]);
+        // Attach thruster module
+        ThrusterModule thruster_module;
+        module.get_module_links()[0].link(thruster_module.get_module_links()[0]);
 
         // Update json
         json = module.to_json();
 
         SUBCASE("Submodule Json has correct type")
         {
-            CHECK(json["links"][0]["child"]["type"] == "gun");
+            CHECK(json["links"][0]["child"]["type"] == "thruster");
         }
 
         SUBCASE("Link's child link number is correct")

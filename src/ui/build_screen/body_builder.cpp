@@ -174,7 +174,7 @@ TEST_CASE("BodyBuilder")
     {
         SUBCASE("Correctly deletes a module")
         {
-            auto gun_module = std::make_shared<GunModule>();
+            auto gun_module = std::make_shared<GunModule>(rng);
             auto point = screen_to_world_space({1030, 545}, io.get_resolution(), body_builder.get_projection());
             gun_module->get_transform().p = {point.x, point.y};
             auto placed_module = body_builder.place_module(gun_module);
@@ -197,7 +197,7 @@ TEST_CASE("BodyBuilder")
     {
         SUBCASE("Correctly places a gun module")
         {
-            auto gun_module = std::make_shared<GunModule>();
+            auto gun_module = std::make_shared<GunModule>(rng);
             auto point = screen_to_world_space({1030, 545}, io.get_resolution(), body_builder.get_projection());
             gun_module->get_transform().p = {point.x, point.y};
 
@@ -212,12 +212,12 @@ TEST_CASE("BodyBuilder")
 
         SUBCASE("Correctly places two gun modules")
         {
-            auto gun_module_1 = std::make_shared<GunModule>();
+            auto gun_module_1 = std::make_shared<GunModule>(rng);
             auto point = screen_to_world_space({1030, 545}, io.get_resolution(), body_builder.get_projection());
             gun_module_1->get_transform().p = {point.x, point.y};
             body_builder.place_module(gun_module_1);
 
-            auto gun_module_2 = std::make_shared<GunModule>();
+            auto gun_module_2 = std::make_shared<GunModule>(rng);
             point = screen_to_world_space({960, 625}, io.get_resolution(), body_builder.get_projection());
             gun_module_2->get_transform().p = {point.x, point.y};
             auto selected_module = body_builder.place_module(gun_module_2);
@@ -231,12 +231,12 @@ TEST_CASE("BodyBuilder")
 
         SUBCASE("Can chain modules")
         {
-            auto gun_module_1 = std::make_shared<GunModule>();
+            auto gun_module_1 = std::make_shared<GunModule>(rng);
             auto point = screen_to_world_space({1030, 545}, io.get_resolution(), body_builder.get_projection());
             gun_module_1->get_transform().p = {point.x, point.y};
             body_builder.place_module(gun_module_1);
 
-            auto gun_module_2 = std::make_shared<GunModule>();
+            auto gun_module_2 = std::make_shared<GunModule>(rng);
             point = screen_to_world_space({1160, 545}, io.get_resolution(), body_builder.get_projection());
             gun_module_2->get_transform().p = {point.x, point.y};
             auto selected_module = body_builder.place_module(gun_module_2);

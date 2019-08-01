@@ -28,12 +28,14 @@ class Body : public ICollidable
     std::vector<IAction *> actions;
     std::unique_ptr<RigidBody> rigid_body;
     bool debug_draw;
-    Random *rng;
     IEnvironment *environment;
     std::string name;
 
     void init_rigid_body();
     void recurse_json_modules(const nlohmann::json &module_json, IModule *parent_module = nullptr, int parent_link = 0, int child_link = 0);
+
+  protected:
+    Random *rng;
 
   public:
     Body(Random &rng);

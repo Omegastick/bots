@@ -18,7 +18,7 @@ std::shared_ptr<IModule> ModuleFactory::create_module(std::string &module_id)
     }
     else if (module_id == "gun")
     {
-        return std::make_shared<GunModule>();
+        return std::make_shared<GunModule>(rng);
     }
     else if (module_id == "laser_sensor")
     {

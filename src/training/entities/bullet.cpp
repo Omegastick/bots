@@ -16,8 +16,9 @@
 
 namespace SingularityTrainer
 {
-Bullet::Bullet(b2Vec2 position, b2Vec2 velocity, b2World &world, Body *owner)
-    : life(10),
+Bullet::Bullet(b2Vec2 position, b2Vec2 velocity, b2World &world, Body *owner, unsigned int id)
+    : IEntity(id),
+      life(10),
       last_position(b2Vec2_zero),
       particle_color(cl_white),
       owner(owner),

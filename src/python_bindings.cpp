@@ -5,6 +5,7 @@
 #include <pybind11/stl.h>
 #include <spdlog/spdlog.h>
 
+#include "misc/module_factory.h"
 #include "misc/random.h"
 #include "third_party/di.hpp"
 #include "training/bodies/body.h"

@@ -23,10 +23,12 @@
 namespace SingularityTrainer
 {
 BuildScreen::BuildScreen(BodyBuilder &&body_builder,
+                         ModuleFactory &module_factory,
                          ResourceManager &resource_manager,
                          ScreenManager &screen_manager,
                          IO &io)
-    : resource_manager(&resource_manager),
+    : module_factory(module_factory),
+      resource_manager(&resource_manager),
       screen_manager(&screen_manager),
       io(&io),
       part_detail_window(io),
@@ -59,7 +61,7 @@ void BuildScreen::update(double /*delta_time*/)
     auto selected_part = part_selector_window.update(available_parts);
     if (selected_part != "")
     {
-        module_to_place = ModuleFactory::create_module(selected_part);
+        module_to_place = module_factory.create_module(selected_part);
     }
 
     if (io->get_left_click())

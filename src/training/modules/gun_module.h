@@ -13,15 +13,17 @@
 namespace SingularityTrainer
 {
 class Body;
+class Random;
 
 class GunModule : public IModule, public IActivatable
 {
   private:
     int cooldown;
+    Random &rng;
     int steps_since_last_shot;
 
   public:
-    GunModule();
+    GunModule(Random &rng);
 
     virtual RenderData get_render_data(bool lightweight = false);
     virtual void activate();
@@ -29,6 +31,5 @@ class GunModule : public IModule, public IActivatable
     virtual nlohmann::json to_json() const;
 
     inline int get_observation_count() const { return 0; }
-
 };
 }

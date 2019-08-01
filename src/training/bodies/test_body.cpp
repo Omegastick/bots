@@ -35,8 +35,8 @@ void TestBody::setup()
 {
     // Instantiate modules
     auto base_module = std::make_shared<BaseModule>();
-    auto gun_module_right = std::make_shared<GunModule>();
-    auto gun_module_left = std::make_shared<GunModule>();
+    auto gun_module_right = std::make_shared<GunModule>(*rng);
+    auto gun_module_left = std::make_shared<GunModule>(*rng);
     auto thruster_module_left = std::make_shared<ThrusterModule>();
     auto thruster_module_right = std::make_shared<ThrusterModule>();
     auto laser_sensor_module = std::make_shared<LaserSensorModule>(20, 180, 20);
