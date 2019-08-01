@@ -25,7 +25,7 @@ class KothEnv : public IEnvironment
   private:
     std::unique_ptr<Body> body_1;
     std::unique_ptr<Body> body_2;
-    std::vector<std::unique_ptr<IEntity>> entities;
+    std::unordered_map<unsigned int, std::unique_ptr<IEntity>> entities;
     int max_steps;
     std::unique_ptr<Random> rng;
     std::unique_ptr<b2World> world;
@@ -62,7 +62,7 @@ class KothEnv : public IEnvironment
     virtual float get_elapsed_time() const;
 
     inline std::vector<Body *> get_bodies() { return {body_1.get(), body_2.get()}; }
-    inline std::vector<std::unique_ptr<IEntity>> &get_entities() { return entities; }
+    inline std::unordered_map<unsigned int, std::unique_ptr<IEntity>> &get_entities() { return entities; }
     inline RewardConfig &get_reward_config() { return reward_config; }
     inline Random &get_rng() { return *rng; }
     inline std::vector<float> get_scores() { return scores; }
