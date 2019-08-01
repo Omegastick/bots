@@ -155,7 +155,7 @@ KothEnv::~KothEnv() {}
 
 void KothEnv::add_entity(std::unique_ptr<IEntity> entity)
 {
-    entities.push_back(std::move(entity));
+    entities[entity->get_id()] = std::move(entity);
 }
 
 void KothEnv::change_score(Body *body, float score_delta)
@@ -187,7 +187,7 @@ RenderData KothEnv::get_render_data(bool lightweight)
 
     for (auto &entity : entities)
     {
-        render_data.append(entity->get_render_data());
+        render_data.append(entity.second->get_render_data());
     }
 
     return render_data;
@@ -206,20 +206,20 @@ StepInfo KothEnv::step(const std::vector<torch::Tensor> actions, float step_leng
     // Update entities
     for (const auto &entity : entities)
     {
-        entity->update();
+        entity.second->update();
     }
 
     // Destroy destroyable entities
-    for (auto iter = entities.begin(); iter != entities.end();)
+    for (auto it = entities.cbegin(); it != entities.cend();)
     {
-        if ((*iter)->should_destroy())
+        if (it->second->should_destroy())
         {
-            (*iter)->destroy();
-            iter = entities.erase(iter);
+            it->second->destroy();
+            entities.erase(it++);
         }
         else
         {
-            ++iter;
+            ++it;
         }
     }
 

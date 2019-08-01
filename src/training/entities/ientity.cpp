@@ -11,6 +11,21 @@ void IEntity::destroy()
     rigid_body->body->GetWorld()->DestroyBody(rigid_body->body);
 }
 
+b2Transform IEntity::get_transform() const
+{
+    return rigid_body->body->GetTransform();
+}
+
+float IEntity::get_angular_velocity() const
+{
+    return rigid_body->body->GetAngularVelocity();
+}
+
+b2Vec2 IEntity::get_linear_velocity() const
+{
+    return rigid_body->body->GetLinearVelocity();
+}
+
 void IEntity::set_transform(b2Vec2 position, float velocity)
 {
     rigid_body->body->SetTransform(position, velocity);
