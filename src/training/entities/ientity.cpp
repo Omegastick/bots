@@ -26,9 +26,9 @@ b2Vec2 IEntity::get_linear_velocity() const
     return rigid_body->body->GetLinearVelocity();
 }
 
-void IEntity::set_transform(b2Vec2 position, float velocity)
+void IEntity::set_transform(b2Vec2 position, float rotation)
 {
-    rigid_body->body->SetTransform(position, velocity);
+    rigid_body->body->SetTransform(position, rotation);
 }
 
 void IEntity::set_angular_velocity(float angular_velocity)

@@ -2,6 +2,7 @@
 
 #include <memory>
 #include <vector>
+#include <unordered_map>
 
 #include <Box2D/Box2D.h>
 
@@ -19,7 +20,7 @@ struct EntityState
 struct EnvState
 {
     std::vector<b2Transform> agent_transforms;
-    std::vector<EntityState> entity_states;
+    std::unordered_map<unsigned int, b2Transform> entity_states;
     int tick;
 };
 
