@@ -62,6 +62,7 @@ class KothEnv : public IEnvironment
     virtual float get_elapsed_time() const;
 
     inline std::vector<Body *> get_bodies() { return {body_1.get(), body_2.get()}; }
+    inline std::vector<std::unique_ptr<IEntity>> &get_entities() { return entities; }
     inline RewardConfig &get_reward_config() { return reward_config; }
     inline Random &get_rng() { return *rng; }
     inline std::vector<float> get_scores() { return scores; }
