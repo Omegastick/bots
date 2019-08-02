@@ -40,3 +40,6 @@
 [submodule "lib/libzmq"]
 	path = lib/libzmq
 	url = https://github.com/zeromq/libzmq.git
+[submodule "lib/msgpack-c"]
+	path = lib/msgpack-c
+	url = git@github.com:msgpack/msgpack-c.git
