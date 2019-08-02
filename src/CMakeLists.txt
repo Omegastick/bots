@@ -10,6 +10,12 @@ PRIVATE
     ${CMAKE_CURRENT_LIST_DIR}/headless_app.cpp
 )
 
+target_sources(Server
+PRIVATE
+    ${CMAKE_CURRENT_LIST_DIR}/server.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/server_app.cpp
+)
+
 target_sources(PythonBindings
 PRIVATE
     ${CMAKE_CURRENT_LIST_DIR}/python_bindings.cpp

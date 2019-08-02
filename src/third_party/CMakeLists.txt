@@ -13,6 +13,11 @@ PUBLIC
     ${CMAKE_CURRENT_LIST_DIR}/doctest.cpp
 )
 
+target_sources(Server
+PUBLIC
+    ${CMAKE_CURRENT_LIST_DIR}/doctest.cpp
+)
+
 target_sources(PythonBindings
 PUBLIC
     ${CMAKE_CURRENT_LIST_DIR}/doctest.cpp
