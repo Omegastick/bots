@@ -10,13 +10,6 @@
 
 namespace SingularityTrainer
 {
-enum class MessageType
-{
-    Connect = 0,
-    Action = 1,
-    AsdAsd = 2
-};
-
 struct MessageWithId
 {
     std::string id;
@@ -35,5 +28,3 @@ class ServerCommunicator
     void send(const std::string &client_id, const std::string &message);
 };
 }
-
-MSGPACK_ADD_ENUM(SingularityTrainer::MessageType)
