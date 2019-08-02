@@ -23,6 +23,7 @@ set(PYBIND_DIR ${LIB_DIR}/pybind11)
 set(SPDLOG_DIR ${LIB_DIR}/spdlog)
 set(TASKFLOW_DIR ${LIB_DIR}/cpp-taskflow)
 set(TWEENY_DIR ${LIB_DIR}/tweeny)
+set(ZMQ_DIR ${LIB_DIR}/libzmq)
 
 # CMake Properties
 if (NOT CMAKE_BUILD_TYPE)
@@ -121,6 +122,9 @@ find_package(PythonLibs REQUIRED)
 ## Pybind11
 add_subdirectory(${PYBIND_DIR})
 pybind11_add_module(PythonBindings "")
+## ZMQ
+option(ZMQ_BUILD_TESTS "" OFF)
+add_subdirectory(${ZMQ_DIR})
 
 # Link libraries
 target_link_libraries(Misc PUBLIC doctest)
@@ -157,6 +161,7 @@ set(INCLUDE_DIRS
     ${PYTHON_INCLUDE_DIRS}
     ${FMT_DIR}/include
     ${TASKFLOW_DIR}
+    ${ZMQ_DIR}/include
 )
 target_include_directories(SingularityTrainer PUBLIC ${INCLUDE_DIRS})
 target_include_directories(HeadlessTrainer PUBLIC ${INCLUDE_DIRS})
