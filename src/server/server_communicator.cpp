@@ -9,6 +9,7 @@
 #include <msgpack.hpp>
 
 #include "server_communicator.h"
+#include "server/messages.h"
 #include "third_party/zmq.hpp"
 #include "third_party/zmq_addon.hpp"
 
@@ -36,7 +37,7 @@ void ServerCommunicator::send(const std::string &client_id, const std::string &m
 {
     auto full_id = client_id + '\0';
     socket->send(zmq::message_t(full_id.data(), full_id.size()), zmq::send_flags::sndmore);
-    socket->send(zmq::message_t(message.data(), message.size()));
+    socket->send(zmq::message_t(message.data(), message.size()), zmq::send_flags::none);
 }
 
 TEST_CASE("ServerCommunicator")
@@ -69,8 +70,7 @@ TEST_CASE("ServerCommunicator")
     SUBCASE("Messages are received correctly")
     {
         std::stringstream buffer;
-        typedef std::tuple<MessageType, std::vector<int>> ActionMessage;
-        ActionMessage message_to_send{MessageType::Action, {1, 0, 1, 1}};
+        ActionMessage message_to_send({1, 0, 1, 1}, 1);
         msgpack::pack(buffer, message_to_send);
         auto message_str = buffer.str();
         client_socket.send(zmq::message_t(message_str.data(), message_str.size()),
@@ -85,8 +85,9 @@ TEST_CASE("ServerCommunicator")
         auto received_message = msgpack::unpack(received_message_raw.message.data(),
                                                 received_message_raw.message.size())
                                     ->as<ActionMessage>();
-        DOCTEST_CHECK(std::get<0>(received_message) == MessageType::Action);
-        DOCTEST_CHECK(std::get<1>(received_message) == std::vector<int>{1, 0, 1, 1});
+        DOCTEST_CHECK(received_message.type == message_to_send.type);
+        DOCTEST_CHECK(received_message.actions == message_to_send.actions);
+        DOCTEST_CHECK(received_message.tick == message_to_send.tick);
     }
 
     SUBCASE("Messages are sent correctly")
@@ -101,8 +102,7 @@ TEST_CASE("ServerCommunicator")
         }
 
         std::stringstream buffer;
-        typedef std::tuple<MessageType, std::vector<int>> ActionMessage;
-        ActionMessage message_to_send{MessageType::Action, {1, 0, 1, 1}};
+        ActionMessage message_to_send({1, 0, 1, 1}, 8);
         msgpack::pack(buffer, message_to_send);
         auto message_str = buffer.str();
 
@@ -114,8 +114,10 @@ TEST_CASE("ServerCommunicator")
         auto received_message = msgpack::unpack(static_cast<char *>(received_message_raw.data()),
                                                 received_message_raw.size())
                                     ->as<ActionMessage>();
-        DOCTEST_CHECK(std::get<0>(received_message) == MessageType::Action);
-        DOCTEST_CHECK(std::get<1>(received_message) == std::vector<int>{1, 0, 1, 1});
+
+        DOCTEST_CHECK(received_message.type == message_to_send.type);
+        DOCTEST_CHECK(received_message.actions == message_to_send.actions);
+        DOCTEST_CHECK(received_message.tick == message_to_send.tick);
     }
 }
 }
