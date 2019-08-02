@@ -19,8 +19,8 @@ enum class MessageType
 
 struct MessageWithId
 {
-    msgpack::object message;
     std::string id;
+    std::string message;
 };
 
 class ServerCommunicator
