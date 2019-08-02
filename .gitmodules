@@ -37,3 +37,6 @@
 [submodule "lib/cpp-taskflow"]
 	path = lib/cpp-taskflow
 	url = git@github.com:cpp-taskflow/cpp-taskflow.git
+[submodule "lib/libzmq"]
+	path = lib/libzmq
+	url = https://github.com/zeromq/libzmq.git
