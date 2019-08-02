@@ -32,7 +32,12 @@ MessageWithId ServerCommunicator::get()
             std::string(static_cast<char *>(message[1].data()), message[1].size())};
 }
 
-void ServerCommunicator::send(const std::string &client_id, const std::string &message) {}
+void ServerCommunicator::send(const std::string &client_id, const std::string &message)
+{
+    auto full_id = client_id + '\0';
+    socket->send(zmq::message_t(full_id.data(), full_id.size()), zmq::send_flags::sndmore);
+    socket->send(zmq::message_t(message.data(), message.size()));
+}
 
 TEST_CASE("ServerCommunicator")
 {
@@ -89,7 +94,11 @@ TEST_CASE("ServerCommunicator")
         std::string handshake_message("Hello");
         client_socket.send(zmq::message_t(handshake_message.data(), handshake_message.size()),
                            zmq::send_flags::none);
-        auto received_handhake = server.get();
+        MessageWithId received_handshake;
+        while (received_handshake.id.empty())
+        {
+            received_handshake = server.get();
+        }
 
         std::stringstream buffer;
         typedef std::tuple<MessageType, std::vector<int>> ActionMessage;
@@ -97,7 +106,7 @@ TEST_CASE("ServerCommunicator")
         msgpack::pack(buffer, message_to_send);
         auto message_str = buffer.str();
 
-        server.send(received_handhake.id, message_str);
+        server.send(received_handshake.id, message_str);
 
         zmq::message_t received_message_raw;
         client_socket.recv(received_message_raw, zmq::recv_flags::none);
