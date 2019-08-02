@@ -19,6 +19,17 @@ ServerCommunicator::ServerCommunicator(std::unique_ptr<zmq::socket_t> socket)
 
 MessageWithId ServerCommunicator::get()
 {
+    zmq::multipart_t message;
+    message.recv(*socket, static_cast<int>(zmq::recv_flags::dontwait));
+
+    if (message.empty())
+    {
+        // No available message
+        return {};
+    }
+
+    return {std::string(static_cast<char *>(message[0].data()), message[0].size() - 1),
+            std::string(static_cast<char *>(message[1].data()), message[1].size())};
 }
 
 void ServerCommunicator::send(const std::string &client_id, const std::string &message) {}
@@ -41,7 +52,11 @@ TEST_CASE("ServerCommunicator")
         client_socket.send(zmq::message_t(message_to_send.data(), message_to_send.size()),
                            zmq::send_flags::none);
 
-        auto received = server.get();
+        MessageWithId received;
+        while (received.id.empty())
+        {
+            received = server.get();
+        }
 
         DOCTEST_CHECK(received.id == "Identity");
     }
@@ -56,9 +71,15 @@ TEST_CASE("ServerCommunicator")
         client_socket.send(zmq::message_t(message_str.data(), message_str.size()),
                            zmq::send_flags::none);
 
-        auto received_message_raw = server.get();
+        MessageWithId received_message_raw;
+        while (received_message_raw.id.empty())
+        {
+            received_message_raw = server.get();
+        }
 
-        auto received_message = received_message_raw.message.as<ActionMessage>();
+        auto received_message = msgpack::unpack(received_message_raw.message.data(),
+                                                received_message_raw.message.size())
+                                    ->as<ActionMessage>();
         DOCTEST_CHECK(std::get<0>(received_message) == MessageType::Action);
         DOCTEST_CHECK(std::get<1>(received_message) == std::vector<int>{1, 0, 1, 1});
     }
