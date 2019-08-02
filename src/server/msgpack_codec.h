@@ -5,6 +5,8 @@
 
 #include <msgpack.hpp>
 
+#include "server/server_communicator.h"
+
 namespace SingularityTrainer
 {
 class MsgPackCodec
@@ -24,4 +26,10 @@ class MsgPackCodec
         return msgpack::unpack(message.data(), message.size())->as<T>();
     }
 };
+
+template <>
+inline msgpack::object_handle MsgPackCodec::decode<msgpack::object_handle>(const std::string &message)
+{
+    return msgpack::unpack(message.data(), message.size());
+}
 }

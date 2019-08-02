@@ -47,5 +47,17 @@ TEST_CASE("MsgPackCodec")
 
         DOCTEST_CHECK(object == reconstructed_object);
     }
+
+    SUBCASE("Decodes to msgpack::object_handle correctly")
+    {
+        TestObject object{5, {"asd", "sdf"}};
+
+        std::stringstream buffer;
+        msgpack::pack(buffer, object);
+
+        auto decoded_object = MsgPackCodec::decode<msgpack::object_handle>(buffer.str());
+
+        DOCTEST_CHECK(decoded_object->as<TestObject>() == object);
+    }
 }
 }
