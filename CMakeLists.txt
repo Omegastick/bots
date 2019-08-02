@@ -40,10 +40,12 @@ add_library(Training OBJECT "")
 add_executable(SingularityTrainer "")
 add_executable(HeadlessTrainer "")
 add_executable(GraphicsPlayground "")
+add_executable(Server "")
 set(ST_TARGETS
     SingularityTrainer
     HeadlessTrainer
     GraphicsPlayground
+    Server
     Graphics
     Misc
     Training
@@ -137,6 +139,7 @@ target_link_libraries(Graphics glad glfw ${GLFW_LIBRARIES} glm imgui doctest)
 target_link_libraries(SingularityTrainer Graphics Misc Training nlohmann_json::nlohmann_json)
 target_link_libraries(HeadlessTrainer Graphics Misc Training)
 target_link_libraries(GraphicsPlayground Graphics Misc Training)
+target_link_libraries(Server Graphics Misc Training)
 target_link_libraries(PythonBindings PRIVATE Graphics Misc Training)
 set_target_properties(PythonBindings PROPERTIES OUTPUT_NAME "singularity_trainer")
 set_target_properties(PythonBindings PROPERTIES SUFFIX ".so")
@@ -166,6 +169,7 @@ set(INCLUDE_DIRS
 target_include_directories(SingularityTrainer PUBLIC ${INCLUDE_DIRS})
 target_include_directories(HeadlessTrainer PUBLIC ${INCLUDE_DIRS})
 target_include_directories(GraphicsPlayground PUBLIC ${INCLUDE_DIRS})
+target_include_directories(Server PUBLIC ${INCLUDE_DIRS})
 target_include_directories(Graphics PUBLIC ${INCLUDE_DIRS})
 target_include_directories(Misc PUBLIC ${INCLUDE_DIRS})
 target_include_directories(Training PUBLIC ${INCLUDE_DIRS})
