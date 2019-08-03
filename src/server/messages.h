@@ -1,15 +1,19 @@
 #pragma once
 
 #include <vector>
+#include <tuple>
 
 #include <msgpack.hpp>
 
 namespace SingularityTrainer
 {
+typedef std::tuple<float, float, float> Transform;
+
 enum class MessageType
 {
     Connect = 0,
-    Action = 1
+    Action = 1,
+    State = 2
 };
 
 struct Message
@@ -20,6 +24,11 @@ struct Message
 
 struct ConnectMessage : Message
 {
+    ConnectMessage()
+    {
+        type = MessageType::Connect;
+    }
+
     MSGPACK_DEFINE_ARRAY(MSGPACK_BASE(Message))
 };
 
@@ -40,6 +49,32 @@ struct ActionMessage : Message
     }
 
     MSGPACK_DEFINE_ARRAY(MSGPACK_BASE(Message), actions, tick)
+};
+
+struct StateMessage : Message
+{
+    std::vector<Transform> agent_transforms;
+    std::unordered_map<unsigned int, Transform> entity_states;
+    int tick;
+
+    StateMessage()
+    {
+        type = MessageType::State;
+    }
+
+    StateMessage(std::vector<Transform> agent_transforms,
+                 std::unordered_map<unsigned int, Transform> entity_states,
+                 int tick) : StateMessage()
+    {
+        this->agent_transforms = agent_transforms;
+        this->entity_states = entity_states;
+        this->tick = tick;
+    }
+
+    MSGPACK_DEFINE_ARRAY(MSGPACK_BASE(Message),
+                         agent_transforms,
+                         entity_states,
+                         tick)
 };
 
 MessageType get_message_type(msgpack::object &object)
