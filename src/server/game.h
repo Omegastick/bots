@@ -13,6 +13,13 @@ namespace SingularityTrainer
 class BodyFactory;
 class Random;
 
+struct TickResult
+{
+    bool done;
+    std::vector<std::vector<float>> observations;
+    int victor;
+};
+
 class Game
 {
   private:
@@ -38,6 +45,6 @@ class Game
     bool add_body(nlohmann::json body_spec);
     bool ready_to_tick(double current_time);
     void set_action(int tick, int player, const std::vector<int> &action);
-    int tick();
+    TickResult tick();
 };
 }
