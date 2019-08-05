@@ -1,6 +1,7 @@
 #pragma once
 
 #include <vector>
+#include <string>
 #include <tuple>
 
 #include <msgpack.hpp>
@@ -24,12 +25,14 @@ struct Message
 
 struct ConnectMessage : Message
 {
+    std::string body_spec;
+
     ConnectMessage()
     {
         type = MessageType::Connect;
     }
 
-    MSGPACK_DEFINE_ARRAY(MSGPACK_BASE(Message))
+    MSGPACK_DEFINE_ARRAY(MSGPACK_BASE(Message), body_spec)
 };
 
 struct ActionMessage : Message
