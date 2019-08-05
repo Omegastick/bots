@@ -10,6 +10,7 @@
 
 #include "game.h"
 #include "misc/random.h"
+#include "training/entities/ientity.h"
 #include "training/environments/ienvironment.h"
 #include "training/environments/koth_env.h"
 #include "training/bodies/body.h"
@@ -95,18 +96,30 @@ TickResult Game::tick()
         env->forward(1. / 60.);
     }
 
-    current_tick++;
+    ++current_tick;
 
-    auto obs_0_tensor = step_info.observation[0];
-    auto obs_1_tensor = step_info.observation[1];
-    std::vector<std::vector<float>> observations;
-    observations.push_back(std::vector<float>(obs_0_tensor.data<float>(),
-                                              obs_0_tensor.data<float>() + obs_0_tensor.numel()));
-    observations.push_back(std::vector<float>(obs_1_tensor.data<float>(),
-                                              obs_1_tensor.data<float>() + obs_1_tensor.numel()));
+    std::unordered_map<unsigned int, Transform> entity_transforms;
+    for (const auto &entity : env->get_entities())
+    {
+        auto b2_transform = entity.second->get_transform();
+        entity_transforms[entity.first] = {b2_transform.p.x,
+                                           b2_transform.p.y,
+                                           b2_transform.q.GetAngle()};
+    }
 
-    return {step_info.done[0].item().toBool(),
-            observations,
+    std::vector<Transform> agent_transforms;
+    for (const auto &body : env->get_bodies())
+    {
+        auto b2_transform = body->get_rigid_body().body->GetTransform();
+        agent_transforms.push_back({b2_transform.p.x,
+                                    b2_transform.p.y,
+                                    b2_transform.q.GetAngle()});
+    }
+
+    return {agent_transforms,
+            entity_transforms,
+            step_info.done[0].item().toBool(),
+            current_tick - 1,
             step_info.victor};
 }
 

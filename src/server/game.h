@@ -7,6 +7,7 @@
 
 #include "training/environments/ienvironment.h"
 #include "server/action_store.h"
+#include "server/messages.h"
 
 namespace SingularityTrainer
 {
@@ -15,8 +16,10 @@ class Random;
 
 struct TickResult
 {
+    std::vector<Transform> agent_transforms;
+    std::unordered_map<unsigned int, Transform> entity_transforms;
     bool done;
-    std::vector<std::vector<float>> observations;
+    int tick;
     int victor;
 };
 

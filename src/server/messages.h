@@ -13,8 +13,9 @@ typedef std::tuple<float, float, float> Transform;
 enum class MessageType
 {
     Connect = 0,
-    Action = 1,
-    State = 2
+    ConnectConfirmation = 1,
+    Action = 2,
+    State = 3
 };
 
 struct Message
@@ -33,6 +34,19 @@ struct ConnectMessage : Message
     }
 
     MSGPACK_DEFINE_ARRAY(MSGPACK_BASE(Message), body_spec)
+};
+
+struct ConnectConfirmationMessage : Message
+{
+    int player_number;
+
+    ConnectConfirmationMessage(int player_number)
+    {
+        type = MessageType::ConnectConfirmation;
+        this->player_number = player_number;
+    }
+
+    MSGPACK_DEFINE_ARRAY(MSGPACK_BASE(Message), player_number)
 };
 
 struct ActionMessage : Message
@@ -57,7 +71,7 @@ struct ActionMessage : Message
 struct StateMessage : Message
 {
     std::vector<Transform> agent_transforms;
-    std::unordered_map<unsigned int, Transform> entity_states;
+    std::unordered_map<unsigned int, Transform> entity_transforms;
     int tick;
 
     StateMessage()
@@ -66,21 +80,21 @@ struct StateMessage : Message
     }
 
     StateMessage(std::vector<Transform> agent_transforms,
-                 std::unordered_map<unsigned int, Transform> entity_states,
+                 std::unordered_map<unsigned int, Transform> entity_transforms,
                  int tick) : StateMessage()
     {
         this->agent_transforms = agent_transforms;
-        this->entity_states = entity_states;
+        this->entity_transforms = entity_transforms;
         this->tick = tick;
     }
 
     MSGPACK_DEFINE_ARRAY(MSGPACK_BASE(Message),
                          agent_transforms,
-                         entity_states,
+                         entity_transforms,
                          tick)
 };
 
-MessageType get_message_type(msgpack::object &object)
+inline MessageType get_message_type(const msgpack::object &object)
 {
     return object.via.array.ptr[0].as<MessageType>();
 }
