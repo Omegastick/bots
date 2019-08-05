@@ -6,6 +6,7 @@
 #include <Box2D/Box2D.h>
 #include <doctest.h>
 #include <nlohmann/json.hpp>
+#include <torch/torch.h>
 
 #include "game.h"
 #include "misc/random.h"
@@ -68,14 +69,45 @@ void Game::setup_env()
                            std::move(b2_world),
                            std::move(bodies),
                            RewardConfig());
+
+    action_store = std::make_unique<ActionStore>(actions_per_player);
 }
 
-int Game::tick()
+TickResult Game::tick()
 {
     if (env == nullptr)
     {
         throw std::runtime_error("Environment not set up yet");
     }
+
+    auto actions = action_store->get_actions(current_tick);
+    std::vector<torch::Tensor> actions_tensors;
+    std::transform(actions.begin(), actions.end(),
+                   std::back_inserter(actions_tensors),
+                   [](std::vector<int> &actions_vec) {
+                       return torch::from_blob(actions_vec.data(),
+                                               {static_cast<long>(actions_vec.size())},
+                                               torch::kInt);
+                   });
+    auto step_info = env->step(actions_tensors, 1. / 60.);
+    for (int i = 0; i < 5; ++i)
+    {
+        env->forward(1. / 60.);
+    }
+
+    current_tick++;
+
+    auto obs_0_tensor = step_info.observation[0];
+    auto obs_1_tensor = step_info.observation[1];
+    std::vector<std::vector<float>> observations;
+    observations.push_back(std::vector<float>(obs_0_tensor.data<float>(),
+                                              obs_0_tensor.data<float>() + obs_0_tensor.numel()));
+    observations.push_back(std::vector<float>(obs_1_tensor.data<float>(),
+                                              obs_1_tensor.data<float>() + obs_1_tensor.numel()));
+
+    return {step_info.done[0].item().toBool(),
+            observations,
+            step_info.victor};
 }
 
 TEST_CASE("Game")
@@ -121,6 +153,24 @@ TEST_CASE("Game")
             game.add_body(body_spec);
 
             DOCTEST_CHECK_THROWS(game.tick());
+        }
+
+        SUBCASE("Returns a finished result within the maximum amount of time steps")
+        {
+            TestBody test_body(rng);
+            auto body_spec = test_body.to_json();
+
+            game.add_body(body_spec);
+            game.add_body(body_spec);
+
+            bool finished = false;
+            for (int i = 0; i < 10; ++i)
+            {
+                game.set_action(i, 0, {0, 0, 0, 0});
+                game.set_action(i, 1, {0, 0, 0, 0});
+                auto result = game.tick();
+                finished |= result.done;
+            }
         }
     }
 }

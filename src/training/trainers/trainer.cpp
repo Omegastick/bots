@@ -262,6 +262,7 @@ std::vector<std::pair<std::string, float>> Trainer::step_batch()
                 torch::Tensor dones = torch::zeros({1, 1});
                 torch::Tensor opponent_dones = torch::zeros({1, 1});
                 torch::Tensor rewards = torch::zeros({1, 1});
+                // TODO: Am I forgetting to do the non-action steps?
                 auto step_info = environments[i]->step({act_result[1], std::get<0>(opponent_act_result)},
                                                        1. / 60.);
                 dones = step_info.done[0];
