@@ -24,7 +24,7 @@ void ActionStore::initialize_tick(int tick)
     }
 }
 
-void ActionStore::add_action(int tick, int player, std::vector<int> action)
+void ActionStore::add_action(int tick, int player, const std::vector<int> &action)
 {
     // If tick hasn't been encountered yet, intialize it
     if (actions.find(tick) == actions.end())

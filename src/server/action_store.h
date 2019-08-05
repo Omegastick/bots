@@ -17,7 +17,7 @@ class ActionStore
   public:
     ActionStore(std::vector<int> actions_per_player);
 
-    void add_action(int tick, int player, std::vector<int> action);
+    void add_action(int tick, int player, const std::vector<int> &action);
     std::vector<std::vector<int>> get_actions(int tick);
     bool received_first_actions();
 };
