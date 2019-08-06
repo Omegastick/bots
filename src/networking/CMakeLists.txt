@@ -5,5 +5,6 @@ PRIVATE
     ${CMAKE_CURRENT_LIST_DIR}/client_communicator.cpp
     ${CMAKE_CURRENT_LIST_DIR}/game.cpp
     ${CMAKE_CURRENT_LIST_DIR}/msgpack_codec.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/network_test.cpp
     ${CMAKE_CURRENT_LIST_DIR}/server_communicator.cpp
 )

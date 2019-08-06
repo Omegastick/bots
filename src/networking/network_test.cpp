@@ -1,0 +1,104 @@
+#include <memory>
+#include <string>
+#include <thread>
+
+#include <Box2D/Box2D.h>
+#include <doctest.h>
+#include <zmq.hpp>
+
+#include "server_app.h"
+#include "misc/random.h"
+#include "networking/client_communicator.h"
+#include "networking/client_agent.h"
+#include "networking/messages.h"
+#include "networking/msgpack_codec.h"
+#include "third_party/di.hpp"
+#include "training/agents/random_agent.h"
+#include "training/bodies/test_body.h"
+#include "training/environments/koth_env.h"
+
+namespace di = boost::di;
+
+namespace SingularityTrainer
+{
+
+void run_client(const std::string &id)
+{
+    zmq::context_t zmq_context;
+
+    auto client_socket = std::make_unique<zmq::socket_t>(zmq_context, zmq::socket_type::dealer);
+    client_socket->setsockopt(ZMQ_IDENTITY, id);
+    client_socket->connect("tcp://localhost:7654");
+    ClientCommunicator client_communicator(std::move(client_socket));
+
+    auto rng = std::make_unique<Random>(0);
+    TestBodyFactory body_factory(*rng);
+    auto b2_world = std::make_unique<b2World>(b2Vec2{0, 0});
+    std::vector<std::unique_ptr<Body>> bodies;
+    bodies.push_back(body_factory.make(*b2_world, *rng));
+    bodies.push_back(body_factory.make(*b2_world, *rng));
+
+    auto body_spec = bodies[0]->to_json();
+
+    auto agent = std::make_unique<RandomAgent>(body_spec, *rng, "Random agent");
+
+    KothEnvFactory env_factory(100);
+    auto env = env_factory.make(std::move(rng),
+                                std::move(b2_world),
+                                std::move(bodies),
+                                RewardConfig());
+
+    std::unique_ptr<ClientAgent> client_agent;
+
+    ConnectMessage connect_message(body_spec.dump());
+    auto encoded_connect_message = MsgPackCodec::encode(connect_message);
+    client_communicator.send(encoded_connect_message);
+
+    bool finished = false;
+    while (!finished)
+    {
+        std::string raw_message = client_communicator.get();
+        if (raw_message.empty())
+        {
+            continue;
+        }
+
+        auto message_object = MsgPackCodec::decode<msgpack::object_handle>(raw_message);
+
+        auto type = get_message_type(message_object.get());
+        if (type == MessageType::ConnectConfirmation)
+        {
+            auto message = message_object->as<ConnectConfirmationMessage>();
+            client_agent = std::make_unique<ClientAgent>(std::move(agent), message.player_number, std::move(env));
+        }
+        else if (type == MessageType::State)
+        {
+            auto message = message_object->as<StateMessage>();
+            finished = message.done;
+
+            auto action = client_agent->get_action(EnvState(message.agent_transforms, message.entity_transforms));
+
+            ActionMessage action_message(action, message.tick);
+            auto encoded_action_message = MsgPackCodec::encode(action_message);
+            client_communicator.send(encoded_action_message);
+        }
+    }
+}
+
+TEST_CASE("Network")
+{
+    const auto injector = di::make_injector(
+        di::bind<int>.named(MaxSteps).to(100),
+        di::bind<IEnvironmentFactory>.to<KothEnvFactory>());
+    auto app = injector.create<ServerApp>();
+    char *argv[2] = {"asd", "sdf"};
+    auto server_thread = std::thread([&] { app.run(0, argv); });
+
+    auto client_0_thread = std::thread([&] { run_client("Zero"); });
+    auto client_1_thread = std::thread([&] { run_client("One"); });
+
+    server_thread.join();
+    client_0_thread.join();
+    client_1_thread.join();
+}
+}

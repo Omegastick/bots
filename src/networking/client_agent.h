@@ -19,12 +19,11 @@ class ClientAgent
     std::unique_ptr<IEnvironment> env;
     torch::Tensor hidden_state;
 
-
   public:
     ClientAgent(std::unique_ptr<IAgent> agent,
                 int agent_number,
                 std::unique_ptr<IEnvironment> env);
 
-    std::vector<int> get_action(EnvState &env_state);
+    std::vector<int> get_action(const EnvState &env_state);
 };
 }

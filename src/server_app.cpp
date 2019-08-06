@@ -45,7 +45,7 @@ int ServerApp::run(int argc, char *argv[])
     spdlog::info("Serving on port: {}", port);
 
     auto socket = std::make_unique<zmq::socket_t>(zmq_context, zmq::socket_type::router);
-    socket->bind("tcp://*:" + port);
+    socket->bind("tcp://*:" + std::to_string(port));
     server_communicator = std::make_unique<ServerCommunicator>(std::move(socket));
 
     // Main loop
@@ -53,10 +53,13 @@ int ServerApp::run(int argc, char *argv[])
     while (!finished)
     {
         // Handle messages
-        MessageWithId raw_message{};
-        while (raw_message.id.empty())
+        while (true)
         {
-            raw_message = server_communicator->get();
+            MessageWithId raw_message = server_communicator->get();
+            if (raw_message.id.empty())
+            {
+                break;
+            }
             auto message_object = MsgPackCodec::decode<msgpack::object_handle>(raw_message.message);
             auto type = get_message_type(message_object.get());
 
@@ -66,7 +69,7 @@ int ServerApp::run(int argc, char *argv[])
                 auto json = nlohmann::json::parse(message.body_spec);
                 players.push_back(raw_message.id);
                 game->add_body(json);
-                ConnectConfirmationMessage reply(players.size());
+                ConnectConfirmationMessage reply(players.size() - 1);
                 auto encoded_reply = MsgPackCodec::encode(reply);
                 server_communicator->send(raw_message.id, encoded_reply);
             }
@@ -86,12 +89,15 @@ int ServerApp::run(int argc, char *argv[])
             auto tick_result = game->tick();
             StateMessage reply(tick_result.agent_transforms,
                                tick_result.entity_transforms,
+                               tick_result.done,
                                tick_result.tick);
             auto encoded_reply = MsgPackCodec::encode(reply);
             for (const auto &player : players)
             {
                 server_communicator->send(player, encoded_reply);
             }
+
+            finished = tick_result.done;
         }
     }
 
