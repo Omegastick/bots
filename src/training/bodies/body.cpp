@@ -218,6 +218,8 @@ void Body::load_json(const nlohmann::json &json)
 
     update_body();
     register_actions();
+
+    hp = 10;
 }
 
 void Body::recurse_json_modules(const nlohmann::json &module_json, IModule *parent_module, int parent_link, int child_link)

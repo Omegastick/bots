@@ -35,7 +35,7 @@ std::string ClientCommunicator::get()
 
 void ClientCommunicator::send(const std::string &message)
 {
-    socket->send(zmq::message_t(message.data(), message.size()), zmq::send_flags::none);
+    socket->send(zmq::message_t(message.data(), message.size()), zmq::send_flags::dontwait);
 }
 
 TEST_CASE("ClientCommunicator")

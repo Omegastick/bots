@@ -82,6 +82,7 @@ struct StateMessage : Message
     std::vector<Transform> agent_transforms;
     std::unordered_map<unsigned int, Transform> entity_transforms;
     int tick;
+    bool done;
 
     StateMessage()
     {
@@ -90,10 +91,12 @@ struct StateMessage : Message
 
     StateMessage(std::vector<Transform> agent_transforms,
                  std::unordered_map<unsigned int, Transform> entity_transforms,
+                 bool done,
                  int tick) : StateMessage()
     {
         this->agent_transforms = agent_transforms;
         this->entity_transforms = entity_transforms;
+        this->done = done;
         this->tick = tick;
     }
 
@@ -105,7 +108,7 @@ struct StateMessage : Message
 
 inline MessageType get_message_type(const msgpack::object &object)
 {
-    return object.via.array.ptr[0].as<MessageType>();
+    return static_cast<MessageType>(object.via.array.ptr[0].via.array.ptr[0].as<int>());
 }
 }
 

@@ -16,6 +16,8 @@ class Body;
 class IEntity;
 class RewardConfig;
 
+typedef std::tuple<float, float, float> Transform;
+
 struct EntityState
 {
     unsigned int id;
@@ -24,6 +26,37 @@ struct EntityState
 
 struct EnvState
 {
+    EnvState(std::vector<b2Transform> &agent_transforms,
+             std::unordered_map<unsigned int, b2Transform> &entity_states,
+             int tick)
+        : agent_transforms(agent_transforms),
+          entity_states(entity_states),
+          tick(tick) {}
+    
+    EnvState(std::vector<b2Transform> &&agent_transforms,
+             std::unordered_map<unsigned int, b2Transform> &&entity_states,
+             int tick)
+        : agent_transforms(agent_transforms),
+          entity_states(entity_states),
+          tick(tick) {}
+
+    EnvState(std::vector<Transform> &agent_transforms,
+             std::unordered_map<unsigned int, Transform> &entity_transforms)
+    {
+        std::transform(agent_transforms.begin(), agent_transforms.end(),
+                       std::back_inserter(this->agent_transforms),
+                       [](const Transform &transform) {
+                           return b2Transform{{std::get<0>(transform), std::get<1>(transform)},
+                                              b2Rot(std::get<2>(transform))};
+                       });  
+
+        for (const auto &pair : entity_transforms)
+        {
+            this->entity_states[pair.first] = b2Transform({std::get<0>(pair.second), std::get<1>(pair.second)},
+                                                          b2Rot(std::get<2>(pair.second)));
+        }
+    }
+
     std::vector<b2Transform> agent_transforms;
     std::unordered_map<unsigned int, b2Transform> entity_states;
     int tick;

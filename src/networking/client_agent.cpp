@@ -25,7 +25,7 @@ ClientAgent::ClientAgent(std::unique_ptr<IAgent> agent,
       env(std::move(env)),
       hidden_state(torch::zeros({this->agent->get_hidden_state_size()})) {}
 
-std::vector<int> ClientAgent::get_action(EnvState &env_state)
+std::vector<int> ClientAgent::get_action(const EnvState &env_state)
 {
     env->set_state(env_state);
     auto observation = env->get_bodies()[agent_number]->get_observation();
@@ -63,9 +63,10 @@ TEST_CASE("ClientAgent")
 
     SUBCASE("get_action() returns correctly sized action")
     {
-        EnvState env_state{std::vector<b2Transform>{b2Transform(b2Vec2(-5, -5), b2Rot(0)),
+        EnvState env_state(std::vector<b2Transform>{b2Transform(b2Vec2(-5, -5), b2Rot(0)),
                                                     b2Transform(b2Vec2(5, 5), b2Rot(1))},
-                           {}};
+                           std::unordered_map<unsigned int, b2Transform>{},
+                           0);
         auto action = client_agent.get_action(env_state);
 
         DOCTEST_CHECK(action.size() == 4);

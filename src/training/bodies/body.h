@@ -23,7 +23,6 @@ class IEnvironment;
 class Body : public ICollidable
 {
   private:
-    float hp;
     std::vector<std::shared_ptr<IModule>> modules;
     std::vector<IAction *> actions;
     std::unique_ptr<RigidBody> rigid_body;
@@ -35,6 +34,7 @@ class Body : public ICollidable
     void recurse_json_modules(const nlohmann::json &module_json, IModule *parent_module = nullptr, int parent_link = 0, int child_link = 0);
 
   protected:
+    float hp;
     Random *rng;
 
   public:

@@ -33,6 +33,8 @@ TestBody::TestBody(Random &rng) : Body(rng)
 
 void TestBody::setup()
 {
+    hp = 10;
+
     // Instantiate modules
     auto base_module = std::make_shared<BaseModule>();
     auto gun_module_right = std::make_shared<GunModule>(*rng);
