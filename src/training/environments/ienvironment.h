@@ -1,6 +1,7 @@
 #pragma once
 
 #include <memory>
+#include <unordered_map>
 #include <vector>
 
 #include <Box2D/Box2D.h>
@@ -14,6 +15,19 @@ namespace SingularityTrainer
 class Body;
 class IEntity;
 class RewardConfig;
+
+struct EntityState
+{
+    unsigned int id;
+    b2Transform transform;
+};
+
+struct EnvState
+{
+    std::vector<b2Transform> agent_transforms;
+    std::unordered_map<unsigned int, b2Transform> entity_states;
+    int tick;
+};
 
 struct StepInfo
 {
@@ -40,6 +54,7 @@ class IEnvironment : public IDrawable
     virtual b2World &get_world() = 0;
     virtual StepInfo reset() = 0;
     virtual void set_done() = 0;
+    virtual void set_state(const EnvState &state) = 0;
     virtual StepInfo step(std::vector<torch::Tensor> actions, float step_length) = 0;
 };
 

@@ -85,50 +85,7 @@ void PlaybackEnv::update(double delta_time)
     }
 
     // Update env according to best state
-    // Move bodies
-    for (unsigned int i = 0; i < chosen_state->agent_transforms.size(); ++i)
-    {
-        auto &body = *env->get_bodies()[i]->get_rigid_body().body;
-        body.SetTransform(chosen_state->agent_transforms[i].p,
-                          chosen_state->agent_transforms[i].q.GetAngle());
-    }
-
-    // Remove old bullets
-    auto &entities = env->get_entities();
-    for (auto entity_iterator = entities.begin(); entity_iterator != entities.end();)
-    {
-        if (chosen_state->entity_states.find(entity_iterator->first) == chosen_state->entity_states.end())
-        {
-            entity_iterator = entities.erase(entity_iterator);
-        }
-        else
-        {
-            ++entity_iterator;
-        }
-    }
-
-    // Add/Update bullet positions
-    for (const auto bullet : chosen_state->entity_states)
-    {
-        auto found_entity = entities.find(bullet.first);
-        if (found_entity != entities.end())
-        {
-            // Update position
-            found_entity->second->set_transform(bullet.second.p,
-                                                bullet.second.q.GetAngle());
-        }
-        else
-        {
-            // Make new bullet
-            env->add_entity(std::make_unique<Bullet>(b2Vec2{0, 0},
-                                                     b2Vec2{0, 0},
-                                                     env->get_world(),
-                                                     env->get_bodies()[0],
-                                                     bullet.first));
-            env->get_entities()[bullet.first]->set_transform(bullet.second.p,
-                                                             bullet.second.q.GetAngle());
-        }
-    }
+    env->set_state(*chosen_state);
 }
 
 TEST_CASE("PlaybackEnv")

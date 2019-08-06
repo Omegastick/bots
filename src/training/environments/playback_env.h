@@ -11,19 +11,6 @@
 
 namespace SingularityTrainer
 {
-struct EntityState
-{
-    unsigned int id;
-    b2Transform transform;
-};
-
-struct EnvState
-{
-    std::vector<b2Transform> agent_transforms;
-    std::unordered_map<unsigned int, b2Transform> entity_states;
-    int tick;
-};
-
 class PlaybackEnv
 {
   private:
