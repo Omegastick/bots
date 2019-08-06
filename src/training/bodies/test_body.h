@@ -41,7 +41,6 @@ class TestBodyFactory : public BodyFactory
             nullptr,
             RigidBody::ParentTypes::Body);
         body->set_rigid_body(std::move(rigid_body));
-        body->setup();
         return body;
     }
 };
