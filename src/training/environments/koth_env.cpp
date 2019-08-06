@@ -3,6 +3,7 @@
 #include <vector>
 
 #include <Box2D/Box2D.h>
+#include <doctest.h>
 #include <spdlog/spdlog.h>
 #include <torch/torch.h>
 
@@ -305,6 +306,53 @@ void KothEnv::set_done()
     done = true;
 }
 
+void KothEnv::set_state(const EnvState &state)
+{
+    // Move bodies
+    for (unsigned int i = 0; i < state.agent_transforms.size(); ++i)
+    {
+        auto &body = *get_bodies()[i]->get_rigid_body().body;
+        body.SetTransform(state.agent_transforms[i].p,
+                          state.agent_transforms[i].q.GetAngle());
+    }
+
+    // Remove old bullets
+    for (auto entity_iterator = entities.begin(); entity_iterator != entities.end();)
+    {
+        if (state.entity_states.find(entity_iterator->first) == state.entity_states.end())
+        {
+            entity_iterator = entities.erase(entity_iterator);
+        }
+        else
+        {
+            ++entity_iterator;
+        }
+    }
+
+    // Add/Update bullet positions
+    for (const auto bullet : state.entity_states)
+    {
+        auto found_entity = entities.find(bullet.first);
+        if (found_entity != entities.end())
+        {
+            // Update position
+            found_entity->second->set_transform(bullet.second.p,
+                                                bullet.second.q.GetAngle());
+        }
+        else
+        {
+            // Make new bullet
+            add_entity(std::make_unique<Bullet>(b2Vec2{0, 0},
+                                                b2Vec2{0, 0},
+                                                *world,
+                                                body_1.get(),
+                                                bullet.first));
+            entities[bullet.first]->set_transform(bullet.second.p,
+                                                  bullet.second.q.GetAngle());
+        }
+    }
+}
+
 StepInfo KothEnv::reset()
 {
     done = false;
@@ -336,5 +384,112 @@ StepInfo KothEnv::reset()
                          .clone()},
                     torch::from_blob(rewards.data(), {2, 1}, torch::kFloat).clone(),
                     torch::from_blob(&done, {1, 1}, torch::kBool).to(torch::kFloat).expand({2, 1})};
+}
+
+TEST_CASE("KothEnv")
+{
+    auto b2_world = std::make_unique<b2World>(b2Vec2{0, 0});
+    auto rng = std::make_unique<Random>(0);
+    TestBodyFactory body_factory(*rng);
+    std::vector<std::unique_ptr<Body>> bodies;
+    bodies.push_back(body_factory.make(*b2_world, *rng));
+    bodies.push_back(body_factory.make(*b2_world, *rng));
+    KothEnvFactory env_factory(100);
+    auto env = env_factory.make(std::move(rng),
+                                std::move(b2_world),
+                                std::move(bodies),
+                                RewardConfig());
+
+    SUBCASE("set_state()")
+    {
+        SUBCASE("New bullets are added correctly")
+        {
+            std::vector<b2Transform> agent_transforms{{{0, 0}, b2Rot(0)},
+                                                      {{0, 0}, b2Rot(0)}};
+            std::unordered_map<unsigned int, b2Transform> entity_states{};
+            env->set_state({agent_transforms, entity_states, 0});
+            DOCTEST_CHECK(env->get_entities().size() == 0);
+
+            entity_states = {{0, {{0, 0}, b2Rot(0)}},
+                             {1, {{1, 1}, b2Rot(1)}}};
+            env->set_state({agent_transforms, entity_states, 1});
+            DOCTEST_CHECK(env->get_entities().size() == 2);
+        }
+
+        SUBCASE("Bullets are moved correctly")
+        {
+            std::vector<b2Transform> agent_transforms{{{0, 0}, b2Rot(0)},
+                                                      {{0, 0}, b2Rot(0)}};
+            std::unordered_map<unsigned int, b2Transform> entity_states{{0, {{0, 0}, b2Rot(0)}},
+                                                                        {1, {{1, 1}, b2Rot(1)}}};
+            env->set_state({agent_transforms, entity_states, 0});
+
+            auto bullet_0_tranform = env->get_entities()[0]->get_transform();
+            DOCTEST_CHECK(bullet_0_tranform.p.x == doctest::Approx(0));
+            DOCTEST_CHECK(bullet_0_tranform.p.y == doctest::Approx(0));
+            DOCTEST_CHECK(bullet_0_tranform.q.GetAngle() == doctest::Approx(0));
+            auto bullet_1_tranform = env->get_entities()[1]->get_transform();
+            DOCTEST_CHECK(bullet_1_tranform.p.x == doctest::Approx(1));
+            DOCTEST_CHECK(bullet_1_tranform.p.y == doctest::Approx(1));
+            DOCTEST_CHECK(bullet_1_tranform.q.GetAngle() == doctest::Approx(1));
+
+            entity_states = {{0, {{0.5, 0.5}, b2Rot(0.5)}},
+                             {1, {{-1, 0}, b2Rot(2)}}};
+            env->set_state({agent_transforms, entity_states, 1});
+
+            bullet_0_tranform = env->get_entities()[0]->get_transform();
+            DOCTEST_CHECK(bullet_0_tranform.p.x == doctest::Approx(0.5));
+            DOCTEST_CHECK(bullet_0_tranform.p.y == doctest::Approx(0.5));
+            DOCTEST_CHECK(bullet_0_tranform.q.GetAngle() == doctest::Approx(0.5));
+            bullet_1_tranform = env->get_entities()[1]->get_transform();
+            DOCTEST_CHECK(bullet_1_tranform.p.x == doctest::Approx(-1));
+            DOCTEST_CHECK(bullet_1_tranform.p.y == doctest::Approx(0));
+            DOCTEST_CHECK(bullet_1_tranform.q.GetAngle() == doctest::Approx(2));
+        }
+
+        SUBCASE("Bullets are removed correctly")
+        {
+            std::vector<b2Transform> agent_transforms{{{0, 0}, b2Rot(0)},
+                                                      {{0, 0}, b2Rot(0)}};
+            std::unordered_map<unsigned int, b2Transform> entity_states{{0, {{0, 0}, b2Rot(0)}},
+                                                                        {1, {{1, 1}, b2Rot(1)}}};
+            env->set_state({agent_transforms, entity_states, 0});
+            DOCTEST_CHECK(env->get_entities().size() == 2);
+
+            entity_states = {};
+            env->set_state({agent_transforms, entity_states, 1});
+            DOCTEST_CHECK(env->get_entities().size() == 0);
+        }
+
+        SUBCASE("Bodies are moved correctly")
+        {
+            std::vector<b2Transform> agent_transforms{{{0, 1}, b2Rot(0)},
+                                                      {{2, 3}, b2Rot(1)}};
+            std::unordered_map<unsigned int, b2Transform> entity_states{};
+            env->set_state({agent_transforms, entity_states, 0});
+
+            auto agent_0_tranform = env->get_bodies()[0]->get_rigid_body().body->GetTransform();
+            DOCTEST_CHECK(agent_0_tranform.p.x == doctest::Approx(0));
+            DOCTEST_CHECK(agent_0_tranform.p.y == doctest::Approx(1));
+            DOCTEST_CHECK(agent_0_tranform.q.GetAngle() == doctest::Approx(0));
+            auto agent_1_tranform = env->get_bodies()[1]->get_rigid_body().body->GetTransform();
+            DOCTEST_CHECK(agent_1_tranform.p.x == doctest::Approx(2));
+            DOCTEST_CHECK(agent_1_tranform.p.y == doctest::Approx(3));
+            DOCTEST_CHECK(agent_1_tranform.q.GetAngle() == doctest::Approx(1));
+
+            agent_transforms = {{{1, 2}, b2Rot(1)},
+                                {{3, 4}, b2Rot(0.5)}};
+            env->set_state({agent_transforms, entity_states, 1});
+
+            agent_0_tranform = env->get_bodies()[0]->get_rigid_body().body->GetTransform();
+            DOCTEST_CHECK(agent_0_tranform.p.x == doctest::Approx(1));
+            DOCTEST_CHECK(agent_0_tranform.p.y == doctest::Approx(2));
+            DOCTEST_CHECK(agent_0_tranform.q.GetAngle() == doctest::Approx(1));
+            agent_1_tranform = env->get_bodies()[1]->get_rigid_body().body->GetTransform();
+            DOCTEST_CHECK(agent_1_tranform.p.x == doctest::Approx(3));
+            DOCTEST_CHECK(agent_1_tranform.p.y == doctest::Approx(4));
+            DOCTEST_CHECK(agent_1_tranform.q.GetAngle() == doctest::Approx(0.5));
+        }
+    }
 }
 }

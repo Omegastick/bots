@@ -52,6 +52,7 @@ class KothEnv : public IEnvironment
     ~KothEnv();
 
     virtual void add_entity(std::unique_ptr<IEntity> entity);
+    virtual void set_state(const EnvState &state);
     virtual StepInfo step(std::vector<torch::Tensor> actions, float step_length);
     virtual void forward(float step_length);
     virtual StepInfo reset();
