@@ -9,8 +9,8 @@
 #include <spdlog/spdlog.h>
 
 #include "server_app.h"
-#include "server/messages.h"
-#include "server/msgpack_codec.h"
+#include "networking/messages.h"
+#include "networking/msgpack_codec.h"
 #include "training/environments/koth_env.h"
 
 namespace SingularityTrainer

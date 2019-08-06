@@ -6,8 +6,8 @@
 #include <nlohmann/json.hpp>
 
 #include "training/environments/ienvironment.h"
-#include "server/action_store.h"
-#include "server/messages.h"
+#include "networking/action_store.h"
+#include "networking/messages.h"
 
 namespace SingularityTrainer
 {

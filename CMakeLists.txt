@@ -36,6 +36,7 @@ set(CMAKE_CXX_FLAGS_RELWITHDEBINFO -O3)
 # Executables and local libraries
 add_library(Graphics OBJECT "")
 add_library(Misc OBJECT "")
+add_library(Networking OBJECT "")
 add_library(Training OBJECT "")
 add_executable(SingularityTrainer "")
 add_executable(HeadlessTrainer "")
@@ -48,6 +49,7 @@ set(ST_TARGETS
     Server
     Graphics
     Misc
+    Networking
     Training
 )
 
@@ -58,6 +60,7 @@ set_target_properties(GraphicsPlayground PROPERTIES EXCLUDE_FROM_ALL TRUE)
 # Set position independent code
 set_target_properties(Graphics PROPERTIES POSITION_INDEPENDENT_CODE TRUE)
 set_target_properties(Misc PROPERTIES POSITION_INDEPENDENT_CODE TRUE)
+set_target_properties(Networking PROPERTIES POSITION_INDEPENDENT_CODE TRUE)
 set_target_properties(Training PROPERTIES POSITION_INDEPENDENT_CODE TRUE)
 
 # Enable all warnings
@@ -136,10 +139,11 @@ if (UNIX)
     target_link_libraries(Training PUBLIC pthread stdc++fs)
 endif(UNIX)
 target_link_libraries(Graphics glad glfw ${GLFW_LIBRARIES} glm imgui doctest)
-target_link_libraries(SingularityTrainer Graphics Misc Training nlohmann_json::nlohmann_json libzmq-static)
+target_link_libraries(Networking Training nlohmann_json::nlohmann_json libzmq-static)
+target_link_libraries(SingularityTrainer Graphics Misc Training Networking)
 target_link_libraries(HeadlessTrainer Graphics Misc Training)
 target_link_libraries(GraphicsPlayground Graphics Misc Training)
-target_link_libraries(Server Graphics Misc Training libzmq-static)
+target_link_libraries(Server Graphics Misc Training Networking)
 target_link_libraries(PythonBindings PRIVATE Graphics Misc Training)
 set_target_properties(PythonBindings PROPERTIES OUTPUT_NAME "singularity_trainer")
 set_target_properties(PythonBindings PROPERTIES SUFFIX ".so")
@@ -172,6 +176,7 @@ target_include_directories(GraphicsPlayground PUBLIC ${INCLUDE_DIRS})
 target_include_directories(Server PUBLIC ${INCLUDE_DIRS})
 target_include_directories(Graphics PUBLIC ${INCLUDE_DIRS})
 target_include_directories(Misc PUBLIC ${INCLUDE_DIRS})
+target_include_directories(Networking PUBLIC ${INCLUDE_DIRS})
 target_include_directories(Training PUBLIC ${INCLUDE_DIRS})
 target_include_directories(PythonBindings PUBLIC ${INCLUDE_DIRS})
 

@@ -10,8 +10,8 @@
 
 #include "client_communicator.h"
 #include "server_communicator.h"
-#include "server/messages.h"
-#include "server/msgpack_codec.h"
+#include "networking/messages.h"
+#include "networking/msgpack_codec.h"
 #include "third_party/zmq.hpp"
 
 namespace SingularityTrainer

@@ -8,8 +8,8 @@
 #include <zmq.hpp>
 #include <zmq_addon.hpp>
 
-#include "server/game.h"
-#include "server/server_communicator.h"
+#include "networking/game.h"
+#include "networking/server_communicator.h"
 
 namespace SingularityTrainer
 {
