@@ -44,7 +44,7 @@ bool Game::add_body(nlohmann::json body_spec)
 
 bool Game::ready_to_tick(double current_time)
 {
-    return current_time - last_tick_time >= tick_length;
+    return current_time - last_tick_time >= tick_length && env != nullptr;
 }
 
 void Game::set_action(int tick, int player, const std::vector<int> &action)
@@ -141,8 +141,22 @@ TEST_CASE("Game")
 
     SUBCASE("ready_to_tick()")
     {
+        TestBody test_body(rng);
+        auto body_spec = test_body.to_json();
+
+        SUBCASE("Returns false if bodies have not been added")
+        {
+            DOCTEST_CHECK(game.ready_to_tick(100) == false);
+            game.add_body(body_spec);
+            DOCTEST_CHECK(game.ready_to_tick(100) == false);
+            game.add_body(body_spec);
+        }
+
         SUBCASE("Returns false if called before tick is ready")
         {
+            game.add_body(body_spec);
+            game.add_body(body_spec);
+
             DOCTEST_CHECK(game.ready_to_tick(0) == false);
             DOCTEST_CHECK(game.ready_to_tick(0.05) == false);
             DOCTEST_CHECK(game.ready_to_tick(0.09999999) == false);
@@ -150,6 +164,9 @@ TEST_CASE("Game")
 
         SUBCASE("Returns true if called after tick is ready")
         {
+            game.add_body(body_spec);
+            game.add_body(body_spec);
+
             DOCTEST_CHECK(game.ready_to_tick(0.1) == true);
             DOCTEST_CHECK(game.ready_to_tick(100) == true);
         }
