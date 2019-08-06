@@ -9,7 +9,7 @@
 #include <msgpack.hpp>
 
 #include "server_communicator.h"
-#include "server/messages.h"
+#include "networking/messages.h"
 #include "third_party/zmq.hpp"
 #include "third_party/zmq_addon.hpp"
 

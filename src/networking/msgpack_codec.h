@@ -5,7 +5,7 @@
 
 #include <msgpack.hpp>
 
-#include "server/server_communicator.h"
+#include "networking/server_communicator.h"
 
 namespace SingularityTrainer
 {

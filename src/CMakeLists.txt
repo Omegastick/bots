@@ -24,7 +24,7 @@ PRIVATE
 add_subdirectory(graphics)
 add_subdirectory(misc)
 add_subdirectory(screens)
-add_subdirectory(server)
+add_subdirectory(networking)
 add_subdirectory(third_party)
 add_subdirectory(training)
 add_subdirectory(ui)
