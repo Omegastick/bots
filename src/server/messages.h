@@ -33,6 +33,11 @@ struct ConnectMessage : Message
         type = MessageType::Connect;
     }
 
+    ConnectMessage(const std::string &body_spec) : ConnectMessage()
+    {
+        this->body_spec = body_spec;
+    }
+
     MSGPACK_DEFINE_ARRAY(MSGPACK_BASE(Message), body_spec)
 };
 
@@ -40,9 +45,13 @@ struct ConnectConfirmationMessage : Message
 {
     int player_number;
 
-    ConnectConfirmationMessage(int player_number)
+    ConnectConfirmationMessage()
     {
         type = MessageType::ConnectConfirmation;
+    }
+
+    ConnectConfirmationMessage(int player_number) : ConnectConfirmationMessage()
+    {
         this->player_number = player_number;
     }
 

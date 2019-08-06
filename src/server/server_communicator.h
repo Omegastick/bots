@@ -3,8 +3,6 @@
 #include <memory>
 #include <string>
 
-#include <msgpack.hpp>
-
 #include "third_party/zmq.hpp"
 #include "third_party/zmq_addon.hpp"
 
