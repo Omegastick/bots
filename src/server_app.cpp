@@ -22,9 +22,8 @@ void inthand(int /*signum*/)
     stop = 1;
 }
 
-ServerApp::ServerApp(std::unique_ptr<Game> game, zmq::context_t &zmq_context)
-    : game(std::move(game)),
-      zmq_context(zmq_context)
+ServerApp::ServerApp(std::unique_ptr<Game> game)
+    : game(std::move(game))
 {
     // Logging
     spdlog::set_level(spdlog::level::debug);
