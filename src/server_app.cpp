@@ -103,6 +103,10 @@ int ServerApp::run(int argc, char *argv[])
             }
 
             finished = tick_result.done;
+            if (finished)
+            {
+                spdlog::info("Winner: {}", tick_result.victor);
+            }
         }
     }
 
