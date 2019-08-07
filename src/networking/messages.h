@@ -15,7 +15,8 @@ enum class MessageType
     Connect = 0,
     ConnectConfirmation = 1,
     Action = 2,
-    State = 3
+    GameStart = 3,
+    State = 4
 };
 
 struct Message
@@ -75,6 +76,23 @@ struct ActionMessage : Message
     }
 
     MSGPACK_DEFINE_ARRAY(MSGPACK_BASE(Message), actions, tick)
+};
+
+struct GameStartMessage : Message
+{
+    std::vector<std::string> body_specs;
+
+    GameStartMessage()
+    {
+        type = MessageType::GameStart;
+    }
+
+    GameStartMessage(std::vector<std::string> body_specs) : GameStartMessage()
+    {
+        this->body_specs = body_specs;
+    }
+
+    MSGPACK_DEFINE_ARRAY(MSGPACK_BASE(Message), body_specs)
 };
 
 struct StateMessage : Message

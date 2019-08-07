@@ -73,6 +73,17 @@ void run_client(const std::string &id)
             auto message = message_object->as<ConnectConfirmationMessage>();
             client_agent = std::make_unique<ClientAgent>(std::move(agent), message.player_number, std::move(env));
         }
+        if (type == MessageType::GameStart)
+        {
+            auto message = message_object->as<GameStartMessage>();
+            std::vector<nlohmann::json> body_specs;
+            std::transform(message.body_specs.begin(), message.body_specs.end(),
+                           std::back_inserter(body_specs),
+                           [](const std::string &body_spec_string) {
+                               return nlohmann::json::parse(body_spec_string);
+                           });
+            client_agent->set_bodies(body_specs);
+        }
         else if (type == MessageType::State)
         {
             auto message = message_object->as<StateMessage>();

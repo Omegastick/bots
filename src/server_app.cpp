@@ -53,6 +53,9 @@ int ServerApp::run(int argc, char *argv[])
     socket->bind("tcp://*:" + std::to_string(port));
     server_communicator = std::make_unique<ServerCommunicator>(std::move(socket));
 
+    GameStartMessage game_start_message;
+    bool game_started = false;
+
     // Main loop
     bool finished = false;
     while (!finished && !stop)
@@ -74,6 +77,7 @@ int ServerApp::run(int argc, char *argv[])
                 auto json = nlohmann::json::parse(message.body_spec);
                 players.push_back(raw_message.id);
                 game->add_body(json);
+                game_start_message.body_specs.push_back(message.body_spec);
                 ConnectConfirmationMessage reply(players.size() - 1);
                 auto encoded_reply = MsgPackCodec::encode(reply);
                 server_communicator->send(raw_message.id, encoded_reply);
@@ -87,9 +91,20 @@ int ServerApp::run(int argc, char *argv[])
             }
         }
 
+        // If game is about to start, notify the clients
+        if (!game_started && game_start_message.body_specs.size() == 2)
+        {
+            for (const auto &player : players)
+            {
+                auto encoded_game_start_message = MsgPackCodec::encode(game_start_message);
+                server_communicator->send(player, encoded_game_start_message);
+            }
+            game_started = true;
+        }
+
         // Step environment
         double time_stamp = std::chrono::high_resolution_clock::now().time_since_epoch().count() * 1e-9;
-        if (game->ready_to_tick(time_stamp))
+        if (game_started && game->ready_to_tick(time_stamp))
         {
             auto tick_result = game->tick(time_stamp);
             StateMessage reply(tick_result.agent_transforms,

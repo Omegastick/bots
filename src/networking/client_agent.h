@@ -25,5 +25,6 @@ class ClientAgent
                 std::unique_ptr<IEnvironment> env);
 
     std::vector<int> get_action(const EnvState &env_state);
+    void set_bodies(const std::vector<nlohmann::json> &body_specs);
 };
 }
