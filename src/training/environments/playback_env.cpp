@@ -3,6 +3,7 @@
 
 #include <Box2D/Box2D.h>
 #include <doctest.h>
+#include <nlohmann/json.hpp>
 
 #include "playback_env.h"
 #include "graphics/render_data.h"
@@ -31,6 +32,14 @@ void PlaybackEnv::add_new_state(EnvState state)
 RenderData PlaybackEnv::get_render_data(bool lightweight)
 {
     return env->get_render_data(lightweight);
+}
+
+void PlaybackEnv::set_bodies(const std::vector<nlohmann::json> &body_specs)
+{
+    for (unsigned int i = 0; i < body_specs.size(); ++i)
+    {
+        env->get_bodies()[i]->load_json(body_specs[i]);
+    }
 }
 
 void PlaybackEnv::update(double delta_time)

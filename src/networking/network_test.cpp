@@ -65,7 +65,7 @@ void run_client(const std::string &id)
             auto message = message_object->as<ConnectConfirmationMessage>();
             client_agent = std::make_unique<ClientAgent>(std::move(agent), message.player_number, std::move(env));
         }
-        if (type == MessageType::GameStart)
+        else if (type == MessageType::GameStart)
         {
             auto message = message_object->as<GameStartMessage>();
             std::vector<nlohmann::json> body_specs;
@@ -81,7 +81,7 @@ void run_client(const std::string &id)
             auto message = message_object->as<StateMessage>();
             finished = message.done;
 
-            auto action = client_agent->get_action(EnvState(message.agent_transforms, message.entity_transforms));
+            auto action = client_agent->get_action(EnvState(message.agent_transforms, message.entity_transforms, message.tick));
 
             ActionMessage action_message(action, message.tick);
             auto encoded_action_message = MsgPackCodec::encode(action_message);
