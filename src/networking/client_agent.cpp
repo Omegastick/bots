@@ -42,6 +42,14 @@ std::vector<int> ClientAgent::get_action(const EnvState &env_state)
                             actions_tensor.data<int>() + actions_tensor.numel());
 }
 
+void ClientAgent::set_bodies(const std::vector<nlohmann::json> &body_specs)
+{
+    for (int i = 0; i < body_specs.size(); ++i)
+    {
+        env->get_bodies()[i]->load_json(body_specs[i]);
+    }
+}
+
 TEST_CASE("ClientAgent")
 {
     auto rng = std::make_unique<Random>(0);
