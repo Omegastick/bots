@@ -22,6 +22,7 @@
 #include "training/checkpointer.h"
 #include "training/environments/ienvironment.h"
 #include "training/environments/koth_env.h"
+#include "training/environments/playback_env.h"
 #include "training/evaluators/elo_evaluator.h"
 #include "training/saver.h"
 #include "third_party/di.hpp"
@@ -42,7 +43,7 @@ int main(int argc, char *argv[])
         di::bind<int>.named(MaxParticles).to(100000),
         di::bind<IEnvironmentFactory>.to<KothEnvFactory>(),
         di::bind<int>.named(MaxSteps).to(600),
-        di::bind<BodyFactory>.to<BodyFactory>(),
+        di::bind<double>.named(TickLength).to(0.1),
         di::bind<ISaver>.to<Saver>(),
         di::bind<std::string>.named(CheckpointDirectory).to("checkpoints"));
     auto app = injector.create<App>();

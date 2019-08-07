@@ -44,7 +44,7 @@ std::vector<int> ClientAgent::get_action(const EnvState &env_state)
 
 void ClientAgent::set_bodies(const std::vector<nlohmann::json> &body_specs)
 {
-    for (int i = 0; i < body_specs.size(); ++i)
+    for (unsigned int i = 0; i < body_specs.size(); ++i)
     {
         env->get_bodies()[i]->load_json(body_specs[i]);
     }

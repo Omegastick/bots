@@ -3,6 +3,7 @@
 #include <memory>
 #include <vector>
 
+#include <nlohmann/json.hpp>
 #include <torch/torch.h>
 
 #include "training/environments/ienvironment.h"
