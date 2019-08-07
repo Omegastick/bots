@@ -46,7 +46,7 @@ PostProcScreen::PostProcScreen(
 
 PostProcScreen::~PostProcScreen() {}
 
-void PostProcScreen::update(const double delta_time)
+void PostProcScreen::update(double delta_time)
 {
     display_test_dialog("Post processing test", *screens, *screen_names, delta_time, *screen_manager);
     sprite->rotate(1.f * delta_time);

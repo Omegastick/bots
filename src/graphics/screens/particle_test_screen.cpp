@@ -40,7 +40,7 @@ ParticleTestScreen::ParticleTestScreen(
 
 ParticleTestScreen::~ParticleTestScreen() {}
 
-void ParticleTestScreen::update(const double delta_time)
+void ParticleTestScreen::update(double delta_time)
 {
     display_test_dialog("Particle test", *screens, *screen_names, delta_time, *screen_manager);
 

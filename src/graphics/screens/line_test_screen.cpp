@@ -60,7 +60,7 @@ LineTestScreen::LineTestScreen(
 
 LineTestScreen::~LineTestScreen() {}
 
-void LineTestScreen::update(const double delta_time)
+void LineTestScreen::update(double delta_time)
 {
     display_test_dialog("Line test", *screens, *screen_names, delta_time, *screen_manager);
 }

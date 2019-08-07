@@ -34,7 +34,7 @@ class TrainScreen : public IScreen
                 ResourceManager &resource_manager);
 
     virtual void draw(Renderer &renderer, bool lightweight = false);
-    void update(const double delta_time);
+    void update(double delta_time);
 };
 
 class TrainScreenFactory
