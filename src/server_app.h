@@ -16,10 +16,11 @@ namespace SingularityTrainer
 class ServerApp
 {
   private:
+    zmq::context_t zmq_context; // ZMQ context has to outlive the socket
+
     std::unique_ptr<Game> game;
     std::vector<std::string> players;
     std::unique_ptr<ServerCommunicator> server_communicator;
-    zmq::context_t zmq_context;
 
     int run_tests(int argc, char *argv[], const argh::parser &args);
 

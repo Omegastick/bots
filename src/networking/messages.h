@@ -103,7 +103,8 @@ struct StateMessage : Message
     MSGPACK_DEFINE_ARRAY(MSGPACK_BASE(Message),
                          agent_transforms,
                          entity_transforms,
-                         tick)
+                         tick,
+                         done)
 };
 
 inline MessageType get_message_type(const msgpack::object &object)

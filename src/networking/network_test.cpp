@@ -1,3 +1,4 @@
+#include <chrono>
 #include <memory>
 #include <string>
 #include <thread>
@@ -10,6 +11,7 @@
 #include "misc/random.h"
 #include "networking/client_communicator.h"
 #include "networking/client_agent.h"
+#include "networking/game.h"
 #include "networking/messages.h"
 #include "networking/msgpack_codec.h"
 #include "third_party/di.hpp"
@@ -89,16 +91,18 @@ TEST_CASE("Network")
 {
     const auto injector = di::make_injector(
         di::bind<int>.named(MaxSteps).to(100),
+        di::bind<double>.named(CurrentTime).to(std::chrono::high_resolution_clock::now().time_since_epoch().count() * 1e-9),
+        di::bind<double>.named(TickLength).to(0.001),
         di::bind<IEnvironmentFactory>.to<KothEnvFactory>());
     auto app = injector.create<ServerApp>();
-    char *argv[2] = {"asd", "sdf"};
-    auto server_thread = std::thread([&] { app.run(0, argv); });
+    char *argv[2] = {"./asd", "-q"};
+    auto server_thread = std::thread([&] { app.run(2, argv); });
 
     auto client_0_thread = std::thread([&] { run_client("Zero"); });
     auto client_1_thread = std::thread([&] { run_client("One"); });
 
-    server_thread.join();
     client_0_thread.join();
     client_1_thread.join();
+    server_thread.join();
 }
 }
