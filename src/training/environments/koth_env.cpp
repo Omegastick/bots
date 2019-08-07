@@ -388,17 +388,10 @@ StepInfo KothEnv::reset()
 
 TEST_CASE("KothEnv")
 {
-    auto b2_world = std::make_unique<b2World>(b2Vec2{0, 0});
-    auto rng = std::make_unique<Random>(0);
-    TestBodyFactory body_factory(*rng);
-    std::vector<std::unique_ptr<Body>> bodies;
-    bodies.push_back(body_factory.make(*b2_world, *rng));
-    bodies.push_back(body_factory.make(*b2_world, *rng));
-    KothEnvFactory env_factory(100);
-    auto env = env_factory.make(std::move(rng),
-                                std::move(b2_world),
-                                std::move(bodies),
-                                RewardConfig());
+    Random rng(0);
+    TestBodyFactory body_factory(rng);
+    KothEnvFactory env_factory(100, body_factory);
+    auto env = env_factory.make();
 
     SUBCASE("set_state()")
     {

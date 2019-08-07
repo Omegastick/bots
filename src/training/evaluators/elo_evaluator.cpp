@@ -156,7 +156,7 @@ TEST_CASE("EloEvaluator")
     {
         Random rng(0);
         BodyFactory body_factory(rng);
-        KothEnvFactory env_factory(100);
+        KothEnvFactory env_factory(100, body_factory);
         EloEvaluator evaluator(body_factory, env_factory, rng);
 
         auto body_spec = TestBody(rng).to_json();

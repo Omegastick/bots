@@ -126,9 +126,9 @@ TickResult Game::tick(double current_time)
 
 TEST_CASE("Game")
 {
-    KothEnvFactory env_factory(10);
     Random rng(0);
-    BodyFactory body_factory(rng);
+    TestBodyFactory body_factory(rng);
+    KothEnvFactory env_factory(10, body_factory);
     Game game(0.1, body_factory, env_factory, rng);
 
     SUBCASE("add_body() returns true after enough bodies are added")

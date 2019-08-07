@@ -135,9 +135,9 @@ TEST_CASE("Evaluator")
 {
     SUBCASE("evaluate() runs the correct number of trials")
     {
-        KothEnvFactory env_factory(100);
         Random rng(0);
-        BodyFactory body_factory(rng);
+        TestBodyFactory body_factory(rng);
+        KothEnvFactory env_factory(100, body_factory);
         Evaluator evaluator(body_factory, env_factory);
 
         TestBody body(rng);
