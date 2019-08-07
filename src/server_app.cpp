@@ -55,7 +55,7 @@ int ServerApp::run(int argc, char *argv[])
 
     // Main loop
     bool finished = false;
-    while (!finished)
+    while (!finished && !stop)
     {
         // Handle messages
         while (true)
