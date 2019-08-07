@@ -33,22 +33,14 @@ void run_client(const std::string &id)
     client_socket->connect("tcp://localhost:7654");
     ClientCommunicator client_communicator(std::move(client_socket));
 
-    auto rng = std::make_unique<Random>(0);
-    TestBodyFactory body_factory(*rng);
-    auto b2_world = std::make_unique<b2World>(b2Vec2{0, 0});
-    std::vector<std::unique_ptr<Body>> bodies;
-    bodies.push_back(body_factory.make(*b2_world, *rng));
-    bodies.push_back(body_factory.make(*b2_world, *rng));
+    Random rng(0);
+    TestBodyFactory body_factory(rng);
+    KothEnvFactory env_factory(100, body_factory);
+    auto env = env_factory.make();
 
-    auto body_spec = bodies[0]->to_json();
+    auto body_spec = env->get_bodies()[0]->to_json();
 
-    auto agent = std::make_unique<RandomAgent>(body_spec, *rng, "Random agent");
-
-    KothEnvFactory env_factory(100);
-    auto env = env_factory.make(std::move(rng),
-                                std::move(b2_world),
-                                std::move(bodies),
-                                RewardConfig());
+    auto agent = std::make_unique<RandomAgent>(body_spec, rng, "Random agent");
 
     std::unique_ptr<ClientAgent> client_agent;
 

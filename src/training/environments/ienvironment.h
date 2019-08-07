@@ -103,6 +103,7 @@ class IEnvironmentFactory
                                                std::unique_ptr<b2World> world,
                                                std::vector<std::unique_ptr<Body>> bodies,
                                                RewardConfig reward_config) = 0;
+    virtual std::unique_ptr<IEnvironment> make() = 0;
 };
 
 inline IEnvironmentFactory::~IEnvironmentFactory() {}

@@ -9,6 +9,7 @@
 
 #include "misc/random.h"
 #include "third_party/di.hpp"
+#include "training/bodies/body.h"
 #include "training/bodies/test_body.h"
 #include "training/environments/ienvironment.h"
 #include "training/training_program.h"
@@ -77,11 +78,15 @@ static auto MaxSteps = [] {};
 class KothEnvFactory : public IEnvironmentFactory
 {
   private:
+    BodyFactory &body_factory;
     int max_steps;
 
   public:
-    BOOST_DI_INJECT(KothEnvFactory, (named = MaxSteps) int max_steps)
-        : max_steps(max_steps) {}
+    BOOST_DI_INJECT(KothEnvFactory,
+                    (named = MaxSteps) int max_steps,
+                    BodyFactory &body_factory)
+        : body_factory(body_factory),
+          max_steps(max_steps) {}
 
     virtual int get_num_bodies() { return 2; }
     virtual std::unique_ptr<IEnvironment> make(
@@ -96,6 +101,18 @@ class KothEnvFactory : public IEnvironmentFactory
                                          std::move(world),
                                          std::move(rng),
                                          reward_config);
+    }
+
+    virtual std::unique_ptr<IEnvironment> make()
+    {
+        auto rng = std::make_unique<Random>(0);
+        auto world = std::make_unique<b2World>(b2Vec2(0, 0));
+        return std::make_unique<KothEnv>(max_steps,
+                                         body_factory.make(*world, *rng),
+                                         body_factory.make(*world, *rng),
+                                         std::move(world),
+                                         std::move(rng),
+                                         RewardConfig());
     }
 };
 }

@@ -52,20 +52,11 @@ void ClientAgent::set_bodies(const std::vector<nlohmann::json> &body_specs)
 
 TEST_CASE("ClientAgent")
 {
-    auto rng = std::make_unique<Random>(0);
-    TestBodyFactory body_factory(*rng);
-    auto b2_world = std::make_unique<b2World>(b2Vec2{0, 0});
-    std::vector<std::unique_ptr<Body>> bodies;
-    bodies.push_back(body_factory.make(*b2_world, *rng));
-    bodies.push_back(body_factory.make(*b2_world, *rng));
-
-    auto agent = std::make_unique<RandomAgent>(bodies[0]->to_json(), *rng, "Random agent");
-
-    KothEnvFactory env_factory(10);
-    auto env = env_factory.make(std::move(rng),
-                                std::move(b2_world),
-                                std::move(bodies),
-                                RewardConfig());
+    Random rng(0);
+    TestBodyFactory body_factory(rng);
+    KothEnvFactory env_factory(10, body_factory);
+    auto env = env_factory.make();
+    auto agent = std::make_unique<RandomAgent>(env->get_bodies()[0]->to_json(), rng, "Random agent");
 
     ClientAgent client_agent(std::move(agent), 1, std::move(env));
 
