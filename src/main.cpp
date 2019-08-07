@@ -21,6 +21,7 @@
 #include "screens/multiplayer_screen.h"
 #include "screens/train_screen.h"
 #include "training/bodies/body.h"
+#include "training/bodies/test_body.h"
 #include "training/checkpointer.h"
 #include "training/environments/ienvironment.h"
 #include "training/environments/koth_env.h"
@@ -48,7 +49,8 @@ int main(int argc, char *argv[])
         di::bind<int>.named(MaxSteps).to(600),
         di::bind<double>.named(TickLength).to(0.1),
         di::bind<ISaver>.to<Saver>(),
-        di::bind<std::string>.named(CheckpointDirectory).to("checkpoints"));
+        di::bind<std::string>.named(CheckpointDirectory).to("checkpoints"),
+        di::bind<BodyFactory>.to<TestBodyFactory>());
     auto app = injector.create<App>();
     app.run(argc, argv);
 }
