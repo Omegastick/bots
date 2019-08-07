@@ -5,6 +5,7 @@
 
 #include <nlohmann/json.hpp>
 
+#include "third_party/di.hpp"
 #include "training/environments/ienvironment.h"
 #include "networking/action_store.h"
 #include "networking/messages.h"
@@ -23,6 +24,9 @@ struct TickResult
     int victor;
 };
 
+static auto CurrentTime = [] {};
+static auto TickLength = [] {};
+
 class Game
 {
   private:
@@ -39,11 +43,12 @@ class Game
     void setup_env();
 
   public:
-    Game(double current_time,
-         double tick_length,
-         BodyFactory &body_factory,
-         IEnvironmentFactory &env_factory,
-         Random &rng);
+    BOOST_DI_INJECT(Game,
+                    (named = CurrentTime) double current_time,
+                    (named = TickLength) double tick_length,
+                    BodyFactory &body_factory,
+                    IEnvironmentFactory &env_factory,
+                    Random &rng);
 
     bool add_body(nlohmann::json body_spec);
     bool ready_to_tick(double current_time);

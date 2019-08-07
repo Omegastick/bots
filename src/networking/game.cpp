@@ -28,7 +28,7 @@ Game::Game(double current_time,
       env_factory(env_factory),
       last_tick_time(current_time),
       rng(rng),
-      tick_length(0.1) {}
+      tick_length(tick_length) {}
 
 bool Game::add_body(nlohmann::json body_spec)
 {
@@ -80,6 +80,8 @@ TickResult Game::tick()
     {
         throw std::runtime_error("Environment not set up yet");
     }
+
+    last_tick_time += tick_length;
 
     auto actions = action_store->get_actions(current_tick);
     std::vector<torch::Tensor> actions_tensors;

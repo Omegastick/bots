@@ -40,6 +40,11 @@ int ServerApp::run(int argc, char *argv[])
         return run_tests(argc, argv, args);
     }
 
+    if (args[{"-q", "--quiet"}])
+    {
+        spdlog::set_level(spdlog::level::off);
+    }
+
     int port;
     args({"-p", "--port"}, 7654) >> port;
     spdlog::info("Serving on port: {}", port);
