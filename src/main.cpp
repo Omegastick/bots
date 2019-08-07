@@ -1,3 +1,4 @@
+#include <chrono>
 #include <filesystem>
 #include <string>
 
@@ -17,6 +18,7 @@
 #include "screens/build_screen.h"
 #include "screens/main_menu_screen.h"
 #include "screens/create_program_screen.h"
+#include "screens/multiplayer_screen.h"
 #include "screens/train_screen.h"
 #include "training/bodies/body.h"
 #include "training/checkpointer.h"
@@ -34,6 +36,7 @@ namespace di = boost::di;
 int main(int argc, char *argv[])
 {
     const auto injector = di::make_injector(
+        di::bind<int>.named(RandomSeed).to(static_cast<int>(std::chrono::high_resolution_clock::now().time_since_epoch().count())),
         di::bind<int>.named(ResolutionX).to(1920),
         di::bind<int>.named(ResolutionY).to(1080),
         di::bind<std::string>.named(Title).to("Singularity Trainer"),

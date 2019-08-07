@@ -2,15 +2,19 @@
 
 #include <random>
 
+#include "third_party/di.hpp"
+
 namespace SingularityTrainer
 {
+auto RandomSeed = [] {};
+
 class Random
 {
   private:
     std::mt19937 rng;
 
   public:
-    Random(int seed);
+    BOOST_DI_INJECT(Random, (named = RandomSeed) int seed);
     Random(Random &&other);
     ~Random();
 
