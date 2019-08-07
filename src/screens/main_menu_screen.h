@@ -6,22 +6,25 @@
 namespace SingularityTrainer
 {
 class BuildScreenFactory;
+class CreateProgramScreenFactory;
+class MultiplayerScreenFactory;
 class Renderer;
 class ScreenManager;
-class CreateProgramScreenFactory;
 
 class MainMenuScreen : public IScreen
 {
   private:
-    ScreenManager &screen_manager;
     BuildScreenFactory &build_screen_factory;
-    TrainingProgram program;
     CreateProgramScreenFactory &create_program_screen_factory;
+    MultiplayerScreenFactory &multiplayer_screen_factory;
+    TrainingProgram program;
+    ScreenManager &screen_manager;
 
   public:
-    MainMenuScreen(ScreenManager &screen_manager,
-                   BuildScreenFactory &build_screen_factory,
-                   CreateProgramScreenFactory &create_program_screen_factory);
+    MainMenuScreen(BuildScreenFactory &build_screen_factory,
+                   CreateProgramScreenFactory &create_program_screen_factory,
+                   MultiplayerScreenFactory &multiplayer_screen_factory,
+                   ScreenManager &screen_manager);
 
     void draw(Renderer &renderer, bool lightweight = false);
     void update(double delta_time);
@@ -30,21 +33,27 @@ class MainMenuScreen : public IScreen
 class MainMenuScreenFactory : public IScreenFactory
 {
   private:
-    ScreenManager &screen_manager;
     BuildScreenFactory &build_screen_factory;
     CreateProgramScreenFactory &create_program_screen_factory;
+    MultiplayerScreenFactory &multiplayer_screen_factory;
+    ScreenManager &screen_manager;
 
   public:
-    MainMenuScreenFactory(ScreenManager &screen_manager,
+    MainMenuScreenFactory(BuildScreenFactory &build_screen_factory,
                           CreateProgramScreenFactory &create_program_screen_factory,
-                          BuildScreenFactory &build_screen_factory)
-        : screen_manager(screen_manager),
-          build_screen_factory(build_screen_factory),
-          create_program_screen_factory(create_program_screen_factory) {}
+                          MultiplayerScreenFactory &multiplayer_screen_factory,
+                          ScreenManager &screen_manager)
+        : build_screen_factory(build_screen_factory),
+          create_program_screen_factory(create_program_screen_factory),
+          multiplayer_screen_factory(multiplayer_screen_factory),
+          screen_manager(screen_manager) {}
 
     virtual std::shared_ptr<IScreen> make()
     {
-        return std::make_shared<MainMenuScreen>(screen_manager, build_screen_factory, create_program_screen_factory);
+        return std::make_shared<MainMenuScreen>(build_screen_factory,
+                                                create_program_screen_factory,
+                                                multiplayer_screen_factory,
+                                                screen_manager);
     }
 };
 }

@@ -10,17 +10,20 @@
 #include "screens/iscreen.h"
 #include "screens/build_screen.h"
 #include "screens/create_program_screen.h"
+#include "screens/multiplayer_screen.h"
 #include "training/training_program.h"
 #include "misc/screen_manager.h"
 
 namespace SingularityTrainer
 {
-MainMenuScreen::MainMenuScreen(ScreenManager &screen_manager,
-                               BuildScreenFactory &build_screen_factory,
-                               CreateProgramScreenFactory &create_program_screen_factory)
-    : screen_manager(screen_manager),
-      build_screen_factory(build_screen_factory),
-      create_program_screen_factory(create_program_screen_factory) {}
+MainMenuScreen::MainMenuScreen(BuildScreenFactory &build_screen_factory,
+                               CreateProgramScreenFactory &create_program_screen_factory,
+                               MultiplayerScreenFactory &multiplayer_screen_factory,
+                               ScreenManager &screen_manager)
+    : build_screen_factory(build_screen_factory),
+      create_program_screen_factory(create_program_screen_factory),
+      multiplayer_screen_factory(multiplayer_screen_factory),
+      screen_manager(screen_manager) {}
 
 void MainMenuScreen::update(double /*delta_time*/)
 {
@@ -41,6 +44,10 @@ void MainMenuScreen::update(double /*delta_time*/)
     if (ImGui::Button("Build Body"))
     {
         screen_manager.show_screen(build_screen_factory.make());
+    }
+    if (ImGui::Button("Multiplayer"))
+    {
+        screen_manager.show_screen(multiplayer_screen_factory.make());
     }
     ImGui::End();
     ImGui::PopFont();

@@ -69,6 +69,7 @@ void Game::setup_env()
                            std::move(b2_world),
                            std::move(bodies),
                            RewardConfig());
+    env->reset();
 
     action_store = std::make_unique<ActionStore>(actions_per_player);
 }

@@ -5,6 +5,9 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <imgui.h>
+#include <spdlog/spdlog.h>
+#include <zmq.hpp>
+#include <zmq_addon.hpp>
 
 #include "multiplayer_screen.h"
 #include "graphics/backend/shader.h"
@@ -20,24 +23,24 @@
 #include "networking/msgpack_codec.h"
 #include "screens/iscreen.h"
 #include "training/agents/iagent.h"
+#include "training/agents/random_agent.h"
 #include "training/bodies/body.h"
 #include "training/environments/ienvironment.h"
 #include "training/environments/playback_env.h"
 
 namespace SingularityTrainer
 {
-MultiplayerScreen::MultiplayerScreen(std::unique_ptr<ClientAgent> client_agent,
-                                     std::unique_ptr<ClientCommunicator> client_communicator,
-                                     std::unique_ptr<PlaybackEnv> env,
+MultiplayerScreen::MultiplayerScreen(double tick_length,
+                                     BodyFactory &body_factory,
+                                     IEnvironmentFactory &env_factory,
                                      IO &io,
-                                     ResourceManager &resource_manager)
-    : client_agent(std::move(client_agent)),
-      client_communicator(std::move(client_communicator)),
-      crt_post_proc_layer(std::make_unique<PostProcLayer>(resource_manager.shader_store.get("crt").get())),
-      env(std::move(env)),
+                                     ResourceManager &resource_manager,
+                                     Random &rng)
+    : env_factory(env_factory),
       io(io),
       projection(glm::ortho(0.f, 1920.f, 0.f, 1080.f)),
-      resource_manager(resource_manager)
+      resource_manager(resource_manager),
+      rng(rng)
 {
     resource_manager.load_texture("base_module", "images/base_module.png");
     resource_manager.load_texture("gun_module", "images/gun_module.png");
@@ -49,24 +52,50 @@ MultiplayerScreen::MultiplayerScreen(std::unique_ptr<ClientAgent> client_agent,
     resource_manager.load_shader("crt", "shaders/texture.vert", "shaders/crt.frag");
     resource_manager.load_shader("font", "shaders/texture.vert", "shaders/font.frag");
     resource_manager.load_font("roboto-16", "fonts/Roboto-Regular.ttf", 16);
+
+    crt_post_proc_layer = std::make_unique<PostProcLayer>(resource_manager.shader_store.get("crt").get());
+
+    auto client_socket = std::make_unique<zmq::socket_t>(zmq_context, zmq::socket_type::dealer);
+    std::string id(std::to_string(rng.next_int(0, 10000000)));
+    client_socket->setsockopt(ZMQ_IDENTITY, id.c_str(), id.size());
+    spdlog::info("Connecting to server");
+    client_socket->connect("tcp://localhost:7654");
+    client_communicator = std::make_unique<ClientCommunicator>(std::move(client_socket));
+
+    env = std::make_unique<PlaybackEnv>(env_factory.make(), tick_length);
+
+    auto body_spec = env->get_bodies()[0]->to_json();
+
+    ConnectMessage connect_message(body_spec.dump());
+    auto encoded_connect_message = MsgPackCodec::encode(connect_message);
+    spdlog::info("Sending connect message");
+    client_communicator->send(encoded_connect_message);
 }
 
 void MultiplayerScreen::update(double delta_time)
 {
-    bool finished = false;
-    while (!finished)
+    while (true)
     {
         std::string raw_message = client_communicator->get();
         if (raw_message.empty())
         {
-            continue;
+            break;
         }
 
         auto message_object = MsgPackCodec::decode<msgpack::object_handle>(raw_message);
 
         auto type = get_message_type(message_object.get());
-        if (type == MessageType::GameStart)
+        if (type == MessageType::ConnectConfirmation)
         {
+            spdlog::info("Received connection confirmation");
+            auto message = message_object->as<ConnectConfirmationMessage>();
+            auto body_spec = env->get_bodies()[0]->to_json();
+            auto agent = std::make_unique<RandomAgent>(body_spec, rng, "Random agent");
+            client_agent = std::make_unique<ClientAgent>(std::move(agent), message.player_number, env_factory.make());
+        }
+        else if (type == MessageType::GameStart)
+        {
+            spdlog::info("Received game start message");
             auto message = message_object->as<GameStartMessage>();
             std::vector<nlohmann::json> body_specs;
             std::transform(message.body_specs.begin(), message.body_specs.end(),
@@ -79,8 +108,8 @@ void MultiplayerScreen::update(double delta_time)
         }
         else if (type == MessageType::State)
         {
+            spdlog::info("Received state");
             auto message = message_object->as<StateMessage>();
-            finished = message.done;
 
             auto action = client_agent->get_action(EnvState(message.agent_transforms,
                                                             message.entity_transforms,

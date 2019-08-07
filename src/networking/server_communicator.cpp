@@ -29,14 +29,13 @@ MessageWithId ServerCommunicator::get()
         return {};
     }
 
-    return {std::string(static_cast<char *>(message[0].data()), message[0].size() - 1),
+    return {std::string(static_cast<char *>(message[0].data()), message[0].size()),
             std::string(static_cast<char *>(message[1].data()), message[1].size())};
 }
 
 void ServerCommunicator::send(const std::string &client_id, const std::string &message)
 {
-    auto full_id = client_id + '\0';
-    socket->send(zmq::message_t(full_id.data(), full_id.size()), zmq::send_flags::sndmore);
+    socket->send(zmq::message_t(client_id.data(), client_id.size()), zmq::send_flags::sndmore);
     socket->send(zmq::message_t(message.data(), message.size()), zmq::send_flags::none);
 }
 
@@ -49,7 +48,8 @@ TEST_CASE("ServerCommunicator")
     ServerCommunicator server(std::move(server_socket));
 
     zmq::socket_t client_socket(context, zmq::socket_type::dealer);
-    client_socket.setsockopt(ZMQ_IDENTITY, "Identity");
+    std::string identity("Identity");
+    client_socket.setsockopt(ZMQ_IDENTITY, identity.c_str(), identity.size());
     client_socket.connect("tcp://localhost:5566");
 
     SUBCASE("Identity is received correctly")

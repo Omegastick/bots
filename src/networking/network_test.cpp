@@ -29,7 +29,7 @@ void run_client(const std::string &id)
     zmq::context_t zmq_context;
 
     auto client_socket = std::make_unique<zmq::socket_t>(zmq_context, zmq::socket_type::dealer);
-    client_socket->setsockopt(ZMQ_IDENTITY, id);
+    client_socket->setsockopt(ZMQ_IDENTITY, id.c_str(), id.size());
     client_socket->connect("tcp://localhost:7654");
     ClientCommunicator client_communicator(std::move(client_socket));
 
