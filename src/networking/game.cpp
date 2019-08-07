@@ -18,15 +18,14 @@
 
 namespace SingularityTrainer
 {
-Game::Game(double current_time,
-           double tick_length,
+Game::Game(double tick_length,
            BodyFactory &body_factory,
            IEnvironmentFactory &env_factory,
            Random &rng)
     : body_factory(body_factory),
       current_tick(0),
       env_factory(env_factory),
-      last_tick_time(current_time),
+      last_tick_time(0),
       rng(rng),
       tick_length(tick_length) {}
 
@@ -74,14 +73,14 @@ void Game::setup_env()
     action_store = std::make_unique<ActionStore>(actions_per_player);
 }
 
-TickResult Game::tick()
+TickResult Game::tick(double current_time)
 {
     if (env == nullptr)
     {
         throw std::runtime_error("Environment not set up yet");
     }
 
-    last_tick_time += tick_length;
+    last_tick_time = current_time;
 
     auto actions = action_store->get_actions(current_tick);
     std::vector<torch::Tensor> actions_tensors;
@@ -130,7 +129,7 @@ TEST_CASE("Game")
     KothEnvFactory env_factory(10);
     Random rng(0);
     BodyFactory body_factory(rng);
-    Game game(0, 0.1, body_factory, env_factory, rng);
+    Game game(0.1, body_factory, env_factory, rng);
 
     SUBCASE("add_body() returns true after enough bodies are added")
     {
@@ -178,13 +177,13 @@ TEST_CASE("Game")
     {
         SUBCASE("Throws when called without enough bodies")
         {
-            DOCTEST_CHECK_THROWS(game.tick());
+            DOCTEST_CHECK_THROWS(game.tick(0));
 
             TestBody test_body(rng);
             auto body_spec = test_body.to_json();
             game.add_body(body_spec);
 
-            DOCTEST_CHECK_THROWS(game.tick());
+            DOCTEST_CHECK_THROWS(game.tick(0));
         }
 
         SUBCASE("Returns a finished result within the maximum amount of time steps")
@@ -200,7 +199,7 @@ TEST_CASE("Game")
             {
                 game.set_action(i, 0, {0, 0, 0, 0});
                 game.set_action(i, 1, {0, 0, 0, 0});
-                auto result = game.tick();
+                auto result = game.tick(0);
                 finished |= result.done;
             }
         }

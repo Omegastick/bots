@@ -91,7 +91,6 @@ TEST_CASE("Network")
 {
     const auto injector = di::make_injector(
         di::bind<int>.named(MaxSteps).to(100),
-        di::bind<double>.named(CurrentTime).to(std::chrono::high_resolution_clock::now().time_since_epoch().count() * 1e-9),
         di::bind<double>.named(TickLength).to(0.001),
         di::bind<IEnvironmentFactory>.to<KothEnvFactory>());
     auto app = injector.create<ServerApp>();

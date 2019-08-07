@@ -91,7 +91,7 @@ int ServerApp::run(int argc, char *argv[])
         double time_stamp = std::chrono::high_resolution_clock::now().time_since_epoch().count() * 1e-9;
         if (game->ready_to_tick(time_stamp))
         {
-            auto tick_result = game->tick();
+            auto tick_result = game->tick(time_stamp);
             StateMessage reply(tick_result.agent_transforms,
                                tick_result.entity_transforms,
                                tick_result.done,

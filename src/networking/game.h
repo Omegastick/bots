@@ -24,7 +24,6 @@ struct TickResult
     int victor;
 };
 
-static auto CurrentTime = [] {};
 static auto TickLength = [] {};
 
 class Game
@@ -44,7 +43,6 @@ class Game
 
   public:
     BOOST_DI_INJECT(Game,
-                    (named = CurrentTime) double current_time,
                     (named = TickLength) double tick_length,
                     BodyFactory &body_factory,
                     IEnvironmentFactory &env_factory,
@@ -53,6 +51,6 @@ class Game
     bool add_body(nlohmann::json body_spec);
     bool ready_to_tick(double current_time);
     void set_action(int tick, int player, const std::vector<int> &action);
-    TickResult tick();
+    TickResult tick(double current_time);
 };
 }
