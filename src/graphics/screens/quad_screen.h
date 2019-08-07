@@ -33,7 +33,7 @@ class QuadScreen : public IScreen
     QuadScreen(ScreenManager *screen_manager, std::vector<std::shared_ptr<IScreen>> *screens, std::vector<std::string> *screen_names);
     ~QuadScreen();
 
-    virtual void update(const double delta_time);
+    virtual void update(double delta_time);
     virtual void draw(Renderer &renderer, bool lightweight = false);
 };
 }

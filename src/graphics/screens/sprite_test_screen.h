@@ -33,7 +33,7 @@ class SpriteTestScreen : public IScreen
         std::vector<std::string> *screen_names);
     ~SpriteTestScreen();
 
-    virtual void update(const double delta_time);
+    virtual void update(double delta_time);
     virtual void draw(Renderer &renderer, bool lightweight = false);
 };
 }

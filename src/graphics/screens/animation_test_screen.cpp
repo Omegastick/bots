@@ -45,7 +45,7 @@ AnimationTestScreen::AnimationTestScreen(
 
 AnimationTestScreen::~AnimationTestScreen() {}
 
-void AnimationTestScreen::update(const double delta_time)
+void AnimationTestScreen::update(double delta_time)
 {
     if (animation_finished)
     {
