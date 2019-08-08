@@ -26,6 +26,8 @@ struct EntityState
 
 struct EnvState
 {
+    EnvState() {}
+
     EnvState(std::vector<b2Transform> &agent_transforms,
              std::unordered_map<unsigned int, b2Transform> &entity_states,
              int tick)
