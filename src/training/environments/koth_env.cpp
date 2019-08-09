@@ -15,6 +15,7 @@
 #include "training/entities/ientity.h"
 #include "training/entities/hill.h"
 #include "training/entities/wall.h"
+#include "training/events/ievent.h"
 #include "training/rigid_body.h"
 #include "training/training_program.h"
 #include "misc/random.h"
@@ -160,6 +161,11 @@ void KothEnv::add_entity(std::unique_ptr<IEntity> entity)
     entities[entity->get_id()] = std::move(entity);
 }
 
+void KothEnv::add_event(std::unique_ptr<IEvent> event)
+{
+    events.push_back(std::move(event));
+}
+
 void KothEnv::add_particle(Particle particle)
 {
     particles.push_back(particle);
@@ -211,8 +217,7 @@ RenderData KothEnv::get_render_data(bool lightweight)
 StepInfo KothEnv::step(const std::vector<torch::Tensor> actions, float step_length)
 {
     // Step simulation
-    world->Step(step_length, 3, 2);
-    elapsed_time += step_length;
+    forward(step_length);
 
     // Act
     auto actions_tensor_1 = actions[0].to(torch::kInt).contiguous();
@@ -226,20 +231,6 @@ StepInfo KothEnv::step(const std::vector<torch::Tensor> actions, float step_leng
     for (const auto &entity : entities)
     {
         entity.second->update();
-    }
-
-    // Destroy destroyable entities
-    for (auto it = entities.cbegin(); it != entities.cend();)
-    {
-        if (it->second->should_destroy())
-        {
-            it->second->destroy();
-            entities.erase(it++);
-        }
-        else
-        {
-            ++it;
-        }
     }
 
     // Hill score
@@ -301,8 +292,18 @@ StepInfo KothEnv::step(const std::vector<torch::Tensor> actions, float step_leng
 
 void KothEnv::forward(float step_length)
 {
-    world->Step(step_length, 3, 2);
+    double step_start_time = elapsed_time;
     elapsed_time += step_length;
+    world->Step(step_length, 3, 2);
+
+    for (const auto &event : events)
+    {
+        double scheduled_time = event->get_time();
+        if (scheduled_time > step_start_time && scheduled_time <= elapsed_time)
+        {
+            event->trigger(*this);
+        }
+    }
 }
 
 void KothEnv::change_reward(int body, float reward_delta)
@@ -360,7 +361,8 @@ void KothEnv::set_state(const EnvState &state)
                                                 b2Vec2{0, 0},
                                                 *world,
                                                 body_1.get(),
-                                                bullet.first));
+                                                bullet.first,
+                                                *this));
             entities[bullet.first]->set_transform(bullet.second.p,
                                                   bullet.second.q.GetAngle());
         }

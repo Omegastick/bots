@@ -17,6 +17,7 @@
 namespace SingularityTrainer
 {
 class IEntity;
+class IEvent;
 class Hill;
 class Particle;
 class ResourceManager;
@@ -28,6 +29,7 @@ class KothEnv : public IEnvironment
     std::unique_ptr<Body> body_1;
     std::unique_ptr<Body> body_2;
     std::unordered_map<unsigned int, std::unique_ptr<IEntity>> entities;
+    std::vector<std::unique_ptr<IEvent>> events;
     int max_steps;
     std::vector<Particle> particles;
     std::unique_ptr<Random> rng;
@@ -55,6 +57,7 @@ class KothEnv : public IEnvironment
     ~KothEnv();
 
     virtual void add_entity(std::unique_ptr<IEntity> entity);
+    virtual void add_event(std::unique_ptr<IEvent> event);
     virtual void add_particle(Particle particle);
     virtual void add_particles(const std::vector<Particle> &particles);
     virtual void set_state(const EnvState &state);

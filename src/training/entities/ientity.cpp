@@ -1,14 +1,17 @@
 #include <Box2D/Box2D.h>
 
 #include "ientity.h"
+#include "training/environments/ienvironment.h"
 
 namespace SingularityTrainer
 {
-IEntity::IEntity(unsigned int id) : id(id) {}
+IEntity::IEntity(unsigned int id, IEnvironment &env) : id(id), env(env) {}
 
 void IEntity::destroy()
 {
     rigid_body->body->GetWorld()->DestroyBody(rigid_body->body);
+
+    env.get_entities().erase(id);
 }
 
 b2Transform IEntity::get_transform() const

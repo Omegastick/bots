@@ -29,10 +29,16 @@ class Bullet : public ICollidable, public IEntity
     bool destroyed;
 
   public:
-    Bullet(b2Vec2 position, b2Vec2 velocity, b2World &world, Body *owner, unsigned int id);
+    Bullet(b2Vec2 position,
+           b2Vec2 velocity,
+           b2World &world,
+           Body *owner,
+           unsigned int id,
+           IEnvironment &env);
     ~Bullet();
 
     virtual void begin_contact(RigidBody *other);
+    virtual void destroy();
     virtual void end_contact(RigidBody *other);
     virtual RenderData get_render_data(bool lightweight = false);
     virtual bool should_destroy();
