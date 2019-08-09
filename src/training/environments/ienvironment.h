@@ -14,6 +14,7 @@ namespace SingularityTrainer
 {
 class Body;
 class IEntity;
+class Particle;
 class RewardConfig;
 
 typedef std::tuple<float, float, float> Transform;
@@ -79,6 +80,8 @@ class IEnvironment : public IDrawable
     virtual ~IEnvironment() = 0;
 
     virtual void add_entity(std::unique_ptr<IEntity> entity) = 0;
+    virtual void add_particle(Particle particle) = 0;
+    virtual void add_particles(const std::vector<Particle> &particles) = 0;
     virtual void change_reward(int body, float reward_delta) = 0;
     virtual void change_reward(Body *body, float reward_delta) = 0;
     virtual void forward(float step_length) = 0;

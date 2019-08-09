@@ -24,10 +24,8 @@ class Bullet : public ICollidable, public IEntity
     int life;
     b2Vec2 last_position;
     std::unique_ptr<Sprite> sprite;
-    std::vector<Particle> explosion_particles;
     glm::vec4 particle_color;
     Body *owner;
-    std::mutex particle_mutex;
     bool destroyed;
 
   public:
