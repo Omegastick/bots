@@ -19,6 +19,7 @@ struct TickResult
 {
     std::vector<Transform> agent_transforms;
     std::unordered_map<unsigned int, Transform> entity_transforms;
+    std::vector<std::unique_ptr<IEvent>> events;
     bool done;
     int tick;
     int victor;

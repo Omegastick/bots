@@ -10,6 +10,7 @@
 #include "graphics/render_data.h"
 #include "third_party/di.hpp"
 #include "training/environments/ienvironment.h"
+#include "training/events/ievent.h"
 
 namespace SingularityTrainer
 {
@@ -21,6 +22,7 @@ class PlaybackEnv
     double current_tick;
     std::unique_ptr<IEnvironment> env;
     std::vector<EnvState> states;
+    std::vector<std::unique_ptr<IEvent>> events;
     double tick_length;
 
   public:
@@ -28,6 +30,7 @@ class PlaybackEnv
                     std::unique_ptr<IEnvironment> env,
                     (named = TickLength) double tick_length);
 
+    void add_events(std::vector<std::unique_ptr<IEvent>> events);
     void add_new_state(EnvState state);
     RenderData get_render_data(bool lightweight = false);
     void reset();

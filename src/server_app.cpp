@@ -107,11 +107,13 @@ int ServerApp::run(int argc, char *argv[])
         if (game_started && game->ready_to_tick(time_stamp))
         {
             auto tick_result = game->tick(time_stamp);
-            StateMessage reply(tick_result.agent_transforms,
-                               tick_result.entity_transforms,
+            StateMessage reply(std::move(tick_result.agent_transforms),
+                               std::move(tick_result.entity_transforms),
+                               std::move(tick_result.events),
                                tick_result.done,
                                tick_result.tick);
             auto encoded_reply = MsgPackCodec::encode(reply);
+            auto obj = MsgPackCodec::decode<msgpack::object_handle>(encoded_reply);
             for (const auto &player : players)
             {
                 server_communicator->send(player, encoded_reply);

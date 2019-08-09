@@ -109,6 +109,7 @@ void MultiplayerScreen::update(double delta_time)
         else if (type == MessageType::State)
         {
             spdlog::info("Received state");
+            std::cout << message_object.get() << "\n";
             auto message = message_object->as<StateMessage>();
 
             auto action = client_agent->get_action(EnvState(message.agent_transforms,
@@ -120,6 +121,7 @@ void MultiplayerScreen::update(double delta_time)
             client_communicator->send(encoded_action_message);
 
             env->add_new_state(EnvState(message.agent_transforms, message.entity_transforms, message.tick));
+            env->add_events(std::move(message.events));
         }
     }
 

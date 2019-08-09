@@ -6,6 +6,9 @@
 
 #include <msgpack.hpp>
 
+#include "training/events/ievent.h"
+#include "training/events/entity_destroyed.h"
+
 namespace SingularityTrainer
 {
 typedef std::tuple<float, float, float> Transform;
@@ -99,6 +102,7 @@ struct StateMessage : Message
 {
     std::vector<Transform> agent_transforms;
     std::unordered_map<unsigned int, Transform> entity_transforms;
+    std::vector<std::unique_ptr<IEvent>> events;
     int tick;
     bool done;
 
@@ -109,20 +113,16 @@ struct StateMessage : Message
 
     StateMessage(std::vector<Transform> agent_transforms,
                  std::unordered_map<unsigned int, Transform> entity_transforms,
+                 std::vector<std::unique_ptr<IEvent>> events,
                  bool done,
                  int tick) : StateMessage()
     {
-        this->agent_transforms = agent_transforms;
-        this->entity_transforms = entity_transforms;
+        this->agent_transforms = std::move(agent_transforms);
+        this->entity_transforms = std::move(entity_transforms);
+        this->events = std::move(events);
         this->done = done;
         this->tick = tick;
     }
-
-    MSGPACK_DEFINE_ARRAY(MSGPACK_BASE(Message),
-                         agent_transforms,
-                         entity_transforms,
-                         tick,
-                         done)
 };
 
 inline MessageType get_message_type(const msgpack::object &object)
@@ -132,3 +132,86 @@ inline MessageType get_message_type(const msgpack::object &object)
 }
 
 MSGPACK_ADD_ENUM(SingularityTrainer::MessageType)
+
+namespace msgpack
+{
+using namespace SingularityTrainer;
+
+MSGPACK_API_VERSION_NAMESPACE(MSGPACK_DEFAULT_API_NS)
+{
+    namespace adaptor
+    {
+    template <>
+    struct pack<IEvent>
+    {
+        template <typename Stream>
+        packer<Stream> &operator()(msgpack::packer<Stream> &o, IEvent const &v) const
+        {
+            if (v.type == EventTypes::EntityDestroyed)
+            {
+                const auto &event = static_cast<const EntityDestroyed &>(v);
+                o.pack_array(4);
+                o.pack(event.type);
+                o.pack(event.get_id());
+                o.pack(event.get_time());
+                o.pack(event.get_transform());
+            }
+            else
+            {
+                throw std::runtime_error("Tried to serialize unknown event type");
+            }
+            return o;
+        }
+    };
+
+    template <>
+    struct pack<StateMessage>
+    {
+        template <typename Stream>
+        packer<Stream> &operator()(msgpack::packer<Stream> &o, StateMessage const &v) const
+        {
+            o.pack_array(6);
+            o.pack_array(1);
+            o.pack(v.type);
+            o.pack(v.agent_transforms);
+            o.pack(v.entity_transforms);
+            o.pack(v.events);
+            o.pack(v.tick);
+            o.pack(v.done);
+            return o;
+        }
+    };
+
+    template <>
+    struct as<StateMessage>
+    {
+        StateMessage operator()(msgpack::object const &o) const
+        {
+            if (o.type != msgpack::type::ARRAY)
+                throw msgpack::type_error();
+            if (o.via.array.size != 6)
+                throw msgpack::type_error();
+            auto agent_transforms = o.via.array.ptr[1].as<std::vector<Transform>>();
+            auto entity_transforms = o.via.array.ptr[2].as<std::unordered_map<unsigned int, Transform>>();
+            std::vector<std::unique_ptr<IEvent>> events;
+            const auto &events_array = o.via.array.ptr[3].via.array;
+            for (unsigned int i = 0; i < events_array.size; ++i)
+            {
+                const auto &event = events_array.ptr[i];
+                if (event.via.array.ptr[0].as<EventTypes>() == EventTypes::EntityDestroyed)
+                {
+                    events.push_back(std::make_unique<EntityDestroyed>(event.via.array.ptr[1].as<int>(),
+                                                                       event.via.array.ptr[2].as<double>(),
+                                                                       event.via.array.ptr[3].as<Transform>()));
+                }
+            }
+            return StateMessage(std::move(agent_transforms),
+                                std::move(entity_transforms),
+                                std::move(events),
+                                o.via.array.ptr[5].as<bool>(),
+                                o.via.array.ptr[4].as<int>());
+        }
+    };
+    }
+}
+}
