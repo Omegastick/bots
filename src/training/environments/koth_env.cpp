@@ -9,6 +9,7 @@
 
 #include "training/environments/koth_env.h"
 #include "graphics/colors.h"
+#include "graphics/render_data.h"
 #include "training/bodies/test_body.h"
 #include "training/entities/bullet.h"
 #include "training/entities/ientity.h"
@@ -159,6 +160,16 @@ void KothEnv::add_entity(std::unique_ptr<IEntity> entity)
     entities[entity->get_id()] = std::move(entity);
 }
 
+void KothEnv::add_particle(Particle particle)
+{
+    particles.push_back(particle);
+}
+
+void KothEnv::add_particles(const std::vector<Particle> &particles)
+{
+    this->particles.insert(this->particles.end(), particles.begin(), particles.end());
+}
+
 void KothEnv::change_score(Body *body, float score_delta)
 {
     scores[body_numbers[body]] += score_delta;
@@ -190,6 +201,9 @@ RenderData KothEnv::get_render_data(bool lightweight)
     {
         render_data.append(entity.second->get_render_data());
     }
+
+    render_data.append(particles);
+    particles.clear();
 
     return render_data;
 }

@@ -74,15 +74,6 @@ RenderData Bullet::get_render_data(bool /*lightweight*/)
         last_position = position;
     }
 
-    {
-        std::lock_guard<std::mutex> lock_guard(particle_mutex);
-        if (explosion_particles.size() > 0)
-        {
-            render_data.append(explosion_particles);
-            explosion_particles.clear();
-        }
-    }
-
     return render_data;
 }
 
@@ -107,11 +98,10 @@ void Bullet::begin_contact(RigidBody *other)
     // Create particle effect and set destroyed flag
     if (!destroyed)
     {
-        std::lock_guard<std::mutex> lock_guard(particle_mutex);
         destroyed = true;
 
+        auto &env = *owner->get_environment();
         const int particle_count = 100;
-        explosion_particles.reserve(particle_count);
         b2Vec2 transform = rigid_body->body->GetPosition();
         const float step_subdivision = 1.f / particle_count / 10.f;
         glm::vec4 end_color = particle_color;
@@ -126,7 +116,7 @@ void Bullet::begin_contact(RigidBody *other)
                 0.02,
                 particle_color,
                 end_color};
-            explosion_particles.push_back(particle);
+            env.add_particle(particle);
         }
     }
 }
