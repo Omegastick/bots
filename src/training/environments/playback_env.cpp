@@ -13,6 +13,8 @@
 #include "training/bodies/test_body.h"
 #include "training/entities/bullet.h"
 #include "training/entities/ientity.h"
+#include "training/events/entity_destroyed.h"
+#include "training/events/ievent.h"
 #include "training/environments/koth_env.h"
 #include "training/environments/ienvironment.h"
 #include "training/rigid_body.h"
@@ -50,6 +52,14 @@ PlaybackEnv::PlaybackEnv(std::unique_ptr<IEnvironment> env, double tick_length)
       env(std::move(env)),
       tick_length(tick_length)
 {
+}
+
+void PlaybackEnv::add_events(std::vector<std::unique_ptr<IEvent>> events)
+{
+    for (auto &event : events)
+    {
+        this->events.push_back(std::move(event));
+    }
 }
 
 void PlaybackEnv::add_new_state(EnvState state)
@@ -129,7 +139,7 @@ void PlaybackEnv::update(double delta_time)
 
     // Lerp start and end states
     // Calculate interpolation value for lerp
-    float interpolation = (current_tick - second_latest_received_tick);
+    float interpolation = current_tick - second_latest_received_tick;
 
     EnvState *start_state;
     EnvState *end_state;
@@ -169,9 +179,10 @@ void PlaybackEnv::update(double delta_time)
     for (const auto &pair : start_state->entity_states)
     {
         const unsigned int &id = pair.first;
+        const b2Transform &start_transform = pair.second;
+        // Entities still existing at the end of the tick
         if (end_state->entity_states.find(id) != end_state->entity_states.end())
         {
-            const b2Transform &start_transform = pair.second;
             const b2Transform &end_transform = end_state->entity_states[id];
             b2Transform transform;
             transform.p.x = lerp(start_transform.p.x,
@@ -185,10 +196,67 @@ void PlaybackEnv::update(double delta_time)
                                            interpolation));
             lerped_state.entity_states[id] = transform;
         }
+        // Entities destroyed during the tick
+        else
+        {
+            auto event_iter = std::find_if(events.begin(), events.end(),
+                                           [&](const std::unique_ptr<IEvent> &event) {
+                                               if (event->type == EventTypes::EntityDestroyed)
+                                               {
+                                                   return static_cast<EntityDestroyed *>(event.get())->get_id() == id;
+                                               }
+                                               return false;
+                                           });
+            if (event_iter == events.end())
+            {
+                continue;
+            }
+            auto &event = static_cast<EntityDestroyed &>(*event_iter->get());
+            double event_tick = event.get_time() / tick_length;
+            if (event_tick < current_tick + 0.1)
+            {
+                continue;
+            }
+
+            b2Transform end_transform(b2Vec2(std::get<0>(event.get_transform()),
+                                             std::get<1>(event.get_transform())),
+                                      b2Rot(std::get<2>(event.get_transform())));
+
+            // Calclulate interpolation for this entity
+            double event_tick_interval = event_tick - second_latest_received_tick;
+            float temp_interpolation = (current_tick - second_latest_received_tick) / event_tick_interval;
+            b2Transform transform;
+            transform.p.x = lerp(start_transform.p.x,
+                                 end_transform.p.x,
+                                 temp_interpolation);
+            transform.p.y = lerp(start_transform.p.y,
+                                 end_transform.p.y,
+                                 temp_interpolation);
+            transform.q = b2Rot(lerp_angle(start_transform.q.GetAngle(),
+                                           end_transform.q.GetAngle(),
+                                           temp_interpolation));
+            lerped_state.entity_states[id] = transform;
+        }
     }
 
     // Update env according to best state
     env->set_state(lerped_state);
+
+    // Trigger events
+    for (auto iter = events.begin(); iter != events.end();)
+    {
+        auto &event = *iter;
+        if (event->get_time() / tick_length <= current_tick)
+        {
+            event->trigger(*env);
+            iter = events.erase(iter);
+        }
+        else
+        {
+            ++iter;
+        }
+    }
+
     return;
 }
 
@@ -417,6 +485,81 @@ TEST_CASE("PlaybackEnv")
         DOCTEST_CHECK(agent_0_tranform.q.GetAngle() == doctest::Approx(M_PI));
         auto agent_1_tranform = env.get_bodies()[1]->get_rigid_body().body->GetTransform();
         DOCTEST_CHECK(agent_1_tranform.q.GetAngle() == doctest::Approx(M_PI));
+    }
+
+    SUBCASE("Events are triggered at the right time")
+    {
+        auto &env = playback_env.get_env();
+
+        std::vector<b2Transform> agent_transforms{{{0, 0}, b2Rot(0)},
+                                                  {{0, 0}, b2Rot(0)}};
+        std::unordered_map<unsigned int, b2Transform> entity_states{{0, {{0, 0}, b2Rot(0)}}};
+        playback_env.add_new_state({agent_transforms, entity_states, 0});
+        playback_env.add_new_state({agent_transforms, entity_states, 1});
+
+        std::vector<std::unique_ptr<IEvent>> events;
+        events.push_back(std::make_unique<EntityDestroyed>(0, 0.5, Transform{1, 2, 3}));
+        playback_env.add_events(std::move(events));
+
+        playback_env.update(0.4);
+        auto render_data = env.get_render_data();
+        DOCTEST_CHECK(render_data.particles.size() == 0);
+
+        playback_env.update(0.2);
+        render_data = env.get_render_data();
+        DOCTEST_CHECK(render_data.particles.size() > 0);
+    }
+
+    SUBCASE("Bullets destroyed partway through a tick continue moving until destroyed")
+    {
+        auto &env = playback_env.get_env();
+
+        std::vector<b2Transform> agent_transforms{{{0, 0}, b2Rot(0)},
+                                                  {{0, 0}, b2Rot(0)}};
+        std::unordered_map<unsigned int, b2Transform> entity_states{{0, {{0, 0}, b2Rot(0)}}};
+        playback_env.add_new_state({agent_transforms, entity_states, 0});
+
+        entity_states = {};
+        playback_env.add_new_state({agent_transforms, entity_states, 1});
+
+        std::vector<std::unique_ptr<IEvent>> events;
+        events.push_back(std::make_unique<EntityDestroyed>(0, 0.05, Transform{1, 2, 1}));
+        playback_env.add_events(std::move(events));
+
+        playback_env.update(0.025);
+        auto bullet_tranform = env.get_entities()[0]->get_transform();
+        DOCTEST_CHECK(bullet_tranform.p.x == doctest::Approx(0.5));
+        DOCTEST_CHECK(bullet_tranform.p.y == doctest::Approx(1));
+        DOCTEST_CHECK(bullet_tranform.q.GetAngle() == doctest::Approx(0.5));
+
+        playback_env.update(0.025);
+        DOCTEST_CHECK(env.get_entities().size() == 0);
+    }
+
+    SUBCASE("Bullets destroyed, stay destroyed")
+    {
+        auto &env = playback_env.get_env();
+
+        std::vector<b2Transform> agent_transforms{{{0, 0}, b2Rot(0)},
+                                                  {{0, 0}, b2Rot(0)}};
+        std::unordered_map<unsigned int, b2Transform> entity_states{{0, {{0, 0}, b2Rot(0)}}};
+        playback_env.add_new_state({agent_transforms, entity_states, 0});
+
+        entity_states = {};
+        playback_env.add_new_state({agent_transforms, entity_states, 1});
+
+        std::vector<std::unique_ptr<IEvent>> events;
+        events.push_back(std::make_unique<EntityDestroyed>(0, 0.05, Transform{1, 2, 1}));
+        playback_env.add_events(std::move(events));
+
+        playback_env.update(0.025);
+        DOCTEST_CHECK(env.get_entities().size() == 1);
+
+        playback_env.update(0.025);
+        DOCTEST_CHECK(env.get_entities().size() == 0);
+
+        playback_env.update(1);
+        DOCTEST_CHECK(env.get_entities().size() == 0);
     }
 }
 }

@@ -9,12 +9,12 @@
 
 #include "graphics/idrawable.h"
 #include "misc/random.h"
+#include "training/events/ievent.h"
 
 namespace SingularityTrainer
 {
 class Body;
 class IEntity;
-class IEvent;
 class Particle;
 class RewardConfig;
 
@@ -70,6 +70,7 @@ struct EnvState
 
 struct StepInfo
 {
+    std::vector<std::unique_ptr<IEvent>> events;
     std::vector<torch::Tensor> observation;
     torch::Tensor reward, done;
     int victor = -1;

@@ -1,6 +1,7 @@
 #include <tuple>
 
 #include <fmt/format.h>
+#include <spdlog/spdlog.h>
 
 #include "entity_destroyed.h"
 #include "training/entities/ientity.h"
@@ -29,6 +30,7 @@ void EntityDestroyed::trigger(IEnvironment &env)
     }
 
     auto &entity = *iter->second;
+    spdlog::debug("Destroying {}", entity_id);
     entity.set_transform({std::get<0>(transform), std::get<1>(transform)}, std::get<2>(transform));
     entity.destroy();
 }

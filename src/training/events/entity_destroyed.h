@@ -22,6 +22,8 @@ class EntityDestroyed : public IEvent
 
     void trigger(IEnvironment &env);
 
+    inline unsigned int get_id() const { return entity_id; }
     inline double get_time() const { return time; }
+    inline Transform get_transform() const { return transform; }
 };
 }

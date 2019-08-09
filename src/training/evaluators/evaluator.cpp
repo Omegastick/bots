@@ -84,6 +84,10 @@ std::vector<EvaluationResult> Evaluator::evaluate(const IAgent &agent_1,
                 step_infos[i] = environments[i]->step({actions_1[j],
                                                        actions_2[j]},
                                                       1. / 60.);
+                for (int k = 0; k < 5; ++k)
+                {
+                    environments[i]->forward(1. / 60.);
+                }
                 j++;
             }
         }

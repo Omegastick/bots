@@ -275,6 +275,7 @@ StepInfo KothEnv::step(const std::vector<torch::Tensor> actions, float step_leng
     auto observation_1 = body_1->get_observation();
     auto observation_2 = body_2->get_observation();
     StepInfo step_info{
+        std::move(events),
         {torch::from_blob(observation_1.data(), {static_cast<long>(observation_1.size())})
              .clone(),
          torch::from_blob(observation_2.data(), {static_cast<long>(observation_2.size())})
@@ -282,6 +283,7 @@ StepInfo KothEnv::step(const std::vector<torch::Tensor> actions, float step_leng
         torch::from_blob(rewards.data(), {2, 1}, torch::kFloat).clone(),
         torch::from_blob(&done, {1, 1}, torch::kBool).to(torch::kFloat).expand({2, 1}),
         victor};
+    events.clear();
 
     // Reset reward
     rewards = {0, 0};
@@ -394,12 +396,16 @@ StepInfo KothEnv::reset()
     auto observation_1 = body_1->get_observation();
     auto observation_2 = body_2->get_observation();
 
-    return StepInfo{{torch::from_blob(observation_1.data(), {static_cast<long>(observation_1.size())})
-                         .clone(),
-                     torch::from_blob(observation_2.data(), {static_cast<long>(observation_2.size())})
-                         .clone()},
-                    torch::from_blob(rewards.data(), {2, 1}, torch::kFloat).clone(),
-                    torch::from_blob(&done, {1, 1}, torch::kBool).to(torch::kFloat).expand({2, 1})};
+    StepInfo step_info{std::move(events),
+                       {torch::from_blob(observation_1.data(), {static_cast<long>(observation_1.size())})
+                            .clone(),
+                        torch::from_blob(observation_2.data(), {static_cast<long>(observation_2.size())})
+                            .clone()},
+                       torch::from_blob(rewards.data(), {2, 1}, torch::kFloat).clone(),
+                       torch::from_blob(&done, {1, 1}, torch::kBool).to(torch::kFloat).expand({2, 1})};
+    events.clear();
+
+    return step_info;
 }
 
 TEST_CASE("KothEnv")

@@ -92,11 +92,11 @@ TickResult Game::tick(double current_time)
                                                {static_cast<long>(actions_vec.size())},
                                                torch::kInt);
                    });
-    auto step_info = env->step(actions_tensors, 1. / 60.);
     for (int i = 0; i < 5; ++i)
     {
         env->forward(1. / 60.);
     }
+    auto step_info = env->step(actions_tensors, 1. / 60.);
 
     ++current_tick;
 
@@ -118,8 +118,9 @@ TickResult Game::tick(double current_time)
                                     b2_transform.q.GetAngle()});
     }
 
-    return {agent_transforms,
-            entity_transforms,
+    return {std::move(agent_transforms),
+            std::move(entity_transforms),
+            std::move(step_info.events),
             step_info.done[0].item().toBool(),
             current_tick - 1,
             step_info.victor};
