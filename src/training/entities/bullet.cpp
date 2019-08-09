@@ -10,14 +10,20 @@
 #include "training/bodies/body.h"
 #include "training/entities/bullet.h"
 #include "training/environments/ienvironment.h"
+#include "training/events/entity_destroyed.h"
 #include "training/icollidable.h"
 #include "training/rigid_body.h"
 #include "training/training_program.h"
 
 namespace SingularityTrainer
 {
-Bullet::Bullet(b2Vec2 position, b2Vec2 velocity, b2World &world, Body *owner, unsigned int id)
-    : IEntity(id),
+Bullet::Bullet(b2Vec2 position,
+               b2Vec2 velocity,
+               b2World &world,
+               Body *owner,
+               unsigned int id,
+               IEnvironment &env)
+    : IEntity(id, env),
       life(10),
       last_position(b2Vec2_zero),
       particle_color(cl_white),
@@ -99,26 +105,37 @@ void Bullet::begin_contact(RigidBody *other)
     if (!destroyed)
     {
         destroyed = true;
-
-        auto &env = *owner->get_environment();
-        const int particle_count = 100;
-        b2Vec2 transform = rigid_body->body->GetPosition();
-        const float step_subdivision = 1.f / particle_count / 10.f;
-        glm::vec4 end_color = particle_color;
-        end_color.a = 0;
-        for (int i = 0; i < particle_count; ++i)
-        {
-            Particle particle{
-                glm::vec2(transform.x, transform.y),
-                glm::diskRand(4.f),
-                -i * step_subdivision,
-                0.75,
-                0.02,
-                particle_color,
-                end_color};
-            env.add_particle(particle);
-        }
+        auto &transform = rigid_body->body->GetTransform();
+        env.add_event(std::make_unique<EntityDestroyed>(id,
+                                                        env.get_elapsed_time(),
+                                                        Transform{transform.p.x,
+                                                                  transform.p.y,
+                                                                  transform.q.GetAngle()}));
     }
+}
+
+void Bullet::destroy()
+{
+    auto &env = *owner->get_environment();
+    const int particle_count = 100;
+    b2Vec2 transform = rigid_body->body->GetPosition();
+    const float step_subdivision = 1.f / particle_count / 10.f;
+    glm::vec4 end_color = particle_color;
+    end_color.a = 0;
+    for (int i = 0; i < particle_count; ++i)
+    {
+        Particle particle{
+            glm::vec2(transform.x, transform.y),
+            glm::diskRand(4.f),
+            -i * step_subdivision,
+            0.75,
+            0.02,
+            particle_color,
+            end_color};
+        env.add_particle(particle);
+    }
+
+    IEntity::destroy();
 }
 
 void Bullet::end_contact(RigidBody * /*other*/) {}

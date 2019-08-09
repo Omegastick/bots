@@ -9,14 +9,17 @@
 
 namespace SingularityTrainer
 {
+class IEnvironment;
+
 class IEntity : public IDrawable
 {
   protected:
     unsigned int id;
+    IEnvironment &env;
     std::unique_ptr<RigidBody> rigid_body;
 
   public:
-    IEntity(unsigned int id);
+    IEntity(unsigned int id, IEnvironment &env);
     virtual ~IEntity() = 0;
 
     virtual void destroy();
