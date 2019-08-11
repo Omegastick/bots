@@ -122,7 +122,7 @@ TickResult Game::tick(double current_time)
             std::move(entity_transforms),
             std::move(step_info.events),
             step_info.done[0].item().toBool(),
-            current_tick - 1,
+            current_tick,
             step_info.victor};
 }
 

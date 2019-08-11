@@ -95,65 +95,75 @@ void PlaybackEnv::update(double delta_time)
 
     current_tick += delta_time / tick_length;
 
-    int latest_received_tick = -1;
-    int second_latest_received_tick = -1;
+    EnvState *oldest_relevant_state = nullptr;
 
-    // Loop through all received ticks two find latest two
-    for (const auto &state : states)
+    // Loop through all received to find the oldest relevant tick
+    for (auto &state : states)
     {
-        if (state.tick > latest_received_tick)
+        if (oldest_relevant_state == nullptr ||
+            (state.tick > oldest_relevant_state->tick && state.tick <= current_tick))
         {
-            second_latest_received_tick = latest_received_tick;
-            latest_received_tick = state.tick;
-        }
-        else if (state.tick > second_latest_received_tick)
-        {
-            second_latest_received_tick = state.tick;
+            oldest_relevant_state = &state;
         }
     }
 
     // Delete all older states
-    for (auto state_iterator = states.begin(); state_iterator < states.end();)
+    int oldest_relevant_tick = oldest_relevant_state->tick;
+    for (auto iter = states.begin(); iter < states.end();)
     {
-        if (state_iterator->tick < second_latest_received_tick)
+        if (iter->tick < oldest_relevant_tick && states.size() > 2)
         {
-            state_iterator = states.erase(state_iterator);
+            iter = states.erase(iter);
         }
         else
         {
-            ++state_iterator;
+            ++iter;
         }
     }
 
-    // If current time is too far behind for some reason, fast forward
-    current_tick = std::max(current_tick, static_cast<double>(second_latest_received_tick));
-
-    for (const auto &state : states)
+    // The pointer to the oldest relevant state will have moved, so we find it again
+    oldest_relevant_state = nullptr;
+    for (auto &state : states)
     {
-        if (abs(current_tick - state.tick) < 0.0001)
+        if (oldest_relevant_state == nullptr ||
+            (state.tick > oldest_relevant_state->tick && state.tick <= current_tick))
         {
-            env->set_state(state);
-            return;
+            oldest_relevant_state = &state;
+        }
+    }
+
+    // Pick an end state to interpolate to
+    EnvState *start_state = nullptr;
+    EnvState *end_state = nullptr;
+    if (states.size() > 2)
+    {
+        start_state = oldest_relevant_state;
+        for (auto &state : states)
+        {
+            if ((end_state == nullptr || state.tick < end_state->tick) && &state != start_state)
+            {
+                end_state = &state;
+            }
+        }
+    }
+    else
+    {
+        // There are only two states to choose from
+        if (states[0].tick < states[1].tick)
+        {
+            start_state = &states[0];
+            end_state = &states[1];
+        }
+        else
+        {
+            start_state = &states[1];
+            end_state = &states[0];
         }
     }
 
     // Lerp start and end states
     // Calculate interpolation value for lerp
-    float interpolation = current_tick - second_latest_received_tick;
-
-    EnvState *start_state;
-    EnvState *end_state;
-
-    if (states[0].tick < states[1].tick)
-    {
-        start_state = &states[0];
-        end_state = &states[1];
-    }
-    else
-    {
-        start_state = &states[1];
-        end_state = &states[0];
-    }
+    float interpolation = current_tick - start_state->tick;
 
     EnvState lerped_state;
 
@@ -169,6 +179,7 @@ void PlaybackEnv::update(double delta_time)
         transform.p.y = lerp(start_transform.p.y,
                              end_transform.p.y,
                              interpolation);
+
         transform.q = b2Rot(lerp_angle(start_transform.q.GetAngle(),
                                        end_transform.q.GetAngle(),
                                        interpolation));
@@ -213,18 +224,14 @@ void PlaybackEnv::update(double delta_time)
             }
             auto &event = static_cast<EntityDestroyed &>(*event_iter->get());
             double event_tick = event.get_time() / tick_length;
-            if (event_tick < current_tick + 0.1)
-            {
-                continue;
-            }
 
             b2Transform end_transform(b2Vec2(std::get<0>(event.get_transform()),
                                              std::get<1>(event.get_transform())),
                                       b2Rot(std::get<2>(event.get_transform())));
 
             // Calclulate interpolation for this entity
-            double event_tick_interval = event_tick - second_latest_received_tick;
-            float temp_interpolation = (current_tick - second_latest_received_tick) / event_tick_interval;
+            double event_tick_interval = event_tick - start_state->tick;
+            float temp_interpolation = (current_tick - start_state->tick) / event_tick_interval;
             b2Transform transform;
             transform.p.x = lerp(start_transform.p.x,
                                  end_transform.p.x,
@@ -280,6 +287,7 @@ TEST_CASE("PlaybackEnv")
         entity_states = {{0, {{0, 0}, b2Rot(0)}},
                          {1, {{1, 1}, b2Rot(1)}}};
         playback_env.add_new_state({agent_transforms, entity_states, 1});
+        playback_env.add_new_state({agent_transforms, entity_states, 2});
 
         playback_env.update(0);
         DOCTEST_CHECK(env.get_entities().size() == 0);
@@ -321,26 +329,6 @@ TEST_CASE("PlaybackEnv")
         DOCTEST_CHECK(bullet_1_tranform.p.x == doctest::Approx(-1));
         DOCTEST_CHECK(bullet_1_tranform.p.y == doctest::Approx(0));
         DOCTEST_CHECK(bullet_1_tranform.q.GetAngle() == doctest::Approx(2));
-    }
-
-    SUBCASE("Bullets are removed correctly")
-    {
-        auto &env = playback_env.get_env();
-
-        std::vector<b2Transform> agent_transforms{{{0, 0}, b2Rot(0)},
-                                                  {{0, 0}, b2Rot(0)}};
-        std::unordered_map<unsigned int, b2Transform> entity_states{{0, {{0, 0}, b2Rot(0)}},
-                                                                    {1, {{1, 1}, b2Rot(1)}}};
-        playback_env.add_new_state({agent_transforms, entity_states, 0});
-
-        entity_states = {};
-        playback_env.add_new_state({agent_transforms, entity_states, 1});
-
-        playback_env.update(0);
-        DOCTEST_CHECK(env.get_entities().size() == 2);
-
-        playback_env.update(0.1);
-        DOCTEST_CHECK(env.get_entities().size() == 0);
     }
 
     SUBCASE("Bodies are moved correctly")
@@ -560,6 +548,58 @@ TEST_CASE("PlaybackEnv")
 
         playback_env.update(1);
         DOCTEST_CHECK(env.get_entities().size() == 0);
+    }
+
+    SUBCASE("Real-world example")
+    {
+        // 1
+        std::vector<b2Transform> agent_transforms{{{0, -15}, b2Rot(0)},
+                                                  {{0, 15}, b2Rot(-3.14159)}};
+        std::unordered_map<unsigned int, b2Transform> entity_states{};
+        playback_env.add_new_state({agent_transforms, entity_states, 1});
+
+        // 2
+        playback_env.add_new_state({agent_transforms, entity_states, 2});
+
+        // 3
+        agent_transforms = {{{0, -15}, b2Rot(0)},
+                            {{1.39945e-08, 14.9565}, b2Rot(-3.14159)}};
+        playback_env.add_new_state({agent_transforms, entity_states, 3});
+
+        // 4
+        agent_transforms = {{{-1.04726e-08, -14.9565}, b2Rot(-1.95266e-09)},
+                            {{2.7989e-08, 14.913}, b2Rot(-3.14159)}};
+        entity_states = {{46869, {{1, -14.0895}, b2Rot(0)}},
+                         {55328, {{1, 14.046}, b2Rot(0)}},
+                         {38852, {{-1, -14.0895}, b2Rot(0)}}};
+        playback_env.add_new_state({agent_transforms, entity_states, 4});
+
+        // 5
+        agent_transforms = {{{-2.09451e-08, -14.913}, b2Rot(-1.95266e-09)},
+                            {{4.19834e-08, 14.8696}, b2Rot(-3.14159)}};
+        entity_states = {};
+        std::vector<std::unique_ptr<IEvent>> events;
+        events.push_back(std::make_unique<EntityDestroyed>(55328, 0.483334,
+                                                           Transform{1, 10.395, 0}));
+        events.push_back(std::make_unique<EntityDestroyed>(46869, 0.483334,
+                                                           Transform{1, -9.995, 0}));
+        events.push_back(std::make_unique<EntityDestroyed>(38852, 0.483334,
+                                                           Transform{-1, -9.995, 0}));
+        playback_env.add_events(std::move(events));
+        playback_env.add_new_state({agent_transforms, entity_states, 5});
+
+        // 6
+        agent_transforms = {{{-3.14177e-08, -14.8696}, b2Rot(-5.85799e-09)},
+                            {{6.99724e-08, 14.7826}, b2Rot(-3.14159)}};
+        playback_env.add_new_state({agent_transforms, entity_states, 6});
+
+        double time = 0;
+        while (time < 0.6)
+        {
+            double delta_time = 1. / 60.;
+            playback_env.update(delta_time);
+            time += delta_time;
+        }
     }
 }
 }

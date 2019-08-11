@@ -38,6 +38,7 @@ class PlaybackEnv
     void update(double delta_time);
 
     inline std::vector<Body *> get_bodies() { return env->get_bodies(); }
+    inline double get_elapsed_time() { return current_tick * tick_length; }
     inline IEnvironment &get_env() { return *env; }
     inline std::vector<float> get_scores() { return env->get_scores(); }
 };

@@ -5,6 +5,8 @@
 
 #include <Box2D/Box2D.h>
 #include <doctest.h>
+#include <fmt/ostream.h>
+#include <spdlog/spdlog.h>
 #include <zmq.hpp>
 
 #include "server_app.h"
@@ -78,6 +80,7 @@ void run_client(const std::string &id)
         }
         else if (type == MessageType::State)
         {
+            spdlog::debug("Received state message: {}", message_object.get());
             auto message = message_object->as<StateMessage>();
             finished = message.done;
 

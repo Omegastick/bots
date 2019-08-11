@@ -24,13 +24,13 @@ void EntityDestroyed::trigger(IEnvironment &env)
     auto iter = entities.find(entity_id);
     if (iter == entities.end())
     {
-        auto error_string = fmt::format("Entity {} not found in client environment",
-                                        entity_id);
-        throw std::runtime_error(error_string);
+        return;
+        // auto error_string = fmt::format("Entity {} not found in client environment",
+        //                                 entity_id);
+        // throw std::runtime_error(error_string);
     }
 
     auto &entity = *iter->second;
-    spdlog::debug("Destroying {}", entity_id);
     entity.set_transform({std::get<0>(transform), std::get<1>(transform)}, std::get<2>(transform));
     entity.destroy();
 }
