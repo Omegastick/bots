@@ -159,7 +159,7 @@ void MultiplayerScreen::draw(Renderer &renderer, bool lightweight)
     auto render_data = env->get_render_data(lightweight);
     renderer.draw(render_data,
                   glm::ortho(-38.4f, 38.4f, -21.6f, 21.6f),
-                  env->get_env().get_elapsed_time(),
+                  env->get_elapsed_time(),
                   lightweight);
 
     auto crt_shader = resource_manager.shader_store.get("crt");

@@ -134,7 +134,7 @@ int ServerApp::run_tests(int argc, char *argv[], const argh::parser &args)
 {
     if (!args["--with-logs"])
     {
-        spdlog::set_level(spdlog::level::off);
+        // spdlog::set_level(spdlog::level::off);
     }
     doctest::Context context;
 
