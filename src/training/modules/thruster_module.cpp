@@ -56,8 +56,7 @@ void ThrusterModule::activate()
     body->get_environment()->add_event(std::make_unique<EffectTriggered>(
         EffectTypes::ThrusterParticles,
         body->get_environment()->get_elapsed_time(),
-        Transform{global_transform.p.x, global_transform.p.y, global_transform.q.GetAngle()},
-        body->get_rng()));
+        Transform{global_transform.p.x, global_transform.p.y, global_transform.q.GetAngle()}));
 }
 
 nlohmann::json ThrusterModule::to_json() const

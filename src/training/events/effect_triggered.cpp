@@ -4,7 +4,6 @@
 
 #include "effect_triggered.h"
 #include "graphics/colors.h"
-#include "misc/random.h"
 #include "training/effects/thruster_particles.h"
 #include "training/entities/ientity.h"
 #include "training/environments/ienvironment.h"
@@ -12,9 +11,8 @@
 
 namespace SingularityTrainer
 {
-EffectTriggered::EffectTriggered(EffectTypes effect_type, double time, Transform transform, Random &rng)
+EffectTriggered::EffectTriggered(EffectTypes effect_type, double time, Transform transform)
     : effect_type(effect_type),
-      rng(rng),
       time(time),
       transform(transform)
 {
@@ -28,8 +26,7 @@ void EffectTriggered::trigger(IEnvironment &env)
         env.add_effect(std::make_unique<ThrusterParticles>(b2Transform({std::get<0>(transform),
                                                                         std::get<1>(transform)},
                                                                        b2Rot(std::get<2>(transform))),
-                                                           cl_white,
-                                                           rng));
+                                                           cl_white));
     }
     else
     {

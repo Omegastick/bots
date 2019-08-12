@@ -2,6 +2,8 @@
 
 #include <tuple>
 
+#include <msgpack.hpp>
+
 #include "training/events/ievent.h"
 
 namespace SingularityTrainer
@@ -21,12 +23,11 @@ class EffectTriggered : public IEvent
 {
   private:
     EffectTypes effect_type;
-    Random &rng;
     double time;
     Transform transform;
 
   public:
-    EffectTriggered(EffectTypes effect_type, double time, Transform transform, Random &rng);
+    EffectTriggered(EffectTypes effect_type, double time, Transform transform);
 
     void trigger(IEnvironment &env);
 
@@ -35,3 +36,5 @@ class EffectTriggered : public IEvent
     inline EffectTypes get_effect_type() const { return effect_type; }
 };
 }
+
+MSGPACK_ADD_ENUM(SingularityTrainer::EffectTypes)
