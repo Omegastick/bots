@@ -13,6 +13,8 @@
 #include "misc/resource_manager.h"
 #include "training/actions/activate_action.h"
 #include "training/bodies/body.h"
+#include "training/environments/ienvironment.h"
+#include "training/events/effect_triggered.h"
 #include "training/modules/imodule.h"
 #include "training/modules/thruster_module.h"
 #include "training/rigid_body.h"
@@ -50,39 +52,12 @@ void ThrusterModule::activate()
     b2Transform global_transform = get_global_transform();
     b2Vec2 velocity = b2Mul(global_transform.q, b2Vec2(0, 50));
     body->get_rigid_body().body->ApplyForce(velocity, global_transform.p, true);
-}
 
-RenderData ThrusterModule::get_render_data(bool lightweight)
-{
-    auto render_data = IModule::get_render_data(lightweight);
-
-    // Spawn particles
-    if (active && !lightweight)
-    {
-        b2Transform global_transform = get_global_transform();
-        b2Transform edge_transform = b2Mul(global_transform, b2Transform(b2Vec2(0, -0.3), b2Rot(glm::pi<float>() / 2)));
-        std::uniform_real_distribution<float> distribution(0, 1);
-        const int particle_count = 20;
-        const float step_subdivision = 1.f / particle_count / 10.f;
-        glm::vec4 end_color = particle_color;
-        end_color.a = 0;
-        for (int i = 0; i < particle_count; ++i)
-        {
-            float random_number = body->get_rng().next_float(distribution) - 0.5;
-            b2Rot angle = b2Mul(edge_transform.q, b2Rot(random_number));
-            Particle particle{
-                glm::vec2(edge_transform.p.x + edge_transform.q.s * random_number, edge_transform.p.y - edge_transform.q.c * random_number),
-                -glm::vec2(angle.c * 10, angle.s * 10),
-                -i * step_subdivision,
-                1,
-                0.02,
-                particle_color,
-                end_color};
-            render_data.particles.push_back(particle);
-        }
-    }
-
-    return render_data;
+    body->get_environment()->add_event(std::make_unique<EffectTriggered>(
+        EffectTypes::ThrusterParticles,
+        body->get_environment()->get_elapsed_time(),
+        Transform{global_transform.p.x, global_transform.p.y, global_transform.q.GetAngle()},
+        body->get_rng()));
 }
 
 nlohmann::json ThrusterModule::to_json() const

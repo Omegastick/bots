@@ -21,10 +21,9 @@ class ThrusterModule : public IModule, public IActivatable
     ThrusterModule();
 
     virtual void activate();
-    virtual RenderData get_render_data(bool lightweight = false);
     virtual nlohmann::json to_json() const;
     virtual void update();
-    
+
     inline int get_observation_count() const { return 0; }
 };
 }

@@ -1,8 +1,5 @@
 #include <tuple>
 
-#include <fmt/format.h>
-#include <spdlog/spdlog.h>
-
 #include "entity_destroyed.h"
 #include "training/entities/ientity.h"
 #include "training/environments/ienvironment.h"
