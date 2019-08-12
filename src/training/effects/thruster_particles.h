@@ -7,18 +7,16 @@
 
 namespace SingularityTrainer
 {
-class Random;
 class RenderData;
 
 class ThrusterParticles : public IEffect
 {
   private:
     glm::vec4 particle_color;
-    Random &rng;
     b2Transform transform;
 
   public:
-    ThrusterParticles(b2Transform transform, glm::vec4 particle_color, Random &rng);
+    ThrusterParticles(b2Transform transform, glm::vec4 particle_color);
 
     virtual RenderData trigger();
 };

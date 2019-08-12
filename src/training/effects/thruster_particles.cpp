@@ -1,9 +1,7 @@
 #include <Box2D/Box2D.h>
 #include <glm/glm.hpp>
+#include <glm/gtc/random.hpp>
 #include <glm/gtc/constants.hpp>
-#include <random>
-
-#include <glm/glm.hpp>
 
 #include "thruster_particles.h"
 #include "graphics/render_data.h"
@@ -11,9 +9,8 @@
 
 namespace SingularityTrainer
 {
-ThrusterParticles::ThrusterParticles(b2Transform transform, glm::vec4 particle_color, Random &rng)
+ThrusterParticles::ThrusterParticles(b2Transform transform, glm::vec4 particle_color)
     : particle_color(particle_color),
-      rng(rng),
       transform(transform) {}
 
 RenderData ThrusterParticles::trigger()
@@ -27,7 +24,7 @@ RenderData ThrusterParticles::trigger()
     end_color.a = 0;
     for (int i = 0; i < particle_count; ++i)
     {
-        float random_number = rng.next_float(distribution);
+        float random_number = glm::linearRand(-0.5f, 0.5f);
         b2Rot angle = b2Mul(edge_transform.q, b2Rot(random_number));
         Particle particle{
             glm::vec2(edge_transform.p.x + edge_transform.q.s * random_number, edge_transform.p.y - edge_transform.q.c * random_number),

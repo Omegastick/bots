@@ -6,7 +6,9 @@
 
 #include <msgpack.hpp>
 
+#include "misc/random.h"
 #include "training/events/ievent.h"
+#include "training/events/effect_triggered.h"
 #include "training/events/entity_destroyed.h"
 
 namespace SingularityTrainer
@@ -156,6 +158,15 @@ MSGPACK_API_VERSION_NAMESPACE(MSGPACK_DEFAULT_API_NS)
                 o.pack(event.get_time());
                 o.pack(event.get_transform());
             }
+            else if (v.type == EventTypes::EffectTriggered)
+            {
+                const auto &event = static_cast<const EffectTriggered &>(v);
+                o.pack_array(4);
+                o.pack(event.type);
+                o.pack(event.get_effect_type());
+                o.pack(event.get_time());
+                o.pack(event.get_transform());
+            }
             else
             {
                 throw std::runtime_error("Tried to serialize unknown event type");
@@ -201,6 +212,12 @@ MSGPACK_API_VERSION_NAMESPACE(MSGPACK_DEFAULT_API_NS)
                 if (event.via.array.ptr[0].as<EventTypes>() == EventTypes::EntityDestroyed)
                 {
                     events.push_back(std::make_unique<EntityDestroyed>(event.via.array.ptr[1].as<int>(),
+                                                                       event.via.array.ptr[2].as<double>(),
+                                                                       event.via.array.ptr[3].as<Transform>()));
+                }
+                else if (event.via.array.ptr[0].as<EventTypes>() == EventTypes::EffectTriggered)
+                {
+                    events.push_back(std::make_unique<EffectTriggered>(event.via.array.ptr[1].as<EffectTypes>(),
                                                                        event.via.array.ptr[2].as<double>(),
                                                                        event.via.array.ptr[3].as<Transform>()));
                 }
