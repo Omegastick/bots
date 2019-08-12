@@ -11,6 +11,7 @@ PRIVATE
 add_subdirectory(actions)
 add_subdirectory(agents)
 add_subdirectory(bodies)
+add_subdirectory(effects)
 add_subdirectory(entities)
 add_subdirectory(environments)
 add_subdirectory(evaluators)

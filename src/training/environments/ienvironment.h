@@ -14,6 +14,7 @@
 namespace SingularityTrainer
 {
 class Body;
+class IEffect;
 class IEntity;
 class Particle;
 class RewardConfig;
@@ -81,10 +82,9 @@ class IEnvironment : public IDrawable
   public:
     virtual ~IEnvironment() = 0;
 
+    virtual void add_effect(std::unique_ptr<IEffect> effect) = 0;
     virtual void add_entity(std::unique_ptr<IEntity> entity) = 0;
     virtual void add_event(std::unique_ptr<IEvent> event) = 0;
-    virtual void add_particle(Particle particle) = 0;
-    virtual void add_particles(const std::vector<Particle> &particles) = 0;
     virtual void change_reward(int body, float reward_delta) = 0;
     virtual void change_reward(Body *body, float reward_delta) = 0;
     virtual void forward(float step_length) = 0;

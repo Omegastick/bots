@@ -7,10 +7,11 @@
 #include <spdlog/spdlog.h>
 #include <torch/torch.h>
 
-#include "training/environments/koth_env.h"
+#include "koth_env.h"
 #include "graphics/colors.h"
 #include "graphics/render_data.h"
 #include "training/bodies/test_body.h"
+#include "training/effects/ieffect.h"
 #include "training/entities/bullet.h"
 #include "training/entities/ientity.h"
 #include "training/entities/hill.h"
@@ -156,6 +157,11 @@ KothEnv::KothEnv(int max_steps,
 
 KothEnv::~KothEnv() {}
 
+void KothEnv::add_effect(std::unique_ptr<IEffect> effect)
+{
+    effects.push_back(std::move(effect));
+}
+
 void KothEnv::add_entity(std::unique_ptr<IEntity> entity)
 {
     entities[entity->get_id()] = std::move(entity);
@@ -164,16 +170,6 @@ void KothEnv::add_entity(std::unique_ptr<IEntity> entity)
 void KothEnv::add_event(std::unique_ptr<IEvent> event)
 {
     events.push_back(std::move(event));
-}
-
-void KothEnv::add_particle(Particle particle)
-{
-    particles.push_back(particle);
-}
-
-void KothEnv::add_particles(const std::vector<Particle> &particles)
-{
-    this->particles.insert(this->particles.end(), particles.begin(), particles.end());
 }
 
 void KothEnv::change_score(Body *body, float score_delta)
@@ -208,8 +204,14 @@ RenderData KothEnv::get_render_data(bool lightweight)
         render_data.append(entity.second->get_render_data());
     }
 
-    render_data.append(particles);
-    particles.clear();
+    if (!lightweight)
+    {
+        for (auto &effect : effects)
+        {
+            render_data.append(effect->trigger());
+        }
+    }
+    effects.clear();
 
     return render_data;
 }

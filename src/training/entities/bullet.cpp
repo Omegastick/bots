@@ -8,6 +8,7 @@
 #include "graphics/colors.h"
 #include "graphics/idrawable.h"
 #include "training/bodies/body.h"
+#include "training/effects/bullet_explosion.h"
 #include "training/entities/bullet.h"
 #include "training/environments/ienvironment.h"
 #include "training/events/entity_destroyed.h"
@@ -116,24 +117,8 @@ void Bullet::begin_contact(RigidBody *other)
 
 void Bullet::destroy()
 {
-    auto &env = *owner->get_environment();
-    const int particle_count = 100;
-    b2Vec2 transform = rigid_body->body->GetPosition();
-    const float step_subdivision = 1.f / particle_count / 10.f;
-    glm::vec4 end_color = particle_color;
-    end_color.a = 0;
-    for (int i = 0; i < particle_count; ++i)
-    {
-        Particle particle{
-            glm::vec2(transform.x, transform.y),
-            glm::diskRand(4.f),
-            -i * step_subdivision,
-            0.75,
-            0.02,
-            particle_color,
-            end_color};
-        env.add_particle(particle);
-    }
+    env.add_effect(std::make_unique<BulletExplosion>(rigid_body->body->GetTransform().p,
+                                                     particle_color));
 
     IEntity::destroy();
 }
