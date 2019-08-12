@@ -8,7 +8,8 @@ class IEnvironment;
 
 enum class EventTypes
 {
-    EntityDestroyed = 0
+    EntityDestroyed = 0,
+    EffectTriggered = 1
 };
 
 class IEvent

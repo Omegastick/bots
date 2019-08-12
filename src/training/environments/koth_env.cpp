@@ -218,9 +218,6 @@ RenderData KothEnv::get_render_data(bool lightweight)
 
 StepInfo KothEnv::step(const std::vector<torch::Tensor> actions, float step_length)
 {
-    // Step simulation
-    forward(step_length);
-
     // Act
     auto actions_tensor_1 = actions[0].to(torch::kInt).contiguous();
     std::vector<int> actions_1(actions_tensor_1.data<int>(), actions_tensor_1.data<int>() + actions_tensor_1.numel());
@@ -237,6 +234,9 @@ StepInfo KothEnv::step(const std::vector<torch::Tensor> actions, float step_leng
 
     // Hill score
     hill->update();
+
+    // Step simulation
+    forward(step_length);
 
     // Check if body is destroyed
     if (body_1->get_hp() <= 0)
@@ -296,14 +296,14 @@ StepInfo KothEnv::step(const std::vector<torch::Tensor> actions, float step_leng
 
 void KothEnv::forward(float step_length)
 {
+    world->Step(step_length, 3, 2);
     double step_start_time = elapsed_time;
     elapsed_time += step_length;
-    world->Step(step_length, 3, 2);
 
     for (const auto &event : events)
     {
         double scheduled_time = event->get_time();
-        if (scheduled_time > step_start_time && scheduled_time <= elapsed_time)
+        if (scheduled_time >= step_start_time && scheduled_time < elapsed_time)
         {
             event->trigger(*this);
         }
