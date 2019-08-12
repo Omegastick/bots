@@ -52,11 +52,20 @@ void ThrusterModule::activate()
     b2Transform global_transform = get_global_transform();
     b2Vec2 velocity = b2Mul(global_transform.q, b2Vec2(0, 50));
     body->get_rigid_body().body->ApplyForce(velocity, global_transform.p, true);
+}
 
-    body->get_environment()->add_event(std::make_unique<EffectTriggered>(
-        EffectTypes::ThrusterParticles,
-        body->get_environment()->get_elapsed_time(),
-        Transform{global_transform.p.x, global_transform.p.y, global_transform.q.GetAngle()}));
+RenderData ThrusterModule::get_render_data(bool lightweight)
+{
+    if (active && !lightweight)
+    {
+        const b2Transform &global_transform = get_global_transform();
+        body->get_environment()->add_event(std::make_unique<EffectTriggered>(
+            EffectTypes::ThrusterParticles,
+            body->get_environment()->get_elapsed_time(),
+            Transform{global_transform.p.x, global_transform.p.y, global_transform.q.GetAngle()}));
+    }
+
+    return IModule::get_render_data(lightweight);
 }
 
 nlohmann::json ThrusterModule::to_json() const
