@@ -100,7 +100,9 @@ TEST_CASE("Network")
         di::bind<double>.named(TickLength).to(0.001),
         di::bind<IEnvironmentFactory>.to<KothEnvFactory>());
     auto app = injector.create<ServerApp>();
-    char *argv[2] = {"./asd", "-q"};
+    char filepath[] = "./asd";
+    char quiet[] = "-q";
+    char *argv[2] = {filepath, quiet};
     auto server_thread = std::thread([&] { app.run(2, argv); });
 
     auto client_0_thread = std::thread([&] { run_client("Zero"); });
