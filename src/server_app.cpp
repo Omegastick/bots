@@ -167,6 +167,13 @@ int ServerApp::run(int argc, char *argv[])
         }
     }
 
+    grpc::Status shutdown_call_status = agones_sdk->Shutdown();
+    if (!shutdown_call_status.ok())
+    {
+        std::string error_message = fmt::format("Could not mark server as shutdown: {}",
+                                                shutdown_call_status.error_message());
+        throw std::runtime_error(error_message);
+    }
     return 0;
 }
 
