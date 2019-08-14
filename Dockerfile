@@ -55,4 +55,4 @@ WORKDIR /app
 ENV LD_LIBRARY_PATH=.
 
 # Run server on container start
-ENTRYPOINT [ "./Server" ]
+ENTRYPOINT [ "./Server", "--agones" ]

@@ -23,12 +23,11 @@ class ServerApp
     std::unique_ptr<Game> game;
     std::vector<std::string> players;
     std::unique_ptr<ServerCommunicator> server_communicator;
-    bool use_agones;
 
     int run_tests(int argc, char *argv[], const argh::parser &args);
 
   public:
-    ServerApp(std::shared_ptr<agones::SDK> agones_sdk, std::unique_ptr<Game> game, bool use_agones);
+    ServerApp(std::shared_ptr<agones::SDK> agones_sdk, std::unique_ptr<Game> game);
 
     int run(int argc, char *argv[]);
 };
