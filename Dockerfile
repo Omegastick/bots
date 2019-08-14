@@ -1,4 +1,4 @@
-FROM gcc:8 as builder
+FROM gcc:9 as builder
 
 # Install PyTorch
 RUN wget https://download.pytorch.org/libtorch/nightly/cpu/libtorch-shared-with-deps-latest.zip
