@@ -35,11 +35,9 @@ static void health_check(std::shared_ptr<agones::SDK> agones_sdk)
 }
 
 ServerApp::ServerApp(std::shared_ptr<agones::SDK> agones_sdk,
-                     std::unique_ptr<Game> game,
-                     bool use_agones)
+                     std::unique_ptr<Game> game)
     : agones_sdk(agones_sdk),
-      game(std::move(game)),
-      use_agones(use_agones)
+      game(std::move(game))
 {
     // Logging
     spdlog::set_level(spdlog::level::debug);
@@ -60,6 +58,8 @@ int ServerApp::run(int argc, char *argv[])
     {
         spdlog::set_level(spdlog::level::off);
     }
+
+    bool use_agones = args[{"--agones"}];
 
     if (use_agones)
     {
