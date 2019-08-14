@@ -1,0 +1,16 @@
+.dockerignore
+.env
+.git
+.gitignore
+.gitmodules
+.vscode
+assets
+bodies
+build
+checkpoints
+imgui.ini
+programs
+python
+runs
+training_notes.md
+Dockerfile

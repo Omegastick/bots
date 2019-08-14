@@ -1,10 +1,9 @@
 #include <string>
 
-#include <zmq.hpp>
-
 #include "server_app.h"
 #include "third_party/di.hpp"
 #include "training/environments/koth_env.h"
+#include "third_party/zmq.hpp"
 
 using namespace SingularityTrainer;
 

@@ -6,7 +6,6 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <imgui.h>
 #include <spdlog/spdlog.h>
-#include <zmq.hpp>
 #include <zmq_addon.hpp>
 
 #include "multiplayer_screen.h"
@@ -22,6 +21,7 @@
 #include "networking/messages.h"
 #include "networking/msgpack_codec.h"
 #include "screens/iscreen.h"
+#include "third_party/zmq.hpp"
 #include "training/agents/iagent.h"
 #include "training/agents/random_agent.h"
 #include "training/bodies/body.h"
