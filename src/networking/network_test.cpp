@@ -7,7 +7,6 @@
 #include <doctest.h>
 #include <fmt/ostream.h>
 #include <spdlog/spdlog.h>
-#include <zmq.hpp>
 
 #include "server_app.h"
 #include "misc/random.h"
@@ -17,6 +16,7 @@
 #include "networking/messages.h"
 #include "networking/msgpack_codec.h"
 #include "third_party/di.hpp"
+#include "third_party/zmq.hpp"
 #include "training/agents/random_agent.h"
 #include "training/bodies/test_body.h"
 #include "training/environments/koth_env.h"

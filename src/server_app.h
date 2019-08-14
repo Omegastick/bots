@@ -6,11 +6,11 @@
 
 #include <agones/sdk.h>
 #include <argh.h>
-#include <zmq.hpp>
-#include <zmq_addon.hpp>
 
 #include "networking/game.h"
 #include "networking/server_communicator.h"
+#include "third_party/zmq.hpp"
+#include "third_party/zmq_addon.hpp"
 
 namespace SingularityTrainer
 {
