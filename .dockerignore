@@ -4,6 +4,7 @@
 .gitignore
 .gitmodules
 .vscode
+agones
 assets
 bodies
 build

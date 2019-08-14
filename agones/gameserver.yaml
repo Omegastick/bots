@@ -1,0 +1,15 @@
+apiVersion: "agones.dev/v1"
+kind: GameServer
+metadata:
+  generateName: singularity-trainer-
+spec:
+  ports:
+    - name: default
+      portPolicy: Dynamic
+      containerPort: 7654
+  template:
+    spec:
+      containers:
+      - name: singularity-trainer
+        image: st-server
+        imagePullPolicy: Never
