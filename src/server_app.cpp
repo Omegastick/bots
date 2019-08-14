@@ -4,7 +4,9 @@
 #include <signal.h>
 #include <stdlib.h>
 
+#include <agones/sdk.h>
 #include <doctest.h>
+#include <fmt/format.h>
 #include <nlohmann/json.hpp>
 #include <spdlog/spdlog.h>
 
@@ -22,8 +24,22 @@ void inthand(int /*signum*/)
     stop = 1;
 }
 
-ServerApp::ServerApp(std::unique_ptr<Game> game)
-    : game(std::move(game))
+static void health_check(std::shared_ptr<agones::SDK> agones_sdk)
+{
+    while (!stop)
+    {
+        bool ok = agones_sdk->Health();
+        spdlog::info("Health ping {}", ok ? "sent" : "failed");
+        std::this_thread::sleep_for(std::chrono::seconds(2));
+    }
+}
+
+ServerApp::ServerApp(std::shared_ptr<agones::SDK> agones_sdk,
+                     std::unique_ptr<Game> game,
+                     bool use_agones)
+    : agones_sdk(agones_sdk),
+      game(std::move(game)),
+      use_agones(use_agones)
 {
     // Logging
     spdlog::set_level(spdlog::level::debug);
@@ -45,6 +61,18 @@ int ServerApp::run(int argc, char *argv[])
         spdlog::set_level(spdlog::level::off);
     }
 
+    if (use_agones)
+    {
+        spdlog::info("Connecting to agones");
+        if (!agones_sdk->Connect())
+        {
+            throw std::runtime_error("Could not connect to agones");
+        }
+        spdlog::info("Connected to agones");
+
+        std::thread health_thread(health_check, agones_sdk);
+    }
+
     int port;
     args({"-p", "--port"}, 7654) >> port;
     spdlog::info("Serving on port: {}", port);
@@ -52,6 +80,18 @@ int ServerApp::run(int argc, char *argv[])
     auto socket = std::make_unique<zmq::socket_t>(zmq_context, zmq::socket_type::router);
     socket->bind("tcp://*:" + std::to_string(port));
     server_communicator = std::make_unique<ServerCommunicator>(std::move(socket));
+
+    if (use_agones)
+    {
+        spdlog::info("Marking server as ready");
+        grpc::Status ready_call_status = agones_sdk->Ready();
+        if (!ready_call_status.ok())
+        {
+            std::string error_message = fmt::format("Could not mark server as ready: {}",
+                                                    ready_call_status.error_message());
+            throw std::runtime_error(error_message);
+        }
+    }
 
     GameStartMessage game_start_message;
     bool game_started = false;
@@ -134,7 +174,7 @@ int ServerApp::run_tests(int argc, char *argv[], const argh::parser &args)
 {
     if (!args["--with-logs"])
     {
-        // spdlog::set_level(spdlog::level::off);
+        spdlog::set_level(spdlog::level::off);
     }
     doctest::Context context;
 

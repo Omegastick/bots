@@ -75,6 +75,8 @@ endforeach(target ${ST_TARGETS})
 
 # Libraries included in repository
 option(SPDLOG_FMT_EXTERNAL "" ON)
+## Agones
+find_package(agones CONFIG REQUIRED)
 ## Fmt
 add_subdirectory(${FMT_DIR})
 set_target_properties(fmt PROPERTIES POSITION_INDEPENDENT_CODE TRUE)
@@ -139,7 +141,7 @@ if (UNIX)
     target_link_libraries(Training PUBLIC pthread stdc++fs)
 endif(UNIX)
 target_link_libraries(Graphics glad glfw ${GLFW_LIBRARIES} glm imgui doctest)
-target_link_libraries(Networking Training nlohmann_json::nlohmann_json libzmq-static)
+target_link_libraries(Networking Training nlohmann_json::nlohmann_json libzmq-static agones)
 target_link_libraries(SingularityTrainer Graphics Misc Training Networking)
 target_link_libraries(HeadlessTrainer Graphics Misc Training)
 target_link_libraries(GraphicsPlayground Graphics Misc Training)
