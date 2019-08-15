@@ -61,16 +61,17 @@ int ServerApp::run(int argc, char *argv[])
 
     bool use_agones = args[{"--agones"}];
 
+    std::thread health_thread;
     if (use_agones)
     {
         spdlog::info("Connecting to agones");
         if (!agones_sdk->Connect())
         {
-            throw std::runtime_error("Could not connect to agones");
+            // throw std::runtime_error("Could not connect to agones");
         }
         spdlog::info("Connected to agones");
 
-        std::thread health_thread(health_check, agones_sdk);
+        health_thread = std::thread(health_check, agones_sdk);
     }
 
     int port;
@@ -116,6 +117,7 @@ int ServerApp::run(int argc, char *argv[])
                 auto message = message_object->as<ConnectMessage>();
                 auto json = nlohmann::json::parse(message.body_spec);
                 players.push_back(raw_message.id);
+                spdlog::info("{} connected", raw_message.id);
                 game->add_body(json);
                 game_start_message.body_specs.push_back(message.body_spec);
                 ConnectConfirmationMessage reply(players.size() - 1);
@@ -134,6 +136,7 @@ int ServerApp::run(int argc, char *argv[])
         // If game is about to start, notify the clients
         if (!game_started && game_start_message.body_specs.size() == 2)
         {
+            spdlog::info("Starting game");
             for (const auto &player : players)
             {
                 auto encoded_game_start_message = MsgPackCodec::encode(game_start_message);
@@ -167,13 +170,17 @@ int ServerApp::run(int argc, char *argv[])
         }
     }
 
-    grpc::Status shutdown_call_status = agones_sdk->Shutdown();
-    if (!shutdown_call_status.ok())
+    if (use_agones)
     {
-        std::string error_message = fmt::format("Could not mark server as shutdown: {}",
-                                                shutdown_call_status.error_message());
-        throw std::runtime_error(error_message);
+        grpc::Status shutdown_call_status = agones_sdk->Shutdown();
+        if (!shutdown_call_status.ok())
+        {
+            std::string error_message = fmt::format("Could not mark server as shutdown: {}",
+                                                    shutdown_call_status.error_message());
+            throw std::runtime_error(error_message);
+        }
     }
+
     return 0;
 }
 

@@ -17,7 +17,7 @@ RUN git clone --branch v0.12.0 --depth=1 https://github.com/googleforgames/agone
 RUN mkdir /opt/agones/sdks/cpp/build
 WORKDIR /opt/agones/sdks/cpp/build
 RUN cmake .. -DCMAKE_BUILD_TYPE=Release -G "Unix Makefiles" -DCMAKE_INSTALL_PREFIX=./install
-RUN cmake --build . --target install -j4
+RUN cmake --build . --target install
 
 # Build Singularity Trainer server
 ## Install dependencies
@@ -32,12 +32,12 @@ COPY . .
 ## Run build
 RUN mkdir build
 WORKDIR /app/build
-RUN cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_PREFIX_PATH="/opt/libtorch;/opt/agones/sdks/cpp/build/install" ..
+RUN cmake -DCMAKE_BUILD_TYPE=Debug -DCMAKE_PREFIX_PATH="/opt/libtorch;/opt/agones/sdks/cpp/build/install" ..
 RUN make -j4 Server
 
 
 # Main image
-FROM ubuntu:18.04
+FROM ubuntu:19.04 as main
 
 # Install apt dependencies
 RUN apt-get update && apt-get install -y \
@@ -55,4 +55,4 @@ WORKDIR /app
 ENV LD_LIBRARY_PATH=.
 
 # Run server on container start
-ENTRYPOINT [ "./Server", "--agones" ]
+CMD [ "catchsegv", "./Server", "--agones", "-o", "hai" ]
