@@ -4,7 +4,6 @@
 #include <signal.h>
 #include <stdlib.h>
 
-#include <agones/sdk.h>
 #include <doctest.h>
 #include <fmt/format.h>
 #include <nlohmann/json.hpp>
@@ -13,10 +12,12 @@
 #include "server_app.h"
 #include "networking/messages.h"
 #include "networking/msgpack_codec.h"
+#include "third_party/http_request.h"
 #include "training/environments/koth_env.h"
 
 namespace SingularityTrainer
 {
+const std::string agones_url_base = "http://localhost:59358";
 volatile sig_atomic_t stop;
 
 void inthand(int /*signum*/)
@@ -24,20 +25,28 @@ void inthand(int /*signum*/)
     stop = 1;
 }
 
-static void health_check(std::shared_ptr<agones::SDK> agones_sdk)
+static void health_check()
 {
     while (!stop)
     {
-        bool ok = agones_sdk->Health();
-        spdlog::info("Health ping {}", ok ? "sent" : "failed");
+        http::Request health_request(agones_url_base + "/health");
+        try
+        {
+
+            health_request.send("POST", "{}");
+            spdlog::info("Health ping sent");
+        }
+        catch (std::system_error &error)
+        {
+            spdlog::error("Failed health check: {}", error.what());
+        }
+
         std::this_thread::sleep_for(std::chrono::seconds(2));
     }
 }
 
-ServerApp::ServerApp(std::shared_ptr<agones::SDK> agones_sdk,
-                     std::unique_ptr<Game> game)
-    : agones_sdk(agones_sdk),
-      game(std::move(game))
+ServerApp::ServerApp(std::unique_ptr<Game> game)
+    : game(std::move(game))
 {
     // Logging
     spdlog::set_level(spdlog::level::debug);
@@ -64,14 +73,7 @@ int ServerApp::run(int argc, char *argv[])
     std::thread health_thread;
     if (use_agones)
     {
-        spdlog::info("Connecting to agones");
-        if (!agones_sdk->Connect())
-        {
-            // throw std::runtime_error("Could not connect to agones");
-        }
-        spdlog::info("Connected to agones");
-
-        health_thread = std::thread(health_check, agones_sdk);
+        health_thread = std::thread(health_check);
     }
 
     int port;
@@ -85,12 +87,16 @@ int ServerApp::run(int argc, char *argv[])
     if (use_agones)
     {
         spdlog::info("Marking server as ready");
-        grpc::Status ready_call_status = agones_sdk->Ready();
-        if (!ready_call_status.ok())
+
+        http::Request ready_request(agones_url_base + "/ready");
+        try
         {
-            std::string error_message = fmt::format("Could not mark server as ready: {}",
-                                                    ready_call_status.error_message());
-            throw std::runtime_error(error_message);
+            ready_request.send("POST", "{}");
+        }
+        catch (std::system_error &error)
+        {
+            spdlog::error("Could not mark server as ready");
+            throw error;
         }
     }
 
@@ -172,12 +178,15 @@ int ServerApp::run(int argc, char *argv[])
 
     if (use_agones)
     {
-        grpc::Status shutdown_call_status = agones_sdk->Shutdown();
-        if (!shutdown_call_status.ok())
+        http::Request shutdown_request(agones_url_base + "/shutdown");
+        try
         {
-            std::string error_message = fmt::format("Could not mark server as shutdown: {}",
-                                                    shutdown_call_status.error_message());
-            throw std::runtime_error(error_message);
+            shutdown_request.send("POST", "{}");
+        }
+        catch (std::system_error &error)
+        {
+            spdlog::error("Could not mark server as shut down");
+            throw error;
         }
     }
 

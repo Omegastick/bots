@@ -7,9 +7,15 @@ spec:
     - name: default
       portPolicy: Dynamic
       containerPort: 7654
+      protocol: TCP
+  health:
+    disabled: false
+    initialDelaySeconds: 10
+    periodSeconds: 5
+    failureThreshold: 3
   template:
     spec:
       containers:
       - name: singularity-trainer
-        image: gcr.io/carbide-kite-208413/st-server
-        imagePullPolicy: Always
+        image: st-server
+        imagePullPolicy: Never
