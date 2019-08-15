@@ -11,5 +11,5 @@ spec:
     spec:
       containers:
       - name: singularity-trainer
-        image: st-server
-        imagePullPolicy: Never
+        image: gcr.io/carbide-kite-208413/st-server
+        imagePullPolicy: Always
