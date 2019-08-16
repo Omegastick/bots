@@ -26,6 +26,13 @@ class ResourceManager;
 class MultiplayerScreen : public IScreen
 {
   private:
+    enum class State
+    {
+        AddressInput = 0,
+        WaitingToStart = 1,
+        Playing = 2
+    };
+
     zmq::context_t zmq_context;
 
     std::unique_ptr<ClientAgent> client_agent;
@@ -37,11 +44,12 @@ class MultiplayerScreen : public IScreen
     glm::mat4 projection;
     ResourceManager &resource_manager;
     Random &rng;
+    std::string server_address;
+    State state;
     double tick_length;
 
   public:
     MultiplayerScreen(double tick_length,
-                      BodyFactory &body_factory,
                       IEnvironmentFactory &env_factory,
                       IO &io,
                       ResourceManager &resource_manager,
@@ -54,7 +62,6 @@ class MultiplayerScreen : public IScreen
 class MultiplayerScreenFactory
 {
   private:
-    BodyFactory &body_factory;
     IEnvironmentFactory &env_factory;
     IO &io;
     ResourceManager &resource_manager;
@@ -63,14 +70,12 @@ class MultiplayerScreenFactory
 
   public:
     BOOST_DI_INJECT(MultiplayerScreenFactory,
-                    BodyFactory &body_factory,
                     IEnvironmentFactory &env_factory,
                     IO &io,
                     ResourceManager &resource_manager,
                     Random &rng,
                     (named = TickLength) double tick_length)
-        : body_factory(body_factory),
-          env_factory(env_factory),
+        : env_factory(env_factory),
           io(io),
           resource_manager(resource_manager),
           rng(rng),
@@ -79,7 +84,6 @@ class MultiplayerScreenFactory
     virtual std::shared_ptr<IScreen> make()
     {
         return std::make_unique<MultiplayerScreen>(tick_length,
-                                                   body_factory,
                                                    env_factory,
                                                    io,
                                                    resource_manager,
