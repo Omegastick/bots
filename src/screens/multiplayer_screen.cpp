@@ -28,21 +28,24 @@
 #include "training/bodies/body.h"
 #include "training/environments/ienvironment.h"
 #include "training/environments/playback_env.h"
+#include "ui/multiplayer_screen/choose_agent_window.h"
 
 namespace SingularityTrainer
 {
 MultiplayerScreen::MultiplayerScreen(double tick_length,
+                                     std::unique_ptr<ChooseAgentWindow> choose_agent_window,
                                      IEnvironmentFactory &env_factory,
                                      IO &io,
                                      ResourceManager &resource_manager,
                                      Random &rng)
-    : env_factory(env_factory),
+    : choose_agent_window(std::move(choose_agent_window)),
+      env_factory(env_factory),
       io(io),
       projection(glm::ortho(0.f, 1920.f, 0.f, 1080.f)),
       resource_manager(resource_manager),
       rng(rng),
       server_address("tcp://localhost:7654"),
-      state(MultiplayerScreen::State::AddressInput),
+      state(MultiplayerScreen::State::ChooseAgent),
       tick_length(tick_length)
 {
     resource_manager.load_texture("base_module", "images/base_module.png");
@@ -61,74 +64,90 @@ MultiplayerScreen::MultiplayerScreen(double tick_length,
 
 void MultiplayerScreen::update(double delta_time)
 {
-    if (state == MultiplayerScreen::State::AddressInput)
+    if (state == MultiplayerScreen::State::ChooseAgent)
     {
-        ImGui::SetNextWindowPosCenter(ImGuiCond_Always);
-        auto resolution = io.get_resolution();
-        ImGui::SetNextWindowSize({resolution.x * 0.2f, resolution.y * 0.1f}, ImGuiCond_Always);
-        ImGui::Begin("Multiplayer", NULL, ImGuiWindowFlags_NoResize);
-        ImGui::InputText("Server Address", &server_address);
-        if (ImGui::Button("Connect"))
-        {
-            // Connect to the server
-            auto client_socket = std::make_unique<zmq::socket_t>(zmq_context, zmq::socket_type::dealer);
-            std::string id(std::to_string(rng.next_int(0, 10000000)));
-            client_socket->setsockopt(ZMQ_IDENTITY, id.c_str(), id.size());
-            spdlog::info("Connecting to server");
-            client_socket->connect(server_address);
-            client_communicator = std::make_unique<ClientCommunicator>(std::move(client_socket));
-
-            env = std::make_unique<PlaybackEnv>(env_factory.make(), tick_length);
-
-            auto body_spec = env->get_bodies()[0]->to_json();
-
-            ConnectMessage connect_message(body_spec.dump());
-            auto encoded_connect_message = MsgPackCodec::encode(connect_message);
-            spdlog::info("Sending connect message");
-            client_communicator->send(encoded_connect_message);
-
-            state = MultiplayerScreen::State::WaitingToStart;
-        }
-        ImGui::End();
-        return;
+        choose_agent();
     }
-    if (state == MultiplayerScreen::State::WaitingToStart)
+    else if (state == MultiplayerScreen::State::InputAddress)
     {
-        ImGui::SetNextWindowPosCenter(ImGuiCond_Always);
-        auto resolution = io.get_resolution();
-        ImGui::SetNextWindowSize({resolution.x * 0.2f, resolution.y * 0.1f}, ImGuiCond_Always);
-        ImGui::Begin("Multiplayer", NULL, ImGuiWindowFlags_NoResize);
-        ImGui::Text("Waiting for game to start...");
-        ImGui::End();
+        input_address();
+    }
+    else if (state == MultiplayerScreen::State::WaitingToStart)
+    {
+        wait_for_start();
+    }
+    else if (state == MultiplayerScreen::State::Playing)
+    {
+        play(delta_time);
+    }
+}
 
-        std::string raw_message = client_communicator->get();
-        if (raw_message.empty())
-        {
-            return;
-        }
+void MultiplayerScreen::draw(Renderer &renderer, bool lightweight)
+{
+    renderer.push_post_proc_layer(crt_post_proc_layer.get());
+    renderer.begin();
 
-        auto message_object = MsgPackCodec::decode<msgpack::object_handle>(raw_message);
-
-        auto type = get_message_type(message_object.get());
-        if (type == MessageType::GameStart)
-        {
-            spdlog::info("Received game start message");
-            auto message = message_object->as<GameStartMessage>();
-            std::vector<nlohmann::json> body_specs;
-            std::transform(message.body_specs.begin(), message.body_specs.end(),
-                           std::back_inserter(body_specs),
-                           [](const std::string &body_spec_string) {
-                               return nlohmann::json::parse(body_spec_string);
-                           });
-            client_agent->set_bodies(body_specs);
-            env->set_bodies(body_specs);
-
-            state = MultiplayerScreen::State::Playing;
-        }
-
-        return;
+    if (env != nullptr)
+    {
+        renderer.scissor(-10, -20, 10, 20, glm::ortho(-38.4f, 38.4f, -21.6f, 21.6f));
+        auto render_data = env->get_render_data(lightweight);
+        renderer.draw(render_data,
+                      glm::ortho(-38.4f, 38.4f, -21.6f, 21.6f),
+                      env->get_elapsed_time(),
+                      lightweight);
     }
 
+    auto crt_shader = resource_manager.shader_store.get("crt");
+    crt_shader->set_uniform_2f("u_resolution", {renderer.get_width(), renderer.get_height()});
+    crt_shader->set_uniform_1f("u_output_gamma", 1);
+    crt_shader->set_uniform_1f("u_strength", 0.8);
+    crt_shader->set_uniform_1f("u_distortion_factor", 0.1);
+
+    renderer.end();
+}
+
+void MultiplayerScreen::choose_agent()
+{
+    agent = choose_agent_window->update();
+    if (agent != nullptr)
+    {
+        state = MultiplayerScreen::State::InputAddress;
+    }
+}
+
+void MultiplayerScreen::input_address()
+{
+    ImGui::SetNextWindowPosCenter(ImGuiCond_Always);
+    auto resolution = io.get_resolution();
+    ImGui::SetNextWindowSize({resolution.x * 0.2f, resolution.y * 0.1f}, ImGuiCond_Always);
+    ImGui::Begin("Multiplayer", NULL, ImGuiWindowFlags_NoResize);
+    ImGui::InputText("Server Address", &server_address);
+    if (ImGui::Button("Connect"))
+    {
+        // Connect to the server
+        auto client_socket = std::make_unique<zmq::socket_t>(zmq_context, zmq::socket_type::dealer);
+        std::string id(std::to_string(rng.next_int(0, 10000000)));
+        client_socket->setsockopt(ZMQ_IDENTITY, id.c_str(), id.size());
+        spdlog::info("Connecting to server");
+        client_socket->connect(server_address);
+        client_communicator = std::make_unique<ClientCommunicator>(std::move(client_socket));
+
+        env = std::make_unique<PlaybackEnv>(env_factory.make(), tick_length);
+
+        auto body_spec = env->get_bodies()[0]->to_json();
+
+        ConnectMessage connect_message(body_spec.dump());
+        auto encoded_connect_message = MsgPackCodec::encode(connect_message);
+        spdlog::info("Sending connect message");
+        client_communicator->send(encoded_connect_message);
+
+        state = MultiplayerScreen::State::WaitingToStart;
+    }
+    ImGui::End();
+}
+
+void MultiplayerScreen::play(double delta_time)
+{
     while (true)
     {
         std::string raw_message = client_communicator->get();
@@ -145,7 +164,6 @@ void MultiplayerScreen::update(double delta_time)
             spdlog::info("Received connection confirmation");
             auto message = message_object->as<ConnectConfirmationMessage>();
             auto body_spec = env->get_bodies()[0]->to_json();
-            auto agent = std::make_unique<RandomAgent>(body_spec, rng, "Random agent");
             client_agent = std::make_unique<ClientAgent>(std::move(agent), message.player_number, env_factory.make());
         }
         else if (type == MessageType::State)
@@ -192,27 +210,38 @@ void MultiplayerScreen::update(double delta_time)
     ImGui::End();
 }
 
-void MultiplayerScreen::draw(Renderer &renderer, bool lightweight)
+void MultiplayerScreen::wait_for_start()
 {
-    renderer.push_post_proc_layer(crt_post_proc_layer.get());
-    renderer.begin();
+    ImGui::SetNextWindowPosCenter(ImGuiCond_Always);
+    auto resolution = io.get_resolution();
+    ImGui::SetNextWindowSize({resolution.x * 0.2f, resolution.y * 0.1f}, ImGuiCond_Always);
+    ImGui::Begin("Multiplayer", NULL, ImGuiWindowFlags_NoResize);
+    ImGui::Text("Waiting for game to start...");
+    ImGui::End();
 
-    if (env != nullptr)
+    std::string raw_message = client_communicator->get();
+    if (raw_message.empty())
     {
-        renderer.scissor(-10, -20, 10, 20, glm::ortho(-38.4f, 38.4f, -21.6f, 21.6f));
-        auto render_data = env->get_render_data(lightweight);
-        renderer.draw(render_data,
-                      glm::ortho(-38.4f, 38.4f, -21.6f, 21.6f),
-                      env->get_elapsed_time(),
-                      lightweight);
+        return;
     }
 
-    auto crt_shader = resource_manager.shader_store.get("crt");
-    crt_shader->set_uniform_2f("u_resolution", {renderer.get_width(), renderer.get_height()});
-    crt_shader->set_uniform_1f("u_output_gamma", 1);
-    crt_shader->set_uniform_1f("u_strength", 0.8);
-    crt_shader->set_uniform_1f("u_distortion_factor", 0.1);
+    auto message_object = MsgPackCodec::decode<msgpack::object_handle>(raw_message);
 
-    renderer.end();
+    auto type = get_message_type(message_object.get());
+    if (type == MessageType::GameStart)
+    {
+        spdlog::info("Received game start message");
+        auto message = message_object->as<GameStartMessage>();
+        std::vector<nlohmann::json> body_specs;
+        std::transform(message.body_specs.begin(), message.body_specs.end(),
+                       std::back_inserter(body_specs),
+                       [](const std::string &body_spec_string) {
+                           return nlohmann::json::parse(body_spec_string);
+                       });
+        client_agent->set_bodies(body_specs);
+        env->set_bodies(body_specs);
+
+        state = MultiplayerScreen::State::Playing;
+    }
 }
 }
