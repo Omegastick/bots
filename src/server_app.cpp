@@ -68,14 +68,6 @@ int ServerApp::run(int argc, char *argv[])
         spdlog::set_level(spdlog::level::off);
     }
 
-    bool use_agones = args[{"--agones"}];
-
-    std::thread health_thread;
-    if (use_agones)
-    {
-        health_thread = std::thread(health_check);
-    }
-
     int port;
     args({"-p", "--port"}, 7654) >> port;
     spdlog::info("Serving on port: {}", port);
@@ -84,20 +76,37 @@ int ServerApp::run(int argc, char *argv[])
     socket->bind("tcp://*:" + std::to_string(port));
     server_communicator = std::make_unique<ServerCommunicator>(std::move(socket));
 
+    std::thread health_thread;
+    bool use_agones = args[{"--agones"}];
     if (use_agones)
     {
         spdlog::info("Marking server as ready");
 
         http::Request ready_request(agones_url_base + "/ready");
-        try
+        int retries = 0;
+        while (true)
         {
-            ready_request.send("POST", "{}");
+            try
+            {
+                ready_request.send("POST", "{}");
+                break;
+            }
+            catch (std::system_error &error)
+            {
+                if (retries < 10)
+                {
+                    retries += 1;
+                    std::this_thread::sleep_for(std::chrono::milliseconds(500));
+                }
+                else
+                {
+                    spdlog::error("Could not mark server as ready");
+                    throw error;
+                }
+            }
         }
-        catch (std::system_error &error)
-        {
-            spdlog::error("Could not mark server as ready");
-            throw error;
-        }
+
+        health_thread = std::thread(health_check);
     }
 
     GameStartMessage game_start_message;
