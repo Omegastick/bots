@@ -1,28 +1,10 @@
 #include <imgui.h>
 
 #include "brain_window.h"
+#include "misc/imgui_utils.h"
 #include "misc/io.h"
 #include "training/checkpointer.h"
 #include "training/training_program.h"
-
-namespace ImGui
-{
-bool ListBox(const char *label,
-             int *current_item,
-             const std::vector<std::string> &items,
-             int height_in_items = -1)
-{
-    return ListBox(label,
-                   current_item,
-                   [](void *data, int idx, const char **out_text) {
-                       *out_text = (*static_cast<const std::vector<std::string> *>(data))[idx].c_str();
-                       return true;
-                   },
-                   (void *)&items,
-                   items.size(),
-                   height_in_items);
-}
-}
 
 namespace SingularityTrainer
 {

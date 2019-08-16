@@ -1,4 +1,5 @@
 add_subdirectory(build_screen)
 add_subdirectory(create_program_screen)
+add_subdirectory(multiplayer_screen)
 # add_subdirectory(training_wizard_screen)
 add_subdirectory(watch_screen)
