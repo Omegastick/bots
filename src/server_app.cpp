@@ -168,6 +168,8 @@ int ServerApp::run(int argc, char *argv[])
             StateMessage reply(std::move(tick_result.agent_transforms),
                                std::move(tick_result.entity_transforms),
                                std::move(tick_result.events),
+                               std::move(tick_result.hps),
+                               std::move(tick_result.scores),
                                tick_result.done,
                                tick_result.tick);
             auto encoded_reply = MsgPackCodec::encode(reply);

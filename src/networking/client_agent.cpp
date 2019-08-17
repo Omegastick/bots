@@ -65,6 +65,8 @@ TEST_CASE("ClientAgent")
         EnvState env_state(std::vector<b2Transform>{b2Transform(b2Vec2(-5, -5), b2Rot(0)),
                                                     b2Transform(b2Vec2(5, 5), b2Rot(1))},
                            std::unordered_map<unsigned int, b2Transform>{},
+                           {10, 10},
+                           {0, 0},
                            0);
         auto action = client_agent.get_action(env_state);
 

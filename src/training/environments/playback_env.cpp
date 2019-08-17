@@ -167,6 +167,17 @@ void PlaybackEnv::update(double delta_time)
 
     EnvState lerped_state;
 
+    if (current_tick < end_state->tick)
+    {
+        lerped_state.hps = start_state->hps;
+        lerped_state.scores = start_state->scores;
+    }
+    else
+    {
+        lerped_state.hps = end_state->hps;
+        lerped_state.scores = end_state->scores;
+    }
+
     // Agents
     for (unsigned int i = 0; i < start_state->agent_transforms.size(); ++i)
     {
@@ -282,12 +293,12 @@ TEST_CASE("PlaybackEnv")
         std::vector<b2Transform> agent_transforms{{{0, 0}, b2Rot(0)},
                                                   {{0, 0}, b2Rot(0)}};
         std::unordered_map<unsigned int, b2Transform> entity_states{};
-        playback_env.add_new_state({agent_transforms, entity_states, 0});
+        playback_env.add_new_state({agent_transforms, entity_states, {10, 10}, {0, 0}, 0});
 
         entity_states = {{0, {{0, 0}, b2Rot(0)}},
                          {1, {{1, 1}, b2Rot(1)}}};
-        playback_env.add_new_state({agent_transforms, entity_states, 1});
-        playback_env.add_new_state({agent_transforms, entity_states, 2});
+        playback_env.add_new_state({agent_transforms, entity_states, {10, 10}, {0, 0}, 1});
+        playback_env.add_new_state({agent_transforms, entity_states, {10, 10}, {0, 0}, 2});
 
         playback_env.update(0);
         DOCTEST_CHECK(env.get_entities().size() == 0);
@@ -304,11 +315,11 @@ TEST_CASE("PlaybackEnv")
                                                   {{0, 0}, b2Rot(0)}};
         std::unordered_map<unsigned int, b2Transform> entity_states{{0, {{0, 0}, b2Rot(0)}},
                                                                     {1, {{1, 1}, b2Rot(1)}}};
-        playback_env.add_new_state({agent_transforms, entity_states, 0});
+        playback_env.add_new_state({agent_transforms, entity_states, {10, 10}, {0, 0}, 0});
 
         entity_states = {{0, {{0.5, 0.5}, b2Rot(0.5)}},
                          {1, {{-1, 0}, b2Rot(2)}}};
-        playback_env.add_new_state({agent_transforms, entity_states, 1});
+        playback_env.add_new_state({agent_transforms, entity_states, {10, 10}, {0, 0}, 1});
 
         playback_env.update(0);
         auto bullet_0_tranform = env.get_entities()[0]->get_transform();
@@ -338,11 +349,11 @@ TEST_CASE("PlaybackEnv")
         std::vector<b2Transform> agent_transforms{{{0, 1}, b2Rot(0)},
                                                   {{2, 3}, b2Rot(1)}};
         std::unordered_map<unsigned int, b2Transform> entity_states{};
-        playback_env.add_new_state({agent_transforms, entity_states, 0});
+        playback_env.add_new_state({agent_transforms, entity_states, {10, 10}, {0, 0}, 0});
 
         agent_transforms = {{{1, 2}, b2Rot(1)},
                             {{3, 4}, b2Rot(0.5)}};
-        playback_env.add_new_state({agent_transforms, entity_states, 1});
+        playback_env.add_new_state({agent_transforms, entity_states, {10, 10}, {0, 0}, 1});
 
         playback_env.update(0);
         auto agent_0_tranform = env.get_bodies()[0]->get_rigid_body().body->GetTransform();
@@ -372,15 +383,15 @@ TEST_CASE("PlaybackEnv")
         std::vector<b2Transform> agent_transforms{{{0, 0}, b2Rot(0)},
                                                   {{0, 0}, b2Rot(0)}};
         std::unordered_map<unsigned int, b2Transform> entity_states{{0, {{0, 0}, b2Rot(0)}}};
-        playback_env.add_new_state({agent_transforms, entity_states, 0});
+        playback_env.add_new_state({agent_transforms, entity_states, {10, 10}, {0, 0}, 0});
         entity_states = {{0, {{1, 1}, b2Rot(1)}}};
-        playback_env.add_new_state({agent_transforms, entity_states, 1});
+        playback_env.add_new_state({agent_transforms, entity_states, {10, 10}, {0, 0}, 1});
         entity_states = {{0, {{2, 2}, b2Rot(2)}}};
-        playback_env.add_new_state({agent_transforms, entity_states, 2});
+        playback_env.add_new_state({agent_transforms, entity_states, {10, 10}, {0, 0}, 2});
         entity_states = {{0, {{3, 3}, b2Rot(3)}}};
-        playback_env.add_new_state({agent_transforms, entity_states, 3});
+        playback_env.add_new_state({agent_transforms, entity_states, {10, 10}, {0, 0}, 3});
         entity_states = {{0, {{4, 4}, b2Rot(4)}}};
-        playback_env.add_new_state({agent_transforms, entity_states, 4});
+        playback_env.add_new_state({agent_transforms, entity_states, {10, 10}, {0, 0}, 4});
 
         playback_env.update(0.3);
         auto bullet_tranform = env.get_entities()[0]->get_transform();
@@ -394,11 +405,11 @@ TEST_CASE("PlaybackEnv")
         std::vector<b2Transform> agent_transforms{{{0, 1}, b2Rot(0)},
                                                   {{2, 3}, b2Rot(1)}};
         std::unordered_map<unsigned int, b2Transform> entity_states{};
-        playback_env.add_new_state({agent_transforms, entity_states, 0});
+        playback_env.add_new_state({agent_transforms, entity_states, {10, 10}, {0, 0}, 0});
 
         agent_transforms = {{{1, 2}, b2Rot(1)},
                             {{3, 4}, b2Rot(0.5)}};
-        playback_env.add_new_state({agent_transforms, entity_states, 1});
+        playback_env.add_new_state({agent_transforms, entity_states, {10, 10}, {0, 0}, 1});
 
         playback_env.update(0.05);
         auto agent_0_tranform = env.get_bodies()[0]->get_rigid_body().body->GetTransform();
@@ -428,11 +439,11 @@ TEST_CASE("PlaybackEnv")
         std::vector<b2Transform> agent_transforms{{{0, 1}, b2Rot(0)},
                                                   {{2, 3}, b2Rot(1)}};
         std::unordered_map<unsigned int, b2Transform> entity_states{};
-        playback_env.add_new_state({agent_transforms, entity_states, 3});
+        playback_env.add_new_state({agent_transforms, entity_states, {10, 10}, {0, 0}, 3});
 
         agent_transforms = {{{1, 2}, b2Rot(1)},
                             {{3, 4}, b2Rot(0.5)}};
-        playback_env.add_new_state({agent_transforms, entity_states, 4});
+        playback_env.add_new_state({agent_transforms, entity_states, {10, 10}, {0, 0}, 4});
 
         playback_env.update(0.35);
         auto agent_0_tranform = env.get_bodies()[0]->get_rigid_body().body->GetTransform();
@@ -462,11 +473,11 @@ TEST_CASE("PlaybackEnv")
         std::vector<b2Transform> agent_transforms{{{0, 0}, b2Rot(M_PI - 1)},
                                                   {{0, 0}, b2Rot(-M_PI + 1)}};
         std::unordered_map<unsigned int, b2Transform> entity_states{};
-        playback_env.add_new_state({agent_transforms, entity_states, 0});
+        playback_env.add_new_state({agent_transforms, entity_states, {10, 10}, {0, 0}, 0});
 
         agent_transforms = {{{0, 0}, b2Rot(-M_PI + 1)},
                             {{0, 0}, b2Rot(M_PI - 1)}};
-        playback_env.add_new_state({agent_transforms, entity_states, 1});
+        playback_env.add_new_state({agent_transforms, entity_states, {10, 10}, {0, 0}, 1});
 
         playback_env.update(0.05);
         auto agent_0_tranform = env.get_bodies()[0]->get_rigid_body().body->GetTransform();
@@ -482,8 +493,8 @@ TEST_CASE("PlaybackEnv")
         std::vector<b2Transform> agent_transforms{{{0, 0}, b2Rot(0)},
                                                   {{0, 0}, b2Rot(0)}};
         std::unordered_map<unsigned int, b2Transform> entity_states{{0, {{0, 0}, b2Rot(0)}}};
-        playback_env.add_new_state({agent_transforms, entity_states, 0});
-        playback_env.add_new_state({agent_transforms, entity_states, 1});
+        playback_env.add_new_state({agent_transforms, entity_states, {10, 10}, {0, 0}, 0});
+        playback_env.add_new_state({agent_transforms, entity_states, {10, 10}, {0, 0}, 1});
 
         std::vector<std::unique_ptr<IEvent>> events;
         events.push_back(std::make_unique<EntityDestroyed>(0, 0.5, Transform{1, 2, 3}));
@@ -505,10 +516,10 @@ TEST_CASE("PlaybackEnv")
         std::vector<b2Transform> agent_transforms{{{0, 0}, b2Rot(0)},
                                                   {{0, 0}, b2Rot(0)}};
         std::unordered_map<unsigned int, b2Transform> entity_states{{0, {{0, 0}, b2Rot(0)}}};
-        playback_env.add_new_state({agent_transforms, entity_states, 0});
+        playback_env.add_new_state({agent_transforms, entity_states, {10, 10}, {0, 0}, 0});
 
         entity_states = {};
-        playback_env.add_new_state({agent_transforms, entity_states, 1});
+        playback_env.add_new_state({agent_transforms, entity_states, {10, 10}, {0, 0}, 1});
 
         std::vector<std::unique_ptr<IEvent>> events;
         events.push_back(std::make_unique<EntityDestroyed>(0, 0.05, Transform{1, 2, 1}));
@@ -531,10 +542,10 @@ TEST_CASE("PlaybackEnv")
         std::vector<b2Transform> agent_transforms{{{0, 0}, b2Rot(0)},
                                                   {{0, 0}, b2Rot(0)}};
         std::unordered_map<unsigned int, b2Transform> entity_states{{0, {{0, 0}, b2Rot(0)}}};
-        playback_env.add_new_state({agent_transforms, entity_states, 0});
+        playback_env.add_new_state({agent_transforms, entity_states, {10, 10}, {0, 0}, 0});
 
         entity_states = {};
-        playback_env.add_new_state({agent_transforms, entity_states, 1});
+        playback_env.add_new_state({agent_transforms, entity_states, {10, 10}, {0, 0}, 1});
 
         std::vector<std::unique_ptr<IEvent>> events;
         events.push_back(std::make_unique<EntityDestroyed>(0, 0.05, Transform{1, 2, 1}));
@@ -550,21 +561,73 @@ TEST_CASE("PlaybackEnv")
         DOCTEST_CHECK(env.get_entities().size() == 0);
     }
 
+    SUBCASE("HPs are updated correctly")
+    {
+        auto &env = playback_env.get_env();
+
+        std::vector<b2Transform> agent_transforms{{{0, 1}, b2Rot(0)},
+                                                  {{2, 3}, b2Rot(1)}};
+        std::unordered_map<unsigned int, b2Transform> entity_states{};
+        playback_env.add_new_state({agent_transforms, entity_states, {10, 10}, {0, 0}, 0});
+
+        agent_transforms = {{{1, 2}, b2Rot(1)},
+                            {{3, 4}, b2Rot(0.5)}};
+        playback_env.add_new_state({agent_transforms, entity_states, {9, 5}, {0, 0}, 1});
+
+        playback_env.update(0);
+        DOCTEST_CHECK(env.get_bodies()[0]->get_hp() == 10);
+        DOCTEST_CHECK(env.get_bodies()[1]->get_hp() == 10);
+
+        playback_env.update(0.05);
+        DOCTEST_CHECK(env.get_bodies()[0]->get_hp() == 10);
+        DOCTEST_CHECK(env.get_bodies()[1]->get_hp() == 10);
+
+        playback_env.update(0.06);
+        DOCTEST_CHECK(env.get_bodies()[0]->get_hp() == 9);
+        DOCTEST_CHECK(env.get_bodies()[1]->get_hp() == 5);
+    }
+
+    SUBCASE("Scores are updated correctly")
+    {
+        auto &env = playback_env.get_env();
+
+        std::vector<b2Transform> agent_transforms{{{0, 1}, b2Rot(0)},
+                                                  {{2, 3}, b2Rot(1)}};
+        std::unordered_map<unsigned int, b2Transform> entity_states{};
+        playback_env.add_new_state({agent_transforms, entity_states, {10, 10}, {0, 0}, 0});
+
+        agent_transforms = {{{1, 2}, b2Rot(1)},
+                            {{3, 4}, b2Rot(0.5)}};
+        playback_env.add_new_state({agent_transforms, entity_states, {10, 10}, {5, -5}, 1});
+
+        playback_env.update(0);
+        DOCTEST_CHECK(env.get_scores()[0] == 0);
+        DOCTEST_CHECK(env.get_scores()[1] == 0);
+
+        playback_env.update(0.05);
+        DOCTEST_CHECK(env.get_scores()[0] == 0);
+        DOCTEST_CHECK(env.get_scores()[1] == 0);
+
+        playback_env.update(0.06);
+        DOCTEST_CHECK(env.get_scores()[0] == 5);
+        DOCTEST_CHECK(env.get_scores()[1] == -5);
+    }
+
     SUBCASE("Real-world example")
     {
         // 1
         std::vector<b2Transform> agent_transforms{{{0, -15}, b2Rot(0)},
                                                   {{0, 15}, b2Rot(-3.14159)}};
         std::unordered_map<unsigned int, b2Transform> entity_states{};
-        playback_env.add_new_state({agent_transforms, entity_states, 1});
+        playback_env.add_new_state({agent_transforms, entity_states, {10, 10}, {0, 0}, 1});
 
         // 2
-        playback_env.add_new_state({agent_transforms, entity_states, 2});
+        playback_env.add_new_state({agent_transforms, entity_states, {10, 10}, {0, 0}, 2});
 
         // 3
         agent_transforms = {{{0, -15}, b2Rot(0)},
                             {{1.39945e-08, 14.9565}, b2Rot(-3.14159)}};
-        playback_env.add_new_state({agent_transforms, entity_states, 3});
+        playback_env.add_new_state({agent_transforms, entity_states, {10, 10}, {0, 0}, 3});
 
         // 4
         agent_transforms = {{{-1.04726e-08, -14.9565}, b2Rot(-1.95266e-09)},
@@ -572,7 +635,7 @@ TEST_CASE("PlaybackEnv")
         entity_states = {{46869, {{1, -14.0895}, b2Rot(0)}},
                          {55328, {{1, 14.046}, b2Rot(0)}},
                          {38852, {{-1, -14.0895}, b2Rot(0)}}};
-        playback_env.add_new_state({agent_transforms, entity_states, 4});
+        playback_env.add_new_state({agent_transforms, entity_states, {10, 10}, {0, 0}, 4});
 
         // 5
         agent_transforms = {{{-2.09451e-08, -14.913}, b2Rot(-1.95266e-09)},
@@ -586,12 +649,12 @@ TEST_CASE("PlaybackEnv")
         events.push_back(std::make_unique<EntityDestroyed>(38852, 0.483334,
                                                            Transform{-1, -9.995, 0}));
         playback_env.add_events(std::move(events));
-        playback_env.add_new_state({agent_transforms, entity_states, 5});
+        playback_env.add_new_state({agent_transforms, entity_states, {10, 10}, {0, 0}, 5});
 
         // 6
         agent_transforms = {{{-3.14177e-08, -14.8696}, b2Rot(-5.85799e-09)},
                             {{6.99724e-08, 14.7826}, b2Rot(-3.14159)}};
-        playback_env.add_new_state({agent_transforms, entity_states, 6});
+        playback_env.add_new_state({agent_transforms, entity_states, {10, 10}, {0, 0}, 6});
 
         double time = 0;
         while (time < 0.6)

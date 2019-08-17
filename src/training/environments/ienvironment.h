@@ -33,20 +33,34 @@ struct EnvState
 
     EnvState(std::vector<b2Transform> &agent_transforms,
              std::unordered_map<unsigned int, b2Transform> &entity_states,
+             std::vector<float> hps,
+             std::vector<float> scores,
              int tick)
         : agent_transforms(agent_transforms),
           entity_states(entity_states),
+          hps(hps),
+          scores(scores),
           tick(tick) {}
 
     EnvState(std::vector<b2Transform> &&agent_transforms,
              std::unordered_map<unsigned int, b2Transform> &&entity_states,
+             std::vector<float> hps,
+             std::vector<float> scores,
              int tick)
         : agent_transforms(agent_transforms),
           entity_states(entity_states),
+          hps(hps),
+          scores(scores),
           tick(tick) {}
 
     EnvState(std::vector<Transform> &agent_transforms,
-             std::unordered_map<unsigned int, Transform> &entity_transforms, int tick)
+             std::unordered_map<unsigned int, Transform> &entity_transforms,
+             std::vector<float> hps,
+             std::vector<float> scores,
+             int tick)
+        : hps(hps),
+          scores(scores),
+          tick(tick)
     {
         std::transform(agent_transforms.begin(), agent_transforms.end(),
                        std::back_inserter(this->agent_transforms),
@@ -60,12 +74,12 @@ struct EnvState
             this->entity_states[pair.first] = b2Transform({std::get<0>(pair.second), std::get<1>(pair.second)},
                                                           b2Rot(std::get<2>(pair.second)));
         }
-
-        this->tick = tick;
     }
 
     std::vector<b2Transform> agent_transforms;
     std::unordered_map<unsigned int, b2Transform> entity_states;
+    std::vector<float> hps;
+    std::vector<float> scores;
     int tick;
 };
 

@@ -373,6 +373,15 @@ void KothEnv::set_state(const EnvState &state)
                                                   bullet.second.q.GetAngle());
         }
     }
+
+    // Set HPs
+    for (int i = 0; i < state.hps.size(); ++i)
+    {
+        get_bodies()[i]->set_hp(state.hps[i]);
+    }
+
+    // Set scores
+    scores = state.scores;
 }
 
 StepInfo KothEnv::reset()
@@ -426,12 +435,12 @@ TEST_CASE("KothEnv")
             std::vector<b2Transform> agent_transforms{{{0, 0}, b2Rot(0)},
                                                       {{0, 0}, b2Rot(0)}};
             std::unordered_map<unsigned int, b2Transform> entity_states{};
-            env->set_state({agent_transforms, entity_states, 0});
+            env->set_state({agent_transforms, entity_states, {10, 10}, {0, 0}, 0});
             DOCTEST_CHECK(env->get_entities().size() == 0);
 
             entity_states = {{0, {{0, 0}, b2Rot(0)}},
                              {1, {{1, 1}, b2Rot(1)}}};
-            env->set_state({agent_transforms, entity_states, 1});
+            env->set_state({agent_transforms, entity_states, {10, 10}, {0, 0}, 1});
             DOCTEST_CHECK(env->get_entities().size() == 2);
         }
 
@@ -441,7 +450,7 @@ TEST_CASE("KothEnv")
                                                       {{0, 0}, b2Rot(0)}};
             std::unordered_map<unsigned int, b2Transform> entity_states{{0, {{0, 0}, b2Rot(0)}},
                                                                         {1, {{1, 1}, b2Rot(1)}}};
-            env->set_state({agent_transforms, entity_states, 0});
+            env->set_state({agent_transforms, entity_states, {10, 10}, {0, 0}, 0});
 
             auto bullet_0_tranform = env->get_entities()[0]->get_transform();
             DOCTEST_CHECK(bullet_0_tranform.p.x == doctest::Approx(0));
@@ -454,7 +463,7 @@ TEST_CASE("KothEnv")
 
             entity_states = {{0, {{0.5, 0.5}, b2Rot(0.5)}},
                              {1, {{-1, 0}, b2Rot(2)}}};
-            env->set_state({agent_transforms, entity_states, 1});
+            env->set_state({agent_transforms, entity_states, {10, 10}, {0, 0}, 1});
 
             bullet_0_tranform = env->get_entities()[0]->get_transform();
             DOCTEST_CHECK(bullet_0_tranform.p.x == doctest::Approx(0.5));
@@ -472,11 +481,11 @@ TEST_CASE("KothEnv")
                                                       {{0, 0}, b2Rot(0)}};
             std::unordered_map<unsigned int, b2Transform> entity_states{{0, {{0, 0}, b2Rot(0)}},
                                                                         {1, {{1, 1}, b2Rot(1)}}};
-            env->set_state({agent_transforms, entity_states, 0});
+            env->set_state({agent_transforms, entity_states, {10, 10}, {0, 0}, 0});
             DOCTEST_CHECK(env->get_entities().size() == 2);
 
             entity_states = {};
-            env->set_state({agent_transforms, entity_states, 1});
+            env->set_state({agent_transforms, entity_states, {10, 10}, {0, 0}, 1});
             DOCTEST_CHECK(env->get_entities().size() == 0);
         }
 
@@ -485,7 +494,7 @@ TEST_CASE("KothEnv")
             std::vector<b2Transform> agent_transforms{{{0, 1}, b2Rot(0)},
                                                       {{2, 3}, b2Rot(1)}};
             std::unordered_map<unsigned int, b2Transform> entity_states{};
-            env->set_state({agent_transforms, entity_states, 0});
+            env->set_state({agent_transforms, entity_states, {10, 10}, {0, 0}, 0});
 
             auto agent_0_tranform = env->get_bodies()[0]->get_rigid_body().body->GetTransform();
             DOCTEST_CHECK(agent_0_tranform.p.x == doctest::Approx(0));
@@ -498,7 +507,7 @@ TEST_CASE("KothEnv")
 
             agent_transforms = {{{1, 2}, b2Rot(1)},
                                 {{3, 4}, b2Rot(0.5)}};
-            env->set_state({agent_transforms, entity_states, 1});
+            env->set_state({agent_transforms, entity_states, {10, 10}, {0, 0}, 1});
 
             agent_0_tranform = env->get_bodies()[0]->get_rigid_body().body->GetTransform();
             DOCTEST_CHECK(agent_0_tranform.p.x == doctest::Approx(1));

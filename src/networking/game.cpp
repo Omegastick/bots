@@ -119,9 +119,17 @@ TickResult Game::tick(double current_time)
                                     b2_transform.q.GetAngle()});
     }
 
+    std::vector<float> hps;
+    for (const auto &body : env->get_bodies())
+    {
+        hps.push_back(body->get_hp());
+    }
+
     return {std::move(agent_transforms),
             std::move(entity_transforms),
             std::move(step_info.events),
+            std::move(hps),
+            env->get_scores(),
             step_info.done[0].item().toBool(),
             current_tick,
             step_info.victor};

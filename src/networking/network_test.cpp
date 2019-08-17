@@ -84,7 +84,11 @@ void run_client(const std::string &id)
             auto message = message_object->as<StateMessage>();
             finished = message.done;
 
-            auto action = client_agent->get_action(EnvState(message.agent_transforms, message.entity_transforms, message.tick));
+            auto action = client_agent->get_action(EnvState(message.agent_transforms,
+                                                            message.entity_transforms,
+                                                            message.hps,
+                                                            message.scores,
+                                                            message.tick));
 
             ActionMessage action_message(action, message.tick);
             auto encoded_action_message = MsgPackCodec::encode(action_message);
