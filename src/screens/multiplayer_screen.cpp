@@ -166,13 +166,19 @@ void MultiplayerScreen::play(double delta_time)
 
             auto action = client_agent->get_action(EnvState(message.agent_transforms,
                                                             message.entity_transforms,
+                                                            message.hps,
+                                                            message.scores,
                                                             message.tick));
 
             ActionMessage action_message(action, message.tick);
             auto encoded_action_message = MsgPackCodec::encode(action_message);
             client_communicator->send(encoded_action_message);
 
-            env->add_new_state(EnvState(message.agent_transforms, message.entity_transforms, message.tick));
+            env->add_new_state(EnvState(message.agent_transforms,
+                                        message.entity_transforms,
+                                        message.hps,
+                                        message.scores,
+                                        message.tick));
             env->add_events(std::move(message.events));
         }
     }

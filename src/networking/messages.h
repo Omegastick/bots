@@ -105,6 +105,8 @@ struct StateMessage : Message
     std::vector<Transform> agent_transforms;
     std::unordered_map<unsigned int, Transform> entity_transforms;
     std::vector<std::unique_ptr<IEvent>> events;
+    std::vector<float> hps;
+    std::vector<float> scores;
     int tick;
     bool done;
 
@@ -116,12 +118,16 @@ struct StateMessage : Message
     StateMessage(std::vector<Transform> agent_transforms,
                  std::unordered_map<unsigned int, Transform> entity_transforms,
                  std::vector<std::unique_ptr<IEvent>> events,
+                 std::vector<float> hps,
+                 std::vector<float> scores,
                  bool done,
                  int tick) : StateMessage()
     {
         this->agent_transforms = std::move(agent_transforms);
         this->entity_transforms = std::move(entity_transforms);
         this->events = std::move(events);
+        this->hps = std::move(hps);
+        this->scores = std::move(scores);
         this->done = done;
         this->tick = tick;
     }
@@ -181,12 +187,14 @@ MSGPACK_API_VERSION_NAMESPACE(MSGPACK_DEFAULT_API_NS)
         template <typename Stream>
         packer<Stream> &operator()(msgpack::packer<Stream> &o, StateMessage const &v) const
         {
-            o.pack_array(6);
+            o.pack_array(8);
             o.pack_array(1);
             o.pack(v.type);
             o.pack(v.agent_transforms);
             o.pack(v.entity_transforms);
             o.pack(v.events);
+            o.pack(v.hps);
+            o.pack(v.scores);
             o.pack(v.tick);
             o.pack(v.done);
             return o;
@@ -200,10 +208,8 @@ MSGPACK_API_VERSION_NAMESPACE(MSGPACK_DEFAULT_API_NS)
         {
             if (o.type != msgpack::type::ARRAY)
                 throw msgpack::type_error();
-            if (o.via.array.size != 6)
+            if (o.via.array.size != 8)
                 throw msgpack::type_error();
-            auto agent_transforms = o.via.array.ptr[1].as<std::vector<Transform>>();
-            auto entity_transforms = o.via.array.ptr[2].as<std::unordered_map<unsigned int, Transform>>();
             std::vector<std::unique_ptr<IEvent>> events;
             const auto &events_array = o.via.array.ptr[3].via.array;
             for (unsigned int i = 0; i < events_array.size; ++i)
@@ -222,11 +228,13 @@ MSGPACK_API_VERSION_NAMESPACE(MSGPACK_DEFAULT_API_NS)
                                                                        event.via.array.ptr[3].as<Transform>()));
                 }
             }
-            return StateMessage(std::move(agent_transforms),
-                                std::move(entity_transforms),
+            return StateMessage(o.via.array.ptr[1].as<std::vector<Transform>>(),
+                                o.via.array.ptr[2].as<std::unordered_map<unsigned int, Transform>>(),
                                 std::move(events),
-                                o.via.array.ptr[5].as<bool>(),
-                                o.via.array.ptr[4].as<int>());
+                                o.via.array.ptr[4].as<std::vector<float>>(),
+                                o.via.array.ptr[5].as<std::vector<float>>(),
+                                o.via.array.ptr[7].as<bool>(),
+                                o.via.array.ptr[6].as<int>());
         }
     };
     }
