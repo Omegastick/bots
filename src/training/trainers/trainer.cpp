@@ -243,6 +243,12 @@ std::vector<std::pair<std::string, float>> Trainer::step_batch()
         for (int step = 0; step < program.hyper_parameters.batch_size; ++step)
         {
             tf::Task task = task_flow.emplace([this, &storages, step, i, &policies] {
+                // Do 5 small steps
+                for (int mini_step = 0; mini_step < 5; ++mini_step)
+                {
+                    environments[i]->forward(1. / 60.);
+                }
+
                 // Get action from policy
                 std::vector<torch::Tensor> act_result;
                 {
