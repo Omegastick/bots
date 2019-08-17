@@ -105,6 +105,8 @@ KothEnv::KothEnv(int max_steps,
                  RewardConfig reward_config)
     : body_1(std::move(body_1)),
       body_2(std::move(body_2)),
+      effects(),
+      entities(),
       max_steps(max_steps),
       rng(std::move(rng)),
       world(std::move(world)),
@@ -143,12 +145,12 @@ KothEnv::KothEnv(int max_steps,
             {
                 if (body.second > 0)
                 {
-                    change_reward(body.first, reward_config.hill_tick_reward);
+                    change_reward(body.first, this->reward_config.hill_tick_reward);
                     change_score(body.first, 1);
                 }
                 else
                 {
-                    change_reward(body.first, reward_config.enemy_hill_tick_punishment);
+                    change_reward(body.first, this->reward_config.enemy_hill_tick_punishment);
                 }
             }
         }

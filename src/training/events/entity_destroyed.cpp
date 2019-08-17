@@ -1,5 +1,7 @@
 #include <tuple>
 
+#include <fmt/format.h>
+
 #include "entity_destroyed.h"
 #include "training/entities/ientity.h"
 #include "training/environments/ienvironment.h"
@@ -22,9 +24,9 @@ void EntityDestroyed::trigger(IEnvironment &env)
     if (iter == entities.end())
     {
         return;
-        // auto error_string = fmt::format("Entity {} not found in client environment",
-        //                                 entity_id);
-        // throw std::runtime_error(error_string);
+        auto error_string = fmt::format("Entity {} not found in client environment",
+                                        entity_id);
+        throw std::runtime_error(error_string);
     }
 
     auto &entity = *iter->second;

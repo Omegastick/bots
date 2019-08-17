@@ -1,3 +1,8 @@
+#include <memory>
+#include <filesystem>
+#include <string>
+#include <vector>
+
 #include <cpprl/cpprl.h>
 #include <imgui.h>
 
@@ -44,7 +49,8 @@ std::unique_ptr<IAgent> ChooseAgentWindow::update()
     bool done = false;
     if (ImGui::Button("Select"))
     {
-        auto checkpoint = checkpointer.load(checkpoint_strings[selected_file]);
+        std::filesystem::path path("./checkpoints/" + checkpoint_strings[selected_file] + ".meta");
+        auto checkpoint = checkpointer.load(path);
         agent = std::make_unique<NNAgent>(checkpoint.policy, checkpoint.data.body_spec, "Player");
         done = true;
     }

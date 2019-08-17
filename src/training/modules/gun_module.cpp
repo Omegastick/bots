@@ -55,7 +55,7 @@ void GunModule::activate()
                                                                      velocity,
                                                                      *body->get_rigid_body().body->GetWorld(),
                                                                      body,
-                                                                     rng.next_int(0, 65535),
+                                                                     rng.next_int(0, INT_MAX),
                                                                      *body->get_environment()));
     }
 }

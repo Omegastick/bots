@@ -30,7 +30,7 @@ namespace fs = std::filesystem;
 
 namespace SingularityTrainer
 {
-const bool recurrent = true;
+const bool recurrent = false;
 
 Trainer::Trainer(TrainingProgram program,
                  BodyFactory &body_factory,
@@ -117,8 +117,8 @@ Trainer::Trainer(TrainingProgram program,
         for (unsigned int current_step = 0; current_step < i * 12; current_step++)
         {
             std::vector<torch::Tensor> actions{
-                torch::rand({1, num_actions}),
-                torch::rand({1, opponents[i]->get_action_size()})};
+                torch::rand({1, num_actions}).round(),
+                torch::rand({1, opponents[i]->get_action_size()}).round()};
             env_observation = environments[i]->step(actions, 1.f / 10.f).observation;
             if (current_step == (i * 12) - 1)
             {
