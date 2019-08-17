@@ -159,17 +159,9 @@ void MultiplayerScreen::play(double delta_time)
         auto message_object = MsgPackCodec::decode<msgpack::object_handle>(raw_message);
 
         auto type = get_message_type(message_object.get());
-        if (type == MessageType::ConnectConfirmation)
-        {
-            spdlog::info("Received connection confirmation");
-            auto message = message_object->as<ConnectConfirmationMessage>();
-            auto body_spec = env->get_bodies()[0]->to_json();
-            client_agent = std::make_unique<ClientAgent>(std::move(agent), message.player_number, env_factory.make());
-        }
-        else if (type == MessageType::State)
+        if (type == MessageType::State)
         {
             spdlog::info("Received state");
-            std::cout << message_object.get() << "\n";
             auto message = message_object->as<StateMessage>();
 
             auto action = client_agent->get_action(EnvState(message.agent_transforms,
@@ -228,7 +220,14 @@ void MultiplayerScreen::wait_for_start()
     auto message_object = MsgPackCodec::decode<msgpack::object_handle>(raw_message);
 
     auto type = get_message_type(message_object.get());
-    if (type == MessageType::GameStart)
+    if (type == MessageType::ConnectConfirmation)
+    {
+        spdlog::info("Received connection confirmation");
+        auto message = message_object->as<ConnectConfirmationMessage>();
+        auto body_spec = env->get_bodies()[0]->to_json();
+        client_agent = std::make_unique<ClientAgent>(std::move(agent), message.player_number, env_factory.make());
+    }
+    else if (type == MessageType::GameStart)
     {
         spdlog::info("Received game start message");
         auto message = message_object->as<GameStartMessage>();
