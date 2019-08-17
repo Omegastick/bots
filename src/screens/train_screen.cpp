@@ -91,9 +91,15 @@ void TrainScreen::draw(Renderer &renderer, bool /*lightweight*/)
     renderer.push_post_proc_layer(crt_post_proc_layer.get());
     renderer.begin();
 
-    renderer.scissor(-10, -20, 10, 20, glm::ortho(-38.4f, 38.4f, -21.6f, 21.6f));
+    const double view_height = 50;
+    auto view_top = view_height * 0.5;
+    glm::vec2 resolution = io.get_resolution();
+    auto view_right = view_top * (resolution.x / resolution.y);
+    projection = glm::ortho(-view_right, view_right, -view_top, view_top);
+
+    renderer.scissor(-10, -20, 10, 20, projection);
     auto render_data = trainer->get_environments()[0]->get_render_data(lightweight_rendering);
-    renderer.draw(render_data, glm::ortho(-38.4f, 38.4f, -21.6f, 21.6f), trainer->get_environments()[0]->get_elapsed_time(), lightweight_rendering);
+    renderer.draw(render_data, projection, trainer->get_environments()[0]->get_elapsed_time(), lightweight_rendering);
 
     auto crt_shader = resource_manager.shader_store.get("crt");
     crt_shader->set_uniform_2f("u_resolution", {renderer.get_width(), renderer.get_height()});
