@@ -54,7 +54,7 @@ Trainer::Trainer(TrainingProgram program,
       program(program),
       returns_rms(1),
       rng(rng),
-      slow(true),
+      slow(false),
       waiting(false)
 {
     torch::manual_seed(0);
