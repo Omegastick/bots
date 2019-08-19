@@ -131,14 +131,16 @@ add_subdirectory(${PYBIND_DIR})
 pybind11_add_module(PythonBindings "")
 ## ZMQ
 option(ZMQ_BUILD_TESTS "" OFF)
+option(WITH_DOC "" OFF)
+option(BUILD_SHARED "" OFF)
 add_subdirectory(${ZMQ_DIR})
 
 # Link libraries
 target_link_libraries(Misc PUBLIC doctest)
 target_link_libraries(Training PUBLIC Graphics cpprl torch ${TORCH_LIBRARIES} tobanteGaming::Box2D doctest fmt::fmt ${PYTHON_LIBRARIES})
-# UNIX systems sometimes need to explicitly link the threading library and filesystem library
+# UNIX systems sometimes need to explicitly link the threading library
 if (UNIX)
-    target_link_libraries(Training PUBLIC pthread stdc++fs)
+    target_link_libraries(Training PUBLIC pthread)
 endif(UNIX)
 target_link_libraries(Graphics glad glfw ${GLFW_LIBRARIES} glm imgui doctest)
 target_link_libraries(Networking Training nlohmann_json::nlohmann_json libzmq-static)

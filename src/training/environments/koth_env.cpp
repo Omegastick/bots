@@ -375,7 +375,7 @@ void KothEnv::set_state(const EnvState &state)
     }
 
     // Set HPs
-    for (int i = 0; i < state.hps.size(); ++i)
+    for (unsigned int i = 0; i < state.hps.size(); ++i)
     {
         get_bodies()[i]->set_hp(state.hps[i]);
     }

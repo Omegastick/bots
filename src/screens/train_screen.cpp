@@ -20,7 +20,8 @@ namespace SingularityTrainer
 TrainScreen::TrainScreen(std::unique_ptr<Trainer> trainer,
                          IO &io,
                          ResourceManager &resource_manager)
-    : crt_post_proc_layer(std::make_unique<PostProcLayer>(resource_manager.shader_store.get("crt").get())),
+    : batch_finished(true),
+      crt_post_proc_layer(std::make_unique<PostProcLayer>(resource_manager.shader_store.get("crt").get())),
       fast(false),
       io(io),
       lightweight_rendering(false),
@@ -48,7 +49,18 @@ void TrainScreen::update(const double /*delta_time*/)
     if (fast)
     {
         lightweight_rendering = true;
-        trainer->step();
+        if (batch_finished)
+        {
+            if (batch_thread.joinable())
+            {
+                batch_thread.join();
+            }
+            batch_finished = false;
+            batch_thread = std::thread([&] {
+                trainer->step_batch();
+                batch_finished = true;
+            });
+        }
     }
     else
     {
@@ -98,7 +110,7 @@ void TrainScreen::draw(Renderer &renderer, bool /*lightweight*/)
     projection = glm::ortho(-view_right, view_right, -view_top, view_top);
 
     renderer.scissor(-10, -20, 10, 20, projection);
-    auto render_data = trainer->get_environments()[0]->get_render_data(lightweight_rendering);
+    auto render_data = trainer->get_render_data(lightweight_rendering);
     renderer.draw(render_data, projection, trainer->get_environments()[0]->get_elapsed_time(), lightweight_rendering);
 
     auto crt_shader = resource_manager.shader_store.get("crt");
