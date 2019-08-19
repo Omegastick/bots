@@ -49,23 +49,24 @@ void TrainScreen::update(const double /*delta_time*/)
     if (fast)
     {
         lightweight_rendering = true;
-        if (batch_finished)
-        {
-            if (batch_thread.joinable())
-            {
-                batch_thread.join();
-            }
-            batch_finished = false;
-            batch_thread = std::thread([&] {
-                trainer->step_batch();
-                batch_finished = true;
-            });
-        }
+        trainer->set_fast();
     }
     else
     {
         lightweight_rendering = false;
-        trainer->slow_step();
+        trainer->set_slow();
+    }
+    if (batch_finished)
+    {
+        if (batch_thread.joinable())
+        {
+            batch_thread.join();
+        }
+        batch_finished = false;
+        batch_thread = std::thread([&] {
+            trainer->step_batch();
+            batch_finished = true;
+        });
     }
 
     glm::vec2 resolution = io.get_resolution();

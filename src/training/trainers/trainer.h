@@ -57,6 +57,7 @@ class Trainer
     cpprl::RunningMeanStd returns_rms;
     Random &rng;
     std::unique_ptr<cpprl::RolloutStorage> rollout_storage;
+    bool slow;
     bool waiting;
 
     void action_update();
@@ -80,6 +81,8 @@ class Trainer
     void slow_step();
 
     std::vector<std::unique_ptr<IEnvironment>> &get_environments() { return environments; }
+    inline void set_fast() { slow = false; }
+    inline void set_slow() { slow = true; }
 };
 
 class TrainerFactory

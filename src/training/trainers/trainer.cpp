@@ -54,6 +54,7 @@ Trainer::Trainer(TrainingProgram program,
       program(program),
       returns_rms(1),
       rng(rng),
+      slow(true),
       waiting(false)
 {
     torch::manual_seed(0);
@@ -283,9 +284,20 @@ std::vector<std::pair<std::string, float>> Trainer::step_batch()
                     std::lock_guard lock_guard(env_mutexes[i]);
                     step_info = environments[i]->step({act_result[1], std::get<0>(opponent_act_result)},
                                                       1. / 60.);
-                    for (int mini_step = 0; mini_step < 5; ++mini_step)
+                }
+                if (slow)
+                {
+                    std::this_thread::sleep_for(std::chrono::milliseconds(1000 / 60));
+                }
+                for (int mini_step = 0; mini_step < 5; ++mini_step)
+                {
                     {
+                        std::lock_guard lock_guard(env_mutexes[i]);
                         environments[i]->forward(1. / 60.);
+                    }
+                    if (slow)
+                    {
+                        std::this_thread::sleep_for(std::chrono::milliseconds(1000 / 60));
                     }
                 }
                 dones = step_info.done[0];
