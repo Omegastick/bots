@@ -41,6 +41,15 @@ TrainScreen::TrainScreen(std::unique_ptr<Trainer> trainer,
     resource_manager.load_font("roboto-16", "fonts/Roboto-Regular.ttf", 16);
 }
 
+TrainScreen::~TrainScreen()
+{
+    trainer->set_fast();
+    if (batch_thread.joinable())
+    {
+        batch_thread.join();
+    }
+}
+
 void TrainScreen::update(const double /*delta_time*/)
 {
     ImGui::Begin("Speed", NULL, ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoResize);
