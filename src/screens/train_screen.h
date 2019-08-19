@@ -35,6 +35,9 @@ class TrainScreen : public IScreen
     TrainScreen(std::unique_ptr<Trainer> trainer,
                 IO &io,
                 ResourceManager &resource_manager);
+    ~TrainScreen();
+    TrainScreen(const TrainScreen &) = delete;
+    TrainScreen &operator=(const TrainScreen &) = delete;
 
     virtual void draw(Renderer &renderer, bool lightweight = false);
     void update(double delta_time);
