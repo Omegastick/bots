@@ -2,6 +2,7 @@
 
 #include <chrono>
 #include <filesystem>
+#include <mutex>
 #include <string>
 #include <vector>
 
@@ -12,6 +13,7 @@
 #include <cpprl/storage.h>
 #include <torch/torch.h>
 
+#include "graphics/render_data.h"
 #include "third_party/di.hpp"
 #include "training/agents/iagent.h"
 #include "training/environments/ienvironment.h"
@@ -36,6 +38,7 @@ class Trainer
     Checkpointer &checkpointer;
     float elapsed_time;
     int env_count;
+    std::vector<std::mutex> env_mutexes;
     std::vector<float> env_scores;
     std::vector<std::unique_ptr<IEnvironment>> environments;
     EloEvaluator &evaluator;
@@ -69,7 +72,9 @@ class Trainer
 
     float evaluate();
     std::vector<float> get_observation();
-    std::filesystem::path save_model(std::filesystem::path directory = {});
+    RenderData get_render_data(bool lightweight = false);
+    std::filesystem::path
+    save_model(std::filesystem::path directory = {});
     void step();
     std::vector<std::pair<std::string, float>> step_batch();
     void slow_step();

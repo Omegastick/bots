@@ -1,6 +1,7 @@
 #include <chrono>
 #include <filesystem>
 #include <memory>
+#include <mutex>
 
 #include <Box2D/Box2D.h>
 #include <cpprl/cpprl.h>
@@ -86,6 +87,10 @@ Trainer::Trainer(TrainingProgram program,
                                                 program.reward_config));
     }
     env_scores.resize(env_count);
+
+    // Initialize env mutexes
+    std::vector<std::mutex> temp_mutex_vec(program.hyper_parameters.num_env);
+    env_mutexes.swap(temp_mutex_vec);
 
     // Initialize opponent pool
     opponent_pool.push_back(std::make_unique<RandomAgent>(program.body, rng, "Random Agent"));
@@ -186,6 +191,16 @@ std::vector<float> Trainer::get_observation()
     return std::vector<float>(observation.data<float>(), observation.data<float>() + observation.numel());
 }
 
+RenderData Trainer::get_render_data(bool lightweight)
+{
+    RenderData render_data;
+    {
+        std::lock_guard lock_guard(env_mutexes[0]);
+        render_data = environments[0]->get_render_data(lightweight);
+    }
+    return render_data;
+}
+
 void Trainer::step()
 {
     if (waiting)
@@ -243,12 +258,6 @@ std::vector<std::pair<std::string, float>> Trainer::step_batch()
         for (int step = 0; step < program.hyper_parameters.batch_size; ++step)
         {
             tf::Task task = task_flow.emplace([this, &storages, step, i, &policies] {
-                // Do 5 small steps
-                for (int mini_step = 0; mini_step < 5; ++mini_step)
-                {
-                    environments[i]->forward(1. / 60.);
-                }
-
                 // Get action from policy
                 std::vector<torch::Tensor> act_result;
                 {
@@ -268,9 +277,17 @@ std::vector<std::pair<std::string, float>> Trainer::step_batch()
                 torch::Tensor dones = torch::zeros({1, 1});
                 torch::Tensor opponent_dones = torch::zeros({1, 1});
                 torch::Tensor rewards = torch::zeros({1, 1});
-                // TODO: Am I forgetting to do the non-action steps?
-                auto step_info = environments[i]->step({act_result[1], std::get<0>(opponent_act_result)},
-                                                       1. / 60.);
+
+                StepInfo step_info;
+                {
+                    std::lock_guard lock_guard(env_mutexes[i]);
+                    step_info = environments[i]->step({act_result[1], std::get<0>(opponent_act_result)},
+                                                      1. / 60.);
+                    for (int mini_step = 0; mini_step < 5; ++mini_step)
+                    {
+                        environments[i]->forward(1. / 60.);
+                    }
+                }
                 dones = step_info.done[0];
                 rewards = step_info.reward[0];
                 opponent_observations[i] = step_info.observation[1];
