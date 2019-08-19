@@ -308,7 +308,7 @@ nlohmann::json Body::to_json() const
 
 void Body::unlink_module(std::shared_ptr<IModule> module)
 {
-    ModuleLink *main_link;
+    ModuleLink *main_link = nullptr;
     for (auto &link : module->get_module_links())
     {
         if (link.linked)
@@ -319,6 +319,11 @@ void Body::unlink_module(std::shared_ptr<IModule> module)
             }
             main_link = &link;
         }
+    }
+
+    if (main_link == nullptr)
+    {
+        throw std::runtime_error("Module has no parent links");
     }
 
     main_link->pair_link->linked = false;
