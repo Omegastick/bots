@@ -239,3 +239,35 @@ I need to speed up convergence a bit
 ## Plan
 I'll drop the entropy coefficient back down to 0.001.
 
+# 2019-8-20 6
+## Hyperparameters
+```
+"hyper_parameters": {
+        "actor_loss_coef": 0.666,
+        "algorithm": 1,
+        "batch_size": 16384,
+        "clip_param": 0.1,
+        "discount_factor": 0.99,
+        "entropy_coef": 0.001,
+        "learning_rate": 0.001,
+        "num_env": 8,
+        "num_epoch": 6,
+        "num_minibatch": 32,
+        "value_loss_coef": 0.333
+    }
+```
+KL target: 0.01
+
+## Observations
+Clip fraction rose steadily to a 0.14 average, then remained there.
+Elo hovered around -20-20, the spiked to 74 after 1.75 hours.
+Entropy dropped slowly at first, then sped up, then rebounded around at 1.75 hours.
+KL-divergence was low, with occaisional spies after 1 hour.
+
+## Ideas
+I decided to forego my last plan, and instead try a batch.
+It worked nicely, but the bug where training crashes after 1-2 hours kicked in right as Elo spiked.
+KL-divergence was nice, pretty much what I'm looking for.
+
+## Plan
+I'll try this again after fixing the training crash bug.
