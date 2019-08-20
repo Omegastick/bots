@@ -83,3 +83,62 @@ Regardless of the weird mode described above, training worked to an acceptable l
 This means I'll move onto other features.
 I'll work on multiplayer next.
 I don't feel like doing that this weekend, so I'll try a run with the GRU turned on first.
+
+# 2019-8-20 1
+## Hyperparameters
+```
+"hyper_parameters": {
+        "actor_loss_coef": 0.666,
+        "algorithm": 1,
+        "batch_size": 6400,
+        "clip_param": 0.1,
+        "discount_factor": 0.99,
+        "entropy_coef": 0.001,
+        "learning_rate": 0.001,
+        "num_env": 8,
+        "num_epoch": 6,
+        "num_minibatch": 80,
+        "value_loss_coef": 0.333
+    }
+```
+KL target: 0.01
+
+## Observations
+I tried the above hyperparameters again with the timestep length bug fixed.
+It trained wonderfully for the first 20 minutes (200 updates) but diverged after that.
+KL divergence rises quickly, and after about 20 minutes it is having to early stop every update.
+
+## Ideas
+Probably diverging because of high KL divergence.
+
+## Plan
+I'm going to try lowering the learning rate to 0.0003 and see how that works out.# 2019-8-20 1
+## Hyperparameters
+```
+"hyper_parameters": {
+        "actor_loss_coef": 0.666,
+        "algorithm": 1,
+        "batch_size": 6400,
+        "clip_param": 0.1,
+        "discount_factor": 0.99,
+        "entropy_coef": 0.001,
+        "learning_rate": 0.0003,
+        "num_env": 8,
+        "num_epoch": 6,
+        "num_minibatch": 80,
+        "value_loss_coef": 0.333
+    }
+```
+KL target: 0.01
+
+## Observations
+No real training progress for the first 40 minutes, then a spike in performance.
+Unfortunately, the training crashed after an hour because of a bug.
+KL divergence stayed low for the first 20 minutes, then rose and remained high for the rest of the run.
+
+## Ideas
+KL divergence is still getting uncomfortably high, need to lower it.
+
+## Plan
+I'll try reducing the batch size to 3200 and see if that improves the KL divergence.
+
