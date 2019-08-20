@@ -65,8 +65,9 @@ class HyperParameterSearch(tune.Trainable):
         self.trainer = st.make_trainer(json.dumps(self.program, indent=0))
 
     def _train(self):
-        for _ in range(5000):
-            self.trainer.step()
+        start_time = time.time()
+        while time.time() - start_time < 300:
+            self.trainer.step_batch()
         return {"elo": self.trainer.evaluate()}
 
     def _save(self, _):
@@ -88,25 +89,28 @@ def main():
         time_attr="training_iteration",
         metric="elo",
         mode="max",
-        max_t=75)
+        max_t=20)
     experiment = tune.Experiment(
-        name="ppo_hyperparameter_search_4",
+        name="ppo_hyperparameter_search",
         run=HyperParameterSearch,
         stop={},
-        num_samples=128,
+        num_samples=48,
         loggers=[JsonLogger, CSVLogger, TFEagerLogger],
-        resources_per_trial={"cpu": 2})
+        resources_per_trial={"cpu": 8})
     algo = HyperOptSearch(
         {
             "base_program": os.path.join(os.getcwd(), sys.argv[1]),
             "actor_loss_coef": hp.uniform("actor_loss_coef", 0.25, 1),
             "algorithm": 1,
-            "batch_size": hp.qloguniform("batch_size", 2.5, 8, 1),
+            "batch_size": hp.choice("batch_size", [128, 512, 1024, 2048, 4096,
+                                                   8162]),
             "clip_param": hp.uniform("clip_param", 0.05, 0.3),
-            "discount_factor": hp.loguniform("discount_factor", -1, 0),
-            "entropy_coef": hp.loguniform("entropy_coef", -15, -4),
-            "learning_rate": hp.choice("learning_rate", [0.001, 0.0001,
-                                                         0.00001]),
+            "discount_factor": hp.choice("discount_factor", [0.9, 0.97, 0.98,
+                                                             0.99]),
+            "entropy_coef": hp.choice("entropy_coef", [0.01, 0.001, 0.0001,
+                                                       0.00001]),
+            "learning_rate": hp.choice("learning_rate", [0.001, 0.0007, 
+                                                         0.0003]),
             "num_env": 8,
             "num_epoch": hp.choice("num_epoch", range(2, 9)),
             "num_minibatch": 8,
@@ -114,35 +118,7 @@ def main():
         },
         max_concurrent=8,
         metric="elo",
-        mode="max",
-        points_to_evaluate=[{
-            "actor_loss_coef": 0.9858908897512276,
-            "algorithm": 1,
-            "base_program": os.path.join(os.getcwd(), sys.argv[1]),
-            "batch_size": 203.0,
-            "clip_param": 0.2966414935576334,
-            "discount_factor": 0.850793792894193,
-            "entropy_coef": 0.011559455852253061,
-            "learning_rate": 1,
-            "num_env": 8,
-            "num_epoch": 5,
-            "num_minibatch": 8,
-            "value_loss_coef": 0.5323687551335846
-        },
-            {
-            "actor_loss_coef": 0.8185698586238065,
-            "algorithm": 1,
-            "base_program": os.path.join(os.getcwd(), sys.argv[1]),
-            "batch_size": 27.0,
-            "clip_param": 0.22135255042157442,
-            "discount_factor": 0.4871560553665869,
-            "entropy_coef": 1.2129990452636745e-06,
-            "learning_rate": 1,
-            "num_env": 8,
-            "num_epoch": 3,
-            "num_minibatch": 8,
-            "value_loss_coef": 0.3927127459992794
-        }])
+        mode="max")
     tune.run(
         experiment,
         search_alg=algo,

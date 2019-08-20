@@ -112,7 +112,9 @@ KL divergence rises quickly, and after about 20 minutes it is having to early st
 Probably diverging because of high KL divergence.
 
 ## Plan
-I'm going to try lowering the learning rate to 0.0003 and see how that works out.# 2019-8-20 1
+I'm going to try lowering the learning rate to 0.0003 and see how that works out.
+
+# 2019-8-20 2
 ## Hyperparameters
 ```
 "hyper_parameters": {
@@ -121,8 +123,8 @@ I'm going to try lowering the learning rate to 0.0003 and see how that works out
         "batch_size": 6400,
         "clip_param": 0.1,
         "discount_factor": 0.99,
-        "entropy_coef": 0.001,
-        "learning_rate": 0.0003,
+        "entropy_coef": 0.0003,
+        "learning_rate": 0.001,
         "num_env": 8,
         "num_epoch": 6,
         "num_minibatch": 80,
@@ -132,6 +134,7 @@ I'm going to try lowering the learning rate to 0.0003 and see how that works out
 KL target: 0.01
 
 ## Observations
+I made a mistake and instead lowered the entropy coefficient instead of the learning rate.
 No real training progress for the first 40 minutes, then a spike in performance.
 Unfortunately, the training crashed after an hour because of a bug.
 KL divergence stayed low for the first 20 minutes, then rose and remained high for the rest of the run.
@@ -141,4 +144,98 @@ KL divergence is still getting uncomfortably high, need to lower it.
 
 ## Plan
 I'll try reducing the batch size to 3200 and see if that improves the KL divergence.
+
+# 2019-8-20 3
+## Hyperparameters
+```
+"hyper_parameters": {
+        "actor_loss_coef": 0.666,
+        "algorithm": 1,
+        "batch_size": 6400,
+        "clip_param": 0.1,
+        "discount_factor": 0.99,
+        "entropy_coef": 0.0003,
+        "learning_rate": 0.001,
+        "num_env": 8,
+        "num_epoch": 6,
+        "num_minibatch": 80,
+        "value_loss_coef": 0.333
+    }
+```
+KL target: 0.01
+
+## Observations
+Pretty bad performance for the whole run, with a particularly bad spike at 50 minutes.
+KL-divergence rose quite quickly.
+
+## Ideas
+[ToriLLE: Learning Environment for Hand-to-Hand Combat](https://arxiv.org/pdf/1807.10110.pdf) says that a batch size of 512 worked well, so I'm going to try and copy their hyperparameters.
+
+## Plan
+I'll try reducing the batch size to 512,increasing entropy to 0.01, and reducing learning rate to 0.0003.
+
+# 2019-8-20 4
+## Hyperparameters
+```
+"hyper_parameters": {
+        "actor_loss_coef": 0.666,
+        "algorithm": 1,
+        "batch_size": 512,
+        "clip_param": 0.1,
+        "discount_factor": 0.99,
+        "entropy_coef": 0.01,
+        "learning_rate": 0.0003,
+        "num_env": 8,
+        "num_epoch": 6,
+        "num_minibatch": 16,
+        "value_loss_coef": 0.333
+    }
+```
+KL target: 0.01
+
+## Observations
+Elo increased very slowly.
+Entropy barely decreased at all.
+KL-divergence very low consistently.
+Low clip-rate.
+No KL early stops at all.
+
+## Ideas
+It's obviously hardly learning at all, I should increase the learning rate or decrease entropy.
+
+## Plan
+I'll increase the learning rate back to 0.001.
+
+# 2019-8-20 5
+## Hyperparameters
+```
+"hyper_parameters": {
+        "actor_loss_coef": 0.666,
+        "algorithm": 1,
+        "batch_size": 512,
+        "clip_param": 0.1,
+        "discount_factor": 0.99,
+        "entropy_coef": 0.01,
+        "learning_rate": 0.001,
+        "num_env": 8,
+        "num_epoch": 6,
+        "num_minibatch": 16,
+        "value_loss_coef": 0.333
+    }
+```
+KL target: 0.01
+
+## Observations
+Elo was static at ~+15, and slowly dropped off towards the end of the run.
+Clip fraction was reasonable at ~0.06 the whole time.
+KL-divergence also quite reasonable.
+KL-diverge early stopping happened quite often.
+Entropy dropped very slowly.
+
+## Ideas
+The run was fine, apart from the too-slow entropy drop.
+I need to speed up convergence a bit
+
+## Plan
+I'll drop the entropy coefficient back down to 0.001.
 
