@@ -59,7 +59,8 @@ Checkpoint Checkpointer::load(fs::path path)
                                                     data.recurrent);
     cpprl::Policy policy(cpprl::ActionSpace{"MultiBinary",
                                             {data.body_spec["num_actions"]}},
-                         nn_base);
+                         nn_base,
+                         true);
     auto policy_path = path.replace_extension(".pth");
     saver.load_policy(policy_path, policy);
 
