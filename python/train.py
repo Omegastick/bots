@@ -33,6 +33,8 @@ def main():
         "runs", datetime.now().strftime("%Y%m%d-%H%M%S"))
     writer = tf.summary.create_file_writer(log_dir)
 
+    singularity_trainer.start_profiler()
+
     try:
         last_test_time = time.time()
         batch_number = 0
@@ -42,7 +44,7 @@ def main():
             with writer.as_default():
                 for stat in training_stats:
                     tf.summary.scalar(stat[0], stat[1], step=batch_number)
-            if time.time() - last_test_time > 600:
+            if time.time() - last_test_time > 300:
                 last_test_time = time.time()
                 logging.info("######## Testing ########")
                 elo = trainer.evaluate()
