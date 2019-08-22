@@ -75,7 +75,7 @@ class HyperParameterSearch(tune.Trainable):
 
     def _restore(self, checkpoint):
         self.program["checkpoint"] = checkpoint["path"]
-        checkpoint_dir = os.path.dirname(program["checkpoint"])
+        checkpoint_dir = os.path.dirname(self.program["checkpoint"])
         self.program["opponent_pool"] = []
         for file in os.listdir(checkpoint_dir):
             if file.endswith(".meta"):
@@ -85,16 +85,18 @@ class HyperParameterSearch(tune.Trainable):
 
 def main():
     ray.init(local_mode=False)
-    hyperband = tune.schedulers.HyperBandScheduler(
+    hyperband = tune.schedulers.AsyncHyperBandScheduler(
         time_attr="training_iteration",
         metric="elo",
         mode="max",
-        max_t=20)
+        max_t=80,
+        reduction_factor=4,
+        brackets=3)
     experiment = tune.Experiment(
-        name="ppo_hyperparameter_search",
+        name="ppo_hyperparameter_search_5",
         run=HyperParameterSearch,
         stop={},
-        num_samples=48,
+        num_samples=128,
         loggers=[JsonLogger, CSVLogger, TFEagerLogger],
         resources_per_trial={"cpu": 8})
     algo = HyperOptSearch(
@@ -109,7 +111,7 @@ def main():
                                                              0.99]),
             "entropy_coef": hp.choice("entropy_coef", [0.01, 0.001, 0.0001,
                                                        0.00001]),
-            "learning_rate": hp.choice("learning_rate", [0.001, 0.0007, 
+            "learning_rate": hp.choice("learning_rate", [0.001, 0.0007,
                                                          0.0003]),
             "num_env": 8,
             "num_epoch": hp.choice("num_epoch", range(2, 9)),
@@ -118,7 +120,20 @@ def main():
         },
         max_concurrent=8,
         metric="elo",
-        mode="max")
+        mode="max",
+        points_to_evaluate=[{
+            "actor_loss_coef": 0.4760768147894592,
+            "algorithm": 1,
+            "batch_size": 0,
+            "clip_param": 0.20104703089284237,
+            "discount_factor": 3,
+            "entropy_coef": 2,
+            "learning_rate": 1,
+            "num_env": 8,
+            "num_epoch": 4,
+            "num_minibatch": 8,
+            "value_loss_coef": 0.2968052161165151
+        }])
     tune.run(
         experiment,
         search_alg=algo,
