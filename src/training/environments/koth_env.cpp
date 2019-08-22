@@ -3,6 +3,8 @@
 #include <vector>
 
 #include <Box2D/Box2D.h>
+#include <easy/profiler.h>
+#include <easy/arbitrary_value.h>
 #include <doctest.h>
 #include <spdlog/spdlog.h>
 #include <torch/torch.h>
@@ -220,6 +222,7 @@ RenderData KothEnv::get_render_data(bool lightweight)
 
 StepInfo KothEnv::step(const std::vector<torch::Tensor> actions, float step_length)
 {
+    EASY_FUNCTION(profiler::colors::DeepOrange);
     // Act
     auto actions_tensor_1 = actions[0].to(torch::kInt).contiguous();
     std::vector<int> actions_1(actions_tensor_1.data<int>(), actions_tensor_1.data<int>() + actions_tensor_1.numel());
@@ -298,18 +301,35 @@ StepInfo KothEnv::step(const std::vector<torch::Tensor> actions, float step_leng
 
 void KothEnv::forward(float step_length)
 {
+    EASY_FUNCTION(profiler::colors::DeepPurple);
+    EASY_BLOCK("Step world", profiler::colors::Gold);
     world->Step(step_length, 3, 2);
+    auto &profile = world->GetProfile();
+    EASY_END_BLOCK;
+    EASY_VALUE("step_length", step_length, EASY_VIN("step_length"));
+    EASY_VALUE("elapsed_time", elapsed_time);
+    EASY_VALUE("step", profile.step, EASY_VIN("step"));
+    EASY_VALUE("collide", profile.collide, EASY_VIN("collide"));
+    EASY_VALUE("solve", profile.solve, EASY_VIN("solve"));
+    EASY_VALUE("solveInit", profile.solveInit, EASY_VIN("solveInit"));
+    EASY_VALUE("solveVelocity", profile.solveVelocity, EASY_VIN("solveVelocity"));
+    EASY_VALUE("solvePosition", profile.solvePosition, EASY_VIN("solvePosition"));
+    EASY_VALUE("broadphase", profile.broadphase, EASY_VIN("broadphase"));
+    EASY_VALUE("solveTOI", profile.solveTOI, EASY_VIN("solveTOI"));
+    EASY_BLOCK("Events", profiler::colors::Green);
     double step_start_time = elapsed_time;
     elapsed_time += step_length;
 
     for (const auto &event : events)
     {
+        EASY_BLOCK("Individual event", profiler::colors::Grey);
         double scheduled_time = event->get_time();
         if (scheduled_time >= step_start_time && scheduled_time < elapsed_time)
         {
             event->trigger(*this);
         }
     }
+    EASY_END_BLOCK;
 }
 
 void KothEnv::change_reward(int body, float reward_delta)

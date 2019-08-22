@@ -43,10 +43,15 @@ int HeadlessApp::run(int argc, char *argv[])
     TrainingProgram program(json);
     auto trainer = trainer_factory.make(program);
 
+    auto last_evaluation_time = std::chrono::high_resolution_clock::now();
     while (!stop)
     {
         trainer->step_batch();
-        trainer->evaluate();
+        if (std::chrono::high_resolution_clock::now() - last_evaluation_time > std::chrono::minutes(1))
+        {
+            trainer->evaluate();
+            last_evaluation_time = std::chrono::high_resolution_clock::now();
+        }
     }
 
     return 0;

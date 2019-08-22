@@ -5,6 +5,7 @@
 
 #include <Box2D/Box2D.h>
 #include <cpprl/cpprl.h>
+#include <easy/profiler.h>
 #include <fmt/format.h>
 #include <spdlog/spdlog.h>
 #include <taskflow/taskflow.hpp>
@@ -262,17 +263,20 @@ std::vector<std::pair<std::string, float>> Trainer::step_batch()
                 // Get action from policy
                 std::vector<torch::Tensor> act_result;
                 {
+                    EASY_BLOCK("Get action", profiler::colors::Blue);
                     torch::NoGradGuard no_grad;
                     act_result = policies[i]->act(storages[i].get_observations()[step],
                                                   storages[i].get_hidden_states()[step],
                                                   storages[i].get_masks()[step]);
                 }
 
+                EASY_BLOCK("Get opponent action", profiler::colors::Brick);
                 // Get opponent action
                 auto opponent_act_result = opponents[i]->act(opponent_observations[i],
                                                              opponent_hidden_states[i],
                                                              opponent_masks[i]);
                 opponent_hidden_states[i] = std::get<1>(opponent_act_result);
+                EASY_END_BLOCK;
 
                 // Step environment
                 torch::Tensor dones = torch::zeros({1, 1});
@@ -281,9 +285,13 @@ std::vector<std::pair<std::string, float>> Trainer::step_batch()
 
                 StepInfo step_info;
                 {
+                    EASY_BLOCK("Action step environment", profiler::colors::Brown);
+                    EASY_BLOCK("Acquire lock", profiler::colors::Red);
                     std::lock_guard lock_guard(env_mutexes[i]);
+                    EASY_END_BLOCK;
                     step_info = environments[i]->step({act_result[1], std::get<0>(opponent_act_result)},
                                                       1. / 60.);
+                    EASY_END_BLOCK;
                 }
                 if (slow)
                 {
@@ -291,6 +299,7 @@ std::vector<std::pair<std::string, float>> Trainer::step_batch()
                 }
                 for (int mini_step = 0; mini_step < 5; ++mini_step)
                 {
+                    EASY_BLOCK("Forward environment", profiler::colors::Coral);
                     {
                         std::lock_guard lock_guard(env_mutexes[i]);
                         environments[i]->forward(1. / 60.);
@@ -300,6 +309,7 @@ std::vector<std::pair<std::string, float>> Trainer::step_batch()
                         std::this_thread::sleep_for(std::chrono::milliseconds(1000 / 60));
                     }
                 }
+                EASY_BLOCK("Clean up", profiler::colors::CreamWhite);
                 dones = step_info.done[0];
                 rewards = step_info.reward[0];
                 opponent_observations[i] = step_info.observation[1];
@@ -320,6 +330,7 @@ std::vector<std::pair<std::string, float>> Trainer::step_batch()
                                    act_result[0],
                                    rewards,
                                    1 - dones);
+                EASY_END_BLOCK;
             });
 
             if (step != 0)
@@ -330,8 +341,10 @@ std::vector<std::pair<std::string, float>> Trainer::step_batch()
         }
     }
 
+    spdlog::info("Batch started");
     executor.run(task_flow);
     executor.wait_for_all();
+    spdlog::info("Batch finished");
 
     batch_number++;
 

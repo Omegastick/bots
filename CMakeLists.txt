@@ -12,6 +12,7 @@ set(ARGH_DIR ${LIB_DIR}/argh)
 set(BOX2D_DIR ${LIB_DIR}/Box2D-cmake)
 set(CPPRL_DIR ${LIB_DIR}/pytorch-cpp-rl)
 set(DOCTEST_DIR ${LIB_DIR}/doctest)
+set(EASY_PROFILER_DIR ${LIB_DIR}/easy_profiler)
 set(FMT_DIR ${LIB_DIR}/fmt)
 set(GLFW_DIR ${LIB_DIR}/GLFW)
 set(GLAD_DIR ${LIB_DIR}/GLAD)
@@ -97,6 +98,9 @@ option(CPPRL_BUILD_TESTS "" OFF)
 option(CPPRL_BUILD_EXAMPLE "" OFF)
 add_subdirectory(${CPPRL_DIR})
 set_target_properties(cpprl PROPERTIES POSITION_INDEPENDENT_CODE TRUE)
+## Easy Profiler
+add_subdirectory(${EASY_PROFILER_DIR})
+set_target_properties(easy_profiler PROPERTIES POSITION_INDEPENDENT_CODE TRUE)
 ## GLFW
 option(GLFW_BUILD_EXAMPLES "" OFF)
 option(GLFW_BUILD_TESTS "" OFF)
@@ -137,7 +141,7 @@ add_subdirectory(${ZMQ_DIR})
 
 # Link libraries
 target_link_libraries(Misc PUBLIC doctest)
-target_link_libraries(Training PUBLIC Graphics cpprl torch ${TORCH_LIBRARIES} tobanteGaming::Box2D doctest fmt::fmt ${PYTHON_LIBRARIES})
+target_link_libraries(Training PUBLIC Graphics cpprl torch ${TORCH_LIBRARIES} tobanteGaming::Box2D doctest fmt::fmt ${PYTHON_LIBRARIES} easy_profiler)
 # UNIX systems sometimes need to explicitly link the threading library
 if (UNIX)
     target_link_libraries(Training PUBLIC pthread)
@@ -155,6 +159,7 @@ set_target_properties(PythonBindings PROPERTIES SUFFIX ".so")
 set(INCLUDE_DIRS
     src
     ${CPPRL_DIR}/include
+    ${EASY_PROFILER_DIR}/easy_profiler_core/include
     ${GLAD_DIR}/include 
     ${GLFW_DIR}/include 
     ${GLM_DIR} 

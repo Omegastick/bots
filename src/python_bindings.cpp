@@ -1,5 +1,6 @@
 #include <string>
 
+#include <easy/profiler.h>
 #include <nlohmann/json.hpp>
 #include <pybind11/pybind11.h>
 #include <pybind11/stl.h>
@@ -50,4 +51,8 @@ PYBIND11_MODULE(singularity_trainer, m)
         return trainer_factory.make(program);
     },
           "Make a Trainer");
+
+    m.def("start_profiler", [] {
+        profiler::startListen();
+    });
 }
