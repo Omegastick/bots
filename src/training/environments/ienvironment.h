@@ -103,7 +103,7 @@ class IEnvironment : public IDrawable
     virtual void change_reward(Body *body, float reward_delta) = 0;
     virtual void forward(float step_length) = 0;
     virtual std::vector<Body *> get_bodies() = 0;
-    virtual float get_elapsed_time() const = 0;
+    virtual double get_elapsed_time() const = 0;
     virtual std::unordered_map<unsigned int, std::unique_ptr<IEntity>> &get_entities() = 0;
     virtual RenderData get_render_data(bool lightweight = false) = 0;
     virtual RewardConfig &get_reward_config() = 0;

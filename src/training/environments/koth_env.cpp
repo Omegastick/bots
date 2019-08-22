@@ -181,7 +181,7 @@ void KothEnv::change_score(Body *body, float score_delta)
     scores[body_numbers[body]] += score_delta;
 }
 
-float KothEnv::get_elapsed_time() const
+double KothEnv::get_elapsed_time() const
 {
     return elapsed_time;
 }
@@ -407,6 +407,7 @@ void KothEnv::set_state(const EnvState &state)
 StepInfo KothEnv::reset()
 {
     done = false;
+    elapsed_time = 0;
     rewards = {0, 0};
     scores = {0, 0};
     step_counter = 0;

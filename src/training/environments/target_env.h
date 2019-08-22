@@ -55,7 +55,7 @@ class TargetEnv : public IEnvironment
     virtual void change_reward(Body *body, float reward_delta);
     virtual void set_done();
     virtual RenderData get_render_data(bool lightweight = false);
-    virtual float get_elapsed_time() const;
+    virtual double get_elapsed_time() const;
 
     std::unique_ptr<Body> body;
 };
