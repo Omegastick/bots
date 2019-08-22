@@ -38,7 +38,7 @@ class KothEnv : public IEnvironment
     std::vector<std::unique_ptr<Wall>> walls;
     std::unique_ptr<Hill> hill;
     std::unique_ptr<b2ContactListener> contact_listener;
-    float elapsed_time;
+    double elapsed_time;
     bool done;
     std::vector<float> rewards;
     std::vector<float> scores;
@@ -68,7 +68,7 @@ class KothEnv : public IEnvironment
     virtual void change_reward(Body *body, float reward_delta);
     virtual void set_done();
     virtual RenderData get_render_data(bool lightweight = false);
-    virtual float get_elapsed_time() const;
+    virtual double get_elapsed_time() const;
 
     inline std::vector<Body *> get_bodies() { return {body_1.get(), body_2.get()}; }
     inline std::unordered_map<unsigned int, std::unique_ptr<IEntity>> &get_entities() { return entities; }
