@@ -50,7 +50,7 @@ int main(int argc, char *argv[])
         di::bind<double>.named(TickLength).to(0.1),
         di::bind<ISaver>.to<Saver>(),
         di::bind<std::string>.named(CheckpointDirectory).to("checkpoints"),
-        di::bind<BodyFactory>.to<TestBodyFactory>());
+        di::bind<BodyFactory>.to<BodyFactory>());
     auto app = injector.create<App>();
     app.run(argc, argv);
 }
