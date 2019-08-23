@@ -3,3 +3,8 @@ add_subdirectory(create_program_screen)
 add_subdirectory(multiplayer_screen)
 # add_subdirectory(training_wizard_screen)
 add_subdirectory(watch_screen)
+
+target_sources(SingularityTrainer
+PRIVATE
+    ${CMAKE_CURRENT_LIST_DIR}/back_button.cpp
+)
