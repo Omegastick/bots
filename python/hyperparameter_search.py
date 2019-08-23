@@ -89,11 +89,11 @@ def main():
         time_attr="training_iteration",
         metric="elo",
         mode="max",
-        max_t=80,
-        reduction_factor=4,
+        max_t=20,
+        reduction_factor=3,
         brackets=3)
     experiment = tune.Experiment(
-        name="ppo_hyperparameter_search_5",
+        name="ppo_hyperparameter_search_6",
         run=HyperParameterSearch,
         stop={},
         num_samples=128,
