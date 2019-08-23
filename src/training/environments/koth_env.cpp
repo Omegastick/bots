@@ -313,7 +313,6 @@ StepInfo KothEnv::step(const std::vector<torch::Tensor> actions, float step_leng
 void KothEnv::forward(float step_length)
 {
     world->Step(step_length, 3, 2);
-    auto &profile = world->GetProfile();
     double step_start_time = elapsed_time;
     elapsed_time += step_length;
 
