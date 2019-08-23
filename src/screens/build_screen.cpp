@@ -17,6 +17,7 @@
 #include "misc/resource_manager.h"
 #include "misc/screen_manager.h"
 #include "misc/utilities.h"
+#include "ui/back_button.h"
 #include "ui/build_screen/part_selector_window.h"
 #include "ui/build_screen/body_builder.h"
 
@@ -93,6 +94,9 @@ void BuildScreen::update(double /*delta_time*/)
 
     part_detail_window.update();
     save_body_window.update(body_builder.get_body());
+
+    auto resolution = io->get_resolution();
+    back_button(*screen_manager, resolution);
 }
 
 void BuildScreen::draw(Renderer &renderer, bool lightweight)
