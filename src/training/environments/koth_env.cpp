@@ -217,6 +217,20 @@ RenderData KothEnv::get_render_data(bool lightweight)
     }
     effects.clear();
 
+    double max_time = max_steps / 10.f;
+    int seconds_remaining = std::ceil(max_time - elapsed_time);
+    Text timer;
+    timer.text = std::to_string(seconds_remaining);
+    timer.font = "roboto-16";
+    timer.color = cl_white;
+    timer.set_position({0, 0});
+    timer.set_scale({0.15, 0.15});
+    const double character_width = 1.1;
+    double width = character_width * timer.text.size();
+    const double height = 1.2;
+    timer.set_origin({width / 2., height / 2.});
+    render_data.texts.push_back(timer);
+
     return render_data;
 }
 
