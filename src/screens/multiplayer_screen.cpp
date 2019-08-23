@@ -140,9 +140,7 @@ void MultiplayerScreen::input_address()
 
         env = std::make_unique<PlaybackEnv>(env_factory.make(), tick_length);
 
-        auto body_spec = env->get_bodies()[0]->to_json();
-
-        ConnectMessage connect_message(body_spec.dump());
+        ConnectMessage connect_message(agent->get_body_spec().dump());
         auto encoded_connect_message = MsgPackCodec::encode(connect_message);
         spdlog::info("Sending connect message");
         client_communicator->send(encoded_connect_message);
