@@ -31,6 +31,7 @@ class Window
                     (named = MinorOpenGLVersion) int minor_opengl_version);
     ~Window();
 
+    void close();
     void swap_buffers();
     bool should_close();
     void set_cursor_pos_callback(void (*callback)(GLFWwindow *, double, double));

@@ -49,6 +49,10 @@ void MainMenuScreen::update(double /*delta_time*/)
     {
         screen_manager.show_screen(multiplayer_screen_factory.make());
     }
+    if (ImGui::Button("Quit"))
+    {
+        screen_manager.close_screen();
+    }
     ImGui::End();
     ImGui::PopFont();
     ImGui::PopStyleColor(5);

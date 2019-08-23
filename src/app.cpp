@@ -278,18 +278,25 @@ int App::run(int argc, char *argv[])
 
         animator.update(delta_time);
         screen_manager.update(delta_time);
+        if (screen_manager.stack_size() == 0)
+        {
+            window.close();
+        }
 
         io.tick();
 
         /*
          *  Draw
          */
-        screen_manager.draw(renderer);
+        if (screen_manager.stack_size() > 0)
+        {
+            screen_manager.draw(renderer);
 
-        ImGui::Render();
-        ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+            ImGui::Render();
+            ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 
-        window.swap_buffers();
+            window.swap_buffers();
+        }
     }
 
     // Allow screens to perform cleanup

@@ -46,7 +46,10 @@ void ScreenManager::update(double delta_time)
         command_queue.pop_front();
     }
 
-    screens.top()->update(delta_time);
+    if (screens.size() > 0)
+    {
+        screens.top()->update(delta_time);
+    }
 }
 
 int ScreenManager::stack_size()

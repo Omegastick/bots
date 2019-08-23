@@ -153,6 +153,11 @@ Window::~Window()
     glfwTerminate();
 }
 
+void Window::close()
+{
+    glfwSetWindowShouldClose(window, GLFW_TRUE);
+}
+
 void Window::swap_buffers()
 {
     glfwSwapBuffers(window);
