@@ -12,14 +12,16 @@
 #include "graphics/colors.h"
 #include "misc/io.h"
 #include "misc/resource_manager.h"
-#include "training/environments/koth_env.h"
 #include "screens/iscreen.h"
+#include "training/environments/koth_env.h"
+#include "ui/back_button.h"
 
 namespace SingularityTrainer
 {
 TrainScreen::TrainScreen(std::unique_ptr<Trainer> trainer,
                          IO &io,
-                         ResourceManager &resource_manager)
+                         ResourceManager &resource_manager,
+                         ScreenManager &screen_manager)
     : batch_finished(true),
       crt_post_proc_layer(std::make_unique<PostProcLayer>(resource_manager.shader_store.get("crt").get())),
       fast(false),
@@ -27,6 +29,7 @@ TrainScreen::TrainScreen(std::unique_ptr<Trainer> trainer,
       lightweight_rendering(false),
       projection(glm::ortho(0.f, 1920.f, 0.f, 1080.f)),
       resource_manager(resource_manager),
+      screen_manager(screen_manager),
       trainer(std::move(trainer))
 {
     resource_manager.load_texture("base_module", "images/base_module.png");
@@ -106,6 +109,8 @@ void TrainScreen::update(const double /*delta_time*/)
     auto observations = trainer->get_observation();
     ImGui::PlotLines("##observations", observations.data(), observations.size(), 0, nullptr, 0, 1);
     ImGui::End();
+
+    back_button(screen_manager, resolution);
 }
 
 void TrainScreen::draw(Renderer &renderer, bool /*lightweight*/)

@@ -16,6 +16,7 @@ class IO;
 class PostProcLayer;
 class Renderer;
 class ResourceManager;
+class ScreenManager;
 class Trainer;
 
 class TrainScreen : public IScreen
@@ -29,12 +30,14 @@ class TrainScreen : public IScreen
     bool lightweight_rendering;
     glm::mat4 projection;
     ResourceManager &resource_manager;
+    ScreenManager &screen_manager;
     std::unique_ptr<Trainer> trainer;
 
   public:
     TrainScreen(std::unique_ptr<Trainer> trainer,
                 IO &io,
-                ResourceManager &resource_manager);
+                ResourceManager &resource_manager,
+                ScreenManager &screen_manager);
     ~TrainScreen();
     TrainScreen(const TrainScreen &) = delete;
     TrainScreen &operator=(const TrainScreen &) = delete;
@@ -49,21 +52,25 @@ class TrainScreenFactory
     IO &io;
     ResourceManager &resource_manager;
     TrainerFactory &trainer_factory;
+    ScreenManager &screen_manager;
 
   public:
     TrainScreenFactory(IO &io,
                        ResourceManager &resource_manager,
-                       TrainerFactory &trainer_factory)
+                       TrainerFactory &trainer_factory,
+                       ScreenManager &screen_manager)
         : io(io),
           resource_manager(resource_manager),
-          trainer_factory(trainer_factory) {}
+          trainer_factory(trainer_factory),
+          screen_manager(screen_manager) {}
 
     virtual std::shared_ptr<IScreen> make(TrainingProgram program)
     {
         auto trainer = trainer_factory.make(program);
         return std::make_unique<TrainScreen>(std::move(trainer),
                                              io,
-                                             resource_manager);
+                                             resource_manager,
+                                             screen_manager);
     }
 };
 }
