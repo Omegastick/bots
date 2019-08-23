@@ -30,7 +30,6 @@ PYBIND11_MODULE(singularity_trainer, m)
         .def("save_model", [](Trainer &trainer, std::string directory) {
             return trainer.save_model(directory).string();
         })
-        .def("step", &Trainer::step)
         .def("step_batch", &Trainer::step_batch);
 
     m.def("make_trainer", [](const std::string &program_json) {
