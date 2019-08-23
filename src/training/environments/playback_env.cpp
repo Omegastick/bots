@@ -260,6 +260,9 @@ void PlaybackEnv::update(double delta_time)
     // Update env according to best state
     env->set_state(lerped_state);
 
+    // Set elapsed time in env
+    env->set_elapsed_time(current_tick * tick_length);
+
     // Trigger events
     for (auto iter = events.begin(); iter != events.end();)
     {
@@ -611,6 +614,29 @@ TEST_CASE("PlaybackEnv")
         playback_env.update(0.06);
         DOCTEST_CHECK(env.get_scores()[0] == 5);
         DOCTEST_CHECK(env.get_scores()[1] == -5);
+    }
+
+    SUBCASE("Timer counts down correctly")
+    {
+        std::vector<b2Transform> agent_transforms{{{0, 1}, b2Rot(0)},
+                                                  {{2, 3}, b2Rot(1)}};
+        std::unordered_map<unsigned int, b2Transform> entity_states{};
+        for (int i = 0; i < 30; ++i)
+        {
+            playback_env.add_new_state({agent_transforms, entity_states, {10, 10}, {0, 0}, i});
+        }
+
+        playback_env.update(0);
+        DOCTEST_CHECK(playback_env.get_render_data().texts[2].text == "10");
+
+        playback_env.update(0.9);
+        DOCTEST_CHECK(playback_env.get_render_data().texts[2].text == "10");
+
+        playback_env.update(0.2);
+        DOCTEST_CHECK(playback_env.get_render_data().texts[2].text == "9");
+
+        playback_env.update(1);
+        DOCTEST_CHECK(playback_env.get_render_data().texts[2].text == "8");
     }
 
     SUBCASE("Real-world example")

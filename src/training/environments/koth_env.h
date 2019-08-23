@@ -78,6 +78,7 @@ class KothEnv : public IEnvironment
     inline b2World &get_world() { return *world; };
     inline void set_body_1(std::unique_ptr<Body> body) { this->body_1 = std::move(body); }
     inline void set_body_2(std::unique_ptr<Body> body) { this->body_2 = std::move(body); }
+    inline void set_elapsed_time(double elapsed_time) { this->elapsed_time = elapsed_time; }
 };
 
 static auto MaxSteps = [] {};

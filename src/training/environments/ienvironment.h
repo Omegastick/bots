@@ -111,6 +111,7 @@ class IEnvironment : public IDrawable
     virtual b2World &get_world() = 0;
     virtual StepInfo reset() = 0;
     virtual void set_done() = 0;
+    virtual void set_elapsed_time(double elapsed_time) = 0;
     virtual void set_state(const EnvState &state) = 0;
     virtual StepInfo step(std::vector<torch::Tensor> actions, float step_length) = 0;
 };
