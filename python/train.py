@@ -33,8 +33,6 @@ def main():
         "runs", datetime.now().strftime("%Y%m%d-%H%M%S"))
     writer = tf.summary.create_file_writer(log_dir)
 
-    singularity_trainer.start_profiler()
-
     try:
         last_test_time = time.time()
         batch_number = 0
