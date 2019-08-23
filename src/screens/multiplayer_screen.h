@@ -34,7 +34,8 @@ class MultiplayerScreen : public IScreen
         ChooseAgent = 0,
         InputAddress = 1,
         WaitingToStart = 2,
-        Playing = 3
+        Playing = 3,
+        Finished = 4
     };
 
     zmq::context_t zmq_context;
@@ -44,9 +45,11 @@ class MultiplayerScreen : public IScreen
     std::unique_ptr<ClientAgent> client_agent;
     std::unique_ptr<ClientCommunicator> client_communicator;
     std::unique_ptr<PostProcLayer> crt_post_proc_layer;
+    int done_tick;
     std::unique_ptr<PlaybackEnv> env;
     IEnvironmentFactory &env_factory;
     IO &io;
+    int player_number;
     glm::mat4 projection;
     ResourceManager &resource_manager;
     Random &rng;
@@ -54,6 +57,7 @@ class MultiplayerScreen : public IScreen
     std::string server_address;
     State state;
     double tick_length;
+    int winner;
 
     void choose_agent();
     void input_address();

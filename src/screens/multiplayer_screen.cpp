@@ -41,6 +41,7 @@ MultiplayerScreen::MultiplayerScreen(double tick_length,
                                      Random &rng,
                                      ScreenManager &screen_manager)
     : choose_agent_window(std::move(choose_agent_window)),
+      done_tick(-1),
       env_factory(env_factory),
       io(io),
       projection(glm::ortho(0.f, 1920.f, 0.f, 1080.f)),
@@ -97,6 +98,32 @@ void MultiplayerScreen::draw(Renderer &renderer, bool lightweight)
     {
         renderer.scissor(-10, -20, 10, 20, glm::ortho(-38.4f, 38.4f, -21.6f, 21.6f));
         auto render_data = env->get_render_data(lightweight);
+
+        if (state == MultiplayerScreen::State::Finished)
+        {
+            Text winner_text;
+            if (winner == player_number)
+            {
+                winner_text.text = "You win";
+            }
+            else if (winner == -1)
+            {
+                winner_text.text = "Draw";
+            }
+            else
+            {
+                winner_text.text = "You lost";
+            }
+            winner_text.font = "roboto-16";
+            winner_text.set_position({0, 0});
+            winner_text.set_scale({0.3, 0.3});
+            const double character_width = 2.2;
+            double width = character_width * winner_text.text.size();
+            const double height = 2.4;
+            winner_text.set_origin({width / 2., height / 2.});
+            render_data.texts.push_back(winner_text);
+        }
+
         renderer.draw(render_data,
                       glm::ortho(-38.4f, 38.4f, -21.6f, 21.6f),
                       env->get_elapsed_time(),
@@ -184,7 +211,29 @@ void MultiplayerScreen::play(double delta_time)
                                         message.scores,
                                         message.tick));
             env->add_events(std::move(message.events));
+
+            if (message.done)
+            {
+                if (message.scores[0] > message.scores[1])
+                {
+                    winner = 0;
+                }
+                else if (message.scores[1] > message.scores[0])
+                {
+                    winner = 1;
+                }
+                else
+                {
+                    winner = -1;
+                }
+                done_tick = message.tick;
+            }
         }
+    }
+
+    if (done_tick >= 0 && env->get_elapsed_time() * 10 >= done_tick)
+    {
+        state = MultiplayerScreen::State::Finished;
     }
 
     env->update(delta_time);
@@ -236,6 +285,7 @@ void MultiplayerScreen::wait_for_start()
         auto message = message_object->as<ConnectConfirmationMessage>();
         auto body_spec = env->get_bodies()[0]->to_json();
         client_agent = std::make_unique<ClientAgent>(std::move(agent), message.player_number, env_factory.make());
+        player_number = message.player_number;
     }
     else if (type == MessageType::GameStart)
     {
