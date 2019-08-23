@@ -24,6 +24,7 @@ class PostProcLayer;
 class Random;
 class Renderer;
 class ResourceManager;
+class ScreenManager;
 
 class MultiplayerScreen : public IScreen
 {
@@ -49,6 +50,7 @@ class MultiplayerScreen : public IScreen
     glm::mat4 projection;
     ResourceManager &resource_manager;
     Random &rng;
+    ScreenManager &screen_manager;
     std::string server_address;
     State state;
     double tick_length;
@@ -64,7 +66,8 @@ class MultiplayerScreen : public IScreen
                       IEnvironmentFactory &env_factory,
                       IO &io,
                       ResourceManager &resource_manager,
-                      Random &rng);
+                      Random &rng,
+                      ScreenManager &screen_manager);
 
     virtual void draw(Renderer &renderer, bool lightweight = false);
     void update(double delta_time);
@@ -78,6 +81,7 @@ class MultiplayerScreenFactory
     IO &io;
     ResourceManager &resource_manager;
     Random &rng;
+    ScreenManager &screen_manager;
     double tick_length;
 
   public:
@@ -87,12 +91,14 @@ class MultiplayerScreenFactory
                     IO &io,
                     ResourceManager &resource_manager,
                     Random &rng,
+                    ScreenManager &screen_manager,
                     (named = TickLength) double tick_length)
         : checkpointer(checkpointer),
           env_factory(env_factory),
           io(io),
           resource_manager(resource_manager),
           rng(rng),
+          screen_manager(screen_manager),
           tick_length(tick_length) {}
 
     virtual std::shared_ptr<IScreen> make()
@@ -102,7 +108,8 @@ class MultiplayerScreenFactory
                                                    env_factory,
                                                    io,
                                                    resource_manager,
-                                                   rng);
+                                                   rng,
+                                                   screen_manager);
     }
 };
 }

@@ -28,6 +28,7 @@
 #include "training/bodies/body.h"
 #include "training/environments/ienvironment.h"
 #include "training/environments/playback_env.h"
+#include "ui/back_button.h"
 #include "ui/multiplayer_screen/choose_agent_window.h"
 
 namespace SingularityTrainer
@@ -37,13 +38,15 @@ MultiplayerScreen::MultiplayerScreen(double tick_length,
                                      IEnvironmentFactory &env_factory,
                                      IO &io,
                                      ResourceManager &resource_manager,
-                                     Random &rng)
+                                     Random &rng,
+                                     ScreenManager &screen_manager)
     : choose_agent_window(std::move(choose_agent_window)),
       env_factory(env_factory),
       io(io),
       projection(glm::ortho(0.f, 1920.f, 0.f, 1080.f)),
       resource_manager(resource_manager),
       rng(rng),
+      screen_manager(screen_manager),
       server_address("tcp://localhost:7654"),
       state(MultiplayerScreen::State::ChooseAgent),
       tick_length(tick_length)
@@ -80,6 +83,9 @@ void MultiplayerScreen::update(double delta_time)
     {
         play(delta_time);
     }
+
+    auto resolution = io.get_resolution();
+    back_button(screen_manager, resolution);
 }
 
 void MultiplayerScreen::draw(Renderer &renderer, bool lightweight)
