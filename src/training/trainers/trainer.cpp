@@ -40,13 +40,10 @@ Trainer::Trainer(TrainingProgram program,
                  IEnvironmentFactory &env_factory,
                  EloEvaluator &evaluator,
                  Random &rng)
-    : action_frame_counter(0),
-      batch_number(0),
+    : batch_number(0),
       checkpointer(checkpointer),
-      elapsed_time(0),
       env_count(program.hyper_parameters.num_env),
       evaluator(evaluator),
-      frame_counter(0),
       last_save_time(std::chrono::high_resolution_clock::now()),
       last_update_time(std::chrono::high_resolution_clock::now()),
       new_opponents(1 + program.opponent_pool.size()),
@@ -55,8 +52,7 @@ Trainer::Trainer(TrainingProgram program,
       program(program),
       returns_rms(1),
       rng(rng),
-      slow(false),
-      waiting(false)
+      slow(false)
 {
     torch::manual_seed(0);
 
@@ -189,7 +185,12 @@ float Trainer::evaluate()
 
 std::vector<float> Trainer::get_observation()
 {
-    auto observation = rollout_storage->get_observations()[action_frame_counter % program.hyper_parameters.batch_size][0];
+    torch::Tensor observation;
+    {
+        std::lock_guard lock_guard(env_mutexes[0]);
+        int step = static_cast<int>(environments[0]->get_elapsed_time()) * 6;
+        observation = rollout_storage->get_observations()[step][0];
+    }
     return std::vector<float>(observation.data<float>(), observation.data<float>() + observation.numel());
 }
 
@@ -201,30 +202,6 @@ RenderData Trainer::get_render_data(bool lightweight)
         render_data = environments[0]->get_render_data(lightweight);
     }
     return render_data;
-}
-
-void Trainer::step()
-{
-    if (waiting)
-    {
-        return;
-    }
-    auto clock_start = std::chrono::high_resolution_clock::now();
-    do
-    {
-        action_update();
-        for (int i = 0; i < 5; ++i)
-        {
-            for (const auto &environment : environments)
-            {
-                environment->forward(1. / 60.);
-            }
-        }
-        if (waiting)
-        {
-            break;
-        }
-    } while (std::chrono::high_resolution_clock::now() - clock_start < std::chrono::milliseconds(1000 / 60));
 }
 
 std::vector<std::pair<std::string, float>> Trainer::step_batch()
@@ -341,10 +318,8 @@ std::vector<std::pair<std::string, float>> Trainer::step_batch()
         }
     }
 
-    spdlog::info("Batch started");
     executor.run(task_flow);
     executor.wait_for_all();
-    spdlog::info("Batch finished");
 
     batch_number++;
 
@@ -355,26 +330,6 @@ std::vector<std::pair<std::string, float>> Trainer::step_batch()
 
     auto update_data = learn();
     return update_data;
-}
-
-void Trainer::slow_step()
-{
-    if (waiting)
-    {
-        return;
-    }
-    if (++frame_counter >= 6)
-    {
-        frame_counter = 0;
-        action_update();
-    }
-    else
-    {
-        for (const auto &environment : environments)
-        {
-            environment->forward(1. / 60.);
-        }
-    }
 }
 
 std::filesystem::path Trainer::save_model(std::filesystem::path directory)
@@ -445,72 +400,5 @@ std::vector<std::pair<std::string, float>> Trainer::learn()
     update_pairs.push_back({"Update Duration", update_duration.count()});
 
     return update_pairs;
-}
-
-void Trainer::action_update()
-{
-    // Get actions from policy
-    std::vector<torch::Tensor> act_result;
-    {
-        torch::NoGradGuard no_grad;
-        act_result = policy->act(rollout_storage->get_observations()[action_frame_counter % program.hyper_parameters.batch_size],
-                                 rollout_storage->get_hidden_states()[action_frame_counter % program.hyper_parameters.batch_size],
-                                 rollout_storage->get_masks()[action_frame_counter % program.hyper_parameters.batch_size]);
-    }
-    std::vector<torch::Tensor> opponent_actions;
-    for (unsigned int i = 0; i < environments.size(); ++i)
-    {
-        auto opponent_act_result = opponents[i]->act(opponent_observations[i],
-                                                     opponent_hidden_states[i],
-                                                     opponent_masks[i]);
-        opponent_actions.push_back(std::get<0>(opponent_act_result));
-        opponent_hidden_states[i] = std::get<1>(opponent_act_result);
-    }
-
-    // Step environments
-    torch::Tensor dones = torch::zeros({env_count, 1});
-    torch::Tensor opponent_dones = torch::zeros({env_count, 1});
-    torch::Tensor rewards = torch::zeros({env_count, 1});
-    torch::Tensor observations = torch::zeros({env_count, program.body["num_observations"]});
-    std::vector<StepInfo> step_infos(environments.size());
-    for (unsigned int i = 0; i < environments.size(); ++i)
-    {
-        step_infos[i] = environments[i]->step({act_result[1][i], opponent_actions[i]},
-                                              1. / 60.);
-    }
-    for (unsigned int i = 0; i < environments.size(); ++i)
-    {
-        auto &step_info = step_infos[i];
-        observations[i] = step_info.observation[0];
-        dones[i] = step_info.done[0];
-        rewards[i] = step_info.reward[0];
-        opponent_observations[i] = step_info.observation[1];
-        opponent_dones[i] = step_info.done[1];
-        env_scores[i] += step_info.reward[0].item().toFloat();
-        if (step_info.done[0].item().toBool())
-        {
-            env_scores[i] = 0;
-            environments[i]->reset();
-            int selected_opponent = rng.next_int(0, opponent_pool.size());
-            opponents[i] = opponent_pool[selected_opponent].get();
-            opponent_hidden_states[i] = torch::zeros({opponents[i]->get_hidden_state_size(), 1});
-        }
-    }
-
-    rollout_storage->insert(observations,
-                            act_result[3],
-                            act_result[1],
-                            act_result[2],
-                            act_result[0],
-                            rewards,
-                            1 - dones);
-
-    action_frame_counter++;
-
-    // Train
-    if (action_frame_counter % program.hyper_parameters.batch_size == 0)
-    {
-        learn();
-    }
 }
 }

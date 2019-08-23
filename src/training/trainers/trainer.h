@@ -32,17 +32,14 @@ class Trainer
   private:
     std::unique_ptr<Body> example_body;
 
-    int action_frame_counter;
     std::unique_ptr<cpprl::Algorithm> algorithm;
     int batch_number;
     Checkpointer &checkpointer;
-    float elapsed_time;
     int env_count;
     std::vector<std::mutex> env_mutexes;
     std::vector<float> env_scores;
     std::vector<std::unique_ptr<IEnvironment>> environments;
     EloEvaluator &evaluator;
-    int frame_counter;
     std::chrono::time_point<std::chrono::high_resolution_clock> last_save_time;
     std::chrono::time_point<std::chrono::high_resolution_clock> last_update_time;
     int new_opponents;
@@ -58,9 +55,7 @@ class Trainer
     Random &rng;
     std::unique_ptr<cpprl::RolloutStorage> rollout_storage;
     bool slow;
-    bool waiting;
 
-    void action_update();
     std::vector<std::pair<std::string, float>> learn();
 
   public:
@@ -74,11 +69,8 @@ class Trainer
     float evaluate();
     std::vector<float> get_observation();
     RenderData get_render_data(bool lightweight = false);
-    std::filesystem::path
-    save_model(std::filesystem::path directory = {});
-    void step();
+    std::filesystem::path save_model(std::filesystem::path directory = {});
     std::vector<std::pair<std::string, float>> step_batch();
-    void slow_step();
 
     std::vector<std::unique_ptr<IEnvironment>> &get_environments() { return environments; }
     inline void set_fast() { slow = false; }
