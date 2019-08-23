@@ -18,6 +18,7 @@
 #include "training/environments/ienvironment.h"
 #include "training/environments/koth_env.h"
 #include "training/training_program.h"
+#include "ui/back_button.h"
 #include "ui/create_program_screen/algorithm_window.h"
 #include "ui/create_program_screen/body_selector_window.h"
 #include "ui/create_program_screen/brain_window.h"
@@ -183,6 +184,8 @@ void CreateProgramScreen::update(double /*delta_time*/)
     ImGui::PopFont();
     ImGui::PopStyleVar();
     ImGui::PopStyleColor();
+
+    back_button(screen_manager, resolution);
 }
 
 std::shared_ptr<IScreen> CreateProgramScreenFactory::make()
