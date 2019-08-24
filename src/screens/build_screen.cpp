@@ -34,7 +34,11 @@ BuildScreen::BuildScreen(BodyBuilder &&body_builder,
       io(&io),
       part_detail_window(io),
       part_selector_window(io, resource_manager),
-      available_parts({"base", "gun", "thruster", "laser_sensor"}),
+      available_parts({"base_module",
+                       "gun_module",
+                       "laser_sensor_module",
+                       "square_hull",
+                       "thruster_module"}),
       projection(glm::ortho(0.f, 1920.f, 0.f, 1080.f)),
       b2_world(b2Vec2(0, 0)),
       save_body_window(io),
@@ -46,7 +50,7 @@ BuildScreen::BuildScreen(BodyBuilder &&body_builder,
     resource_manager.load_texture("base_module", "images/base_module.png");
     for (const auto &part : available_parts)
     {
-        resource_manager.load_texture(part + "_module", "images/" + part + "_module.png");
+        resource_manager.load_texture(part, "images/" + part + ".png");
     }
     resource_manager.load_shader("texture", "shaders/texture.vert", "shaders/texture.frag");
     resource_manager.load_shader("font", "shaders/texture.vert", "shaders/font.frag");
