@@ -1,6 +1,5 @@
 #pragma once
 
-#include <memory>
 #include <string>
 #include <vector>
 
@@ -8,8 +7,6 @@
 
 namespace SingularityTrainer
 {
-class Body;
-
 enum class Algorithm
 {
     A2C = 0,
@@ -47,18 +44,18 @@ struct HyperParameters
     HyperParameters(nlohmann::json &json);
 
     Algorithm algorithm = Algorithm::A2C;
-    int batch_size = 2048;
+    int batch_size = 128;
     float discount_factor = 0.99;
     float entropy_coef = 0.001;
     int num_env = 8;
-    float learning_rate = 0.0001;
-    float actor_loss_coef = 0.5;
-    float value_loss_coef = 0.5;
+    float learning_rate = 0.0007;
+    float actor_loss_coef = 0.666;
+    float value_loss_coef = 0.333;
 
     // PPO
-    float clip_param = 0.2;
+    float clip_param = 0.1;
     int num_epoch = 3;
-    int num_minibatch = 32;
+    int num_minibatch = 8;
 
     nlohmann::json to_json() const;
 };
@@ -71,7 +68,7 @@ struct TrainingProgram
     nlohmann::json body;
     std::string checkpoint;
     HyperParameters hyper_parameters;
-    int minutes_per_checkpoint = 10;
+    int minutes_per_checkpoint = 1;
     std::vector<std::string> opponent_pool;
     RewardConfig reward_config;
 
