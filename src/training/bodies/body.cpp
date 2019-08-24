@@ -11,9 +11,10 @@
 #include "training/bodies/body.h"
 #include "training/environments/ienvironment.h"
 #include "training/modules/base_module.h"
-#include "training/modules/thruster_module.h"
 #include "training/modules/gun_module.h"
 #include "training/modules/laser_sensor_module.h"
+#include "training/modules/square_hull.h"
+#include "training/modules/thruster_module.h"
 #include "training/rigid_body.h"
 #include "graphics/colors.h"
 #include "misc/utilities.h"
@@ -233,13 +234,17 @@ void Body::recurse_json_modules(const nlohmann::json &module_json, IModule *pare
     {
         module = std::make_shared<GunModule>(*rng);
     }
-    else if (module_json["type"] == "thruster")
-    {
-        module = std::make_shared<ThrusterModule>();
-    }
     else if (module_json["type"] == "laser_sensor")
     {
         module = std::make_shared<LaserSensorModule>(module_json["laser_count"]);
+    }
+    else if (module_json["type"] == "square_hull")
+    {
+        module = std::make_shared<SquareHull>();
+    }
+    else if (module_json["type"] == "thruster")
+    {
+        module = std::make_shared<ThrusterModule>();
     }
 
     add_module(module);

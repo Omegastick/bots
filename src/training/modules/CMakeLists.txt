@@ -1,9 +1,10 @@
 target_sources(Training
 PRIVATE
-    ${CMAKE_CURRENT_LIST_DIR}/module_link.cpp
-    ${CMAKE_CURRENT_LIST_DIR}/imodule.cpp
     ${CMAKE_CURRENT_LIST_DIR}/base_module.cpp
     ${CMAKE_CURRENT_LIST_DIR}/gun_module.cpp
-    ${CMAKE_CURRENT_LIST_DIR}/thruster_module.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/imodule.cpp
     ${CMAKE_CURRENT_LIST_DIR}/laser_sensor_module.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/module_link.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/square_hull.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/thruster_module.cpp
 )
