@@ -43,10 +43,11 @@ class KothEnv : public IEnvironment
     std::vector<float> rewards;
     std::vector<float> scores;
     int step_counter;
-    std::unordered_map<Body *, int> body_numbers;
+    std::unordered_map<const Body *, int> body_numbers;
     RewardConfig reward_config;
 
     void change_score(Body *, float score_delta);
+    void change_score(int, float score_delta);
 
   public:
     KothEnv(int max_steps,

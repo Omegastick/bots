@@ -182,17 +182,6 @@ float Trainer::evaluate()
     return evaluator.evaluate(agent, new_opponents_vec, 80);
 }
 
-std::vector<float> Trainer::get_observation()
-{
-    torch::Tensor observation;
-    {
-        std::lock_guard lock_guard(env_mutexes[0]);
-        int step = static_cast<int>(environments[0]->get_elapsed_time()) * 6;
-        observation = rollout_storage->get_observations()[step][0];
-    }
-    return std::vector<float>(observation.data<float>(), observation.data<float>() + observation.numel());
-}
-
 RenderData Trainer::get_render_data(bool lightweight)
 {
     RenderData render_data;

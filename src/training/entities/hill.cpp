@@ -72,10 +72,23 @@ void Hill::register_callback(std::function<void(const std::unordered_map<Body *,
     this->callback = callback;
 }
 
-void Hill::update() const
+void Hill::update()
 {
     if (callback)
     {
+        // Remove agents that have left the hill, but haven't been removed from the list for some
+        // reason
+        for (auto it = occupants.begin(); it != occupants.end();)
+        {
+            if (it->second == 0)
+            {
+                it = occupants.erase(it);
+            }
+            else
+            {
+                it++;
+            }
+        }
         callback(occupants);
     }
 }
