@@ -32,7 +32,7 @@ class Hill : public IDrawable, public ICollidable
     RenderData get_render_data(bool lightweight = false);
     void begin_contact(RigidBody *other);
     void end_contact(RigidBody *other);
-    void update() const;
+    void update();
     void register_callback(std::function<void(const std::unordered_map<Body *, int> &)> callback);
     void reset();
 

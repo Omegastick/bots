@@ -67,7 +67,6 @@ class Trainer
             Random &rng);
 
     float evaluate();
-    std::vector<float> get_observation();
     RenderData get_render_data(bool lightweight = false);
     std::filesystem::path save_model(std::filesystem::path directory = {});
     std::vector<std::pair<std::string, float>> step_batch();

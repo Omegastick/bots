@@ -145,12 +145,13 @@ KothEnv::KothEnv(int max_steps,
             {
                 if (body.second > 0)
                 {
-                    change_reward(body.first, this->reward_config.hill_tick_reward);
-                    change_score(body.first, 1);
-                }
-                else
-                {
-                    change_reward(body.first, this->reward_config.enemy_hill_tick_punishment);
+                    int body_number = body_numbers[body.first];
+                    change_reward(body_number, this->reward_config.hill_tick_reward);
+                    change_score(body_number, 1);
+
+                    int opponent_body_number = (body_number + 1) % 2;
+                    change_reward(opponent_body_number,
+                                  this->reward_config.enemy_hill_tick_punishment);
                 }
             }
         }
@@ -176,7 +177,12 @@ void KothEnv::add_event(std::unique_ptr<IEvent> event)
 
 void KothEnv::change_score(Body *body, float score_delta)
 {
-    scores[body_numbers[body]] += score_delta;
+    change_score(body_numbers[body], score_delta);
+}
+
+void KothEnv::change_score(int body, float score_delta)
+{
+    scores[body] += score_delta;
 }
 
 double KothEnv::get_elapsed_time() const

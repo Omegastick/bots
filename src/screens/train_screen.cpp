@@ -103,13 +103,6 @@ void TrainScreen::update(const double /*delta_time*/)
     }
     ImGui::End();
 
-    // ImGui::SetNextWindowSize({resolution.x * 0.2f, resolution.y * 0.1f}, ImGuiCond_Once);
-    ImGui::SetNextWindowPos({resolution.x * 0.05f, resolution.y * 0.7f}, ImGuiCond_Once);
-    ImGui::Begin("Observations");
-    auto observations = trainer->get_observation();
-    ImGui::PlotLines("##observations", observations.data(), observations.size(), 0, nullptr, 0, 1);
-    ImGui::End();
-
     back_button(screen_manager, resolution);
 }
 
