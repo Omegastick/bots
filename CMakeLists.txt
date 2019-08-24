@@ -171,12 +171,10 @@ set(INCLUDE_DIRS
     ${DOCTEST_DIR}/doctest
     ${ARGH_DIR}
     ${JSON_DIR}/include
-    ${TORCH_INCLUDE_DIRS}
     ${TWEENY_DIR}/include
     ${PYBIND_DIR}/include
     ${PYTHON_INCLUDE_DIRS}
     ${FMT_DIR}/include
-    ${TASKFLOW_DIR}
     ${ZMQ_DIR}/include
 )
 target_include_directories(SingularityTrainer PUBLIC ${INCLUDE_DIRS})
@@ -188,5 +186,20 @@ target_include_directories(Misc PUBLIC ${INCLUDE_DIRS})
 target_include_directories(Networking PUBLIC ${INCLUDE_DIRS})
 target_include_directories(Training PUBLIC ${INCLUDE_DIRS})
 target_include_directories(PythonBindings PUBLIC ${INCLUDE_DIRS})
+
+set(NO_ERR_INCLUDE_DIRS
+    ${TORCH_INCLUDE_DIRS}
+    ${TASKFLOW_DIR}
+)
+
+target_include_directories(SingularityTrainer SYSTEM PUBLIC ${NO_ERR_INCLUDE_DIRS})
+target_include_directories(HeadlessTrainer SYSTEM PUBLIC ${NO_ERR_INCLUDE_DIRS})
+target_include_directories(GraphicsPlayground SYSTEM PUBLIC ${NO_ERR_INCLUDE_DIRS})
+target_include_directories(Server SYSTEM PUBLIC ${NO_ERR_INCLUDE_DIRS})
+target_include_directories(Graphics SYSTEM PUBLIC ${NO_ERR_INCLUDE_DIRS})
+target_include_directories(Misc SYSTEM PUBLIC ${NO_ERR_INCLUDE_DIRS})
+target_include_directories(Networking SYSTEM PUBLIC ${NO_ERR_INCLUDE_DIRS})
+target_include_directories(Training SYSTEM PUBLIC ${NO_ERR_INCLUDE_DIRS})
+target_include_directories(PythonBindings SYSTEM PUBLIC ${NO_ERR_INCLUDE_DIRS})
 
 add_subdirectory(src)

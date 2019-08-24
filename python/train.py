@@ -42,7 +42,7 @@ def main():
             with writer.as_default():
                 for stat in training_stats:
                     tf.summary.scalar(stat[0], stat[1], step=batch_number)
-            if time.time() - last_test_time > 300:
+            if time.time() - last_test_time > 60:
                 last_test_time = time.time()
                 logging.info("######## Testing ########")
                 elo = trainer.evaluate()
