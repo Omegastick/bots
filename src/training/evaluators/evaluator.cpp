@@ -22,126 +22,84 @@ Evaluator::Evaluator(BodyFactory &body_factory,
     : body_factory(body_factory),
       env_factory(env_factory) {}
 
-std::vector<EvaluationResult> Evaluator::evaluate(const IAgent &agent_1,
-                                                  const IAgent &agent_2,
-                                                  int number_of_trials)
+EvaluationResult Evaluator::evaluate(const IAgent &agent_1, const IAgent &agent_2)
 {
-    // Initialize environments
-    std::vector<int> scores(number_of_trials);
-
-    std::vector<std::unique_ptr<IEnvironment>> environments(number_of_trials);
-    for (int i = 0; i < number_of_trials; ++i)
-    {
-        auto world = std::make_unique<b2World>(b2Vec2_zero);
-        auto rng = std::make_unique<Random>(i);
-        std::vector<std::unique_ptr<Body>> bodies;
-        bodies.push_back(body_factory.make(*world, *rng));
-        bodies.push_back(body_factory.make(*world, *rng));
-        bodies[0]->load_json(agent_1.get_body_spec());
-        bodies[1]->load_json(agent_2.get_body_spec());
-        environments[i] = env_factory.make(std::move(rng),
-                                           std::move(world),
-                                           std::move(bodies),
-                                           RewardConfig());
-    }
+    // Initialize environment
+    auto world = std::make_unique<b2World>(b2Vec2_zero);
+    auto rng = std::make_unique<Random>(0);
+    std::vector<std::unique_ptr<Body>> bodies;
+    bodies.push_back(body_factory.make(*world, *rng));
+    bodies.push_back(body_factory.make(*world, *rng));
+    bodies[0]->load_json(agent_1.get_body_spec());
+    bodies[1]->load_json(agent_2.get_body_spec());
+    auto environment = env_factory.make(std::move(rng),
+                                        std::move(world),
+                                        std::move(bodies),
+                                        RewardConfig());
 
     // Get first observations
-    auto observations_1 = torch::zeros({number_of_trials, agent_1.get_body_spec()["num_observations"]});
-    auto observations_2 = torch::zeros({number_of_trials, agent_2.get_body_spec()["num_observations"]});
-    for (int i = 0; i < number_of_trials; ++i)
-    {
-        auto env_observation = environments[i]->reset().observation;
-        observations_1[i] = env_observation[0];
-        observations_2[i] = env_observation[1];
-    }
+    auto observation_1 = torch::zeros({1, agent_1.get_body_spec()["num_observations"]});
+    auto observation_2 = torch::zeros({1, agent_2.get_body_spec()["num_observations"]});
+    auto env_observation = environment->reset().observation;
+    observation_1 = env_observation[0];
+    observation_2 = env_observation[1];
 
     // Initialize masks and hidden states
-    auto hidden_states_1 = torch::zeros({number_of_trials, agent_1.get_hidden_state_size()});
-    auto hidden_states_2 = torch::zeros({number_of_trials, agent_2.get_hidden_state_size()});
-    auto masks_1 = torch::ones({number_of_trials, 1});
-    auto masks_2 = torch::ones({number_of_trials, 1});
+    auto hidden_state_1 = torch::zeros({1, agent_1.get_hidden_state_size()});
+    auto hidden_state_2 = torch::zeros({1, agent_2.get_hidden_state_size()});
+    auto mask_1 = torch::ones({1, 1});
+    auto mask_2 = torch::ones({1, 1});
 
     // Run every environment to end
-    std::vector<bool> finished_trials(number_of_trials, false);
-    int finished_count = 0;
-    while (finished_count < number_of_trials)
+    bool done = false;
+    int victor;
+    while (!done)
     {
-        torch::Tensor actions_1;
-        torch::Tensor actions_2;
-        std::tie(actions_1, hidden_states_1) = agent_1.act(observations_1,
-                                                           hidden_states_1,
-                                                           masks_1);
-        std::tie(actions_2, hidden_states_2) = agent_2.act(observations_2,
-                                                           hidden_states_2,
-                                                           masks_2);
-        torch::Tensor dones = torch::zeros({number_of_trials, 1});
-        std::vector<StepInfo> step_infos(number_of_trials);
-        int j = 0;
-        for (int i = 0; i < number_of_trials; ++i)
+        torch::Tensor action_1;
+        torch::Tensor action_2;
+        std::tie(action_1, hidden_state_1) = agent_1.act(observation_1,
+                                                         hidden_state_1,
+                                                         mask_1);
+        std::tie(action_2, hidden_state_2) = agent_2.act(observation_2,
+                                                         hidden_state_2,
+                                                         mask_2);
+        auto step_info = environment->step({action_1, action_2}, 1. / 60.);
+        for (int k = 0; k < 5; ++k)
         {
-            if (!finished_trials[i])
-            {
-                step_infos[i] = environments[i]->step({actions_1[j],
-                                                       actions_2[j]},
-                                                      1. / 60.);
-                for (int k = 0; k < 5; ++k)
-                {
-                    environments[i]->forward(1. / 60.);
-                }
-                j++;
-            }
+            environment->forward(1. / 60.);
         }
-        auto observations_1 = torch::zeros({number_of_trials - finished_count, agent_1.get_body_spec()["num_observations"]});
-        auto observations_2 = torch::zeros({number_of_trials - finished_count, agent_2.get_body_spec()["num_observations"]});
-        j = 0;
-        for (int i = 0; i < number_of_trials; ++i)
+
+        observation_1 = step_info.observation[0];
+        observation_2 = step_info.observation[1];
+
+        if (step_info.done[0].item().toBool())
         {
-            if (!finished_trials[i])
-            {
-                auto &step_info = step_infos[i];
-                observations_1[j] = step_info.observation[0];
-                observations_2[j] = step_info.observation[1];
-
-                if (step_info.done[0].item().toBool())
-                {
-                    scores[i] = step_info.victor;
-                    finished_trials[i] = true;
-                    finished_count++;
-                }
-
-                j++;
-            }
+            victor = step_info.victor;
+            done = true;
         }
     }
 
-    std::vector<EvaluationResult> results;
-    results.reserve(number_of_trials);
-    for (const auto &score : scores)
+    if (victor == 0)
     {
-        if (score == 0)
-        {
-            results.push_back(EvaluationResult::Agent1);
-        }
-        else if (score == 1)
-        {
-            results.push_back(EvaluationResult::Agent2);
-        }
-        else
-        {
-            results.push_back(EvaluationResult::Draw);
-        }
+        return EvaluationResult::Agent1;
     }
-
-    return results;
+    else if (victor == 1)
+    {
+        return EvaluationResult::Agent2;
+    }
+    else
+    {
+        return EvaluationResult::Draw;
+    }
 }
 
 TEST_CASE("Evaluator")
 {
-    SUBCASE("evaluate() runs the correct number of trials")
+    SUBCASE("evaluate() returns a draw if the length of the game is too short for a win")
     {
         Random rng(0);
-        TestBodyFactory body_factory(rng);
-        KothEnvFactory env_factory(100, body_factory);
+        BodyFactory body_factory(rng);
+        KothEnvFactory env_factory(10, body_factory);
         Evaluator evaluator(body_factory, env_factory);
 
         TestBody body(rng);
@@ -149,11 +107,9 @@ TEST_CASE("Evaluator")
 
         RandomAgent agent(body_spec, rng, "Random Agent");
 
-        auto results = evaluator.evaluate(agent,
-                                          agent,
-                                          4);
+        auto result = evaluator.evaluate(agent, agent);
 
-        DOCTEST_CHECK(results.size() == 4);
+        DOCTEST_CHECK(result == EvaluationResult::Draw);
     }
 }
 }

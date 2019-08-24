@@ -179,7 +179,7 @@ float Trainer::evaluate()
     }
     new_opponents = 0;
     NNAgent agent(policy, program.body, "Current Agent");
-    return evaluator.evaluate(agent, new_opponents_vec);
+    return evaluator.evaluate(agent, new_opponents_vec, 80);
 }
 
 std::vector<float> Trainer::get_observation()

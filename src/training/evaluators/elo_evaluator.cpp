@@ -7,6 +7,7 @@
 #include <nlohmann/json.hpp>
 #include <spdlog/spdlog.h>
 #include <fmt/ostream.h>
+#include <taskflow/taskflow.hpp>
 
 #include "elo_evaluator.h"
 #include "misc/random.h"
@@ -19,7 +20,6 @@
 
 namespace SingularityTrainer
 {
-const int number_of_trials = 10;
 const double elo_constant = 16;
 
 double expected_win_chance(double a_rating, double b_rating)
@@ -27,7 +27,10 @@ double expected_win_chance(double a_rating, double b_rating)
     return 1. / (1. + pow(10., (b_rating - a_rating) / 400.));
 }
 
-std::tuple<double, double> calculate_elos(double a_rating, double b_rating, double k, EvaluationResult result)
+std::tuple<double, double> calculate_elos(double a_rating,
+                                          double b_rating,
+                                          double k,
+                                          EvaluationResult result)
 {
 
     double a_win_chance = expected_win_chance(a_rating, b_rating);
@@ -58,15 +61,19 @@ EloEvaluator::EloEvaluator(BodyFactory &body_factory,
     : Evaluator(body_factory, env_factory),
       rng(rng) {}
 
-double EloEvaluator::evaluate(IAgent &agent, const std::vector<IAgent *> &new_opponents)
+double EloEvaluator::evaluate(IAgent &agent,
+                              const std::vector<IAgent *> &new_opponents,
+                              unsigned int number_of_trials)
 {
     if (main_agent == nullptr)
     {
+        // Initialize main agent
         main_agent = agent.clone();
         elos[main_agent.get()] = 0;
     }
     else
     {
+        // Update main agent
         auto new_main_agent_temp = agent.clone();
         elos[new_main_agent_temp.get()] = elos[main_agent.get()];
         elos.erase(main_agent.get());
@@ -80,48 +87,62 @@ double EloEvaluator::evaluate(IAgent &agent, const std::vector<IAgent *> &new_op
         elos[opponents.back().get()] = 0;
     }
 
-    // Calculate new opponent elos
-    for (unsigned int i = opponents.size() - new_opponents.size(); i < opponents.size(); ++i)
+    struct Evaluation
     {
-        // Run new opponent against current pool
-        std::vector<std::vector<EvaluationResult>> results;
-        for (unsigned int j = 0; j < i; ++j)
-        {
-            results.push_back(Evaluator::evaluate(*opponents[i], *opponents[j], number_of_trials));
-        }
+        IAgent *agent_1;
+        IAgent *agent_2;
+        EvaluationResult result = EvaluationResult::Draw;
+    };
+    std::vector<Evaluation> evaluations;
 
-        // Calculate elos
-        for (int j = 0; j < number_of_trials; ++j)
+    // Select players
+    for (unsigned int i = 0; i < number_of_trials; ++i)
+    {
+        // Select randomly from opponent pool
+        // TODO: Make it impossible for an agent to play against itself
+        IAgent *agent_1 = opponents[rng.next_int(0, opponents.size())].get();
+        IAgent *agent_2 = opponents[rng.next_int(0, opponents.size())].get();
+
+        // 1 in 10 chance to play against the main agent
+        if (rng.next_float(0, 1) < 0.1)
         {
-            for (unsigned int k = 0; k < results.size(); ++k)
+            if (rng.next_float(0, 1) < 0.5)
             {
-                std::tie(elos[opponents[i].get()],
-                         elos[opponents[k].get()]) = calculate_elos(elos[opponents[i].get()],
-                                                                    elos[opponents[k].get()],
-                                                                    elo_constant,
-                                                                    results[k][j]);
+                agent_1 = main_agent.get();
+            }
+            else
+            {
+                agent_2 = main_agent.get();
             }
         }
+
+        evaluations.push_back({agent_1, agent_2});
     }
 
-    // Run main agent against current pool
-    std::vector<std::vector<EvaluationResult>> results;
-    for (const auto &opponent : opponents)
+    // Create evaluation tasks
+    tf::Executor executor;
+    tf::Taskflow task_flow;
+
+    for (auto &evaluation : evaluations)
     {
-        results.push_back(Evaluator::evaluate(*main_agent, *opponent, number_of_trials));
+        task_flow.emplace([&] {
+            auto result = Evaluator::evaluate(*evaluation.agent_1, *evaluation.agent_2);
+            evaluation.result = result;
+        });
     }
 
-    // Calculate Elo score for main agent
-    for (int i = 0; i < number_of_trials; ++i)
+    // Run evaluation tasks
+    executor.run(task_flow);
+    executor.wait_for_all();
+
+    // Calculate Elos
+    for (const auto &evaluation : evaluations)
     {
-        for (unsigned int j = 0; j < results.size(); ++j)
-        {
-            std::tie(elos[main_agent.get()],
-                     elos[opponents[j].get()]) = calculate_elos(elos[main_agent.get()],
-                                                                elos[opponents[j].get()],
-                                                                elo_constant,
-                                                                results[j][i]);
-        }
+        std::tie(elos[evaluation.agent_1],
+                 elos[evaluation.agent_2]) = calculate_elos(elos[evaluation.agent_1],
+                                                            elos[evaluation.agent_2],
+                                                            elo_constant,
+                                                            evaluation.result);
     }
 
     spdlog::debug("{}: {}", main_agent->get_name(), elos[main_agent.get()]);
@@ -169,11 +190,11 @@ TEST_CASE("EloEvaluator")
         std::vector<IAgent *> new_opponents;
 
         new_opponents.push_back(&agent_2);
-        evaluator.evaluate(agent_1, new_opponents);
+        evaluator.evaluate(agent_1, new_opponents, 16);
         new_opponents[0] = &agent_3;
-        evaluator.evaluate(agent_1, new_opponents);
+        evaluator.evaluate(agent_1, new_opponents, 16);
         new_opponents[0] = &agent_4;
-        auto elo = evaluator.evaluate(agent_1, new_opponents);
+        auto elo = evaluator.evaluate(agent_1, new_opponents, 16);
 
         DOCTEST_CHECK(elo < 40);
         DOCTEST_CHECK(elo > -40);
