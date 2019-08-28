@@ -40,6 +40,7 @@ class BodyBuilder
     std::unique_ptr<Body> body;
     IO &io;
     glm::mat4 projection;
+    const IModule *selected_module;
     std::unique_ptr<b2World> world;
 
   public:
@@ -51,6 +52,7 @@ class BodyBuilder
     NearestModuleLinkResult get_nearest_module_link_to_module(IModule &module);
     RenderData get_render_data(bool lightweight = false);
     std::shared_ptr<IModule> place_module(std::shared_ptr<IModule> selected_module);
+    void select_module(const IModule *module);
 
     inline Body &get_body() { return *body; }
     inline glm::mat4 &get_projection() { return projection; }

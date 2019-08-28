@@ -8,6 +8,7 @@
 #include <spdlog/spdlog.h>
 
 #include "ui/build_screen/body_builder.h"
+#include "graphics/colors.h"
 #include "graphics/render_data.h"
 #include "misc/io.h"
 #include "misc/random.h"
@@ -32,6 +33,7 @@ BodyBuilder::BodyBuilder(std::unique_ptr<Body> body, std::unique_ptr<b2World> wo
     : body(std::move(body)),
       io(io),
       projection(glm::ortho(-9.6f, 9.6f, -5.4f, 5.4f)),
+      selected_module(nullptr),
       world(std::move(world))
 {
     auto base_module = std::make_shared<BaseModule>();
@@ -140,9 +142,30 @@ std::shared_ptr<IModule> BodyBuilder::place_module(std::shared_ptr<IModule> sele
     }
 }
 
+void BodyBuilder::select_module(const IModule *module)
+{
+    selected_module = module;
+}
+
 RenderData BodyBuilder::get_render_data(bool lightweight)
 {
-    return body->get_render_data(lightweight);
+    RenderData render_data;
+
+    render_data.append(body->get_render_data(lightweight));
+
+    if (selected_module != nullptr)
+    {
+        Sprite selected_marker("square");
+        selected_marker.set_color(cl_white);
+        selected_marker.set_scale({1.1, 1.1});
+        selected_marker.set_origin(selected_marker.get_scale() * 0.5f);
+        auto b2_transform = selected_module->get_global_transform();
+        selected_marker.set_position({b2_transform.p.x, b2_transform.p.y});
+        selected_marker.set_rotation(b2_transform.q.GetAngle());
+        render_data.sprites.push_back(selected_marker);
+    }
+
+    return render_data;
 }
 
 TEST_CASE("BodyBuilder")
@@ -160,14 +183,14 @@ TEST_CASE("BodyBuilder")
         auto body = &body_builder.get_body();
         auto modules = body->get_modules();
 
-        CHECK(modules.size() == 1);
+        DOCTEST_CHECK(modules.size() == 1);
 
         auto transform = modules[0]->get_global_transform();
-        CHECK(transform.p.Length() == 0);
-        CHECK(transform.q.GetAngle() == 0);
+        DOCTEST_CHECK(transform.p.Length() == 0);
+        DOCTEST_CHECK(transform.q.GetAngle() == 0);
 
         auto json = modules[0]->to_json();
-        CHECK(json["type"] == "base");
+        DOCTEST_CHECK(json["type"] == "base");
     }
 
     SUBCASE("delete_module()")
@@ -181,7 +204,7 @@ TEST_CASE("BodyBuilder")
 
             body_builder.delete_module(placed_module);
 
-            CHECK(body_builder.get_body().get_modules().size() == 1);
+            DOCTEST_CHECK(body_builder.get_body().get_modules().size() == 1);
         }
 
         SUBCASE("Won't delete base module")
@@ -189,7 +212,7 @@ TEST_CASE("BodyBuilder")
             auto base_module = body_builder.get_body().get_modules()[0];
             body_builder.delete_module(base_module);
 
-            CHECK(body_builder.get_body().get_modules().size() == 1);
+            DOCTEST_CHECK(body_builder.get_body().get_modules().size() == 1);
         }
     }
 
@@ -203,11 +226,11 @@ TEST_CASE("BodyBuilder")
 
             auto selected_module = body_builder.place_module(gun_module);
 
-            CHECK(selected_module == gun_module);
+            DOCTEST_CHECK(selected_module == gun_module);
             REQUIRE(body_builder.get_body().get_modules().size() == 2);
 
-            CHECK(body_builder.get_body().get_modules()[1]->get_transform().q.s == doctest::Approx(b2Rot(0).s));
-            CHECK(body_builder.get_body().get_modules()[1]->get_transform().q.c == doctest::Approx(b2Rot(0).c));
+            DOCTEST_CHECK(body_builder.get_body().get_modules()[1]->get_transform().q.s == doctest::Approx(b2Rot(0).s));
+            DOCTEST_CHECK(body_builder.get_body().get_modules()[1]->get_transform().q.c == doctest::Approx(b2Rot(0).c));
         }
 
         SUBCASE("Correctly places two gun modules")
@@ -222,11 +245,11 @@ TEST_CASE("BodyBuilder")
             gun_module_2->get_transform().p = {point.x, point.y};
             auto selected_module = body_builder.place_module(gun_module_2);
 
-            CHECK(selected_module == gun_module_2);
+            DOCTEST_CHECK(selected_module == gun_module_2);
             REQUIRE(body_builder.get_body().get_modules().size() == 3);
 
-            CHECK(body_builder.get_body().get_modules()[2]->get_transform().q.s == doctest::Approx(b2Rot(0).s));
-            CHECK(body_builder.get_body().get_modules()[2]->get_transform().q.c == doctest::Approx(b2Rot(0).c));
+            DOCTEST_CHECK(body_builder.get_body().get_modules()[2]->get_transform().q.s == doctest::Approx(b2Rot(0).s));
+            DOCTEST_CHECK(body_builder.get_body().get_modules()[2]->get_transform().q.c == doctest::Approx(b2Rot(0).c));
         }
 
         SUBCASE("Can chain modules")
@@ -241,11 +264,11 @@ TEST_CASE("BodyBuilder")
             gun_module_2->get_transform().p = {point.x, point.y};
             auto selected_module = body_builder.place_module(gun_module_2);
 
-            CHECK(selected_module == gun_module_2);
+            DOCTEST_CHECK(selected_module == gun_module_2);
             REQUIRE(body_builder.get_body().get_modules().size() == 3);
 
-            CHECK(body_builder.get_body().get_modules()[2]->get_transform().q.s == doctest::Approx(b2Rot(0).s));
-            CHECK(body_builder.get_body().get_modules()[2]->get_transform().q.c == doctest::Approx(b2Rot(0).c));
+            DOCTEST_CHECK(body_builder.get_body().get_modules()[2]->get_transform().q.s == doctest::Approx(b2Rot(0).s));
+            DOCTEST_CHECK(body_builder.get_body().get_modules()[2]->get_transform().q.c == doctest::Approx(b2Rot(0).c));
         }
     }
 
@@ -256,14 +279,14 @@ TEST_CASE("BodyBuilder")
             auto selected_module = body_builder.get_module_at_screen_position({960, 540});
             auto base_module = body_builder.get_body().get_modules()[0];
 
-            CHECK(selected_module == base_module);
+            DOCTEST_CHECK(selected_module == base_module);
         }
 
         SUBCASE("Returns a nullptr if no module at exists at the point")
         {
             auto selected_module = body_builder.get_module_at_screen_position({1000, 1000});
 
-            CHECK(selected_module == nullptr);
+            DOCTEST_CHECK(selected_module == nullptr);
         }
     }
 
@@ -274,7 +297,7 @@ TEST_CASE("BodyBuilder")
             auto selected_link = body_builder.get_nearest_module_link_to_world_position({0, 10}).nearest_link;
             auto expected_link = &body_builder.get_body().get_modules()[0]->get_module_links()[0];
 
-            CHECK(selected_link == expected_link);
+            DOCTEST_CHECK(selected_link == expected_link);
         }
 
         SUBCASE("Returns a nullptr if there are no available module links")
@@ -289,7 +312,29 @@ TEST_CASE("BodyBuilder")
 
             auto selected_link = body_builder.get_nearest_module_link_to_world_position({0, 10}).nearest_link;
 
-            CHECK(selected_link == nullptr);
+            DOCTEST_CHECK(selected_link == nullptr);
+        }
+    }
+
+    SUBCASE("select_module()")
+    {
+        SUBCASE("Draws a box around the selected module")
+        {
+            body_builder.select_module(body_builder.get_body().get_modules()[0].get());
+            auto render_data = body_builder.get_render_data(true);
+
+            DOCTEST_CHECK(render_data.sprites[1].get_texture() == "square");
+            DOCTEST_CHECK(render_data.sprites[1].get_scale() == glm::vec2(1.1, 1.1));
+            DOCTEST_CHECK(render_data.sprites[1].get_position() == glm::vec2(0, 0));
+        }
+
+        SUBCASE("When called with nullptr, stops drawing the box")
+        {
+            body_builder.select_module(body_builder.get_body().get_modules()[0].get());
+            body_builder.select_module(nullptr);
+            auto render_data = body_builder.get_render_data(true);
+
+            DOCTEST_CHECK(render_data.sprites.size() == 1);
         }
     }
 }
