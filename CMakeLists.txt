@@ -70,7 +70,7 @@ foreach(target ${ST_TARGETS})
     if(MSVC)
     target_compile_options(${target} PRIVATE /W0)
     else(MSVC)
-    target_compile_options(${target} PRIVATE -Wall -Wextra -pedantic)
+    target_compile_options(${target} PRIVATE -Wall -Wextra -pedantic -Wno-maybe-uninitialized)
     endif(MSVC)    
 endforeach(target ${ST_TARGETS})
 
