@@ -47,6 +47,7 @@ BuildScreen::BuildScreen(BodyBuilder &&body_builder,
       test_sprite("laser_sensor_module"),
       current_rotation(0)
 {
+    resource_manager.load_texture("square", "images/square.png");
     resource_manager.load_texture("base_module", "images/base_module.png");
     for (const auto &part : available_parts)
     {
@@ -79,6 +80,8 @@ void BuildScreen::update(double /*delta_time*/)
         {
             selected_module = body_builder.place_module(module_to_place);
         }
+
+        body_builder.select_module(selected_module.get());
 
         if (selected_module != nullptr)
         {
