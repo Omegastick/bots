@@ -65,6 +65,8 @@ MultiplayerScreen::MultiplayerScreen(double tick_length,
     resource_manager.load_font("roboto-16", "fonts/Roboto-Regular.ttf", 16);
 
     crt_post_proc_layer = std::make_unique<PostProcLayer>(resource_manager.shader_store.get("crt").get());
+
+    zmq_context.setctxopt(ZMQ_BLOCKY, false);
 }
 
 void MultiplayerScreen::update(double delta_time)
@@ -160,6 +162,7 @@ void MultiplayerScreen::input_address()
     {
         // Connect to the server
         auto client_socket = std::make_unique<zmq::socket_t>(zmq_context, zmq::socket_type::dealer);
+        client_socket->setsockopt(ZMQ_LINGER, 0);
         std::string id(std::to_string(rng.next_int(0, 10000000)));
         client_socket->setsockopt(ZMQ_IDENTITY, id.c_str(), id.size());
         spdlog::info("Connecting to server");
