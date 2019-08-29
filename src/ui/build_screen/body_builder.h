@@ -46,7 +46,7 @@ class BodyBuilder
   public:
     BodyBuilder(std::unique_ptr<Body> body, std::unique_ptr<b2World> world, IO &io);
 
-    void delete_module(std::shared_ptr<IModule> module);
+    void delete_module(IModule *module);
     std::shared_ptr<IModule> get_module_at_screen_position(glm::vec2 point);
     NearestModuleLinkResult get_nearest_module_link_to_world_position(glm::vec2 point);
     NearestModuleLinkResult get_nearest_module_link_to_module(IModule &module);
