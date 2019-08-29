@@ -6,6 +6,7 @@
 #include <glm/mat4x4.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <imgui.h>
+#include <spdlog/spdlog.h>
 
 #include "screens/build_screen.h"
 #include "graphics/renderers/renderer.h"
@@ -81,12 +82,9 @@ void BuildScreen::update(double /*delta_time*/)
             selected_module = body_builder.place_module(module_to_place);
         }
 
-        body_builder.select_module(selected_module.get());
-
         if (selected_module != nullptr)
         {
             module_to_place = nullptr;
-            part_detail_window.select_part(selected_module.get());
         }
     }
 
@@ -98,6 +96,25 @@ void BuildScreen::update(double /*delta_time*/)
     {
         current_rotation -= 1;
     }
+
+    if (io->get_key_pressed_this_frame(GLFW_KEY_DELETE))
+    {
+        if (selected_module != nullptr)
+        {
+            try
+            {
+                body_builder.delete_module(selected_module.get());
+            }
+            catch (std::runtime_error &error)
+            {
+                spdlog::error(error);
+            }
+            selected_module = nullptr;
+        }
+    }
+
+    body_builder.select_module(selected_module.get());
+    part_detail_window.select_part(selected_module.get());
 
     part_detail_window.update();
     save_body_window.update(body_builder.get_body());

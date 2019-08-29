@@ -56,7 +56,7 @@ class Body : public ICollidable
     void reset();
     void set_rigid_body(std::unique_ptr<RigidBody> rigid_body);
     nlohmann::json to_json() const;
-    void unlink_module(std::shared_ptr<IModule> module);
+    void unlink_module(IModule *module);
     void update_body();
 
     inline const std::vector<IAction *> &get_actions() const { return actions; }

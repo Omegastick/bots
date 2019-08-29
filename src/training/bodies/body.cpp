@@ -311,7 +311,7 @@ nlohmann::json Body::to_json() const
     return json;
 }
 
-void Body::unlink_module(std::shared_ptr<IModule> module)
+void Body::unlink_module(IModule *module)
 {
     ModuleLink *main_link = nullptr;
     for (auto &link : module->get_module_links())
@@ -340,7 +340,7 @@ void Body::unlink_module(std::shared_ptr<IModule> module)
     main_link->pair_link = nullptr;
     main_link->linked_module = nullptr;
 
-    modules.erase(std::find_if(modules.begin(), modules.end(), [module](const auto &i) { return module.get() == i.get(); }));
+    modules.erase(std::find_if(modules.begin(), modules.end(), [module](const auto &i) { return module == i.get(); }));
 }
 
 void Body::update_body()
@@ -549,7 +549,7 @@ TEST_CASE("Body")
             body.update_body();
             body.register_actions();
 
-            body.unlink_module(gun_module);
+            body.unlink_module(gun_module.get());
             body.update_body();
             body.register_actions();
 
@@ -575,7 +575,7 @@ TEST_CASE("Body")
             body.update_body();
             body.register_actions();
 
-            CHECK_THROWS(body.unlink_module(gun_module));
+            CHECK_THROWS(body.unlink_module(gun_module.get()));
         }
     }
 }

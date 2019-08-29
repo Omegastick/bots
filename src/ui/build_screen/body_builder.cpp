@@ -41,15 +41,21 @@ BodyBuilder::BodyBuilder(std::unique_ptr<Body> body, std::unique_ptr<b2World> wo
     this->body->update_body();
 }
 
-void BodyBuilder::delete_module(std::shared_ptr<IModule> module)
+void BodyBuilder::delete_module(IModule *module)
 {
-    if (module == body->get_modules()[0])
+    if (module == body->get_modules()[0].get())
     {
         spdlog::error("Can't delete base module");
         return;
     }
+
     body->unlink_module(module);
     body->update_body();
+
+    if (module == selected_module)
+    {
+        selected_module = nullptr;
+    }
 }
 
 std::shared_ptr<IModule> BodyBuilder::get_module_at_screen_position(glm::vec2 point)
@@ -202,7 +208,7 @@ TEST_CASE("BodyBuilder")
             gun_module->get_transform().p = {point.x, point.y};
             auto placed_module = body_builder.place_module(gun_module);
 
-            body_builder.delete_module(placed_module);
+            body_builder.delete_module(placed_module.get());
 
             DOCTEST_CHECK(body_builder.get_body().get_modules().size() == 1);
         }
@@ -210,7 +216,7 @@ TEST_CASE("BodyBuilder")
         SUBCASE("Won't delete base module")
         {
             auto base_module = body_builder.get_body().get_modules()[0];
-            body_builder.delete_module(base_module);
+            body_builder.delete_module(base_module.get());
 
             DOCTEST_CHECK(body_builder.get_body().get_modules().size() == 1);
         }
