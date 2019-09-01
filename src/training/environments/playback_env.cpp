@@ -4,6 +4,7 @@
 
 #include <Box2D/Box2D.h>
 #include <doctest.h>
+#include <glm/gtc/constants.hpp>
 #include <nlohmann/json.hpp>
 #include <spdlog/spdlog.h>
 
@@ -21,6 +22,8 @@
 
 namespace SingularityTrainer
 {
+const float pi = glm::pi<float>();
+
 static float lerp(float start, float end, float interpolate)
 {
     return start + interpolate * (end - start);
@@ -29,22 +32,22 @@ static float lerp(float start, float end, float interpolate)
 float lerp_angle(float start, float end, float interpolate)
 {
     float difference = abs(end - start);
-    if (difference > M_PI_2)
+    if (difference > pi / 2.f)
     {
         if (end > start)
         {
-            start += M_PI * 2;
+            start += pi * 2;
         }
         else
         {
-            end += M_PI * 2;
+            end += pi * 2;
         }
     }
     float value = (start + ((end - start) * interpolate));
-    float range = M_PI;
-    if (value >= -M_PI && value <= M_PI)
+    float range = pi;
+    if (value >= -pi && value <= pi)
         return value;
-    return std::fmod(value + M_PI, range) - M_PI;
+    return std::fmod(value + pi, range) - pi;
 }
 
 PlaybackEnv::PlaybackEnv(std::unique_ptr<IEnvironment> env, double tick_length)
@@ -473,20 +476,20 @@ TEST_CASE("PlaybackEnv")
     {
         auto &env = playback_env.get_env();
 
-        std::vector<b2Transform> agent_transforms{{{0, 0}, b2Rot(M_PI - 1)},
-                                                  {{0, 0}, b2Rot(-M_PI + 1)}};
+        std::vector<b2Transform> agent_transforms{{{0, 0}, b2Rot(pi - 1)},
+                                                  {{0, 0}, b2Rot(-pi + 1)}};
         std::unordered_map<unsigned int, b2Transform> entity_states{};
         playback_env.add_new_state({agent_transforms, entity_states, {10, 10}, {0, 0}, 0});
 
-        agent_transforms = {{{0, 0}, b2Rot(-M_PI + 1)},
-                            {{0, 0}, b2Rot(M_PI - 1)}};
+        agent_transforms = {{{0, 0}, b2Rot(-pi + 1)},
+                            {{0, 0}, b2Rot(pi - 1)}};
         playback_env.add_new_state({agent_transforms, entity_states, {10, 10}, {0, 0}, 1});
 
         playback_env.update(0.05);
         auto agent_0_tranform = env.get_bodies()[0]->get_rigid_body().body->GetTransform();
-        DOCTEST_CHECK(agent_0_tranform.q.GetAngle() == doctest::Approx(M_PI));
+        DOCTEST_CHECK(agent_0_tranform.q.GetAngle() == doctest::Approx(pi));
         auto agent_1_tranform = env.get_bodies()[1]->get_rigid_body().body->GetTransform();
-        DOCTEST_CHECK(agent_1_tranform.q.GetAngle() == doctest::Approx(M_PI));
+        DOCTEST_CHECK(agent_1_tranform.q.GetAngle() == doctest::Approx(pi));
     }
 
     SUBCASE("Events are triggered at the right time")

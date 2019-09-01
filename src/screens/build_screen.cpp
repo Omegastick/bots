@@ -107,7 +107,7 @@ void BuildScreen::update(double /*delta_time*/)
             }
             catch (std::runtime_error &error)
             {
-                spdlog::error(error);
+                spdlog::error(error.what());
             }
             selected_module = nullptr;
         }

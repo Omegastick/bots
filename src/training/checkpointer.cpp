@@ -114,7 +114,7 @@ fs::path Checkpointer::save(cpprl::Policy &policy,
     json["schema"] = schema_version;
     json["body_spec"] = body_spec;
     json["data"] = data;
-    json["previous_checkpoint"] = previous_checkpoint;
+    json["previous_checkpoint"] = previous_checkpoint.string();
     json["recurrent"] = policy->is_recurrent();
     json["timestamp"] = date::format("%F-%H-%M-%S", std::chrono::system_clock::now());
     auto meta_path = save_path.replace_extension(".meta");
