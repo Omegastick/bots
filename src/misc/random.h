@@ -6,7 +6,7 @@
 
 namespace SingularityTrainer
 {
-auto RandomSeed = [] {};
+static auto RandomSeed = [] {};
 
 class Random
 {

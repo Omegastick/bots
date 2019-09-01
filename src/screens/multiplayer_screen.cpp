@@ -7,7 +7,6 @@
 #include <imgui.h>
 #include <misc/cpp/imgui_stdlib.h>
 #include <spdlog/spdlog.h>
-#include <zmq_addon.hpp>
 
 #include "multiplayer_screen.h"
 #include "graphics/backend/shader.h"
@@ -23,6 +22,7 @@
 #include "networking/msgpack_codec.h"
 #include "screens/iscreen.h"
 #include "third_party/zmq.hpp"
+#include "third_party/zmq_addon.hpp"
 #include "training/agents/iagent.h"
 #include "training/agents/random_agent.h"
 #include "training/bodies/body.h"
