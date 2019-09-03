@@ -21,6 +21,16 @@ void ScreenManager::close_screen()
     command_queue.push_back({CommandType::Pop});
 }
 
+std::shared_ptr<IScreen> ScreenManager::current_screen()
+{
+    return screens.top();
+}
+
+void ScreenManager::draw(Renderer &renderer, bool lightweight)
+{
+    screens.top()->draw(renderer, lightweight);
+}
+
 void ScreenManager::exit()
 {
     while (stack_size() > 0)
@@ -28,6 +38,13 @@ void ScreenManager::exit()
         screens.pop();
     }
 }
+
+int ScreenManager::stack_size()
+{
+    return screens.size();
+}
+
+
 
 void ScreenManager::update(double delta_time)
 {
@@ -50,16 +67,6 @@ void ScreenManager::update(double delta_time)
     {
         screens.top()->update(delta_time);
     }
-}
-
-int ScreenManager::stack_size()
-{
-    return screens.size();
-}
-
-void ScreenManager::draw(Renderer &renderer, bool lightweight)
-{
-    screens.top()->draw(renderer, lightweight);
 }
 
 TEST_CASE("ScreenManager")

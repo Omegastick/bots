@@ -178,8 +178,7 @@ void CreateProgramScreen::update(double /*delta_time*/)
     ImGui::Begin("##run_training", NULL, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoTitleBar);
     if (ImGui::Button("Run"))
     {
-        screen_manager.close_screen();
-        screen_manager.show_screen(train_screen_factory.make(*program));
+        run_training();
     }
     ImGui::End();
     ImGui::PopFont();
@@ -187,6 +186,12 @@ void CreateProgramScreen::update(double /*delta_time*/)
     ImGui::PopStyleColor();
 
     back_button(screen_manager, resolution);
+}
+
+void CreateProgramScreen::run_training()
+{
+    screen_manager.close_screen();
+    screen_manager.show_screen(train_screen_factory.make(*program));
 }
 
 std::shared_ptr<IScreen> CreateProgramScreenFactory::make()

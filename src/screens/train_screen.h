@@ -44,6 +44,9 @@ class TrainScreen : public IScreen
 
     virtual void draw(Renderer &renderer, bool lightweight = false);
     void update(double delta_time);
+
+    inline bool get_fast() const { return fast; }
+    inline void set_fast(bool value) { fast = value; }
 };
 
 class TrainScreenFactory
