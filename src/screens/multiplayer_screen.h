@@ -77,7 +77,7 @@ class MultiplayerScreen : public IScreen
     void update(double delta_time);
 };
 
-class MultiplayerScreenFactory
+class MultiplayerScreenFactory : public IScreenFactory
 {
   private:
     Checkpointer &checkpointer;

@@ -50,7 +50,10 @@ int main(int argc, char *argv[])
         di::bind<double>.named(TickLength).to(0.1),
         di::bind<ISaver>.to<Saver>(),
         di::bind<std::string>.named(CheckpointDirectory).to("checkpoints"),
-        di::bind<BodyFactory>.to<BodyFactory>());
+        di::bind<BodyFactory>.to<BodyFactory>(),
+        di::bind<IScreenFactory>.named(BuildScreenFactoryType).to<BuildScreenFactory>(),
+        di::bind<IScreenFactory>.named(CreateProgramScreenFactoryType).to<CreateProgramScreenFactory>(),
+        di::bind<IScreenFactory>.named(MultiplayerScreenFactoryType).to<MultiplayerScreenFactory>());
     auto app = injector.create<App>();
     app.run(argc, argv);
 }

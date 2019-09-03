@@ -46,3 +46,6 @@
 [submodule "lib/easy_profiler"]
 	path = lib/easy_profiler
 	url = git@github.com:yse/easy_profiler.git
+[submodule "lib/trompeloeil"]
+	path = lib/trompeloeil
+	url = git@github.com:rollbear/trompeloeil.git

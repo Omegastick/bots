@@ -23,6 +23,7 @@ set(MSGPACK_DIR ${LIB_DIR}/msgpack-c)
 set(PYBIND_DIR ${LIB_DIR}/pybind11)
 set(SPDLOG_DIR ${LIB_DIR}/spdlog)
 set(TASKFLOW_DIR ${LIB_DIR}/cpp-taskflow)
+set(TROMPELOEIL_DIR ${LIB_DIR}/trompeloeil)
 set(TWEENY_DIR ${LIB_DIR}/tweeny)
 set(ZMQ_DIR ${LIB_DIR}/libzmq)
 
@@ -171,6 +172,7 @@ set(INCLUDE_DIRS
     ${DOCTEST_DIR}/doctest
     ${ARGH_DIR}
     ${JSON_DIR}/include
+    ${TROMPELOEIL_DIR}/include
     ${TWEENY_DIR}/include
     ${PYBIND_DIR}/include
     ${PYTHON_INCLUDE_DIRS}

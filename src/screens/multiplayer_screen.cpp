@@ -2,6 +2,7 @@
 
 #include <Box2D/Box2D.h>
 #include <fmt/format.h>
+#include <doctest.h>
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <imgui.h>
