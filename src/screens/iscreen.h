@@ -1,9 +1,12 @@
 #pragma once
 
+#include <doctest.h>
+#include <doctest/trompeloeil.hpp>
+
+#include "graphics/renderers/renderer.h"
+
 namespace SingularityTrainer
 {
-class Renderer;
-
 class IScreen
 {
   public:
@@ -15,6 +18,12 @@ class IScreen
 
 inline IScreen::~IScreen() {}
 
+class MockScreen : public IScreen
+{
+    MAKE_MOCK1(update, void(double), override);
+    MAKE_MOCK2(draw, void(Renderer &, bool), override);
+};
+
 class IScreenFactory
 {
   public:
@@ -24,4 +33,10 @@ class IScreenFactory
 };
 
 inline IScreenFactory::~IScreenFactory() {}
+
+class MockScreenFactory : public IScreenFactory
+{
+  public:
+    MAKE_MOCK0(make, std::shared_ptr<IScreen>(), override);
+};
 }
