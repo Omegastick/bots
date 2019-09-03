@@ -1,4 +1,5 @@
 #include <memory>
+#include <filesystem>
 #include <string>
 
 #include <doctest.h>
@@ -14,6 +15,7 @@
 #include "screens/main_menu_screen.h"
 #include "screens/multiplayer_screen.h"
 #include "screens/train_screen.h"
+#include "tests/e2e_framework.h"
 #include "third_party/di.hpp"
 #include "training/bodies/body.h"
 #include "training/bodies/test_body.h"
@@ -27,9 +29,12 @@
 using namespace SingularityTrainer;
 
 namespace di = boost::di;
+namespace fs = std::filesystem;
 
 TEST_CASE("Training end-to-end test")
 {
+    fs::remove_all("/tmp/checkpoints");
+
     const auto injector = di::make_injector(
         di::bind<int>.named(MaxSteps).to(100),
         di::bind<IEnvironmentFactory>.to<KothEnvFactory>(),
@@ -69,36 +74,42 @@ TEST_CASE("Training end-to-end test")
     auto &screen_manager = injector.create<ScreenManager &>();
     auto &main_menu_screen_factory = injector.create<MainMenuScreenFactory &>();
 
-    ImGui::NewFrame();
-    screen_manager.show_screen(main_menu_screen_factory.make());
-    screen_manager.update(delta_time);
-    ImGui::Render();
+    {
+        Frame(delta_time, screen_manager);
+        screen_manager.show_screen(main_menu_screen_factory.make());
+    }
 
-    ImGui::NewFrame();
-    std::dynamic_pointer_cast<MainMenuScreen>(screen_manager.current_screen())->train_agent();
-    screen_manager.update(delta_time);
-    ImGui::Render();
+    {
+        Frame(delta_time, screen_manager);
+        std::dynamic_pointer_cast<MainMenuScreen>(screen_manager.current_screen())->train_agent();
+    }
 
-    ImGui::NewFrame();
-    auto &program = std::dynamic_pointer_cast<CreateProgramScreen>(screen_manager.current_screen())
-                        ->get_program();
-    program.hyper_parameters.batch_size = 8;
-    program.hyper_parameters.num_env = 2;
-    program.hyper_parameters.num_minibatch = 2;
-    program.minutes_per_checkpoint = 0;
-    auto &test_body_factory = injector.create<TestBodyFactory &>();
-    auto test_body = test_body_factory.make(injector.create<Random &>());
-    program.body = test_body->to_json();
-    std::dynamic_pointer_cast<CreateProgramScreen>(screen_manager.current_screen())
-        ->run_training();
-    screen_manager.update(delta_time);
-    ImGui::Render();
+    {
+        Frame(delta_time, screen_manager);
+        auto &program = std::dynamic_pointer_cast<CreateProgramScreen>(
+                            screen_manager.current_screen())
+                            ->get_program();
+        program.hyper_parameters.batch_size = 8;
+        program.hyper_parameters.num_env = 2;
+        program.hyper_parameters.num_minibatch = 2;
+        program.minutes_per_checkpoint = 0;
+        auto &test_body_factory = injector.create<TestBodyFactory &>();
+        auto test_body = test_body_factory.make(injector.create<Random &>());
+        program.body = test_body->to_json();
+        std::dynamic_pointer_cast<CreateProgramScreen>(screen_manager.current_screen())
+            ->run_training();
+    }
 
-    ImGui::NewFrame();
-    std::dynamic_pointer_cast<TrainScreen>(screen_manager.current_screen())->set_fast(true);
-    screen_manager.update(delta_time);
-    ImGui::Render();
+    {
+        Frame(delta_time, screen_manager);
+        std::dynamic_pointer_cast<TrainScreen>(screen_manager.current_screen())->set_fast(true);
+    }
 
-    std::this_thread::sleep_for(std::chrono::milliseconds(50));
+    std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+
+    DOCTEST_CHECK(std::distance(fs::directory_iterator("/tmp/checkpoints"),
+                                fs::directory_iterator{}) == 2);
+
+    fs::remove_all("/tmp/checkpoints");
     ImGui::DestroyContext();
 }
