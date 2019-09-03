@@ -487,9 +487,11 @@ TEST_CASE("PlaybackEnv")
 
         playback_env.update(0.05);
         auto agent_0_tranform = env.get_bodies()[0]->get_rigid_body().body->GetTransform();
-        DOCTEST_CHECK(agent_0_tranform.q.GetAngle() == doctest::Approx(pi));
+        DOCTEST_CHECK_UNARY(agent_0_tranform.q.GetAngle() == doctest::Approx(pi) ||
+                            agent_0_tranform.q.GetAngle() == doctest::Approx(-pi));
         auto agent_1_tranform = env.get_bodies()[1]->get_rigid_body().body->GetTransform();
-        DOCTEST_CHECK(agent_1_tranform.q.GetAngle() == doctest::Approx(pi));
+        DOCTEST_CHECK_UNARY(agent_1_tranform.q.GetAngle() == doctest::Approx(pi) ||
+                            agent_1_tranform.q.GetAngle() == doctest::Approx(-pi));
     }
 
     SUBCASE("Events are triggered at the right time")
