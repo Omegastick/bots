@@ -15,6 +15,7 @@ class ScreenManager
     ScreenManager();
 
     void close_screen();
+    std::shared_ptr<IScreen> current_screen();
     void draw(Renderer &renderer, bool lightweight = false);
     void exit();
     void show_screen(std::shared_ptr<IScreen> screen);

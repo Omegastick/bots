@@ -1,7 +1,6 @@
 #include <exception>
 
 #include <glad/glad.h>
-#include <spdlog/spdlog.h>
 
 #include "graphics/backend/frame_buffer.h"
 #include "graphics/backend/texture.h"
@@ -70,8 +69,7 @@ void FrameBuffer::set_render_buffer(int width, int height, int multisampling)
 
     if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
     {
-        spdlog::error("Failed to initialize render buffer");
-        throw std::exception();
+        throw std::runtime_error("Failed to initialize render buffer");
     }
 }
 
@@ -83,8 +81,7 @@ void FrameBuffer::set_texture(int width, int height)
 
     if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
     {
-        spdlog::error("Failed to initialize frame buffer object");
-        throw std::exception();
+        throw std::runtime_error("Failed to initialize frame buffer object");
     }
 }
 

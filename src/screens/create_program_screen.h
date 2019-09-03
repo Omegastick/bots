@@ -68,6 +68,10 @@ class CreateProgramScreen : public IScreen
 
     void draw(Renderer &renderer, bool lightweight = false);
     void update(double delta_time);
+
+    void run_training();
+
+    inline TrainingProgram &get_program() { return *program; }
 };
 
 class CreateProgramScreenFactory : public IScreenFactory
@@ -90,7 +94,7 @@ class CreateProgramScreenFactory : public IScreenFactory
                                ScreenManager &screen_manager,
                                TrainScreenFactory &train_screen_factory)
         : body_factory(body_factory),
-        checkpointer(checkpointer),
+          checkpointer(checkpointer),
           env_factory(env_factory),
           io(io),
           resource_manager(resource_manager),
