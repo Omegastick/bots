@@ -8,6 +8,7 @@
 **/.cache
 **.pyc
 **.pth
+*.tar.gz
 imgui.ini
 build/
 bodies/
