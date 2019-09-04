@@ -14,4 +14,6 @@ class Frame
     Frame(const Frame &) = delete;
     Frame &operator=(const Frame &) = delete;
 };
+
+void setup_imgui(double delta_time);
 }
