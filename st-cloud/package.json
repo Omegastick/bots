@@ -1,0 +1,14 @@
+{
+  "name": "st-cloud",
+  "version": "0.0.0",
+  "description": "",
+  "main": "main.py",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Isaac Poulton",
+  "license": "All rights reserved",
+  "devDependencies": {
+    "serverless-google-cloudfunctions": "*"
+  }
+}
