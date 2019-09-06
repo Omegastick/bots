@@ -1,0 +1,26 @@
+apiVersion: "agones.dev/v1"
+kind: Fleet
+metadata:
+  name: singularity-trainer
+spec:
+  replicas: 2
+  template:
+    spec:
+      ports:
+        - name: default
+          portPolicy: Dynamic
+          containerPort: 7654
+          protocol: TCP
+      template:
+        spec:
+          containers:
+            - name: singularity-trainer
+              image: gcr.io/st-dev-252104/st-server
+              imagePullPolicy: Always
+              resources:
+                requests:
+                  memory: "64Mi"
+                  cpu: "20m"
+                limits:
+                  memory: "64Mi"
+                  cpu: "20m"

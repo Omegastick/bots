@@ -6,6 +6,7 @@ import json
 import secrets
 
 from google.cloud import firestore
+import kubernetes
 
 # Init database
 db = firestore.Client()
@@ -82,3 +83,26 @@ def find_game(request):
     batch.commit()
 
     return json.dumps({'status': 'in_game'})
+
+
+def allocate_gameserver():
+    """
+    Allocate a gameserver and return the URL.
+    """
+    kubernetes.config.load_kube_config(
+        context="gke_st-dev-252104_asia-northeast1-b_st-dev")
+    k8s = kubernetes.client.AppsV1Api()
+
+    dep = {"api_version": "allocation.agones.dev/v1",
+           "kind": "GameServerAllocation",
+           "spec": {
+               "required": {
+                   "matchLabels": {
+                       "agones.dev/fleet": "singularity-trainer"
+                   }
+               }
+           }}
+
+    response = k8s.create_namespaced_deployment(
+        namespace="agones", body=dep)
+    print(f"Deployment created: {response}")
