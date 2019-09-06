@@ -25,6 +25,10 @@ functions:
     handler: find_game
     events:
       - http: path
+  allocate:
+    handler: allocate
+    events:
+      - http: path
 # you can define resources, templates etc. the same way you would in a
 # Google Cloud deployment configuration
 #resources:
