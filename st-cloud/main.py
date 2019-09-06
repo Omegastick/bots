@@ -2,10 +2,13 @@
 Serverless functions for the Singularity Trainer matchmaking server.
 """
 
+import json
 import secrets
 
-from flask import jsonify
 from google.cloud import firestore
+
+# Init database
+db = firestore.Client()
 
 
 def login(request):
@@ -14,9 +17,6 @@ def login(request):
     If the user does not exist, creates one.
     Raises an exception if multiple users with the same username exist.
     """
-    # Init database
-    db = firestore.Client()
-
     username = request.json['username']
 
     users = db.collection('users')
@@ -33,8 +33,8 @@ def login(request):
         # Multiple users with the same username exist
         # This shouldn't happen
         matching_users_dicts = [x.to_dict() for x in matching_users]
-        raise Exception(f"{len(matching_users)} matching users in database: "
-                        f"{matching_users_dicts}")
+        raise RuntimeError(f"{len(matching_users)} matching users in database:"
+                           f" {matching_users_dicts}")
     else:
         # Create a new user
         user = users.add({'username': username, 'elo': 0})[1]
@@ -43,4 +43,4 @@ def login(request):
     user.update({'token': token,
                  'token_set_time': firestore.SERVER_TIMESTAMP})
 
-    return jsonify({'token': token})
+    return json.dumps({'token': token})
