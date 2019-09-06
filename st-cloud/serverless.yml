@@ -2,10 +2,9 @@ service: st-cloud
 
 provider:
   name: google
-  stage: dev
   runtime: python37
   region: asia-northeast1
-  project: carbide-kite-208413
+  project: st-dev-252104
   credentials: ~/.gcloud/keyfile.json
 
 plugins:
@@ -20,6 +19,10 @@ package:
 functions:
   login:
     handler: login
+    events:
+      - http: path
+  find_game:
+    handler: find_game
     events:
       - http: path
 # you can define resources, templates etc. the same way you would in a
