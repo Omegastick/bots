@@ -2,23 +2,19 @@
 Serverless functions for the Singularity Trainer matchmaking server.
 """
 
-import base64
-import os
 import json
 import secrets
 
-from google.cloud import firestore, kms
+from google.cloud import firestore
+from kubernetes import config, client
 import requests
 
 # Init database
 db = firestore.Client()
 
 # Get Kubernetes token
-kms_client = kms.KeyManagementServiceClient()  # pylint: disable=invalid-name
-AGONES_TOKEN = kms_client.decrypt(
-    os.environ.get('AGONES_TOKEN_RESOURCE_NAME'),
-    base64.b64decode(os.environ.get('AGONES_TOKEN'))
-).plaintext.decode("ascii")
+config.load_kube_config()
+AGONES_TOKEN = client.api_client.Configuration().api_key['authorization']
 
 # Kubernetes base URL
 K8S_BASE_URL = "https://35.200.112.204"
@@ -114,9 +110,9 @@ def allocate_gameserver():
                           }
                       }
               }},
-        headers={'Authorization': f'Bearer {AGONES_TOKEN}'})
+        headers={'Authorization': AGONES_TOKEN})
     return response.json()
 
 
 if __name__ == '__main__':
-    allocate_gameserver()
+    print(allocate_gameserver())
