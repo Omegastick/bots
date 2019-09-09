@@ -26,6 +26,9 @@ def login(request):
     If the user does not exist, creates one.
     Raises an exception if multiple users with the same username exist.
     """
+    request_json = request.json
+    if 'username' not in request_json:
+        raise RuntimeError("No username provided")
     username = request.json['username']
 
     users = db.collection('users')
@@ -82,15 +85,33 @@ def find_game(request):
                      if x.id != user.id]
 
     if not waiting_users:
-        users.document(user.id).update({'status': 'waiting_for_game'})
-        return json.dumps({'status': 'waiting_for_game'})
+        return wait_for_game(users, user)
+
+    gameserver = allocate_gameserver()
+    if gameserver['status']['state'] != 'Allocated':
+        return wait_for_game(users, user)
 
     batch = db.batch()
-    batch.update(users.document(user.id), {'status': 'in_game'})
-    batch.update(users.document(waiting_users[0].id), {'status': 'in_game'})
+    gameserver_url = ('tcp://'
+                      + gameserver['status']['address']
+                      + str(gameserver['status']['ports'][0]['port']))
+    update_data = {
+        'status': 'in_game',
+        'gameserver': gameserver_url
+    }
+    batch.update(users.document(user.id), update_data)
+    batch.update(users.document(waiting_users[0].id), update_data)
     batch.commit()
 
-    return json.dumps({'status': 'in_game'})
+    return json.dumps(update_data)
+
+
+def wait_for_game(users, user):
+    """
+    Mark the user as waiting for a game, and return the appropriate Json.
+    """
+    users.document(user.id).update({'status': 'waiting_for_game'})
+    return json.dumps({'status': 'waiting_for_game'})
 
 
 def allocate_gameserver():
@@ -112,7 +133,3 @@ def allocate_gameserver():
               }},
         headers={'Authorization': AGONES_TOKEN})
     return response.json()
-
-
-if __name__ == '__main__':
-    print(allocate_gameserver())
