@@ -2,14 +2,26 @@
 Serverless functions for the Singularity Trainer matchmaking server.
 """
 
+import base64
+import os
 import json
 import secrets
 
-from google.cloud import firestore
-import kubernetes
+from google.cloud import firestore, kms
+import requests
 
 # Init database
 db = firestore.Client()
+
+# Get Kubernetes token
+kms_client = kms.KeyManagementServiceClient()  # pylint: disable=invalid-name
+AGONES_TOKEN = kms_client.decrypt(
+    os.environ.get('AGONES_TOKEN_RESOURCE_NAME'),
+    base64.b64decode(os.environ.get('AGONES_TOKEN'))
+).plaintext.decode("ascii")
+
+# Kubernetes base URL
+K8S_BASE_URL = "https://35.200.112.204"
 
 
 def login(request):
@@ -87,22 +99,24 @@ def find_game(request):
 
 def allocate_gameserver():
     """
-    Allocate a gameserver and return the URL.
+    Allocate a gameserver and return its info.
     """
-    kubernetes.config.load_kube_config(
-        context="gke_st-dev-252104_asia-northeast1-b_st-dev")
-    k8s = kubernetes.client.AppsV1Api()
+    response = requests.post(
+        (K8S_BASE_URL + '/apis/allocation.agones.dev/v1/namespaces/default/'
+         + 'gameserverallocations'),
+        verify=False,
+        json={"api_version": "allocation.agones.dev/v1",
+              "kind": "GameServerAllocation",
+              "spec": {
+                      "required": {
+                          "matchLabels": {
+                              "agones.dev/fleet": "singularity-trainer"
+                          }
+                      }
+              }},
+        headers={'Authorization': f'Bearer {AGONES_TOKEN}'})
+    return response.json()
 
-    dep = {"api_version": "allocation.agones.dev/v1",
-           "kind": "GameServerAllocation",
-           "spec": {
-               "required": {
-                   "matchLabels": {
-                       "agones.dev/fleet": "singularity-trainer"
-                   }
-               }
-           }}
 
-    response = k8s.create_namespaced_deployment(
-        namespace="agones", body=dep)
-    print(f"Deployment created: {response}")
+if __name__ == '__main__':
+    allocate_gameserver()
