@@ -1,0 +1,145 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Wix xmlns="http://schemas.microsoft.com/wix/2006/wi">
+  <?define ComponentRules="OneToOne"?>
+  <!-- SourceDir instructs IsWiX the location of the directory that contains files for this merge module -->
+  <?define SourceDir="..\.."?>
+  <Module Id="SingularityTrainer" Language="1033" Version="1.0.0.0">
+    <Package Id="021d64bb-d84e-4421-a368-764d482473e7" Manufacturer="Isaac Poulton" InstallerVersion="200" />
+    <Directory Id="TARGETDIR" Name="SourceDir">
+      <Directory Id="MergeRedirectFolder">
+        <Component Id="owcBF6621840A939D993185673123B62610" Guid="866ae76f-0099-8d79-6dc8-37d25756c9ea">
+          <File Id="owfBF6621840A939D993185673123B62610" Source="$(var.SourceDir)\build\Release\c10.dll" KeyPath="yes" />
+        </Component>
+        <Component Id="owcCD3FEC40EF2484A70379730317BBDFD6" Guid="50fb94c9-a7a5-25ff-1629-5de375eedb37">
+          <File Id="owfCD3FEC40EF2484A70379730317BBDFD6" Source="$(var.SourceDir)\build\Release\caffe2.dll" KeyPath="yes" />
+        </Component>
+        <Component Id="owcCAF8C652C1F14E9AC7C5108A07BF72F5" Guid="427ea274-649c-bb3d-ec0b-dc9dcbc32a1e">
+          <File Id="owfCAF8C652C1F14E9AC7C5108A07BF72F5" Source="$(var.SourceDir)\build\Release\caffe2_detectron_ops.dll" KeyPath="yes" />
+        </Component>
+        <Component Id="owc05FB6B95731254158B07F41C31347A12" Guid="ef220d8c-c810-42af-0ea8-27b5050acd76">
+          <File Id="owf05FB6B95731254158B07F41C31347A12" Source="$(var.SourceDir)\build\Release\caffe2_module_test_dynamic.dll" KeyPath="yes" />
+        </Component>
+        <Component Id="owcD940A6939E2F6EACEFDDF9E39937542A" Guid="4905eb4d-da14-2b1d-8521-00671f4857f2">
+          <File Id="owfD940A6939E2F6EACEFDDF9E39937542A" Source="$(var.SourceDir)\build\Release\foxi.dll" KeyPath="yes" />
+        </Component>
+        <Component Id="owcA0E475333B086D81CEE3DBF6990E3120" Guid="c4e009e0-5333-ad05-044c-ca5eaf003f34">
+          <File Id="owfA0E475333B086D81CEE3DBF6990E3120" Source="$(var.SourceDir)\build\Release\foxi_dummy.dll" KeyPath="yes" />
+        </Component>
+        <Component Id="owcD6567A054E7BE72EB1B6458377223A37" Guid="c0f6ed7c-51bc-afea-12cf-bcc2751941be">
+          <File Id="owfD6567A054E7BE72EB1B6458377223A37" Source="$(var.SourceDir)\build\Release\libiomp5md.dll" KeyPath="yes" />
+        </Component>
+        <Component Id="owc57B81D0BA428975B2ECEB2834B0C8CD5" Guid="ee075e60-e91b-51eb-b1ac-15c7e12d2296">
+          <File Id="owf57B81D0BA428975B2ECEB2834B0C8CD5" Source="$(var.SourceDir)\build\Release\libiompstubs5md.dll" KeyPath="yes" />
+        </Component>
+        <Component Id="owc000FBE28F0D3C3C18418740BBFE373C0" Guid="85822111-3f7f-5941-ca11-4a1a641ed9ec">
+          <File Id="owf000FBE28F0D3C3C18418740BBFE373C0" Source="$(var.SourceDir)\build\Release\onnxifi.dll" KeyPath="yes" />
+        </Component>
+        <Component Id="owc50748DCE715032A9863AA88E753FA058" Guid="91a95193-3169-bd5f-400e-664477777381">
+          <File Id="owf50748DCE715032A9863AA88E753FA058" Source="$(var.SourceDir)\build\Release\onnxifi_dummy.dll" KeyPath="yes" />
+        </Component>
+        <Component Id="owc4D7EC7ECEBF4BA1FEB08F421DF7472FA" Guid="c863699d-2542-5b02-ffca-2e68ebce9105">
+          <File Id="owf4D7EC7ECEBF4BA1FEB08F421DF7472FA" Source="$(var.SourceDir)\build\Release\SingularityTrainer.exe" KeyPath="yes" />
+        </Component>
+        <Component Id="owcB9FF29E7C8F2EC16436A153226478FDD" Guid="2e0268fe-19b0-89d1-ee9d-3cba5c7dab4f">
+          <File Id="owfB9FF29E7C8F2EC16436A153226478FDD" Source="$(var.SourceDir)\build\Release\torch.dll" KeyPath="yes" />
+        </Component>
+        <Directory Id="owd9F9F77C9E3C3E4DA718760164D5303B8" Name="assets">
+          <Directory Id="owdDF7CE152BAC74277E28F5602FC1670B5" Name="fonts">
+            <Component Id="owcA95453D3ECC02CF086BA0C99B619FE3B" Guid="5e56b44c-e6db-f726-7b49-c5d511fa79d3">
+              <File Id="owfA95453D3ECC02CF086BA0C99B619FE3B" Source="$(var.SourceDir)\assets\fonts\RobotoCondensed-Regular.ttf" KeyPath="yes" />
+            </Component>
+            <Component Id="owcC3EA04FDB17905C0E2EA7C0D2F5DB3CB" Guid="549bc009-fcc7-3fa6-1af2-aace3c6fca1b">
+              <File Id="owfC3EA04FDB17905C0E2EA7C0D2F5DB3CB" Source="$(var.SourceDir)\assets\fonts\Roboto-Regular.ttf" KeyPath="yes" />
+            </Component>
+          </Directory>
+          <Directory Id="owd850C214F9E2EA84327B8C555BAD65B0B" Name="images">
+            <Component Id="owc37047AF5762DD19AE21D685BD52F67CF" Guid="742f2e74-bb50-802b-37f4-f7f502c5c013">
+              <File Id="owf37047AF5762DD19AE21D685BD52F67CF" Source="$(var.SourceDir)\assets\images\Arrow.png" KeyPath="yes" />
+            </Component>
+            <Component Id="owcADAD9EB1531AC3FB2E85CF44B6A939C1" Guid="a6da59b3-eb3c-2b72-847a-75538d247100">
+              <File Id="owfADAD9EB1531AC3FB2E85CF44B6A939C1" Source="$(var.SourceDir)\assets\images\base_module.png" KeyPath="yes" />
+            </Component>
+            <Component Id="owcEEC6D8BFA073C890BBF61269C8F385E1" Guid="8fa13ee8-1930-8d89-3e1b-664fc476f707">
+              <File Id="owfEEC6D8BFA073C890BBF61269C8F385E1" Source="$(var.SourceDir)\assets\images\base_module.svg" KeyPath="yes" />
+            </Component>
+            <Component Id="owc17B97F339A6E75FD3D0CA53EC6E4F2A8" Guid="932b4107-dbda-eb75-66af-8a2d8f7a6816">
+              <File Id="owf17B97F339A6E75FD3D0CA53EC6E4F2A8" Source="$(var.SourceDir)\assets\images\bullet.png" KeyPath="yes" />
+            </Component>
+            <Component Id="owcA2D22ABEC7E26B1E2E98112191C34D02" Guid="ba23565d-121a-7e6b-2ad9-365d7d3063f0">
+              <File Id="owfA2D22ABEC7E26B1E2E98112191C34D02" Source="$(var.SourceDir)\assets\images\bullet.svg" KeyPath="yes" />
+            </Component>
+            <Component Id="owc7A69DA4883EE411C6570B8E2C13F9786" Guid="b6801a7f-ce31-c0f8-9569-335fa9ff4718">
+              <File Id="owf7A69DA4883EE411C6570B8E2C13F9786" Source="$(var.SourceDir)\assets\images\gun_module.png" KeyPath="yes" />
+            </Component>
+            <Component Id="owc1044279B2BED5A576B3ABD4015535CD0" Guid="55adbcfd-4daa-07c1-0dbb-c5ac44dc5219">
+              <File Id="owf1044279B2BED5A576B3ABD4015535CD0" Source="$(var.SourceDir)\assets\images\gun_module.svg" KeyPath="yes" />
+            </Component>
+            <Component Id="owc9262AC547419113FC4FBBB2FC038C8B9" Guid="e80e2e3e-7d93-3d41-700f-8a08f1976a1e">
+              <File Id="owf9262AC547419113FC4FBBB2FC038C8B9" Source="$(var.SourceDir)\assets\images\laser_sensor_module.png" KeyPath="yes" />
+            </Component>
+            <Component Id="owc71C5392CBCDC0E1A7A8120BB6E4D3A09" Guid="9ba37dc6-8b6d-6487-3968-6a7c87103f88">
+              <File Id="owf71C5392CBCDC0E1A7A8120BB6E4D3A09" Source="$(var.SourceDir)\assets\images\laser_sensor_module.svg" KeyPath="yes" />
+            </Component>
+            <Component Id="owc235392EC2626CAAF07CA7C1EC2B7EC9E" Guid="bd4cbf85-0545-3764-e135-1df848c8640e">
+              <File Id="owf235392EC2626CAAF07CA7C1EC2B7EC9E" Source="$(var.SourceDir)\assets\images\pixel.png" KeyPath="yes" />
+            </Component>
+            <Component Id="owc326A4ED66B70D598E7D6F1B427249CBA" Guid="69f71443-0c75-513e-416b-30b856cc4146">
+              <File Id="owf326A4ED66B70D598E7D6F1B427249CBA" Source="$(var.SourceDir)\assets\images\square.png" KeyPath="yes" />
+            </Component>
+            <Component Id="owcFCE6F6C361AFBBCB4E01AA31EB73D2E0" Guid="ba3cb231-2d41-1f89-87a4-ea6d1020a060">
+              <File Id="owfFCE6F6C361AFBBCB4E01AA31EB73D2E0" Source="$(var.SourceDir)\assets\images\square_hull.png" KeyPath="yes" />
+            </Component>
+            <Component Id="owcDA4C626FC52C6CA124FE1B3D1F12D7CA" Guid="774484fd-35b5-48b4-57bc-2f49715d9bea">
+              <File Id="owfDA4C626FC52C6CA124FE1B3D1F12D7CA" Source="$(var.SourceDir)\assets\images\square_hull.svg" KeyPath="yes" />
+            </Component>
+            <Component Id="owc7573BE298E5004421B286EF809E82F03" Guid="c51cb72f-c8fe-2eae-c3fa-beac3bcfa51b">
+              <File Id="owf7573BE298E5004421B286EF809E82F03" Source="$(var.SourceDir)\assets\images\target.png" KeyPath="yes" />
+            </Component>
+            <Component Id="owcACCA04E6409714F0598EFB73B0243EE3" Guid="4290b9b8-039d-a140-05aa-643dce1dff66">
+              <File Id="owfACCA04E6409714F0598EFB73B0243EE3" Source="$(var.SourceDir)\assets\images\target.svg" KeyPath="yes" />
+            </Component>
+            <Component Id="owc114D40C8EB3B37143726EE6051A6EFF2" Guid="9e548682-4566-1299-b6d3-5bf3a89118dd">
+              <File Id="owf114D40C8EB3B37143726EE6051A6EFF2" Source="$(var.SourceDir)\assets\images\thruster_module.png" KeyPath="yes" />
+            </Component>
+            <Component Id="owc7DDCD3107DF398EC8B08697B73B82F99" Guid="4c239b75-189e-5529-49cf-5e6f3720d468">
+              <File Id="owf7DDCD3107DF398EC8B08697B73B82F99" Source="$(var.SourceDir)\assets\images\thruster_module.svg" KeyPath="yes" />
+            </Component>
+          </Directory>
+          <Directory Id="owd6B138C6445F2473CE1FC998675CEFC0E" Name="shaders">
+            <Component Id="owc05AC83C025284FFA98E6BF59166A367E" Guid="ed3273a8-35ca-dd7c-0b61-80ee8d39a8c1">
+              <File Id="owf05AC83C025284FFA98E6BF59166A367E" Source="$(var.SourceDir)\assets\shaders\crt.frag" KeyPath="yes" />
+            </Component>
+            <Component Id="owc2DD792A0B3FA941F7268018293F425DE" Guid="fb397a21-4209-6009-ab2b-89eb54034aad">
+              <File Id="owf2DD792A0B3FA941F7268018293F425DE" Source="$(var.SourceDir)\assets\shaders\default.frag" KeyPath="yes" />
+            </Component>
+            <Component Id="owcC7FCBE9BF104E0E2C5C9E4913AD1EED7" Guid="9165c132-d053-0369-ea28-2a7d54e103f7">
+              <File Id="owfC7FCBE9BF104E0E2C5C9E4913AD1EED7" Source="$(var.SourceDir)\assets\shaders\default.vert" KeyPath="yes" />
+            </Component>
+            <Component Id="owc7CE484FC6181652A061522544B781B5E" Guid="cf2fae79-818d-c544-5434-a40cea6d97c0">
+              <File Id="owf7CE484FC6181652A061522544B781B5E" Source="$(var.SourceDir)\assets\shaders\font.frag" KeyPath="yes" />
+            </Component>
+            <Component Id="owc15A8064B554DDDFBD00DBF1EA801F13A" Guid="3bd6c0d8-0875-f755-5964-8890414cd5d0">
+              <File Id="owf15A8064B554DDDFBD00DBF1EA801F13A" Source="$(var.SourceDir)\assets\shaders\laser.frag" KeyPath="yes" />
+            </Component>
+            <Component Id="owc13D1AE6FA8E3DA6828299C5B0BDA0412" Guid="f952b45c-1464-cfcb-de64-06a0e585e7da">
+              <File Id="owf13D1AE6FA8E3DA6828299C5B0BDA0412" Source="$(var.SourceDir)\assets\shaders\line.vert" KeyPath="yes" />
+            </Component>
+            <Component Id="owc86320EB824F5D772694E30222773B3F7" Guid="f3020ac8-3d7a-3b6c-ddc2-099cd05a63d4">
+              <File Id="owf86320EB824F5D772694E30222773B3F7" Source="$(var.SourceDir)\assets\shaders\particle.vert" KeyPath="yes" />
+            </Component>
+            <Component Id="owcF94934D87429FD63392935C4A36C9A38" Guid="e20e5b63-6644-f435-914e-028a273a8ac6">
+              <File Id="owfF94934D87429FD63392935C4A36C9A38" Source="$(var.SourceDir)\assets\shaders\post_proc_test.frag" KeyPath="yes" />
+            </Component>
+            <Component Id="owc7A8CDE8A685825E09C5D6C2C08F3E2DE" Guid="f88f75c7-8e99-f050-edb5-a40b87be4db8">
+              <File Id="owf7A8CDE8A685825E09C5D6C2C08F3E2DE" Source="$(var.SourceDir)\assets\shaders\texture.frag" KeyPath="yes" />
+            </Component>
+            <Component Id="owc078D422AE6D8648D5998FCD70BE95480" Guid="50cbc222-b800-99e6-0ea9-04e63d986ab7">
+              <File Id="owf078D422AE6D8648D5998FCD70BE95480" Source="$(var.SourceDir)\assets\shaders\texture.vert" KeyPath="yes" />
+            </Component>
+          </Directory>
+        </Directory>
+      </Directory>
+    </Directory>
+    <ComponentGroupRef Id="Custom" />
+  </Module>
+</Wix>
