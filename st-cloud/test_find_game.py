@@ -204,10 +204,10 @@ def test_find_game_updates_database(db):
 
     assert requests.post(BASE_URL + "find_game", json={
         'token': token_1
-    }).json() == {'status': 'waiting_for_game'}
+    }).json()['status'] == 'waiting_for_game'
     assert requests.post(BASE_URL + "find_game", json={
         'token': token_2
-    }).json() == {'status': 'in_game'}
+    }).json()['status'] == 'in_game'
 
     users = db.collection('users')
     user_1 = list(users.where('username', '==', '__test1').stream())[0]
@@ -215,5 +215,5 @@ def test_find_game_updates_database(db):
 
     assert user_1.to_dict()['status'] == 'in_game'
     assert user_2.to_dict()['status'] == 'in_game'
-    assert re.match(r"^(http:\/\/|https:\/\/)", user_1.to_dict()['gameserver'])
-    assert re.match(r"^(http:\/\/|https:\/\/)", user_2.to_dict()['gameserver'])
+    assert re.match(r"^tcp:\/\/", user_1.to_dict()['gameserver'])
+    assert re.match(r"^tcp:\/\/", user_2.to_dict()['gameserver'])

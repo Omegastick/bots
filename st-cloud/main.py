@@ -1,23 +1,59 @@
 """
 Serverless functions for the Singularity Trainer matchmaking server.
 """
+# pylint: disable=invalid-name
 
+import base64
 import json
 import secrets
+from tempfile import NamedTemporaryFile
 
-from google.cloud import firestore
-from kubernetes import config, client
-import requests
+from google.cloud import container_v1, firestore
+import googleapiclient.discovery
+import kubernetes
 
 # Init database
 db = firestore.Client()
 
-# Get Kubernetes token
-config.load_kube_config()
-AGONES_TOKEN = client.api_client.Configuration().api_key['authorization']
 
-# Kubernetes base URL
-K8S_BASE_URL = "https://35.200.112.204"
+def get_k8s_token(*scopes):
+    """
+    Get a Google access token with the given scopes.
+    """
+    # pylint: disable=protected-access
+    credentials = googleapiclient._auth.default_credentials()
+    scopes = [f'https://www.googleapis.com/auth/{s}' for s in scopes]
+    scoped = googleapiclient._auth.with_scopes(credentials, scopes)
+    googleapiclient._auth.refresh_credentials(scoped)
+    return scoped.token
+
+
+def kubernetes_api(cluster):
+    """
+    Get the K8s custom objects API for a given cluster.
+    """
+    config = kubernetes.client.Configuration()
+    config.host = f'https://{cluster.endpoint}'
+
+    config.api_key_prefix['authorization'] = 'Bearer'
+    config.api_key['authorization'] = get_k8s_token('cloud-platform')
+
+    with NamedTemporaryFile(delete=False) as cert:
+        cert.write(base64.decodebytes(
+            cluster.master_auth.cluster_ca_certificate.encode()))
+        config.ssl_ca_cert = cert.name
+
+    client = kubernetes.client.ApiClient(configuration=config)
+    api = kubernetes.client.CustomObjectsApi(client)
+
+    return api
+
+
+# Init Kubernetes client
+gke_client = container_v1.ClusterManagerClient()
+k8s = kubernetes_api(gke_client.get_cluster('st-dev-252104',
+                                            'asia-northeast1-b',
+                                            'st-dev'))
 
 
 def login(request):
@@ -92,9 +128,8 @@ def find_game(request):
         return wait_for_game(users, user)
 
     batch = db.batch()
-    gameserver_url = ('tcp://'
-                      + gameserver['status']['address']
-                      + str(gameserver['status']['ports'][0]['port']))
+    gameserver_url = (f"tcp://{gameserver['status']['address']}:"
+                      f"{gameserver['status']['ports'][0]['port']}")
     update_data = {
         'status': 'in_game',
         'gameserver': gameserver_url
@@ -118,18 +153,20 @@ def allocate_gameserver():
     """
     Allocate a gameserver and return its info.
     """
-    response = requests.post(
-        (K8S_BASE_URL + '/apis/allocation.agones.dev/v1/namespaces/default/'
-         + 'gameserverallocations'),
-        verify=False,
-        json={"api_version": "allocation.agones.dev/v1",
-              "kind": "GameServerAllocation",
-              "spec": {
-                      "required": {
-                          "matchLabels": {
-                              "agones.dev/fleet": "singularity-trainer"
-                          }
-                      }
-              }},
-        headers={'Authorization': AGONES_TOKEN})
-    return response.json()
+    depoloyment = {"api_version": "allocation.agones.dev/v1",
+                   "kind": "GameServerAllocation",
+                   "spec": {
+                       "required": {
+                           "matchLabels": {
+                               "agones.dev/fleet": "singularity-trainer"
+                           }
+                       }
+                   }}
+
+    response = k8s.create_namespaced_custom_object('allocation.agones.dev',
+                                                   'v1',
+                                                   'default',
+                                                   'gameserverallocations',
+                                                   depoloyment)
+
+    return response

@@ -4,8 +4,11 @@ Conftest for Singularity Trainer cloud.
 
 import os
 
-from google.cloud import firestore
+from google.cloud import container_v1, firestore
+from kubernetes.client import V1DeleteOptions
 import pytest
+
+from main import kubernetes_api
 
 BASE_URL = os.environ['ST_CLOUD_BASE_URL']
 
@@ -60,3 +63,24 @@ def db():
         batch.delete(users.document(user.id))
 
     batch.commit()
+
+    gke_client = container_v1.ClusterManagerClient()
+    cluster = gke_client.get_cluster(
+        'st-dev-252104', 'asia-northeast1-b', 'st-dev')
+    k8s = kubernetes_api(cluster)
+
+    gameservers = k8s.get_namespaced_custom_object('agones.dev',
+                                                   'v1',
+                                                   'default',
+                                                   'gameservers',
+                                                   '')['items']
+
+    for gameserver in gameservers:
+        if gameserver['status']['state'] == 'Ready':
+            continue
+        k8s.delete_namespaced_custom_object('agones.dev',
+                                            'v1',
+                                            'default',
+                                            'gameservers',
+                                            gameserver['metadata']['name'],
+                                            V1DeleteOptions())
