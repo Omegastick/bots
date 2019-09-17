@@ -5,6 +5,8 @@
 .coverage
 .env
 .mypy_cache/**
+**/bin
+**/obj
 **/.cache
 **.pyc
 **.pth
