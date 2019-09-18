@@ -1,6 +1,7 @@
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 #include <argh.h>
+#include <curlpp/cURLpp.hpp>
 #include <doctest.h>
 #include <imgui.h>
 #include <imgui_internal.h>
@@ -242,6 +243,9 @@ App::App(Animator &animator,
     window.set_renderer(renderer);
     window.set_io(io);
     io.set_resolution(resolution_x, resolution_y);
+
+    // Init cURL
+    cURLpp::initialize();
 }
 
 int App::run(int argc, char *argv[])
@@ -302,6 +306,9 @@ int App::run(int argc, char *argv[])
     // Allow screens to perform cleanup
     screen_manager.exit();
 
+    // Cleanup cURL
+    cURLpp::terminate();
+
     return 0;
 }
 
@@ -314,6 +321,11 @@ int App::run_tests(int argc, char *argv[], const argh::parser &args)
     doctest::Context context;
 
     context.setOption("order-by", "name");
+
+    if (!args["--http"])
+    {
+        context.addFilter("test-case-exclude", "HttpClient");
+    }
 
     context.applyCommandLine(argc, argv);
 

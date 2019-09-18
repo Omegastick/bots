@@ -49,3 +49,6 @@
 [submodule "lib/trompeloeil"]
 	path = lib/trompeloeil
 	url = git@github.com:rollbear/trompeloeil.git
+[submodule "lib/curlpp"]
+	path = lib/curlpp
+	url = https://github.com/jpbarrette/curlpp

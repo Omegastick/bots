@@ -11,6 +11,7 @@ set(LIB_DIR lib)
 set(ARGH_DIR ${LIB_DIR}/argh)
 set(BOX2D_DIR ${LIB_DIR}/Box2D-cmake)
 set(CPPRL_DIR ${LIB_DIR}/pytorch-cpp-rl)
+set(CURLPP_DIR ${LIB_DIR}/curlpp)
 set(DOCTEST_DIR ${LIB_DIR}/doctest)
 set(EASY_PROFILER_DIR ${LIB_DIR}/easy_profiler)
 set(FMT_DIR ${LIB_DIR}/fmt)
@@ -94,6 +95,9 @@ if (NOT TARGET spdlog)
     option(SPDLOG_BUILD_TESTING "" OFF)
     add_subdirectory(${SPDLOG_DIR})
 endif(NOT TARGET spdlog)
+## cURLpp
+add_subdirectory(${CURLPP_DIR})
+set_target_properties(curlpp_static PROPERTIES POSITION_INDEPENDENT_CODE TRUE)
 ## CppRl
 option(CPPRL_BUILD_TESTS "" OFF)
 option(CPPRL_BUILD_EXAMPLE "" OFF)
@@ -141,7 +145,7 @@ option(BUILD_SHARED "" OFF)
 add_subdirectory(${ZMQ_DIR})
 
 # Link libraries
-target_link_libraries(Misc PUBLIC doctest)
+target_link_libraries(Misc PUBLIC curlpp_static doctest)
 target_link_libraries(Training PUBLIC Graphics cpprl torch ${TORCH_LIBRARIES} tobanteGaming::Box2D doctest fmt::fmt ${PYTHON_LIBRARIES})
 # UNIX systems sometimes need to explicitly link the threading library
 if (UNIX)
@@ -160,6 +164,7 @@ set_target_properties(PythonBindings PROPERTIES SUFFIX ".so")
 set(INCLUDE_DIRS
     src
     ${CPPRL_DIR}/include
+    ${CURLPP_DIR}/include
     # ${EASY_PROFILER_DIR}/easy_profiler_core/include
     ${GLAD_DIR}/include 
     ${GLFW_DIR}/include 
