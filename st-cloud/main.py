@@ -7,8 +7,9 @@ import base64
 import json
 import secrets
 from tempfile import NamedTemporaryFile
+from typing import List, Tuple
 
-from flask import abort
+from flask import abort, Request
 from google.cloud import container_v1, firestore
 import googleapiclient.discovery
 import kubernetes
@@ -17,7 +18,7 @@ import kubernetes
 db = firestore.Client()
 
 
-def get_k8s_token(*scopes):
+def get_k8s_token(*scopes: List[str]) -> str:
     """
     Get a Google access token with the given scopes.
     """
@@ -29,7 +30,7 @@ def get_k8s_token(*scopes):
     return scoped.token
 
 
-def kubernetes_api(cluster):
+def kubernetes_api(cluster) -> kubernetes.client.CustomObjectsApi:
     """
     Get the K8s custom objects API for a given cluster.
     """
@@ -57,7 +58,7 @@ k8s = kubernetes_api(gke_client.get_cluster('st-dev-252104',
                                             'st-dev'))
 
 
-def login(request):
+def login(request: Request) -> str:
     """
     Log a user into the matchmaking system, returning a session token.
     If the user does not exist, creates one.
@@ -95,7 +96,7 @@ def login(request):
     return json.dumps({'token': token})
 
 
-def find_game(request):
+def find_game(request: Request) -> str:
     """
     Find a game for a user.
     If no other players are waiting, places the player into the waiting queue.
@@ -111,7 +112,7 @@ def find_game(request):
     matching_users = list(matching_users_query.stream())
 
     if not matching_users:
-        abort(401, "Bad authorization token")
+        abort(401, "Invalid authorization")
     if len(matching_users) > 1:
         raise RuntimeError("Duplicate tokens in database")
 
@@ -142,7 +143,70 @@ def find_game(request):
     return json.dumps(update_data)
 
 
-def wait_for_game(users, user):
+def adjust_elos(request: Request) -> str:
+    """
+    Given two player and a match result, update their Elos in the database.
+
+    Input Json in the form:
+    {
+        "players": ["username_1, "username_2],
+        "result": 0
+    }
+
+    -1 is a draw.
+    0 is player 1 win.
+    1 is player 2 win.
+    """
+    # Check authorization
+    auth_header = request.headers.get("Authorization")
+    if not auth_header:
+        abort(401, "No authorization header")
+    token = auth_header.split(' ')[1]
+
+    secret = db.collection('secrets').document('server').get().get('value')
+    if token != secret:
+        abort(401, "Invalid authorization")
+
+    # Check body
+    request_json = request.json
+    if 'players' not in request_json or 'result' not in request_json:
+        abort(400, "No username provided")
+    if (not isinstance(request_json['players'], list)
+            or len(request_json['players']) != 2):
+        abort(400, "'players' must be a list of two usernames")
+
+    # Get users
+    users = db.collection('users')
+
+    user_1_query = users.where('username', '==', request_json['players'][0])
+    user_1 = list(user_1_query.stream())
+    if not user_1:
+        raise RuntimeError(f"No user named {request_json['players'][0]}")
+    user_1 = user_1[0]
+
+    user_2_query = users.where('username', '==', request_json['players'][1])
+    user_2 = list(user_2_query.stream())
+    if not user_2:
+        raise RuntimeError(f"No user named {request_json['players'][1]}")
+    user_2 = user_2[0]
+
+    # Calculate Elos
+    user_1_elo, user_2_elo = calculate_elos(user_1.to_dict()['elo'],
+                                            user_2.to_dict()['elo'],
+                                            10,
+                                            request_json['result'])
+
+    # Update Elos in database
+    batch = db.batch()
+    batch.update(users.document(user_1.id), {'elo': user_1_elo})
+    batch.update(users.document(user_2.id), {'elo': user_2_elo})
+    batch.commit()
+
+    return json.dumps({'success': True})
+
+
+def wait_for_game(users: firestore.CollectionReference,
+                  user: firestore.DocumentSnapshot) -> str:
     """
     Mark the user as waiting for a game, and return the appropriate Json.
     """
@@ -150,7 +214,7 @@ def wait_for_game(users, user):
     return json.dumps({'status': 'waiting_for_game'})
 
 
-def allocate_gameserver():
+def allocate_gameserver() -> str:
     """
     Allocate a gameserver and return its info.
     """
@@ -171,3 +235,34 @@ def allocate_gameserver():
                                                    depoloyment)
 
     return response
+
+
+def expected_win_chance(a_rating: float, b_rating: float) -> float:
+    """
+    Calculate A's expected chance of winning [0-1].
+    """
+    return 1. / (1. + (10 ** ((b_rating - a_rating) / 400.)))
+
+
+def calculate_elos(
+        a_rating: float,
+        b_rating: float,
+        k: float,
+        result: int) -> Tuple[float, float]:
+    """
+    Calculate new elos based on ratings, an Elo constant and the game result.
+    """
+    a_win_chance = expected_win_chance(a_rating, b_rating)
+    b_win_chance = 1. - a_win_chance
+
+    if result == 0:
+        a_rating = a_rating + k * (1 - a_win_chance)
+        b_rating = b_rating + k * (0 - b_win_chance)
+    elif result == 1:
+        a_rating = a_rating + k * (0 - a_win_chance)
+        b_rating = b_rating + k * (1 - b_win_chance)
+    else:
+        a_rating = a_rating + k * (0.5 - a_win_chance)
+        b_rating = b_rating + k * (0.5 - b_win_chance)
+
+    return (a_rating, b_rating)

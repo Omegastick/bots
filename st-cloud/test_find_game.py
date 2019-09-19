@@ -72,10 +72,10 @@ ALLOCATED_GAMESERVER = {
 
 
 @patch('main.db', MagicMock())
-def test_find_game_throws_if_no_authentication():
+def test_find_game_returns_401_if_no_authentication():
     """
-    When a game is requested, but no authentication is provided an error should
-    be raised.
+    When a game is requested, but no authentication is provided HTTP status
+    code 401 should be returned.
     """
     request = Mock(json={}, headers=Mock(get=Mock(return_value=None)))
     with pytest.raises(werkzeug.exceptions.Unauthorized):
@@ -83,10 +83,10 @@ def test_find_game_throws_if_no_authentication():
 
 
 @patch('main.db', MagicMock())
-def test_find_game_throws_if_bad_token_authentication():
+def test_find_game_returns_401_if_bad_authentication():
     """
-    When a game is requested, but incorrect authentication is provided, an
-    error should be raised.
+    When a game is requested, but incorrect authentication is provided HTTP
+    status code 401 should be returned.
     """
     (main.db
         .collection.return_value
