@@ -99,10 +99,10 @@ def find_game(request):
     Find a game for a user.
     If no other players are waiting, places the player into the waiting queue.
     """
-    request_json = request.json
-    if 'token' not in request_json:
-        raise RuntimeError("No token provided")
-    token = request.json['token']
+    auth_header = request.headers.get("Authorization")
+    if not auth_header:
+        raise RuntimeError("No authorization provided")
+    token = auth_header.split(' ')[1]
 
     users = db.collection('users')
 

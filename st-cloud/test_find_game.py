@@ -76,7 +76,7 @@ def test_find_game_throws_if_no_authentication():
     When a game is requested, but no authentication is provided an error should
     be raised.
     """
-    request = Mock(json={})
+    request = Mock(json={}, headers=Mock(get=Mock(return_value=None)))
     with pytest.raises(RuntimeError):
         main.find_game(request)
 
@@ -92,7 +92,8 @@ def test_find_game_throws_if_bad_token_authentication():
         .where.return_value
         .stream.return_value) = []
 
-    request = Mock(json={'token': 'asd'})
+    request = Mock(json={}, headers=Mock(
+        get=Mock(return_value='Bearer asd')))
     with pytest.raises(RuntimeError):
         main.find_game(request)
 
@@ -121,7 +122,8 @@ def test_find_game_returns_waiting_if_no_other_players_are_ready():
         .collection.return_value
         .where.side_effect) = where
 
-    request = Mock(json={'token': 'asd'})
+    request = Mock(json={}, headers=Mock(
+        get=Mock(return_value='Bearer asd')))
     response = json.loads(main.find_game(request))
 
     assert response['status'] == 'waiting_for_game'
@@ -152,7 +154,8 @@ def test_find_game_returns_in_game_if_other_players_are_waiting():
         .collection.return_value
         .where.side_effect) = where
 
-    request = Mock(json={'token': 'asd'})
+    request = Mock(json={}, headers=Mock(
+        get=Mock(return_value='Bearer asd')))
     response = json.loads(main.find_game(request))
 
     assert response['status'] == 'in_game'
@@ -183,7 +186,8 @@ def test_find_game_returns_waiting_if_no_gameservers_are_ready():
         .collection.return_value
         .where.side_effect) = where
 
-    request = Mock(json={'token': 'asd'})
+    request = Mock(json={}, headers=Mock(
+        get=Mock(return_value='Bearer asd')))
     response = json.loads(main.find_game(request))
 
     assert response['status'] == 'waiting_for_game'
@@ -202,11 +206,11 @@ def test_find_game_updates_database(db):
         'username': '__test2'
     }).json()['token']
 
-    assert requests.post(BASE_URL + "find_game", json={
-        'token': token_1
+    assert requests.post(BASE_URL + "find_game", headers={
+        'Authorization': f'Bearer {token_1}'
     }).json()['status'] == 'waiting_for_game'
-    assert requests.post(BASE_URL + "find_game", json={
-        'token': token_2
+    assert requests.post(BASE_URL + "find_game", headers={
+        'Authorization': f'Bearer {token_2}'
     }).json()['status'] == 'in_game'
 
     users = db.collection('users')
