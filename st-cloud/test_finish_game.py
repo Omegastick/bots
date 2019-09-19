@@ -1,5 +1,5 @@
 """
-Tests for the Singularity Trainer cloud adjust_elos function.
+Tests for the Singularity Trainer cloud finsh_game function.
 """
 
 # pylint: disable=no-member
@@ -16,21 +16,21 @@ import main
 
 
 @patch('main.db', MagicMock())
-def test_adjust_elos_returns_401_if_no_authentication():
+def test_finsh_game_returns_401_if_no_authentication():
     """
-    When a game is requested, but no authentication is provided HTTP status
-    code 401 should be returned.
+    When no authentication is provided, HTTP status code 401 should be
+    returned.
     """
     request = Mock(json={}, headers=Mock(get=Mock(return_value=None)))
     with pytest.raises(werkzeug.exceptions.Unauthorized):
-        main.adjust_elos(request)
+        main.finsh_game(request)
 
 
 @patch('main.db', MagicMock())
-def test_adjust_elos_returns_401_if_bad_authentication():
+def test_finsh_game_returns_401_if_bad_authentication():
     """
-    When a game is requested, but incorrect authentication is provided, HTTP
-    status code 401 should be returned.
+    When incorrect authentication is provided, HTTP status code 401 should be
+    returned.
     """
     (main.db
         .collection.return_value
@@ -41,13 +41,13 @@ def test_adjust_elos_returns_401_if_bad_authentication():
     request = Mock(json={}, headers=Mock(
         get=Mock(return_value='Bearer asd')))
     with pytest.raises(werkzeug.exceptions.Unauthorized):
-        main.adjust_elos(request)
+        main.finsh_game(request)
 
 
 @patch('main.db', MagicMock())
-def test_adjust_elos_throws_if_username_doesnt_exist():
+def test_finsh_game_throws_if_username_doesnt_exist():
     """
-    When adjust_elos is called with names that don't exist in the database,
+    When finsh_game is called with names that don't exist in the database,
     an error should be raised.
     """
     (main.db
@@ -67,13 +67,13 @@ def test_adjust_elos_throws_if_username_doesnt_exist():
     }, headers=Mock(
         get=Mock(return_value='Bearer asd')))
     with pytest.raises(RuntimeError):
-        main.adjust_elos(request)
+        main.finsh_game(request)
 
 
 @patch('main.db', MagicMock())
-def test_adjust_elos_returns_ok():
+def test_finsh_game_returns_ok():
     """
-    When adjust_elos is called with no errors, it shoudl return successfully.
+    When finsh_game is called with no errors, it shoudl return successfully.
     """
     (main.db
         .collection.return_value
@@ -93,16 +93,16 @@ def test_adjust_elos_returns_ok():
     }, headers=Mock(
         get=Mock(return_value='Bearer asd')))
 
-    result = json.loads(main.adjust_elos(request))
+    result = json.loads(main.finsh_game(request))
 
     assert result == {'success': True}
 
 
 @pytest.mark.integration
-def test_adjust_elos_changes_elos(db):
+def test_finsh_game_updates_database(db):
     """
-    When a user is waiting for a game, and another calls find_game, they should
-    both be marked as in_game, and have their gameserver set appropriately.
+    When finish_game is called correctly, the two users should have their Elos
+    updated appropriately and be marked as 'idle'.
     """
     requests.post(BASE_URL + "login", json={
         'username': '__test1'
@@ -113,7 +113,7 @@ def test_adjust_elos_changes_elos(db):
 
     secret = db.collection('secrets').document('server').get().get('value')
 
-    response = requests.post(BASE_URL + "adjust_elos", headers={
+    response = requests.post(BASE_URL + "finsh_game", headers={
         'Authorization': f'Bearer {secret}'
     }, json={
         'players': ['__test1', '__test2'],
@@ -128,3 +128,6 @@ def test_adjust_elos_changes_elos(db):
 
     assert user_1.to_dict()['elo'] > 0
     assert user_2.to_dict()['elo'] < 0
+
+    assert user_1.to_dict()['status'] == 'idle'
+    assert user_2.to_dict()['status'] == 'idle'
