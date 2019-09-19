@@ -25,8 +25,8 @@ functions:
     handler: find_game
     events:
       - http: path
-  adjust_elos:
-    handler: adjust_elos
+  finsh_game:
+    handler: finsh_game
     events:
       - http: path
 # you can define resources, templates etc. the same way you would in a

@@ -143,7 +143,7 @@ def find_game(request: Request) -> str:
     return json.dumps(update_data)
 
 
-def adjust_elos(request: Request) -> str:
+def finsh_game(request: Request) -> str:
     """
     Given two player and a match result, update their Elos in the database.
 
@@ -198,8 +198,10 @@ def adjust_elos(request: Request) -> str:
 
     # Update Elos in database
     batch = db.batch()
-    batch.update(users.document(user_1.id), {'elo': user_1_elo})
-    batch.update(users.document(user_2.id), {'elo': user_2_elo})
+    batch.update(users.document(user_1.id), {'elo': user_1_elo,
+                                             'status': 'idle'})
+    batch.update(users.document(user_2.id), {'elo': user_2_elo,
+                                             'status': 'idle'})
     batch.commit()
 
     return json.dumps({'success': True})
