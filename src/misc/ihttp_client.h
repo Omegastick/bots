@@ -2,6 +2,7 @@
 #include <string>
 
 #include <nlohmann/json_fwd.hpp>
+#include <trompeloeil.hpp>
 
 namespace SingularityTrainer
 {
@@ -15,5 +16,11 @@ class IHttpClient
                                              const nlohmann::json &json) = 0;
 };
 
-IHttpClient::~IHttpClient() {}
+inline IHttpClient::~IHttpClient() {}
+
+class MockHttpClient : public trompeloeil::mock_interface<IHttpClient>
+{
+    IMPLEMENT_MOCK1(get);
+    IMPLEMENT_MOCK2(post);
+};
 }
