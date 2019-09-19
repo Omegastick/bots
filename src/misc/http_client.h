@@ -4,9 +4,11 @@
 #include <curlpp/Easy.hpp>
 #include <nlohmann/json_fwd.hpp>
 
+#include "misc/ihttp_client.h"
+
 namespace SingularityTrainer
 {
-class HttpClient
+class HttpClient : public IHttpClient
 {
   private:
     std::string proxy_host;
