@@ -8,6 +8,7 @@ import json
 import secrets
 from tempfile import NamedTemporaryFile
 
+from flask import abort
 from google.cloud import container_v1, firestore
 import googleapiclient.discovery
 import kubernetes
@@ -64,7 +65,7 @@ def login(request):
     """
     request_json = request.json
     if 'username' not in request_json:
-        raise RuntimeError("No username provided")
+        abort(400, "No username provided")
     username = request.json['username']
 
     users = db.collection('users')
@@ -101,7 +102,7 @@ def find_game(request):
     """
     auth_header = request.headers.get("Authorization")
     if not auth_header:
-        raise RuntimeError("No authorization provided")
+        abort(401, "No authorization header")
     token = auth_header.split(' ')[1]
 
     users = db.collection('users')
@@ -110,9 +111,9 @@ def find_game(request):
     matching_users = list(matching_users_query.stream())
 
     if not matching_users:
-        raise RuntimeError("Invalid token")
+        abort(401, "Bad authorization token")
     if len(matching_users) > 1:
-        raise RuntimeError("Duplicate tokens in database, request new token")
+        raise RuntimeError("Duplicate tokens in database")
 
     user = matching_users[0]
 

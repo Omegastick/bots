@@ -9,6 +9,7 @@ from unittest.mock import patch, MagicMock, Mock
 
 import pytest
 import requests
+import werkzeug.exceptions
 
 from conftest import BASE_URL
 import main
@@ -46,6 +47,16 @@ def test_login_throws_if_multiple_users_exists():
 
     request = Mock(json={'username': 'asd'})
     with pytest.raises(RuntimeError):
+        main.login(request)
+
+
+def test_login_throws_if_no_username_provided():
+    """
+    When a request is sent without a username field in the Json body, an error
+    should be returned.
+    """
+    request = Mock(json={})
+    with pytest.raises(werkzeug.exceptions.BadRequest):
         main.login(request)
 
 

@@ -10,6 +10,7 @@ from unittest.mock import patch, MagicMock, Mock
 
 import pytest
 import requests
+import werkzeug.exceptions
 
 from conftest import BASE_URL
 import main
@@ -77,7 +78,7 @@ def test_find_game_throws_if_no_authentication():
     be raised.
     """
     request = Mock(json={}, headers=Mock(get=Mock(return_value=None)))
-    with pytest.raises(RuntimeError):
+    with pytest.raises(werkzeug.exceptions.Unauthorized):
         main.find_game(request)
 
 
@@ -94,7 +95,7 @@ def test_find_game_throws_if_bad_token_authentication():
 
     request = Mock(json={}, headers=Mock(
         get=Mock(return_value='Bearer asd')))
-    with pytest.raises(RuntimeError):
+    with pytest.raises(werkzeug.exceptions.Unauthorized):
         main.find_game(request)
 
 
