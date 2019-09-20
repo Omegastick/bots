@@ -10,6 +10,8 @@
 #include "graphics/renderers/text_renderer.h"
 #include "graphics/window.h"
 #include "misc/animator.h"
+#include "misc/credentials_manager.h"
+#include "misc/http_client.h"
 #include "misc/io.h"
 #include "misc/module_factory.h"
 #include "misc/random.h"
@@ -50,6 +52,7 @@ int main(int argc, char *argv[])
         di::bind<double>.named(TickLength).to(0.1),
         di::bind<ISaver>.to<Saver>(),
         di::bind<std::string>.named(CheckpointDirectory).to("checkpoints"),
+        di::bind<IHttpClient>.to<HttpClient>(),
         di::bind<BodyFactory>.to<BodyFactory>(),
         di::bind<IScreenFactory>.named(BuildScreenFactoryType).to<BuildScreenFactory>(),
         di::bind<IScreenFactory>.named(CreateProgramScreenFactoryType).to<CreateProgramScreenFactory>(),

@@ -19,6 +19,7 @@
 namespace SingularityTrainer
 {
 class BodyFactory;
+class CredentialsManager;
 class IO;
 class PostProcLayer;
 class Random;
@@ -44,6 +45,7 @@ class MultiplayerScreen : public IScreen
     std::unique_ptr<ChooseAgentWindow> choose_agent_window;
     std::unique_ptr<ClientAgent> client_agent;
     std::unique_ptr<ClientCommunicator> client_communicator;
+    CredentialsManager &credentials_manager;
     std::unique_ptr<PostProcLayer> crt_post_proc_layer;
     int done_tick;
     std::unique_ptr<PlaybackEnv> env;
@@ -67,6 +69,7 @@ class MultiplayerScreen : public IScreen
   public:
     MultiplayerScreen(double tick_length,
                       std::unique_ptr<ChooseAgentWindow> choose_agent_window,
+                      CredentialsManager &credentials_manager,
                       IEnvironmentFactory &env_factory,
                       IO &io,
                       ResourceManager &resource_manager,
@@ -81,6 +84,7 @@ class MultiplayerScreenFactory : public IScreenFactory
 {
   private:
     Checkpointer &checkpointer;
+    CredentialsManager &credentials_manager;
     IEnvironmentFactory &env_factory;
     IO &io;
     ResourceManager &resource_manager;
@@ -91,6 +95,7 @@ class MultiplayerScreenFactory : public IScreenFactory
   public:
     BOOST_DI_INJECT(MultiplayerScreenFactory,
                     Checkpointer &checkpointer,
+                    CredentialsManager &credentials_manager,
                     IEnvironmentFactory &env_factory,
                     IO &io,
                     ResourceManager &resource_manager,
@@ -98,6 +103,7 @@ class MultiplayerScreenFactory : public IScreenFactory
                     ScreenManager &screen_manager,
                     (named = TickLength) double tick_length)
         : checkpointer(checkpointer),
+          credentials_manager(credentials_manager),
           env_factory(env_factory),
           io(io),
           resource_manager(resource_manager),
@@ -109,6 +115,7 @@ class MultiplayerScreenFactory : public IScreenFactory
     {
         return std::make_unique<MultiplayerScreen>(tick_length,
                                                    std::make_unique<ChooseAgentWindow>(checkpointer, io),
+                                                   credentials_manager,
                                                    env_factory,
                                                    io,
                                                    resource_manager,

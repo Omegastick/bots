@@ -14,6 +14,7 @@
 #include "graphics/post_proc_layer.h"
 #include "graphics/renderers/renderer.h"
 #include "graphics/render_data.h"
+#include "misc/credentials_manager.h"
 #include "misc/io.h"
 #include "misc/random.h"
 #include "misc/resource_manager.h"
@@ -36,12 +37,14 @@ namespace SingularityTrainer
 {
 MultiplayerScreen::MultiplayerScreen(double tick_length,
                                      std::unique_ptr<ChooseAgentWindow> choose_agent_window,
+                                     CredentialsManager &credentials_manager,
                                      IEnvironmentFactory &env_factory,
                                      IO &io,
                                      ResourceManager &resource_manager,
                                      Random &rng,
                                      ScreenManager &screen_manager)
     : choose_agent_window(std::move(choose_agent_window)),
+      credentials_manager(credentials_manager),
       done_tick(-1),
       env_factory(env_factory),
       io(io),
@@ -172,7 +175,8 @@ void MultiplayerScreen::input_address()
 
         env = std::make_unique<PlaybackEnv>(env_factory.make(), tick_length);
 
-        ConnectMessage connect_message(agent->get_body_spec().dump(), "TODO: Get proper token!");
+        ConnectMessage connect_message(agent->get_body_spec().dump(),
+                                       credentials_manager.get_token());
         auto encoded_connect_message = MsgPackCodec::encode(connect_message);
         spdlog::info("Sending connect message");
         client_communicator->send(encoded_connect_message);

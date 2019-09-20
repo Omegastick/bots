@@ -6,6 +6,8 @@
 #include <imgui.h>
 
 #include "misc/io.h"
+#include "misc/credentials_manager.h"
+#include "misc/http_client.h"
 #include "misc/module_factory.h"
 #include "misc/random.h"
 #include "misc/resource_manager.h"
@@ -41,6 +43,7 @@ TEST_CASE("E2E - Menu navigation")
         di::bind<ISaver>.to<Saver>(),
         di::bind<std::string>.named(CheckpointDirectory).to("/tmp/checkpoints"),
         di::bind<std::string>.named(AssetsPath).to("assets/"),
+        di::bind<IHttpClient>.to<HttpClient>(),
         di::bind<IScreenFactory>.named(
                                     BuildScreenFactoryType)
             .to<BuildScreenFactory>(),

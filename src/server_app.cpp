@@ -193,7 +193,7 @@ int ServerApp::run(int argc, char *argv[])
             return;
         });
 
-        std::thread server_thread([&] { http_server->listen("localhost", 8765); });
+        std::thread server_thread([&] { http_server->listen("0.0.0.0", 8765); });
 
         while (players.size() == 0)
         {
