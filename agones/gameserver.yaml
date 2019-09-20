@@ -19,3 +19,9 @@ spec:
         - name: singularity-trainer
           image: gcr.io/st-dev-252104/st-server
           imagePullPolicy: Always
+          env:
+            - name: ST_CLOUD_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: st-cloud-token
+                  key: token
