@@ -33,18 +33,20 @@ struct Message
 struct ConnectMessage : Message
 {
     std::string body_spec;
+    std::string token;
 
     ConnectMessage()
     {
         type = MessageType::Connect;
     }
 
-    ConnectMessage(const std::string &body_spec) : ConnectMessage()
+    ConnectMessage(const std::string &body_spec, const std::string &token) : ConnectMessage()
     {
         this->body_spec = body_spec;
+        this->token = token;
     }
 
-    MSGPACK_DEFINE_ARRAY(MSGPACK_BASE(Message), body_spec)
+    MSGPACK_DEFINE_ARRAY(MSGPACK_BASE(Message), body_spec, token)
 };
 
 struct ConnectConfirmationMessage : Message
