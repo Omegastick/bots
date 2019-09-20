@@ -23,6 +23,7 @@ class ServerApp
     std::unique_ptr<Game> game;
     httplib::Client http_client;
     std::unique_ptr<httplib::Server> http_server;
+    std::vector<std::string> player_tokens;
     std::vector<std::string> players;
     std::unique_ptr<ServerCommunicator> server_communicator;
 

@@ -52,7 +52,7 @@ TEST_CASE("ClientCommunicator")
 
     SUBCASE("Messages are sent correctly")
     {
-        ConnectMessage message_to_send("asd");
+        ConnectMessage message_to_send("asd", "sdf");
         client.send(MsgPackCodec::encode(message_to_send));
 
         zmq::multipart_t message;
@@ -65,11 +65,12 @@ TEST_CASE("ClientCommunicator")
         auto received_message = MsgPackCodec::decode<ConnectMessage>(received_message_raw);
 
         DOCTEST_CHECK(received_message.body_spec == message_to_send.body_spec);
+        DOCTEST_CHECK(received_message.token == message_to_send.token);
     }
 
     SUBCASE("Messages are received correctly")
     {
-        ConnectMessage connect_message("asd");
+        ConnectMessage connect_message("asd", "sdf");
         client.send(MsgPackCodec::encode(connect_message));
 
         zmq::multipart_t server_received_message;

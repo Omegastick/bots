@@ -171,8 +171,21 @@ int ServerApp::run(int argc, char *argv[])
                 response.status = 400;
                 return;
             }
+            if (!json.contains("tokens"))
+            {
+                spdlog::error("No \"tokens\" field in body");
+                response.status = 400;
+                return;
+            }
+            if (!json["tokens"].is_array() || json["tokens"].size() != 2)
+            {
+                spdlog::error("\"tokens\" needs to be an array of size 2");
+                response.status = 400;
+                return;
+            }
 
             players = json["players"].get<std::vector<std::string>>();
+            player_tokens = json["tokens"].get<std::vector<std::string>>();
             response.status = 200;
             response.body = "{\"success\": true}";
 
@@ -216,12 +229,18 @@ int ServerApp::run(int argc, char *argv[])
                 auto json = nlohmann::json::parse(message.body_spec);
                 if (use_http_server)
                 {
-                    if (std::find(players.begin(),
-                                  players.end(),
-                                  raw_message.id) == players.end())
+                    auto player_it = std::find(players.begin(), players.end(), raw_message.id);
+                    if (player_it == players.end())
                     {
                         spdlog::warn("User attempted to connect with bad username: {}",
                                      raw_message.id);
+                        continue;
+                    }
+                    int player_index = std::distance(players.begin(), player_it);
+                    if (player_tokens[player_index] != message.token)
+                    {
+                        spdlog::warn("User attempted to connect with bad token: {}",
+                                     message.token);
                         continue;
                     }
                 }

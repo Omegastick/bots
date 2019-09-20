@@ -29,7 +29,7 @@ namespace di = boost::di;
 namespace SingularityTrainer
 {
 
-void run_client(const std::string &id)
+void run_client(const std::string &id, const std::string &token)
 {
     zmq::context_t zmq_context;
 
@@ -49,7 +49,7 @@ void run_client(const std::string &id)
 
     std::unique_ptr<ClientAgent> client_agent;
 
-    ConnectMessage connect_message(body_spec.dump());
+    ConnectMessage connect_message(body_spec.dump(), token);
     auto encoded_connect_message = MsgPackCodec::encode(connect_message);
     client_communicator.send(encoded_connect_message);
 
@@ -113,10 +113,9 @@ TEST_CASE("Network")
     auto server_thread = std::thread([&] { app.run(2, argv); });
     std::this_thread::sleep_for(std::chrono::milliseconds(100));
 
-    std::string client_0_name = "Zero";
-    std::string client_1_name = "One";
     nlohmann::json json;
-    json["players"] = nlohmann::json::array({client_0_name, client_1_name});
+    json["players"] = nlohmann::json::array({"Zero", "One"});
+    json["tokens"] = nlohmann::json::array({"asd", "sdf"});
 
     httplib::Client http_client("localhost", 8765);
 
@@ -130,8 +129,10 @@ TEST_CASE("Network")
     DOCTEST_CHECK(response->status == 200);
     DOCTEST_CHECK(response->body == "{\"success\": true}");
 
-    auto client_0_thread = std::thread([&] { run_client(client_0_name); });
-    auto client_1_thread = std::thread([&] { run_client(client_1_name); });
+    auto client_0_thread = std::thread([&] { run_client(json["players"][0].get<std::string>(),
+                                                        json["tokens"][0].get<std::string>()); });
+    auto client_1_thread = std::thread([&] { run_client(json["players"][1].get<std::string>(),
+                                                        json["tokens"][1].get<std::string>()); });
 
     client_0_thread.join();
     client_1_thread.join();
