@@ -200,7 +200,10 @@ int ServerApp::run(int argc, char *argv[])
     }
 
     stop = true;
-    health_thread.join();
+    if (health_thread.joinable())
+    {
+        health_thread.join();
+    }
 
     // Shutdown
     if (use_agones)
