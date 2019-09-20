@@ -1,4 +1,5 @@
 #include <chrono>
+#include <cstdlib>
 #include <memory>
 #include <string>
 #include <thread>
@@ -6,6 +7,7 @@
 #include <Box2D/Box2D.h>
 #include <doctest.h>
 #include <fmt/ostream.h>
+#include <nlohmann/json.hpp>
 #include <spdlog/spdlog.h>
 
 #include "server_app.h"
@@ -16,6 +18,7 @@
 #include "networking/messages.h"
 #include "networking/msgpack_codec.h"
 #include "third_party/di.hpp"
+#include "third_party/httplib.h"
 #include "third_party/zmq.hpp"
 #include "training/agents/random_agent.h"
 #include "training/bodies/test_body.h"
@@ -108,9 +111,27 @@ TEST_CASE("Network")
     char quiet[] = "--quiet";
     char *argv[3] = {filepath, quiet, NULL};
     auto server_thread = std::thread([&] { app.run(2, argv); });
+    std::this_thread::sleep_for(std::chrono::milliseconds(100));
 
-    auto client_0_thread = std::thread([&] { run_client("Zero"); });
-    auto client_1_thread = std::thread([&] { run_client("One"); });
+    std::string client_0_name = "Zero";
+    std::string client_1_name = "One";
+    nlohmann::json json;
+    json["players"] = nlohmann::json::array({client_0_name, client_1_name});
+
+    httplib::Client http_client("localhost", 8765);
+
+    std::string st_cloud_token = std::getenv("ST_CLOUD_TOKEN");
+    httplib::Headers headers;
+    headers.insert({"Authorization", "Bearer " + st_cloud_token});
+    auto response = http_client.Post("/register_players",
+                                     headers,
+                                     json.dump(),
+                                     "application/json");
+    DOCTEST_CHECK(response->status == 200);
+    DOCTEST_CHECK(response->body == "{\"success\": true}");
+
+    auto client_0_thread = std::thread([&] { run_client(client_0_name); });
+    auto client_1_thread = std::thread([&] { run_client(client_1_name); });
 
     client_0_thread.join();
     client_1_thread.join();

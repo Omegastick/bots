@@ -19,15 +19,17 @@ class ServerApp
   private:
     zmq::context_t zmq_context; // ZMQ context has to outlive the socket
 
+    std::string cloud_token;
     std::unique_ptr<Game> game;
     httplib::Client http_client;
+    std::unique_ptr<httplib::Server> http_server;
     std::vector<std::string> players;
     std::unique_ptr<ServerCommunicator> server_communicator;
 
     int run_tests(int argc, char *argv[], const argh::parser &args);
 
   public:
-    ServerApp(std::unique_ptr<Game> game);
+    ServerApp(std::unique_ptr<Game> game, std::unique_ptr<httplib::Server> http_server);
 
     int run(int argc, char *argv[]);
 };

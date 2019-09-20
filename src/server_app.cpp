@@ -1,13 +1,16 @@
 #define CPPHTTPLIB_THREAD_POOL_COUNT 0
 
 #include <chrono>
+#include <cstdlib>
 #include <memory>
 #include <iostream>
+#include <thread>
 #include <signal.h>
 #include <stdlib.h>
 
 #include <doctest.h>
 #include <fmt/format.h>
+#include <fmt/ostream.h>
 #include <nlohmann/json.hpp>
 #include <spdlog/spdlog.h>
 
@@ -54,9 +57,10 @@ static void health_check()
     }
 }
 
-ServerApp::ServerApp(std::unique_ptr<Game> game)
+ServerApp::ServerApp(std::unique_ptr<Game> game, std::unique_ptr<httplib::Server> http_server)
     : game(std::move(game)),
-      http_client(agones_url_base.c_str(), 59358)
+      http_client(agones_url_base.c_str(), 59358),
+      http_server(std::move(http_server))
 {
     // Logging
     spdlog::set_level(spdlog::level::debug);
@@ -121,6 +125,72 @@ int ServerApp::run(int argc, char *argv[])
         health_thread = std::thread(health_check);
     }
 
+    // Wait for list of players
+    bool use_http_server = !args[{"--dev"}];
+    if (use_http_server)
+    {
+        std::string st_cloud_token = std::getenv("ST_CLOUD_TOKEN");
+        http_server->Post("/register_players", [&](const httplib::Request &request,
+                                                   httplib::Response &response) {
+            if (request.headers.find("Authorization") == request.headers.end())
+            {
+                spdlog::error("No authorization token received");
+                response.status = 401;
+                return;
+            }
+            std::string auth_header = request.headers.find("Authorization")->second;
+            int delimiter_location = auth_header.find(' ');
+            std::string received_token = auth_header.substr(delimiter_location + 1);
+            if (received_token != st_cloud_token)
+            {
+                spdlog::error("Received bad cloud token: {}", st_cloud_token);
+                response.status = 401;
+                return;
+            }
+            nlohmann::json json;
+            try
+            {
+                json = nlohmann::json::parse(request.body);
+            }
+            catch (nlohmann::json::parse_error &)
+            {
+                spdlog::error("Couldn't parse request body");
+                response.status = 400;
+                return;
+            }
+
+            if (!json.contains("players"))
+            {
+                spdlog::error("No \"players\" field in body");
+                response.status = 400;
+                return;
+            }
+            if (!json["players"].is_array() || json["players"].size() != 2)
+            {
+                spdlog::error("\"players\" needs to be an array of size 2");
+                response.status = 400;
+                return;
+            }
+
+            players = json["players"].get<std::vector<std::string>>();
+            response.status = 200;
+            response.body = "{\"success\": true}";
+
+            spdlog::info("Players list received: {}", players);
+            return;
+        });
+
+        std::thread server_thread([&] { http_server->listen("localhost", 8765); });
+
+        while (players.size() == 0)
+        {
+            std::this_thread::sleep_for(std::chrono::milliseconds(100));
+        }
+
+        http_server->stop();
+        server_thread.join();
+    }
+
     GameStartMessage game_start_message;
     bool game_started = false;
 
@@ -136,14 +206,29 @@ int ServerApp::run(int argc, char *argv[])
             {
                 break;
             }
-            auto message_object = MsgPackCodec::decode<msgpack::object_handle>(raw_message.message);
+            auto message_object = MsgPackCodec::decode<msgpack::object_handle>(
+                raw_message.message);
             auto type = get_message_type(message_object.get());
 
             if (type == MessageType::Connect)
             {
                 auto message = message_object->as<ConnectMessage>();
                 auto json = nlohmann::json::parse(message.body_spec);
-                players.push_back(raw_message.id);
+                if (use_http_server)
+                {
+                    if (std::find(players.begin(),
+                                  players.end(),
+                                  raw_message.id) == players.end())
+                    {
+                        spdlog::warn("User attempted to connect with bad username: {}",
+                                     raw_message.id);
+                        continue;
+                    }
+                }
+                else
+                {
+                    players.push_back(raw_message.id);
+                }
                 spdlog::info("{} connected", raw_message.id);
                 game->add_body(json);
                 game_start_message.body_specs.push_back(message.body_spec);
@@ -155,7 +240,10 @@ int ServerApp::run(int argc, char *argv[])
             {
                 auto message = message_object->as<ActionMessage>();
                 game->set_action(message.tick,
-                                 std::find(players.begin(), players.end(), raw_message.id) - players.begin(),
+                                 std::find(players.begin(),
+                                           players.end(),
+                                           raw_message.id) -
+                                     players.begin(),
                                  message.actions);
             }
         }
@@ -223,7 +311,7 @@ int ServerApp::run_tests(int argc, char *argv[], const argh::parser &args)
 {
     if (!args["--with-logs"])
     {
-        spdlog::set_level(spdlog::level::off);
+        spdlog::set_level(spdlog::level::warn);
     }
     doctest::Context context;
 
