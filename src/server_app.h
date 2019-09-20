@@ -8,6 +8,7 @@
 
 #include "networking/game.h"
 #include "networking/server_communicator.h"
+#include "third_party/httplib.h"
 #include "third_party/zmq.hpp"
 #include "third_party/zmq_addon.hpp"
 
@@ -19,6 +20,7 @@ class ServerApp
     zmq::context_t zmq_context; // ZMQ context has to outlive the socket
 
     std::unique_ptr<Game> game;
+    httplib::Client http_client;
     std::vector<std::string> players;
     std::unique_ptr<ServerCommunicator> server_communicator;
 

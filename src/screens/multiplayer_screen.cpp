@@ -197,7 +197,6 @@ void MultiplayerScreen::play(double delta_time)
         auto type = get_message_type(message_object.get());
         if (type == MessageType::State)
         {
-            spdlog::info("Received state");
             auto message = message_object->as<StateMessage>();
 
             auto action = client_agent->get_action(EnvState(message.agent_transforms,

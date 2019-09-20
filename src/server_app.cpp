@@ -1,3 +1,5 @@
+#define CPPHTTPLIB_THREAD_POOL_COUNT 0
+
 #include <chrono>
 #include <memory>
 #include <iostream>
@@ -12,12 +14,12 @@
 #include "server_app.h"
 #include "networking/messages.h"
 #include "networking/msgpack_codec.h"
-#include "third_party/http_request.h"
+#include "third_party/httplib.h"
 #include "training/environments/koth_env.h"
 
 namespace SingularityTrainer
 {
-const std::string agones_url_base = "http://localhost:59358";
+const std::string agones_url_base = "localhost";
 volatile sig_atomic_t stop;
 
 void inthand(int /*signum*/)
@@ -27,18 +29,25 @@ void inthand(int /*signum*/)
 
 static void health_check()
 {
+    httplib::Client http_client(agones_url_base.c_str(), 59358);
+
     while (!stop)
     {
-        http::Request health_request(agones_url_base + "/health");
-        try
+        auto response = http_client.Post("/health", "{}", "application/json");
+        if (response != nullptr && response->status == 200)
         {
-
-            health_request.send("POST", "{}");
             spdlog::info("Health ping sent");
         }
-        catch (std::system_error &error)
+        else
         {
-            spdlog::error("Failed health check: {}", error.what());
+            if (response == nullptr)
+            {
+                spdlog::error("Failed health check: No response");
+            }
+            else
+            {
+                spdlog::error("Failed health check: {}", response->status);
+            }
         }
 
         std::this_thread::sleep_for(std::chrono::seconds(2));
@@ -46,7 +55,8 @@ static void health_check()
 }
 
 ServerApp::ServerApp(std::unique_ptr<Game> game)
-    : game(std::move(game))
+    : game(std::move(game)),
+      http_client(agones_url_base.c_str(), 59358)
 {
     // Logging
     spdlog::set_level(spdlog::level::debug);
@@ -58,16 +68,19 @@ ServerApp::ServerApp(std::unique_ptr<Game> game)
 int ServerApp::run(int argc, char *argv[])
 {
     argh::parser args(argv);
+    // Tests
     if (args[{"-t", "--test"}])
     {
         return run_tests(argc, argv, args);
     }
 
+    // Turn off logging
     if (args[{"-q", "--quiet"}])
     {
         spdlog::set_level(spdlog::level::off);
     }
 
+    // Bind to ZeroMQ port
     int port;
     args({"-p", "--port"}, 7654) >> port;
     spdlog::info("Serving on port: {}", port);
@@ -76,22 +89,22 @@ int ServerApp::run(int argc, char *argv[])
     socket->bind("tcp://*:" + std::to_string(port));
     server_communicator = std::make_unique<ServerCommunicator>(std::move(socket));
 
+    // Signal to Agones that we are ready and start the health check thread
     std::thread health_thread;
     bool use_agones = args[{"--agones"}];
     if (use_agones)
     {
         spdlog::info("Marking server as ready");
 
-        http::Request ready_request(agones_url_base + "/ready");
         int retries = 0;
         while (true)
         {
-            try
+            auto response = http_client.Post("/ready", "{}", "application/json");
+            if (response != nullptr && response->status == 200)
             {
-                ready_request.send("POST", "{}");
                 break;
             }
-            catch (std::system_error &error)
+            else
             {
                 if (retries < 10)
                 {
@@ -100,8 +113,7 @@ int ServerApp::run(int argc, char *argv[])
                 }
                 else
                 {
-                    spdlog::error("Could not mark server as ready");
-                    throw error;
+                    throw std::runtime_error("Could not mark server as ready");
                 }
             }
         }
@@ -187,17 +199,17 @@ int ServerApp::run(int argc, char *argv[])
         }
     }
 
+    stop = true;
+    health_thread.join();
+
+    // Shutdown
     if (use_agones)
     {
-        http::Request shutdown_request(agones_url_base + "/shutdown");
-        try
+        // Signal to Agones that we are shutting down
+        auto response = http_client.Post("/shutdown", "{}", "application/json");
+        if (response == nullptr || response->status != 200)
         {
-            shutdown_request.send("POST", "{}");
-        }
-        catch (std::system_error &error)
-        {
-            spdlog::error("Could not mark server as shut down");
-            throw error;
+            throw std::runtime_error("Could not mark server as shut down");
         }
     }
 
