@@ -129,7 +129,12 @@ int ServerApp::run(int argc, char *argv[])
     bool use_http_server = !args[{"--dev"}];
     if (use_http_server)
     {
-        std::string st_cloud_token = std::getenv("ST_CLOUD_TOKEN");
+        char *token_pointer = std::getenv("ST_CLOUD_TOKEN");
+        if (token_pointer == nullptr)
+        {
+            throw std::runtime_error("ST_CLOUD_TOKEN environment variable not set");
+        }
+        std::string st_cloud_token(token_pointer);
         http_server->Post("/register_players", [&](const httplib::Request &request,
                                                    httplib::Response &response) {
             if (request.headers.find("Authorization") == request.headers.end())
