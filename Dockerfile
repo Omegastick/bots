@@ -1,8 +1,8 @@
 FROM gcc:9 as builder
 
 # Install PyTorch
-RUN wget https://download.pytorch.org/libtorch/nightly/cpu/libtorch-shared-with-deps-latest.zip
-RUN unzip libtorch-shared-with-deps-latest.zip -d /opt/
+RUN wget https://download.pytorch.org/libtorch/cpu/libtorch-cxx11-abi-shared-with-deps-1.2.0.zip
+RUN unzip libtorch-cxx11-abi-shared-with-deps-1.2.0.zip -d /opt/
 
 # Install CMake
 RUN wget -q https://cmake.org/files/v3.14/cmake-3.14.6-Linux-x86_64.sh -O /cmake-3.14.6-Linux-x86_64.sh
@@ -10,14 +10,6 @@ RUN mkdir /opt/cmake
 RUN sh /cmake-3.14.6-Linux-x86_64.sh --prefix=/opt/cmake --skip-license
 RUN ln -s /opt/cmake/bin/cmake /usr/local/bin/cmake
 RUN cmake --version
-
-# Install Agones C++ SDK
-WORKDIR /opt
-RUN git clone --branch v0.12.0 --depth=1 https://github.com/googleforgames/agones.git
-RUN mkdir /opt/agones/sdks/cpp/build
-WORKDIR /opt/agones/sdks/cpp/build
-RUN cmake .. -DCMAKE_BUILD_TYPE=Release -G "Unix Makefiles" -DCMAKE_INSTALL_PREFIX=./install
-RUN cmake --build . --target install
 
 # Build Singularity Trainer server
 ## Install dependencies
@@ -41,6 +33,7 @@ FROM ubuntu:19.04 as main
 
 # Install apt dependencies
 RUN apt-get update && apt-get install -y \
+    libcurl4 \
     libx11-6
 
 # Copy over shared libraries
