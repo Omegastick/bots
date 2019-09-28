@@ -125,6 +125,8 @@ int ServerApp::run(int argc, char *argv[])
         health_thread = std::thread(health_check);
     }
 
+    spdlog::info(std::getenv("PLAYER_1_USERNAME"));
+
     // Wait for list of players
     bool use_http_server = !args[{"--dev"}];
     if (use_http_server)
@@ -200,10 +202,12 @@ int ServerApp::run(int argc, char *argv[])
 
         std::thread server_thread([&] { http_server->listen("0.0.0.0", 8765); });
 
+        spdlog::info("Waiting for players list");
         while (players.size() == 0)
         {
             std::this_thread::sleep_for(std::chrono::milliseconds(100));
         }
+        spdlog::info("Players list received");
 
         http_server->stop();
         server_thread.join();
@@ -211,6 +215,7 @@ int ServerApp::run(int argc, char *argv[])
 
     GameStartMessage game_start_message;
     bool game_started = false;
+    double start_time;
 
     // Main loop
     bool finished = false;
@@ -282,13 +287,22 @@ int ServerApp::run(int argc, char *argv[])
                 server_communicator->send(player, encoded_game_start_message);
             }
             game_started = true;
+            start_time = std::chrono::high_resolution_clock::now().time_since_epoch().count();
+            start_time *= 1e-9;
         }
 
         // Step environment
-        double time_stamp = std::chrono::high_resolution_clock::now().time_since_epoch().count() * 1e-9;
+        double time_stamp = std::chrono::high_resolution_clock::now().time_since_epoch().count();
+        time_stamp *= 1e-9;
         if (game_started && game->ready_to_tick(time_stamp))
         {
             auto tick_result = game->tick(time_stamp);
+            if (tick_result.tick % 10 == 0)
+            {
+                auto fps = tick_result.tick / (time_stamp - start_time);
+                spdlog::debug("FPS: {}", fps);
+            }
+
             StateMessage reply(std::move(tick_result.agent_transforms),
                                std::move(tick_result.entity_transforms),
                                std::move(tick_result.events),

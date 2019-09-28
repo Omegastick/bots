@@ -230,7 +230,7 @@ def allocate_gameserver() -> str:
                       }
                   }}
 
-    def send_allocate_request():
+    def send_allocate_request(deployment):
         return k8s.create_namespaced_custom_object('allocation.agones.dev',
                                                    'v1',
                                                    'default',
@@ -238,10 +238,11 @@ def allocate_gameserver() -> str:
                                                    deployment)
     response = None
     try:
-        response = send_allocate_request()
+        response = send_allocate_request(deployment)
     except kubernetes.client.rest.ApiException:
-        k8s.api_client.configuration.api_key = get_k8s_token('cloud-platform')
-        response = send_allocate_request()
+        token = get_k8s_token('cloud-platform')
+        k8s.api_client.configuration.api_key['authorization'] = token
+        response = send_allocate_request(deployment)
 
     return response
 
