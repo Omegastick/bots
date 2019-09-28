@@ -48,7 +48,7 @@ def pytest_collection_modifyitems(config, items):
 @pytest.fixture
 def db():
     """
-    Provides a real cloud database, with all test users removed afterwards
+    Provides a real cloud database, with all test users removed afterwards.
     """
     database = firestore.Client()
     yield database

@@ -220,21 +220,28 @@ def allocate_gameserver() -> str:
     """
     Allocate a gameserver and return its info.
     """
-    depoloyment = {"api_version": "allocation.agones.dev/v1",
-                   "kind": "GameServerAllocation",
-                   "spec": {
-                       "required": {
-                           "matchLabels": {
-                               "agones.dev/fleet": "singularity-trainer"
-                           }
-                       }
-                   }}
+    deployment = {"api_version": "allocation.agones.dev/v1",
+                  "kind": "GameServerAllocation",
+                  "spec": {
+                      "required": {
+                          "matchLabels": {
+                              "agones.dev/fleet": "singularity-trainer"
+                          }
+                      }
+                  }}
 
-    response = k8s.create_namespaced_custom_object('allocation.agones.dev',
+    def send_allocate_request():
+        return k8s.create_namespaced_custom_object('allocation.agones.dev',
                                                    'v1',
                                                    'default',
                                                    'gameserverallocations',
-                                                   depoloyment)
+                                                   deployment)
+    response = None
+    try:
+        response = send_allocate_request()
+    except kubernetes.client.rest.ApiException:
+        k8s.api_client.configuration.api_key = get_k8s_token('cloud-platform')
+        response = send_allocate_request()
 
     return response
 

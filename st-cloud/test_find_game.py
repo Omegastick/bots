@@ -2,7 +2,7 @@
 Tests for the Singularity Trainer find game cloud function.
 """
 
-# pylint: disable=no-member
+# pylint: disable=no-member,invalid-name
 
 import json
 import re
