@@ -164,6 +164,8 @@ void PlaybackEnv::update(double delta_time)
         }
     }
 
+    current_tick = std::min(current_tick, static_cast<double>(end_state->tick));
+
     // Lerp start and end states
     // Calculate interpolation value for lerp
     float interpolation = current_tick - start_state->tick;
@@ -505,14 +507,14 @@ TEST_CASE("PlaybackEnv")
         playback_env.add_new_state({agent_transforms, entity_states, {10, 10}, {0, 0}, 1});
 
         std::vector<std::unique_ptr<IEvent>> events;
-        events.push_back(std::make_unique<EntityDestroyed>(0, 0.5, Transform{1, 2, 3}));
+        events.push_back(std::make_unique<EntityDestroyed>(0, 0.1, Transform{1, 2, 3}));
         playback_env.add_events(std::move(events));
 
-        playback_env.update(0.4);
+        playback_env.update(0.05);
         auto render_data = env.get_render_data();
         DOCTEST_CHECK(render_data.particles.size() == 0);
 
-        playback_env.update(0.2);
+        playback_env.update(0.1);
         render_data = env.get_render_data();
         DOCTEST_CHECK(render_data.particles.size() > 0);
     }
