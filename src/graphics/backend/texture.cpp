@@ -1,6 +1,7 @@
 #include <string>
 
 #include <glad/glad.h>
+#include <spdlog/spdlog.h>
 
 #include "graphics/backend/texture.h"
 #include "third_party/stb_image.h"
@@ -43,6 +44,11 @@ Texture::Texture(const std::string &filepath)
 {
     stbi_set_flip_vertically_on_load(1);
     buffer = stbi_load(filepath.c_str(), &width, &height, &bpp, 4);
+
+    if (buffer == nullptr)
+    {
+        spdlog::error("File not loaded successfully: {}", filepath);
+    }
 
     glGenTextures(1, &id);
     glBindTexture(GL_TEXTURE_2D, id);

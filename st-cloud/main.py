@@ -49,13 +49,6 @@ def kubernetes_api(cluster):
     return api
 
 
-# Init Kubernetes client
-gke_client = container_v1.ClusterManagerClient()
-k8s = kubernetes_api(gke_client.get_cluster('st-dev-252104',
-                                            'asia-northeast1-b',
-                                            'st-dev'))
-
-
 def login(request):
     """
     Log a user into the matchmaking system, returning a session token.
@@ -153,6 +146,11 @@ def allocate_gameserver():
     """
     Allocate a gameserver and return its info.
     """
+    gke_client = container_v1.ClusterManagerClient()
+    k8s = kubernetes_api(gke_client.get_cluster('st-dev-252104',
+                                                'asia-northeast1-b',
+                                                'st-dev'))
+
     depoloyment = {"api_version": "allocation.agones.dev/v1",
                    "kind": "GameServerAllocation",
                    "spec": {
