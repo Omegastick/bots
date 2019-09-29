@@ -285,6 +285,14 @@ void Body::set_rigid_body(std::unique_ptr<RigidBody> rigid_body)
     init_rigid_body();
 }
 
+void Body::sub_update()
+{
+    for (auto &module : modules)
+    {
+        module->sub_update();
+    }
+}
+
 nlohmann::json Body::to_json() const
 {
     auto json = nlohmann::json::object();

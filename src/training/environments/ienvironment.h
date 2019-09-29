@@ -101,6 +101,7 @@ class IEnvironment : public IDrawable
     virtual void add_event(std::unique_ptr<IEvent> event) = 0;
     virtual void change_reward(int body, float reward_delta) = 0;
     virtual void change_reward(Body *body, float reward_delta) = 0;
+    virtual void clear_effects() = 0;
     virtual void forward(float step_length) = 0;
     virtual std::vector<Body *> get_bodies() = 0;
     virtual double get_elapsed_time() const = 0;

@@ -6,6 +6,7 @@
 #include <Box2D/Box2D.h>
 #include <doctest.h>
 #include <nlohmann/json.hpp>
+#include <spdlog/spdlog.h>
 #include <torch/torch.h>
 
 #include "game.h"
@@ -95,7 +96,7 @@ TickResult Game::tick(double current_time)
     for (int i = 0; i < 5; ++i)
     {
         env->forward(1. / 60.);
-        env->get_render_data(false);
+        env->clear_effects();
     }
     auto step_info = env->step(actions_tensors, 1. / 60.);
 
