@@ -24,7 +24,7 @@ COPY . .
 ## Run build
 RUN mkdir build
 WORKDIR /app/build
-RUN cmake -DCMAKE_BUILD_TYPE=Debug -DCMAKE_PREFIX_PATH="/opt/libtorch;/opt/agones/sdks/cpp/build/install" ..
+RUN cmake -DCMAKE_BUILD_TYPE=Debug -DCMAKE_PREFIX_PATH="/opt/libtorch" ..
 RUN make -j8 Server
 
 

@@ -1,5 +1,3 @@
-#define CPPHTTPLIB_THREAD_POOL_COUNT 0
-
 #include <chrono>
 #include <cstdlib>
 #include <memory>
@@ -33,34 +31,27 @@ void inthand(int /*signum*/)
 static void health_check()
 {
     httplib::Client http_client(agones_url_base.c_str(), 59358);
+    spdlog::info("Starting health checks");
 
     while (!stop)
     {
         auto response = http_client.Post("/health", "{}", "application/json");
-        if (response != nullptr && response->status == 200)
+        if (response == nullptr)
         {
-            spdlog::info("Health ping sent");
+            spdlog::error("Failed health check: No response");
         }
-        else
+        else if (response->status != 200)
         {
-            if (response == nullptr)
-            {
-                spdlog::error("Failed health check: No response");
-            }
-            else
-            {
-                spdlog::error("Failed health check: {}", response->status);
-            }
+            spdlog::error("Failed health check: {}", response->status);
         }
 
         std::this_thread::sleep_for(std::chrono::seconds(2));
     }
 }
 
-ServerApp::ServerApp(std::unique_ptr<Game> game, std::unique_ptr<httplib::Server> http_server)
+ServerApp::ServerApp(std::unique_ptr<Game> game)
     : game(std::move(game)),
-      http_client(agones_url_base.c_str(), 59358),
-      http_server(std::move(http_server))
+      http_client(agones_url_base.c_str(), 59358)
 {
     // Logging
     spdlog::set_level(spdlog::level::debug);
@@ -108,109 +99,20 @@ int ServerApp::run(int argc, char *argv[])
             {
                 break;
             }
+            if (retries < 10)
+            {
+                retries += 1;
+                std::this_thread::sleep_for(std::chrono::milliseconds(500));
+            }
             else
             {
-                if (retries < 10)
-                {
-                    retries += 1;
-                    std::this_thread::sleep_for(std::chrono::milliseconds(500));
-                }
-                else
-                {
-                    throw std::runtime_error("Could not mark server as ready");
-                }
+                throw std::runtime_error("Could not mark server as ready");
             }
         }
 
         health_thread = std::thread(health_check);
-    }
 
-    spdlog::info(std::getenv("PLAYER_1_USERNAME"));
-
-    // Wait for list of players
-    bool use_http_server = !args[{"--dev"}];
-    if (use_http_server)
-    {
-        char *token_pointer = std::getenv("ST_CLOUD_TOKEN");
-        if (token_pointer == nullptr)
-        {
-            throw std::runtime_error("ST_CLOUD_TOKEN environment variable not set");
-        }
-        std::string st_cloud_token(token_pointer);
-        http_server->Post("/register_players", [&](const httplib::Request &request,
-                                                   httplib::Response &response) {
-            if (request.headers.find("Authorization") == request.headers.end())
-            {
-                spdlog::error("No authorization token received");
-                response.status = 401;
-                return;
-            }
-            std::string auth_header = request.headers.find("Authorization")->second;
-            int delimiter_location = auth_header.find(' ');
-            std::string received_token = auth_header.substr(delimiter_location + 1);
-            if (received_token != st_cloud_token)
-            {
-                spdlog::error("Received bad cloud token: {}", st_cloud_token);
-                response.status = 401;
-                return;
-            }
-            nlohmann::json json;
-            try
-            {
-                json = nlohmann::json::parse(request.body);
-            }
-            catch (nlohmann::json::parse_error &)
-            {
-                spdlog::error("Couldn't parse request body");
-                response.status = 400;
-                return;
-            }
-
-            if (!json.contains("players"))
-            {
-                spdlog::error("No \"players\" field in body");
-                response.status = 400;
-                return;
-            }
-            if (!json["players"].is_array() || json["players"].size() != 2)
-            {
-                spdlog::error("\"players\" needs to be an array of size 2");
-                response.status = 400;
-                return;
-            }
-            if (!json.contains("tokens"))
-            {
-                spdlog::error("No \"tokens\" field in body");
-                response.status = 400;
-                return;
-            }
-            if (!json["tokens"].is_array() || json["tokens"].size() != 2)
-            {
-                spdlog::error("\"tokens\" needs to be an array of size 2");
-                response.status = 400;
-                return;
-            }
-
-            players = json["players"].get<std::vector<std::string>>();
-            player_tokens = json["tokens"].get<std::vector<std::string>>();
-            response.status = 200;
-            response.body = "{\"success\": true}";
-
-            spdlog::info("Players list received: {}", players);
-            return;
-        });
-
-        std::thread server_thread([&] { http_server->listen("0.0.0.0", 8765); });
-
-        spdlog::info("Waiting for players list");
-        while (players.size() == 0)
-        {
-            std::this_thread::sleep_for(std::chrono::milliseconds(100));
-        }
-        spdlog::info("Players list received");
-
-        http_server->stop();
-        server_thread.join();
+        wait_for_player_info();
     }
 
     GameStartMessage game_start_message;
@@ -237,27 +139,17 @@ int ServerApp::run(int argc, char *argv[])
             {
                 auto message = message_object->as<ConnectMessage>();
                 auto json = nlohmann::json::parse(message.body_spec);
-                if (use_http_server)
+                if (use_agones)
                 {
-                    auto player_it = std::find(players.begin(), players.end(), raw_message.id);
-                    if (player_it == players.end())
-                    {
-                        spdlog::warn("User attempted to connect with bad username: {}",
-                                     raw_message.id);
-                        continue;
-                    }
-                    int player_index = std::distance(players.begin(), player_it);
-                    if (player_tokens[player_index] != message.token)
+                    if (std::find(player_tokens.begin(), player_tokens.end(), message.token) ==
+                        player_tokens.end())
                     {
                         spdlog::warn("User attempted to connect with bad token: {}",
                                      message.token);
                         continue;
                     }
                 }
-                else
-                {
-                    players.push_back(raw_message.id);
-                }
+                players.push_back(raw_message.id);
                 spdlog::info("{} connected", raw_message.id);
                 game->add_body(json);
                 game_start_message.body_specs.push_back(message.body_spec);
@@ -358,5 +250,35 @@ int ServerApp::run_tests(int argc, char *argv[], const argh::parser &args)
     context.applyCommandLine(argc, argv);
 
     return context.run();
+}
+
+void ServerApp::wait_for_player_info()
+{
+    spdlog::info("Retrieving player information");
+    auto response = http_client.Get(
+        "/watch/gameserver",
+        [&](const char *data, size_t data_length, size_t offset, uint64_t content_length) -> bool {
+            spdlog::debug("{} - {} - {} - {}", data, data_length, offset, content_length);
+            std::string raw_json(data, data_length);
+            auto json = nlohmann::json::parse(raw_json);
+            if (json["result"]["object_meta"]["annotations"].contains("player_1_username"))
+            {
+                auto annotations = json["result"]["object_meta"]["annotations"];
+                player_usernames.push_back(annotations["player_1_username"]);
+                player_usernames.push_back(annotations["player_2_username"]);
+                player_tokens.push_back(annotations["player_1_token"]);
+                player_tokens.push_back(annotations["player_2_token"]);
+                return false;
+            }
+            return true;
+        });
+
+    while (player_tokens.size() < 2)
+    {
+        std::this_thread::sleep_for(std::chrono::milliseconds(100));
+    }
+
+    spdlog::info("Players: {}", player_usernames);
+    spdlog::info("Tokens: {}", player_tokens);
 }
 }

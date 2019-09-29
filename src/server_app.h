@@ -22,15 +22,16 @@ class ServerApp
     std::string cloud_token;
     std::unique_ptr<Game> game;
     httplib::Client http_client;
-    std::unique_ptr<httplib::Server> http_server;
     std::vector<std::string> player_tokens;
+    std::vector<std::string> player_usernames;
     std::vector<std::string> players;
     std::unique_ptr<ServerCommunicator> server_communicator;
 
+    void wait_for_player_info();
     int run_tests(int argc, char *argv[], const argh::parser &args);
 
   public:
-    ServerApp(std::unique_ptr<Game> game, std::unique_ptr<httplib::Server> http_server);
+    ServerApp(std::unique_ptr<Game> game);
 
     int run(int argc, char *argv[]);
 };

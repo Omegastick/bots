@@ -117,22 +117,8 @@ TEST_CASE("Network")
     json["players"] = nlohmann::json::array({"Zero", "One"});
     json["tokens"] = nlohmann::json::array({"asd", "sdf"});
 
-    httplib::Client http_client("localhost", 8765);
-
-    std::string st_cloud_token = std::getenv("ST_CLOUD_TOKEN");
-    httplib::Headers headers;
-    headers.insert({"Authorization", "Bearer " + st_cloud_token});
-    auto response = http_client.Post("/register_players",
-                                     headers,
-                                     json.dump(),
-                                     "application/json");
-    DOCTEST_CHECK(response->status == 200);
-    DOCTEST_CHECK(response->body == "{\"success\": true}");
-
-    auto client_0_thread = std::thread([&] { run_client(json["players"][0].get<std::string>(),
-                                                        json["tokens"][0].get<std::string>()); });
-    auto client_1_thread = std::thread([&] { run_client(json["players"][1].get<std::string>(),
-                                                        json["tokens"][1].get<std::string>()); });
+    auto client_0_thread = std::thread([&] { run_client("One", "asd"); });
+    auto client_1_thread = std::thread([&] { run_client("Two", "sdf"); });
 
     client_0_thread.join();
     client_1_thread.join();
