@@ -35,8 +35,10 @@ MessageWithId ServerCommunicator::get()
 
 void ServerCommunicator::send(const std::string &client_id, const std::string &message)
 {
-    socket->send(zmq::message_t(client_id.data(), client_id.size()), zmq::send_flags::sndmore);
-    socket->send(zmq::message_t(message.data(), message.size()), zmq::send_flags::none);
+    socket->send(zmq::message_t(client_id.data(), client_id.size()),
+                 zmq::send_flags::dontwait | zmq::send_flags::sndmore);
+    socket->send(zmq::message_t(message.data(), message.size()),
+                 zmq::send_flags::dontwait);
 }
 
 TEST_CASE("ServerCommunicator")
