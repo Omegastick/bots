@@ -125,7 +125,11 @@ def find_game(request: Request) -> str:
     if not waiting_users:
         return wait_for_game(users, user)
 
-    gameserver = allocate_gameserver()
+    player_1_dict = user.to_dict()
+    player_2_dict = waiting_users[0].to_dict()
+    gameserver = allocate_gameserver(
+        [player_1_dict['username'], player_2_dict['username']],
+        [player_1_dict['token'], player_2_dict['token']])
     if gameserver['status']['state'] != 'Allocated':
         return wait_for_game(users, user)
 
@@ -216,7 +220,8 @@ def wait_for_game(users: firestore.CollectionReference,
     return json.dumps({'status': 'waiting_for_game'})
 
 
-def allocate_gameserver() -> str:
+def allocate_gameserver(player_usernames: List[str],
+                        player_tokens: List[str]) -> str:
     """
     Allocate a gameserver and return its info.
     """
@@ -226,6 +231,14 @@ def allocate_gameserver() -> str:
                       "required": {
                           "matchLabels": {
                               "agones.dev/fleet": "singularity-trainer"
+                          }
+                      },
+                      "metadata": {
+                          "annotations": {
+                              "player_1_username": player_usernames[0],
+                              "player_2_username": player_usernames[1],
+                              "player_1_token": player_tokens[0],
+                              "player_2_token": player_tokens[1]
                           }
                       }
                   }}

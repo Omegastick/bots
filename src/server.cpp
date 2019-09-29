@@ -10,10 +10,8 @@ using namespace SingularityTrainer;
 
 namespace di = boost::di;
 
-int main(int argc, char *argv[], char *env[])
+int main(int argc, char *argv[])
 {
-    while (*env)
-        printf("%s\n", *env++);
     const auto injector = di::make_injector(
         di::bind<int>.named(MaxSteps).to(600),
         di::bind<double>.named(TickLength).to(0.1),

@@ -47,7 +47,13 @@ std::unique_ptr<IAgent> ChooseAgentWindow::update()
 
     std::unique_ptr<IAgent> agent;
     bool done = false;
-    if (ImGui::Button("Select"))
+    if (selected_file == -1)
+    {
+        ImGui::PushStyleVar(ImGuiStyleVar_Alpha, 0.6);
+        ImGui::Button("Select");
+        ImGui::PopStyleVar();
+    }
+    else if (ImGui::Button("Select"))
     {
         std::filesystem::path path("./checkpoints/" + checkpoint_strings[selected_file] + ".meta");
         auto checkpoint = checkpointer.load(path);

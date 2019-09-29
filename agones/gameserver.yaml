@@ -25,19 +25,3 @@ spec:
                 secretKeyRef:
                   name: st-cloud-token
                   key: token
-            - name: PLAYER_1_USERNAME
-              valueFrom:
-                fieldRef:
-                  fieldPath: metadata.annotations['player_1_username']
-            - name: PLAYER_2_USERNAME
-              valueFrom:
-                fieldRef:
-                  fieldPath: metadata.annotations['player_2_username']
-            - name: PLAYER_1_TOKEN
-              valueFrom:
-                fieldRef:
-                  fieldPath: metadata.annotations['player_1_token']
-            - name: PLAYER_2_TOKEN
-              valueFrom:
-                fieldRef:
-                  fieldPath: metadata.annotations['player_2_token']
