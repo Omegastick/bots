@@ -185,6 +185,11 @@ void KothEnv::change_score(int body, float score_delta)
     scores[body] += score_delta;
 }
 
+void KothEnv::clear_effects()
+{
+    effects.clear();
+}
+
 double KothEnv::get_elapsed_time() const
 {
     return elapsed_time;
@@ -321,6 +326,8 @@ void KothEnv::forward(float step_length)
     world->Step(step_length, 3, 2);
     double step_start_time = elapsed_time;
     elapsed_time += step_length;
+    body_1->sub_update();
+    body_2->sub_update();
 
     for (const auto &event : events)
     {

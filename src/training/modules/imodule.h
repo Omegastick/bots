@@ -34,6 +34,7 @@ class IModule : public IDrawable
     virtual ~IModule() = 0;
 
     virtual void update();
+    virtual void sub_update();
     virtual std::vector<IModule *> get_children();
     virtual std::vector<IModule *> get_children(std::vector<IModule *> child_list);
     virtual std::vector<float> get_sensor_reading() const;
