@@ -1,4 +1,5 @@
 #include <iterator>
+#include <vector>
 
 #include <doctest.h>
 #include <glm/glm.hpp>

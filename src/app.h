@@ -14,7 +14,7 @@ class Window;
 class App
 {
   private:
-  Animator &animator;
+    Animator &animator;
     IO &io;
     MainMenuScreenFactory &main_menu_screen_factory;
     Renderer &renderer;

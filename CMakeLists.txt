@@ -56,6 +56,10 @@ set(ST_TARGETS
     Training
 )
 
+if (UNIX)
+    target_compile_definitions(SingularityTrainer PUBLIC BOOST_STACKTRACE_USE_BACKTRACE)
+endif (UNIX)
+
 # Disable HeadlessTrainer and GraphicsPlayground by default
 set_target_properties(HeadlessTrainer PROPERTIES EXCLUDE_FROM_ALL TRUE)
 set_target_properties(GraphicsPlayground PROPERTIES EXCLUDE_FROM_ALL TRUE)
@@ -95,6 +99,8 @@ if (NOT TARGET spdlog)
     option(SPDLOG_BUILD_TESTING "" OFF)
     add_subdirectory(${SPDLOG_DIR})
 endif(NOT TARGET spdlog)
+## Boost
+find_package(Boost 1.71 REQUIRED)
 ## cURLpp
 add_subdirectory(${CURLPP_DIR})
 set_target_properties(curlpp_static PROPERTIES POSITION_INDEPENDENT_CODE TRUE)
@@ -150,6 +156,7 @@ target_link_libraries(Training PUBLIC Graphics cpprl torch ${TORCH_LIBRARIES} to
 # UNIX systems sometimes need to explicitly link the threading library
 if (UNIX)
     target_link_libraries(Training PUBLIC pthread)
+    target_link_libraries(SingularityTrainer backtrace)
 endif(UNIX)
 target_link_libraries(Graphics glad glfw ${GLFW_LIBRARIES} glm imgui doctest)
 target_link_libraries(Networking Training nlohmann_json::nlohmann_json libzmq-static)
@@ -163,6 +170,7 @@ set_target_properties(PythonBindings PROPERTIES SUFFIX ".so")
 # Inlcudes
 set(INCLUDE_DIRS
     src
+    ${Boost_INCLUDE_DIRS}
     ${CPPRL_DIR}/include
     ${CURLPP_DIR}/include
     # ${EASY_PROFILER_DIR}/easy_profiler_core/include
