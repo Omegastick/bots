@@ -213,6 +213,10 @@ int ServerApp::run(int argc, char *argv[])
             if (finished)
             {
                 spdlog::info("Winner: {}", tick_result.victor);
+                if (use_agones)
+                {
+                    update_elos(tick_result.victor);
+                }
             }
         }
     }
@@ -250,6 +254,41 @@ int ServerApp::run_tests(int argc, char *argv[], const argh::parser &args)
     context.applyCommandLine(argc, argv);
 
     return context.run();
+}
+
+void ServerApp::update_elos(int victor)
+{
+    nlohmann::json json;
+    json["players"] = player_usernames;
+    json["victor"] = victor;
+
+    // Authorization token is retrieved from an environment variable
+    // On Kubernetes this is stored as a secret
+    std::string token = std::getenv("ST_CLOUD_TOKEN");
+    httplib::Headers headers = {
+        {"Authorization", "Bearer " + token}};
+
+    auto response = http_client.Post("/finish_game", headers, json.dump(), "application/json");
+
+    if (response == nullptr)
+    {
+        throw std::runtime_error("Failed to mark game as finished: No response");
+    }
+    else if (response->status != 200)
+    {
+        std::string error = fmt::format("Failed to mark game as finished: {}", response->status);
+        throw std::runtime_error(error);
+    }
+
+    // Check result is as expected: {success: true}
+    auto response_json = nlohmann::json::parse(response->body);
+    if (response_json != nlohmann::json{{"successs", true}})
+    {
+        std::string error = fmt::format("Failed to mark game as finished: {}", response->body);
+        spdlog::error(error);
+    }
+
+    spdlog::info("Successfully matchmaker of result");
 }
 
 void ServerApp::wait_for_player_info()

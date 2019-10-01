@@ -27,8 +27,9 @@ class ServerApp
     std::vector<std::string> players;
     std::unique_ptr<ServerCommunicator> server_communicator;
 
-    void wait_for_player_info();
     int run_tests(int argc, char *argv[], const argh::parser &args);
+    void update_elos(int victor);
+    void wait_for_player_info();
 
   public:
     ServerApp(std::unique_ptr<Game> game);
