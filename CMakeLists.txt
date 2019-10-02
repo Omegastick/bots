@@ -100,7 +100,7 @@ if (NOT TARGET spdlog)
     add_subdirectory(${SPDLOG_DIR})
 endif(NOT TARGET spdlog)
 ## Boost
-find_package(Boost 1.71 REQUIRED)
+find_package(Boost 1.67 REQUIRED)
 ## cURLpp
 add_subdirectory(${CURLPP_DIR})
 set_target_properties(curlpp_static PROPERTIES POSITION_INDEPENDENT_CODE TRUE)

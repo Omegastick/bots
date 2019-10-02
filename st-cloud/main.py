@@ -147,13 +147,13 @@ def find_game(request: Request) -> str:
     return json.dumps(update_data)
 
 
-def finsh_game(request: Request) -> str:
+def finish_game(request: Request) -> str:
     """
     Given two player and a match result, update their Elos in the database.
 
     Input Json in the form:
     {
-        "players": ["username_1, "username_2],
+        "players": ["username_1", "username_2"],
         "result": 0
     }
 
