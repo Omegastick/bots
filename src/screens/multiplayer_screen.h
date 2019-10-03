@@ -57,6 +57,7 @@ class MultiplayerScreen : public IScreen
     Random &rng;
     ScreenManager &screen_manager;
     std::string server_address;
+    bool should_clear_particles;
     State state;
     double tick_length;
     int winner;

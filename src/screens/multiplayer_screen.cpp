@@ -53,6 +53,7 @@ MultiplayerScreen::MultiplayerScreen(double tick_length,
       rng(rng),
       screen_manager(screen_manager),
       server_address("tcp://localhost:7654"),
+      should_clear_particles(true),
       state(MultiplayerScreen::State::ChooseAgent),
       tick_length(tick_length)
 {
@@ -100,6 +101,12 @@ void MultiplayerScreen::draw(Renderer &renderer, bool lightweight)
 {
     renderer.push_post_proc_layer(crt_post_proc_layer.get());
     renderer.begin();
+
+    if (should_clear_particles)
+    {
+        renderer.clear_particles();
+        should_clear_particles = false;
+    }
 
     if (env != nullptr)
     {
