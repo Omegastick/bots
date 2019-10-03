@@ -69,7 +69,7 @@ TEST_CASE("Matchmaker")
         SUBCASE("Sets exception on future if connection times out")
         {
             std::promise<nlohmann::json> promise;
-            ALLOW_CALL(http_client, post(_, _))
+            ALLOW_CALL(http_client, post(_, _, _))
                 .LR_RETURN(promise.get_future());
 
             auto url_future = matchmaker.find_game(0);
@@ -83,10 +83,10 @@ TEST_CASE("Matchmaker")
         SUBCASE("Doesn't set future value until game is found")
         {
             std::promise<nlohmann::json> promise_1;
-            ALLOW_CALL(http_client, post(_, _))
+            ALLOW_CALL(http_client, post(_, _, _))
                 .LR_RETURN(promise_1.get_future());
             std::promise<nlohmann::json> promise_2;
-            ALLOW_CALL(http_client, post(_, _))
+            ALLOW_CALL(http_client, post(_, _, _))
                 .LR_RETURN(promise_2.get_future());
 
             auto url_future = matchmaker.find_game();
@@ -104,7 +104,7 @@ TEST_CASE("Matchmaker")
         SUBCASE("Sets future value to gameserver URL")
         {
             std::promise<nlohmann::json> promise;
-            ALLOW_CALL(http_client, post(_, _))
+            ALLOW_CALL(http_client, post(_, _, _))
                 .LR_RETURN(promise.get_future());
 
             auto url_future = matchmaker.find_game();

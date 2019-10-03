@@ -17,6 +17,7 @@
 #include "misc/credentials_manager.h"
 #include "misc/http_client.h"
 #include "misc/io.h"
+#include "misc/matchmaker.h"
 #include "misc/module_factory.h"
 #include "misc/random.h"
 #include "misc/resource_manager.h"
