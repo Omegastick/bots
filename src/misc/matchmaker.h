@@ -17,6 +17,6 @@ class Matchmaker
   public:
     Matchmaker(CredentialsManager &credentials_manager, IHttpClient &http_client);
 
-    std::future<std::string> find_game();
+    std::future<std::string> find_game(int timeout = 5);
 };
 }
