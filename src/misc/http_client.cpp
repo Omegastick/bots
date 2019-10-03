@@ -33,7 +33,7 @@ std::future<nlohmann::json> HttpClient::get(const std::string &url)
     }
 
     return std::async(std::launch::async,
-                      [](const std::string &url) mutable {
+                      [=]() {
                           curlpp::Cleanup clean;
                           curlpp::Easy request;
                           request.setOpt(new curlpp::options::Url(url));
@@ -44,8 +44,7 @@ std::future<nlohmann::json> HttpClient::get(const std::string &url)
                           request.perform();
 
                           return nlohmann::json::parse(std::string(response.str()));
-                      },
-                      url);
+                      });
 }
 
 std::future<nlohmann::json> HttpClient::post(const std::string &url, const nlohmann::json &json)
@@ -55,8 +54,9 @@ std::future<nlohmann::json> HttpClient::post(const std::string &url, const nlohm
         throw std::runtime_error("Input URL is empty");
     }
 
+    auto body = json.dump();
     return std::async(std::launch::async,
-                      [](const std::string &url, const std::string &body) mutable {
+                      [=]() {
                           std::list<std::string> header;
                           header.push_back("Content-Type: application/json");
 
@@ -73,8 +73,7 @@ std::future<nlohmann::json> HttpClient::post(const std::string &url, const nlohm
                           request.perform();
 
                           return nlohmann::json::parse(std::string(response.str()));
-                      },
-                      url, json.dump());
+                      });
 }
 
 TEST_CASE("HttpClient")
