@@ -34,9 +34,10 @@ class MultiplayerScreen : public IScreen
     {
         ChooseAgent = 0,
         InputAddress = 1,
-        WaitingToStart = 2,
-        Playing = 3,
-        Finished = 4
+        WaitingForMatchmaker = 2,
+        WaitingToStart = 3,
+        Playing = 4,
+        Finished = 5
     };
 
     zmq::context_t zmq_context;
