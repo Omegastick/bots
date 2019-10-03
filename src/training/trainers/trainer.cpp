@@ -49,6 +49,7 @@ Trainer::Trainer(TrainingProgram program,
       policy(nullptr),
       previous_checkpoint(program.checkpoint),
       program(program),
+      reset_recently(true),
       returns_rms(1),
       rng(rng),
       slow(false)
@@ -273,6 +274,10 @@ std::vector<std::pair<std::string, float>> Trainer::step_batch()
                 env_scores[i] += step_info.reward[0].item().toFloat();
                 if (step_info.done[0].item().toBool())
                 {
+                    if (i == 0)
+                    {
+                        reset_recently = true;
+                    }
                     env_scores[i] = 0;
                     environments[i]->reset();
                     int selected_opponent = rng.next_int(0, opponent_pool.size());
@@ -378,5 +383,15 @@ std::vector<std::pair<std::string, float>> Trainer::learn()
     update_pairs.push_back({"Update Duration", update_duration.count()});
 
     return update_pairs;
+}
+
+bool Trainer::should_clear_particles()
+{
+    if (reset_recently)
+    {
+        reset_recently = false;
+        return true;
+    }
+    return false;
 }
 }
