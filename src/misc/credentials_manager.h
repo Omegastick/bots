@@ -18,5 +18,6 @@ class CredentialsManager
     void login(const std::string &username);
 
     const std::string &get_token() const { return token; }
+    void set_token(const std::string &token) { this->token = token; }
 };
 }
