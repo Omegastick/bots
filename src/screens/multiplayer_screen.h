@@ -86,6 +86,9 @@ class MultiplayerScreen : public IScreen
                       ResourceManager &resource_manager,
                       Random &rng,
                       ScreenManager &screen_manager);
+    ~MultiplayerScreen();
+    MultiplayerScreen(const MultiplayerScreen &other) = delete;
+    MultiplayerScreen &operator=(const MultiplayerScreen &other) = delete;
 
     virtual void draw(Renderer &renderer, bool lightweight = false);
     void update(double delta_time);

@@ -81,6 +81,11 @@ MultiplayerScreen::MultiplayerScreen(double tick_length,
     zmq_context.setctxopt(ZMQ_BLOCKY, false);
 }
 
+MultiplayerScreen::~MultiplayerScreen()
+{
+    matchmaker.cancel();
+}
+
 void MultiplayerScreen::update(double delta_time)
 {
     if (state == MultiplayerScreen::State::ChooseAgent)

@@ -5,6 +5,20 @@
 #include <nlohmann/json.hpp>
 #include <trompeloeil.hpp>
 
+namespace trompeloeil
+{
+template <>
+inline void print(std::ostream &os, const std::list<std::string> &list)
+{
+    os << list.size() << "#{ ";
+    for (auto item : list)
+    {
+        os << item << ", ";
+    }
+    os << "}";
+}
+}
+
 namespace SingularityTrainer
 {
 class IHttpClient
@@ -13,10 +27,10 @@ class IHttpClient
     virtual ~IHttpClient() = 0;
 
     virtual std::future<nlohmann::json> get(const std::string &url,
-                                            std::list<std::string> headers = {}) = 0;
+                                            const std::list<std::string> &headers = {}) = 0;
     virtual std::future<nlohmann::json> post(const std::string &url,
                                              const nlohmann::json &json = {},
-                                             std::list<std::string> headers = {}) = 0;
+                                             const std::list<std::string> &headers = {}) = 0;
 };
 
 inline IHttpClient::~IHttpClient() {}

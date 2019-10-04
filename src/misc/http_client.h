@@ -21,9 +21,9 @@ class HttpClient : public IHttpClient
     HttpClient(const std::string &proxy_host = "", long proxy_port = -1);
 
     std::future<nlohmann::json> get(const std::string &url,
-                                    std::list<std::string> headers = {});
+                                    const std::list<std::string> &headers = {});
     std::future<nlohmann::json> post(const std::string &url,
                                      const nlohmann::json &json = {},
-                                     std::list<std::string> headers = {});
+                                     const std::list<std::string> &headers = {});
 };
 }
