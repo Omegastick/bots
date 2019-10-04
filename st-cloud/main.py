@@ -117,6 +117,12 @@ def find_game(request: Request) -> str:
         raise RuntimeError("Duplicate tokens in database")
 
     user = matching_users[0]
+    user_dict = user.to_dict()
+    if user_dict.get('status', None) == 'in_game':
+        return json.dumps({
+            'status': 'in_game',
+            'gameserver': user_dict['gameserver']
+        })
 
     waiting_users_query = users.where('status', '==', 'waiting_for_game')
     waiting_users = [x for x in waiting_users_query.stream()

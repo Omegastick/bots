@@ -28,7 +28,7 @@ void HttpClient::set_proxy(cURLpp::Easy &curl_handle)
 }
 
 std::future<nlohmann::json> HttpClient::get(const std::string &url,
-                                            std::list<std::string> headers)
+                                            const std::list<std::string> &headers)
 {
     if (url.empty())
     {
@@ -64,7 +64,7 @@ std::future<nlohmann::json> HttpClient::get(const std::string &url,
 
 std::future<nlohmann::json> HttpClient::post(const std::string &url,
                                              const nlohmann::json &json,
-                                             std::list<std::string> headers)
+                                             const std::list<std::string> &headers)
 {
     if (url.empty())
     {
@@ -73,13 +73,14 @@ std::future<nlohmann::json> HttpClient::post(const std::string &url,
 
     auto body = json.dump();
     return std::async(std::launch::async,
-                      [=, &headers]() {
-                          headers.push_back("Content-Type: application/json");
+                      [=]() {
+                          auto _headers = headers;
+                          _headers.push_back("Content-Type: application/json");
 
                           curlpp::Cleanup clean;
                           curlpp::Easy request;
                           request.setOpt(new curlpp::options::Url(url));
-                          request.setOpt(new curlpp::options::HttpHeader(headers));
+                          request.setOpt(new curlpp::options::HttpHeader(_headers));
                           request.setOpt(new curlpp::options::PostFields(body));
                           request.setOpt(new curlpp::options::PostFieldSize(body.length()));
 
