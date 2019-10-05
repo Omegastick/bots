@@ -62,8 +62,6 @@ set_target_properties(HeadlessTrainer PROPERTIES EXCLUDE_FROM_ALL TRUE)
 set_target_properties(GraphicsPlayground PROPERTIES EXCLUDE_FROM_ALL TRUE)
 
 # Set position independent code
-set_target_properties(SingularityTrainer PROPERTIES ENABLE_EXPORTS TRUE)
-set_target_properties(SingularityTrainer PROPERTIES POSITION_INDEPENDENT_CODE FALSE)
 set_target_properties(Graphics PROPERTIES POSITION_INDEPENDENT_CODE TRUE)
 set_target_properties(Misc PROPERTIES POSITION_INDEPENDENT_CODE TRUE)
 set_target_properties(Networking PROPERTIES POSITION_INDEPENDENT_CODE TRUE)
@@ -99,11 +97,6 @@ if (NOT TARGET spdlog)
     option(SPDLOG_BUILD_TESTING "" OFF)
     add_subdirectory(${SPDLOG_DIR})
 endif(NOT TARGET spdlog)
-## Boost
-find_package(Boost 1.65 REQUIRED)
-if (UNIX)
-    target_compile_definitions(SingularityTrainer PUBLIC BOOST_STACKTRACE_USE_BACKTRACE)
-endif (UNIX)
 ## cURLpp
 find_package(CURL)
 add_subdirectory(${CURLPP_DIR})
@@ -175,7 +168,6 @@ set_target_properties(PythonBindings PROPERTIES SUFFIX ".so")
 # Inlcudes
 set(INCLUDE_DIRS
     src
-    ${Boost_INCLUDE_DIRS}
     ${CURL_INCLUDE_DIRS}
     ${CPPRL_DIR}/include
     ${CURLPP_DIR}/include

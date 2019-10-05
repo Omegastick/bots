@@ -1,10 +1,6 @@
 #include <chrono>
-#include <filesystem>
 #include <string>
 #include <sstream>
-#include <signal.h>
-
-#include <boost/stacktrace.hpp>
 
 #include "app.h"
 #include "graphics/renderers/line_renderer.h"
@@ -41,45 +37,8 @@ using namespace SingularityTrainer;
 
 namespace di = boost::di;
 
-void signal_handler(int signum)
-{
-    ::signal(signum, SIG_DFL);
-    boost::stacktrace::safe_dump_to("./backtrace.dump");
-    ::raise(SIGABRT);
-}
-
 int main(int argc, char *argv[])
 {
-    ::signal(SIGSEGV, &signal_handler);
-    ::signal(SIGABRT, &signal_handler);
-
-    if (std::filesystem::exists("./backtrace.dump"))
-    {
-        std::ifstream ifs("./backtrace.dump");
-
-        boost::stacktrace::stacktrace trace = boost::stacktrace::stacktrace::from_dump(ifs);
-
-        // Remove all the Boost::DI spam from the backtrace
-        std::stringstream input_stream;
-        input_stream << trace << std::endl;
-        for (std::string line; std::getline(input_stream, line);)
-        {
-            if (line.find("di.hpp") != std::string::npos)
-            {
-                auto trace_begin = line.find('#') + 2;
-                std::cout << line.substr(0, trace_begin) << "<Boost::DI>" << std::endl;
-            }
-            else
-            {
-                std::cout << line << std::endl;
-            }
-        }
-
-        // cleaning up
-        ifs.close();
-        std::filesystem::remove("./backtrace.dump");
-    }
-
     const auto injector = di::make_injector(
         di::bind<int>.named(RandomSeed).to(static_cast<int>(std::chrono::high_resolution_clock::now().time_since_epoch().count())),
         di::bind<int>.named(ResolutionX).to(1920),
