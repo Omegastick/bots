@@ -73,7 +73,7 @@ def test_finish_game_throws_if_username_doesnt_exist():
 @patch('main.db', MagicMock())
 def test_finish_game_returns_ok():
     """
-    When finish_game is called with no errors, it shoudl return successfully.
+    When finish_game is called with no errors, it should return successfully.
     """
     (main.db
         .collection.return_value
