@@ -30,3 +30,5 @@ spec:
                     secretKeyRef:
                       name: st-cloud-token
                       key: token
+                - name: MATCHMAKER_URL
+                  value: asia-northeast1-st-dev-252104.cloudfunctions.net

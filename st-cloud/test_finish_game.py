@@ -1,5 +1,5 @@
 """
-Tests for the Singularity Trainer cloud finsh_game function.
+Tests for the Singularity Trainer cloud finish_game function.
 """
 
 # pylint: disable=no-member
@@ -16,18 +16,18 @@ import main
 
 
 @patch('main.db', MagicMock())
-def test_finsh_game_returns_401_if_no_authentication():
+def test_finish_game_returns_401_if_no_authentication():
     """
     When no authentication is provided, HTTP status code 401 should be
     returned.
     """
     request = Mock(json={}, headers=Mock(get=Mock(return_value=None)))
     with pytest.raises(werkzeug.exceptions.Unauthorized):
-        main.finsh_game(request)
+        main.finish_game(request)
 
 
 @patch('main.db', MagicMock())
-def test_finsh_game_returns_401_if_bad_authentication():
+def test_finish_game_returns_401_if_bad_authentication():
     """
     When incorrect authentication is provided, HTTP status code 401 should be
     returned.
@@ -41,13 +41,13 @@ def test_finsh_game_returns_401_if_bad_authentication():
     request = Mock(json={}, headers=Mock(
         get=Mock(return_value='Bearer asd')))
     with pytest.raises(werkzeug.exceptions.Unauthorized):
-        main.finsh_game(request)
+        main.finish_game(request)
 
 
 @patch('main.db', MagicMock())
-def test_finsh_game_throws_if_username_doesnt_exist():
+def test_finish_game_throws_if_username_doesnt_exist():
     """
-    When finsh_game is called with names that don't exist in the database,
+    When finish_game is called with names that don't exist in the database,
     an error should be raised.
     """
     (main.db
@@ -67,13 +67,13 @@ def test_finsh_game_throws_if_username_doesnt_exist():
     }, headers=Mock(
         get=Mock(return_value='Bearer asd')))
     with pytest.raises(RuntimeError):
-        main.finsh_game(request)
+        main.finish_game(request)
 
 
 @patch('main.db', MagicMock())
-def test_finsh_game_returns_ok():
+def test_finish_game_returns_ok():
     """
-    When finsh_game is called with no errors, it shoudl return successfully.
+    When finish_game is called with no errors, it shoudl return successfully.
     """
     (main.db
         .collection.return_value
@@ -93,13 +93,13 @@ def test_finsh_game_returns_ok():
     }, headers=Mock(
         get=Mock(return_value='Bearer asd')))
 
-    result = json.loads(main.finsh_game(request))
+    result = json.loads(main.finish_game(request))
 
     assert result == {'success': True}
 
 
 @pytest.mark.integration
-def test_finsh_game_updates_database(db):
+def test_finish_game_updates_database(db):
     """
     When finish_game is called correctly, the two users should have their Elos
     updated appropriately and be marked as 'idle'.
@@ -113,7 +113,7 @@ def test_finsh_game_updates_database(db):
 
     secret = db.collection('secrets').document('server').get().get('value')
 
-    response = requests.post(BASE_URL + "finsh_game", headers={
+    response = requests.post(BASE_URL + "finish_game", headers={
         'Authorization': f'Bearer {secret}'
     }, json={
         'players': ['__test1', '__test2'],

@@ -51,6 +51,7 @@ class Trainer
     cpprl::Policy policy;
     std::filesystem::path previous_checkpoint;
     TrainingProgram program;
+    bool reset_recently;
     cpprl::RunningMeanStd returns_rms;
     Random &rng;
     std::unique_ptr<cpprl::RolloutStorage> rollout_storage;
@@ -70,6 +71,7 @@ class Trainer
     RenderData get_render_data(bool lightweight = false);
     std::filesystem::path save_model(std::filesystem::path directory = {});
     std::vector<std::pair<std::string, float>> step_batch();
+    bool should_clear_particles();
 
     std::vector<std::unique_ptr<IEnvironment>> &get_environments() { return environments; }
     inline void set_fast() { slow = false; }

@@ -109,6 +109,12 @@ void ParticleRenderer::add_particles(std::vector<Particle> &particles, double ti
     }
 }
 
+void ParticleRenderer::clear_particles()
+{
+    particle_count = 0;
+    current_particle_index = 0;
+}
+
 void ParticleRenderer::draw(double time, glm::mat4 view)
 {
     time = std::fmod(time, 10000);

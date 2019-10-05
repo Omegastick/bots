@@ -14,6 +14,7 @@ RUN cmake --version
 # Build Singularity Trainer server
 ## Install dependencies
 RUN apt-get update && apt-get install -y \
+    libboost-dev \
     libglu1-mesa-dev \
     python-dev \
     xorg-dev

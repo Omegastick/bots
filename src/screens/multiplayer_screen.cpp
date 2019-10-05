@@ -1,5 +1,8 @@
+#include <chrono>
 #include <memory>
 
+#include <glad/glad.h>
+#include <GLFW/glfw3.h>
 #include <Box2D/Box2D.h>
 #include <fmt/format.h>
 #include <doctest.h>
@@ -16,8 +19,10 @@
 #include "graphics/render_data.h"
 #include "misc/credentials_manager.h"
 #include "misc/io.h"
+#include "misc/matchmaker.h"
 #include "misc/random.h"
 #include "misc/resource_manager.h"
+#include "misc/screen_manager.h"
 #include "networking/client_agent.h"
 #include "networking/client_communicator.h"
 #include "networking/messages.h"
@@ -40,6 +45,7 @@ MultiplayerScreen::MultiplayerScreen(double tick_length,
                                      CredentialsManager &credentials_manager,
                                      IEnvironmentFactory &env_factory,
                                      IO &io,
+                                     Matchmaker &matchmaker,
                                      ResourceManager &resource_manager,
                                      Random &rng,
                                      ScreenManager &screen_manager)
@@ -48,11 +54,13 @@ MultiplayerScreen::MultiplayerScreen(double tick_length,
       done_tick(-1),
       env_factory(env_factory),
       io(io),
+      matchmaker(matchmaker),
       projection(glm::ortho(0.f, 1920.f, 0.f, 1080.f)),
       resource_manager(resource_manager),
       rng(rng),
       screen_manager(screen_manager),
       server_address("tcp://localhost:7654"),
+      should_clear_particles(true),
       state(MultiplayerScreen::State::ChooseAgent),
       tick_length(tick_length)
 {
@@ -73,6 +81,11 @@ MultiplayerScreen::MultiplayerScreen(double tick_length,
     zmq_context.setctxopt(ZMQ_BLOCKY, false);
 }
 
+MultiplayerScreen::~MultiplayerScreen()
+{
+    matchmaker.cancel();
+}
+
 void MultiplayerScreen::update(double delta_time)
 {
     if (state == MultiplayerScreen::State::ChooseAgent)
@@ -83,6 +96,10 @@ void MultiplayerScreen::update(double delta_time)
     {
         input_address();
     }
+    else if (state == MultiplayerScreen::State::WaitingForMatchmaker)
+    {
+        wait_for_matchmaker();
+    }
     else if (state == MultiplayerScreen::State::WaitingToStart)
     {
         wait_for_start();
@@ -90,6 +107,10 @@ void MultiplayerScreen::update(double delta_time)
     else if (state == MultiplayerScreen::State::Playing)
     {
         play(delta_time);
+    }
+    else if (state == MultiplayerScreen::State::ConnectionFailure)
+    {
+        connection_failure();
     }
 
     auto resolution = io.get_resolution();
@@ -100,6 +121,12 @@ void MultiplayerScreen::draw(Renderer &renderer, bool lightweight)
 {
     renderer.push_post_proc_layer(crt_post_proc_layer.get());
     renderer.begin();
+
+    if (should_clear_particles)
+    {
+        renderer.clear_particles();
+        should_clear_particles = false;
+    }
 
     if (env != nullptr)
     {
@@ -149,10 +176,37 @@ void MultiplayerScreen::draw(Renderer &renderer, bool lightweight)
 void MultiplayerScreen::choose_agent()
 {
     agent = choose_agent_window->update();
-    if (agent != nullptr)
+    if (agent != nullptr && io.get_key_pressed(GLFW_KEY_LEFT_CONTROL))
     {
         state = MultiplayerScreen::State::InputAddress;
     }
+    else if (agent != nullptr)
+    {
+        server_address_future = matchmaker.find_game();
+        state = MultiplayerScreen::State::WaitingForMatchmaker;
+    }
+}
+
+void MultiplayerScreen::connect()
+{
+    spdlog::debug("Connecting to {}", server_address);
+    auto client_socket = std::make_unique<zmq::socket_t>(zmq_context, zmq::socket_type::dealer);
+    client_socket->setsockopt(ZMQ_LINGER, 0);
+    std::string id(std::to_string(rng.next_int(0, 10000000)));
+    client_socket->setsockopt(ZMQ_IDENTITY, id.c_str(), id.size());
+    spdlog::info("Connecting to server");
+    client_socket->connect(server_address);
+    client_communicator = std::make_unique<ClientCommunicator>(std::move(client_socket));
+
+    env = std::make_unique<PlaybackEnv>(env_factory.make(), tick_length);
+
+    ConnectMessage connect_message(agent->get_body_spec().dump(),
+                                   credentials_manager.get_token());
+    auto encoded_connect_message = MsgPackCodec::encode(connect_message);
+    spdlog::info("Sending connect message");
+    client_communicator->send(encoded_connect_message);
+
+    state = MultiplayerScreen::State::WaitingToStart;
 }
 
 void MultiplayerScreen::input_address()
@@ -164,24 +218,21 @@ void MultiplayerScreen::input_address()
     ImGui::InputText("Server Address", &server_address);
     if (ImGui::Button("Connect"))
     {
-        // Connect to the server
-        auto client_socket = std::make_unique<zmq::socket_t>(zmq_context, zmq::socket_type::dealer);
-        client_socket->setsockopt(ZMQ_LINGER, 0);
-        std::string id(std::to_string(rng.next_int(0, 10000000)));
-        client_socket->setsockopt(ZMQ_IDENTITY, id.c_str(), id.size());
-        spdlog::info("Connecting to server");
-        client_socket->connect(server_address);
-        client_communicator = std::make_unique<ClientCommunicator>(std::move(client_socket));
+        connect();
+    }
+    ImGui::End();
+}
 
-        env = std::make_unique<PlaybackEnv>(env_factory.make(), tick_length);
-
-        ConnectMessage connect_message(agent->get_body_spec().dump(),
-                                       credentials_manager.get_token());
-        auto encoded_connect_message = MsgPackCodec::encode(connect_message);
-        spdlog::info("Sending connect message");
-        client_communicator->send(encoded_connect_message);
-
-        state = MultiplayerScreen::State::WaitingToStart;
+void MultiplayerScreen::connection_failure()
+{
+    ImGui::SetNextWindowPosCenter(ImGuiCond_Always);
+    auto resolution = io.get_resolution();
+    ImGui::SetNextWindowSize({resolution.x * 0.2f, resolution.y * 0.1f}, ImGuiCond_Always);
+    ImGui::Begin("Multiplayer", NULL, ImGuiWindowFlags_NoResize);
+    ImGui::Text("Couldn't connect to the server");
+    if (ImGui::Button("Ok"))
+    {
+        screen_manager.close_screen();
     }
     ImGui::End();
 }
@@ -267,6 +318,33 @@ void MultiplayerScreen::play(double delta_time)
         ImGui::Text("%.1f", score);
     }
     ImGui::End();
+}
+
+void MultiplayerScreen::wait_for_matchmaker()
+{
+    ImGui::SetNextWindowPosCenter(ImGuiCond_Always);
+    auto resolution = io.get_resolution();
+    ImGui::SetNextWindowSize({resolution.x * 0.2f, resolution.y * 0.1f}, ImGuiCond_Always);
+    ImGui::Begin("Multiplayer", NULL, ImGuiWindowFlags_NoResize);
+    ImGui::Text("Searching for a game...");
+    ImGui::End();
+
+    auto future_status = server_address_future.wait_for(std::chrono::seconds(0));
+    if (future_status == std::future_status::timeout)
+    {
+        return;
+    }
+
+    try
+    {
+        server_address = server_address_future.get();
+        connect();
+    }
+    catch (std::exception &exception)
+    {
+        spdlog::error(exception.what());
+        state = MultiplayerScreen::State::ConnectionFailure;
+    }
 }
 
 void MultiplayerScreen::wait_for_start()

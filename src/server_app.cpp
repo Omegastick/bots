@@ -260,7 +260,7 @@ void ServerApp::update_elos(int victor)
 {
     nlohmann::json json;
     json["players"] = player_usernames;
-    json["victor"] = victor;
+    json["result"] = victor;
 
     // Authorization token is retrieved from an environment variable
     // On Kubernetes this is stored as a secret
@@ -268,7 +268,9 @@ void ServerApp::update_elos(int victor)
     httplib::Headers headers = {
         {"Authorization", "Bearer " + token}};
 
-    auto response = http_client.Post("/finish_game", headers, json.dump(), "application/json");
+    std::string matchmaker_url = std::getenv("MATCHMAKER_URL");
+    httplib::Client matchmaker(matchmaker_url.c_str());
+    auto response = matchmaker.Post("/finish_game", headers, json.dump(), "application/json");
 
     if (response == nullptr)
     {
