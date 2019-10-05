@@ -19,9 +19,9 @@ class MainMenuScreen : public IScreen
 {
   private:
     CredentialsManager &credentials_manager;
-    std::atomic<int> elo;
+    int elo;
     std::future<int> elo_future;
-    std::atomic<bool> elo_received;
+    bool elo_received;
     IHttpClient &http_client;
     IO &io;
     IScreenFactory &build_screen_factory;
@@ -41,6 +41,7 @@ class MainMenuScreen : public IScreen
                    ScreenManager &screen_manager);
 
     void draw(Renderer &renderer, bool lightweight = false);
+    void on_show();
     void update(double delta_time);
 
     void build_body();

@@ -33,6 +33,8 @@ MainMenuScreen::MainMenuScreen(CredentialsManager &credentials_manager,
                                IScreenFactory &multiplayer_screen_factory,
                                ScreenManager &screen_manager)
     : credentials_manager(credentials_manager),
+      elo(0),
+      elo_received(false),
       http_client(http_client),
       io(io),
       build_screen_factory(build_screen_factory),
@@ -53,6 +55,7 @@ void MainMenuScreen::update(double /*delta_time*/)
             credentials_manager.login(username);
             spdlog::debug("Logged in as: {}", username);
             spdlog::debug("Token: {}", credentials_manager.get_token());
+            elo_future = get_elo(st_cloud_base_url);
         }
         ImGui::End();
 
@@ -87,6 +90,20 @@ void MainMenuScreen::update(double /*delta_time*/)
         if (ImGui::Button("Quit"))
         {
             quit();
+        }
+
+        if (elo_received)
+        {
+            ImGui::Text("Elo: %d", elo);
+        }
+        else if (elo_future.valid())
+        {
+            auto future_status = elo_future.wait_for(std::chrono::seconds(0));
+            if (future_status == std::future_status::ready)
+            {
+                elo = elo_future.get();
+                elo_received = true;
+            }
         }
         ImGui::End();
         ImGui::PopFont();
@@ -129,13 +146,25 @@ std::future<int> MainMenuScreen::get_elo(const std::string &base_url, int timeou
                 throw std::runtime_error("Received Json doesn't contain 'elo' field");
             }
 
-            return json["elo"].get<int>();
+            double elo_decimal = json["elo"];
+            spdlog::debug("Elo received: {}", elo_decimal);
+
+            return static_cast<int>(std::round(elo_decimal));
         });
 }
 
 void MainMenuScreen::multiplayer()
 {
     screen_manager.show_screen(multiplayer_screen_factory.make());
+}
+
+void MainMenuScreen::on_show()
+{
+    if (!credentials_manager.get_username().empty())
+    {
+        elo_received = false;
+        elo_future = get_elo(st_cloud_base_url);
+    }
 }
 
 void MainMenuScreen::train_agent()
