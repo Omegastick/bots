@@ -1,3 +1,5 @@
+#include <chrono>
+#include <future>
 #include <string>
 
 #include <glad/glad.h>
@@ -5,6 +7,7 @@
 #include <Box2D/Box2D.h>
 #include <doctest.h>
 #include <doctest/trompeloeil.hpp>
+#include <fmt/format.h>
 #include <imgui.h>
 #include <misc/cpp/imgui_stdlib.h>
 #include <spdlog/spdlog.h>
@@ -23,12 +26,14 @@
 namespace SingularityTrainer
 {
 MainMenuScreen::MainMenuScreen(CredentialsManager &credentials_manager,
+                               IHttpClient &http_client,
                                IO &io,
                                IScreenFactory &build_screen_factory,
                                IScreenFactory &create_program_screen_factory,
                                IScreenFactory &multiplayer_screen_factory,
                                ScreenManager &screen_manager)
     : credentials_manager(credentials_manager),
+      http_client(http_client),
       io(io),
       build_screen_factory(build_screen_factory),
       create_program_screen_factory(create_program_screen_factory),
@@ -103,6 +108,31 @@ void MainMenuScreen::build_body()
     screen_manager.show_screen(build_screen_factory.make());
 }
 
+std::future<int> MainMenuScreen::get_elo(const std::string &base_url, int timeout)
+{
+    return std::async(
+        std::launch::async,
+        [=] {
+            auto response = http_client.post(base_url + "get_elo",
+                                             {{"username", credentials_manager.get_username()}});
+            auto future_status = response.wait_for(std::chrono::seconds(timeout));
+            if (future_status == std::future_status::timeout)
+            {
+                throw std::runtime_error(
+                    fmt::format("Get elo request timed out after {} seconds", timeout));
+            }
+
+            auto json = response.get();
+            if (!json.contains("elo"))
+            {
+                spdlog::error("Bad Json received: {}", json.dump());
+                throw std::runtime_error("Received Json doesn't contain 'elo' field");
+            }
+
+            return json["elo"].get<int>();
+        });
+}
+
 void MainMenuScreen::multiplayer()
 {
     screen_manager.show_screen(multiplayer_screen_factory.make());
@@ -118,6 +148,8 @@ void MainMenuScreen::quit()
     screen_manager.close_screen();
 }
 
+using trompeloeil::_;
+
 TEST_CASE("MainMenuScreen")
 {
     MockHttpClient http_client;
@@ -128,6 +160,7 @@ TEST_CASE("MainMenuScreen")
     MockScreenFactory multiplayer_screen_factory;
     ScreenManager screen_manager;
     auto main_menu_screen = std::make_shared<MainMenuScreen>(credentials_manager,
+                                                             http_client,
                                                              io,
                                                              build_screen_factory,
                                                              create_program_screen_factory,
@@ -144,6 +177,38 @@ TEST_CASE("MainMenuScreen")
         main_menu_screen->build_body();
         screen_manager.update(0);
         DOCTEST_CHECK(screen_manager.stack_size() == 2);
+    }
+
+    SUBCASE("get_elo()")
+    {
+        SUBCASE("Returns correct Elo")
+        {
+            credentials_manager.set_username("test_username");
+            std::promise<nlohmann::json> promise;
+            REQUIRE_CALL(http_client, post("http://asd.com/get_elo",
+                                           nlohmann::json{{"username", "test_username"}},
+                                           _))
+                .LR_RETURN(promise.get_future());
+            promise.set_value(nlohmann::json{{"elo", 123}});
+            auto elo_future = main_menu_screen->get_elo("http://asd.com/");
+
+            CHECK(elo_future.get() == 123);
+        }
+
+        SUBCASE("Sets exception on timeout")
+        {
+            credentials_manager.set_username("test_username");
+            std::promise<nlohmann::json> promise;
+            REQUIRE_CALL(http_client, post("http://asd.com/get_elo",
+                                           nlohmann::json{{"username", "test_username"}},
+                                           _))
+                .LR_RETURN(promise.get_future());
+            auto elo_future = main_menu_screen->get_elo("http://asd.com/", 0);
+            std::this_thread::sleep_for(std::chrono::milliseconds(5));
+            promise.set_value(nlohmann::json{{"elo", 123}});
+
+            CHECK_THROWS(elo_future.get());
+        }
     }
 
     SUBCASE("multiplayer()")

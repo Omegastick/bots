@@ -21,6 +21,8 @@ inline void print(std::ostream &os, const std::list<std::string> &list)
 
 namespace SingularityTrainer
 {
+const std::string st_cloud_base_url = "https://asia-northeast1-st-dev-252104.cloudfunctions.net/";
+
 class IHttpClient
 {
   public:
