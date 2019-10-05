@@ -1,5 +1,6 @@
 #pragma once
 
+#include <future>
 #include <string>
 
 #include "screens/iscreen.h"
@@ -9,6 +10,7 @@
 namespace SingularityTrainer
 {
 class CredentialsManager;
+class IHttpClient;
 class IO;
 class Renderer;
 class ScreenManager;
@@ -17,6 +19,10 @@ class MainMenuScreen : public IScreen
 {
   private:
     CredentialsManager &credentials_manager;
+    std::atomic<int> elo;
+    std::future<int> elo_future;
+    std::atomic<bool> elo_received;
+    IHttpClient &http_client;
     IO &io;
     IScreenFactory &build_screen_factory;
     IScreenFactory &create_program_screen_factory;
@@ -27,6 +33,7 @@ class MainMenuScreen : public IScreen
 
   public:
     MainMenuScreen(CredentialsManager &credentials_manager,
+                   IHttpClient &http_client,
                    IO &io,
                    IScreenFactory &build_screen_factory,
                    IScreenFactory &create_program_screen_factory,
@@ -36,9 +43,10 @@ class MainMenuScreen : public IScreen
     void draw(Renderer &renderer, bool lightweight = false);
     void update(double delta_time);
 
-    void train_agent();
     void build_body();
+    std::future<int> get_elo(const std::string &base_url, int timeout = 10);
     void multiplayer();
+    void train_agent();
     void quit();
 };
 
@@ -50,6 +58,7 @@ class MainMenuScreenFactory : public IScreenFactory
 {
   private:
     CredentialsManager &credentials_manager;
+    IHttpClient &http_client;
     IO &io;
     IScreenFactory &build_screen_factory;
     IScreenFactory &create_program_screen_factory;
@@ -59,6 +68,7 @@ class MainMenuScreenFactory : public IScreenFactory
   public:
     BOOST_DI_INJECT(MainMenuScreenFactory,
                     CredentialsManager &credentials_manager,
+                    IHttpClient &http_client,
                     IO &io,
                     (named = BuildScreenFactoryType)
                         IScreenFactory &build_screen_factory,
@@ -68,6 +78,7 @@ class MainMenuScreenFactory : public IScreenFactory
                         IScreenFactory &multiplayer_screen_factory,
                     ScreenManager &screen_manager)
         : credentials_manager(credentials_manager),
+          http_client(http_client),
           io(io),
           build_screen_factory(build_screen_factory),
           create_program_screen_factory(create_program_screen_factory),
@@ -77,6 +88,7 @@ class MainMenuScreenFactory : public IScreenFactory
     virtual std::shared_ptr<IScreen> make()
     {
         return std::make_shared<MainMenuScreen>(credentials_manager,
+                                                http_client,
                                                 io,
                                                 build_screen_factory,
                                                 create_program_screen_factory,
