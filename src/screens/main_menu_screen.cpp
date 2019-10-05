@@ -171,6 +171,7 @@ TEST_CASE("MainMenuScreen")
     SUBCASE("build_body()")
     {
         auto build_screen = std::make_shared<MockScreen>();
+        REQUIRE_CALL(*build_screen, on_show());
         REQUIRE_CALL(*build_screen, update(0));
         REQUIRE_CALL(build_screen_factory, make())
             .RETURN(build_screen);
@@ -215,6 +216,7 @@ TEST_CASE("MainMenuScreen")
     {
         auto multiplayer_screen = std::make_shared<MockScreen>();
         REQUIRE_CALL(*multiplayer_screen, update(0));
+        REQUIRE_CALL(*multiplayer_screen, on_show());
         REQUIRE_CALL(multiplayer_screen_factory, make())
             .RETURN(multiplayer_screen);
         main_menu_screen->multiplayer();
@@ -226,6 +228,7 @@ TEST_CASE("MainMenuScreen")
     {
         auto create_program_screen = std::make_shared<MockScreen>();
         REQUIRE_CALL(*create_program_screen, update(0));
+        REQUIRE_CALL(*create_program_screen, on_show());
         REQUIRE_CALL(create_program_screen_factory, make())
             .RETURN(create_program_screen);
         main_menu_screen->train_agent();
