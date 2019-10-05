@@ -178,4 +178,9 @@ void Renderer::clear_scissor() const
 {
     glDisable(GL_SCISSOR_TEST);
 }
+
+void Renderer::clear_particles()
+{
+    particle_renderer.clear_particles();
+}
 }

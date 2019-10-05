@@ -8,6 +8,7 @@
 #include "misc/io.h"
 #include "misc/credentials_manager.h"
 #include "misc/ihttp_client.h"
+#include "misc/matchmaker.h"
 #include "misc/module_factory.h"
 #include "misc/random.h"
 #include "misc/resource_manager.h"

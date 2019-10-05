@@ -9,6 +9,7 @@
 namespace SingularityTrainer
 {
 class CredentialsManager;
+class IO;
 class Renderer;
 class ScreenManager;
 
@@ -16,6 +17,7 @@ class MainMenuScreen : public IScreen
 {
   private:
     CredentialsManager &credentials_manager;
+    IO &io;
     IScreenFactory &build_screen_factory;
     IScreenFactory &create_program_screen_factory;
     IScreenFactory &multiplayer_screen_factory;
@@ -25,6 +27,7 @@ class MainMenuScreen : public IScreen
 
   public:
     MainMenuScreen(CredentialsManager &credentials_manager,
+                   IO &io,
                    IScreenFactory &build_screen_factory,
                    IScreenFactory &create_program_screen_factory,
                    IScreenFactory &multiplayer_screen_factory,
@@ -47,15 +50,16 @@ class MainMenuScreenFactory : public IScreenFactory
 {
   private:
     CredentialsManager &credentials_manager;
+    IO &io;
     IScreenFactory &build_screen_factory;
     IScreenFactory &create_program_screen_factory;
     IScreenFactory &multiplayer_screen_factory;
     ScreenManager &screen_manager;
-    std::string username;
 
   public:
     BOOST_DI_INJECT(MainMenuScreenFactory,
                     CredentialsManager &credentials_manager,
+                    IO &io,
                     (named = BuildScreenFactoryType)
                         IScreenFactory &build_screen_factory,
                     (named = CreateProgramScreenFactoryType)
@@ -64,6 +68,7 @@ class MainMenuScreenFactory : public IScreenFactory
                         IScreenFactory &multiplayer_screen_factory,
                     ScreenManager &screen_manager)
         : credentials_manager(credentials_manager),
+          io(io),
           build_screen_factory(build_screen_factory),
           create_program_screen_factory(create_program_screen_factory),
           multiplayer_screen_factory(multiplayer_screen_factory),
@@ -72,6 +77,7 @@ class MainMenuScreenFactory : public IScreenFactory
     virtual std::shared_ptr<IScreen> make()
     {
         return std::make_shared<MainMenuScreen>(credentials_manager,
+                                                io,
                                                 build_screen_factory,
                                                 create_program_screen_factory,
                                                 multiplayer_screen_factory,

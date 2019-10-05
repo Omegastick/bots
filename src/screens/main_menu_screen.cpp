@@ -1,5 +1,7 @@
 #include <string>
 
+#include <glad/glad.h>
+#include <GLFW/glfw3.h>
 #include <Box2D/Box2D.h>
 #include <doctest.h>
 #include <doctest/trompeloeil.hpp>
@@ -21,11 +23,13 @@
 namespace SingularityTrainer
 {
 MainMenuScreen::MainMenuScreen(CredentialsManager &credentials_manager,
+                               IO &io,
                                IScreenFactory &build_screen_factory,
                                IScreenFactory &create_program_screen_factory,
                                IScreenFactory &multiplayer_screen_factory,
                                ScreenManager &screen_manager)
     : credentials_manager(credentials_manager),
+      io(io),
       build_screen_factory(build_screen_factory),
       create_program_screen_factory(create_program_screen_factory),
       multiplayer_screen_factory(multiplayer_screen_factory),
@@ -46,6 +50,11 @@ void MainMenuScreen::update(double /*delta_time*/)
             spdlog::debug("Token: {}", credentials_manager.get_token());
         }
         ImGui::End();
+
+        if (io.get_key_pressed(GLFW_KEY_LEFT_CONTROL) && io.get_key_pressed(GLFW_KEY_SPACE))
+        {
+            credentials_manager.set_token("No token");
+        }
     }
     else
     {
@@ -113,11 +122,13 @@ TEST_CASE("MainMenuScreen")
 {
     MockHttpClient http_client;
     CredentialsManager credentials_manager(http_client);
+    IO io;
     MockScreenFactory build_screen_factory;
     MockScreenFactory create_program_screen_factory;
     MockScreenFactory multiplayer_screen_factory;
     ScreenManager screen_manager;
     auto main_menu_screen = std::make_shared<MainMenuScreen>(credentials_manager,
+                                                             io,
                                                              build_screen_factory,
                                                              create_program_screen_factory,
                                                              multiplayer_screen_factory,

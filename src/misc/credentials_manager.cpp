@@ -36,7 +36,7 @@ TEST_CASE("CredentialsManager")
         {
             std::promise<nlohmann::json> promise;
             promise.set_value(nlohmann::json{{"token", "asd123"}});
-            ALLOW_CALL(http_client, post(_, _))
+            ALLOW_CALL(http_client, post(_, _, _))
                 .LR_RETURN(promise.get_future());
 
             credentials_manager.login("asd");

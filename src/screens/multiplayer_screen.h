@@ -1,5 +1,6 @@
 #pragma once
 
+#include <future>
 #include <memory>
 
 #include <Box2D/Box2D.h>
@@ -21,6 +22,7 @@ namespace SingularityTrainer
 class BodyFactory;
 class CredentialsManager;
 class IO;
+class Matchmaker;
 class PostProcLayer;
 class Random;
 class Renderer;
@@ -34,9 +36,11 @@ class MultiplayerScreen : public IScreen
     {
         ChooseAgent = 0,
         InputAddress = 1,
-        WaitingToStart = 2,
-        Playing = 3,
-        Finished = 4
+        WaitingForMatchmaker = 2,
+        WaitingToStart = 3,
+        Playing = 4,
+        Finished = 5,
+        ConnectionFailure = 6
     };
 
     zmq::context_t zmq_context;
@@ -51,19 +55,25 @@ class MultiplayerScreen : public IScreen
     std::unique_ptr<PlaybackEnv> env;
     IEnvironmentFactory &env_factory;
     IO &io;
+    Matchmaker &matchmaker;
     int player_number;
     glm::mat4 projection;
     ResourceManager &resource_manager;
     Random &rng;
     ScreenManager &screen_manager;
     std::string server_address;
+    std::future<std::string> server_address_future;
+    bool should_clear_particles;
     State state;
     double tick_length;
     int winner;
 
     void choose_agent();
+    void connect();
+    void connection_failure();
     void input_address();
     void play(double delta_time);
+    void wait_for_matchmaker();
     void wait_for_start();
 
   public:
@@ -72,9 +82,13 @@ class MultiplayerScreen : public IScreen
                       CredentialsManager &credentials_manager,
                       IEnvironmentFactory &env_factory,
                       IO &io,
+                      Matchmaker &matchmaker,
                       ResourceManager &resource_manager,
                       Random &rng,
                       ScreenManager &screen_manager);
+    ~MultiplayerScreen();
+    MultiplayerScreen(const MultiplayerScreen &other) = delete;
+    MultiplayerScreen &operator=(const MultiplayerScreen &other) = delete;
 
     virtual void draw(Renderer &renderer, bool lightweight = false);
     void update(double delta_time);
@@ -87,6 +101,7 @@ class MultiplayerScreenFactory : public IScreenFactory
     CredentialsManager &credentials_manager;
     IEnvironmentFactory &env_factory;
     IO &io;
+    Matchmaker &matchmaker;
     ResourceManager &resource_manager;
     Random &rng;
     ScreenManager &screen_manager;
@@ -98,6 +113,7 @@ class MultiplayerScreenFactory : public IScreenFactory
                     CredentialsManager &credentials_manager,
                     IEnvironmentFactory &env_factory,
                     IO &io,
+                    Matchmaker &matchmaker,
                     ResourceManager &resource_manager,
                     Random &rng,
                     ScreenManager &screen_manager,
@@ -106,6 +122,7 @@ class MultiplayerScreenFactory : public IScreenFactory
           credentials_manager(credentials_manager),
           env_factory(env_factory),
           io(io),
+          matchmaker(matchmaker),
           resource_manager(resource_manager),
           rng(rng),
           screen_manager(screen_manager),
@@ -118,6 +135,7 @@ class MultiplayerScreenFactory : public IScreenFactory
                                                    credentials_manager,
                                                    env_factory,
                                                    io,
+                                                   matchmaker,
                                                    resource_manager,
                                                    rng,
                                                    screen_manager);

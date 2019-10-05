@@ -5,6 +5,7 @@ PRIVATE
     ${CMAKE_CURRENT_LIST_DIR}/http_client.cpp
     ${CMAKE_CURRENT_LIST_DIR}/imgui_utils.cpp
     ${CMAKE_CURRENT_LIST_DIR}/io.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/matchmaker.cpp
     ${CMAKE_CURRENT_LIST_DIR}/module_factory.cpp
     ${CMAKE_CURRENT_LIST_DIR}/random.cpp
     ${CMAKE_CURRENT_LIST_DIR}/resource_manager.cpp

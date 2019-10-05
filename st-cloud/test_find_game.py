@@ -163,6 +163,32 @@ def test_find_game_returns_in_game_if_other_players_are_waiting():
 
 
 @patch('main.db', MagicMock())
+@patch('main.allocate_gameserver', Mock(return_value=ALLOCATED_GAMESERVER))
+def test_find_game_returns_in_game_if_already_in_game():
+    """
+    When a game is requested and one has been found between the this request
+    and the last request, the 'in_game' status and the gameserver URL should
+    be returned.
+    """
+    user = Mock()
+    user.to_dict.return_value = {
+        'status': 'in_game',
+        'gameserver': 'tcp://test_server:123'
+    }
+    (main.db
+        .collection.return_value
+        .where.return_value
+        .stream.return_value) = [user]
+
+    request = Mock(json={}, headers=Mock(
+        get=Mock(return_value='Bearer asd')))
+    response = json.loads(main.find_game(request))
+
+    assert response['status'] == 'in_game'
+    assert response['gameserver'] == 'tcp://test_server:123'
+
+
+@patch('main.db', MagicMock())
 @patch('main.allocate_gameserver', Mock(return_value=UNALLOCATED_GAMESERVER))
 def test_find_game_returns_waiting_if_no_gameservers_are_ready():
     """

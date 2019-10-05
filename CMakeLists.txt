@@ -4,6 +4,7 @@ project(SingularityTrainer)
 # CMake policies
 if (UNIX)
     cmake_policy(SET CMP0077 NEW)
+    cmake_policy(SET CMP0083 NEW)
 endif()
 
 # Configuration
@@ -56,15 +57,13 @@ set(ST_TARGETS
     Training
 )
 
-if (UNIX)
-    target_compile_definitions(SingularityTrainer PUBLIC BOOST_STACKTRACE_USE_BACKTRACE)
-endif (UNIX)
-
 # Disable HeadlessTrainer and GraphicsPlayground by default
 set_target_properties(HeadlessTrainer PROPERTIES EXCLUDE_FROM_ALL TRUE)
 set_target_properties(GraphicsPlayground PROPERTIES EXCLUDE_FROM_ALL TRUE)
 
 # Set position independent code
+set_target_properties(SingularityTrainer PROPERTIES ENABLE_EXPORTS TRUE)
+set_target_properties(SingularityTrainer PROPERTIES POSITION_INDEPENDENT_CODE FALSE)
 set_target_properties(Graphics PROPERTIES POSITION_INDEPENDENT_CODE TRUE)
 set_target_properties(Misc PROPERTIES POSITION_INDEPENDENT_CODE TRUE)
 set_target_properties(Networking PROPERTIES POSITION_INDEPENDENT_CODE TRUE)
@@ -101,7 +100,10 @@ if (NOT TARGET spdlog)
     add_subdirectory(${SPDLOG_DIR})
 endif(NOT TARGET spdlog)
 ## Boost
-find_package(Boost 1.71 REQUIRED)
+find_package(Boost 1.65 REQUIRED)
+if (UNIX)
+    target_compile_definitions(SingularityTrainer PUBLIC BOOST_STACKTRACE_USE_BACKTRACE)
+endif (UNIX)
 ## cURLpp
 find_package(CURL)
 add_subdirectory(${CURLPP_DIR})
@@ -157,8 +159,9 @@ target_link_libraries(Misc PUBLIC curlpp_static doctest)
 target_link_libraries(Training PUBLIC Graphics cpprl torch ${TORCH_LIBRARIES} tobanteGaming::Box2D doctest fmt::fmt ${PYTHON_LIBRARIES})
 # UNIX systems sometimes need to explicitly link the threading library
 if (UNIX)
+    message(STATUS "Linking against Linux libraries")
     target_link_libraries(Training PUBLIC pthread)
-    target_link_libraries(SingularityTrainer backtrace)
+    target_link_libraries(SingularityTrainer backtrace )
 endif(UNIX)
 target_link_libraries(Graphics glad glfw ${GLFW_LIBRARIES} glm imgui doctest)
 target_link_libraries(Networking Training nlohmann_json::nlohmann_json libzmq-static)

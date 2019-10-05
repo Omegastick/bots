@@ -69,6 +69,8 @@ class Renderer
     void scissor(float x, float y, float width, float height, const glm::mat4 &projection) const;
     void clear_scissor() const;
 
+    void clear_particles();
+
     void begin();
     void end();
 };

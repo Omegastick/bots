@@ -117,6 +117,12 @@ def find_game(request: Request) -> str:
         raise RuntimeError("Duplicate tokens in database")
 
     user = matching_users[0]
+    user_dict = user.to_dict()
+    if user_dict.get('status', None) == 'in_game':
+        return json.dumps({
+            'status': 'in_game',
+            'gameserver': user_dict['gameserver']
+        })
 
     waiting_users_query = users.where('status', '==', 'waiting_for_game')
     waiting_users = [x for x in waiting_users_query.stream()
@@ -147,13 +153,13 @@ def find_game(request: Request) -> str:
     return json.dumps(update_data)
 
 
-def finsh_game(request: Request) -> str:
+def finish_game(request: Request) -> str:
     """
     Given two player and a match result, update their Elos in the database.
 
     Input Json in the form:
     {
-        "players": ["username_1, "username_2],
+        "players": ["username_1", "username_2"],
         "result": 0
     }
 
