@@ -74,9 +74,10 @@ set_target_properties(Training PROPERTIES POSITION_INDEPENDENT_CODE TRUE)
 foreach(target ${ST_TARGETS})
     target_compile_definitions(${target} PUBLIC SPDLOG_FMT_EXTERNAL)
     if(MSVC)
-    target_compile_options(${target} PRIVATE /W0)
+        target_compile_options(${target} PRIVATE /W0)
+        target_compile_definitions(${target} PUBLIC WIN32_LEAN_AND_MEAN)
     else(MSVC)
-    target_compile_options(${target} PRIVATE -Wall -Wextra -pedantic -Wno-maybe-uninitialized)
+        target_compile_options(${target} PRIVATE -Wall -Wextra -pedantic -Wno-maybe-uninitialized)
     endif(MSVC)    
 endforeach(target ${ST_TARGETS})
 
@@ -102,6 +103,7 @@ endif(NOT TARGET spdlog)
 ## Boost
 find_package(Boost 1.71 REQUIRED)
 ## cURLpp
+find_package(CURL)
 add_subdirectory(${CURLPP_DIR})
 set_target_properties(curlpp_static PROPERTIES POSITION_INDEPENDENT_CODE TRUE)
 ## CppRl
@@ -171,6 +173,7 @@ set_target_properties(PythonBindings PROPERTIES SUFFIX ".so")
 set(INCLUDE_DIRS
     src
     ${Boost_INCLUDE_DIRS}
+    ${CURL_INCLUDE_DIRS}
     ${CPPRL_DIR}/include
     ${CURLPP_DIR}/include
     # ${EASY_PROFILER_DIR}/easy_profiler_core/include
