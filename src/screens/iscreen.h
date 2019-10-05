@@ -12,16 +12,19 @@ class IScreen
   public:
     virtual ~IScreen() = 0;
 
-    virtual void update(double delta_time) = 0;
+    virtual void on_show();
     virtual void draw(Renderer &renderer, bool lightweight = false) = 0;
+    virtual void update(double delta_time) = 0;
 };
 
 inline IScreen::~IScreen() {}
+inline void IScreen::on_show() {}
 
-class MockScreen : public IScreen
+class MockScreen : public trompeloeil::mock_interface<IScreen>
 {
-    MAKE_MOCK1(update, void(double), override);
-    MAKE_MOCK2(draw, void(Renderer &, bool), override);
+    IMPLEMENT_MOCK0(on_show);
+    IMPLEMENT_MOCK1(update);
+    IMPLEMENT_MOCK2(draw);
 };
 
 class IScreenFactory
