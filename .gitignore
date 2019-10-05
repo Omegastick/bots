@@ -20,3 +20,4 @@ runs/
 !src/training/bodies
 backtrace.dump
 CMakeSettings.json
+windows-build/
