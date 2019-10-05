@@ -29,6 +29,10 @@ functions:
     handler: finish_game
     events:
       - http: path
+  get_elo:
+    handler: get_elo
+    events:
+      - http: path
 # you can define resources, templates etc. the same way you would in a
 # Google Cloud deployment configuration
 #resources:

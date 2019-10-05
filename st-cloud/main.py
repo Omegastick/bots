@@ -217,6 +217,38 @@ def finish_game(request: Request) -> str:
     return json.dumps({'success': True})
 
 
+def get_elo(request: Request) -> str:
+    """
+    Given a username, returns the Elo associated with that user.
+    """
+    request_json = request.json
+    if 'username' not in request_json:
+        abort(400, "No username provided")
+    username = request.json['username']
+
+    users = db.collection('users')
+
+    # Get all users matching the requested username
+    matching_users_query = users.where('username', '==', username)
+    matching_users = list(matching_users_query.stream())
+    user: firestore.DocumentReference = None
+
+    if len(matching_users) == 1:
+        # User exists
+        user = matching_users[0]
+    elif len(matching_users) > 1:
+        # Multiple users with the same username exist
+        # This shouldn't happen
+        matching_users_dicts = [x.to_dict() for x in matching_users]
+        raise RuntimeError(f"{len(matching_users)} matching users in database:"
+                           f" {matching_users_dicts}")
+    else:
+        # User doesn't exist
+        abort(400, f"User {username} doesn't exist")
+
+    return json.dumps({'elo': user.to_dict()['elo']})
+
+
 def wait_for_game(users: firestore.CollectionReference,
                   user: firestore.DocumentSnapshot) -> str:
     """
