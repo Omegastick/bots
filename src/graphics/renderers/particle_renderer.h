@@ -12,7 +12,7 @@ namespace SingularityTrainer
 class VertexArray;
 class VertexBuffer;
 class ResourceManager;
-class Particle;
+struct Particle;
 
 static auto MaxParticles = [] {};
 

@@ -93,14 +93,14 @@ ParticleRenderer::ParticleRenderer(int max_particles, ResourceManager &resource_
 
 void ParticleRenderer::add_particles(std::vector<Particle> &particles, double time)
 {
-    time = std::fmod(time, 10000);
+    double mod_time = std::fmod(time, 10000);
     for (const auto &particle : particles)
     {
         particle_positions[current_particle_index] = particle.start_position;
         particle_velocities[current_particle_index] = particle.velocity;
         particle_lives[current_particle_index] = particle.lifetime;
         particle_sizes[current_particle_index] = particle.size;
-        particle_start_times[current_particle_index] = time + particle.start_time_offset;
+        particle_start_times[current_particle_index] = mod_time + particle.start_time_offset;
         particle_start_colors[current_particle_index] = particle.start_color;
         particle_end_colors[current_particle_index] = particle.end_color;
         current_particle_index++;
@@ -117,7 +117,7 @@ void ParticleRenderer::clear_particles()
 
 void ParticleRenderer::draw(double time, glm::mat4 view)
 {
-    time = std::fmod(time, 10000);
+    double mod_time = std::fmod(time, 10000);
     position_vertex_buffer->clear();
     position_vertex_buffer->add_sub_data(&particle_positions[0], 0, particle_count * sizeof(glm::vec2));
     velocity_vertex_buffer->clear();
@@ -136,7 +136,7 @@ void ParticleRenderer::draw(double time, glm::mat4 view)
     auto shader = resource_manager->shader_store.get("particle");
     shader->bind();
     shader->set_uniform_mat4f("u_mvp", view);
-    shader->set_uniform_1f("u_time", time);
+    shader->set_uniform_1f("u_time", mod_time);
 
     // renderer.draw(particle_engine, shader);
     vertex_array->bind();

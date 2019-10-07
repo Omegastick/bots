@@ -6,7 +6,6 @@
 #include "training/entities/hill.h"
 #include "graphics/colors.h"
 #include "graphics/idrawable.h"
-#include "training/environments/ienvironment.h"
 #include "training/bodies/body.h"
 #include "training/icollidable.h"
 #include "training/rigid_body.h"
@@ -14,7 +13,7 @@
 
 namespace SingularityTrainer
 {
-Hill::Hill(float x, float y, b2World &world, IEnvironment &env) : environment(env)
+Hill::Hill(float x, float y, b2World &world)
 {
     // Rigid body
     rigid_body = std::make_unique<RigidBody>(b2_staticBody, b2Vec2(x, y), world, this, RigidBody::ParentTypes::Hill);

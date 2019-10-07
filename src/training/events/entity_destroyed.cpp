@@ -1,6 +1,6 @@
 #include <tuple>
 
-#include <fmt/format.h>
+#include <spdlog/spdlog.h>
 
 #include "entity_destroyed.h"
 #include "training/entities/ientity.h"
@@ -23,10 +23,9 @@ void EntityDestroyed::trigger(IEnvironment &env)
     auto iter = entities.find(entity_id);
     if (iter == entities.end())
     {
+        spdlog::warn("Entity {} not found in client environment",
+                     entity_id);
         return;
-        auto error_string = fmt::format("Entity {} not found in client environment",
-                                        entity_id);
-        throw std::runtime_error(error_string);
     }
 
     auto &entity = *iter->second;

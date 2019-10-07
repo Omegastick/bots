@@ -139,15 +139,13 @@ int ServerApp::run(int argc, char *argv[])
             {
                 auto message = message_object->as<ConnectMessage>();
                 auto json = nlohmann::json::parse(message.body_spec);
-                if (use_agones)
-                {
-                    if (std::find(player_tokens.begin(), player_tokens.end(), message.token) ==
+                if (use_agones &&
+                    std::find(player_tokens.begin(), player_tokens.end(), message.token) ==
                         player_tokens.end())
-                    {
-                        spdlog::warn("User attempted to connect with bad token: {}",
-                                     message.token);
-                        continue;
-                    }
+                {
+                    spdlog::warn("User attempted to connect with bad token: {}",
+                                 message.token);
+                    continue;
                 }
                 players.push_back(raw_message.id);
                 spdlog::info("{} connected", raw_message.id);
@@ -186,37 +184,39 @@ int ServerApp::run(int argc, char *argv[])
         // Step environment
         double time_stamp = std::chrono::high_resolution_clock::now().time_since_epoch().count();
         time_stamp *= 1e-9;
-        if (game_started && game->ready_to_tick(time_stamp))
+        if (!game_started || !game->ready_to_tick(time_stamp))
         {
-            auto tick_result = game->tick(time_stamp);
-            if (tick_result.tick % 10 == 0)
-            {
-                auto fps = tick_result.tick / (time_stamp - start_time);
-                spdlog::debug("FPS: {}", fps);
-            }
+            continue;
+        }
 
-            StateMessage reply(std::move(tick_result.agent_transforms),
-                               std::move(tick_result.entity_transforms),
-                               std::move(tick_result.events),
-                               std::move(tick_result.hps),
-                               std::move(tick_result.scores),
-                               tick_result.done,
-                               tick_result.tick);
-            auto encoded_reply = MsgPackCodec::encode(reply);
-            auto obj = MsgPackCodec::decode<msgpack::object_handle>(encoded_reply);
-            for (const auto &player : players)
-            {
-                server_communicator->send(player, encoded_reply);
-            }
+        auto tick_result = game->tick(time_stamp);
+        if (tick_result.tick % 10 == 0)
+        {
+            auto fps = tick_result.tick / (time_stamp - start_time);
+            spdlog::debug("FPS: {}", fps);
+        }
 
-            finished = tick_result.done;
-            if (finished)
+        StateMessage reply(std::move(tick_result.agent_transforms),
+                           std::move(tick_result.entity_transforms),
+                           std::move(tick_result.events),
+                           std::move(tick_result.hps),
+                           std::move(tick_result.scores),
+                           tick_result.done,
+                           tick_result.tick);
+        auto encoded_reply = MsgPackCodec::encode(reply);
+        auto obj = MsgPackCodec::decode<msgpack::object_handle>(encoded_reply);
+        for (const auto &player : players)
+        {
+            server_communicator->send(player, encoded_reply);
+        }
+
+        finished = tick_result.done;
+        if (finished)
+        {
+            spdlog::info("Winner: {}", tick_result.victor);
+            if (use_agones)
             {
-                spdlog::info("Winner: {}", tick_result.victor);
-                if (use_agones)
-                {
-                    update_elos(tick_result.victor);
-                }
+                update_elos(tick_result.victor);
             }
         }
     }

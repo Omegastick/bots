@@ -11,7 +11,7 @@
 namespace SingularityTrainer
 {
 class ResourceManager;
-class Line;
+struct Line;
 
 class LineRenderer
 {

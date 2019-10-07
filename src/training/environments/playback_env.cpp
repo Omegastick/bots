@@ -43,7 +43,7 @@ float lerp_angle(float start, float end, float interpolate)
             end += pi * 2;
         }
     }
-    float value = (start + ((end - start) * interpolate));
+    float value = start + ((end - start) * interpolate);
     float range = pi;
     if (value >= -pi && value <= pi)
         return value;

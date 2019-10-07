@@ -2,7 +2,7 @@
 
 namespace SingularityTrainer
 {
-class RenderData;
+struct RenderData;
 
 class IEffect
 {

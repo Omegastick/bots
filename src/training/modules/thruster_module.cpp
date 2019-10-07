@@ -22,7 +22,7 @@
 
 namespace SingularityTrainer
 {
-ThrusterModule::ThrusterModule() : active(false), particle_color(cl_white)
+ThrusterModule::ThrusterModule() : active(false)
 {
     // Sprite
     sprite = std::make_unique<Sprite>("thruster_module");

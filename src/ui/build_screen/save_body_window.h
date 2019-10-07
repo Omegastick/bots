@@ -5,16 +5,14 @@
 namespace SingularityTrainer
 {
 class Body;
-class IO;
 
 class SaveBodyWindow
 {
   private:
-    IO *io;
     std::string name;
 
   public:
-    SaveBodyWindow(IO &io);
+    SaveBodyWindow();
 
     bool update(Body &body);
 };

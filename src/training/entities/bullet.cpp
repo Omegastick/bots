@@ -55,31 +55,32 @@ Bullet::~Bullet() {}
 
 RenderData Bullet::get_render_data(bool /*lightweight*/)
 {
-    RenderData render_data;
-
-    if (!destroyed)
+    if (destroyed)
     {
-        b2Vec2 position = rigid_body->body->GetPosition();
-
-        // Body
-        sprite->set_position(glm::vec2(position.x, position.y));
-        render_data.sprites.push_back(*sprite);
-
-        // Trail
-        if (last_position.x != b2Vec2_zero.x || last_position.y != b2Vec2_zero.y)
-        {
-            Line trail;
-            trail.points.push_back({position.x, position.y});
-            trail.widths.push_back(0.1);
-            trail.colors.push_back({1.0, 1.0, 1.0, 1.0});
-            trail.points.push_back({last_position.x, last_position.y});
-            trail.widths.push_back(0);
-            trail.colors.push_back({1.0, 1.0, 1.0, 0.0});
-            render_data.lines.push_back(trail);
-        }
-
-        last_position = position;
+        return RenderData();
     }
+
+    RenderData render_data;
+    b2Vec2 position = rigid_body->body->GetPosition();
+
+    // Body
+    sprite->set_position(glm::vec2(position.x, position.y));
+    render_data.sprites.push_back(*sprite);
+
+    // Trail
+    if (last_position.x != b2Vec2_zero.x || last_position.y != b2Vec2_zero.y)
+    {
+        Line trail;
+        trail.points.push_back({position.x, position.y});
+        trail.widths.push_back(0.1);
+        trail.colors.push_back({1.0, 1.0, 1.0, 1.0});
+        trail.points.push_back({last_position.x, last_position.y});
+        trail.widths.push_back(0);
+        trail.colors.push_back({1.0, 1.0, 1.0, 0.0});
+        render_data.lines.push_back(trail);
+    }
+
+    last_position = position;
 
     return render_data;
 }

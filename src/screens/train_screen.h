@@ -66,6 +66,7 @@ class TrainScreenFactory
           resource_manager(resource_manager),
           trainer_factory(trainer_factory),
           screen_manager(screen_manager) {}
+    virtual ~TrainScreenFactory() {}
 
     virtual std::shared_ptr<IScreen> make(TrainingProgram program)
     {

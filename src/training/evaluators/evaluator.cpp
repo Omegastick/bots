@@ -87,10 +87,8 @@ EvaluationResult Evaluator::evaluate(const IAgent &agent_1, const IAgent &agent_
     {
         return EvaluationResult::Agent2;
     }
-    else
-    {
-        return EvaluationResult::Draw;
-    }
+
+    return EvaluationResult::Draw;
 }
 
 TEST_CASE("Evaluator")

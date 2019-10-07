@@ -15,7 +15,7 @@ namespace SingularityTrainer
 {
 class IAction;
 class IModule;
-class RenderData;
+struct RenderData;
 class RigidBody;
 class Random;
 class IEnvironment;
@@ -42,6 +42,7 @@ class Body : public ICollidable
     Body(Body &&other);
     Body(const Body &) = delete;
     Body &operator=(Body &&other);
+    virtual ~Body() {}
 
     void act(std::vector<int> action_flags);
     void add_module(const std::shared_ptr<IModule> module);
@@ -81,6 +82,7 @@ class BodyFactory
   public:
     BodyFactory(Random &rng)
         : rng(rng) {}
+    virtual ~BodyFactory() {}
 
     virtual std::unique_ptr<Body> make()
     {

@@ -1,0 +1,3 @@
+#!/bin/bash
+
+oclint-json-compilation-database -e lib/ -e src/third_party/ -- -disable-rule=ShortVariableName -disable-rule=LongLine -disable-rule=LongMethod -disable-rule=HighNcssMethod -disable-rule=LongVariableName -disable-rule=HighCyclomaticComplexity -disable-rule=HighNPathComplexity -disable-rule=UnusedLocalVariable -disable-rule=DoubleNegative -disable-rule=MultipleUnaryOperator -disable-rule=DeepNestedBlock

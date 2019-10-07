@@ -7,7 +7,7 @@
 
 namespace SingularityTrainer
 {
-class RenderData;
+struct RenderData;
 
 class ThrusterParticles : public IEffect
 {

@@ -9,16 +9,14 @@ class Policy;
 
 namespace SingularityTrainer
 {
-class IO;
 
 class CheckpointSelectorWindow
 {
   private:
     int selected_file;
-    IO *io;
 
   public:
-    CheckpointSelectorWindow(IO &io);
+    CheckpointSelectorWindow();
 
     std::unique_ptr<cpprl::Policy> update();
 };

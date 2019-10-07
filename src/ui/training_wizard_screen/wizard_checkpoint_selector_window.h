@@ -12,7 +12,7 @@ class Policy;
 namespace SingularityTrainer
 {
 class IO;
-class TrainingProgram;
+struct TrainingProgram;
 
 class WizardCheckpointSelectorWindow
 {

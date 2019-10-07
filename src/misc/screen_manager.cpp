@@ -50,14 +50,13 @@ void ScreenManager::update(double delta_time)
     while (command_queue.size() > 0)
     {
         auto command = command_queue.front();
-        switch (command.type)
+        if (command.type == CommandType::Push)
         {
-        case CommandType::Push:
             screens.push(command.screen);
-            break;
-        case CommandType::Pop:
+        }
+        else // CommandType::Pop
+        {
             screens.pop();
-            break;
         }
         command_queue.pop_front();
     }

@@ -10,7 +10,7 @@ class VertexArray;
 class VertexBuffer;
 class ElementBuffer;
 class ResourceManager;
-class Text;
+struct Text;
 
 class TextRenderer
 {

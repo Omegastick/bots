@@ -44,6 +44,9 @@ void glDebugOutput(unsigned int source,
     case GL_DEBUG_SOURCE_OTHER:
         error_message << "Other - ";
         break;
+    default:
+        error_message << "Other - ";
+        break;
     }
     switch (type)
     {
@@ -74,6 +77,9 @@ void glDebugOutput(unsigned int source,
     case GL_DEBUG_TYPE_OTHER:
         error_message << "Other - ";
         break;
+    default:
+        error_message << "Other - ";
+        break;
     }
 
     error_message << message;
@@ -91,6 +97,9 @@ void glDebugOutput(unsigned int source,
         break;
     case GL_DEBUG_SEVERITY_NOTIFICATION:
         spdlog::info(error_message.str());
+        break;
+    default:
+        spdlog::error("Error printing message: {}", error_message.str());
         break;
     }
 }
@@ -119,7 +128,7 @@ Window::Window(int x, int y, std::string title, int opengl_major_version, int op
 
     glfwMakeContextCurrent(window);
 
-    if (!gladLoadGL())
+    if (gladLoadGL() == 0)
     {
         spdlog::error("Unable to initialize GLAD");
         glfwDestroyWindow(window);
@@ -130,7 +139,8 @@ Window::Window(int x, int y, std::string title, int opengl_major_version, int op
     // Debug
     int flags;
     glGetIntegerv(GL_CONTEXT_FLAGS, &flags);
-    if (flags & GL_CONTEXT_FLAG_DEBUG_BIT)
+    bool debug_supported = (flags & GL_CONTEXT_FLAG_DEBUG_BIT) != 0;
+    if (debug_supported)
     {
         glEnable(GL_DEBUG_OUTPUT);
         glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS);
@@ -173,7 +183,11 @@ void Window::set_cursor_pos_callback(void (*callback)(GLFWwindow *, double, doub
     glfwSetCursorPosCallback(window, callback);
 }
 
-void Window::set_key_callback(void (*callback)(GLFWwindow *, int key, int scancode, int actions, int mod))
+void Window::set_key_callback(void (*callback)(GLFWwindow * /*window*/,
+                                               int /*key*/,
+                                               int /*scancode*/,
+                                               int /*actions*/,
+                                               int /*mod*/))
 {
     glfwSetKeyCallback(window, callback);
 }

@@ -13,7 +13,7 @@ namespace SingularityTrainer
 class Renderer;
 class ResourceManager;
 class ScreenManager;
-class Line;
+struct Line;
 
 class LineTestScreen : public IScreen
 {

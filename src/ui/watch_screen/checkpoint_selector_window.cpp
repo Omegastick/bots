@@ -10,7 +10,7 @@ namespace fs = std::filesystem;
 
 namespace SingularityTrainer
 {
-CheckpointSelectorWindow::CheckpointSelectorWindow(IO &io) : selected_file(-1), io(&io) {}
+CheckpointSelectorWindow::CheckpointSelectorWindow() : selected_file(-1) {}
 
 std::unique_ptr<cpprl::Policy> CheckpointSelectorWindow::update()
 {

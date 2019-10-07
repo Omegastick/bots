@@ -30,7 +30,6 @@ class BuildScreen : public IScreen
 {
   private:
     ModuleFactory &module_factory;
-    ResourceManager *resource_manager;
     ScreenManager *screen_manager;
     IO *io;
     PartDetailWindow part_detail_window;

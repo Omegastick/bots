@@ -9,13 +9,12 @@
 namespace SingularityTrainer
 {
 class Body;
-class RenderData;
+struct RenderData;
 
 class ThrusterModule : public IModule, public IActivatable
 {
   private:
     bool active;
-    glm::vec4 particle_color;
 
   public:
     ThrusterModule();

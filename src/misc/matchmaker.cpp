@@ -152,21 +152,18 @@ TEST_CASE("Matchmaker")
         }
     }
 
-    SUBCASE("cancel()")
+    SUBCASE("cancel() stops a running find_game() call")
     {
-        SUBCASE("Stops a running find_game() call")
-        {
-            std::promise<nlohmann::json> promise;
-            ALLOW_CALL(http_client, post(_, _, _))
-                .LR_RETURN(promise.get_future());
+        std::promise<nlohmann::json> promise;
+        ALLOW_CALL(http_client, post(_, _, _))
+            .LR_RETURN(promise.get_future());
 
-            promise.set_value(nlohmann::json{{"status", "waiting_for_game"}});
-            auto future = matchmaker.find_game(5, 0);
+        promise.set_value(nlohmann::json{{"status", "waiting_for_game"}});
+        auto future = matchmaker.find_game(5, 0);
 
-            matchmaker.cancel();
+        matchmaker.cancel();
 
-            CHECK_THROWS(future.get());
-        }
+        CHECK_THROWS(future.get());
     }
 }
 }

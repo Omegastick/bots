@@ -138,14 +138,12 @@ std::shared_ptr<IModule> BodyBuilder::place_module(std::shared_ptr<IModule> sele
     {
         return nullptr;
     }
-    else
-    {
-        nearest_link_result.nearest_link->link(*nearest_link_result.origin_link);
-        body->add_module(selected_module);
-        body->update_body();
-        body->register_actions();
-        return selected_module;
-    }
+
+    nearest_link_result.nearest_link->link(*nearest_link_result.origin_link);
+    body->add_module(selected_module);
+    body->update_body();
+    body->register_actions();
+    return selected_module;
 }
 
 void BodyBuilder::select_module(const IModule *module)
