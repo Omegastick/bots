@@ -1,0 +1,2 @@
+*:*/lib/*
+*:*/third_party/*

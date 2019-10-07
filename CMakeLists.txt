@@ -4,7 +4,6 @@ project(SingularityTrainer)
 # CMake policies
 if (UNIX)
     cmake_policy(SET CMP0077 NEW)
-    cmake_policy(SET CMP0083 NEW)
 endif()
 
 # Configuration
@@ -36,6 +35,34 @@ endif()
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_FLAGS_RELEASE -O3)
 set(CMAKE_CXX_FLAGS_RELWITHDEBINFO -O3)
+
+# Cppcheck
+list(APPEND CPPCHECK_ARGS
+    --enable=warning
+    --std=c++14
+    --verbose
+    --quiet
+    --inline-suppr
+    --error-exitcode=1
+    -j8
+    --language=c++
+    --config-exclude=${CMAKE_CURRENT_LIST_DIR}/src/third_party/stb_image.h
+    --config-exclude=${CMAKE_CURRENT_LIST_DIR}/lib
+    -i${LIB_DIR}/
+    -i${CMAKE_CURRENT_LIST_DIR}/src/third_party/
+    --suppressions-list=${CMAKE_CURRENT_LIST_DIR}/CppCheckSuppressions.txt 
+    -I ${CMAKE_CURRENT_LIST_DIR}/src 
+    -I ${CMAKE_CURRENT_LIST_DIR}/lib/*
+    -I ${CMAKE_CURRENT_LIST_DIR}/lib/*/include
+    -I ${CMAKE_CURRENT_LIST_DIR}/lib/doctest/doctest
+    # -E
+    ${CMAKE_CURRENT_LIST_DIR}/src
+)
+add_custom_target(
+    check
+    COMMAND cppcheck ${CPPCHECK_ARGS}
+    COMMENT "Running Cppcheck"
+)
 
 # Executables and local libraries
 add_library(Graphics OBJECT "")

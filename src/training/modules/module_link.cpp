@@ -1,6 +1,6 @@
 #include <Box2D/Box2D.h>
 
-#include <doctest/doctest.h>
+#include <doctest.h>
 #include <glm/glm.hpp>
 
 #include "graphics/idrawable.h"
