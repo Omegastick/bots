@@ -12,7 +12,8 @@
 namespace SingularityTrainer
 {
 IModule::IModule()
-    : body(nullptr) {}
+    : body(nullptr),
+    root(nullptr) {}
 
 std::vector<IModule *> IModule::get_children()
 {
