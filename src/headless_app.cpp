@@ -20,8 +20,8 @@ void inthand(int /*signum*/)
     stop = 1;
 }
 
-HeadlessApp::HeadlessApp(Random &rng, TrainerFactory &trainer_factory)
-    : rng(rng), trainer_factory(trainer_factory)
+HeadlessApp::HeadlessApp(TrainerFactory &trainer_factory)
+    : trainer_factory(trainer_factory)
 {
     // Logging
     spdlog::set_level(spdlog::level::debug);

@@ -152,7 +152,7 @@ TEST_CASE("HttpClient")
             std::list<std::string> headers;
             headers.push_back("Asd: 123");
             headers.push_back("Sdf: 234");
-            auto response = client.post("https://httpbin.org/get", {}, headers).get();
+            auto response = client.post("https://httpbin.org/post", {}, headers).get();
 
             CHECK(response["headers"]["Asd"] == "123");
             CHECK(response["headers"]["Sdf"] == "234");

@@ -12,7 +12,7 @@
 
 namespace SingularityTrainer
 {
-class RenderData;
+struct RenderData;
 class Sprite;
 class RigidBody;
 class Body;

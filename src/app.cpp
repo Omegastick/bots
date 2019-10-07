@@ -141,8 +141,8 @@ void error_callback(int error, const char *description)
 void cursor_pos_callback(GLFWwindow *glfw_window, double x, double y)
 {
     auto &io = static_cast<Window *>(glfwGetWindowUserPointer(glfw_window))->get_io();
-    y = io.get_resolution().y - y;
-    io.set_cursor_position(x, y);
+    double reversed_y = io.get_resolution().y - y;
+    io.set_cursor_position(x, reversed_y);
 }
 
 void resize_window_callback(GLFWwindow *glfw_window, int x, int y)
@@ -198,19 +198,17 @@ void mouse_button_callback(GLFWwindow *glfw_window, int button, int action, int 
     auto &io = static_cast<Window *>(glfwGetWindowUserPointer(glfw_window))->get_io();
     if (!ImGui::GetIO().WantCaptureMouse)
     {
-        if (button == GLFW_MOUSE_BUTTON_LEFT)
+        if (button == GLFW_MOUSE_BUTTON_LEFT &&
+            action == GLFW_RELEASE &&
+            !io.get_left_click())
         {
-            if (action == GLFW_RELEASE && !io.get_left_click())
-            {
-                io.left_click();
-            }
+            io.left_click();
         }
-        else if (button == GLFW_MOUSE_BUTTON_RIGHT)
+        else if (button == GLFW_MOUSE_BUTTON_RIGHT &&
+                 action == GLFW_RELEASE &&
+                 !io.get_right_click())
         {
-            if (action == GLFW_RELEASE && !io.get_right_click())
-            {
-                io.right_click();
-            }
+            io.right_click();
         }
     }
 }

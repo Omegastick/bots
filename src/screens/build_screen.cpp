@@ -30,7 +30,6 @@ BuildScreen::BuildScreen(BodyBuilder &&body_builder,
                          ScreenManager &screen_manager,
                          IO &io)
     : module_factory(module_factory),
-      resource_manager(&resource_manager),
       screen_manager(&screen_manager),
       io(&io),
       part_detail_window(io),
@@ -42,7 +41,7 @@ BuildScreen::BuildScreen(BodyBuilder &&body_builder,
                        "thruster_module"}),
       projection(glm::ortho(0.f, 1920.f, 0.f, 1080.f)),
       b2_world(b2Vec2(0, 0)),
-      save_body_window(io),
+      save_body_window(),
       body_builder(std::move(body_builder)),
       module_to_place(nullptr),
       test_sprite("laser_sensor_module"),
@@ -97,20 +96,17 @@ void BuildScreen::update(double /*delta_time*/)
         current_rotation -= 1;
     }
 
-    if (io->get_key_pressed_this_frame(GLFW_KEY_DELETE))
+    if (selected_module != nullptr && io->get_key_pressed_this_frame(GLFW_KEY_DELETE))
     {
-        if (selected_module != nullptr)
+        try
         {
-            try
-            {
-                body_builder.delete_module(selected_module.get());
-            }
-            catch (std::runtime_error &error)
-            {
-                spdlog::error(error.what());
-            }
-            selected_module = nullptr;
+            body_builder.delete_module(selected_module.get());
         }
+        catch (std::runtime_error &error)
+        {
+            spdlog::error(error.what());
+        }
+        selected_module = nullptr;
     }
 
     body_builder.select_module(selected_module.get());

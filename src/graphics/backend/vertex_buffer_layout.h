@@ -37,7 +37,7 @@ class VertexBufferLayout
     VertexBufferLayout();
 
     template <typename T>
-    void push(const unsigned int count)
+    void push(const unsigned int /*count*/)
     {
         spdlog::error("Vertex buffer layout type not implemented");
     }

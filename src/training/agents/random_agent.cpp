@@ -20,10 +20,7 @@ ActResult RandomAgent::act(torch::Tensor observations,
     {
         return {torch::zeros({1, num_outputs}).random_(2), {}};
     }
-    else
-    {
-        return {torch::zeros({observations.size(0), num_outputs}).random_(2), {}};
-    }
+    return {torch::zeros({observations.size(0), num_outputs}).random_(2), {}};
 }
 
 std::unique_ptr<IAgent> RandomAgent::clone() const

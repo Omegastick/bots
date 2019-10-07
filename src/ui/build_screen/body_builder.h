@@ -14,7 +14,7 @@ class IModule;
 class IO;
 class ModuleLink;
 class Random;
-class RenderData;
+struct RenderData;
 
 class GetAllQueryCallback : public b2QueryCallback
 {

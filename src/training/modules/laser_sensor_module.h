@@ -9,7 +9,7 @@
 
 namespace SingularityTrainer
 {
-class RenderData;
+struct RenderData;
 
 class ClosestRaycastCallback : public b2RayCastCallback
 {

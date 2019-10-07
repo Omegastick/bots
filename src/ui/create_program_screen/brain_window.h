@@ -8,7 +8,7 @@ namespace SingularityTrainer
 {
 class Checkpointer;
 class IO;
-class TrainingProgram;
+struct TrainingProgram;
 
 class BrainWindow
 {

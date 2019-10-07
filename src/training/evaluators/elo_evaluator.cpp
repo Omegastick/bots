@@ -36,23 +36,25 @@ std::tuple<double, double> calculate_elos(double a_rating,
     double a_win_chance = expected_win_chance(a_rating, b_rating);
     double b_win_chance = 1. - a_win_chance;
 
+    double new_a_rating;
+    double new_b_rating;
     if (result == EvaluationResult::Agent1)
     {
-        a_rating = a_rating + k * (1 - a_win_chance);
-        b_rating = b_rating + k * (0 - b_win_chance);
+        new_a_rating = a_rating + k * (1 - a_win_chance);
+        new_b_rating = b_rating + k * (0 - b_win_chance);
     }
     else if (result == EvaluationResult::Agent2)
     {
-        a_rating = a_rating + k * (0 - a_win_chance);
-        b_rating = b_rating + k * (1 - b_win_chance);
+        new_a_rating = a_rating + k * (0 - a_win_chance);
+        new_b_rating = b_rating + k * (1 - b_win_chance);
     }
     else
     {
-        a_rating = a_rating + k * (0.5 - a_win_chance);
-        b_rating = b_rating + k * (0.5 - b_win_chance);
+        new_a_rating = a_rating + k * (0.5 - a_win_chance);
+        new_b_rating = b_rating + k * (0.5 - b_win_chance);
     }
 
-    return {a_rating, b_rating};
+    return {new_a_rating, new_b_rating};
 }
 
 EloEvaluator::EloEvaluator(BodyFactory &body_factory,

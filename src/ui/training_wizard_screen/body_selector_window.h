@@ -9,7 +9,7 @@ namespace SingularityTrainer
 class Body;
 class IO;
 class Random;
-class TrainingProgram;
+struct TrainingProgram;
 
 class BodySelectorWindow
 {

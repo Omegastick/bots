@@ -76,9 +76,9 @@ TEST_CASE("E2E - Training run")
 
     {
         Frame frame(delta_time, screen_manager);
-        auto &program = std::dynamic_pointer_cast<CreateProgramScreen>(
-                            screen_manager.current_screen())
-                            ->get_program();
+        auto create_program_screen = std::dynamic_pointer_cast<CreateProgramScreen>(
+            screen_manager.current_screen());
+        auto &program = create_program_screen->get_program();
         program.hyper_parameters.batch_size = 2;
         program.hyper_parameters.num_env = 2;
         program.hyper_parameters.num_minibatch = 1;

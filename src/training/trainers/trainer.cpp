@@ -131,17 +131,17 @@ Trainer::Trainer(TrainingProgram program,
         }
     }
 
-    if (!program.checkpoint.empty())
-    {
-        spdlog::debug("Loading {}", program.checkpoint);
-        auto checkpoint = checkpointer.load(program.checkpoint);
-        policy = checkpoint.policy;
-    }
-    else
+    if (program.checkpoint.empty())
     {
         spdlog::debug("Making new agent");
         auto nn_base = std::make_shared<cpprl::MlpBase>(num_observations, recurrent);
         policy = cpprl::Policy(cpprl::ActionSpace{"MultiBinary", {num_actions}}, nn_base, true);
+    }
+    else
+    {
+        spdlog::debug("Loading {}", program.checkpoint);
+        auto checkpoint = checkpointer.load(program.checkpoint);
+        policy = checkpoint.policy;
     }
 
     if (program.hyper_parameters.algorithm == Algorithm::A2C)

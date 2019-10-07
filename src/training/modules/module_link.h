@@ -7,7 +7,7 @@
 namespace SingularityTrainer
 {
 class IModule;
-class RenderData;
+struct RenderData;
 
 class ModuleLink : IDrawable
 {

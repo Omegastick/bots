@@ -176,11 +176,9 @@ TEST_CASE("Checkpointer")
         }
     }
 
-    SUBCASE("load_data()")
+    SUBCASE("load_data() loads correct data")
     {
-        SUBCASE("Loads correct data")
-        {
-            // clang-format off
+        // clang-format off
             saver.json_to_load = {
                 {"schema", schema_version},
                 {"body_spec", {
@@ -200,16 +198,15 @@ TEST_CASE("Checkpointer")
                 {"previous_checkpoint", "/asd/sdf.meta"},
                 {"recurrent", false},
                 {"timestamp", date::format("%F-%H-%M-%S", std::chrono::system_clock::now())}};
-            // clang-format on
-            auto data = checkpointer.load_data("/asd");
+        // clang-format on
+        auto data = checkpointer.load_data("/asd");
 
-            DOCTEST_CHECK(data.body_spec["schema"] == "v1alpha2");
-            DOCTEST_CHECK(data.body_spec["base_module"]["type"] == "base");
-            DOCTEST_CHECK(data.data["asd"] == doctest::Approx(123));
-            DOCTEST_CHECK(data.data["sdf"] == doctest::Approx(5.43));
-            DOCTEST_CHECK(data.previous_checkpoint == "/asd/sdf.meta");
-            DOCTEST_CHECK(data.recurrent == false);
-        }
+        DOCTEST_CHECK(data.body_spec["schema"] == "v1alpha2");
+        DOCTEST_CHECK(data.body_spec["base_module"]["type"] == "base");
+        DOCTEST_CHECK(data.data["asd"] == doctest::Approx(123));
+        DOCTEST_CHECK(data.data["sdf"] == doctest::Approx(5.43));
+        DOCTEST_CHECK(data.previous_checkpoint == "/asd/sdf.meta");
+        DOCTEST_CHECK(data.recurrent == false);
     }
 }
 }

@@ -28,7 +28,6 @@ class PostProcScreen : public IScreen
     ResourceManager *resource_manager;
     glm::mat4 projection;
 
-    unsigned int fbo, msfbo, rbo;
     std::shared_ptr<Texture> texture;
     std::unique_ptr<Sprite> post_proc_sprite;
     std::unique_ptr<PostProcLayer> post_proc_layer_1;

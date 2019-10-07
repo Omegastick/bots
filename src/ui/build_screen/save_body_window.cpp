@@ -8,14 +8,13 @@
 #include <spdlog/spdlog.h>
 
 #include "ui/build_screen/save_body_window.h"
-#include "misc/io.h"
 #include "training/bodies/body.h"
 
 namespace fs = std::filesystem;
 
 namespace SingularityTrainer
 {
-SaveBodyWindow::SaveBodyWindow(IO &io) : io(&io), name("") {}
+SaveBodyWindow::SaveBodyWindow() : name("") {}
 
 bool SaveBodyWindow::update(Body &body)
 {

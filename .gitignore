@@ -15,6 +15,7 @@ imgui.ini
 build/
 bodies/
 checkpoints/
+compile_commands.json
 programs/
 runs/
 !src/training/bodies

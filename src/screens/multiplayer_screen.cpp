@@ -250,44 +250,47 @@ void MultiplayerScreen::play(double delta_time)
         auto message_object = MsgPackCodec::decode<msgpack::object_handle>(raw_message);
 
         auto type = get_message_type(message_object.get());
-        if (type == MessageType::State)
+        if (type != MessageType::State)
         {
-            auto message = message_object->as<StateMessage>();
-
-            auto action = client_agent->get_action(EnvState(message.agent_transforms,
-                                                            message.entity_transforms,
-                                                            message.hps,
-                                                            message.scores,
-                                                            message.tick));
-
-            ActionMessage action_message(action, message.tick);
-            auto encoded_action_message = MsgPackCodec::encode(action_message);
-            client_communicator->send(encoded_action_message);
-
-            env->add_new_state(EnvState(message.agent_transforms,
-                                        message.entity_transforms,
-                                        message.hps,
-                                        message.scores,
-                                        message.tick));
-            env->add_events(std::move(message.events));
-
-            if (message.done)
-            {
-                if (message.scores[0] > message.scores[1])
-                {
-                    winner = 0;
-                }
-                else if (message.scores[1] > message.scores[0])
-                {
-                    winner = 1;
-                }
-                else
-                {
-                    winner = -1;
-                }
-                done_tick = message.tick;
-            }
+            continue;
         }
+        auto message = message_object->as<StateMessage>();
+
+        auto action = client_agent->get_action(EnvState(message.agent_transforms,
+                                                        message.entity_transforms,
+                                                        message.hps,
+                                                        message.scores,
+                                                        message.tick));
+
+        ActionMessage action_message(action, message.tick);
+        auto encoded_action_message = MsgPackCodec::encode(action_message);
+        client_communicator->send(encoded_action_message);
+
+        env->add_new_state(EnvState(message.agent_transforms,
+                                    message.entity_transforms,
+                                    message.hps,
+                                    message.scores,
+                                    message.tick));
+        env->add_events(std::move(message.events));
+
+        if (!message.done)
+        {
+            continue;
+        }
+
+        if (message.scores[0] > message.scores[1])
+        {
+            winner = 0;
+        }
+        else if (message.scores[1] > message.scores[0])
+        {
+            winner = 1;
+        }
+        else
+        {
+            winner = -1;
+        }
+        done_tick = message.tick;
     }
 
     if (done_tick >= 0 && env->get_elapsed_time() * 10 >= done_tick)

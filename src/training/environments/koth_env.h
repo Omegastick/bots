@@ -20,7 +20,7 @@ class IEffect;
 class IEntity;
 class IEvent;
 class Hill;
-class Particle;
+struct Particle;
 class ResourceManager;
 class Wall;
 

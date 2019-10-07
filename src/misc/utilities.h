@@ -7,11 +7,6 @@
 #include <glm/glm.hpp>
 #include <imgui.h>
 
-namespace torch
-{
-class Tensor;
-}
-
 namespace SingularityTrainer
 {
 ImVec4 glm_to_im(const glm::vec4 &in);

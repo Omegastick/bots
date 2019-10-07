@@ -8,7 +8,7 @@
 namespace SingularityTrainer
 {
 class Random;
-class RenderData;
+struct RenderData;
 class RigidBody;
 class IEnvironment;
 

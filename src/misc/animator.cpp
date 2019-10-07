@@ -9,20 +9,20 @@ namespace SingularityTrainer
 template <class ForwardIt, class UnaryPredicate>
 ForwardIt remove_if_with_callback(ForwardIt first, ForwardIt last, UnaryPredicate predicate)
 {
-    first = std::find_if(first, last, predicate);
-    if (first != last)
+    auto iter = std::find_if(first, last, predicate);
+    if (iter != last)
     {
-        first->finish_callback();
-        for (ForwardIt i = first; ++i != last;)
+        iter->finish_callback();
+        for (ForwardIt i = iter; ++i != last;)
         {
             if (!predicate(*i))
             {
-                *first++ = std::move(*i);
+                *iter++ = std::move(*i);
             }
         }
     }
 
-    return first;
+    return iter;
 }
 
 Animator::Animator() {}

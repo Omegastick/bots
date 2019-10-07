@@ -15,19 +15,19 @@ namespace SingularityTrainer
 class ModuleLink;
 class IAction;
 class Body;
-class RenderData;
+struct RenderData;
 class Sprite;
 
 class IModule : public IDrawable
 {
   protected:
+    Body *body;
     IModule *root;
     std::vector<ModuleLink> module_links;
     std::vector<std::unique_ptr<IAction>> actions;
     b2Transform transform;
     std::vector<b2PolygonShape> shapes;
     std::unique_ptr<Sprite> sprite;
-    Body *body;
 
   public:
     IModule();

@@ -33,9 +33,7 @@ std::shared_ptr<IModule> ModuleFactory::create_module(std::string &module_id)
     {
         return std::make_shared<ThrusterModule>();
     }
-    else
-    {
-        throw std::runtime_error("No such module");
-    }
+
+    throw std::runtime_error("No such module");
 }
 }

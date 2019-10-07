@@ -8,7 +8,7 @@ namespace SingularityTrainer
 {
 class IEnvironment;
 class IO;
-class RewardConfig;
+struct RewardConfig;
 
 class RewardWindows
 {

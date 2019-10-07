@@ -12,13 +12,12 @@ class TrainerFactory;
 class HeadlessApp
 {
   private:
-    Random &rng;
     TrainerFactory &trainer_factory;
 
     int run_tests(int argc, char *argv[], const argh::parser &args);
 
   public:
-    HeadlessApp(Random &rng, TrainerFactory &trainer_factory);
+    HeadlessApp(TrainerFactory &trainer_factory);
 
     int run(int argc, char *argv[]);
 };

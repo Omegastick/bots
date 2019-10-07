@@ -21,7 +21,7 @@ class Random;
 class Renderer;
 class ResourceManager;
 class ScreenManager;
-class TrainingProgram;
+struct TrainingProgram;
 
 class TrainingWizardScreen : public IScreen
 {

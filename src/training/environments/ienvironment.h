@@ -16,8 +16,8 @@ namespace SingularityTrainer
 class Body;
 class IEffect;
 class IEntity;
-class Particle;
-class RewardConfig;
+struct Particle;
+struct RewardConfig;
 
 typedef std::tuple<float, float, float> Transform;
 

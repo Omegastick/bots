@@ -35,26 +35,28 @@ Body::Body(Body &&other)
 
 Body &Body::operator=(Body &&other)
 {
-    if (this != &other)
+    if (this == &other)
     {
-        modules = std::move(other.modules);
-        actions = std::move(other.actions);
-        rigid_body = std::move(other.rigid_body);
-        debug_draw = other.debug_draw;
-        other.debug_draw = false;
-        rng = other.rng;
-        other.rng = nullptr;
-        hp = other.hp;
-        other.hp = 0;
-        environment = other.environment;
-        other.environment = nullptr;
-        name = other.name;
-        other.name = "";
+        return *this;
+    }
 
-        for (const auto &module : modules)
-        {
-            module->set_body(this);
-        }
+    modules = std::move(other.modules);
+    actions = std::move(other.actions);
+    rigid_body = std::move(other.rigid_body);
+    debug_draw = other.debug_draw;
+    other.debug_draw = false;
+    rng = other.rng;
+    other.rng = nullptr;
+    hp = other.hp;
+    other.hp = 0;
+    environment = other.environment;
+    other.environment = nullptr;
+    name = other.name;
+    other.name = "";
+
+    for (const auto &module : modules)
+    {
+        module->set_body(this);
     }
 
     return *this;

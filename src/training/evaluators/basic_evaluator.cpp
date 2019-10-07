@@ -57,10 +57,8 @@ double BasicEvaluator::evaluate(const IAgent &agent,
         {
             return total + 0.5;
         }
-        else
-        {
-            return total;
-        }
+
+        return total;
     }
 
     return total / results.size();

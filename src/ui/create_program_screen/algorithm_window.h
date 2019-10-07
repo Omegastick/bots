@@ -5,7 +5,7 @@
 namespace SingularityTrainer
 {
 class IO;
-class HyperParameters;
+struct HyperParameters;
 
 class AlgorithmWindow
 {

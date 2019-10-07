@@ -58,8 +58,8 @@ list(APPEND CPPCHECK_ARGS
     ${CMAKE_CURRENT_LIST_DIR}/src
 )
 add_custom_target(
-    check
-    COMMAND cppcheck ${CPPCHECK_ARGS}
+    cppcheck
+    COMMAND "cppcheck ${CPPCHECK_ARGS}"
     COMMENT "Running CppCheck"
 )
 
