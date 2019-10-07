@@ -12,7 +12,8 @@ IO::IO()
     : cursor_x(0), cursor_y(0),
       resolution_x(0), resolution_y(0),
       left_clicked(false), right_clicked(false),
-      keys() {}
+      keys{false},
+      keys_this_frame{false} {}
 
 glm::dvec2 IO::get_cursor_position()
 {

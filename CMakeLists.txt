@@ -36,7 +36,7 @@ set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_FLAGS_RELEASE -O3)
 set(CMAKE_CXX_FLAGS_RELWITHDEBINFO -O3)
 
-# Cppcheck
+# CppCheck
 list(APPEND CPPCHECK_ARGS
     --enable=warning
     --std=c++14
@@ -48,20 +48,19 @@ list(APPEND CPPCHECK_ARGS
     --language=c++
     --config-exclude=${CMAKE_CURRENT_LIST_DIR}/src/third_party/stb_image.h
     --config-exclude=${CMAKE_CURRENT_LIST_DIR}/lib
-    -i${LIB_DIR}/
-    -i${CMAKE_CURRENT_LIST_DIR}/src/third_party/
     --suppressions-list=${CMAKE_CURRENT_LIST_DIR}/CppCheckSuppressions.txt 
+    -i ${LIB_DIR}/
+    -i ${CMAKE_CURRENT_LIST_DIR}/src/third_party/
     -I ${CMAKE_CURRENT_LIST_DIR}/src 
     -I ${CMAKE_CURRENT_LIST_DIR}/lib/*
     -I ${CMAKE_CURRENT_LIST_DIR}/lib/*/include
     -I ${CMAKE_CURRENT_LIST_DIR}/lib/doctest/doctest
-    # -E
     ${CMAKE_CURRENT_LIST_DIR}/src
 )
 add_custom_target(
     check
     COMMAND cppcheck ${CPPCHECK_ARGS}
-    COMMENT "Running Cppcheck"
+    COMMENT "Running CppCheck"
 )
 
 # Executables and local libraries
