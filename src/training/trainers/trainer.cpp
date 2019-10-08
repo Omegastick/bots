@@ -2,6 +2,7 @@
 #include <filesystem>
 #include <memory>
 #include <mutex>
+#include <stdexcept>
 
 #include <Box2D/Box2D.h>
 #include <cpprl/cpprl.h>

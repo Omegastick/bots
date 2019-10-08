@@ -1,4 +1,5 @@
 #include <memory>
+#include <stdexcept>
 #include <string>
 
 #include "misc/module_factory.h"

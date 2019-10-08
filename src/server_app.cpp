@@ -2,6 +2,7 @@
 #include <cstdlib>
 #include <memory>
 #include <iostream>
+#include <stdexcept>
 #include <thread>
 #include <signal.h>
 #include <stdlib.h>

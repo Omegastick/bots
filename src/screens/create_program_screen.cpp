@@ -1,4 +1,5 @@
 #include <memory>
+#include <stdexcept>
 
 #include <Box2D/Box2D.h>
 #include <glm/glm.hpp>
