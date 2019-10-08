@@ -365,15 +365,12 @@ void KothEnv::set_state(const EnvState &state)
     }
 
     // Remove old bullets
-    for (auto entity_iterator = entities.begin(); entity_iterator != entities.end();)
+    for (auto it = entities.cbegin(), next_it = it; it != entities.cend(); it = next_it)
     {
-        if (state.entity_states.find(entity_iterator->first) == state.entity_states.end())
+        ++next_it;
+        if (state.entity_states.find(it->first) == state.entity_states.end())
         {
-            entity_iterator = entities.erase(entity_iterator);
-        }
-        else
-        {
-            ++entity_iterator;
+            it->second->destroy();
         }
     }
 

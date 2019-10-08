@@ -571,6 +571,27 @@ TEST_CASE("PlaybackEnv")
         DOCTEST_CHECK(env.get_entities().size() == 0);
     }
 
+    SUBCASE("Bullets that disappear without being explicitly destroyed disappear")
+    {
+        auto &env = playback_env.get_env();
+
+        std::vector<b2Transform> agent_transforms{{{0, 0}, b2Rot(0)},
+                                                  {{0, 0}, b2Rot(0)}};
+        std::unordered_map<unsigned int, b2Transform> entity_states{{0, {{0, 0}, b2Rot(0)}}};
+        playback_env.add_new_state({agent_transforms, entity_states, {10, 10}, {0, 0}, 0});
+
+        playback_env.add_new_state({agent_transforms, entity_states, {10, 10}, {0, 0}, 1});
+
+        entity_states = {};
+        playback_env.add_new_state({agent_transforms, entity_states, {10, 10}, {0, 0}, 1});
+
+        playback_env.update(0.025);
+        DOCTEST_CHECK(env.get_entities().size() == 1);
+
+        playback_env.update(1);
+        DOCTEST_CHECK(env.get_entities().size() == 0);
+    }
+
     SUBCASE("HPs are updated correctly")
     {
         auto &env = playback_env.get_env();
