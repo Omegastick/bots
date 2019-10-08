@@ -174,6 +174,7 @@ Trainer::Trainer(TrainingProgram program,
 
 float Trainer::evaluate()
 {
+    spdlog::debug("Evaluating agent");
     std::vector<IAgent *> new_opponents_vec;
     for (unsigned int i = opponent_pool.size() - new_opponents; i < opponent_pool.size(); ++i)
     {
@@ -196,6 +197,7 @@ RenderData Trainer::get_render_data(bool lightweight)
 
 std::vector<std::pair<std::string, float>> Trainer::step_batch()
 {
+    spdlog::debug("Starting new training batch");
     tf::Executor executor;
     tf::Taskflow task_flow;
 
@@ -302,23 +304,34 @@ std::vector<std::pair<std::string, float>> Trainer::step_batch()
         }
     }
 
+    spdlog::debug("Gathering training data");
     executor.run(task_flow);
     executor.wait_for_all();
 
     batch_number++;
 
+    spdlog::debug("Processing training data");
     std::vector<cpprl::RolloutStorage *> storage_ptrs;
     std::transform(storages.begin(), storages.end(), std::back_inserter(storage_ptrs),
                    [](cpprl::RolloutStorage &storage) { return &storage; });
     rollout_storage = std::make_unique<cpprl::RolloutStorage>(storage_ptrs, torch::kCPU);
 
+    spdlog::debug("Learning from training data");
     auto update_data = learn();
+
+    spdlog::debug("Training batch finished");
     return update_data;
 }
 
 std::filesystem::path Trainer::save_model(std::filesystem::path directory)
 {
-    previous_checkpoint = checkpointer.save(policy, program.body, {}, previous_checkpoint, directory);
+    spdlog::debug("Saving model");
+    previous_checkpoint = checkpointer.save(policy,
+                                            program.body,
+                                            {},
+                                            previous_checkpoint,
+                                            directory);
+    spdlog::debug("Model saved to: {}", previous_checkpoint.string());
 
     return previous_checkpoint;
 }
