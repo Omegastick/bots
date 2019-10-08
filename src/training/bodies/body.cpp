@@ -1,5 +1,6 @@
 #include <memory>
 #include <sstream>
+#include <stdexcept>
 #include <vector>
 
 #include <Box2D/Box2D.h>

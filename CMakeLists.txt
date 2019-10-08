@@ -29,12 +29,11 @@ set(TWEENY_DIR ${LIB_DIR}/tweeny)
 set(ZMQ_DIR ${LIB_DIR}/libzmq)
 
 # CMake Properties
-if (NOT CMAKE_BUILD_TYPE)
-    set(CMAKE_BUILD_TYPE Debug)
-endif()
 set(CMAKE_CXX_STANDARD 17)
-set(CMAKE_CXX_FLAGS_RELEASE -O3)
-set(CMAKE_CXX_FLAGS_RELWITHDEBINFO -O3)
+if(UNIX)
+    set(CMAKE_CXX_FLAGS_RELEASE -O3)
+    set(CMAKE_CXX_FLAGS_RELWITHDEBINFO -O3)
+endif(UNIX)
 
 # CppCheck
 list(APPEND CPPCHECK_ARGS
@@ -118,13 +117,14 @@ if (NOT TORCH_FOUND)
         set(CMAKE_CXX_FLAGS ${TORCH_CXX_FLAGS})
     endif(TORCH_CXX_FLAGS)
 endif (NOT TORCH_FOUND)
+message(STATUS "Torch install location: ${TORCH_INSTALL_PREFIX}")
 ## spdlog
 if (NOT TARGET spdlog)
     option(SPDLOG_BUILD_TESTING "" OFF)
     add_subdirectory(${SPDLOG_DIR})
 endif(NOT TARGET spdlog)
 ## cURLpp
-find_package(CURL)
+find_package(CURL REQUIRED)
 add_subdirectory(${CURLPP_DIR})
 set_target_properties(curlpp_static PROPERTIES POSITION_INDEPENDENT_CODE TRUE)
 ## CppRl
@@ -167,6 +167,7 @@ find_package(PythonLibs REQUIRED)
 ## Pybind11
 add_subdirectory(${PYBIND_DIR})
 pybind11_add_module(PythonBindings "")
+set_target_properties(PythonBindings PROPERTIES EXCLUDE_FROM_ALL TRUE)
 ## ZMQ
 option(ZMQ_BUILD_TESTS "" OFF)
 option(WITH_DOC "" OFF)
@@ -175,7 +176,7 @@ add_subdirectory(${ZMQ_DIR})
 
 # Link libraries
 target_link_libraries(Misc PUBLIC curlpp_static doctest)
-target_link_libraries(Training PUBLIC Graphics cpprl torch ${TORCH_LIBRARIES} tobanteGaming::Box2D doctest fmt::fmt ${PYTHON_LIBRARIES})
+target_link_libraries(Training PUBLIC Graphics ${TORCH_LIBRARIES} cpprl tobanteGaming::Box2D doctest fmt::fmt ${PYTHON_LIBRARIES})
 # UNIX systems sometimes need to explicitly link the threading library
 if (UNIX)
     message(STATUS "Linking against Linux libraries")
@@ -209,6 +210,7 @@ set(INCLUDE_DIRS
     ${DOCTEST_DIR}/doctest
     ${ARGH_DIR}
     ${JSON_DIR}/include
+    ${TORCH_INCLUDE_DIRS}
     ${TROMPELOEIL_DIR}/include
     ${TWEENY_DIR}/include
     ${PYBIND_DIR}/include
@@ -227,7 +229,6 @@ target_include_directories(Training PUBLIC ${INCLUDE_DIRS})
 target_include_directories(PythonBindings PUBLIC ${INCLUDE_DIRS})
 
 set(NO_ERR_INCLUDE_DIRS
-    ${TORCH_INCLUDE_DIRS}
     ${TASKFLOW_DIR}
 )
 

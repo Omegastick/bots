@@ -1,6 +1,7 @@
 #include <chrono>
 #include <map>
 #include <memory>
+#include <stdexcept>
 #include <vector>
 
 #include <Box2D/Box2D.h>

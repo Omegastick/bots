@@ -2,6 +2,7 @@
 #include <future>
 #include <list>
 #include <sstream>
+#include <stdexcept>
 #include <string>
 
 #include <curlpp/cURLpp.hpp>
