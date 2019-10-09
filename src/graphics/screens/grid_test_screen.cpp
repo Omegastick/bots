@@ -32,6 +32,29 @@ const float friction = 0.98;
 const float stiffness = 0.28;
 const float elasticity = 0.05;
 
+void apply_spring_forces(const glm::vec3 &position_1,
+                         const glm::vec3 &position_2,
+                         const glm::vec3 &velocity_1,
+                         const glm::vec3 &velocity_2,
+                         glm::vec3 &acceleration_1,
+                         glm::vec3 &acceleration_2)
+{
+    glm::vec3 vector = position_1 - position_2;
+
+    float vector_length = glm::length(vector);
+    if (vector_length <= spring_length)
+    {
+        return;
+    }
+
+    vector = (vector / vector_length) * (vector_length - spring_length);
+    glm::vec3 velocity = velocity_2 - velocity_1;
+    glm::vec3 force = stiffness * vector - velocity * damping;
+
+    acceleration_1 += -force;
+    acceleration_2 += force;
+}
+
 GridTestScreen::GridTestScreen(
     ScreenManager *screen_manager,
     ResourceManager &resource_manager,
@@ -41,8 +64,8 @@ GridTestScreen::GridTestScreen(
       screen_names(screen_names),
       screen_manager(screen_manager),
       projection(glm::ortho(0.f, 1920.f, 0.f, 1080.f)),
-      accelerations(no_vertices, {0, 0}),
-      velocities(no_vertices, {0, 0})
+      accelerations(no_vertices, {0, 0, 0}),
+      velocities(no_vertices, {0, 0, 0})
 {
     this->resource_manager = &resource_manager;
     resource_manager.load_texture("bullet", "images/bullet.png");
@@ -57,8 +80,8 @@ GridTestScreen::GridTestScreen(
     {
         for (float j = -half_size; j < half_size; j += spring_length)
         {
-            original_positions.push_back(glm::vec2{i, j} + center);
-            positions.push_back(glm::vec2{i, j} + center);
+            original_positions.push_back(glm::vec3{i, j, 0} + glm::vec3{center.x, center.y, 0});
+            positions.push_back(glm::vec3{i, j, 0} + glm::vec3{center.x, center.y, 0});
         }
     }
 
@@ -76,15 +99,15 @@ void GridTestScreen::update(double delta_time)
     {
         if (i < length || i > no_vertices - length || i % length == 0 || i % length == length - 1)
         {
-            accelerations[i] = {0, 0};
+            accelerations[i] = {0, 0, 0};
         }
-        glm::vec2 velocity = velocities[i];
+        glm::vec3 velocity = velocities[i];
         velocity += accelerations[i];
         positions[i] += velocity + ((original_positions[i] - positions[i]) * elasticity);
         velocity *= friction;
-        if (velocity.x < 0.001 && velocity.y < 0.001)
+        if (velocity.x < 0.0001 && velocity.y < 0.0001)
         {
-            velocity = {0, 0};
+            velocity = {0, 0, 0};
         }
         velocities[i] = velocity;
     }
@@ -97,22 +120,14 @@ void GridTestScreen::update(double delta_time)
     {
         for (int column = 0; column < length - 1; ++column)
         {
-            int index = row * length + column;
-
-            glm::vec2 vector = positions[index] - positions[index + 1];
-
-            float vector_length = glm::sqrt((vector.x * vector.x) + (vector.y * vector.y));
-            if (vector_length <= spring_length)
-            {
-                continue;
-            }
-
-            vector = (vector / vector_length) * (vector_length - spring_length);
-            glm::vec2 velocity = velocities[index + 1] - velocities[index];
-            glm::vec2 force = stiffness * vector - velocity * damping;
-
-            accelerations[index] += -force;
-            accelerations[index + 1] += force;
+            int index_1 = row * length + column;
+            int index_2 = index_1 + 1;
+            apply_spring_forces(positions[index_1],
+                                positions[index_2],
+                                velocities[index_1],
+                                velocities[index_2],
+                                accelerations[index_1],
+                                accelerations[index_2]);
         }
     }
 
@@ -121,22 +136,14 @@ void GridTestScreen::update(double delta_time)
     {
         for (int row = 0; row < length - 1; ++row)
         {
-            int index = row * length + column;
-
-            glm::vec2 vector = positions[index] - positions[index + length];
-
-            float vector_length = glm::sqrt((vector.x * vector.x) + (vector.y * vector.y));
-            if (vector_length <= spring_length)
-            {
-                continue;
-            }
-
-            vector = (vector / vector_length) * (vector_length - spring_length);
-            glm::vec2 velocity = velocities[index + length] - velocities[index];
-            glm::vec2 force = stiffness * vector - velocity * damping;
-
-            accelerations[index] += -force;
-            accelerations[index + length] += force;
+            int index_1 = row * length + column;
+            int index_2 = index_1 + length;
+            apply_spring_forces(positions[index_1],
+                                positions[index_2],
+                                velocities[index_1],
+                                velocities[index_2],
+                                accelerations[index_1],
+                                accelerations[index_2]);
         }
     }
 
@@ -144,8 +151,26 @@ void GridTestScreen::update(double delta_time)
     {
         int column = glm::linearRand<int>(0, length);
         int row = glm::linearRand<int>(0, length);
-        accelerations[row * length + column] = glm::linearRand(glm::vec2(-1000, -1000),
-                                                               glm::vec2(1000, 1000));
+        accelerations[row * length + column] = glm::linearRand(glm::vec3(-100, -100, -100),
+                                                               glm::vec3(100, 100, 100));
+    }
+
+    if (ImGui::IsKeyPressed(GLFW_KEY_Q))
+    {
+        glm::vec2 target_point = glm::linearRand(glm::vec2{0, 0},
+                                                 glm::vec2{length, length});
+        for (int row = 0; row < length; ++row)
+        {
+            for (int column = 0; column < length; ++column)
+            {
+                float distance = glm::length(glm::vec2{row, column} - target_point);
+                if (distance < 10)
+                {
+                    accelerations[row * length + column] = glm::vec3{0, 0, -100} *
+                                                           ((10 - distance) * 0.1f);
+                }
+            }
+        }
     }
 }
 
@@ -157,7 +182,7 @@ void GridTestScreen::draw(Renderer &renderer, bool /*lightweight*/)
 
     for (const auto &position : positions)
     {
-        sprite->set_position(position);
+        sprite->set_position({position.x, position.y});
         render_data.sprites.push_back(*sprite);
     }
 
