@@ -108,7 +108,7 @@ TEST_CASE("Rotating around a point produces expected results")
         b2Vec2 expected{1, 0};
         auto result = rotate_point_around_point({0, 1}, b2Rot(glm::radians(-90.f)), {0, 0});
         INFO("Expected: {" << expected.x << ", " << expected.y << "} - Actual: {" << result.x << ", " << result.y << "}");
-        CHECK(approx(result, expected));
+        DOCTEST_CHECK(approx(result, expected));
     }
 
     SUBCASE("Rotate {2, 0} 90 degrees left")
@@ -116,7 +116,7 @@ TEST_CASE("Rotating around a point produces expected results")
         b2Vec2 expected{0, 2};
         auto result = rotate_point_around_point({2, 0}, b2Rot(glm::radians(90.f)), {0, 0});
         INFO("Expected: {" << expected.x << ", " << expected.y << "} - Actual: {" << result.x << ", " << result.y << "}");
-        CHECK(approx(result, expected));
+        DOCTEST_CHECK(approx(result, expected));
     }
 
     SUBCASE("Rotate {5, 0} 180 degrees")
@@ -124,7 +124,7 @@ TEST_CASE("Rotating around a point produces expected results")
         b2Vec2 expected{-5, 0};
         auto result = rotate_point_around_point({5, 0}, b2Rot(glm::radians(180.f)), {0, 0});
         INFO("Expected: {" << expected.x << ", " << expected.y << "} - Actual: {" << result.x << ", " << result.y << "}");
-        CHECK(approx(result, expected));
+        DOCTEST_CHECK(approx(result, expected));
     }
 
     SUBCASE("Rotate {5, 2} 180 degrees around {0, 2}")
@@ -132,7 +132,7 @@ TEST_CASE("Rotating around a point produces expected results")
         b2Vec2 expected{-5, 2};
         auto result = rotate_point_around_point({5, 2}, b2Rot(glm::radians(180.f)), {0, 2});
         INFO("Expected: {" << expected.x << ", " << expected.y << "} - Actual: {" << result.x << ", " << result.y << "}");
-        CHECK(approx(result, expected));
+        DOCTEST_CHECK(approx(result, expected));
     }
 }
 }
