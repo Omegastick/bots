@@ -25,10 +25,10 @@ class GridTestScreen : public IScreen
     ResourceManager *resource_manager;
     glm::mat4 projection;
 
-    std::vector<glm::vec2> accelerations;
-    std::vector<glm::vec2> original_positions;
-    std::vector<glm::vec2> positions;
-    std::vector<glm::vec2> velocities;
+    std::vector<glm::vec3> accelerations;
+    std::vector<glm::vec3> original_positions;
+    std::vector<glm::vec3> positions;
+    std::vector<glm::vec3> velocities;
 
   public:
     GridTestScreen(
