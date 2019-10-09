@@ -1,4 +1,5 @@
 #include "graphics/screens/animation_test_screen.h"
+#include "graphics/screens/grid_test_screen.h"
 #include "graphics/screens/quad_screen.h"
 #include "graphics/screens/texture_test_screen.h"
 #include "graphics/screens/sprite_test_screen.h"

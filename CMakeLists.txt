@@ -265,7 +265,6 @@ set(INCLUDE_DIRS
     ${DOCTEST_DIR}/doctest
     ${ARGH_DIR}
     ${JSON_DIR}/include
-    ${TORCH_INCLUDE_DIRS}
     ${TROMPELOEIL_DIR}/include
     ${TWEENY_DIR}/include
     ${PYBIND_DIR}/include
@@ -285,6 +284,7 @@ target_include_directories(PythonBindings PUBLIC ${INCLUDE_DIRS})
 
 set(NO_ERR_INCLUDE_DIRS
     ${TASKFLOW_DIR}
+    ${TORCH_INCLUDE_DIRS}
 )
 
 target_include_directories(SingularityTrainer SYSTEM PUBLIC ${NO_ERR_INCLUDE_DIRS})
