@@ -199,6 +199,9 @@ int main(int /*argc*/, const char * /*argv*/ [])
     spdlog::debug("Initializing grid test");
     screens.push_back(std::make_shared<GridTestScreen>(&screen_manager, resource_manager, &screens, &screen_names));
     screen_names.push_back("Grid test");
+    spdlog::debug("Initializing distortion test");
+    screens.push_back(std::make_shared<DistortionTestScreen>(&screen_manager, resource_manager, &screens, &screen_names));
+    screen_names.push_back("Distortion test");
     screen_manager.show_screen(screens[0]);
 
     spdlog::debug("Initializing renderer");
