@@ -6,6 +6,7 @@
 
 #include <glm/glm.hpp>
 
+#include "graphics/renderers/batched_sprite_renderer.h"
 #include "screens/iscreen.h"
 
 namespace SingularityTrainer
@@ -29,6 +30,8 @@ class GridTestScreen : public IScreen
     std::vector<glm::vec3> original_positions;
     std::vector<glm::vec3> positions;
     std::vector<glm::vec3> velocities;
+
+    BatchedSpriteRenderer sprite_renderer;
 
   public:
     GridTestScreen(

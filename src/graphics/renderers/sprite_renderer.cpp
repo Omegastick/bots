@@ -39,12 +39,17 @@ SpriteRenderer::SpriteRenderer(ResourceManager &resource_manager) : resource_man
 void SpriteRenderer::draw(const Sprite &sprite, const glm::mat4 &view)
 {
     vertex_array->bind();
+
     auto shader = resource_manager->shader_store.get("texture");
     shader->bind();
+
     auto mvp = view * sprite.get_transform();
+
     shader->set_uniform_mat4f("u_mvp", mvp);
     shader->set_uniform_1i("u_texture", 0);
+
     resource_manager->texture_store.get(sprite.get_texture())->bind();
+
     glDrawElements(GL_TRIANGLES, element_buffer->get_count(), GL_UNSIGNED_INT, 0);
 }
 }

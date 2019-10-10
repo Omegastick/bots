@@ -1,5 +1,6 @@
 target_sources(Graphics
 PRIVATE
+    ${CMAKE_CURRENT_LIST_DIR}/batched_sprite_renderer.cpp
     ${CMAKE_CURRENT_LIST_DIR}/renderer.cpp
     ${CMAKE_CURRENT_LIST_DIR}/sprite_renderer.cpp
     ${CMAKE_CURRENT_LIST_DIR}/particle_renderer.cpp
