@@ -86,8 +86,8 @@ set(ZMQ_DIR ${LIB_DIR}/libzmq)
 # CMake Properties
 set(CMAKE_CXX_STANDARD 17)
 if(UNIX)
-    set(CMAKE_CXX_FLAGS_RELEASE -O3)
-    set(CMAKE_CXX_FLAGS_RELWITHDEBINFO -O3)
+    set(CMAKE_CXX_FLAGS_RELEASE "-O3")
+    set(CMAKE_CXX_FLAGS_RELWITHDEBINFO "-O3 -g")
 endif(UNIX)
 
 # CppCheck
@@ -231,14 +231,14 @@ add_subdirectory(${ZMQ_DIR})
 
 # Link libraries
 target_link_libraries(Misc PUBLIC curlpp_static doctest)
-target_link_libraries(Training PUBLIC Graphics ${TORCH_LIBRARIES} cpprl tobanteGaming::Box2D doctest fmt::fmt ${PYTHON_LIBRARIES})
+target_link_libraries(Graphics glad glfw ${GLFW_LIBRARIES} glm imgui doctest)
+target_link_libraries(Training PUBLIC cpprl doctest  fmt::fmt Graphics ${PYTHON_LIBRARIES} tobanteGaming::Box2D ${TORCH_LIBRARIES})
 # UNIX systems sometimes need to explicitly link the threading library
 if (UNIX)
     message(STATUS "Linking against Linux libraries")
     target_link_libraries(Training PUBLIC pthread)
     target_link_libraries(SingularityTrainer backtrace )
 endif(UNIX)
-target_link_libraries(Graphics glad glfw ${GLFW_LIBRARIES} glm imgui doctest)
 target_link_libraries(Networking Training nlohmann_json::nlohmann_json libzmq-static)
 target_link_libraries(SingularityTrainer Graphics Misc Training Networking)
 target_link_libraries(HeadlessTrainer Graphics Misc Training)

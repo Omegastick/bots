@@ -22,7 +22,7 @@
 
 namespace SingularityTrainer
 {
-const int length = 100;
+const int length = 200;
 const int no_vertices = length * length;
 const float size = 1000;
 const float spring_length = size / length;
@@ -65,7 +65,8 @@ GridTestScreen::GridTestScreen(
       screen_manager(screen_manager),
       projection(glm::ortho(0.f, 1920.f, 0.f, 1080.f)),
       accelerations(no_vertices, {0, 0, 0}),
-      velocities(no_vertices, {0, 0, 0})
+      velocities(no_vertices, {0, 0, 0}),
+      sprite_renderer(resource_manager)
 {
     this->resource_manager = &resource_manager;
     resource_manager.load_texture("bullet", "images/bullet.png");
@@ -164,10 +165,9 @@ void GridTestScreen::update(double delta_time)
             for (int column = 0; column < length; ++column)
             {
                 float distance = glm::length(glm::vec2{row, column} - target_point);
-                if (distance < 10)
+                if (distance < 15)
                 {
-                    accelerations[row * length + column] = glm::vec3{0, 0, -100} *
-                                                           ((10 - distance) * 0.1f);
+                    accelerations[row * length + column] = glm::vec3{0, 0, 100};
                 }
             }
         }
@@ -178,15 +178,16 @@ void GridTestScreen::draw(Renderer &renderer, bool /*lightweight*/)
 {
     renderer.begin();
 
-    RenderData render_data;
+    std::vector<glm::mat4> sprite_transforms;
+    sprite_transforms.reserve(no_vertices);
 
     for (const auto &position : positions)
     {
         sprite->set_position({position.x, position.y});
-        render_data.sprites.push_back(*sprite);
+        sprite_transforms.push_back(sprite->get_transform());
     }
 
-    renderer.draw(render_data, projection, 0);
+    sprite_renderer.draw(sprite->get_texture(), sprite_transforms, projection);
     renderer.end();
 }
 }

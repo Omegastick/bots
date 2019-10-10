@@ -20,7 +20,6 @@ class Sprite : public ITransformable
 
   public:
     explicit Sprite(std::string texture);
-    ~Sprite();
 
     glm::vec2 get_center() const;
 

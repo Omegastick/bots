@@ -2,6 +2,9 @@
 #include <sstream>
 #include <vector>
 
+#ifdef BUILD_WITH_EASY_PROFILER
+#include <easy/profiler.h>
+#endif
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 #include <glm/glm.hpp>
@@ -150,6 +153,11 @@ int main(int /*argc*/, const char * /*argv*/ [])
     spdlog::set_pattern("%^[%T %7l] %v%$");
     glfwSetErrorCallback(error_callback);
 
+#ifdef BUILD_WITH_EASY_PROFILER
+    EASY_MAIN_THREAD;
+    profiler::startListen();
+#endif
+
     // Create window
     Window window = Window(resolution_x, resolution_y, window_title, opengl_version_major, opengl_version_minor);
 
@@ -210,6 +218,9 @@ int main(int /*argc*/, const char * /*argv*/ [])
     // Main loop
     while (!window.should_close())
     {
+#ifdef BUILD_WITH_EASY_PROFILER
+        EASY_BLOCK("Frame");
+#endif
         // Time
         double new_time = glfwGetTime();
         double delta_time = new_time - time;
