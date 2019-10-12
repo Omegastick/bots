@@ -1,6 +1,9 @@
 #include <memory>
 
+#include <easy/profiler.h>
+#include <fmt/ostream.h>
 #include <glm/mat4x4.hpp>
+#include <spdlog/spdlog.h>
 
 #include "batched_sprite_renderer.h"
 #include "graphics/backend/vertex_array.h"
@@ -13,8 +16,11 @@
 namespace SingularityTrainer
 {
 BatchedSpriteRenderer::BatchedSpriteRenderer(ResourceManager &resource_manager)
-    : resource_manager(&resource_manager), max_sprites(100000)
+    : resource_manager(&resource_manager),
+      max_sprites(100000),
+      transformed_vertices(max_sprites * 4)
 {
+
     resource_manager.load_shader("batched_texture",
                                  "shaders/texture_batched.vert",
                                  "shaders/texture.frag");
@@ -51,41 +57,56 @@ void BatchedSpriteRenderer::draw(const std::string &texture,
                                  const std::vector<glm::mat4> &transforms,
                                  const glm::mat4 &view)
 {
+    EASY_FUNCTION(profiler::colors::Grey);
     vertex_array->bind();
 
     auto shader = resource_manager->shader_store.get("batched_texture");
     shader->bind();
 
-    std::vector<SpriteVertex> vertices;
-    vertices.reserve(transforms.size() * 4);
-    for (const auto &transform : transforms)
+    EASY_BLOCK("Calculate vertices", profiler::colors::Blue);
+    for (unsigned int i = 0; i < transforms.size(); ++i)
     {
+        const auto &transform = transforms[i];
+
         glm::vec4 transformed_position = transform * glm::vec4(0.0, 1.0, 1.0, 1.0);
-        vertices.push_back({glm::vec2(transformed_position.x, transformed_position.y),
-                            glm::vec2(0.0, 1.0),
-                            glm::vec4(1.0, 1.0, 1.0, 1.0)});
+        transformed_vertices[i * 4] = {glm::vec2(transformed_position.x,
+                                                 transformed_position.y),
+                                       glm::vec2(0.0, 1.0),
+                                       glm::vec4(1.0, 1.0, 1.0, 1.0)};
+
         transformed_position = transform * glm::vec4(0.0, 0.0, 1.0, 1.0);
-        vertices.push_back({glm::vec2(transformed_position.x, transformed_position.y),
-                            glm::vec2(0.0, 0.0),
-                            glm::vec4(1.0, 1.0, 1.0, 1.0)});
+        transformed_vertices[i * 4 + 1] = {glm::vec2(transformed_position.x,
+                                                     transformed_position.y),
+                                           glm::vec2(0.0, 0.0),
+                                           glm::vec4(1.0, 1.0, 1.0, 1.0)};
+
         transformed_position = transform * glm::vec4(1.0, 0.0, 1.0, 1.0);
-        vertices.push_back({glm::vec2(transformed_position.x, transformed_position.y),
-                            glm::vec2(1.0, 0.0),
-                            glm::vec4(1.0, 1.0, 1.0, 1.0)});
+        transformed_vertices[i * 4 + 2] = {glm::vec2(transformed_position.x,
+                                                     transformed_position.y),
+                                           glm::vec2(1.0, 0.0),
+                                           glm::vec4(1.0, 1.0, 1.0, 1.0)};
+
         transformed_position = transform * glm::vec4(1.0, 1.0, 1.0, 1.0);
-        vertices.push_back({glm::vec2(transformed_position.x, transformed_position.y),
-                            glm::vec2(1.0, 1.0),
-                            glm::vec4(1.0, 1.0, 1.0, 1.0)});
+        transformed_vertices[i * 4 + 3] = {glm::vec2(transformed_position.x,
+                                                     transformed_position.y),
+                                           glm::vec2(1.0, 1.0),
+                                           glm::vec4(1.0, 1.0, 1.0, 1.0)};
     }
-    vertex_buffer->add_data(vertices.data(),
-                            sizeof(SpriteVertex) * vertices.size(),
+    EASY_END_BLOCK;
+
+    EASY_BLOCK("Upload data to GPU", profiler::colors::Silver);
+    vertex_buffer->add_data(transformed_vertices.data(),
+                            sizeof(SpriteVertex) * (transforms.size() * 4),
                             GL_DYNAMIC_DRAW);
 
     shader->set_uniform_mat4f("u_view", view);
     shader->set_uniform_1i("u_texture", 0);
 
     resource_manager->texture_store.get(texture)->bind();
+    EASY_END_BLOCK;
 
+    EASY_BLOCK("Draw call", profiler::colors::SkyBlue);
     glDrawElements(GL_TRIANGLES, transforms.size() * 6, GL_UNSIGNED_INT, 0);
+    EASY_END_BLOCK;
 }
 }

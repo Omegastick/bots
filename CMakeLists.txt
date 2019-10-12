@@ -188,8 +188,8 @@ option(CPPRL_BUILD_EXAMPLE "" OFF)
 add_subdirectory(${CPPRL_DIR})
 set_target_properties(cpprl PROPERTIES POSITION_INDEPENDENT_CODE TRUE)
 ## Easy Profiler
-# add_subdirectory(${EASY_PROFILER_DIR})
-# set_target_properties(easy_profiler PROPERTIES POSITION_INDEPENDENT_CODE TRUE)
+add_subdirectory(${EASY_PROFILER_DIR})
+set_target_properties(easy_profiler PROPERTIES POSITION_INDEPENDENT_CODE TRUE)
 ## GLFW
 option(GLFW_BUILD_EXAMPLES "" OFF)
 option(GLFW_BUILD_TESTS "" OFF)
@@ -231,7 +231,7 @@ add_subdirectory(${ZMQ_DIR})
 
 # Link libraries
 target_link_libraries(Misc PUBLIC curlpp_static doctest)
-target_link_libraries(Graphics glad glfw ${GLFW_LIBRARIES} glm imgui doctest)
+target_link_libraries(Graphics easy_profiler glad glfw ${GLFW_LIBRARIES} glm imgui doctest)
 target_link_libraries(Training PUBLIC cpprl doctest  fmt::fmt Graphics ${PYTHON_LIBRARIES} tobanteGaming::Box2D ${TORCH_LIBRARIES})
 # UNIX systems sometimes need to explicitly link the threading library
 if (UNIX)
@@ -253,7 +253,7 @@ set(INCLUDE_DIRS
     ${CURL_INCLUDE_DIRS}
     ${CPPRL_DIR}/include
     ${CURLPP_DIR}/include
-    # ${EASY_PROFILER_DIR}/easy_profiler_core/include
+    ${EASY_PROFILER_DIR}/easy_profiler_core/include
     ${GLAD_DIR}/include 
     ${GLFW_DIR}/include 
     ${GLM_DIR} 

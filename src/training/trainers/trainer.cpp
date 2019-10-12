@@ -192,8 +192,9 @@ RenderData Trainer::get_render_data(bool lightweight)
         std::lock_guard lock_guard(env_mutexes[0]);
         render_data = environments[0]->get_render_data(lightweight);
     }
-    
-    for (int i = 1; i < environments.size(); ++i) {
+
+    for (unsigned int i = 1; i < environments.size(); ++i)
+    {
         std::lock_guard lock_guard(env_mutexes[i]);
         environments[i]->clear_effects();
     }

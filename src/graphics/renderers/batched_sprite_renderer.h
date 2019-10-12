@@ -24,6 +24,7 @@ class BatchedSpriteRenderer
     std::unique_ptr<ElementBuffer> element_buffer;
     ResourceManager *resource_manager;
     int max_sprites;
+    std::vector<SpriteVertex> transformed_vertices;
 
   public:
     BatchedSpriteRenderer(ResourceManager &resource_manager);
