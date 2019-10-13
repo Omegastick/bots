@@ -19,42 +19,13 @@
 #include "graphics/sprite.h"
 #include "misc/resource_manager.h"
 #include "misc/screen_manager.h"
+#include "misc/spring_mesh.h"
 #include "screens/iscreen.h"
 
 namespace SingularityTrainer
 {
 const int length = 100;
-const int no_vertices = length * length;
 const float size = 1000;
-const float spring_length = size / length;
-
-const float damping = 0.06;
-const float friction = 0.98;
-const float stiffness = 0.28;
-const float elasticity = 0.05;
-
-void apply_spring_forces(const glm::vec3 &position_1,
-                         const glm::vec3 &position_2,
-                         const glm::vec3 &velocity_1,
-                         const glm::vec3 &velocity_2,
-                         glm::vec3 &acceleration_1,
-                         glm::vec3 &acceleration_2)
-{
-    glm::vec3 vector = position_1 - position_2;
-
-    float vector_length = glm::length(vector);
-    if (vector_length <= spring_length)
-    {
-        return;
-    }
-
-    vector = (vector / vector_length) * (vector_length - spring_length);
-    glm::vec3 velocity = velocity_2 - velocity_1;
-    glm::vec3 force = stiffness * vector - velocity * damping;
-
-    acceleration_1 += -force;
-    acceleration_2 += force;
-}
 
 GridTestScreen::GridTestScreen(
     ScreenManager *screen_manager,
@@ -65,9 +36,7 @@ GridTestScreen::GridTestScreen(
       screen_names(screen_names),
       screen_manager(screen_manager),
       projection(glm::ortho(0.f, 1920.f, 0.f, 1080.f)),
-      accelerations(no_vertices, {0, 0, 0}),
-      offsets(no_vertices, {0, 0, 0}),
-      velocities(no_vertices, {0, 0, 0}),
+      spring_mesh(length, size, {960, 540}),
       sprite_renderer(resource_manager)
 {
     this->resource_manager = &resource_manager;
@@ -75,119 +44,38 @@ GridTestScreen::GridTestScreen(
     sprite = std::make_unique<Sprite>("bullet");
     sprite->set_scale(glm::vec2(3, 3));
     sprite->set_origin(sprite->get_center());
-
-    positions.reserve(no_vertices);
-    const float half_size = size / 2;
-    const glm::vec2 center = {960, 540};
-    for (float i = -half_size; i < half_size; i += spring_length)
-    {
-        for (float j = -half_size; j < half_size; j += spring_length)
-        {
-            positions.push_back(glm::vec3{i, j, 0} + glm::vec3{center.x, center.y, 0});
-        }
-    }
 }
-
-GridTestScreen::~GridTestScreen() {}
 
 void GridTestScreen::update(double delta_time)
 {
     display_test_dialog("Grid test", *screens, *screen_names, delta_time, *screen_manager);
 
-    // Update vertex positions
-    for (int i = 0; i < no_vertices; ++i)
-    {
-        if (i < length || i > no_vertices - length || i % length == 0 || i % length == length - 1)
-        {
-            accelerations[i] = {0, 0, 0};
-        }
-        glm::vec3 velocity = velocities[i];
-        velocity += accelerations[i];
-        offsets[i] += velocity + (-offsets[i] * elasticity);
-        velocity *= friction;
-        if (velocity.x < 0.0001 && velocity.y < 0.0001)
-        {
-            velocity = {0, 0, 0};
-        }
-        velocities[i] = velocity;
-    }
-
-    // Reset accelerations to 0
-    memset(accelerations.data(), 0.f, accelerations.size() * sizeof(accelerations[0]));
-
-    // Apply springs horizontally
-    for (int row = 0; row < length; ++row)
-    {
-        for (int column = 0; column < length - 1; ++column)
-        {
-            int index_1 = row * length + column;
-            int index_2 = index_1 + 1;
-            apply_spring_forces(positions[index_1] + offsets[index_1],
-                                positions[index_2] + offsets[index_2],
-                                velocities[index_1],
-                                velocities[index_2],
-                                accelerations[index_1],
-                                accelerations[index_2]);
-        }
-    }
-
-    // Apply springs vertically
-    for (int column = 0; column < length; ++column)
-    {
-        for (int row = 0; row < length - 1; ++row)
-        {
-            int index_1 = row * length + column;
-            int index_2 = index_1 + length;
-            apply_spring_forces(positions[index_1] + offsets[index_1],
-                                positions[index_2] + offsets[index_2],
-                                velocities[index_1],
-                                velocities[index_2],
-                                accelerations[index_1],
-                                accelerations[index_2]);
-        }
-    }
-
     if (ImGui::IsKeyPressed(GLFW_KEY_SPACE))
     {
-        int column = glm::linearRand<int>(0, length);
-        int row = glm::linearRand<int>(0, length);
-        accelerations[row * length + column] = glm::linearRand(glm::vec3(-100, -100, -100),
-                                                               glm::vec3(100, 100, 100));
+        glm::vec2 target_point = glm::linearRand(glm::vec2{460, 40},
+                                                 glm::vec2{1460, 1040});
+        spring_mesh.apply_explosive_force(target_point, 30);
     }
 
-    if (ImGui::IsKeyPressed(GLFW_KEY_Q))
-    {
-        glm::vec2 target_point = glm::linearRand(glm::vec2{0, 0},
-                                                 glm::vec2{length, length});
-        for (int row = 0; row < length; ++row)
-        {
-            for (int column = 0; column < length; ++column)
-            {
-                float distance = glm::length(glm::vec2{row, column} - target_point);
-                if (distance < 15)
-                {
-                    accelerations[row * length + column] = glm::vec3{0, 0, 100};
-                }
-            }
-        }
-    }
+    spring_mesh.update();
 }
 
 void GridTestScreen::draw(Renderer &renderer, bool /*lightweight*/)
 {
     renderer.begin();
 
-    std::vector<glm::mat4> sprite_transforms;
-    sprite_transforms.reserve(no_vertices);
+    std::vector<glm::mat4> transforms;
+    transforms.reserve(length * length);
 
-    for (int i = 0; i < no_vertices; ++i)
+    auto vertices = spring_mesh.get_vertices();
+
+    for (const auto &vertex : vertices)
     {
-        sprite->set_position({positions[i].x + offsets[i].x,
-                              positions[i].y + offsets[i].y});
-        sprite_transforms.push_back(sprite->get_transform());
+        sprite->set_position({vertex.x, vertex.y});
+        transforms.push_back(sprite->get_transform());
     }
 
-    sprite_renderer.draw(sprite->get_texture(), sprite_transforms, projection);
+    sprite_renderer.draw(sprite->get_texture(), transforms, projection);
     renderer.end();
 }
 }

@@ -7,6 +7,7 @@
 #include <glm/glm.hpp>
 
 #include "graphics/renderers/batched_sprite_renderer.h"
+#include "misc/spring_mesh.h"
 #include "screens/iscreen.h"
 
 namespace SingularityTrainer
@@ -26,10 +27,7 @@ class GridTestScreen : public IScreen
     ResourceManager *resource_manager;
     glm::mat4 projection;
 
-    std::vector<glm::vec3> accelerations;
-    std::vector<glm::vec3> offsets;
-    std::vector<glm::vec3> positions;
-    std::vector<glm::vec3> velocities;
+    SpringMesh spring_mesh;
 
     BatchedSpriteRenderer sprite_renderer;
 
@@ -39,7 +37,6 @@ class GridTestScreen : public IScreen
         ResourceManager &resource_manager,
         std::vector<std::shared_ptr<IScreen>> *screens,
         std::vector<std::string> *screen_names);
-    ~GridTestScreen();
 
     virtual void update(double delta_time);
     virtual void draw(Renderer &renderer, bool lightweight = false);

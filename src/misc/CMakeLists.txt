@@ -10,5 +10,6 @@ PRIVATE
     ${CMAKE_CURRENT_LIST_DIR}/random.cpp
     ${CMAKE_CURRENT_LIST_DIR}/resource_manager.cpp
     ${CMAKE_CURRENT_LIST_DIR}/screen_manager.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/spring_mesh.cpp
     ${CMAKE_CURRENT_LIST_DIR}/utilities.cpp
 )
