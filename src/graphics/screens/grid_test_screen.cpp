@@ -178,21 +178,16 @@ void GridTestScreen::update(double delta_time)
 
 void GridTestScreen::draw(Renderer &renderer, bool /*lightweight*/)
 {
-    EASY_FUNCTION(profiler::colors::Amber);
     renderer.begin();
 
-    EASY_BLOCK("Reserve sprite_transforms vector", profiler::colors::Purple);
     std::vector<glm::mat4> sprite_transforms;
     sprite_transforms.reserve(no_vertices);
-    EASY_END_BLOCK;
 
-    EASY_BLOCK("Fill sprite_transforms vector", profiler::colors::Red);
     for (const auto &position : positions)
     {
         sprite->set_position({position.x, position.y});
         sprite_transforms.push_back(sprite->get_transform());
     }
-    EASY_END_BLOCK;
 
     sprite_renderer.draw(sprite->get_texture(), sprite_transforms, projection);
     renderer.end();

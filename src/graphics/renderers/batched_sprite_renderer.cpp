@@ -57,13 +57,11 @@ void BatchedSpriteRenderer::draw(const std::string &texture,
                                  const std::vector<glm::mat4> &transforms,
                                  const glm::mat4 &view)
 {
-    EASY_FUNCTION(profiler::colors::Grey);
     vertex_array->bind();
 
     auto shader = resource_manager->shader_store.get("batched_texture");
     shader->bind();
 
-    EASY_BLOCK("Calculate vertices", profiler::colors::Blue);
     for (unsigned int i = 0; i < transforms.size(); ++i)
     {
         const auto &transform = transforms[i];
@@ -92,9 +90,7 @@ void BatchedSpriteRenderer::draw(const std::string &texture,
                                            glm::vec2(1.0, 1.0),
                                            glm::vec4(1.0, 1.0, 1.0, 1.0)};
     }
-    EASY_END_BLOCK;
 
-    EASY_BLOCK("Upload data to GPU", profiler::colors::Silver);
     vertex_buffer->add_data(transformed_vertices.data(),
                             sizeof(SpriteVertex) * (transforms.size() * 4),
                             GL_DYNAMIC_DRAW);
@@ -103,10 +99,7 @@ void BatchedSpriteRenderer::draw(const std::string &texture,
     shader->set_uniform_1i("u_texture", 0);
 
     resource_manager->texture_store.get(texture)->bind();
-    EASY_END_BLOCK;
 
-    EASY_BLOCK("Draw call", profiler::colors::SkyBlue);
     glDrawElements(GL_TRIANGLES, transforms.size() * 6, GL_UNSIGNED_INT, 0);
-    EASY_END_BLOCK;
 }
 }
