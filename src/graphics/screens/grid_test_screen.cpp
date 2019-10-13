@@ -66,6 +66,7 @@ GridTestScreen::GridTestScreen(
       screen_manager(screen_manager),
       projection(glm::ortho(0.f, 1920.f, 0.f, 1080.f)),
       accelerations(no_vertices, {0, 0, 0}),
+      offsets(no_vertices, {0, 0, 0}),
       velocities(no_vertices, {0, 0, 0}),
       sprite_renderer(resource_manager)
 {
@@ -75,26 +76,22 @@ GridTestScreen::GridTestScreen(
     sprite->set_scale(glm::vec2(3, 3));
     sprite->set_origin(sprite->get_center());
 
-    positions.reserve(10000);
+    positions.reserve(no_vertices);
     const float half_size = size / 2;
     const glm::vec2 center = {960, 540};
     for (float i = -half_size; i < half_size; i += spring_length)
     {
         for (float j = -half_size; j < half_size; j += spring_length)
         {
-            original_positions.push_back(glm::vec3{i, j, 0} + glm::vec3{center.x, center.y, 0});
             positions.push_back(glm::vec3{i, j, 0} + glm::vec3{center.x, center.y, 0});
         }
     }
-
-    resource_manager.load_shader("texture", "shaders/texture.vert", "shaders/texture.frag");
 }
 
 GridTestScreen::~GridTestScreen() {}
 
 void GridTestScreen::update(double delta_time)
 {
-    EASY_FUNCTION(profiler::colors::Green);
     display_test_dialog("Grid test", *screens, *screen_names, delta_time, *screen_manager);
 
     // Update vertex positions
@@ -106,7 +103,7 @@ void GridTestScreen::update(double delta_time)
         }
         glm::vec3 velocity = velocities[i];
         velocity += accelerations[i];
-        positions[i] += velocity + ((original_positions[i] - positions[i]) * elasticity);
+        offsets[i] += velocity + (-offsets[i] * elasticity);
         velocity *= friction;
         if (velocity.x < 0.0001 && velocity.y < 0.0001)
         {
@@ -125,8 +122,8 @@ void GridTestScreen::update(double delta_time)
         {
             int index_1 = row * length + column;
             int index_2 = index_1 + 1;
-            apply_spring_forces(positions[index_1],
-                                positions[index_2],
+            apply_spring_forces(positions[index_1] + offsets[index_1],
+                                positions[index_2] + offsets[index_2],
                                 velocities[index_1],
                                 velocities[index_2],
                                 accelerations[index_1],
@@ -141,8 +138,8 @@ void GridTestScreen::update(double delta_time)
         {
             int index_1 = row * length + column;
             int index_2 = index_1 + length;
-            apply_spring_forces(positions[index_1],
-                                positions[index_2],
+            apply_spring_forces(positions[index_1] + offsets[index_1],
+                                positions[index_2] + offsets[index_2],
                                 velocities[index_1],
                                 velocities[index_2],
                                 accelerations[index_1],
@@ -183,9 +180,10 @@ void GridTestScreen::draw(Renderer &renderer, bool /*lightweight*/)
     std::vector<glm::mat4> sprite_transforms;
     sprite_transforms.reserve(no_vertices);
 
-    for (const auto &position : positions)
+    for (int i = 0; i < no_vertices; ++i)
     {
-        sprite->set_position({position.x, position.y});
+        sprite->set_position({positions[i].x + offsets[i].x,
+                              positions[i].y + offsets[i].y});
         sprite_transforms.push_back(sprite->get_transform());
     }
 
