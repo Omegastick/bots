@@ -27,7 +27,7 @@ class GridTestScreen : public IScreen
     glm::mat4 projection;
 
     std::vector<glm::vec3> accelerations;
-    std::vector<glm::vec3> original_positions;
+    std::vector<glm::vec3> offsets;
     std::vector<glm::vec3> positions;
     std::vector<glm::vec3> velocities;
 
