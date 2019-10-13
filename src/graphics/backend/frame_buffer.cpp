@@ -65,7 +65,10 @@ void FrameBuffer::set_render_buffer(int width, int height, int multisampling)
     bind();
     glBindRenderbuffer(GL_RENDERBUFFER, render_buffer);
     glRenderbufferStorageMultisample(GL_RENDERBUFFER, multisampling, GL_RGBA8, width, height);
-    glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_RENDERBUFFER, render_buffer);
+    glFramebufferRenderbuffer(GL_FRAMEBUFFER,
+                              GL_COLOR_ATTACHMENT0,
+                              GL_RENDERBUFFER,
+                              render_buffer);
 
     if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
     {
@@ -77,7 +80,11 @@ void FrameBuffer::set_texture(int width, int height)
 {
     bind();
     texture = std::make_unique<Texture>(width, height);
-    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, texture->get_id(), 0);
+    glFramebufferTexture2D(GL_FRAMEBUFFER,
+                           GL_COLOR_ATTACHMENT0,
+                           GL_TEXTURE_2D,
+                           texture->get_id(),
+                           0);
 
     if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
     {

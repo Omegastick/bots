@@ -17,6 +17,7 @@ class Renderer;
 class VertexArray;
 class VertexBuffer;
 class ElementBuffer;
+class Texture;
 
 class DistortionTestScreen : public IScreen
 {
@@ -31,6 +32,7 @@ class DistortionTestScreen : public IScreen
     std::unique_ptr<VertexArray> vertex_array;
     std::unique_ptr<VertexBuffer> vertex_buffer;
     std::unique_ptr<ElementBuffer> element_buffer;
+    std::unique_ptr<Texture> texture;
 
   public:
     DistortionTestScreen(
@@ -38,7 +40,6 @@ class DistortionTestScreen : public IScreen
         ResourceManager &resource_manager,
         std::vector<std::shared_ptr<IScreen>> *screens,
         std::vector<std::string> *screen_names);
-    ~DistortionTestScreen();
 
     virtual void update(double delta_time);
     virtual void draw(Renderer &renderer, bool lightweight = false);

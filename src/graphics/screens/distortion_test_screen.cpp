@@ -4,12 +4,14 @@
 
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtc/random.hpp>
 #include <spdlog/spdlog.h>
 
 #include "distortion_test_screen.h"
 #include "graphics/screens/test_utils.h"
 #include "graphics/backend/vertex_buffer_layout.h"
 #include "graphics/backend/shader.h"
+#include "graphics/backend/texture.h"
 #include "graphics/renderers/renderer.h"
 #include "graphics/sprite.h"
 #include "misc/resource_manager.h"
@@ -25,9 +27,10 @@ const float edge_length = 100;
 const int edge_count_x = std::ceil(resolution_x / edge_length) + 1;
 const int edge_count_y = std::ceil(resolution_y / edge_length) + 1;
 
-struct SpriteVertex
+struct Vertex
 {
     glm::vec2 position;
+    glm::vec2 tex_coord;
     glm::vec4 color;
 };
 
@@ -49,48 +52,30 @@ DistortionTestScreen::DistortionTestScreen(
     sprite->set_origin(sprite->get_center());
     sprite->set_position(glm::vec2(960, 540));
 
-    resource_manager.load_shader("default", "shaders/default.vert", "shaders/default.frag");
+    std::vector<Vertex> vertices = {
+        {glm::vec2{0, 1080}, glm::vec2{0.0, 1.0}, glm::vec4{1.0, 1.0, 1.0, 1.0}},
+        {glm::vec2{0, 0}, glm::vec2{0.0, 0.0}, glm::vec4{1.0, 1.0, 1.0, 1.0}},
+        {glm::vec2{1920, 0}, glm::vec2{1.0, 0.0}, glm::vec4{1.0, 1.0, 1.0, 1.0}},
+        {glm::vec2{1920, 1080}, glm::vec2{1.0, 1.0}, glm::vec4{1.0, 1.0, 1.0, 1.0}}};
 
-    const int total_vertices = edge_count_x * edge_count_y;
-    std::vector<SpriteVertex> vertices;
-    for (float x = 0; x < resolution_x + edge_length; x += edge_length)
-    {
-        for (float y = 0; y < resolution_y + edge_length; y += edge_length)
-        {
-            vertices.push_back({glm::vec2{x, y},
-                                glm::vec4{x / resolution_x, y / resolution_y, 1, 1}});
-        }
-    }
-    vertex_buffer = std::make_unique<VertexBuffer>(vertices.data(),
-                                                   total_vertices * sizeof(SpriteVertex));
+    vertex_buffer = std::make_unique<VertexBuffer>(vertices.data(), 4 * sizeof(Vertex));
 
-    unsigned int sprite_indices[] = {1, 0, edge_count_y,
-                                     edge_count_y, edge_count_y + 1, 1};
-    std::vector<unsigned int> vertex_indices;
-    for (unsigned int x = 0; x < edge_count_x - 1; ++x)
-    {
-        for (unsigned int y = 0; y < edge_count_y - 1; ++y)
-        {
-            unsigned int column_index = x * edge_count_y;
-            unsigned int column_index_1 = (x + 1) * edge_count_y;
-            vertex_indices.push_back(column_index + y + 1);
-            vertex_indices.push_back(column_index + y);
-            vertex_indices.push_back(column_index_1 + y);
-            vertex_indices.push_back(column_index_1 + y);
-            vertex_indices.push_back(column_index_1 + y + 1);
-            vertex_indices.push_back(column_index + y + 1);
-        }
-    }
-    element_buffer = std::make_unique<ElementBuffer>(vertex_indices.data(),
-                                                     vertex_indices.size());
+    std::vector<unsigned int> indices = {0, 1, 2, 2, 3, 0};
+    element_buffer = std::make_unique<ElementBuffer>(indices.data(), 6);
 
     VertexBufferLayout layout;
     layout.push<float>(2);
+    layout.push<float>(2);
     layout.push<float>(4);
     vertex_array->add_buffer(*vertex_buffer, layout);
-}
 
-DistortionTestScreen::~DistortionTestScreen() {}
+    std::vector<float> pixels = {
+        0, 0,
+        0, 1,
+        1, 0,
+        1, 1};
+    texture = std::make_unique<Texture>(2, 2, pixels.data());
+}
 
 void DistortionTestScreen::update(double delta_time)
 {
@@ -104,9 +89,10 @@ void DistortionTestScreen::draw(Renderer &renderer, bool /*lightweight*/)
 
     vertex_array->bind();
 
-    auto shader = resource_manager.shader_store.get("default");
+    auto shader = resource_manager.shader_store.get("texture");
     shader->bind();
 
+    texture->bind();
     shader->set_uniform_mat4f("u_mvp", projection);
     renderer.draw(*vertex_array, *element_buffer, *shader);
 
