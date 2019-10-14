@@ -69,12 +69,11 @@ DistortionTestScreen::DistortionTestScreen(
     layout.push<float>(4);
     vertex_array->add_buffer(*vertex_buffer, layout);
 
-    std::vector<float> pixels = {
-        0, 0,
-        0, 1,
-        1, 0,
-        1, 1};
-    texture = std::make_unique<Texture>(2, 2, pixels.data());
+    resource_manager.load_shader("distortion",
+                                 "shaders/distortion.vert",
+                                 "shaders/distortion.frag");
+    post_proc_layer = std::make_unique<PostProcLayer>(
+        *resource_manager.shader_store.get("distortion"));
 }
 
 void DistortionTestScreen::update(double delta_time)
@@ -84,9 +83,9 @@ void DistortionTestScreen::update(double delta_time)
 
     if (ImGui::IsKeyPressed(GLFW_KEY_SPACE))
     {
-        glm::vec2 target_point = glm::linearRand(glm::vec2{0, 0},
-                                                 glm::vec2{width, height});
-        spring_mesh.apply_explosive_force(target_point, 2);
+        // glm::vec2 target_point = glm::linearRand(glm::vec2{0, 0},
+        //  glm::vec2{width, height});
+        spring_mesh.apply_explosive_force({96, 54}, 2, 0.5);
     }
 
     spring_mesh.update();
@@ -94,11 +93,27 @@ void DistortionTestScreen::update(double delta_time)
 
 void DistortionTestScreen::draw(Renderer &renderer, bool /*lightweight*/)
 {
+    renderer.push_post_proc_layer(post_proc_layer.get());
     renderer.begin();
+
+    sprite->set_position({860, 440});
+    renderer.draw(*sprite, projection);
+
+    sprite->set_position({960, 540});
+    renderer.draw(*sprite, projection);
+
+    sprite->set_position({1060, 640});
+    renderer.draw(*sprite, projection);
+
+    sprite->set_position({1060, 440});
+    renderer.draw(*sprite, projection);
+
+    sprite->set_position({860, 640});
+    renderer.draw(*sprite, projection);
 
     vertex_array->bind();
 
-    auto shader = resource_manager.shader_store.get("texture");
+    auto shader = resource_manager.shader_store.get("distortion");
     shader->bind();
 
     std::vector<float> pixels(width * height * 2);
@@ -110,9 +125,9 @@ void DistortionTestScreen::draw(Renderer &renderer, bool /*lightweight*/)
     }
     texture = std::make_unique<Texture>(width, height, pixels.data());
 
-    texture->bind();
-    shader->set_uniform_mat4f("u_mvp", projection);
-    renderer.draw(*vertex_array, *element_buffer, *shader);
+    texture->bind(1);
+    shader->set_uniform_1i("u_distortion", 1);
+    // renderer.draw(*vertex_array, *element_buffer, *shader);
 
     renderer.end();
 }

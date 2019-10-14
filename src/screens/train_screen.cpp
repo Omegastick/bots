@@ -23,7 +23,7 @@ TrainScreen::TrainScreen(std::unique_ptr<Trainer> trainer,
                          ResourceManager &resource_manager,
                          ScreenManager &screen_manager)
     : batch_finished(true),
-      crt_post_proc_layer(std::make_unique<PostProcLayer>(resource_manager.shader_store.get("crt").get())),
+      crt_post_proc_layer(std::make_unique<PostProcLayer>(*resource_manager.shader_store.get("crt"))),
       fast(false),
       io(io),
       lightweight_rendering(false),

@@ -27,7 +27,10 @@ PostProcScreen::PostProcScreen(
     ResourceManager &resource_manager,
     std::vector<std::shared_ptr<IScreen>> *screens,
     std::vector<std::string> *screen_names)
-    : screens(screens), screen_names(screen_names), screen_manager(screen_manager), projection(glm::ortho(0.f, 1920.f, 0.f, 1080.f))
+    : screens(screens),
+      screen_names(screen_names),
+      screen_manager(screen_manager),
+      projection(glm::ortho(0.f, 1920.f, 0.f, 1080.f))
 {
     this->resource_manager = &resource_manager;
     resource_manager.load_texture("base_module", "images/base_module.png");
@@ -40,8 +43,8 @@ PostProcScreen::PostProcScreen(
     resource_manager.load_shader("post_proc_test_1", "shaders/texture.vert", "shaders/post_proc_test.frag");
     resource_manager.load_shader("post_proc_test_2", "shaders/texture.vert", "shaders/post_proc_test.frag");
 
-    post_proc_layer_1 = std::make_unique<PostProcLayer>(resource_manager.shader_store.get("post_proc_test_1").get());
-    post_proc_layer_2 = std::make_unique<PostProcLayer>(resource_manager.shader_store.get("post_proc_test_2").get());
+    post_proc_layer_1 = std::make_unique<PostProcLayer>(*resource_manager.shader_store.get("post_proc_test_1"));
+    post_proc_layer_2 = std::make_unique<PostProcLayer>(*resource_manager.shader_store.get("post_proc_test_2"));
 }
 
 PostProcScreen::~PostProcScreen() {}

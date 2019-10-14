@@ -39,11 +39,11 @@ class CreateProgramScreen : public IScreen
     std::unique_ptr<AlgorithmWindow> algorithm_window;
     std::unique_ptr<BodySelectorWindow> body_selector_window;
     std::unique_ptr<BrainWindow> brain_window;
+    PostProcLayer crt_post_proc_layer;
     std::unique_ptr<IEnvironment> environment;
     IO &io;
     std::unique_ptr<TrainingProgram> program;
     glm::mat4 projection;
-    PostProcLayer crt_post_proc_layer;
     ResourceManager &resource_manager;
     std::unique_ptr<RewardWindows> reward_windows;
     std::unique_ptr<SaveLoadWindow> save_load_window;

@@ -58,7 +58,7 @@ TrainingWizardScreen::TrainingWizardScreen(std::unique_ptr<Body> body,
     resource_manager.load_shader("font", "shaders/texture.vert", "shaders/font.frag");
     resource_manager.load_font("roboto-16", "fonts/Roboto-Regular.ttf", 16);
 
-    crt_post_proc_layer = PostProcLayer(resource_manager.shader_store.get("crt").get(),
+    crt_post_proc_layer = PostProcLayer(*resource_manager.shader_store.get("crt"),
                                         io.get_resolution().x,
                                         io.get_resolution().y);
 
@@ -150,10 +150,10 @@ void TrainingWizardScreen::draw(Renderer &renderer, bool /*lightweight*/)
     }
 
     auto crt_shader = resource_manager->shader_store.get("crt");
-    crt_shader->set_uniform_2f("u_resolution", {renderer.get_width(), renderer.get_height()});
-    crt_shader->set_uniform_1f("u_output_gamma", 1);
-    crt_shader->set_uniform_1f("u_strength", 0.5);
-    crt_shader->set_uniform_1f("u_distortion_factor", 0.1);
+    crt_shader.set_uniform_2f("u_resolution", {renderer.get_width(), renderer.get_height()});
+    crt_shader.set_uniform_1f("u_output_gamma", 1);
+    crt_shader.set_uniform_1f("u_strength", 0.5);
+    crt_shader.set_uniform_1f("u_distortion_factor", 0.1);
 
     renderer.end();
 }
