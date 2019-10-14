@@ -2,6 +2,9 @@
 #include <memory>
 #include <string>
 
+#include <glad/glad.h>
+#include <GLFW/glfw3.h>
+#include <imgui.h>
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/random.hpp>
@@ -20,12 +23,8 @@
 
 namespace SingularityTrainer
 {
-
-const float resolution_x = 1920;
-const float resolution_y = 1080;
-const float edge_length = 100;
-const int edge_count_x = std::ceil(resolution_x / edge_length) + 1;
-const int edge_count_y = std::ceil(resolution_y / edge_length) + 1;
+const int width = 192;
+const int height = 108;
 
 struct Vertex
 {
@@ -44,7 +43,8 @@ DistortionTestScreen::DistortionTestScreen(
       screen_names(screen_names),
       screen_manager(screen_manager),
       projection(glm::ortho(0.f, 1920.f, 0.f, 1080.f)),
-      vertex_array(std::make_unique<VertexArray>())
+      vertex_array(std::make_unique<VertexArray>()),
+      spring_mesh(width, height)
 {
     resource_manager.load_texture("base_module", "images/base_module.png");
     sprite = std::make_unique<Sprite>("base_module");
@@ -81,6 +81,15 @@ void DistortionTestScreen::update(double delta_time)
 {
     display_test_dialog("Distortion test", *screens, *screen_names, delta_time, *screen_manager);
     sprite->rotate(1.f * delta_time);
+
+    if (ImGui::IsKeyPressed(GLFW_KEY_SPACE))
+    {
+        glm::vec2 target_point = glm::linearRand(glm::vec2{0, 0},
+                                                 glm::vec2{width, height});
+        spring_mesh.apply_explosive_force(target_point, 2);
+    }
+
+    spring_mesh.update();
 }
 
 void DistortionTestScreen::draw(Renderer &renderer, bool /*lightweight*/)
@@ -91,6 +100,15 @@ void DistortionTestScreen::draw(Renderer &renderer, bool /*lightweight*/)
 
     auto shader = resource_manager.shader_store.get("texture");
     shader->bind();
+
+    std::vector<float> pixels(width * height * 2);
+    auto &offsets = spring_mesh.get_offsets();
+    for (unsigned int i = 0; i < offsets.size(); ++i)
+    {
+        pixels[i * 2] = offsets[i].x;
+        pixels[i * 2 + 1] = offsets[i].y;
+    }
+    texture = std::make_unique<Texture>(width, height, pixels.data());
 
     texture->bind();
     shader->set_uniform_mat4f("u_mvp", projection);
