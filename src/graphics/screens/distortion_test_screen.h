@@ -6,6 +6,7 @@
 
 #include <glm/glm.hpp>
 
+#include "misc/spring_mesh.h"
 #include "screens/iscreen.h"
 
 namespace SingularityTrainer
@@ -33,6 +34,8 @@ class DistortionTestScreen : public IScreen
     std::unique_ptr<VertexBuffer> vertex_buffer;
     std::unique_ptr<ElementBuffer> element_buffer;
     std::unique_ptr<Texture> texture;
+
+    SpringMesh spring_mesh;
 
   public:
     DistortionTestScreen(
