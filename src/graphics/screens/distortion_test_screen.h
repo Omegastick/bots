@@ -6,6 +6,7 @@
 
 #include <glm/glm.hpp>
 
+#include "graphics/post_proc_layer.h"
 #include "misc/spring_mesh.h"
 #include "screens/iscreen.h"
 
@@ -36,6 +37,8 @@ class DistortionTestScreen : public IScreen
     std::unique_ptr<Texture> texture;
 
     SpringMesh spring_mesh;
+
+    std::unique_ptr<PostProcLayer> post_proc_layer;
 
   public:
     DistortionTestScreen(

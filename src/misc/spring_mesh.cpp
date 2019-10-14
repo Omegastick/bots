@@ -24,7 +24,7 @@ SpringMesh::SpringMesh(int width,
       offsets(no_vertices, {0, 0, 0}),
       velocities(no_vertices, {0, 0, 0}) {}
 
-void SpringMesh::apply_explosive_force(glm::vec2 position, float size)
+void SpringMesh::apply_explosive_force(glm::vec2 position, float size, float strength)
 {
     int index = 0;
     for (int row = 0; row < height; ++row)
@@ -35,7 +35,7 @@ void SpringMesh::apply_explosive_force(glm::vec2 position, float size)
             float distance = glm::length(vertex_position - glm::vec3{position.x, position.y, 0});
             if (distance < size)
             {
-                accelerations[index] = glm::vec3{0, 0, 100};
+                accelerations[index] = glm::vec3{0, 0, strength};
             }
             index++;
         }
@@ -163,7 +163,7 @@ TEST_CASE("SpringMesh")
 
     SUBCASE("Small radius explosive force moves correct vertex")
     {
-        spring_mesh.apply_explosive_force({1, 1}, 0.1);
+        spring_mesh.apply_explosive_force({1, 1}, 0.1, 100);
         spring_mesh.update();
 
         auto &offsets = spring_mesh.get_offsets();

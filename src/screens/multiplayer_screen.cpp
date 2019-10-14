@@ -76,7 +76,7 @@ MultiplayerScreen::MultiplayerScreen(double tick_length,
     resource_manager.load_shader("font", "shaders/texture.vert", "shaders/font.frag");
     resource_manager.load_font("roboto-16", "fonts/Roboto-Regular.ttf", 16);
 
-    crt_post_proc_layer = std::make_unique<PostProcLayer>(resource_manager.shader_store.get("crt").get());
+    crt_post_proc_layer = std::make_unique<PostProcLayer>(*resource_manager.shader_store.get("crt"));
 
     zmq_context.setctxopt(ZMQ_BLOCKY, false);
 }

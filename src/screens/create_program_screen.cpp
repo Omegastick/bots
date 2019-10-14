@@ -8,6 +8,7 @@
 #include <spdlog/spdlog.h>
 
 #include "create_program_screen.h"
+#include "graphics/backend/shader.h"
 #include "graphics/renderers/renderer.h"
 #include "misc/io.h"
 #include "misc/random.h"
@@ -45,6 +46,9 @@ CreateProgramScreen::CreateProgramScreen(std::unique_ptr<AlgorithmWindow> algori
     : algorithm_window(std::move(algorithm_window)),
       body_selector_window(std::move(body_selector_window)),
       brain_window(std::move(brain_window)),
+      crt_post_proc_layer(PostProcLayer(*resource_manager.shader_store.get("crt"),
+                                        io.get_resolution().x,
+                                        io.get_resolution().y)),
       environment(std::move(environment)),
       io(io),
       program(std::move(program)),
@@ -68,10 +72,6 @@ CreateProgramScreen::CreateProgramScreen(std::unique_ptr<AlgorithmWindow> algori
     resource_manager.load_shader("texture", "shaders/texture.vert", "shaders/texture.frag");
     resource_manager.load_shader("font", "shaders/texture.vert", "shaders/font.frag");
     resource_manager.load_font("roboto-16", "fonts/Roboto-Regular.ttf", 16);
-
-    crt_post_proc_layer = PostProcLayer(resource_manager.shader_store.get("crt").get(),
-                                        io.get_resolution().x,
-                                        io.get_resolution().y);
 }
 
 void CreateProgramScreen::algorithm()

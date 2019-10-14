@@ -11,12 +11,7 @@
 
 namespace SingularityTrainer
 {
-PostProcLayer::PostProcLayer()
-    : shader(nullptr),
-      width(0),
-      height(0) {}
-
-PostProcLayer::PostProcLayer(Shader *shader, int width, int height)
+PostProcLayer::PostProcLayer(Shader &shader, int width, int height)
     : shader(shader),
       width(width),
       height(height)
@@ -52,7 +47,6 @@ PostProcLayer &PostProcLayer::operator=(PostProcLayer &&other)
     {
         frame_buffer = std::move(other.frame_buffer);
         shader = other.shader;
-        other.shader = nullptr;
         vertex_array = std::move(other.vertex_array);
         vertex_buffer = std::move(other.vertex_buffer);
         element_buffer = std::move(other.element_buffer);
@@ -68,13 +62,13 @@ FrameBuffer &PostProcLayer::render(Texture &input_texture, Renderer &renderer)
     frame_buffer.bind();
 
     input_texture.bind();
-    shader->set_uniform_1i("u_texture", 0);
+    shader.set_uniform_1i("u_texture", 0);
 
     auto mvp = glm::mat4(1.0);
-    shader->set_uniform_mat4f("u_mvp", mvp);
+    shader.set_uniform_mat4f("u_mvp", mvp);
 
     glViewport(0, 0, width, height);
-    renderer.draw(*vertex_array, *element_buffer, *shader);
+    renderer.draw(*vertex_array, *element_buffer, shader);
 
     glEnable(GL_BLEND);
     return frame_buffer;

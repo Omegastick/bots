@@ -27,7 +27,10 @@ CrtTestScreen::CrtTestScreen(
     ResourceManager &resource_manager,
     std::vector<std::shared_ptr<IScreen>> *screens,
     std::vector<std::string> *screen_names)
-    : screens(screens), screen_names(screen_names), screen_manager(screen_manager), projection(glm::ortho(0.f, 1920.f, 0.f, 1080.f))
+    : screens(screens),
+      screen_names(screen_names),
+      screen_manager(screen_manager),
+      projection(glm::ortho(0.f, 1920.f, 0.f, 1080.f))
 {
     this->resource_manager = &resource_manager;
     resource_manager.load_texture("base_module", "images/base_module.png");
@@ -39,7 +42,7 @@ CrtTestScreen::CrtTestScreen(
     resource_manager.load_shader("texture", "shaders/texture.vert", "shaders/texture.frag");
     resource_manager.load_shader("crt", "shaders/texture.vert", "shaders/crt.frag");
 
-    post_proc_layer = std::make_unique<PostProcLayer>(resource_manager.shader_store.get("crt").get());
+    post_proc_layer = std::make_unique<PostProcLayer>(*resource_manager.shader_store.get("crt"));
 }
 
 CrtTestScreen::~CrtTestScreen() {}

@@ -35,7 +35,7 @@ TargetEnvScreen::TargetEnvScreen(ResourceManager &resource_manager, Random &rng,
     resource_manager.load_shader("font", "shaders/texture.vert", "shaders/font.frag");
     resource_manager.load_font("roboto-16", "fonts/Roboto-Regular.ttf", 16);
 
-    crt_post_proc_layer = std::make_unique<PostProcLayer>(resource_manager.shader_store.get("crt").get());
+    crt_post_proc_layer = std::make_unique<PostProcLayer>(*resource_manager.shader_store.get("crt"));
 
     trainer->begin_training();
 }
@@ -72,10 +72,10 @@ void TargetEnvScreen::draw(Renderer &renderer, bool /*lightweight*/)
     renderer.draw(render_data, glm::ortho(-19.2f, 19.2f, -10.8f, 10.8f), trainer->environments[0]->get_elapsed_time(), lightweight_rendering);
 
     auto crt_shader = resource_manager->shader_store.get("crt");
-    crt_shader->set_uniform_2f("u_resolution", {renderer.get_width(), renderer.get_height()});
-    crt_shader->set_uniform_1f("u_output_gamma", 1);
-    crt_shader->set_uniform_1f("u_strength", 0.8);
-    crt_shader->set_uniform_1f("u_distortion_factor", 0.03);
+    crt_shader.set_uniform_2f("u_resolution", {renderer.get_width(), renderer.get_height()});
+    crt_shader.set_uniform_1f("u_output_gamma", 1);
+    crt_shader.set_uniform_1f("u_strength", 0.8);
+    crt_shader.set_uniform_1f("u_distortion_factor", 0.03);
 
     renderer.end();
 }
