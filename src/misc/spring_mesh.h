@@ -11,10 +11,9 @@ namespace SingularityTrainer
 class SpringMesh
 {
   private:
-    int vertices_per_side;
+    int width;
+    int height;
     int no_vertices;
-    float side_size;
-    float spring_length;
 
     float damping;
     float friction;
@@ -23,7 +22,6 @@ class SpringMesh
 
     std::vector<glm::vec3> accelerations;
     std::vector<glm::vec3> offsets;
-    std::vector<glm::vec3> positions;
     std::vector<glm::vec3> velocities;
 
     void apply_spring_forces(const glm::vec3 &position_1,
@@ -34,16 +32,15 @@ class SpringMesh
                              glm::vec3 &acceleration_2);
 
   public:
-    SpringMesh(int vertices_per_side,
-               float side_size,
-               glm::vec2 center,
+    SpringMesh(int width,
+               int height,
                float damping = 0.06,
                float friction = 0.98,
                float stiffness = 0.28,
                float elasticity = 0.05);
 
     void apply_explosive_force(glm::vec2 position, float size);
-    std::vector<glm::vec2> get_vertices();
+    std::vector<glm::vec2> get_vertices(float scale_x, float scale_y);
     void update();
 
     inline const std::vector<glm::vec3> &get_offsets() const { return offsets; }

@@ -24,7 +24,8 @@
 
 namespace SingularityTrainer
 {
-const int length = 100;
+const int width = 192;
+const int height = 108;
 const float size = 1000;
 
 GridTestScreen::GridTestScreen(
@@ -36,7 +37,7 @@ GridTestScreen::GridTestScreen(
       screen_names(screen_names),
       screen_manager(screen_manager),
       projection(glm::ortho(0.f, 1920.f, 0.f, 1080.f)),
-      spring_mesh(length, size, {960, 540}),
+      spring_mesh(width, height),
       sprite_renderer(resource_manager)
 {
     this->resource_manager = &resource_manager;
@@ -52,8 +53,8 @@ void GridTestScreen::update(double delta_time)
 
     if (ImGui::IsKeyPressed(GLFW_KEY_SPACE))
     {
-        glm::vec2 target_point = glm::linearRand(glm::vec2{460, 40},
-                                                 glm::vec2{1460, 1040});
+        glm::vec2 target_point = glm::linearRand(glm::vec2{0, 0},
+                                                 glm::vec2{width, height});
         spring_mesh.apply_explosive_force(target_point, 30);
     }
 
@@ -65,9 +66,9 @@ void GridTestScreen::draw(Renderer &renderer, bool /*lightweight*/)
     renderer.begin();
 
     std::vector<glm::mat4> transforms;
-    transforms.reserve(length * length);
+    transforms.reserve(width * height);
 
-    auto vertices = spring_mesh.get_vertices();
+    auto vertices = spring_mesh.get_vertices(1920, 1080);
 
     for (const auto &vertex : vertices)
     {
