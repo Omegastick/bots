@@ -62,8 +62,6 @@ void GridTestScreen::update(double delta_time)
 
 void GridTestScreen::draw(Renderer &renderer, bool /*lightweight*/)
 {
-    renderer.begin();
-
     std::vector<glm::mat4> transforms;
     transforms.reserve(width * height);
 

@@ -52,8 +52,6 @@ void TextTestScreen::update(double delta_time)
 
 void TextTestScreen::draw(Renderer &renderer, bool /*lightweight*/)
 {
-    renderer.begin();
-
     RenderData render_data;
     render_data.texts.push_back(text);
     renderer.draw(render_data, projection, 0);

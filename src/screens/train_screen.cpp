@@ -110,7 +110,6 @@ void TrainScreen::update(const double /*delta_time*/)
 void TrainScreen::draw(Renderer &renderer, bool /*lightweight*/)
 {
     renderer.push_post_proc_layer(crt_post_proc_layer.get());
-    renderer.begin();
 
     if (trainer->should_clear_particles())
     {

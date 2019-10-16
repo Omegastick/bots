@@ -65,7 +65,6 @@ void TargetEnvScreen::update(const double /*delta_time*/)
 void TargetEnvScreen::draw(Renderer &renderer, bool /*lightweight*/)
 {
     renderer.push_post_proc_layer(crt_post_proc_layer.get());
-    renderer.begin();
 
     renderer.scissor(-10, -10, 10, 10, glm::ortho(-19.2f, 19.2f, -10.8f, 10.8f));
     auto render_data = trainer->environments[0]->get_render_data(lightweight_rendering);

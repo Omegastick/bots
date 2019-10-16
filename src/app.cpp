@@ -292,6 +292,7 @@ int App::run(int argc, char *argv[])
          */
         if (screen_manager.stack_size() > 0)
         {
+            renderer.begin();
             screen_manager.draw(renderer);
 
             ImGui::Render();

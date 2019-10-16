@@ -241,8 +241,7 @@ int main(int /*argc*/, const char * /*argv*/ [])
         screen_manager.update(delta_time);
 
         // Draw
-        renderer.clear();
-
+        renderer.begin();
         screen_manager.draw(renderer, delta_time);
 
         ImGui::Render();

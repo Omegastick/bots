@@ -117,7 +117,6 @@ void MainMenuScreen::update(double /*delta_time*/)
 
 void MainMenuScreen::draw(Renderer &renderer, bool /*lightweight*/)
 {
-    renderer.begin();
     renderer.end();
 }
 

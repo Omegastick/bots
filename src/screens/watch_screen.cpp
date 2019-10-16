@@ -80,7 +80,6 @@ void WatchScreen::update(const double /*delta_time*/)
 void WatchScreen::draw(Renderer &renderer, bool /*lightweight*/)
 {
     renderer.push_post_proc_layer(crt_post_proc_layer.get());
-    renderer.begin();
 
     if (state == States::WATCHING)
     {

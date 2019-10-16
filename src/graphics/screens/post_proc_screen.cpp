@@ -64,7 +64,6 @@ void PostProcScreen::draw(Renderer &renderer, bool /*lightweight*/)
 {
     renderer.push_post_proc_layer(post_proc_layer_1.get());
     renderer.push_post_proc_layer(post_proc_layer_2.get());
-    renderer.begin();
 
     renderer.draw(*sprite, projection);
 
