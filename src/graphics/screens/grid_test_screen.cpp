@@ -44,7 +44,6 @@ GridTestScreen::GridTestScreen(
     resource_manager.load_texture("bullet", "images/bullet.png");
     sprite = std::make_unique<Sprite>("bullet");
     sprite->set_scale(glm::vec2(3, 3));
-    sprite->set_origin(sprite->get_center());
 }
 
 void GridTestScreen::update(double delta_time)

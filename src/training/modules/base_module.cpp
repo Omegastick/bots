@@ -24,7 +24,6 @@ BaseModule::BaseModule()
     // Sprite
     sprite = std::make_unique<Sprite>("base_module");
     sprite->set_scale(glm::vec2(1, 1));
-    sprite->set_origin(sprite->get_center());
     sprite->set_color(cl_white);
 
     // Box2D

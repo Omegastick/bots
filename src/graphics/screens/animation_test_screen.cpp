@@ -37,7 +37,6 @@ AnimationTestScreen::AnimationTestScreen(
     resource_manager.load_texture("base_module", "images/base_module.png");
     sprite = std::make_unique<Sprite>("base_module");
     sprite->set_scale(glm::vec2(100, 100));
-    sprite->set_origin(sprite->get_center());
     sprite->set_position(glm::vec2(-100, -100));
 
     resource_manager.load_shader("texture", "shaders/texture.vert", "shaders/texture.frag");

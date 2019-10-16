@@ -27,7 +27,6 @@ LaserSensorModule::LaserSensorModule(int laser_count, float fov, float laser_len
     // Sprite
     sprite = std::make_unique<Sprite>("laser_sensor_module");
     sprite->set_scale(glm::vec2(1, 0.5));
-    sprite->set_origin(sprite->get_center());
     sprite->set_color(cl_white);
 
     // Box2D

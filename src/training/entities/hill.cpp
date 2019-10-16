@@ -29,7 +29,6 @@ Hill::Hill(float x, float y, b2World &world)
     // Sprite
     sprite = std::make_unique<Sprite>("target");
     sprite->set_scale({6, 6});
-    sprite->set_origin(sprite->get_center());
 }
 
 Hill::~Hill() {}

@@ -33,7 +33,6 @@ Bullet::Bullet(b2Vec2 position,
 {
     sprite = std::make_unique<Sprite>("bullet");
     sprite->set_scale(glm::vec2(0.2, 0.2));
-    sprite->set_origin(sprite->get_center());
     sprite->set_position(glm::vec2(position.x, position.y));
 
     rigid_body = std::make_unique<RigidBody>(b2_dynamicBody, position, world, this, RigidBody::ParentTypes::Bullet);
