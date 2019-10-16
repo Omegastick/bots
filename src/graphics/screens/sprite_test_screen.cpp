@@ -27,8 +27,8 @@ SpriteTestScreen::SpriteTestScreen(
     this->resource_manager = &resource_manager;
     resource_manager.load_texture("base_module", "images/base_module.png");
     sprite = std::make_unique<Sprite>("base_module");
-    sprite->set_scale(glm::vec2(100, 100));
-    sprite->set_position(glm::vec2(960, 540));
+    sprite->transform.set_scale(glm::vec2(100, 100));
+    sprite->transform.set_position(glm::vec2(960, 540));
 
     resource_manager.load_shader("texture", "shaders/texture.vert", "shaders/texture.frag");
 }
@@ -38,7 +38,7 @@ SpriteTestScreen::~SpriteTestScreen() {}
 void SpriteTestScreen::update(double delta_time)
 {
     display_test_dialog("Sprite test", *screens, *screen_names, delta_time, *screen_manager);
-    sprite->rotate(1.f * delta_time);
+    sprite->transform.rotate(1.f * delta_time);
 }
 
 void SpriteTestScreen::draw(Renderer &renderer, bool /*lightweight*/)

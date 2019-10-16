@@ -2,13 +2,12 @@
 
 #include <tuple>
 
+#include "misc/transform.h"
 #include "training/events/ievent.h"
 
 namespace SingularityTrainer
 {
 class IEnvironment;
-
-typedef std::tuple<float, float, float> Transform;
 
 class EntityDestroyed : public IEvent
 {

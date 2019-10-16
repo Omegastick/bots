@@ -130,8 +130,8 @@ RenderData Body::get_render_data(bool lightweight)
     text.text = hp_stream.str();
     text.color = cl_white;
     b2Vec2 position = rigid_body->body->GetPosition();
-    text.set_position({position.x, position.y});
-    text.set_scale({0.1, 0.1});
+    text.transform.set_position({position.x, position.y});
+    text.transform.set_scale({0.1, 0.1});
     render_data.texts.push_back(text);
 
     return render_data;

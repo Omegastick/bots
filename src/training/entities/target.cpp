@@ -24,7 +24,7 @@ Target::Target(float x, float y, b2World &world, IEnvironment &env) : environmen
 
     // Sprite
     sprite = std::make_unique<Sprite>("target");
-    sprite->set_scale({1, 1});
+    sprite->transform.set_scale({1, 1});
 }
 
 Target::~Target() {}
@@ -34,7 +34,7 @@ RenderData Target::get_render_data(bool /*lightweight*/)
     auto render_data = RenderData();
 
     b2Vec2 position = rigid_body->body->GetPosition();
-    sprite->set_position({position.x, position.y});
+    sprite->transform.set_position({position.x, position.y});
     render_data.sprites.push_back(*sprite);
 
     return render_data;

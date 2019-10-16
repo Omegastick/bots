@@ -9,6 +9,7 @@
 
 #include "graphics/idrawable.h"
 #include "misc/random.h"
+#include "misc/transform.h"
 #include "training/events/ievent.h"
 
 namespace SingularityTrainer
@@ -18,8 +19,6 @@ class IEffect;
 class IEntity;
 struct Particle;
 struct RewardConfig;
-
-typedef std::tuple<float, float, float> Transform;
 
 struct EntityState
 {
@@ -65,14 +64,16 @@ struct EnvState
         std::transform(agent_transforms.begin(), agent_transforms.end(),
                        std::back_inserter(this->agent_transforms),
                        [](const Transform &transform) {
-                           return b2Transform{{std::get<0>(transform), std::get<1>(transform)},
-                                              b2Rot(std::get<2>(transform))};
+                           return b2Transform({transform.get_position().x,
+                                               transform.get_position().y},
+                                              b2Rot(transform.get_rotation()));
                        });
 
         for (const auto &pair : entity_transforms)
         {
-            this->entity_states[pair.first] = b2Transform({std::get<0>(pair.second), std::get<1>(pair.second)},
-                                                          b2Rot(std::get<2>(pair.second)));
+            this->entity_states[pair.first] = b2Transform({pair.second.get_position().x,
+                                                           pair.second.get_position().y},
+                                                          b2Rot(pair.second.get_rotation()));
         }
     }
 

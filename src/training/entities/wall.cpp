@@ -23,8 +23,8 @@ Wall::Wall(float x, float y, float width, float height, b2World &world)
     rigid_body->body->CreateFixture(&fixture_def);
 
     sprite = std::make_unique<Sprite>("pixel");
-    sprite->set_scale({width, height});
-    sprite->set_position({x + (width / 2), y + (height / 2)});
+    sprite->transform.set_scale({width, height});
+    sprite->transform.set_position({x + (width / 2), y + (height / 2)});
     sprite->set_color(cl_white);
 }
 

@@ -8,14 +8,13 @@
 #include <msgpack.hpp>
 
 #include "misc/random.h"
+#include "misc/transform.h"
 #include "training/events/ievent.h"
 #include "training/events/effect_triggered.h"
 #include "training/events/entity_destroyed.h"
 
 namespace SingularityTrainer
 {
-typedef std::tuple<float, float, float> Transform;
-
 enum class MessageType
 {
     Connect = 0,
@@ -153,6 +152,39 @@ MSGPACK_API_VERSION_NAMESPACE(MSGPACK_DEFAULT_API_NS)
     namespace adaptor
     {
     template <>
+    struct as<Transform>
+    {
+        Transform operator()(msgpack::object const &o) const
+        {
+            if (o.type != msgpack::type::ARRAY)
+                throw msgpack::type_error();
+            if (o.via.array.size != 3)
+                throw msgpack::type_error();
+
+            Transform transform;
+            transform.set_position({o.via.array.ptr[0].as<float>(),
+                                    o.via.array.ptr[1].as<float>()});
+            transform.set_rotation(o.via.array.ptr[2].as<float>());
+
+            return transform;
+        }
+    };
+
+    template <>
+    struct pack<Transform>
+    {
+        template <typename Stream>
+        packer<Stream> &operator()(msgpack::packer<Stream> &o, Transform const &v) const
+        {
+            o.pack_array(3);
+            o.pack(v.get_position().x);
+            o.pack(v.get_position().x);
+            o.pack(v.get_rotation());
+            return o;
+        }
+    };
+
+    template <>
     struct pack<IEvent>
     {
         template <typename Stream>
@@ -161,20 +193,28 @@ MSGPACK_API_VERSION_NAMESPACE(MSGPACK_DEFAULT_API_NS)
             if (v.type == EventTypes::EntityDestroyed)
             {
                 const auto &event = static_cast<const EntityDestroyed &>(v);
+                Transform transform = event.get_transform();
+                glm::vec2 pos = transform.get_position();
+                float rot = transform.get_rotation();
+
                 o.pack_array(4);
                 o.pack(event.type);
                 o.pack(event.get_id());
                 o.pack(event.get_time());
-                o.pack(event.get_transform());
+                o.pack(std::tuple<float, float, float>(pos.x, pos.y, rot));
             }
             else if (v.type == EventTypes::EffectTriggered)
             {
                 const auto &event = static_cast<const EffectTriggered &>(v);
+                Transform transform = event.get_transform();
+                glm::vec2 pos = transform.get_position();
+                float rot = transform.get_rotation();
+
                 o.pack_array(4);
                 o.pack(event.type);
                 o.pack(event.get_effect_type());
                 o.pack(event.get_time());
-                o.pack(event.get_transform());
+                o.pack(std::tuple<float, float, float>(pos.x, pos.y, rot));
             }
             else
             {

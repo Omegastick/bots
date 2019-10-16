@@ -32,8 +32,8 @@ Bullet::Bullet(b2Vec2 position,
       destroyed(false)
 {
     sprite = std::make_unique<Sprite>("bullet");
-    sprite->set_scale(glm::vec2(0.2, 0.2));
-    sprite->set_position(glm::vec2(position.x, position.y));
+    sprite->transform.set_scale(glm::vec2(0.2, 0.2));
+    sprite->transform.set_position(glm::vec2(position.x, position.y));
 
     rigid_body = std::make_unique<RigidBody>(b2_dynamicBody, position, world, this, RigidBody::ParentTypes::Bullet);
 
@@ -63,7 +63,7 @@ RenderData Bullet::get_render_data(bool /*lightweight*/)
     b2Vec2 position = rigid_body->body->GetPosition();
 
     // Body
-    sprite->set_position(glm::vec2(position.x, position.y));
+    sprite->transform.set_position(glm::vec2(position.x, position.y));
     render_data.sprites.push_back(*sprite);
 
     // Trail
@@ -106,12 +106,13 @@ void Bullet::begin_contact(RigidBody *other)
     if (!destroyed)
     {
         destroyed = true;
-        auto &transform = rigid_body->body->GetTransform();
+        auto &b2_transform = rigid_body->body->GetTransform();
+        Transform transform;
         env.add_event(std::make_unique<EntityDestroyed>(id,
                                                         env.get_elapsed_time(),
-                                                        Transform{transform.p.x,
-                                                                  transform.p.y,
-                                                                  transform.q.GetAngle()}));
+                                                        Transform{b2_transform.p.x,
+                                                                  b2_transform.p.y,
+                                                                  b2_transform.q.GetAngle()}));
     }
 }
 

@@ -168,9 +168,9 @@ foreach(target ${ST_TARGETS})
         target_compile_options(${target} PRIVATE -Wall -Wextra -pedantic -Wno-maybe-uninitialized)
     endif(MSVC)    
 
-    if(IPO_SUPPORTED)
+    if(IPO_SUPPORTED AND NOT CMAKE_BUILD_TYPE STREQUAL "Debug")
         set_property(TARGET ${target} PROPERTY INTERPROCEDURAL_OPTIMIZATION TRUE)
-    endif(IPO_SUPPORTED)
+    endif(IPO_SUPPORTED AND NOT CMAKE_BUILD_TYPE STREQUAL "Debug")
 endforeach(target ${ST_TARGETS})
 
 # Libraries included in repository
@@ -203,13 +203,11 @@ option(CPPRL_BUILD_EXAMPLE "" OFF)
 add_subdirectory(${CPPRL_DIR})
 set_target_properties(cpprl PROPERTIES POSITION_INDEPENDENT_CODE TRUE)
 ## Easy Profiler
+set(EASY_PROFILER_NO_SAMPLES TRUE)
 add_subdirectory(${EASY_PROFILER_DIR})
 set_target_properties(easy_profiler PROPERTIES POSITION_INDEPENDENT_CODE TRUE)
 set_target_properties(profiler_gui PROPERTIES EXCLUDE_FROM_ALL TRUE)
 set_target_properties(profiler_converter PROPERTIES EXCLUDE_FROM_ALL TRUE)
-set_target_properties(profiler_sample_disabled_profiler PROPERTIES EXCLUDE_FROM_ALL TRUE)
-set_target_properties(profiler_sample PROPERTIES EXCLUDE_FROM_ALL TRUE)
-set_target_properties(profiler_reader PROPERTIES EXCLUDE_FROM_ALL TRUE)
 ## GLFW
 option(GLFW_BUILD_EXAMPLES "" OFF)
 option(GLFW_BUILD_TESTS "" OFF)

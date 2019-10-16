@@ -13,7 +13,7 @@ namespace SingularityTrainer
 {
 IModule::IModule()
     : body(nullptr),
-    root(nullptr) {}
+      root(nullptr) {}
 
 std::vector<IModule *> IModule::get_children()
 {
@@ -44,9 +44,9 @@ RenderData IModule::get_render_data(bool /*lightweight*/)
 {
     b2Transform world_transform = get_global_transform();
     glm::vec2 screen_position(world_transform.p.x, world_transform.p.y);
-    sprite->set_position(screen_position);
+    sprite->transform.set_position(screen_position);
     auto rotation = world_transform.q.GetAngle();
-    sprite->set_rotation(rotation);
+    sprite->transform.set_rotation(rotation);
 
     return RenderData{{*sprite}, {}, {}, {}};
 }

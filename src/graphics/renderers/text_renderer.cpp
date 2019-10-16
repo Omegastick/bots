@@ -122,7 +122,7 @@ void TextRenderer::draw(const Text &text, const glm::mat4 &view)
     element_buffer->set_data(indices.data(), indices.size());
 
     auto shader = resource_manager->shader_store.get("font");
-    auto mvp = view * text.get_transform();
+    auto mvp = view * text.transform.get();
     shader->set_uniform_mat4f("u_mvp", mvp);
     shader->set_uniform_1i("u_texture", 0);
     shader->bind();

@@ -58,8 +58,7 @@ BuildScreen::BuildScreen(BodyBuilder &&body_builder,
     resource_manager.load_shader("font", "shaders/texture.vert", "shaders/font.frag");
     resource_manager.load_font("roboto-16", "fonts/Roboto-Regular.ttf", 16);
 
-    test_sprite.set_scale({0.2, 0.2});
-    test_sprite.set_origin(test_sprite.get_center());
+    test_sprite.transform.set_scale({0.2, 0.2});
     test_sprite.set_color(cl_white);
 }
 

@@ -48,8 +48,8 @@ DistortionTestScreen::DistortionTestScreen(
 {
     resource_manager.load_texture("base_module", "images/base_module.png");
     sprite = std::make_unique<Sprite>("base_module");
-    sprite->set_scale(glm::vec2(100, 100));
-    sprite->set_position(glm::vec2(960, 540));
+    sprite->transform.set_scale(glm::vec2(100, 100));
+    sprite->transform.set_position(glm::vec2(960, 540));
 
     std::vector<Vertex> vertices = {
         {glm::vec2{0, 1080}, glm::vec2{0.0, 1.0}, glm::vec4{1.0, 1.0, 1.0, 1.0}},
@@ -78,7 +78,7 @@ DistortionTestScreen::DistortionTestScreen(
 void DistortionTestScreen::update(double delta_time)
 {
     display_test_dialog("Distortion test", *screens, *screen_names, delta_time, *screen_manager);
-    sprite->rotate(1.f * delta_time);
+    sprite->transform.rotate(1.f * delta_time);
 
     if (ImGui::IsKeyPressed(GLFW_KEY_SPACE))
     {
@@ -95,19 +95,19 @@ void DistortionTestScreen::draw(Renderer &renderer, bool /*lightweight*/)
     renderer.push_post_proc_layer(post_proc_layer.get());
     renderer.begin();
 
-    sprite->set_position({860, 440});
+    sprite->transform.set_position({860, 440});
     renderer.draw(*sprite, projection);
 
-    sprite->set_position({960, 540});
+    sprite->transform.set_position({960, 540});
     renderer.draw(*sprite, projection);
 
-    sprite->set_position({1060, 640});
+    sprite->transform.set_position({1060, 640});
     renderer.draw(*sprite, projection);
 
-    sprite->set_position({1060, 440});
+    sprite->transform.set_position({1060, 440});
     renderer.draw(*sprite, projection);
 
-    sprite->set_position({860, 640});
+    sprite->transform.set_position({860, 640});
     renderer.draw(*sprite, projection);
 
     vertex_array->bind();

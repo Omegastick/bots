@@ -149,12 +149,12 @@ void MultiplayerScreen::draw(Renderer &renderer, bool lightweight)
                 winner_text.text = "You lost";
             }
             winner_text.font = "roboto-16";
-            winner_text.set_position({0, 0});
-            winner_text.set_scale({0.3, 0.3});
+            winner_text.transform.set_position({0, 0});
+            winner_text.transform.set_scale({0.3, 0.3});
             const double character_width = 2.2;
             double width = character_width * winner_text.text.size();
             const double height = 2.4;
-            winner_text.set_origin({width / 2., height / 2.});
+            winner_text.transform.set_origin({width / 2., height / 2.});
             render_data.texts.push_back(winner_text);
         }
 

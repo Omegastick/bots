@@ -232,12 +232,12 @@ RenderData KothEnv::get_render_data(bool lightweight)
     timer.text = std::to_string(seconds_remaining);
     timer.font = "roboto-16";
     timer.color = cl_white;
-    timer.set_position({0, 0});
-    timer.set_scale({0.15, 0.15});
+    timer.transform.set_position({0, 0});
+    timer.transform.set_scale({0.15, 0.15});
     const double character_width = 1.1;
     double width = character_width * timer.text.size();
     const double height = 1.2;
-    timer.set_origin({width / 2., height / 2.});
+    timer.transform.set_origin({width / 2., height / 2.});
     render_data.texts.push_back(timer);
 
     return render_data;

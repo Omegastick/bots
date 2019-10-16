@@ -29,7 +29,8 @@ void EntityDestroyed::trigger(IEnvironment &env)
     }
 
     auto &entity = *iter->second;
-    entity.set_transform({std::get<0>(transform), std::get<1>(transform)}, std::get<2>(transform));
+    entity.set_transform({transform.get_position().x, transform.get_position().y},
+                         transform.get_rotation());
     entity.destroy();
 }
 }

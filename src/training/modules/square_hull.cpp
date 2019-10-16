@@ -12,7 +12,7 @@ SquareHull::SquareHull()
 {
     // Sprite
     sprite = std::make_unique<Sprite>("square_hull");
-    sprite->set_scale(glm::vec2(1, 1));
+    sprite->transform.set_scale(glm::vec2(1, 1));
     sprite->set_color(cl_white);
 
     // Box2D

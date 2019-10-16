@@ -10,10 +10,7 @@
 
 namespace SingularityTrainer
 {
-Sprite::Sprite(std::string texture) : texture(texture) {}
-
-glm::vec2 Sprite::get_center() const
-{
-    return glm::vec2(get_scale().x / 2, get_scale().y / 2);
-}
+Sprite::Sprite(std::string texture)
+    : color(glm::vec4(1)),
+      texture(texture) {}
 }

@@ -23,7 +23,7 @@ GunModule::GunModule(Random &rng) : cooldown(3), rng(rng), steps_since_last_shot
 {
     // Sprite
     sprite = std::make_unique<Sprite>("gun_module");
-    sprite->set_scale(glm::vec2(1, 1));
+    sprite->transform.set_scale(glm::vec2(1, 1));
 
     // Box2D fixture
     b2PolygonShape body_shape;
