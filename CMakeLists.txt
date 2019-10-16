@@ -2,6 +2,7 @@ cmake_minimum_required(VERSION 3.5.1)
 project(SingularityTrainer)
 
 # CMake policies
+cmake_policy(SET CMP0069 NEW)
 if (UNIX)
     cmake_policy(SET CMP0077 NEW)
 endif()
@@ -147,7 +148,17 @@ set_target_properties(Misc PROPERTIES POSITION_INDEPENDENT_CODE TRUE)
 set_target_properties(Networking PROPERTIES POSITION_INDEPENDENT_CODE TRUE)
 set_target_properties(Training PROPERTIES POSITION_INDEPENDENT_CODE TRUE)
 
-# Enable all warnings
+# Link time optimization
+include(CheckIPOSupported)
+check_ipo_supported(RESULT IPO_SUPPORTED OUTPUT IPO_ERROR)
+
+if(IPO_SUPPORTED)
+    message(STATUS "IPO / LTO enabled")
+else(IPO_SUPPORTED)
+    message(STATUS "IPO / LTO not supported: <${IPO_ERROR}>")
+endif(IPO_SUPPORTED)
+
+# Options/definitions for all targets
 foreach(target ${ST_TARGETS})
     target_compile_definitions(${target} PUBLIC SPDLOG_FMT_EXTERNAL)
     if(MSVC)
@@ -156,6 +167,10 @@ foreach(target ${ST_TARGETS})
     else(MSVC)
         target_compile_options(${target} PRIVATE -Wall -Wextra -pedantic -Wno-maybe-uninitialized)
     endif(MSVC)    
+
+    if(IPO_SUPPORTED)
+        set_property(TARGET ${target} PROPERTY INTERPROCEDURAL_OPTIMIZATION TRUE)
+    endif(IPO_SUPPORTED)
 endforeach(target ${ST_TARGETS})
 
 # Libraries included in repository
