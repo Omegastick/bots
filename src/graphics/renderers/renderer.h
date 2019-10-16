@@ -55,10 +55,15 @@ class Renderer
     inline int get_width() const { return width; }
     inline int get_height() const { return height; }
 
-    void draw(const VertexArray &vertex_array, const ElementBuffer &element_buffer, const Shader &shader);
+    void draw(const VertexArray &vertex_array,
+              const ElementBuffer &element_buffer,
+              const Shader &shader);
     void draw(const Sprite &sprite, const glm::mat4 &view);
     void draw(const Text &text, const glm::mat4 &view);
-    void draw(RenderData &render_data, const glm::mat4 &view, double time, bool lightweight = false);
+    void draw(RenderData &render_data,
+              const glm::mat4 &view,
+              double time,
+              bool lightweight = false);
 
     void clear(const glm::vec4 &color = cl_background);
 

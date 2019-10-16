@@ -27,7 +27,6 @@ ThrusterModule::ThrusterModule() : active(false)
     // Sprite
     sprite = std::make_unique<Sprite>("thruster_module");
     sprite->set_scale(glm::vec2(1, 0.333));
-    sprite->set_origin(sprite->get_center());
 
     // Box2D fixture
     b2Vec2 vertices[4];
@@ -85,13 +84,13 @@ nlohmann::json ThrusterModule::to_json() const
 void ThrusterModule::sub_update()
 {
     b2Transform global_transform = get_global_transform();
-    if (active) {
+    if (active)
+    {
         body->get_environment()->add_event(std::make_unique<EffectTriggered>(
             EffectTypes::ThrusterParticles,
             body->get_environment()->get_elapsed_time(),
             Transform{global_transform.p.x, global_transform.p.y, global_transform.q.GetAngle()}));
     }
-
 }
 
 void ThrusterModule::update()

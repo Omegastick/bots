@@ -18,10 +18,10 @@ SpriteRenderer::SpriteRenderer(ResourceManager &resource_manager) : resource_man
     vertex_array = std::make_unique<VertexArray>();
 
     SpriteVertex sprite_vertices[4]{
-        {glm::vec2(0.0, 1.0), glm::vec2(0.0, 1.0), glm::vec4(1.0, 1.0, 1.0, 1.0)},
-        {glm::vec2(0.0, 0.0), glm::vec2(0.0, 0.0), glm::vec4(1.0, 1.0, 1.0, 1.0)},
-        {glm::vec2(1.0, 0.0), glm::vec2(1.0, 0.0), glm::vec4(1.0, 1.0, 1.0, 1.0)},
-        {glm::vec2(1.0, 1.0), glm::vec2(1.0, 1.0), glm::vec4(1.0, 1.0, 1.0, 1.0)}};
+        {glm::vec2(-0.5, 0.5), glm::vec2(0.0, 1.0), glm::vec4(1.0, 1.0, 1.0, 1.0)},
+        {glm::vec2(-0.5, -0.5), glm::vec2(0.0, 0.0), glm::vec4(1.0, 1.0, 1.0, 1.0)},
+        {glm::vec2(0.5, -0.5), glm::vec2(1.0, 0.0), glm::vec4(1.0, 1.0, 1.0, 1.0)},
+        {glm::vec2(0.5, 0.5), glm::vec2(1.0, 1.0), glm::vec4(1.0, 1.0, 1.0, 1.0)}};
     vertex_buffer = std::make_unique<VertexBuffer>(&sprite_vertices[0], 4 * sizeof(SpriteVertex));
 
     unsigned int sprite_indices[] = {

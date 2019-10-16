@@ -46,9 +46,6 @@ CreateProgramScreen::CreateProgramScreen(std::unique_ptr<AlgorithmWindow> algori
     : algorithm_window(std::move(algorithm_window)),
       body_selector_window(std::move(body_selector_window)),
       brain_window(std::move(brain_window)),
-      crt_post_proc_layer(PostProcLayer(*resource_manager.shader_store.get("crt"),
-                                        io.get_resolution().x,
-                                        io.get_resolution().y)),
       environment(std::move(environment)),
       io(io),
       program(std::move(program)),
@@ -72,6 +69,11 @@ CreateProgramScreen::CreateProgramScreen(std::unique_ptr<AlgorithmWindow> algori
     resource_manager.load_shader("texture", "shaders/texture.vert", "shaders/texture.frag");
     resource_manager.load_shader("font", "shaders/texture.vert", "shaders/font.frag");
     resource_manager.load_font("roboto-16", "fonts/Roboto-Regular.ttf", 16);
+
+    crt_post_proc_layer = std::make_unique<PostProcLayer>(
+        *resource_manager.shader_store.get("crt"),
+        io.get_resolution().x,
+        io.get_resolution().y);
 }
 
 void CreateProgramScreen::algorithm()
@@ -123,7 +125,7 @@ void CreateProgramScreen::save_load()
 
 void CreateProgramScreen::draw(Renderer &renderer, bool lightweight)
 {
-    renderer.push_post_proc_layer(&crt_post_proc_layer);
+    renderer.push_post_proc_layer(crt_post_proc_layer.get());
     renderer.begin();
 
     auto render_data = environment->get_render_data(lightweight);

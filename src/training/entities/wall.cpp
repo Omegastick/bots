@@ -24,7 +24,6 @@ Wall::Wall(float x, float y, float width, float height, b2World &world)
 
     sprite = std::make_unique<Sprite>("pixel");
     sprite->set_scale({width, height});
-    sprite->set_origin(sprite->get_center());
     sprite->set_position({x + (width / 2), y + (height / 2)});
     sprite->set_color(cl_white);
 }

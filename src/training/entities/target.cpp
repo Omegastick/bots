@@ -25,7 +25,6 @@ Target::Target(float x, float y, b2World &world, IEnvironment &env) : environmen
     // Sprite
     sprite = std::make_unique<Sprite>("target");
     sprite->set_scale({1, 1});
-    sprite->set_origin(sprite->get_center());
 }
 
 Target::~Target() {}
