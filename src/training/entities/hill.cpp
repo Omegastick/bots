@@ -28,7 +28,7 @@ Hill::Hill(float x, float y, b2World &world)
 
     // Sprite
     sprite = std::make_unique<Sprite>("target");
-    sprite->set_scale({6, 6});
+    sprite->transform.set_scale({6, 6});
 }
 
 Hill::~Hill() {}
@@ -38,7 +38,7 @@ RenderData Hill::get_render_data(bool /*lightweight*/)
     auto render_data = RenderData();
 
     b2Vec2 position = rigid_body->body->GetPosition();
-    sprite->set_position({position.x, position.y});
+    sprite->transform.set_position({position.x, position.y});
     render_data.sprites.push_back(*sprite);
 
     return render_data;

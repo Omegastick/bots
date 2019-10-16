@@ -4,14 +4,13 @@
 
 #include <msgpack.hpp>
 
+#include "misc/transform.h"
 #include "training/events/ievent.h"
 
 namespace SingularityTrainer
 {
 class IEnvironment;
 class Random;
-
-typedef std::tuple<float, float, float> Transform;
 
 enum class EffectTypes
 {

@@ -39,8 +39,8 @@ TextTestScreen::TextTestScreen(
 
     text.text = "Hello world!";
     text.font = "roboto-48";
-    text.set_position({500, 500});
-    text.set_rotation(25);
+    text.transform.set_position({500, 500});
+    text.transform.set_rotation(25);
 }
 
 TextTestScreen::~TextTestScreen() {}

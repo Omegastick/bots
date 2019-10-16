@@ -241,9 +241,9 @@ void PlaybackEnv::update(double delta_time)
             auto &event = static_cast<EntityDestroyed &>(*event_iter->get());
             double event_tick = event.get_time() / tick_length;
 
-            b2Transform end_transform(b2Vec2(std::get<0>(event.get_transform()),
-                                             std::get<1>(event.get_transform())),
-                                      b2Rot(std::get<2>(event.get_transform())));
+            b2Transform end_transform(b2Vec2(event.get_transform().get_position().x,
+                                             event.get_transform().get_position().y),
+                                      b2Rot(event.get_transform().get_rotation()));
 
             // Calclulate interpolation for this entity
             double event_tick_interval = event_tick - start_state->tick;

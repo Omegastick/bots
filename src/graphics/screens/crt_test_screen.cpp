@@ -35,8 +35,8 @@ CrtTestScreen::CrtTestScreen(
     this->resource_manager = &resource_manager;
     resource_manager.load_texture("base_module", "images/base_module.png");
     sprite = std::make_unique<Sprite>("base_module");
-    sprite->set_scale(glm::vec2(100, 100));
-    sprite->set_position(glm::vec2(960, 540));
+    sprite->transform.set_scale(glm::vec2(100, 100));
+    sprite->transform.set_position(glm::vec2(960, 540));
 
     resource_manager.load_shader("texture", "shaders/texture.vert", "shaders/texture.frag");
     resource_manager.load_shader("crt", "shaders/texture.vert", "shaders/crt.frag");
@@ -49,12 +49,12 @@ CrtTestScreen::~CrtTestScreen() {}
 void CrtTestScreen::update(double delta_time)
 {
     display_test_dialog("CRT test", *screens, *screen_names, delta_time, *screen_manager);
-    sprite->rotate(1.f * delta_time);
+    sprite->transform.rotate(1.f * delta_time);
 
     ImGui::Begin("Sprite position");
-    float position[2]{sprite->get_position().x, sprite->get_position().y};
+    float position[2]{sprite->transform.get_position().x, sprite->transform.get_position().y};
     ImGui::SliderFloat2("Position", position, 0, 1920);
-    sprite->set_position(glm::vec2(position[0], position[1]));
+    sprite->transform.set_position(glm::vec2(position[0], position[1]));
     ImGui::End();
 }
 

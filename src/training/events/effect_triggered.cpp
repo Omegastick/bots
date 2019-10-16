@@ -23,10 +23,10 @@ void EffectTriggered::trigger(IEnvironment &env)
 {
     if (effect_type == EffectTypes::ThrusterParticles)
     {
-        env.add_effect(std::make_unique<ThrusterParticles>(b2Transform({std::get<0>(transform),
-                                                                        std::get<1>(transform)},
-                                                                       b2Rot(std::get<2>(transform))),
-                                                           cl_white));
+        env.add_effect(std::make_unique<ThrusterParticles>(
+            b2Transform({transform.get_position().x, transform.get_position().y},
+                        b2Rot(transform.get_rotation())),
+            cl_white));
     }
     else
     {

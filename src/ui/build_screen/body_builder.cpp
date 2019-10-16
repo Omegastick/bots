@@ -161,11 +161,10 @@ RenderData BodyBuilder::get_render_data(bool lightweight)
     {
         Sprite selected_marker("square");
         selected_marker.set_color(cl_white);
-        selected_marker.set_scale({1.1, 1.1});
-        selected_marker.set_origin(selected_marker.get_scale() * 0.5f);
+        selected_marker.transform.set_scale({1.1, 1.1});
         auto b2_transform = selected_module->get_global_transform();
-        selected_marker.set_position({b2_transform.p.x, b2_transform.p.y});
-        selected_marker.set_rotation(b2_transform.q.GetAngle());
+        selected_marker.transform.set_position({b2_transform.p.x, b2_transform.p.y});
+        selected_marker.transform.set_rotation(b2_transform.q.GetAngle());
         render_data.sprites.push_back(selected_marker);
     }
 
@@ -328,8 +327,8 @@ TEST_CASE("BodyBuilder")
             auto render_data = body_builder.get_render_data(true);
 
             DOCTEST_CHECK(render_data.sprites[1].get_texture() == "square");
-            DOCTEST_CHECK(render_data.sprites[1].get_scale() == glm::vec2(1.1, 1.1));
-            DOCTEST_CHECK(render_data.sprites[1].get_position() == glm::vec2(0, 0));
+            DOCTEST_CHECK(render_data.sprites[1].transform.get_scale() == glm::vec2(1.1, 1.1));
+            DOCTEST_CHECK(render_data.sprites[1].transform.get_position() == glm::vec2(0, 0));
         }
 
         SUBCASE("When called with nullptr, stops drawing the box")

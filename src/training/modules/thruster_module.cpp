@@ -26,7 +26,7 @@ ThrusterModule::ThrusterModule() : active(false)
 {
     // Sprite
     sprite = std::make_unique<Sprite>("thruster_module");
-    sprite->set_scale(glm::vec2(1, 0.333));
+    sprite->transform.set_scale(glm::vec2(1, 0.333));
 
     // Box2D fixture
     b2Vec2 vertices[4];

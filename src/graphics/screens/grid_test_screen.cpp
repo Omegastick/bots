@@ -43,7 +43,7 @@ GridTestScreen::GridTestScreen(
     this->resource_manager = &resource_manager;
     resource_manager.load_texture("bullet", "images/bullet.png");
     sprite = std::make_unique<Sprite>("bullet");
-    sprite->set_scale(glm::vec2(3, 3));
+    sprite->transform.set_scale(glm::vec2(3, 3));
 }
 
 void GridTestScreen::update(double delta_time)
@@ -71,8 +71,8 @@ void GridTestScreen::draw(Renderer &renderer, bool /*lightweight*/)
 
     for (const auto &vertex : vertices)
     {
-        sprite->set_position({vertex.x, vertex.y});
-        transforms.push_back(sprite->get_transform());
+        sprite->transform.set_position({vertex.x, vertex.y});
+        transforms.push_back(sprite->transform.get());
     }
 
     sprite_renderer.draw(sprite->get_texture(), transforms, projection);

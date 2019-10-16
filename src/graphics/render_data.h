@@ -6,7 +6,7 @@
 #include <glm/glm.hpp>
 
 #include "graphics/sprite.h"
-#include "graphics/itransformable.h"
+#include "misc/transform.h"
 
 namespace SingularityTrainer
 {
@@ -28,11 +28,12 @@ struct Line
     std::vector<glm::vec4> colors;
 };
 
-struct Text : ITransformable
+struct Text
 {
-    std::string text;
-    std::string font;
     glm::vec4 color;
+    std::string font;
+    std::string text;
+    Transform transform;
 };
 
 struct RenderData

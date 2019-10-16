@@ -36,8 +36,8 @@ AnimationTestScreen::AnimationTestScreen(
     this->resource_manager = &resource_manager;
     resource_manager.load_texture("base_module", "images/base_module.png");
     sprite = std::make_unique<Sprite>("base_module");
-    sprite->set_scale(glm::vec2(100, 100));
-    sprite->set_position(glm::vec2(-100, -100));
+    sprite->transform.set_scale(glm::vec2(100, 100));
+    sprite->transform.set_position(glm::vec2(-100, -100));
 
     resource_manager.load_shader("texture", "shaders/texture.vert", "shaders/texture.frag");
 }
@@ -58,7 +58,7 @@ void AnimationTestScreen::update(double delta_time)
             tween = std::make_shared<tweeny::tween<double>>(tweeny::from(1820.).to(100.).during(1000).via(tweeny::easing::sinusoidalInOut));
         }
         Animation animation{
-            [this, tween](float step_percentage) { sprite->set_position({tween->step(step_percentage), 540}); },
+            [this, tween](float step_percentage) { sprite->transform.set_position({tween->step(step_percentage), 540}); },
             3,
             [this] {
                 animation_finished = true;
@@ -69,7 +69,7 @@ void AnimationTestScreen::update(double delta_time)
     }
 
     display_test_dialog("Animation test", *screens, *screen_names, delta_time, *screen_manager);
-    sprite->rotate(1.f * delta_time);
+    sprite->transform.rotate(1.f * delta_time);
 }
 
 void AnimationTestScreen::draw(Renderer &renderer, bool /*lightweight*/)

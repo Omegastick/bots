@@ -43,7 +43,7 @@ void SpriteRenderer::draw(const Sprite &sprite, const glm::mat4 &view)
     auto shader = resource_manager->shader_store.get("texture");
     shader->bind();
 
-    auto mvp = view * sprite.get_transform();
+    auto mvp = view * sprite.transform.get();
 
     shader->set_uniform_mat4f("u_mvp", mvp);
     shader->set_uniform_1i("u_texture", 0);

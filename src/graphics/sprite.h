@@ -8,20 +8,20 @@
 #include "graphics/backend/vertex_buffer.h"
 #include "graphics/backend/texture.h"
 #include "graphics/backend/element_buffer.h"
-#include "graphics/itransformable.h"
+#include "misc/transform.h"
 
 namespace SingularityTrainer
 {
-class Sprite : public ITransformable
+class Sprite
 {
   private:
-    std::string texture;
     glm::vec4 color;
+    std::string texture;
 
   public:
-    explicit Sprite(std::string texture);
+    Transform transform;
 
-    glm::vec2 get_center() const;
+    explicit Sprite(std::string texture);
 
     inline std::string get_texture() const { return texture; }
     inline void set_texture(const std::string &texture) { this->texture = texture; }
