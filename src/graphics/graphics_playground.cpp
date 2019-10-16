@@ -243,6 +243,7 @@ int main(int /*argc*/, const char * /*argv*/ [])
         // Draw
         renderer.begin();
         screen_manager.draw(renderer, delta_time);
+        renderer.render();
 
         ImGui::Render();
         ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());

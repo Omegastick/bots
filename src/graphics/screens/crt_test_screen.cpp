@@ -69,7 +69,5 @@ void CrtTestScreen::draw(Renderer &renderer, bool /*lightweight*/)
     crt_shader->set_uniform_1f("u_output_gamma", 1);
     crt_shader->set_uniform_1f("u_strength", 1);
     crt_shader->set_uniform_1f("u_distortion_factor", 0.03);
-
-    renderer.end();
 }
 }

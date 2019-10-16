@@ -75,6 +75,5 @@ void AnimationTestScreen::update(double delta_time)
 void AnimationTestScreen::draw(Renderer &renderer, bool /*lightweight*/)
 {
     renderer.draw(*sprite, projection);
-    renderer.end();
 }
 }

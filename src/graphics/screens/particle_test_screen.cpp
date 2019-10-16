@@ -60,10 +60,8 @@ void ParticleTestScreen::update(double delta_time)
     particle_renderer.add_particles(particles, glfwGetTime());
 }
 
-void ParticleTestScreen::draw(Renderer &renderer, bool /*lightweight*/)
+void ParticleTestScreen::draw(Renderer & /*renderer*/, bool /*lightweight*/)
 {
     particle_renderer.draw(glfwGetTime(), projection);
-
-    renderer.end();
 }
 }
