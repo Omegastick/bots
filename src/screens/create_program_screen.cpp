@@ -126,7 +126,6 @@ void CreateProgramScreen::save_load()
 void CreateProgramScreen::draw(Renderer &renderer, bool lightweight)
 {
     renderer.push_post_proc_layer(crt_post_proc_layer.get());
-    renderer.begin();
 
     auto render_data = environment->get_render_data(lightweight);
 

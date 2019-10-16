@@ -61,7 +61,6 @@ void CrtTestScreen::update(double delta_time)
 void CrtTestScreen::draw(Renderer &renderer, bool /*lightweight*/)
 {
     renderer.push_post_proc_layer(post_proc_layer.get());
-    renderer.begin();
 
     renderer.draw(*sprite, projection);
 

@@ -68,5 +68,7 @@ void TextureTestScreen::draw(Renderer &renderer, bool /*lightweight*/)
     shader->set_uniform_1i("u_texture", 0);
 
     renderer.draw(*vertex_array, *element_buffer, *shader);
+
+    renderer.end();
 }
 }

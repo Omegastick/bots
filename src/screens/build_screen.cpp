@@ -121,8 +121,6 @@ void BuildScreen::update(double /*delta_time*/)
 
 void BuildScreen::draw(Renderer &renderer, bool lightweight)
 {
-    renderer.begin();
-
     RenderData render_data;
 
     if (module_to_place != nullptr)

@@ -78,5 +78,7 @@ class Renderer
 
     void begin();
     void end();
+
+    void render();
 };
 }

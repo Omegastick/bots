@@ -58,7 +58,6 @@ void QuadScreen::update(double delta_time)
 
 void QuadScreen::draw(Renderer &renderer, bool /*lightweight*/)
 {
-    renderer.begin();
     renderer.draw(*vertex_array, *element_buffer, *shader);
     renderer.end();
 }

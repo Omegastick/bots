@@ -93,7 +93,6 @@ void DistortionTestScreen::update(double delta_time)
 void DistortionTestScreen::draw(Renderer &renderer, bool /*lightweight*/)
 {
     renderer.push_post_proc_layer(post_proc_layer.get());
-    renderer.begin();
 
     sprite->transform.set_position({860, 440});
     renderer.draw(*sprite, projection);
