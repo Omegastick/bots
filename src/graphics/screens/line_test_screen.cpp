@@ -70,7 +70,5 @@ void LineTestScreen::draw(Renderer &renderer, bool /*lightweight*/)
     RenderData render_data;
     render_data.lines = lines;
     renderer.draw(render_data, projection, glfwGetTime());
-
-    renderer.end();
 }
 }

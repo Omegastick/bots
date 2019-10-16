@@ -60,7 +60,7 @@ void GridTestScreen::update(double delta_time)
     spring_mesh.update();
 }
 
-void GridTestScreen::draw(Renderer &renderer, bool /*lightweight*/)
+void GridTestScreen::draw(Renderer &/*renderer*/, bool /*lightweight*/)
 {
     std::vector<glm::mat4> transforms;
     transforms.reserve(width * height);
@@ -74,6 +74,5 @@ void GridTestScreen::draw(Renderer &renderer, bool /*lightweight*/)
     }
 
     sprite_renderer.draw(sprite->get_texture(), transforms, projection);
-    renderer.end();
 }
 }

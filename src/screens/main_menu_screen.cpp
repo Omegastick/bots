@@ -115,9 +115,8 @@ void MainMenuScreen::update(double /*delta_time*/)
     // ImGui::ShowDemoWindow();
 }
 
-void MainMenuScreen::draw(Renderer &renderer, bool /*lightweight*/)
+void MainMenuScreen::draw(Renderer & /*renderer*/, bool /*lightweight*/)
 {
-    renderer.end();
 }
 
 void MainMenuScreen::build_body()

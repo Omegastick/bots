@@ -125,8 +125,5 @@ void DistortionTestScreen::draw(Renderer &renderer, bool /*lightweight*/)
 
     texture->bind(1);
     shader->set_uniform_1i("u_distortion", 1);
-    // renderer.draw(*vertex_array, *element_buffer, *shader);
-
-    renderer.end();
 }
 }

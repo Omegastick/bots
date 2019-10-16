@@ -113,7 +113,7 @@ void Renderer::begin()
     clear();
 }
 
-void Renderer::end()
+void Renderer::render()
 {
     clear_scissor();
     for (const auto &post_proc_layer : post_proc_layers)

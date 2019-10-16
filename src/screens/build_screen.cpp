@@ -143,7 +143,5 @@ void BuildScreen::draw(Renderer &renderer, bool lightweight)
     render_data.append(body_builder.get_render_data());
 
     renderer.draw(render_data, body_builder.get_projection(), 0., lightweight);
-
-    renderer.end();
 }
 }

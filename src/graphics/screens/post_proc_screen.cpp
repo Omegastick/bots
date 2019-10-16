@@ -74,7 +74,5 @@ void PostProcScreen::draw(Renderer &renderer, bool /*lightweight*/)
     auto post_proc_shader_2 = resource_manager->shader_store.get("post_proc_test_2");
     post_proc_shader_2->set_uniform_2f("u_direction", glm::vec2(-1, 1));
     post_proc_shader_2->set_uniform_2f("u_resolution", glm::vec2(renderer.get_width(), renderer.get_height()));
-
-    renderer.end();
 }
 }

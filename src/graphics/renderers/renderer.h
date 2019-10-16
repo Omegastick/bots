@@ -77,8 +77,6 @@ class Renderer
     void clear_particles();
 
     void begin();
-    void end();
-
     void render();
 };
 }
