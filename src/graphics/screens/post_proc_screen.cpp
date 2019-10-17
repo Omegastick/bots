@@ -64,8 +64,8 @@ void PostProcScreen::update(double delta_time)
 void PostProcScreen::draw(Renderer &renderer, bool /*lightweight*/)
 {
     renderer.set_view(projection);
-    renderer.push_post_proc_layer(post_proc_layer_1.get());
-    renderer.push_post_proc_layer(post_proc_layer_2.get());
+    renderer.push_post_proc_layer(*post_proc_layer_1);
+    renderer.push_post_proc_layer(*post_proc_layer_2);
 
     renderer.draw(*sprite);
 

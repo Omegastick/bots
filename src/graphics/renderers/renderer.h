@@ -78,7 +78,7 @@ class Renderer
 
     void clear(const glm::vec4 &color = cl_background);
 
-    void push_post_proc_layer(PostProcLayer *post_proc_layer);
+    void push_post_proc_layer(PostProcLayer &post_proc_layer);
     void pop_post_proc_layer();
     void clear_post_proc_stack();
 

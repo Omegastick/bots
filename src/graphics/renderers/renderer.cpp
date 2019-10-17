@@ -175,9 +175,9 @@ void Renderer::render(double time)
     post_proc_layers.clear();
 }
 
-void Renderer::push_post_proc_layer(PostProcLayer *post_proc_layer)
+void Renderer::push_post_proc_layer(PostProcLayer &post_proc_layer)
 {
-    post_proc_layers.push_back(post_proc_layer);
+    post_proc_layers.push_back(&post_proc_layer);
 }
 
 void Renderer::pop_post_proc_layer()
