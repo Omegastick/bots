@@ -120,6 +120,8 @@ void BuildScreen::update(double /*delta_time*/)
 
 void BuildScreen::draw(Renderer &renderer, bool /*lightweight*/)
 {
+    renderer.set_view(projection);
+
     if (module_to_place != nullptr)
     {
         auto cursor_world_position = screen_to_world_space(io->get_cursor_position(),
