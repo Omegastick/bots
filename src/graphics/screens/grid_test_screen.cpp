@@ -16,7 +16,7 @@
 #include "graphics/backend/shader.h"
 #include "graphics/renderers/renderer.h"
 #include "graphics/render_data.h"
-#include "graphics/sprite.h"
+#include "graphics/render_data.h"
 #include "misc/resource_manager.h"
 #include "misc/screen_manager.h"
 #include "misc/spring_mesh.h"
@@ -42,7 +42,8 @@ GridTestScreen::GridTestScreen(
 {
     this->resource_manager = &resource_manager;
     resource_manager.load_texture("bullet", "images/bullet.png");
-    sprite = std::make_unique<Sprite>("bullet");
+    sprite = std::make_unique<Sprite>();
+    sprite->texture = "bullet";
     sprite->transform.set_scale(glm::vec2(3, 3));
 }
 
@@ -60,8 +61,9 @@ void GridTestScreen::update(double delta_time)
     spring_mesh.update();
 }
 
-void GridTestScreen::draw(Renderer &/*renderer*/, bool /*lightweight*/)
+void GridTestScreen::draw(Renderer &renderer, bool /*lightweight*/)
 {
+    renderer.set_view(projection);
     std::vector<glm::mat4> transforms;
     transforms.reserve(width * height);
 
@@ -70,9 +72,7 @@ void GridTestScreen::draw(Renderer &/*renderer*/, bool /*lightweight*/)
     for (const auto &vertex : vertices)
     {
         sprite->transform.set_position({vertex.x, vertex.y});
-        transforms.push_back(sprite->transform.get());
+        renderer.draw(*sprite);
     }
-
-    sprite_renderer.draw(sprite->get_texture(), transforms, projection);
 }
 }

@@ -4,6 +4,7 @@
 
 #include "graphics/renderers/text_renderer.h"
 #include "graphics/backend/vertex_array.h"
+#include "graphics/backend/vertex_buffer.h"
 #include "graphics/backend/vertex_buffer_layout.h"
 #include "graphics/backend/shader.h"
 #include "graphics/backend/element_buffer.h"

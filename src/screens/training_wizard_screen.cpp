@@ -11,7 +11,7 @@
 
 #include "screens/training_wizard_screen.h"
 #include "graphics/renderers/renderer.h"
-#include "graphics/sprite.h"
+#include "graphics/render_data.h"
 #include "misc/animator.h"
 #include "misc/io.h"
 #include "misc/random.h"
@@ -144,8 +144,7 @@ void TrainingWizardScreen::draw(Renderer &renderer, bool /*lightweight*/)
 
     if (body->get_modules().size() > 0)
     {
-        auto render_data = body->get_render_data();
-        renderer.draw(render_data, projection, elapsed_time);
+        body->draw(renderer);
     }
 
     auto crt_shader = resource_manager->shader_store.get("crt");

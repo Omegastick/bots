@@ -9,8 +9,6 @@
 namespace SingularityTrainer
 {
 class Body;
-struct RenderData;
-
 class ThrusterModule : public IModule, public IActivatable
 {
   private:

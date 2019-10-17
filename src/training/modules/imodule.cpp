@@ -4,6 +4,7 @@
 #include <glm/glm.hpp>
 
 #include "graphics/render_data.h"
+#include "graphics/renderers/renderer.h"
 #include "training/modules/imodule.h"
 #include "training/bodies/body.h"
 #include "training/rigid_body.h"
@@ -40,7 +41,7 @@ std::vector<IModule *> IModule::get_children(std::vector<IModule *> child_list)
 
 std::vector<float> IModule::get_sensor_reading() const { return std::vector<float>(); }
 
-RenderData IModule::get_render_data(bool /*lightweight*/)
+void IModule::draw(Renderer &renderer, bool /*lightweight*/)
 {
     b2Transform world_transform = get_global_transform();
     glm::vec2 screen_position(world_transform.p.x, world_transform.p.y);
@@ -48,7 +49,7 @@ RenderData IModule::get_render_data(bool /*lightweight*/)
     auto rotation = world_transform.q.GetAngle();
     sprite->transform.set_rotation(rotation);
 
-    return RenderData{{*sprite}, {}, {}, {}};
+    renderer.draw(*sprite);
 }
 
 b2Transform IModule::get_global_transform() const

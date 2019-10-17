@@ -7,7 +7,8 @@
 #include "graphics/backend/vertex_buffer_layout.h"
 #include "graphics/backend/shader.h"
 #include "graphics/backend/element_buffer.h"
-#include "graphics/sprite.h"
+#include "graphics/backend/texture.h"
+#include "graphics/render_data.h"
 #include "misc/resource_manager.h"
 
 namespace SingularityTrainer
@@ -48,7 +49,7 @@ void SpriteRenderer::draw(const Sprite &sprite, const glm::mat4 &view)
     shader->set_uniform_mat4f("u_mvp", mvp);
     shader->set_uniform_1i("u_texture", 0);
 
-    resource_manager->texture_store.get(sprite.get_texture())->bind();
+    resource_manager->texture_store.get(sprite.texture)->bind();
 
     glDrawElements(GL_TRIANGLES, element_buffer->get_count(), GL_UNSIGNED_INT, 0);
 }

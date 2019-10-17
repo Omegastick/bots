@@ -5,7 +5,7 @@
 
 #include "training/entities/hill.h"
 #include "graphics/colors.h"
-#include "graphics/idrawable.h"
+#include "graphics/renderers/renderer.h"
 #include "training/bodies/body.h"
 #include "training/icollidable.h"
 #include "training/rigid_body.h"
@@ -27,21 +27,16 @@ Hill::Hill(float x, float y, b2World &world)
     rigid_body->body->CreateFixture(&fixture_def);
 
     // Sprite
-    sprite = std::make_unique<Sprite>("target");
+    sprite = std::make_unique<Sprite>();
+    sprite->texture = "target";
     sprite->transform.set_scale({6, 6});
 }
 
-Hill::~Hill() {}
-
-RenderData Hill::get_render_data(bool /*lightweight*/)
+void Hill::draw(Renderer &renderer, bool /*lightweight*/)
 {
-    auto render_data = RenderData();
-
     b2Vec2 position = rigid_body->body->GetPosition();
     sprite->transform.set_position({position.x, position.y});
-    render_data.sprites.push_back(*sprite);
-
-    return render_data;
+    renderer.draw(*sprite);
 }
 
 void Hill::begin_contact(RigidBody *other)

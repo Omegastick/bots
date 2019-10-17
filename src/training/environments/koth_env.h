@@ -21,6 +21,7 @@ class IEntity;
 class IEvent;
 class Hill;
 struct Particle;
+class Renderer;
 class ResourceManager;
 class Wall;
 
@@ -69,7 +70,7 @@ class KothEnv : public IEnvironment
     virtual void change_reward(int body, float reward_delta);
     virtual void change_reward(Body *body, float reward_delta);
     virtual void set_done();
-    virtual RenderData get_render_data(bool lightweight = false);
+    void draw(Renderer &renderer, bool lightweight = false);
     virtual double get_elapsed_time() const;
 
     inline std::vector<Body *> get_bodies() { return {body_1.get(), body_2.get()}; }

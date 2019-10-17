@@ -10,6 +10,7 @@
 #include "koth_env.h"
 #include "graphics/colors.h"
 #include "graphics/render_data.h"
+#include "graphics/renderers/renderer.h"
 #include "training/bodies/test_body.h"
 #include "training/effects/ieffect.h"
 #include "training/entities/bullet.h"
@@ -195,33 +196,28 @@ double KothEnv::get_elapsed_time() const
     return elapsed_time;
 }
 
-RenderData KothEnv::get_render_data(bool lightweight)
+void KothEnv::draw(Renderer &renderer, bool lightweight)
 {
-    RenderData render_data;
+    hill->draw(renderer, lightweight);
 
-    render_data.append(hill->get_render_data(lightweight));
-
-    auto body_1_render_data = body_1->get_render_data(lightweight);
-    render_data.append(body_1_render_data);
-    auto body_2_render_data = body_2->get_render_data(lightweight);
-    render_data.append(body_2_render_data);
+    body_1->draw(renderer, lightweight);
+    body_2->draw(renderer, lightweight);
 
     for (auto &wall : walls)
     {
-        auto wall_render_data = wall->get_render_data(lightweight);
-        render_data.append(wall_render_data);
+        wall->draw(renderer, lightweight);
     }
 
     for (auto &entity : entities)
     {
-        render_data.append(entity.second->get_render_data());
+        entity.second->draw(renderer);
     }
 
     if (!lightweight)
     {
         for (auto &effect : effects)
         {
-            render_data.append(effect->trigger());
+            effect->trigger(renderer);
         }
     }
     effects.clear();
@@ -238,9 +234,7 @@ RenderData KothEnv::get_render_data(bool lightweight)
     double width = character_width * timer.text.size();
     const double height = 1.2;
     timer.transform.set_origin({width / 2., height / 2.});
-    render_data.texts.push_back(timer);
-
-    return render_data;
+    renderer.draw(timer);
 }
 
 StepInfo KothEnv::step(const std::vector<torch::Tensor> actions, float step_length)

@@ -7,6 +7,7 @@
 #include <nlohmann/json.hpp>
 
 #include "graphics/colors.h"
+#include "graphics/renderers/renderer.h"
 #include "misc/resource_manager.h"
 #include "training/bodies/body.h"
 #include "training/modules/base_module.h"
@@ -25,9 +26,10 @@ LaserSensorModule::LaserSensorModule(int laser_count, float fov, float laser_len
       laser_length(laser_length)
 {
     // Sprite
-    sprite = std::make_unique<Sprite>("laser_sensor_module");
+    sprite = std::make_unique<Sprite>();
+    sprite->texture = "laser_sensor_module";
     sprite->transform.set_scale(glm::vec2(1, 0.5));
-    sprite->set_color(cl_white);
+    sprite->color = cl_white;
 
     // Box2D
     b2PolygonShape shape;
@@ -73,18 +75,18 @@ std::vector<float> LaserSensorModule::get_sensor_reading() const
     return cast_lasers();
 }
 
-RenderData LaserSensorModule::get_render_data(bool lightweight)
+void LaserSensorModule::draw(Renderer &renderer, bool lightweight)
 {
-    auto render_data = IModule::get_render_data(lightweight);
+    IModule::draw(renderer, lightweight);
 
     if (body == nullptr || lightweight)
     {
-        return render_data;
+        return;
     }
     auto sensor_reading = cast_lasers();
     if (sensor_reading.size() == 0)
     {
-        return render_data;
+        return;
     }
 
     b2Transform global_transform = get_global_transform();
@@ -115,10 +117,8 @@ RenderData LaserSensorModule::get_render_data(bool lightweight)
         line.points.push_back({transformed_end.x, transformed_end.y});
         line.colors.push_back(end_color);
         line.widths.push_back(0.01);
-        render_data.lines.push_back(line);
+        renderer.draw(line);
     }
-
-    return render_data;
 }
 
 nlohmann::json LaserSensorModule::to_json() const

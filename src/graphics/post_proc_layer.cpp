@@ -5,7 +5,7 @@
 #include "graphics/backend/shader.h"
 #include "graphics/backend/texture.h"
 #include "graphics/backend/vertex_buffer_layout.h"
-#include "graphics/sprite.h"
+#include "graphics/render_data.h"
 #include "graphics/renderers/renderer.h"
 #include "graphics/post_proc_layer.h"
 
@@ -56,7 +56,7 @@ PostProcLayer &PostProcLayer::operator=(PostProcLayer &&other)
     return *this;
 }
 
-FrameBuffer &PostProcLayer::render(Texture &input_texture, Renderer &renderer)
+FrameBuffer &PostProcLayer::render(Texture &input_texture)
 {
     glDisable(GL_BLEND);
     frame_buffer.bind();
@@ -68,7 +68,9 @@ FrameBuffer &PostProcLayer::render(Texture &input_texture, Renderer &renderer)
     shader.set_uniform_mat4f("u_mvp", mvp);
 
     glViewport(0, 0, width, height);
-    renderer.draw(*vertex_array, *element_buffer, shader);
+    vertex_array->bind();
+    shader.bind();
+    glDrawElements(GL_TRIANGLES, element_buffer->get_count(), GL_UNSIGNED_INT, 0);
 
     glEnable(GL_BLEND);
     return frame_buffer;

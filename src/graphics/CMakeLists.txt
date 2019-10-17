@@ -2,9 +2,7 @@ target_sources(Graphics
 PRIVATE
     ${CMAKE_CURRENT_LIST_DIR}/window.cpp
     ${CMAKE_CURRENT_LIST_DIR}/imgui_utils.cpp
-    ${CMAKE_CURRENT_LIST_DIR}/sprite.cpp
     ${CMAKE_CURRENT_LIST_DIR}/post_proc_layer.cpp
-    ${CMAKE_CURRENT_LIST_DIR}/render_data.cpp
     ${CMAKE_CURRENT_LIST_DIR}/font.cpp
 )
 

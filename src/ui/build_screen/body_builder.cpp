@@ -10,6 +10,7 @@
 #include "ui/build_screen/body_builder.h"
 #include "graphics/colors.h"
 #include "graphics/render_data.h"
+#include "graphics/renderers/renderer.h"
 #include "misc/io.h"
 #include "misc/random.h"
 #include "training/bodies/body.h"
@@ -151,24 +152,23 @@ void BodyBuilder::select_module(const IModule *module)
     selected_module = module;
 }
 
-RenderData BodyBuilder::get_render_data(bool lightweight)
+void BodyBuilder::draw(Renderer &renderer, bool lightweight)
 {
-    RenderData render_data;
+    renderer.set_view(projection);
 
-    render_data.append(body->get_render_data(lightweight));
+    body->draw(renderer, lightweight);
 
     if (selected_module != nullptr)
     {
-        Sprite selected_marker("square");
-        selected_marker.set_color(cl_white);
+        Sprite selected_marker;
+        selected_marker.texture = "square";
+        selected_marker.color = cl_white;
         selected_marker.transform.set_scale({1.1, 1.1});
         auto b2_transform = selected_module->get_global_transform();
         selected_marker.transform.set_position({b2_transform.p.x, b2_transform.p.y});
         selected_marker.transform.set_rotation(b2_transform.q.GetAngle());
-        render_data.sprites.push_back(selected_marker);
+        renderer.draw(selected_marker);
     }
-
-    return render_data;
 }
 
 TEST_CASE("BodyBuilder")
@@ -316,28 +316,6 @@ TEST_CASE("BodyBuilder")
             auto selected_link = body_builder.get_nearest_module_link_to_world_position({0, 10}).nearest_link;
 
             DOCTEST_CHECK(selected_link == nullptr);
-        }
-    }
-
-    SUBCASE("select_module()")
-    {
-        SUBCASE("Draws a box around the selected module")
-        {
-            body_builder.select_module(body_builder.get_body().get_modules()[0].get());
-            auto render_data = body_builder.get_render_data(true);
-
-            DOCTEST_CHECK(render_data.sprites[1].get_texture() == "square");
-            DOCTEST_CHECK(render_data.sprites[1].transform.get_scale() == glm::vec2(1.1, 1.1));
-            DOCTEST_CHECK(render_data.sprites[1].transform.get_position() == glm::vec2(0, 0));
-        }
-
-        SUBCASE("When called with nullptr, stops drawing the box")
-        {
-            body_builder.select_module(body_builder.get_body().get_modules()[0].get());
-            body_builder.select_module(nullptr);
-            auto render_data = body_builder.get_render_data(true);
-
-            DOCTEST_CHECK(render_data.sprites.size() == 1);
         }
     }
 }

@@ -25,7 +25,6 @@ class GunModule : public IModule, public IActivatable
   public:
     GunModule(Random &rng);
 
-    virtual RenderData get_render_data(bool lightweight = false);
     virtual void activate();
     virtual void update();
     virtual nlohmann::json to_json() const;

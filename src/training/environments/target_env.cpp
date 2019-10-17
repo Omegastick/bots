@@ -139,23 +139,16 @@ void TargetEnv::start_thread()
     thread = new std::thread(&TargetEnv::thread_loop, this);
 }
 
-RenderData TargetEnv::get_render_data(bool lightweight)
+void TargetEnv::draw(Renderer &renderer, bool lightweight)
 {
-    RenderData render_data;
-
-    auto body_render_data = body->get_render_data(lightweight);
-    render_data.append(body_render_data);
+    body->draw(renderer, lightweight);
 
     for (auto &wall : walls)
     {
-        auto wall_render_data = wall->get_render_data(lightweight);
-        render_data.append(wall_render_data);
+        wall->draw(renderer, lightweight);
     }
 
-    auto target_render_data = target->get_render_data(lightweight);
-    render_data.append(target_render_data);
-
-    return render_data;
+    target->draw(renderer, lightweight);
 }
 
 std::future<StepInfo> TargetEnv::step(torch::Tensor actions, float step_length)

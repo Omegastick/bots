@@ -9,7 +9,7 @@
 
 namespace SingularityTrainer
 {
-struct RenderData;
+class Renderer;
 
 class ClosestRaycastCallback : public b2RayCastCallback
 {
@@ -35,7 +35,7 @@ class LaserSensorModule : public IModule
     LaserSensorModule(int laser_count = 19, float fov = 180, float laser_length = 20);
 
     virtual std::vector<float> get_sensor_reading() const;
-    virtual RenderData get_render_data(bool lightweight = false);
+    void draw(Renderer &renderer, bool lightweight = false);
     virtual nlohmann::json to_json() const;
 
     inline int get_observation_count() const { return laser_count; }

@@ -130,7 +130,7 @@ void MultiplayerScreen::draw(Renderer &renderer, bool lightweight)
     if (env != nullptr)
     {
         renderer.scissor(-10, -20, 10, 20, glm::ortho(-38.4f, 38.4f, -21.6f, 21.6f));
-        auto render_data = env->get_render_data(lightweight);
+        env->draw(renderer, lightweight);
 
         if (state == MultiplayerScreen::State::Finished)
         {
@@ -154,13 +154,8 @@ void MultiplayerScreen::draw(Renderer &renderer, bool lightweight)
             double width = character_width * winner_text.text.size();
             const double height = 2.4;
             winner_text.transform.set_origin({width / 2., height / 2.});
-            render_data.texts.push_back(winner_text);
+            renderer.draw(winner_text);
         }
-
-        renderer.draw(render_data,
-                      glm::ortho(-38.4f, 38.4f, -21.6f, 21.6f),
-                      env->get_elapsed_time(),
-                      lightweight);
     }
 
     auto crt_shader = resource_manager.shader_store.get("crt");

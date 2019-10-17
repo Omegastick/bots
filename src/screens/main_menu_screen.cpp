@@ -15,7 +15,7 @@
 
 #include "screens/main_menu_screen.h"
 #include "graphics/renderers/renderer.h"
-#include "graphics/sprite.h"
+#include "graphics/render_data.h"
 #include "misc/credentials_manager.h"
 #include "misc/ihttp_client.h"
 #include "misc/io.h"

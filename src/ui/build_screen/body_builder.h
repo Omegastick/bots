@@ -14,7 +14,7 @@ class IModule;
 class IO;
 class ModuleLink;
 class Random;
-struct RenderData;
+class Renderer;
 
 class GetAllQueryCallback : public b2QueryCallback
 {
@@ -50,7 +50,7 @@ class BodyBuilder
     std::shared_ptr<IModule> get_module_at_screen_position(glm::vec2 point);
     NearestModuleLinkResult get_nearest_module_link_to_world_position(glm::vec2 point);
     NearestModuleLinkResult get_nearest_module_link_to_module(IModule &module);
-    RenderData get_render_data(bool lightweight = false);
+    void draw(Renderer &renderer, bool lightweight = false);
     std::shared_ptr<IModule> place_module(std::shared_ptr<IModule> selected_module);
     void select_module(const IModule *module);
 

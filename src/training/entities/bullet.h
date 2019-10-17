@@ -6,13 +6,11 @@
 #include <Box2D/Box2D.h>
 #include <glm/vec4.hpp>
 
-#include "graphics/idrawable.h"
 #include "ientity.h"
 #include "training/icollidable.h"
 
 namespace SingularityTrainer
 {
-struct RenderData;
 class Sprite;
 class RigidBody;
 class Body;
@@ -40,7 +38,7 @@ class Bullet : public ICollidable, public IEntity
     virtual void begin_contact(RigidBody *other);
     virtual void destroy();
     virtual void end_contact(RigidBody *other);
-    virtual RenderData get_render_data(bool lightweight = false);
+    virtual void draw(Renderer &renderer, bool lightweight = false);
     virtual bool should_destroy();
     virtual void update();
 };

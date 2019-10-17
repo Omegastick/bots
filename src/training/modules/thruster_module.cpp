@@ -25,7 +25,8 @@ namespace SingularityTrainer
 ThrusterModule::ThrusterModule() : active(false)
 {
     // Sprite
-    sprite = std::make_unique<Sprite>("thruster_module");
+    sprite = std::make_unique<Sprite>();
+    sprite->texture = "thruster_module";
     sprite->transform.set_scale(glm::vec2(1, 0.333));
 
     // Box2D fixture

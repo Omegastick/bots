@@ -14,7 +14,7 @@
 #include "graphics/renderers/renderer.h"
 #include "graphics/backend/shader.h"
 #include "graphics/backend/texture.h"
-#include "graphics/sprite.h"
+#include "graphics/render_data.h"
 #include "graphics/post_proc_layer.h"
 #include "misc/resource_manager.h"
 #include "misc/screen_manager.h"
@@ -34,7 +34,8 @@ CrtTestScreen::CrtTestScreen(
 {
     this->resource_manager = &resource_manager;
     resource_manager.load_texture("base_module", "images/base_module.png");
-    sprite = std::make_unique<Sprite>("base_module");
+    sprite = std::make_unique<Sprite>();
+    sprite->texture = "base_module";
     sprite->transform.set_scale(glm::vec2(100, 100));
     sprite->transform.set_position(glm::vec2(960, 540));
 
@@ -60,9 +61,10 @@ void CrtTestScreen::update(double delta_time)
 
 void CrtTestScreen::draw(Renderer &renderer, bool /*lightweight*/)
 {
+    renderer.set_view(projection);
     renderer.push_post_proc_layer(post_proc_layer.get());
 
-    renderer.draw(*sprite, projection);
+    renderer.draw(*sprite);
 
     auto crt_shader = resource_manager->shader_store.get("crt");
     crt_shader->set_uniform_2f("u_resolution", glm::vec2(renderer.get_width(), renderer.get_height()));

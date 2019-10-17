@@ -16,7 +16,7 @@
 #include "graphics/backend/shader.h"
 #include "graphics/backend/texture.h"
 #include "graphics/renderers/renderer.h"
-#include "graphics/sprite.h"
+#include "graphics/render_data.h"
 #include "misc/resource_manager.h"
 #include "misc/screen_manager.h"
 #include "screens/iscreen.h"
@@ -47,7 +47,8 @@ DistortionTestScreen::DistortionTestScreen(
       spring_mesh(width, height)
 {
     resource_manager.load_texture("base_module", "images/base_module.png");
-    sprite = std::make_unique<Sprite>("base_module");
+    sprite = std::make_unique<Sprite>();
+    sprite->texture = "base_module";
     sprite->transform.set_scale(glm::vec2(100, 100));
     sprite->transform.set_position(glm::vec2(960, 540));
 
@@ -92,22 +93,23 @@ void DistortionTestScreen::update(double delta_time)
 
 void DistortionTestScreen::draw(Renderer &renderer, bool /*lightweight*/)
 {
+    renderer.set_view(projection);
     renderer.push_post_proc_layer(post_proc_layer.get());
 
     sprite->transform.set_position({860, 440});
-    renderer.draw(*sprite, projection);
+    renderer.draw(*sprite);
 
     sprite->transform.set_position({960, 540});
-    renderer.draw(*sprite, projection);
+    renderer.draw(*sprite);
 
     sprite->transform.set_position({1060, 640});
-    renderer.draw(*sprite, projection);
+    renderer.draw(*sprite);
 
     sprite->transform.set_position({1060, 440});
-    renderer.draw(*sprite, projection);
+    renderer.draw(*sprite);
 
     sprite->transform.set_position({860, 640});
-    renderer.draw(*sprite, projection);
+    renderer.draw(*sprite);
 
     vertex_array->bind();
 

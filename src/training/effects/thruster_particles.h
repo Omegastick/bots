@@ -7,7 +7,7 @@
 
 namespace SingularityTrainer
 {
-struct RenderData;
+class Renderer;
 
 class ThrusterParticles : public IEffect
 {
@@ -18,6 +18,6 @@ class ThrusterParticles : public IEffect
   public:
     ThrusterParticles(b2Transform transform, glm::vec4 particle_color);
 
-    virtual RenderData trigger();
+    virtual void trigger(Renderer &renderer);
 };
 }

@@ -3,7 +3,6 @@
 #include <doctest.h>
 #include <glm/glm.hpp>
 
-#include "graphics/idrawable.h"
 #include "graphics/render_data.h"
 #include "training/modules/base_module.h"
 #include "training/modules/imodule.h"
@@ -58,7 +57,7 @@ b2Transform ModuleLink::get_global_transform() const
     return b2Mul(parent_module->get_global_transform(), transform);
 }
 
-RenderData ModuleLink::get_render_data(bool /*lightweight*/) { return RenderData(); }
+void ModuleLink::draw(Renderer & /*renderer*/, bool /*lightweight*/) {}
 
 TEST_CASE("ModuleLink")
 {

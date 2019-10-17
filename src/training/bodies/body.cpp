@@ -9,6 +9,8 @@
 #include <spdlog/spdlog.h>
 
 #include "misc/random.h"
+#include "graphics/colors.h"
+#include "graphics/renderers/renderer.h"
 #include "training/bodies/body.h"
 #include "training/environments/ienvironment.h"
 #include "training/modules/base_module.h"
@@ -17,7 +19,6 @@
 #include "training/modules/square_hull.h"
 #include "training/modules/thruster_module.h"
 #include "training/rigid_body.h"
-#include "graphics/colors.h"
 #include "misc/utilities.h"
 #include "misc/random.h"
 
@@ -114,13 +115,11 @@ int Body::get_input_count() const
     return total_inputs;
 }
 
-RenderData Body::get_render_data(bool lightweight)
+void Body::draw(Renderer &renderer, bool lightweight)
 {
-    RenderData render_data;
     for (const auto &module : modules)
     {
-        auto x = module->get_render_data(lightweight);
-        render_data.append(x);
+        module->draw(renderer, lightweight);
     }
 
     std::stringstream hp_stream;
@@ -132,9 +131,7 @@ RenderData Body::get_render_data(bool lightweight)
     b2Vec2 position = rigid_body->body->GetPosition();
     text.transform.set_position({position.x, position.y});
     text.transform.set_scale({0.1, 0.1});
-    render_data.texts.push_back(text);
-
-    return render_data;
+    renderer.draw(text);
 
     // if (debug_draw)
     // {

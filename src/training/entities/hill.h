@@ -6,17 +6,17 @@
 
 #include <Box2D/Box2D.h>
 
-#include "graphics/idrawable.h"
 #include "training/icollidable.h"
 
 namespace SingularityTrainer
 {
 class Body;
+class Renderer;
 struct RewardConfig;
 class RigidBody;
 class Sprite;
 
-class Hill : public IDrawable, public ICollidable
+class Hill : public ICollidable
 {
   private:
     std::function<void(const std::unordered_map<Body *, int> &)> callback;
@@ -25,9 +25,8 @@ class Hill : public IDrawable, public ICollidable
 
   public:
     Hill(float x, float y, b2World &world);
-    ~Hill();
 
-    RenderData get_render_data(bool lightweight = false);
+    void draw(Renderer &renderer, bool lightweight = false);
     void begin_contact(RigidBody *other);
     void end_contact(RigidBody *other);
     void update();

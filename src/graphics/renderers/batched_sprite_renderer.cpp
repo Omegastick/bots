@@ -10,7 +10,8 @@
 #include "graphics/backend/vertex_buffer_layout.h"
 #include "graphics/backend/shader.h"
 #include "graphics/backend/element_buffer.h"
-#include "graphics/sprite.h"
+#include "graphics/backend/texture.h"
+#include "graphics/render_data.h"
 #include "misc/resource_manager.h"
 
 namespace SingularityTrainer
@@ -27,10 +28,10 @@ BatchedSpriteRenderer::BatchedSpriteRenderer(ResourceManager &resource_manager)
     vertex_array = std::make_unique<VertexArray>();
 
     SpriteVertex sprite_vertices[4]{
-        {glm::vec2(0.0, 1.0), glm::vec2(0.0, 1.0), glm::vec4(1.0, 1.0, 1.0, 1.0)},
-        {glm::vec2(0.0, 0.0), glm::vec2(0.0, 0.0), glm::vec4(1.0, 1.0, 1.0, 1.0)},
-        {glm::vec2(1.0, 0.0), glm::vec2(1.0, 0.0), glm::vec4(1.0, 1.0, 1.0, 1.0)},
-        {glm::vec2(1.0, 1.0), glm::vec2(1.0, 1.0), glm::vec4(1.0, 1.0, 1.0, 1.0)}};
+        {glm::vec2(-0.5, 0.5), glm::vec2(0.0, 1.0), glm::vec4(1.0, 1.0, 1.0, 1.0)},
+        {glm::vec2(-0.5, -0.5), glm::vec2(0.0, 0.0), glm::vec4(1.0, 1.0, 1.0, 1.0)},
+        {glm::vec2(0.5, -0.5), glm::vec2(1.0, 0.0), glm::vec4(1.0, 1.0, 1.0, 1.0)},
+        {glm::vec2(0.5, 0.5), glm::vec2(1.0, 1.0), glm::vec4(1.0, 1.0, 1.0, 1.0)}};
     vertex_buffer = std::make_unique<VertexBuffer>(&sprite_vertices[0], 4 * sizeof(SpriteVertex));
 
     std::vector<unsigned int> sprite_indices;
@@ -66,25 +67,25 @@ void BatchedSpriteRenderer::draw(const std::string &texture,
     {
         const auto &transform = transforms[i];
 
-        glm::vec4 transformed_position = transform * glm::vec4(0.0, 1.0, 1.0, 1.0);
+        glm::vec4 transformed_position = transform * glm::vec4(-0.5, 0.5, 1.0, 1.0);
         transformed_vertices[i * 4] = {glm::vec2(transformed_position.x,
                                                  transformed_position.y),
                                        glm::vec2(0.0, 1.0),
                                        glm::vec4(1.0, 1.0, 1.0, 1.0)};
 
-        transformed_position = transform * glm::vec4(0.0, 0.0, 1.0, 1.0);
+        transformed_position = transform * glm::vec4(-0.5, -0.5, 1.0, 1.0);
         transformed_vertices[i * 4 + 1] = {glm::vec2(transformed_position.x,
                                                      transformed_position.y),
                                            glm::vec2(0.0, 0.0),
                                            glm::vec4(1.0, 1.0, 1.0, 1.0)};
 
-        transformed_position = transform * glm::vec4(1.0, 0.0, 1.0, 1.0);
+        transformed_position = transform * glm::vec4(0.5, -0.5, 1.0, 1.0);
         transformed_vertices[i * 4 + 2] = {glm::vec2(transformed_position.x,
                                                      transformed_position.y),
                                            glm::vec2(1.0, 0.0),
                                            glm::vec4(1.0, 1.0, 1.0, 1.0)};
 
-        transformed_position = transform * glm::vec4(1.0, 1.0, 1.0, 1.0);
+        transformed_position = transform * glm::vec4(0.5, 0.5, 1.0, 1.0);
         transformed_vertices[i * 4 + 3] = {glm::vec2(transformed_position.x,
                                                      transformed_position.y),
                                            glm::vec2(1.0, 1.0),
