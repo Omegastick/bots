@@ -10,7 +10,7 @@
 #include "graphics/screens/test_utils.h"
 #include "graphics/backend/shader.h"
 #include "graphics/renderers/renderer.h"
-#include "graphics/sprite.h"
+#include "graphics/render_data.h"
 #include "misc/resource_manager.h"
 #include "misc/screen_manager.h"
 #include "screens/iscreen.h"
@@ -26,7 +26,8 @@ SpriteTestScreen::SpriteTestScreen(
 {
     this->resource_manager = &resource_manager;
     resource_manager.load_texture("base_module", "images/base_module.png");
-    sprite = std::make_unique<Sprite>("base_module");
+    sprite = std::make_unique<Sprite>();
+    sprite->texture = "base_module";
     sprite->transform.set_scale(glm::vec2(100, 100));
     sprite->transform.set_position(glm::vec2(960, 540));
 
@@ -43,6 +44,7 @@ void SpriteTestScreen::update(double delta_time)
 
 void SpriteTestScreen::draw(Renderer &renderer, bool /*lightweight*/)
 {
-    renderer.draw(*sprite, projection);
+    renderer.set_view(projection);
+    renderer.draw(*sprite);
 }
 }

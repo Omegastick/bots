@@ -67,8 +67,10 @@ void LineTestScreen::update(double delta_time)
 
 void LineTestScreen::draw(Renderer &renderer, bool /*lightweight*/)
 {
-    RenderData render_data;
-    render_data.lines = lines;
-    renderer.draw(render_data, projection, glfwGetTime());
+    renderer.set_view(projection);
+    for (const auto &line : lines)
+    {
+        renderer.draw(line);
+    }
 }
 }

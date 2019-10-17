@@ -32,7 +32,7 @@ class PlaybackEnv
 
     void add_events(std::vector<std::unique_ptr<IEvent>> events);
     void add_new_state(EnvState state);
-    RenderData get_render_data(bool lightweight = false);
+    void draw(Renderer &renderer, bool lightweight = false);
     void reset();
     void set_bodies(const std::vector<nlohmann::json> &body_specs);
     void update(double delta_time);

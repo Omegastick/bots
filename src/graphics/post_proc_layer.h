@@ -28,7 +28,7 @@ class PostProcLayer
     PostProcLayer(Shader &shader, int width = 1920, int height = 1080);
     PostProcLayer &operator=(PostProcLayer &&other);
 
-    FrameBuffer &render(Texture &input_texture, Renderer &renderer);
+    FrameBuffer &render(Texture &input_texture);
     void resize(int width, int height);
 
     inline glm::vec2 get_size() const { return frame_buffer.get_texture_size(); }

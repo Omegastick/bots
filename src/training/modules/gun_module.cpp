@@ -6,7 +6,7 @@
 #include <doctest.h>
 #include <nlohmann/json.hpp>
 
-#include "graphics/sprite.h"
+#include "graphics/render_data.h"
 #include "misc/random.h"
 #include "misc/resource_manager.h"
 #include "training/actions/activate_action.h"
@@ -22,7 +22,8 @@ namespace SingularityTrainer
 GunModule::GunModule(Random &rng) : cooldown(3), rng(rng), steps_since_last_shot(0)
 {
     // Sprite
-    sprite = std::make_unique<Sprite>("gun_module");
+    sprite = std::make_unique<Sprite>();
+    sprite->texture = "gun_module";
     sprite->transform.set_scale(glm::vec2(1, 1));
 
     // Box2D fixture
@@ -57,12 +58,6 @@ void GunModule::activate()
                                                                      rng.next_int(0, INT_MAX),
                                                                      *body->get_environment()));
     }
-}
-
-RenderData GunModule::get_render_data(bool lightweight)
-{
-    auto render_data = IModule::get_render_data(lightweight);
-    return render_data;
 }
 
 nlohmann::json GunModule::to_json() const

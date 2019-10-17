@@ -7,14 +7,13 @@
 #include <glm/mat4x4.hpp>
 
 #include "graphics/renderers/sprite_renderer.h"
+#include "graphics/backend/element_buffer.h"
+#include "graphics/backend/vertex_array.h"
+#include "graphics/backend/vertex_buffer.h"
 
 namespace SingularityTrainer
 {
-class VertexArray;
-class VertexBuffer;
-class ElementBuffer;
 class ResourceManager;
-class Sprite;
 
 class BatchedSpriteRenderer
 {

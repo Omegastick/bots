@@ -8,7 +8,7 @@
 #include "graphics/backend/vertex_buffer_layout.h"
 #include "graphics/backend/shader.h"
 #include "graphics/backend/element_buffer.h"
-#include "graphics/sprite.h"
+#include "graphics/render_data.h"
 #include "misc/resource_manager.h"
 
 namespace SingularityTrainer

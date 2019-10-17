@@ -14,7 +14,7 @@
 #include "graphics/renderers/renderer.h"
 #include "graphics/backend/shader.h"
 #include "graphics/post_proc_layer.h"
-#include "graphics/sprite.h"
+#include "graphics/render_data.h"
 #include "graphics/backend/texture.h"
 #include "misc/resource_manager.h"
 #include "misc/screen_manager.h"
@@ -34,7 +34,8 @@ PostProcScreen::PostProcScreen(
 {
     this->resource_manager = &resource_manager;
     resource_manager.load_texture("base_module", "images/base_module.png");
-    sprite = std::make_unique<Sprite>("base_module");
+    sprite = std::make_unique<Sprite>();
+    sprite->texture = "base_module";
     sprite->transform.set_scale(glm::vec2(100, 100));
     sprite->transform.set_position(glm::vec2(960, 540));
 
@@ -62,10 +63,11 @@ void PostProcScreen::update(double delta_time)
 
 void PostProcScreen::draw(Renderer &renderer, bool /*lightweight*/)
 {
+    renderer.set_view(projection);
     renderer.push_post_proc_layer(post_proc_layer_1.get());
     renderer.push_post_proc_layer(post_proc_layer_2.get());
 
-    renderer.draw(*sprite, projection);
+    renderer.draw(*sprite);
 
     auto post_proc_shader_1 = resource_manager->shader_store.get("post_proc_test_1");
     post_proc_shader_1->set_uniform_2f("u_direction", glm::vec2(1, 1));

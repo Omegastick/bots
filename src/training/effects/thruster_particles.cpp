@@ -5,6 +5,7 @@
 
 #include "thruster_particles.h"
 #include "graphics/render_data.h"
+#include "graphics/renderers/renderer.h"
 #include "misc/random.h"
 
 namespace SingularityTrainer
@@ -13,15 +14,15 @@ ThrusterParticles::ThrusterParticles(b2Transform transform, glm::vec4 particle_c
     : particle_color(particle_color),
       transform(transform) {}
 
-RenderData ThrusterParticles::trigger()
+void ThrusterParticles::trigger(Renderer &renderer)
 {
-    RenderData render_data;
     b2Transform edge_transform = b2Mul(transform, b2Transform(b2Vec2(0, -0.3), b2Rot(glm::pi<float>() / 2)));
     std::uniform_real_distribution<float> distribution(-0.5, 0.5);
     const int particle_count = 20;
     const float step_subdivision = (1.f / 60.f) / particle_count;
     glm::vec4 end_color = particle_color;
     end_color.a = 0;
+    std::vector<Particle> particles;
     for (int i = 0; i < particle_count; ++i)
     {
         float random_number = glm::linearRand(-0.5f, 0.5f);
@@ -34,8 +35,8 @@ RenderData ThrusterParticles::trigger()
             0.02,
             particle_color,
             end_color};
-        render_data.particles.push_back(particle);
+        particles.push_back(particle);
     }
-    return render_data;
+    renderer.draw(particles);
 }
 }

@@ -19,7 +19,7 @@
 #include "graphics/renderers/line_renderer.h"
 #include "graphics/renderers/particle_renderer.h"
 #include "graphics/renderers/renderer.h"
-#include "graphics/renderers/sprite_renderer.h"
+#include "graphics/renderers/batched_sprite_renderer.h"
 #include "graphics/renderers/text_renderer.h"
 #include "graphics/screens/screens.h"
 #include "misc/animator.h"
@@ -207,7 +207,7 @@ int main(int /*argc*/, const char * /*argv*/ [])
     spdlog::debug("Initializing renderer");
     LineRenderer line_renderer(resource_manager);
     ParticleRenderer particle_renderer(100000, resource_manager);
-    SpriteRenderer sprite_renderer(resource_manager);
+    BatchedSpriteRenderer sprite_renderer(resource_manager);
     TextRenderer text_renderer(resource_manager);
     Renderer renderer(resolution_x, resolution_y, resource_manager, sprite_renderer, particle_renderer, line_renderer, text_renderer);
     window.set_renderer(renderer);
@@ -243,7 +243,7 @@ int main(int /*argc*/, const char * /*argv*/ [])
         // Draw
         renderer.begin();
         screen_manager.draw(renderer, delta_time);
-        renderer.render();
+        renderer.render(time);
 
         ImGui::Render();
         ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());

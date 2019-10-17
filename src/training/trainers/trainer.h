@@ -68,7 +68,7 @@ class Trainer
             Random &rng);
 
     float evaluate();
-    RenderData get_render_data(bool lightweight = false);
+    void draw(Renderer &renderer, bool lightweight = false);
     std::filesystem::path save_model(std::filesystem::path directory = {});
     std::vector<std::pair<std::string, float>> step_batch();
     bool should_clear_particles();

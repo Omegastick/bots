@@ -6,7 +6,7 @@
 #include <Box2D/Box2D.h>
 #include <nlohmann/json_fwd.hpp>
 
-#include "graphics/idrawable.h"
+#include "graphics/render_data.h"
 #include "training/actions/iaction.h"
 #include "training/modules/module_link.h"
 
@@ -15,10 +15,10 @@ namespace SingularityTrainer
 class ModuleLink;
 class IAction;
 class Body;
-struct RenderData;
+class Renderer;
 class Sprite;
 
-class IModule : public IDrawable
+class IModule
 {
   protected:
     Body *body;
@@ -38,7 +38,7 @@ class IModule : public IDrawable
     virtual std::vector<IModule *> get_children();
     virtual std::vector<IModule *> get_children(std::vector<IModule *> child_list);
     virtual std::vector<float> get_sensor_reading() const;
-    virtual RenderData get_render_data(bool lightweight = false);
+    void draw(Renderer &renderer, bool lightweight = false);
     virtual b2Transform get_global_transform() const;
     virtual int get_observation_count() const = 0;
     virtual nlohmann::json to_json() const = 0;

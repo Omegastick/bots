@@ -67,8 +67,7 @@ void TargetEnvScreen::draw(Renderer &renderer, bool /*lightweight*/)
     renderer.push_post_proc_layer(crt_post_proc_layer.get());
 
     renderer.scissor(-10, -10, 10, 10, glm::ortho(-19.2f, 19.2f, -10.8f, 10.8f));
-    auto render_data = trainer->environments[0]->get_render_data(lightweight_rendering);
-    renderer.draw(render_data, glm::ortho(-19.2f, 19.2f, -10.8f, 10.8f), trainer->environments[0]->get_elapsed_time(), lightweight_rendering);
+    trainer->environments[0]->draw(renderer, lightweight_rendering);
 
     auto crt_shader = resource_manager->shader_store.get("crt");
     crt_shader.set_uniform_2f("u_resolution", {renderer.get_width(), renderer.get_height()});

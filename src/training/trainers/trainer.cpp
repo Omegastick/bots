@@ -185,12 +185,11 @@ float Trainer::evaluate()
     return evaluator.evaluate(agent, new_opponents_vec, 80);
 }
 
-RenderData Trainer::get_render_data(bool lightweight)
+void Trainer::draw(Renderer &renderer, bool lightweight)
 {
-    RenderData render_data;
     {
         std::lock_guard lock_guard(env_mutexes[0]);
-        render_data = environments[0]->get_render_data(lightweight);
+        environments[0]->draw(renderer, lightweight);
     }
 
     for (unsigned int i = 1; i < environments.size(); ++i)
@@ -198,7 +197,6 @@ RenderData Trainer::get_render_data(bool lightweight)
         std::lock_guard lock_guard(env_mutexes[i]);
         environments[i]->clear_effects();
     }
-    return render_data;
 }
 
 std::vector<std::pair<std::string, float>> Trainer::step_batch()

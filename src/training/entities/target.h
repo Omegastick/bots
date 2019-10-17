@@ -4,16 +4,16 @@
 
 #include <Box2D/Box2D.h>
 
-#include "graphics/idrawable.h"
 #include "training/icollidable.h"
 
 namespace SingularityTrainer
 {
 class IEnvironment;
 class Sprite;
+class Renderer;
 class RigidBody;
 
-class Target : public IDrawable, public ICollidable
+class Target : public ICollidable
 {
   private:
     IEnvironment &environment;
@@ -23,7 +23,7 @@ class Target : public IDrawable, public ICollidable
     Target(float x, float y, b2World &world, IEnvironment &env);
     ~Target();
 
-    RenderData get_render_data(bool lightweight = false);
+    void draw(Renderer &renderer, bool lightweight = false);
     void begin_contact(RigidBody *other);
     void end_contact(RigidBody *other);
 

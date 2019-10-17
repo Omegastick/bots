@@ -294,7 +294,7 @@ int App::run(int argc, char *argv[])
         {
             renderer.begin();
             screen_manager.draw(renderer);
-            renderer.render();
+            renderer.render(time);
 
             ImGui::Render();
             ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());

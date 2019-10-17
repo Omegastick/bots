@@ -70,9 +70,9 @@ void PlaybackEnv::add_new_state(EnvState state)
     states.push_back(state);
 }
 
-RenderData PlaybackEnv::get_render_data(bool lightweight)
+void PlaybackEnv::draw(Renderer &renderer, bool lightweight)
 {
-    return env->get_render_data(lightweight);
+    env->draw(renderer, lightweight);
 }
 
 void PlaybackEnv::reset()
@@ -496,29 +496,6 @@ TEST_CASE("PlaybackEnv")
                             agent_1_tranform.q.GetAngle() == doctest::Approx(-pi));
     }
 
-    SUBCASE("Events are triggered at the right time")
-    {
-        auto &env = playback_env.get_env();
-
-        std::vector<b2Transform> agent_transforms{{{0, 0}, b2Rot(0)},
-                                                  {{0, 0}, b2Rot(0)}};
-        std::unordered_map<unsigned int, b2Transform> entity_states{{0, {{0, 0}, b2Rot(0)}}};
-        playback_env.add_new_state({agent_transforms, entity_states, {10, 10}, {0, 0}, 0});
-        playback_env.add_new_state({agent_transforms, entity_states, {10, 10}, {0, 0}, 1});
-
-        std::vector<std::unique_ptr<IEvent>> events;
-        events.push_back(std::make_unique<EntityDestroyed>(0, 0.1, Transform{1, 2, 3}));
-        playback_env.add_events(std::move(events));
-
-        playback_env.update(0.05);
-        auto render_data = env.get_render_data();
-        DOCTEST_CHECK(render_data.particles.size() == 0);
-
-        playback_env.update(0.1);
-        render_data = env.get_render_data();
-        DOCTEST_CHECK(render_data.particles.size() > 0);
-    }
-
     SUBCASE("Bullets destroyed partway through a tick continue moving until destroyed")
     {
         auto &env = playback_env.get_env();
@@ -642,29 +619,6 @@ TEST_CASE("PlaybackEnv")
         playback_env.update(0.06);
         DOCTEST_CHECK(env.get_scores()[0] == 5);
         DOCTEST_CHECK(env.get_scores()[1] == -5);
-    }
-
-    SUBCASE("Timer counts down correctly")
-    {
-        std::vector<b2Transform> agent_transforms{{{0, 1}, b2Rot(0)},
-                                                  {{2, 3}, b2Rot(1)}};
-        std::unordered_map<unsigned int, b2Transform> entity_states{};
-        for (int i = 0; i < 30; ++i)
-        {
-            playback_env.add_new_state({agent_transforms, entity_states, {10, 10}, {0, 0}, i});
-        }
-
-        playback_env.update(0);
-        DOCTEST_CHECK(playback_env.get_render_data().texts[2].text == "10");
-
-        playback_env.update(0.9);
-        DOCTEST_CHECK(playback_env.get_render_data().texts[2].text == "10");
-
-        playback_env.update(0.2);
-        DOCTEST_CHECK(playback_env.get_render_data().texts[2].text == "9");
-
-        playback_env.update(1);
-        DOCTEST_CHECK(playback_env.get_render_data().texts[2].text == "8");
     }
 
     SUBCASE("Real-world example")

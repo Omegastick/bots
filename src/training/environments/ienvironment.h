@@ -7,7 +7,6 @@
 #include <Box2D/Box2D.h>
 #include <torch/torch.h>
 
-#include "graphics/idrawable.h"
 #include "misc/random.h"
 #include "misc/transform.h"
 #include "training/events/ievent.h"
@@ -18,6 +17,7 @@ class Body;
 class IEffect;
 class IEntity;
 struct Particle;
+class Renderer;
 struct RewardConfig;
 
 struct EntityState
@@ -92,7 +92,7 @@ struct StepInfo
     int victor = -1;
 };
 
-class IEnvironment : public IDrawable
+class IEnvironment
 {
   public:
     virtual ~IEnvironment() = 0;
@@ -107,7 +107,7 @@ class IEnvironment : public IDrawable
     virtual std::vector<Body *> get_bodies() = 0;
     virtual double get_elapsed_time() const = 0;
     virtual std::unordered_map<unsigned int, std::unique_ptr<IEntity>> &get_entities() = 0;
-    virtual RenderData get_render_data(bool lightweight = false) = 0;
+    virtual void draw(Renderer &renderer, bool lightweight = false) = 0;
     virtual RewardConfig &get_reward_config() = 0;
     virtual std::vector<float> get_scores() = 0;
     virtual b2World &get_world() = 0;

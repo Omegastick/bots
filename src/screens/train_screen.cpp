@@ -123,11 +123,7 @@ void TrainScreen::draw(Renderer &renderer, bool /*lightweight*/)
     projection = glm::ortho(-view_right, view_right, -view_top, view_top);
 
     renderer.scissor(-10, -20, 10, 20, projection);
-    auto render_data = trainer->get_render_data(lightweight_rendering);
-    renderer.draw(render_data,
-                  projection,
-                  trainer->get_environments()[0]->get_elapsed_time(),
-                  lightweight_rendering);
+    trainer->draw(renderer, lightweight_rendering);
 
     auto crt_shader = resource_manager.shader_store.get("crt");
     crt_shader->set_uniform_2f("u_resolution", {renderer.get_width(), renderer.get_height()});

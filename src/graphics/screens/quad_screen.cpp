@@ -58,6 +58,9 @@ void QuadScreen::update(double delta_time)
 
 void QuadScreen::draw(Renderer &renderer, bool /*lightweight*/)
 {
-    renderer.draw(*vertex_array, *element_buffer, *shader);
+    renderer.set_view(projection);
+    vertex_array->bind();
+    shader->bind();
+    glDrawElements(GL_TRIANGLES, element_buffer->get_count(), GL_UNSIGNED_INT, 0);
 }
 }

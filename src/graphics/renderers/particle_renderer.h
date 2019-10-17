@@ -5,12 +5,12 @@
 
 #include <glm/glm.hpp>
 
+#include "graphics/backend/vertex_array.h"
+#include "graphics/backend/vertex_buffer.h"
 #include "third_party/di.hpp"
 
 namespace SingularityTrainer
 {
-class VertexArray;
-class VertexBuffer;
 class ResourceManager;
 struct Particle;
 

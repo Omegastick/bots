@@ -6,7 +6,7 @@
 #include <glm/gtc/matrix_inverse.hpp>
 
 #include "graphics/renderers/renderer.h"
-#include "graphics/renderers/sprite_renderer.h"
+#include "graphics/renderers/batched_sprite_renderer.h"
 #include "graphics/renderers/particle_renderer.h"
 #include "graphics/renderers/line_renderer.h"
 #include "graphics/renderers/text_renderer.h"
@@ -17,18 +17,19 @@
 #include "graphics/backend/frame_buffer.h"
 #include "graphics/render_data.h"
 #include "graphics/post_proc_layer.h"
-#include "graphics/sprite.h"
+#include "graphics/render_data.h"
 
 namespace SingularityTrainer
 {
 Renderer::Renderer(int width, int height,
                    ResourceManager &resource_manager,
-                   SpriteRenderer &sprite_renderer,
+                   BatchedSpriteRenderer &sprite_renderer,
                    ParticleRenderer &particle_renderer,
                    LineRenderer &line_renderer,
                    TextRenderer &text_renderer)
     : width(width),
       height(height),
+      view(glm::ortho(0, width, 0, height)),
       resource_manager(resource_manager),
       sprite_renderer(sprite_renderer),
       particle_renderer(particle_renderer),
@@ -45,10 +46,6 @@ Renderer::Renderer(int width, int height,
     glBindRenderbuffer(GL_RENDERBUFFER, 0);
 }
 
-Renderer::~Renderer()
-{
-}
-
 void Renderer::resize(int width, int height)
 {
     this->width = width;
@@ -58,45 +55,39 @@ void Renderer::resize(int width, int height)
     texture_frame_buffer->set_texture(width, height);
 }
 
-void Renderer::draw(const VertexArray &vertex_array, const ElementBuffer &element_buffer, const Shader &shader)
+void Renderer::draw(const Line &line)
 {
-    vertex_array.bind();
-    shader.bind();
-    glDrawElements(GL_TRIANGLES, element_buffer.get_count(), GL_UNSIGNED_INT, 0);
+    lines.push_back(line);
 }
 
-void Renderer::draw(const Sprite &sprite, const glm::mat4 &view)
+void Renderer::draw(const std::vector<Particle> &particles)
 {
-    sprite_renderer.draw(sprite, view);
+    this->particles.insert(this->particles.end(), particles.begin(), particles.end());
 }
 
-void Renderer::draw(const Text &text, const glm::mat4 &view)
+void Renderer::draw(const Sprite &sprite)
 {
-    text_renderer.draw(text, view);
+    auto texture_iter = std::find(textures.begin(), textures.end(), sprite.texture);
+    unsigned int texture_index;
+    if (texture_iter == textures.end())
+    {
+        unsigned int texture_count = textures.size();
+        textures.push_back(sprite.texture);
+        texture_index = texture_count;
+    }
+    else
+    {
+        texture_index = std::distance(textures.begin(), texture_iter);
+    }
+
+    sprites.push_back(PackedSprite{texture_index,
+                                   sprite.color,
+                                   sprite.transform.get()});
 }
 
-void Renderer::draw(RenderData &render_data, const glm::mat4 &view, double time, bool lightweight)
+void Renderer::draw(const Text &text)
 {
-    for (const auto &sprite : render_data.sprites)
-    {
-        sprite_renderer.draw(sprite, view);
-    }
-
-    particle_renderer.add_particles(render_data.particles, time);
-    if (!lightweight)
-    {
-        particle_renderer.draw(time, view);
-    }
-
-    for (const auto &line : render_data.lines)
-    {
-        line_renderer.draw(line, view);
-    }
-
-    for (const auto &text : render_data.texts)
-    {
-        text_renderer.draw(text, view);
-    }
+    texts.push_back(text);
 }
 
 void Renderer::clear(const glm::vec4 &color)
@@ -113,8 +104,49 @@ void Renderer::begin()
     clear();
 }
 
-void Renderer::render()
+void Renderer::render(double time)
 {
+    std::sort(sprites.begin(), sprites.end(),
+              [](PackedSprite &a, PackedSprite &b) { return a.texture < b.texture; });
+
+    unsigned int texture_index = 0;
+    std::vector<glm::mat4> transforms;
+    for (const auto &sprite : sprites)
+    {
+        if (sprite.texture != texture_index)
+        {
+            if (transforms.size() > 0)
+            {
+                sprite_renderer.draw(textures[texture_index], transforms, view);
+                transforms.clear();
+            }
+            texture_index = sprite.texture;
+        }
+
+        transforms.push_back(sprite.transform);
+    }
+    if (transforms.size() > 0)
+    {
+        sprite_renderer.draw(textures[texture_index], transforms, view);
+    }
+    sprites.clear();
+
+    particle_renderer.add_particles(particles, time);
+    particle_renderer.draw(time, view);
+    particles.clear();
+
+    for (const auto &line : lines)
+    {
+        line_renderer.draw(line, view);
+    }
+    lines.clear();
+
+    for (const auto &text : texts)
+    {
+        text_renderer.draw(text, view);
+    }
+    texts.clear();
+
     clear_scissor();
     for (const auto &post_proc_layer : post_proc_layers)
     {
@@ -133,7 +165,7 @@ void Renderer::render()
 
     for (const auto &post_proc_layer : post_proc_layers)
     {
-        read_buffer = &post_proc_layer->render(read_buffer->get_texture(), *this);
+        read_buffer = &post_proc_layer->render(read_buffer->get_texture());
     }
 
     read_buffer->bind_read();

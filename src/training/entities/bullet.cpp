@@ -6,7 +6,7 @@
 #include <glm/gtc/random.hpp>
 
 #include "graphics/colors.h"
-#include "graphics/idrawable.h"
+#include "graphics/renderers/renderer.h"
 #include "training/bodies/body.h"
 #include "training/effects/bullet_explosion.h"
 #include "training/entities/bullet.h"
@@ -31,7 +31,8 @@ Bullet::Bullet(b2Vec2 position,
       owner(owner),
       destroyed(false)
 {
-    sprite = std::make_unique<Sprite>("bullet");
+    sprite = std::make_unique<Sprite>();
+    sprite->texture = "bullet";
     sprite->transform.set_scale(glm::vec2(0.2, 0.2));
     sprite->transform.set_position(glm::vec2(position.x, position.y));
 
@@ -52,19 +53,18 @@ Bullet::Bullet(b2Vec2 position,
 
 Bullet::~Bullet() {}
 
-RenderData Bullet::get_render_data(bool /*lightweight*/)
+void Bullet::draw(Renderer &renderer, bool /*lightweight*/)
 {
     if (destroyed)
     {
-        return RenderData();
+        return;
     }
 
-    RenderData render_data;
     b2Vec2 position = rigid_body->body->GetPosition();
 
     // Body
     sprite->transform.set_position(glm::vec2(position.x, position.y));
-    render_data.sprites.push_back(*sprite);
+    renderer.draw(*sprite);
 
     // Trail
     if (last_position.x != b2Vec2_zero.x || last_position.y != b2Vec2_zero.y)
@@ -76,12 +76,10 @@ RenderData Bullet::get_render_data(bool /*lightweight*/)
         trail.points.push_back({last_position.x, last_position.y});
         trail.widths.push_back(0);
         trail.colors.push_back({1.0, 1.0, 1.0, 0.0});
-        render_data.lines.push_back(trail);
+        renderer.draw(trail);
     }
 
     last_position = position;
-
-    return render_data;
 }
 
 void Bullet::begin_contact(RigidBody *other)

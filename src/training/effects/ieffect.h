@@ -2,14 +2,14 @@
 
 namespace SingularityTrainer
 {
-struct RenderData;
+class Renderer;
 
 class IEffect
 {
   public:
     virtual ~IEffect() = 0;
 
-    virtual RenderData trigger() = 0;
+    virtual void trigger(Renderer &renderer) = 0;
 };
 
 inline IEffect::~IEffect() {}

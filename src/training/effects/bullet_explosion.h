@@ -7,7 +7,7 @@
 
 namespace SingularityTrainer
 {
-struct RenderData;
+class Renderer;
 
 class BulletExplosion : public IEffect
 {
@@ -18,6 +18,6 @@ class BulletExplosion : public IEffect
   public:
     BulletExplosion(b2Vec2 position, glm::vec4 particle_color);
 
-    virtual RenderData trigger();
+    virtual void trigger(Renderer &renderer);
 };
 }

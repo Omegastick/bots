@@ -15,7 +15,6 @@ namespace SingularityTrainer
 {
 class IAction;
 class IModule;
-struct RenderData;
 class RigidBody;
 class Random;
 class IEnvironment;
@@ -50,7 +49,7 @@ class Body : public ICollidable
     void end_contact(RigidBody *other);
     std::vector<float> get_observation() const;
     int get_input_count() const;
-    RenderData get_render_data(bool lightweight = false);
+    void draw(Renderer &renderer, bool lightweight = false);
     void hit(float damage);
     void load_json(const nlohmann::json &json);
     void register_actions();

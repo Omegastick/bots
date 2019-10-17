@@ -61,12 +61,15 @@ void TextureTestScreen::update(double delta_time)
 
 void TextureTestScreen::draw(Renderer &renderer, bool /*lightweight*/)
 {
+    renderer.set_view(projection);
     glm::mat4 mvp = glm::translate(projection, glm::vec3(960, 540, 0));
     mvp = glm::rotate(mvp, rotation, glm::vec3(0, 0, 1));
     shader->set_uniform_mat4f("u_mvp", mvp);
     texture->bind();
     shader->set_uniform_1i("u_texture", 0);
 
-    renderer.draw(*vertex_array, *element_buffer, *shader);
+    vertex_array->bind();
+    shader->bind();
+    glDrawElements(GL_TRIANGLES, element_buffer->get_count(), GL_UNSIGNED_INT, 0);
 }
 }

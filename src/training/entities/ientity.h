@@ -4,14 +4,14 @@
 
 #include <Box2D/Box2D.h>
 
-#include "graphics/idrawable.h"
 #include "training/rigid_body.h"
 
 namespace SingularityTrainer
 {
 class IEnvironment;
+class Renderer;
 
-class IEntity : public IDrawable
+class IEntity
 {
   protected:
     unsigned int id;
@@ -23,6 +23,7 @@ class IEntity : public IDrawable
     virtual ~IEntity() = 0;
 
     virtual void destroy();
+    virtual void draw(Renderer &renderer, bool lightweight = false) = 0;
     virtual b2Transform get_transform() const;
     virtual float get_angular_velocity() const;
     virtual b2Vec2 get_linear_velocity() const;

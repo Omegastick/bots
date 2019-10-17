@@ -2,7 +2,7 @@
 #include <memory>
 
 #include "graphics/colors.h"
-#include "graphics/idrawable.h"
+#include "graphics/renderers/renderer.h"
 #include "training/entities/target.h"
 #include "training/environments/ienvironment.h"
 #include "training/icollidable.h"
@@ -23,21 +23,18 @@ Target::Target(float x, float y, b2World &world, IEnvironment &env) : environmen
     rigid_body->body->CreateFixture(&fixture_def);
 
     // Sprite
-    sprite = std::make_unique<Sprite>("target");
+    sprite = std::make_unique<Sprite>();
+    sprite->texture = "target";
     sprite->transform.set_scale({1, 1});
 }
 
 Target::~Target() {}
 
-RenderData Target::get_render_data(bool /*lightweight*/)
+void Target::draw(Renderer &renderer, bool /*lightweight*/)
 {
-    auto render_data = RenderData();
-
     b2Vec2 position = rigid_body->body->GetPosition();
     sprite->transform.set_position({position.x, position.y});
-    render_data.sprites.push_back(*sprite);
-
-    return render_data;
+    renderer.draw(*sprite);
 }
 
 void Target::begin_contact(RigidBody *other)

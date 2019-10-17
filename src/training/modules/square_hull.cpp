@@ -11,9 +11,10 @@ namespace SingularityTrainer
 SquareHull::SquareHull()
 {
     // Sprite
-    sprite = std::make_unique<Sprite>("square_hull");
+    sprite = std::make_unique<Sprite>();
+    sprite->texture = "square_hull";
     sprite->transform.set_scale(glm::vec2(1, 1));
-    sprite->set_color(cl_white);
+    sprite->color = cl_white;
 
     // Box2D
     b2PolygonShape shape;

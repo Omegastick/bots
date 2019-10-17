@@ -4,6 +4,7 @@
 #include <vector>
 
 #include "graphics/colors.h"
+#include "graphics/renderers/renderer.h"
 #include "training/entities/wall.h"
 #include "training/rigid_body.h"
 
@@ -22,19 +23,16 @@ Wall::Wall(float x, float y, float width, float height, b2World &world)
     fixture_def.shape = &rigid_body_shape;
     rigid_body->body->CreateFixture(&fixture_def);
 
-    sprite = std::make_unique<Sprite>("pixel");
+    sprite = std::make_unique<Sprite>();
+    sprite->texture = "pixel";
     sprite->transform.set_scale({width, height});
     sprite->transform.set_position({x + (width / 2), y + (height / 2)});
-    sprite->set_color(cl_white);
+    sprite->color = cl_white;
 }
 
-Wall::~Wall() {}
-
-RenderData Wall::get_render_data(bool /*lightweight*/)
+void Wall::draw(Renderer &renderer, bool /*lightweight*/)
 {
-    RenderData render_data;
-    render_data.sprites.push_back(*sprite);
-    return render_data;
+    renderer.draw(*sprite);
 }
 
 void Wall::begin_contact(RigidBody * /*other*/) {}

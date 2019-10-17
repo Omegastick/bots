@@ -12,7 +12,7 @@
 #include "screens/build_screen.h"
 #include "graphics/renderers/renderer.h"
 #include "graphics/render_data.h"
-#include "graphics/sprite.h"
+#include "graphics/render_data.h"
 #include "misc/io.h"
 #include "misc/module_factory.h"
 #include "misc/random.h"
@@ -45,7 +45,7 @@ BuildScreen::BuildScreen(BodyBuilder &&body_builder,
       save_body_window(),
       body_builder(std::move(body_builder)),
       module_to_place(nullptr),
-      test_sprite("laser_sensor_module"),
+      test_sprite{cl_white, "laser_sensor_module", Transform()},
       current_rotation(0)
 {
     resource_manager.load_texture("square", "images/square.png");
@@ -59,7 +59,6 @@ BuildScreen::BuildScreen(BodyBuilder &&body_builder,
     resource_manager.load_font("roboto-16", "fonts/Roboto-Regular.ttf", 16);
 
     test_sprite.transform.set_scale({0.2, 0.2});
-    test_sprite.set_color(cl_white);
 }
 
 void BuildScreen::update(double /*delta_time*/)
@@ -119,10 +118,8 @@ void BuildScreen::update(double /*delta_time*/)
     back_button(*screen_manager, resolution);
 }
 
-void BuildScreen::draw(Renderer &renderer, bool lightweight)
+void BuildScreen::draw(Renderer &renderer, bool /*lightweight*/)
 {
-    RenderData render_data;
-
     if (module_to_place != nullptr)
     {
         auto cursor_world_position = screen_to_world_space(io->get_cursor_position(),
@@ -137,11 +134,9 @@ void BuildScreen::draw(Renderer &renderer, bool lightweight)
             nearest_link_result.origin_link->snap_to_other(*nearest_link_result.nearest_link);
         }
 
-        render_data.append(module_to_place->get_render_data());
+        module_to_place->draw(renderer);
     }
 
-    render_data.append(body_builder.get_render_data());
-
-    renderer.draw(render_data, body_builder.get_projection(), 0., lightweight);
+    body_builder.draw(renderer);
 }
 }

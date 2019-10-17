@@ -4,8 +4,6 @@
 
 namespace SingularityTrainer
 {
-struct RenderData;
-
 class SquareHull : public IModule
 {
   public:
