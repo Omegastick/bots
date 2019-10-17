@@ -127,7 +127,7 @@ void CreateProgramScreen::draw(Renderer &renderer, bool lightweight)
 {
     renderer.set_view(projection);
     
-    renderer.push_post_proc_layer(crt_post_proc_layer.get());
+    renderer.push_post_proc_layer(*crt_post_proc_layer);
 
     environment->draw(renderer, lightweight);
 

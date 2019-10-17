@@ -140,7 +140,7 @@ void TrainingWizardScreen::center_camera_on_body()
 
 void TrainingWizardScreen::draw(Renderer &renderer, bool /*lightweight*/)
 {
-    renderer.push_post_proc_layer(&crt_post_proc_layer);
+    renderer.push_post_proc_layer(crt_post_proc_layer);
 
     if (body->get_modules().size() > 0)
     {

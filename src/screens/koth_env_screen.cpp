@@ -64,7 +64,7 @@ void KothEnvScreen::update(const double /*delta_time*/)
 
 void KothEnvScreen::draw(Renderer &renderer, bool /*lightweight*/)
 {
-    renderer.push_post_proc_layer(crt_post_proc_layer.get());
+    renderer.push_post_proc_layer(*crt_post_proc_layer);
 
     renderer.scissor(-10, -20, 10, 20, glm::ortho(-38.4f, 38.4f, -21.6f, 21.6f));
     trainer->environments[0]->draw(renderer, lightweight_rendering);
