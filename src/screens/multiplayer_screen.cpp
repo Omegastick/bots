@@ -119,6 +119,7 @@ void MultiplayerScreen::update(double delta_time)
 
 void MultiplayerScreen::draw(Renderer &renderer, bool lightweight)
 {
+    renderer.set_view(projection);
     renderer.push_post_proc_layer(crt_post_proc_layer.get());
 
     if (should_clear_particles)
