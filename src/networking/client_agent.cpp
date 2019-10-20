@@ -38,8 +38,8 @@ std::vector<int> ClientAgent::get_action(const EnvState &env_state)
                                  torch::ones({1}));
     hidden_state = std::get<1>(act_result);
     auto actions_tensor = std::get<0>(act_result).to(torch::kInt);
-    return std::vector<int>(actions_tensor.data<int>(),
-                            actions_tensor.data<int>() + actions_tensor.numel());
+    return std::vector<int>(actions_tensor.data_ptr<int>(),
+                            actions_tensor.data_ptr<int>() + actions_tensor.numel());
 }
 
 void ClientAgent::set_bodies(const std::vector<nlohmann::json> &body_specs)
