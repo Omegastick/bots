@@ -221,7 +221,7 @@ void TargetEnv::thread_loop()
         {
             // Act
             auto actions_tensor = command.actions[0].to(torch::kInt).contiguous();
-            std::vector<int> actions(actions_tensor.data<int>(), actions_tensor.data<int>() + actions_tensor.numel());
+            std::vector<int> actions(actions_tensor.data_ptr<int>(), actions_tensor.data_ptr<int>() + actions_tensor.numel());
             body->act(actions);
 
             // Step simulation

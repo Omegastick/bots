@@ -241,9 +241,9 @@ StepInfo KothEnv::step(const std::vector<torch::Tensor> actions, float step_leng
 {
     // Act
     auto actions_tensor_1 = actions[0].to(torch::kInt).contiguous();
-    std::vector<int> actions_1(actions_tensor_1.data<int>(), actions_tensor_1.data<int>() + actions_tensor_1.numel());
+    std::vector<int> actions_1(actions_tensor_1.data_ptr<int>(), actions_tensor_1.data_ptr<int>() + actions_tensor_1.numel());
     auto actions_tensor_2 = actions[1].to(torch::kInt).contiguous();
-    std::vector<int> actions_2(actions_tensor_2.data<int>(), actions_tensor_2.data<int>() + actions_tensor_2.numel());
+    std::vector<int> actions_2(actions_tensor_2.data_ptr<int>(), actions_tensor_2.data_ptr<int>() + actions_tensor_2.numel());
     body_1->act(actions_1);
     body_2->act(actions_2);
 

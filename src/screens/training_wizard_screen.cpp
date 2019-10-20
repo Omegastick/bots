@@ -186,7 +186,7 @@ void TrainingWizardScreen::update(double delta_time)
         auto mask = torch::ones({1, 1});
         auto act_result = policy->act(observation, hidden_state, mask);
         auto actions_tensor = act_result[1][0].to(torch::kInt).contiguous();
-        std::vector<int> actions(actions_tensor.data<int>(), actions_tensor.data<int>() + actions_tensor.numel());
+        std::vector<int> actions(actions_tensor.data_ptr<int>(), actions_tensor.data_ptr<int>() + actions_tensor.numel());
         body->act(actions);
     }
 
