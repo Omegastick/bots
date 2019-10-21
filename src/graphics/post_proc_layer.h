@@ -18,17 +18,19 @@ class PostProcLayer
 {
   private:
     FrameBuffer frame_buffer;
-    Shader &shader;
     std::unique_ptr<VertexArray> vertex_array;
     std::unique_ptr<VertexBuffer> vertex_buffer;
     std::unique_ptr<ElementBuffer> element_buffer;
+
+  protected:
     int width, height;
+    Shader &shader;
 
   public:
     PostProcLayer(Shader &shader, int width = 1920, int height = 1080);
     PostProcLayer &operator=(PostProcLayer &&other);
 
-    FrameBuffer &render(Texture &input_texture);
+    virtual FrameBuffer &render(Texture &input_texture);
     void resize(int width, int height);
 
     inline glm::vec2 get_size() const { return frame_buffer.get_texture_size(); }

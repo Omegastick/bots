@@ -316,3 +316,5 @@ target_include_directories(Training SYSTEM PUBLIC ${NO_ERR_INCLUDE_DIRS})
 target_include_directories(PythonBindings SYSTEM PUBLIC ${NO_ERR_INCLUDE_DIRS})
 
 add_subdirectory(src)
+
+message(STATUS ${TORCH_INCLUDE_DIRS})
