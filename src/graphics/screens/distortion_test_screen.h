@@ -6,7 +6,7 @@
 
 #include <glm/glm.hpp>
 
-#include "graphics/post_proc_layer.h"
+#include "graphics/distortion_layer.h"
 #include "misc/spring_mesh.h"
 #include "screens/iscreen.h"
 
@@ -31,14 +31,7 @@ class DistortionTestScreen : public IScreen
     ScreenManager *screen_manager;
     glm::mat4 projection;
 
-    std::unique_ptr<VertexArray> vertex_array;
-    std::unique_ptr<VertexBuffer> vertex_buffer;
-    std::unique_ptr<ElementBuffer> element_buffer;
-    std::unique_ptr<Texture> texture;
-
-    SpringMesh spring_mesh;
-
-    std::unique_ptr<PostProcLayer> post_proc_layer;
+    std::unique_ptr<DistortionLayer> distortion_layer;
 
   public:
     DistortionTestScreen(

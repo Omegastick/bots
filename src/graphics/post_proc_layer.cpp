@@ -12,9 +12,9 @@
 namespace SingularityTrainer
 {
 PostProcLayer::PostProcLayer(Shader &shader, int width, int height)
-    : shader(shader),
-      width(width),
-      height(height)
+    : width(height),
+      height(height),
+      shader(shader)
 {
     vertex_array = std::make_unique<VertexArray>();
 
