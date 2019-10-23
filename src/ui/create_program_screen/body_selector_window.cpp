@@ -49,7 +49,7 @@ nlohmann::json BodySelectorWindow::update()
     {
         c_strings.push_back(&string.front());
     }
-    ImGui::ListBox("", &selected_file, &c_strings.front(), files.size());
+    ImGui::ListBox("", &selected_file, &c_strings.front(), static_cast<int>(files.size()));
 
     // If the user selected a file, return the Json for that file
     nlohmann::json json;

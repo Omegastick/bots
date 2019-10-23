@@ -55,7 +55,7 @@ void GridTestScreen::update(double delta_time)
     {
         glm::vec2 target_point = glm::linearRand(glm::vec2{0, 0},
                                                  glm::vec2{width, height});
-        spring_mesh.apply_explosive_force(target_point, 30, 100);
+        spring_mesh.apply_explosive_force(target_point, 2, 100);
     }
 
     spring_mesh.update();

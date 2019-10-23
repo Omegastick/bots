@@ -17,11 +17,15 @@ class DistortionLayer : public PostProcLayer
 {
   private:
     int mesh_width, mesh_height;
+    float scaling_factor;
     SpringMesh spring_mesh;
     std::unique_ptr<Texture> texture;
 
   public:
-    DistortionLayer(Shader &shader, int width = 1920, int height = 1080);
+    DistortionLayer(Shader &shader,
+                    int width = 1920,
+                    int height = 1080,
+                    float scaling_factor = 0.1f);
     DistortionLayer &operator=(DistortionLayer &&other) = delete;
 
     void apply_explosive_force(glm::vec2 position, float size, float strength);
