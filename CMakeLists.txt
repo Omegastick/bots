@@ -165,7 +165,22 @@ foreach(target ${ST_TARGETS})
         target_compile_options(${target} PRIVATE /W0)
         target_compile_definitions(${target} PUBLIC WIN32_LEAN_AND_MEAN)
     else(MSVC)
-        target_compile_options(${target} PRIVATE -Wall -Wextra -pedantic -Wno-maybe-uninitialized)
+        target_compile_options(${target} PRIVATE 
+            -Wall 
+            -Wextra 
+            -pedantic 
+            -Wno-maybe-uninitialized
+            -Wduplicated-cond
+            -Wduplicated-branches
+            -Wlogical-op
+            -Wrestrict
+            -Wnull-dereference
+            -Wold-style-cast
+            -Wuseless-cast
+            -Wdouble-promotion
+            -Wshadow
+            -Wformat=2
+            -Wconversion)
     endif(MSVC)    
 
     if(IPO_SUPPORTED AND NOT CMAKE_BUILD_TYPE STREQUAL "Debug")
@@ -266,8 +281,18 @@ target_link_libraries(PythonBindings PRIVATE Graphics Misc Training)
 set_target_properties(PythonBindings PROPERTIES OUTPUT_NAME "singularity_trainer")
 set_target_properties(PythonBindings PROPERTIES SUFFIX ".so")
 # Inlcudes
-set(INCLUDE_DIRS
-    src
+set(INCLUDE_DIRS src)
+target_include_directories(SingularityTrainer PUBLIC ${INCLUDE_DIRS})
+target_include_directories(HeadlessTrainer PUBLIC ${INCLUDE_DIRS})
+target_include_directories(GraphicsPlayground PUBLIC ${INCLUDE_DIRS})
+target_include_directories(Server PUBLIC ${INCLUDE_DIRS})
+target_include_directories(Graphics PUBLIC ${INCLUDE_DIRS})
+target_include_directories(Misc PUBLIC ${INCLUDE_DIRS})
+target_include_directories(Networking PUBLIC ${INCLUDE_DIRS})
+target_include_directories(Training PUBLIC ${INCLUDE_DIRS})
+target_include_directories(PythonBindings PUBLIC ${INCLUDE_DIRS})
+
+set(NO_ERR_INCLUDE_DIRS
     ${CURL_INCLUDE_DIRS}
     ${CPPRL_DIR}/include
     ${CURLPP_DIR}/include
@@ -276,6 +301,8 @@ set(INCLUDE_DIRS
     ${GLFW_DIR}/include 
     ${GLM_DIR} 
     ${SPDLOG_DIR}/include
+    ${TASKFLOW_DIR}
+    ${TORCH_INCLUDE_DIRS}
     ${IMGUI_DIR}
     ${IMGUI_DIR}/examples
     ${BOX2D_DIR}/Box2D
@@ -289,20 +316,6 @@ set(INCLUDE_DIRS
     ${PYTHON_INCLUDE_DIRS}
     ${FMT_DIR}/include
     ${ZMQ_DIR}/include
-)
-target_include_directories(SingularityTrainer PUBLIC ${INCLUDE_DIRS})
-target_include_directories(HeadlessTrainer PUBLIC ${INCLUDE_DIRS})
-target_include_directories(GraphicsPlayground PUBLIC ${INCLUDE_DIRS})
-target_include_directories(Server PUBLIC ${INCLUDE_DIRS})
-target_include_directories(Graphics PUBLIC ${INCLUDE_DIRS})
-target_include_directories(Misc PUBLIC ${INCLUDE_DIRS})
-target_include_directories(Networking PUBLIC ${INCLUDE_DIRS})
-target_include_directories(Training PUBLIC ${INCLUDE_DIRS})
-target_include_directories(PythonBindings PUBLIC ${INCLUDE_DIRS})
-
-set(NO_ERR_INCLUDE_DIRS
-    ${TASKFLOW_DIR}
-    ${TORCH_INCLUDE_DIRS}
 )
 
 target_include_directories(SingularityTrainer SYSTEM PUBLIC ${NO_ERR_INCLUDE_DIRS})
