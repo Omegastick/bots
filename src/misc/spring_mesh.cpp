@@ -4,6 +4,7 @@
 
 #include <doctest.h>
 #include <glm/glm.hpp>
+#include <glm/gtx/norm.hpp>
 
 #include "spring_mesh.h"
 
@@ -34,10 +35,12 @@ void SpringMesh::apply_explosive_force(glm::vec2 position, float size, float str
         for (int column = 0; column < width; ++column)
         {
             glm::vec3 vertex_position = glm::vec3{column, row, 0} + offsets[index];
-            float distance = glm::length(vertex_position - glm::vec3{position.x, position.y, 0});
-            if (distance < size)
+            float distance = glm::length2(vertex_position - glm::vec3{position.x, position.y, 0});
+            if (distance < size * size)
             {
-                accelerations[index] = glm::vec3{0, 0, strength};
+                accelerations[index] += strength *
+                                        (vertex_position - glm::vec3(position, 0)) /
+                                        (distance + 1);
             }
             index++;
         }
