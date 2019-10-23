@@ -49,11 +49,11 @@ void reset_imgui_style()
     ImGuiStyle &style = ImGui::GetStyle();
     style = ImGuiStyle();
 
-    style.WindowRounding = 2.3;
-    style.GrabRounding = style.FrameRounding = 2.3;
-    style.ScrollbarRounding = 2.3;
-    style.FrameBorderSize = 1.0;
-    style.ItemSpacing.y = 6.5;
+    style.WindowRounding = 2.3f;
+    style.GrabRounding = style.FrameRounding = 2.3f;
+    style.ScrollbarRounding = 2.3f;
+    style.FrameBorderSize = 1.0f;
+    style.ItemSpacing.y = 6.5f;
 
     style.Colors[ImGuiCol_Text] = {0.9f, 0.9f, 0.9f, 1.00f};
     style.Colors[ImGuiCol_TextDisabled] = {0.34509805f, 0.34509805f, 0.34509805f, 1.00f};

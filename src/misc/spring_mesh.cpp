@@ -1,5 +1,6 @@
 #include <cstring>
 #include <iostream>
+#include <numeric>
 
 #include <doctest.h>
 #include <glm/glm.hpp>
@@ -103,10 +104,6 @@ void SpringMesh::update()
         velocity += accelerations[i];
         offsets[i] += velocity + (-offsets[i] * elasticity);
         velocity *= friction;
-        if (velocity.x < 0.0001 && velocity.y < 0.0001)
-        {
-            velocity = {0, 0, 0};
-        }
         velocities[i] = velocity;
     }
 
