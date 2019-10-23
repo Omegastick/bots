@@ -113,7 +113,7 @@ void MultiplayerScreen::update(double delta_time)
         connection_failure();
     }
 
-    auto resolution = io.get_resolution();
+    auto resolution = io.get_resolutionf();
     back_button(screen_manager, resolution);
 }
 
@@ -162,8 +162,8 @@ void MultiplayerScreen::draw(Renderer &renderer, bool lightweight)
     auto crt_shader = resource_manager.shader_store.get("crt");
     crt_shader->set_uniform_2f("u_resolution", {renderer.get_width(), renderer.get_height()});
     crt_shader->set_uniform_1f("u_output_gamma", 1);
-    crt_shader->set_uniform_1f("u_strength", 0.8);
-    crt_shader->set_uniform_1f("u_distortion_factor", 0.1);
+    crt_shader->set_uniform_1f("u_strength", 0.8f);
+    crt_shader->set_uniform_1f("u_distortion_factor", 0.1f);
 }
 
 void MultiplayerScreen::choose_agent()
@@ -205,7 +205,7 @@ void MultiplayerScreen::connect()
 void MultiplayerScreen::input_address()
 {
     ImGui::SetNextWindowPosCenter(ImGuiCond_Always);
-    auto resolution = io.get_resolution();
+    auto resolution = io.get_resolutionf();
     ImGui::SetNextWindowSize({resolution.x * 0.2f, resolution.y * 0.1f}, ImGuiCond_Always);
     ImGui::Begin("Multiplayer", NULL, ImGuiWindowFlags_NoResize);
     ImGui::InputText("Server Address", &server_address);
@@ -219,7 +219,7 @@ void MultiplayerScreen::input_address()
 void MultiplayerScreen::connection_failure()
 {
     ImGui::SetNextWindowPosCenter(ImGuiCond_Always);
-    auto resolution = io.get_resolution();
+    auto resolution = io.get_resolutionf();
     ImGui::SetNextWindowSize({resolution.x * 0.2f, resolution.y * 0.1f}, ImGuiCond_Always);
     ImGui::Begin("Multiplayer", NULL, ImGuiWindowFlags_NoResize);
     ImGui::Text("Couldn't connect to the server");
@@ -300,8 +300,8 @@ void MultiplayerScreen::play(double delta_time)
     auto bodies = env->get_bodies();
     for (const auto &body : bodies)
     {
-        auto health = body->get_hp();
-        double max_health = 10;
+        float health = body->get_hp();
+        float max_health = 10;
         ImGui::ProgressBar(health / max_health, {-1, 0}, fmt::format("{}/{}", health, max_health).c_str());
     }
     ImGui::End();
@@ -319,7 +319,7 @@ void MultiplayerScreen::play(double delta_time)
 void MultiplayerScreen::wait_for_matchmaker()
 {
     ImGui::SetNextWindowPosCenter(ImGuiCond_Always);
-    auto resolution = io.get_resolution();
+    auto resolution = io.get_resolutionf();
     ImGui::SetNextWindowSize({resolution.x * 0.2f, resolution.y * 0.1f}, ImGuiCond_Always);
     ImGui::Begin("Multiplayer", NULL, ImGuiWindowFlags_NoResize);
     ImGui::Text("Searching for a game...");
@@ -346,7 +346,7 @@ void MultiplayerScreen::wait_for_matchmaker()
 void MultiplayerScreen::wait_for_start()
 {
     ImGui::SetNextWindowPosCenter(ImGuiCond_Always);
-    auto resolution = io.get_resolution();
+    auto resolution = io.get_resolutionf();
     ImGui::SetNextWindowSize({resolution.x * 0.2f, resolution.y * 0.1f}, ImGuiCond_Always);
     ImGui::Begin("Multiplayer", NULL, ImGuiWindowFlags_NoResize);
     ImGui::Text("Waiting for game to start...");

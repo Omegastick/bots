@@ -168,7 +168,7 @@ void PlaybackEnv::update(double delta_time)
 
     // Lerp start and end states
     // Calculate interpolation value for lerp
-    float interpolation = current_tick - start_state->tick;
+    float interpolation = static_cast<float>(current_tick - start_state->tick);
 
     EnvState lerped_state;
 
@@ -247,7 +247,8 @@ void PlaybackEnv::update(double delta_time)
 
             // Calclulate interpolation for this entity
             double event_tick_interval = event_tick - start_state->tick;
-            float temp_interpolation = (current_tick - start_state->tick) / event_tick_interval;
+            float temp_interpolation = static_cast<float>((current_tick - start_state->tick) /
+                                                          event_tick_interval);
             b2Transform transform;
             transform.p.x = lerp(start_transform.p.x,
                                  end_transform.p.x,
@@ -292,7 +293,7 @@ TEST_CASE("PlaybackEnv")
     TestBodyFactory body_factory(rng);
     KothEnvFactory env_factory(100, body_factory);
     auto env = env_factory.make();
-    PlaybackEnv playback_env(std::move(env), 0.1);
+    PlaybackEnv playback_env(std::move(env), 0.1f);
 
     SUBCASE("New bullets are added correctly")
     {
@@ -311,7 +312,7 @@ TEST_CASE("PlaybackEnv")
         playback_env.update(0);
         DOCTEST_CHECK(env.get_entities().size() == 0);
 
-        playback_env.update(0.1);
+        playback_env.update(0.1f);
         DOCTEST_CHECK(env.get_entities().size() == 2);
     }
 
@@ -339,7 +340,7 @@ TEST_CASE("PlaybackEnv")
         DOCTEST_CHECK(bullet_1_tranform.p.y == doctest::Approx(1));
         DOCTEST_CHECK(bullet_1_tranform.q.GetAngle() == doctest::Approx(1));
 
-        playback_env.update(0.1);
+        playback_env.update(0.1f);
         bullet_0_tranform = env.get_entities()[0]->get_transform();
         DOCTEST_CHECK(bullet_0_tranform.p.x == doctest::Approx(0.5));
         DOCTEST_CHECK(bullet_0_tranform.p.y == doctest::Approx(0.5));
@@ -373,7 +374,7 @@ TEST_CASE("PlaybackEnv")
         DOCTEST_CHECK(agent_1_tranform.p.y == doctest::Approx(3));
         DOCTEST_CHECK(agent_1_tranform.q.GetAngle() == doctest::Approx(1));
 
-        playback_env.update(0.1);
+        playback_env.update(0.1f);
         agent_0_tranform = env.get_bodies()[0]->get_rigid_body().body->GetTransform();
         DOCTEST_CHECK(agent_0_tranform.p.x == doctest::Approx(1));
         DOCTEST_CHECK(agent_0_tranform.p.y == doctest::Approx(2));
@@ -625,7 +626,7 @@ TEST_CASE("PlaybackEnv")
     {
         // 1
         std::vector<b2Transform> agent_transforms{{{0, -15}, b2Rot(0)},
-                                                  {{0, 15}, b2Rot(-3.14159)}};
+                                                  {{0, 15}, b2Rot(-3.14159f)}};
         std::unordered_map<unsigned int, b2Transform> entity_states{};
         playback_env.add_new_state({agent_transforms, entity_states, {10, 10}, {0, 0}, 1});
 
@@ -634,40 +635,40 @@ TEST_CASE("PlaybackEnv")
 
         // 3
         agent_transforms = {{{0, -15}, b2Rot(0)},
-                            {{1.39945e-08, 14.9565}, b2Rot(-3.14159)}};
+                            {{1.39945e-08f, 14.9565f}, b2Rot(-3.14159f)}};
         playback_env.add_new_state({agent_transforms, entity_states, {10, 10}, {0, 0}, 3});
 
         // 4
-        agent_transforms = {{{-1.04726e-08, -14.9565}, b2Rot(-1.95266e-09)},
-                            {{2.7989e-08, 14.913}, b2Rot(-3.14159)}};
-        entity_states = {{46869, {{1, -14.0895}, b2Rot(0)}},
-                         {55328, {{1, 14.046}, b2Rot(0)}},
-                         {38852, {{-1, -14.0895}, b2Rot(0)}}};
+        agent_transforms = {{{-1.04726e-08f, -14.9565f}, b2Rot(-1.95266e-09f)},
+                            {{2.7989e-08f, 14.913f}, b2Rot(-3.14159f)}};
+        entity_states = {{46869, {{1, -14.0895f}, b2Rot(0)}},
+                         {55328, {{1, 14.046f}, b2Rot(0)}},
+                         {38852, {{-1, -14.0895f}, b2Rot(0)}}};
         playback_env.add_new_state({agent_transforms, entity_states, {10, 10}, {0, 0}, 4});
 
         // 5
-        agent_transforms = {{{-2.09451e-08, -14.913}, b2Rot(-1.95266e-09)},
-                            {{4.19834e-08, 14.8696}, b2Rot(-3.14159)}};
+        agent_transforms = {{{-2.09451e-08f, -14.913f}, b2Rot(-1.95266e-09f)},
+                            {{4.19834e-08f, 14.8696f}, b2Rot(-3.14159f)}};
         entity_states = {};
         std::vector<std::unique_ptr<IEvent>> events;
-        events.push_back(std::make_unique<EntityDestroyed>(55328, 0.483334,
-                                                           Transform{1, 10.395, 0}));
-        events.push_back(std::make_unique<EntityDestroyed>(46869, 0.483334,
-                                                           Transform{1, -9.995, 0}));
-        events.push_back(std::make_unique<EntityDestroyed>(38852, 0.483334,
-                                                           Transform{-1, -9.995, 0}));
+        events.push_back(std::make_unique<EntityDestroyed>(55328, 0.483334f,
+                                                           Transform{1, 10.395f, 0}));
+        events.push_back(std::make_unique<EntityDestroyed>(46869, 0.483334f,
+                                                           Transform{1, -9.995f, 0}));
+        events.push_back(std::make_unique<EntityDestroyed>(38852, 0.483334f,
+                                                           Transform{-1, -9.995f, 0}));
         playback_env.add_events(std::move(events));
         playback_env.add_new_state({agent_transforms, entity_states, {10, 10}, {0, 0}, 5});
 
         // 6
-        agent_transforms = {{{-3.14177e-08, -14.8696}, b2Rot(-5.85799e-09)},
-                            {{6.99724e-08, 14.7826}, b2Rot(-3.14159)}};
+        agent_transforms = {{{-3.14177e-08f, -14.8696f}, b2Rot(-5.85799e-09f)},
+                            {{6.99724e-08f, 14.7826f}, b2Rot(-3.14159f)}};
         playback_env.add_new_state({agent_transforms, entity_states, {10, 10}, {0, 0}, 6});
 
         double time = 0;
         while (time < 0.6)
         {
-            double delta_time = 1. / 60.;
+            double delta_time = 1.f / 60.f;
             playback_env.update(delta_time);
             time += delta_time;
         }

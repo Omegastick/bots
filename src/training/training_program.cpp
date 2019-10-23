@@ -118,13 +118,13 @@ TEST_CASE("TrainingProgram")
         nlohmann::json hyper_parameters;
         hyper_parameters["algorithm"] = 0;
         hyper_parameters["batch_size"] = 4;
-        hyper_parameters["discount_factor"] = 0.2;
-        hyper_parameters["entropy_coef"] = 0.3;
+        hyper_parameters["discount_factor"] = 0.2f;
+        hyper_parameters["entropy_coef"] = 0.3f;
         hyper_parameters["num_env"] = 2;
-        hyper_parameters["learning_rate"] = 2.2;
-        hyper_parameters["actor_loss_coef"] = 100.;
-        hyper_parameters["value_loss_coef"] = 22.3;
-        hyper_parameters["clip_param"] = 0.3;
+        hyper_parameters["learning_rate"] = 2.2f;
+        hyper_parameters["actor_loss_coef"] = 100;
+        hyper_parameters["value_loss_coef"] = 22.3f;
+        hyper_parameters["clip_param"] = 0.3f;
         hyper_parameters["num_epoch"] = 34;
         hyper_parameters["num_minibatch"] = 2;
         json["hyper_parameters"] = hyper_parameters;
@@ -136,7 +136,7 @@ TEST_CASE("TrainingProgram")
         reward_config["hit_enemy_type"] = 0;
         reward_config["hit_self_punishment"] = -40;
         reward_config["hit_self_type"] = 1;
-        reward_config["hill_tick_reward"] = 2.3;
+        reward_config["hill_tick_reward"] = 2.3f;
         reward_config["enemy_hill_tick_punishment"] = 2;
         json["reward_config"] = reward_config;
 
@@ -148,13 +148,13 @@ TEST_CASE("TrainingProgram")
 
         CHECK(program.hyper_parameters.algorithm == Algorithm::A2C);
         CHECK(program.hyper_parameters.batch_size == doctest::Approx(4));
-        CHECK(program.hyper_parameters.discount_factor == doctest::Approx(0.2));
-        CHECK(program.hyper_parameters.entropy_coef == doctest::Approx(0.3));
+        CHECK(program.hyper_parameters.discount_factor == doctest::Approx(0.2f));
+        CHECK(program.hyper_parameters.entropy_coef == doctest::Approx(0.3f));
         CHECK(program.hyper_parameters.num_env == doctest::Approx(2));
-        CHECK(program.hyper_parameters.learning_rate == doctest::Approx(2.2));
-        CHECK(program.hyper_parameters.actor_loss_coef == doctest::Approx(100.));
-        CHECK(program.hyper_parameters.value_loss_coef == doctest::Approx(22.3));
-        CHECK(program.hyper_parameters.clip_param == doctest::Approx(0.3));
+        CHECK(program.hyper_parameters.learning_rate == doctest::Approx(2.2f));
+        CHECK(program.hyper_parameters.actor_loss_coef == doctest::Approx(100));
+        CHECK(program.hyper_parameters.value_loss_coef == doctest::Approx(22.3f));
+        CHECK(program.hyper_parameters.clip_param == doctest::Approx(0.3f));
         CHECK(program.hyper_parameters.num_epoch == doctest::Approx(34));
         CHECK(program.hyper_parameters.num_minibatch == doctest::Approx(2));
 
@@ -164,7 +164,7 @@ TEST_CASE("TrainingProgram")
         CHECK(program.reward_config.hit_enemy_type == HpOrHit::Hp);
         CHECK(program.reward_config.hit_self_punishment == doctest::Approx(-40));
         CHECK(program.reward_config.hit_self_type == HpOrHit::Hit);
-        CHECK(program.reward_config.hill_tick_reward == doctest::Approx(2.3));
+        CHECK(program.reward_config.hill_tick_reward == doctest::Approx(2.3f));
         CHECK(program.reward_config.enemy_hill_tick_punishment == doctest::Approx(2));
     }
 
@@ -178,13 +178,13 @@ TEST_CASE("TrainingProgram")
 
         program.hyper_parameters.algorithm = Algorithm::A2C;
         program.hyper_parameters.batch_size = 4;
-        program.hyper_parameters.discount_factor = 0.2;
-        program.hyper_parameters.entropy_coef = 0.3;
+        program.hyper_parameters.discount_factor = 0.2f;
+        program.hyper_parameters.entropy_coef = 0.3f;
         program.hyper_parameters.num_env = 2;
-        program.hyper_parameters.learning_rate = 2.2;
-        program.hyper_parameters.actor_loss_coef = 100.;
-        program.hyper_parameters.value_loss_coef = 22.3;
-        program.hyper_parameters.clip_param = 0.3;
+        program.hyper_parameters.learning_rate = 2.2f;
+        program.hyper_parameters.actor_loss_coef = 100;
+        program.hyper_parameters.value_loss_coef = 22.3f;
+        program.hyper_parameters.clip_param = 0.3f;
         program.hyper_parameters.num_epoch = 34;
         program.hyper_parameters.num_minibatch = 2;
 
@@ -194,7 +194,7 @@ TEST_CASE("TrainingProgram")
         program.reward_config.hit_enemy_type = HpOrHit::Hp;
         program.reward_config.hit_self_punishment = -40;
         program.reward_config.hit_self_type = HpOrHit::Hit;
-        program.reward_config.hill_tick_reward = 2.3;
+        program.reward_config.hill_tick_reward = 2.3f;
         program.reward_config.enemy_hill_tick_punishment = 2;
 
         auto json = program.to_json();
@@ -207,13 +207,13 @@ TEST_CASE("TrainingProgram")
 
         CHECK(recreated_program.hyper_parameters.algorithm == Algorithm::A2C);
         CHECK(recreated_program.hyper_parameters.batch_size == doctest::Approx(4));
-        CHECK(recreated_program.hyper_parameters.discount_factor == doctest::Approx(0.2));
-        CHECK(recreated_program.hyper_parameters.entropy_coef == doctest::Approx(0.3));
+        CHECK(recreated_program.hyper_parameters.discount_factor == doctest::Approx(0.2f));
+        CHECK(recreated_program.hyper_parameters.entropy_coef == doctest::Approx(0.3f));
         CHECK(recreated_program.hyper_parameters.num_env == doctest::Approx(2));
-        CHECK(recreated_program.hyper_parameters.learning_rate == doctest::Approx(2.2));
-        CHECK(recreated_program.hyper_parameters.actor_loss_coef == doctest::Approx(100.));
-        CHECK(recreated_program.hyper_parameters.value_loss_coef == doctest::Approx(22.3));
-        CHECK(recreated_program.hyper_parameters.clip_param == doctest::Approx(0.3));
+        CHECK(recreated_program.hyper_parameters.learning_rate == doctest::Approx(2.2f));
+        CHECK(recreated_program.hyper_parameters.actor_loss_coef == doctest::Approx(100));
+        CHECK(recreated_program.hyper_parameters.value_loss_coef == doctest::Approx(22.3f));
+        CHECK(recreated_program.hyper_parameters.clip_param == doctest::Approx(0.3f));
         CHECK(recreated_program.hyper_parameters.num_epoch == doctest::Approx(34));
         CHECK(recreated_program.hyper_parameters.num_minibatch == doctest::Approx(2));
 
@@ -223,7 +223,7 @@ TEST_CASE("TrainingProgram")
         CHECK(recreated_program.reward_config.hit_enemy_type == HpOrHit::Hp);
         CHECK(recreated_program.reward_config.hit_self_punishment == doctest::Approx(-40));
         CHECK(recreated_program.reward_config.hit_self_type == HpOrHit::Hit);
-        CHECK(recreated_program.reward_config.hill_tick_reward == doctest::Approx(2.3));
+        CHECK(recreated_program.reward_config.hill_tick_reward == doctest::Approx(2.3f));
         CHECK(recreated_program.reward_config.enemy_hill_tick_punishment == doctest::Approx(2));
     }
 }

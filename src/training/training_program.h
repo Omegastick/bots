@@ -32,8 +32,8 @@ struct RewardConfig
     float hit_self_punishment = -1;
     HpOrHit hit_self_type = HpOrHit::Hp;
 
-    float hill_tick_reward = 0.1;
-    float enemy_hill_tick_punishment = -0.1;
+    float hill_tick_reward = 0.1f;
+    float enemy_hill_tick_punishment = -0.1f;
 
     nlohmann::json to_json() const;
 };
@@ -45,15 +45,15 @@ struct HyperParameters
 
     Algorithm algorithm = Algorithm::A2C;
     int batch_size = 128;
-    float discount_factor = 0.99;
-    float entropy_coef = 0.001;
+    float discount_factor = 0.99f;
+    float entropy_coef = 0.001f;
     int num_env = 8;
-    float learning_rate = 0.0007;
-    float actor_loss_coef = 0.666;
-    float value_loss_coef = 0.333;
+    float learning_rate = 0.0007f;
+    float actor_loss_coef = 0.666f;
+    float value_loss_coef = 0.333f;
 
     // PPO
-    float clip_param = 0.1;
+    float clip_param = 0.1f;
     int num_epoch = 3;
     int num_minibatch = 8;
 

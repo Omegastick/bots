@@ -39,7 +39,7 @@ Bullet::Bullet(b2Vec2 position,
     rigid_body = std::make_unique<RigidBody>(b2_dynamicBody, position, world, this, RigidBody::ParentTypes::Bullet);
 
     b2CircleShape rigid_body_shape;
-    rigid_body_shape.m_radius = 0.1;
+    rigid_body_shape.m_radius = 0.1f;
     b2FixtureDef fixture_def;
     fixture_def.shape = &rigid_body_shape;
     fixture_def.density = 1;
@@ -71,7 +71,7 @@ void Bullet::draw(Renderer &renderer, bool /*lightweight*/)
     {
         Line trail;
         trail.points.push_back({position.x, position.y});
-        trail.widths.push_back(0.1);
+        trail.widths.push_back(0.1f);
         trail.colors.push_back({1.0, 1.0, 1.0, 1.0});
         trail.points.push_back({last_position.x, last_position.y});
         trail.widths.push_back(0);

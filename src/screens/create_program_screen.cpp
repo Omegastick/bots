@@ -126,7 +126,7 @@ void CreateProgramScreen::save_load()
 void CreateProgramScreen::draw(Renderer &renderer, bool lightweight)
 {
     renderer.set_view(projection);
-    
+
     renderer.push_post_proc_layer(*crt_post_proc_layer);
 
     environment->draw(renderer, lightweight);
@@ -134,8 +134,8 @@ void CreateProgramScreen::draw(Renderer &renderer, bool lightweight)
     auto crt_shader = resource_manager.shader_store.get("crt");
     crt_shader->set_uniform_2f("u_resolution", {renderer.get_width(), renderer.get_height()});
     crt_shader->set_uniform_1f("u_output_gamma", 1);
-    crt_shader->set_uniform_1f("u_strength", 0.3);
-    crt_shader->set_uniform_1f("u_distortion_factor", 0.05);
+    crt_shader->set_uniform_1f("u_strength", 0.3f);
+    crt_shader->set_uniform_1f("u_distortion_factor", 0.05f);
 }
 
 void CreateProgramScreen::update(double /*delta_time*/)

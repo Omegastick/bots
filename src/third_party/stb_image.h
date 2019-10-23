@@ -105,6 +105,14 @@ RECENT REVISION HISTORY:
     Blazej Dariusz Roszkowski                                     github:Michaelangel007
 */
 
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wconversion"
+#pragma GCC diagnostic ignored "-Wshadow"
+#pragma GCC diagnostic ignored "-Wold-style-cast"
+#pragma GCC diagnostic ignored "-Wcomment"
+#pragma GCC diagnostic ignored "-Wduplicated-branches"
+#pragma GCC diagnostic ignored "-Wuseless-cast"
+
 #ifndef STBI_INCLUDE_STB_IMAGE_H
 #define STBI_INCLUDE_STB_IMAGE_H
 
@@ -7301,6 +7309,8 @@ STBIDEF int stbi_is_16_bit_from_callbacks(stbi_io_callbacks const *c, void *user
 }
 
 #endif // STB_IMAGE_IMPLEMENTATION
+
+#pragma GCC diagnostic pop
 
 /*
    revision history:

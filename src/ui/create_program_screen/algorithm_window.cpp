@@ -24,12 +24,12 @@ AlgorithmWindow::AlgorithmWindow(IO &io)
 
 void AlgorithmWindow::update(HyperParameters &hyperparams)
 {
-    auto resolution = io.get_resolution();
+    auto resolution = io.get_resolutionf();
     ImGui::SetNextWindowSize({resolution.x * 0.25f, resolution.y * 0.5f}, ImGuiCond_Once);
     ImGui::SetNextWindowPos({resolution.x * 0.05f, resolution.y * 0.2f}, ImGuiCond_Once);
     ImGui::Begin("Select an algorithm");
 
-    const float label_spacing = resolution.x * 0.08;
+    const float label_spacing = resolution.x * 0.08f;
 
     const char *algorithms[] = {"A2C", "PPO"};
     auto selected_algorithm = static_cast<int>(hyperparams.algorithm);
@@ -103,7 +103,7 @@ Recommended: 0 - 0.1)");
                        &hyperparams.actor_loss_coef,
                        0,
                        1);
-    hyperparams.value_loss_coef = 1. - hyperparams.actor_loss_coef;
+    hyperparams.value_loss_coef = 1.f - hyperparams.actor_loss_coef;
     ImGui::SameLine();
     help_marker(R"(Weight training towards either the actor or the critic. High values make the actor more important, low values make the critic more important.
 Recommended: 0.25 - 0.5)");

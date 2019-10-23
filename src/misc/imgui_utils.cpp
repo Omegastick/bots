@@ -9,7 +9,7 @@ namespace ImGui
 {
 bool ListBox(const char *label,
              int *current_item,
-             const std::vector<std::string> &items,
+             std::vector<std::string> &items,
              int height_in_items)
 {
     return ListBox(label,
@@ -18,8 +18,8 @@ bool ListBox(const char *label,
                        *out_text = (*static_cast<const std::vector<std::string> *>(data))[idx].c_str();
                        return true;
                    },
-                   (void *)&items,
-                   items.size(),
+                   static_cast<void *>(&items),
+                   static_cast<int>(items.size()),
                    height_in_items);
 }
 }

@@ -223,7 +223,7 @@ void KothEnv::draw(Renderer &renderer, bool lightweight)
     effects.clear();
 
     double max_time = max_steps / 10.f;
-    int seconds_remaining = std::ceil(max_time - elapsed_time);
+    int seconds_remaining = static_cast<int>(std::ceil(max_time - elapsed_time));
     Text timer;
     timer.text = std::to_string(seconds_remaining);
     timer.font = "roboto-16";

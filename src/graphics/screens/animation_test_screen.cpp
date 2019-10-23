@@ -70,7 +70,7 @@ void AnimationTestScreen::update(double delta_time)
     }
 
     display_test_dialog("Animation test", *screens, *screen_names, delta_time, *screen_manager);
-    sprite->transform.rotate(1.f * delta_time);
+    sprite->transform.rotate(1.f * static_cast<float>(delta_time));
 }
 
 void AnimationTestScreen::draw(Renderer &renderer, bool /*lightweight*/)

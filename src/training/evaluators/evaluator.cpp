@@ -63,10 +63,10 @@ EvaluationResult Evaluator::evaluate(const IAgent &agent_1, const IAgent &agent_
         std::tie(action_2, hidden_state_2) = agent_2.act(observation_2,
                                                          hidden_state_2,
                                                          mask_2);
-        auto step_info = environment->step({action_1, action_2}, 1. / 60.);
+        auto step_info = environment->step({action_1, action_2}, 1.f / 60.f);
         for (int k = 0; k < 5; ++k)
         {
-            environment->forward(1. / 60.);
+            environment->forward(1.f / 60.f);
         }
 
         observation_1 = step_info.observation[0];

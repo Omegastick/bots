@@ -23,6 +23,13 @@
     IN THE SOFTWARE.
 */
 
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wconversion"
+#pragma GCC diagnostic ignored "-Wshadow"
+#pragma GCC diagnostic ignored "-Wold-style-cast"
+#pragma GCC diagnostic ignored "-Wcomment"
+#pragma GCC diagnostic ignored "-Wuseless-cast"
+
 #ifndef __ZMQ_HPP_INCLUDED__
 #define __ZMQ_HPP_INCLUDED__
 
@@ -2046,3 +2053,5 @@ inline std::ostream &operator<<(std::ostream &os, const message_t &msg)
 } // namespace zmq
 
 #endif // __ZMQ_HPP_INCLUDED__
+
+#pragma GCC diagnostic pop

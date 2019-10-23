@@ -18,15 +18,15 @@ SquareHull::SquareHull()
 
     // Box2D
     b2PolygonShape shape;
-    shape.SetAsBox(0.5, 0.5);
+    shape.SetAsBox(0.5f, 0.5f);
     shapes.push_back(shape);
     transform.SetIdentity();
 
     // Module links
-    module_links.push_back(ModuleLink(0, 0.5, 0, this));
-    module_links.push_back(ModuleLink(-0.5, 0, 90, this));
-    module_links.push_back(ModuleLink(0, -0.5, 180, this));
-    module_links.push_back(ModuleLink(0.5, 0, 270, this));
+    module_links.push_back(ModuleLink(0, 0.5f, 0, this));
+    module_links.push_back(ModuleLink(-0.5f, 0, 90, this));
+    module_links.push_back(ModuleLink(0, -0.5f, 180, this));
+    module_links.push_back(ModuleLink(0.5f, 0, 270, this));
 }
 
 nlohmann::json SquareHull::to_json() const

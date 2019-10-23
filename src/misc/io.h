@@ -16,18 +16,19 @@ class IO
   public:
     IO();
 
-    glm::dvec2 get_cursor_position();
-    bool get_key_pressed(int key);
-    bool get_key_pressed_this_frame(int key);
-    bool get_left_click();
-    glm::ivec2 get_resolution();
-    bool get_right_click();
+    glm::dvec2 get_cursor_position() const;
+    bool get_key_pressed(int key) const;
+    bool get_key_pressed_this_frame(int key) const;
+    bool get_left_click() const;
+    glm::ivec2 get_resolution() const;
+    glm::vec2 get_resolutionf() const;
+    bool get_right_click() const;
     void left_click();
     void press_key(int key);
     void release_key(int key);
-    void set_cursor_position(double cursor_x, double cursor_y);
+    void set_cursor_position(double x, double y);
     void right_click();
-    void set_resolution(int resolution_x, int resolution_y);
+    void set_resolution(int x, int y);
     void tick();
 };
 }

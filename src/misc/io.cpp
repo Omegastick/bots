@@ -15,32 +15,37 @@ IO::IO()
       keys{false},
       keys_this_frame{false} {}
 
-glm::dvec2 IO::get_cursor_position()
+glm::dvec2 IO::get_cursor_position() const
 {
     return {cursor_x, cursor_y};
 }
 
-bool IO::get_key_pressed(int key)
+bool IO::get_key_pressed(int key) const
 {
     return keys[key];
 }
 
-bool IO::get_key_pressed_this_frame(int key)
+bool IO::get_key_pressed_this_frame(int key) const
 {
     return keys_this_frame[key];
 }
 
-bool IO::get_left_click()
+bool IO::get_left_click() const
 {
     return left_clicked;
 }
 
-glm::ivec2 IO::get_resolution()
+glm::ivec2 IO::get_resolution() const
 {
     return {resolution_x, resolution_y};
 }
 
-bool IO::get_right_click()
+glm::vec2 IO::get_resolutionf() const
+{
+    return {static_cast<float>(resolution_x), static_cast<float>(resolution_y)};
+}
+
+bool IO::get_right_click() const
 {
     return right_clicked;
 }
@@ -61,10 +66,10 @@ void IO::release_key(int key)
     keys[key] = false;
 }
 
-void IO::set_cursor_position(double cursor_x, double cursor_y)
+void IO::set_cursor_position(double x, double y)
 {
-    this->cursor_x = cursor_x;
-    this->cursor_y = cursor_y;
+    cursor_x = x;
+    cursor_y = y;
 }
 
 void IO::right_click()
@@ -72,10 +77,10 @@ void IO::right_click()
     right_clicked = true;
 }
 
-void IO::set_resolution(int resolution_x, int resolution_y)
+void IO::set_resolution(int x, int y)
 {
-    this->resolution_x = resolution_x;
-    this->resolution_y = resolution_y;
+    resolution_x = x;
+    resolution_y = y;
 }
 
 void IO::tick()
@@ -91,7 +96,7 @@ TEST_CASE("IO")
 
     SUBCASE("Resolution is initialized to 0")
     {
-        auto resolution = io.get_resolution();
+        auto resolution = io.get_resolutionf();
 
         CHECK(resolution.x == 0);
         CHECK(resolution.y == 0);
@@ -125,7 +130,7 @@ TEST_CASE("IO")
     SUBCASE("Setting and getting resolution works")
     {
         io.set_resolution(100, 80);
-        auto resolution = io.get_resolution();
+        auto resolution = io.get_resolutionf();
 
         CHECK(resolution.x == 100);
         CHECK(resolution.y == 80);

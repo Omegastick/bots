@@ -52,7 +52,7 @@ PostProcScreen::~PostProcScreen() {}
 void PostProcScreen::update(double delta_time)
 {
     display_test_dialog("Post processing test", *screens, *screen_names, delta_time, *screen_manager);
-    sprite->transform.rotate(1.f * delta_time);
+    sprite->transform.rotate(1.f * static_cast<float>(delta_time));
 
     ImGui::Begin("Sprite position");
     float position[2]{sprite->transform.get_position().x, sprite->transform.get_position().y};

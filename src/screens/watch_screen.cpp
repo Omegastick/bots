@@ -70,7 +70,7 @@ void WatchScreen::update(const double /*delta_time*/)
         }
         else
         {
-            environment->forward(1. / 60.);
+            environment->forward(1.f / 60.f);
         }
 
         show_agent_scores();
@@ -108,7 +108,7 @@ void WatchScreen::action_update()
 
     // Step environment
     auto step_info = environment->step({act_result[1][0], act_result[1][1]},
-                                       1. / 60.)
+                                       1.f / 60.f)
                          .get();
     observations = step_info.observation.view({1, -1});
     for (unsigned int i = 0; i < scores.size(); ++i)

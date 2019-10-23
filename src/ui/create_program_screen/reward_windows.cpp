@@ -30,7 +30,7 @@ RewardWindows::RewardWindows(IO &io)
 
 void RewardWindows::update(IEnvironment &environment, glm::mat4 &projection, RewardConfig &reward_config)
 {
-    auto resolution = io.get_resolution();
+    auto resolution = io.get_resolutionf();
 
     // Hill reward
     ImGui::SetNextWindowPos({resolution.x * 0.7f, resolution.y * 0.6f}, ImGuiCond_Once);
@@ -39,28 +39,28 @@ void RewardWindows::update(IEnvironment &environment, glm::mat4 &projection, Rew
     ImGui::Text("Reward per 1/10th of a second spent with the hill captured");
     ImGui::InputFloat("##hill_reward",
                       &reward_config.hill_tick_reward,
-                      0.1,
-                      0.5,
+                      0.1f,
+                      0.5f,
                       "%.1f",
                       ImGuiInputTextFlags_AutoSelectAll | ImGuiInputTextFlags_CharsScientific);
 
     ImGui::Text("Reward per 1/10th of a second spent with the hill controlled by the enemy");
     ImGui::InputFloat("##hill_punishment",
                       &reward_config.enemy_hill_tick_punishment,
-                      0.1,
-                      0.5,
+                      0.1f,
+                      0.5f,
                       "%.1f",
                       ImGuiInputTextFlags_AutoSelectAll | ImGuiInputTextFlags_CharsScientific);
 
     // Draw line to edge of hill
     auto window_size = ImGui::GetWindowSize();
     auto window_pos = ImGui::GetWindowPos();
-    glm::vec2 window_center = glm::vec2{window_pos.x + window_size.x * 0.5,
-                                        window_pos.y + window_size.y * 0.5} /
-                              static_cast<glm::vec2>(io.get_resolution());
-    glm::vec2 screen_center{0.5, 0.5};
+    glm::vec2 window_center = glm::vec2{window_pos.x + window_size.x * 0.5f,
+                                        window_pos.y + window_size.y * 0.5f} /
+                              io.get_resolutionf();
+    glm::vec2 screen_center{0.5f, 0.5f};
     auto direction_vector = window_center - screen_center;
-    float radius = 0.033;
+    float radius = 0.033f;
     auto line_end_point = direction_vector /
                           glm::length(direction_vector) *
                           radius *

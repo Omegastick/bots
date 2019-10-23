@@ -96,10 +96,10 @@ TickResult Game::tick(double current_time)
                    });
     for (int i = 0; i < 5; ++i)
     {
-        env->forward(1. / 60.);
+        env->forward(1.f / 60.f);
         env->clear_effects();
     }
-    auto step_info = env->step(actions_tensors, 1. / 60.);
+    auto step_info = env->step(actions_tensors, 1.f / 60.f);
 
     ++current_tick;
 

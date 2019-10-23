@@ -1,7 +1,4 @@
-#include <algorithm>
-
 #include <glm/glm.hpp>
-#include <spdlog/spdlog.h>
 
 #include "distortion_layer.h"
 #include "graphics/backend/element_buffer.h"
@@ -17,8 +14,8 @@ namespace SingularityTrainer
 {
 DistortionLayer::DistortionLayer(Shader &shader, int width, int height)
     : PostProcLayer(shader, width, height),
-      mesh_width(width * 0.1),
-      mesh_height(height * 0.1),
+      mesh_width(static_cast<int>(std::round(width * 0.1))),
+      mesh_height(static_cast<int>(std::round(height * 0.1))),
       spring_mesh(mesh_width, mesh_height) {}
 
 void DistortionLayer::apply_explosive_force(glm::vec2 position, float size, float strength)
@@ -49,10 +46,6 @@ void DistortionLayer::update_texture()
         pixels[i * 2] = offsets[i].x;
         pixels[i * 2 + 1] = offsets[i].y;
     }
-
-    float min = *std::min_element(pixels.begin(), pixels.end());
-    float max = *std::max_element(pixels.begin(), pixels.end());
-    spdlog::debug("Min: {}, Max: {}", min, max);
 
     texture = std::make_unique<Texture>(mesh_width, mesh_height, pixels.data());
 }

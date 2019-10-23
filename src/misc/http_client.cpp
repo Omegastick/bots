@@ -52,7 +52,7 @@ std::future<nlohmann::json> HttpClient::get(const std::string &url,
                           nlohmann::json json;
                           try
                           {
-                              json = nlohmann::json::parse(std::string(response.str()));
+                              json = nlohmann::json::parse(response.str());
                           }
                           catch (nlohmann::json::parse_error &error)
                           {
@@ -93,7 +93,7 @@ std::future<nlohmann::json> HttpClient::post(const std::string &url,
                           nlohmann::json json;
                           try
                           {
-                              json = nlohmann::json::parse(std::string(response.str()));
+                              json = nlohmann::json::parse(response.str());
                           }
                           catch (nlohmann::json::parse_error &error)
                           {

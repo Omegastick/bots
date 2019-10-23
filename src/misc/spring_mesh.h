@@ -34,10 +34,10 @@ class SpringMesh
   public:
     SpringMesh(int width,
                int height,
-               float damping = 0.06,
-               float friction = 0.98,
-               float stiffness = 0.28,
-               float elasticity = 0.05);
+               float damping = 0.06f,
+               float friction = 0.98f,
+               float stiffness = 0.28f,
+               float elasticity = 0.05f);
 
     void apply_explosive_force(glm::vec2 position, float size, float strength);
     std::vector<glm::vec2> get_vertices(float scale_x, float scale_y);

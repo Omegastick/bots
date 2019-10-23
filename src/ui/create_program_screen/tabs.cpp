@@ -66,10 +66,10 @@ Tabs::Tabs(IO &io) : io(io), selected_tab(CreateProgramScreenState::Body) {}
 
 CreateProgramScreenState Tabs::update()
 {
-    auto resolution = io.get_resolution();
+    auto resolution = io.get_resolutionf();
     ImGui::PushStyleColor(ImGuiCol_WindowBg, {0, 0, 0, 0});
     ImGui::PushStyleColor(ImGuiCol_Button, {0, 0, 0, 0});
-    ImGui::PushStyleColor(ImGuiCol_ButtonHovered, {1, 1, 1, 0.1});
+    ImGui::PushStyleColor(ImGuiCol_ButtonHovered, {1, 1, 1, 0.1f});
     ImGui::PushStyleColor(ImGuiCol_ButtonActive, {1, 1, 1, 0});
     ImGui::PushStyleColor(ImGuiCol_Text, {cl_base3.r, cl_base3.g, cl_base3.b, 1});
     ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, {resolution.x * 0.03f, resolution.y * 0.02f});
