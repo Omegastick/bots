@@ -12,7 +12,7 @@ struct BufferLayoutElement
 {
     unsigned int type;
     unsigned int count;
-    int normalized;
+    unsigned char normalized;
 
     static unsigned int GetTypeSize(const unsigned int type)
     {

@@ -58,7 +58,7 @@ DistortionTestScreen::DistortionTestScreen(
 void DistortionTestScreen::update(double delta_time)
 {
     display_test_dialog("Distortion test", *screens, *screen_names, delta_time, *screen_manager);
-    sprite->transform.rotate(1.f * delta_time);
+    sprite->transform.rotate(1.f * static_cast<float>(delta_time));
 
     if (ImGui::IsKeyPressed(GLFW_KEY_SPACE))
     {

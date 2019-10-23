@@ -67,7 +67,7 @@ class Trainer
             EloEvaluator &evaluator,
             Random &rng);
 
-    float evaluate();
+    double evaluate();
     void draw(Renderer &renderer, bool lightweight = false);
     std::filesystem::path save_model(std::filesystem::path directory = {});
     std::vector<std::pair<std::string, float>> step_batch();

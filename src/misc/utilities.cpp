@@ -16,7 +16,7 @@ glm::vec2 radial_distort(glm::vec2 coordinate, glm::vec2 resolution, float stren
     glm::vec2 centered_coordinates = glm::vec2(scaled_coordinate.x - 0.5, scaled_coordinate.y - 0.5);
 
     float distortion = glm::dot(centered_coordinates, centered_coordinates) * strength;
-    float distortion_mul = (1.0 + distortion) * distortion;
+    float distortion_mul = (1.0f + distortion) * distortion;
 
     float distorted_x = scaled_coordinate.x + centered_coordinates.x * distortion_mul;
     float distorted_y = scaled_coordinate.y + centered_coordinates.y * distortion_mul;

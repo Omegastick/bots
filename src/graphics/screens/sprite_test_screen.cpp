@@ -39,7 +39,7 @@ SpriteTestScreen::~SpriteTestScreen() {}
 void SpriteTestScreen::update(double delta_time)
 {
     display_test_dialog("Sprite test", *screens, *screen_names, delta_time, *screen_manager);
-    sprite->transform.rotate(1.f * delta_time);
+    sprite->transform.rotate(1.f * static_cast<float>(delta_time));
 }
 
 void SpriteTestScreen::draw(Renderer &renderer, bool /*lightweight*/)

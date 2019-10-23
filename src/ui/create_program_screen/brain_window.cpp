@@ -1,7 +1,7 @@
 #include <imgui.h>
 
 #include "brain_window.h"
-#include "misc/imgui_utils.h"
+#include "graphics/imgui_utils.h"
 #include "misc/io.h"
 #include "training/checkpointer.h"
 #include "training/training_program.h"

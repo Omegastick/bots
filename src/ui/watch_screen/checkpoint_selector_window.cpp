@@ -15,7 +15,11 @@ CheckpointSelectorWindow::CheckpointSelectorWindow() : selected_file(-1) {}
 std::unique_ptr<cpprl::Policy> CheckpointSelectorWindow::update()
 {
     ImGui::SetNextWindowPosCenter(ImGuiCond_Always);
-    ImGui::Begin("Pick a checkpoint", NULL, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoTitleBar);
+    ImGui::Begin("Pick a checkpoint",
+                 NULL,
+                 ImGuiWindowFlags_NoResize |
+                     ImGuiWindowFlags_AlwaysAutoResize |
+                     ImGuiWindowFlags_NoTitleBar);
 
     // Enumerate all model files
     std::vector<std::string> files;
@@ -35,7 +39,7 @@ std::unique_ptr<cpprl::Policy> CheckpointSelectorWindow::update()
     {
         c_strings.push_back(&string.front());
     }
-    ImGui::ListBox("", &selected_file, &c_strings.front(), files.size());
+    ImGui::ListBox("", &selected_file, &c_strings.front(), static_cast<int>(files.size()));
 
     // Load model
     std::unique_ptr<cpprl::Policy> policy = nullptr;

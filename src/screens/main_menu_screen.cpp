@@ -70,8 +70,8 @@ void MainMenuScreen::update(double /*delta_time*/)
         // Show main menu
         ImGui::PushStyleColor(ImGuiCol_WindowBg, {0, 0, 0, 0});
         ImGui::PushStyleColor(ImGuiCol_Button, {0, 0, 0, 0});
-        ImGui::PushStyleColor(ImGuiCol_ButtonHovered, {1, 1, 1, 0.1});
-        ImGui::PushStyleColor(ImGuiCol_ButtonActive, {1, 1, 1, 0.05});
+        ImGui::PushStyleColor(ImGuiCol_ButtonHovered, {1, 1, 1, 0.1f});
+        ImGui::PushStyleColor(ImGuiCol_ButtonActive, {1, 1, 1, 0.05f});
         ImGui::PushStyleColor(ImGuiCol_Text, {cl_base3.r, cl_base3.g, cl_base3.b, 1});
         auto imgui_io = ImGui::GetIO();
         ImGui::PushFont(imgui_io.Fonts->Fonts[2]);
@@ -233,7 +233,7 @@ TEST_CASE("MainMenuScreen")
                                            _))
                 .LR_RETURN(promise.get_future());
             auto elo_future = main_menu_screen->get_elo("http://asd.com/", 0);
-            std::this_thread::sleep_for(std::chrono::milliseconds(5));
+            std::this_thread::sleep_for(std::chrono::milliseconds(10));
             promise.set_value(nlohmann::json{{"elo", 123}});
 
             CHECK_THROWS(elo_future.get());

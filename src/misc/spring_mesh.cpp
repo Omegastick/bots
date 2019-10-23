@@ -1,4 +1,5 @@
 #include <cstring>
+#include <iostream>
 
 #include <doctest.h>
 #include <glm/glm.hpp>
@@ -52,12 +53,12 @@ void SpringMesh::apply_spring_forces(const glm::vec3 &position_1,
     glm::vec3 vector = position_1 - position_2;
 
     float vector_length = glm::length(vector);
-    if (vector_length <= 1)
+    if (vector_length <= 0.9f)
     {
         return;
     }
 
-    vector = (vector / vector_length) * (vector_length - 1);
+    vector = (vector / vector_length) * (vector_length - 0.9f);
     glm::vec3 velocity = velocity_2 - velocity_1;
     glm::vec3 force = stiffness * vector - velocity * damping;
 
@@ -73,8 +74,12 @@ std::vector<glm::vec2> SpringMesh::get_vertices(float scale_x, float scale_y)
     {
         for (int column = 0; column < width; ++column)
         {
-            vertices[index] = {(column + offsets[index].x) / (width - 1) * scale_x,
-                               (row + offsets[index].y) / (height - 1) * scale_y};
+            vertices[index] = {(static_cast<float>(column) + offsets[index].x) /
+                                   static_cast<float>(width - 1) *
+                                   scale_x,
+                               (static_cast<float>(row) + offsets[index].y) /
+                                   static_cast<float>(height - 1) *
+                                   scale_y};
             index++;
         }
     }
@@ -163,7 +168,7 @@ TEST_CASE("SpringMesh")
 
     SUBCASE("Small radius explosive force moves correct vertex")
     {
-        spring_mesh.apply_explosive_force({1, 1}, 0.1, 100);
+        spring_mesh.apply_explosive_force({1, 1}, 0.1f, 100);
         spring_mesh.update();
 
         auto &offsets = spring_mesh.get_offsets();

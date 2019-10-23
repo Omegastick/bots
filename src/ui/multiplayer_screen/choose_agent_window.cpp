@@ -7,7 +7,7 @@
 #include <imgui.h>
 
 #include "choose_agent_window.h"
-#include "misc/imgui_utils.h"
+#include "graphics/imgui_utils.h"
 #include "misc/io.h"
 #include "training/agents/nn_agent.h"
 #include "training/checkpointer.h"
@@ -49,7 +49,7 @@ std::unique_ptr<IAgent> ChooseAgentWindow::update()
     bool done = false;
     if (selected_file == -1)
     {
-        ImGui::PushStyleVar(ImGuiStyleVar_Alpha, 0.6);
+        ImGui::PushStyleVar(ImGuiStyleVar_Alpha, 0.6f);
         ImGui::Button("Select");
         ImGui::PopStyleVar();
     }

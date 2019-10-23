@@ -31,17 +31,17 @@ ThrusterModule::ThrusterModule() : active(false)
 
     // Box2D fixture
     b2Vec2 vertices[4];
-    vertices[0] = b2Vec2(-0.333, -0.167);
-    vertices[1] = b2Vec2(-0.5, 0.167);
-    vertices[2] = b2Vec2(0.5, 0.167);
-    vertices[3] = b2Vec2(0.333, -0.167);
+    vertices[0] = b2Vec2(-0.333f, -0.167f);
+    vertices[1] = b2Vec2(-0.5f, 0.167f);
+    vertices[2] = b2Vec2(0.5f, 0.167f);
+    vertices[3] = b2Vec2(0.333f, -0.167f);
     b2PolygonShape shape;
     shape.Set(vertices, 4);
     shapes.push_back(shape);
     transform.SetIdentity();
 
     // Module links
-    module_links.push_back(ModuleLink(0, 0.167, 0, this));
+    module_links.push_back(ModuleLink(0, 0.167f, 0, this));
 
     actions.push_back(std::make_unique<ActivateAction>(this));
 }

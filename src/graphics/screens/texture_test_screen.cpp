@@ -56,7 +56,7 @@ TextureTestScreen::~TextureTestScreen() {}
 void TextureTestScreen::update(double delta_time)
 {
     display_test_dialog("Texture test", *screens, *screen_names, delta_time, *screen_manager);
-    rotation += 1.f * delta_time;
+    rotation += 1.f * static_cast<float>(delta_time);
 }
 
 void TextureTestScreen::draw(Renderer &renderer, bool /*lightweight*/)

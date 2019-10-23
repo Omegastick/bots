@@ -28,17 +28,17 @@ LaserSensorModule::LaserSensorModule(int laser_count, float fov, float laser_len
     // Sprite
     sprite = std::make_unique<Sprite>();
     sprite->texture = "laser_sensor_module";
-    sprite->transform.set_scale(glm::vec2(1, 0.5));
+    sprite->transform.set_scale(glm::vec2(1, 0.5f));
     sprite->color = cl_white;
 
     // Box2D
     b2PolygonShape shape;
-    shape.SetAsBox(0.5, 0.25);
+    shape.SetAsBox(0.5, 0.25f);
     shapes.push_back(shape);
     transform.SetIdentity();
 
     // Module links
-    module_links.push_back(ModuleLink(0, -0.25, 180, this));
+    module_links.push_back(ModuleLink(0, -0.25f, 180, this));
 }
 
 std::vector<float> LaserSensorModule::cast_lasers() const
@@ -106,17 +106,17 @@ void LaserSensorModule::draw(Renderer &renderer, bool lightweight)
         Line line;
         b2Rot angle(glm::radians((segment_width * i) - (fov / 2)));
         b2Vec2 laser = b2Mul(angle, b2Vec2(0, sensor_reading[i] * laser_length));
-        b2Vec2 laser_start = b2Mul(angle, b2Vec2(0, 0.35));
+        b2Vec2 laser_start = b2Mul(angle, b2Vec2(0, 0.35f));
         b2Vec2 transformed_end = b2Mul(global_transform, laser);
         b2Vec2 transformed_start = b2Mul(global_transform, laser_start);
         glm::vec4 end_color = start_color;
         end_color.a = sensor_reading[i];
         line.points.push_back({transformed_start.x, transformed_start.y});
         line.colors.push_back(start_color);
-        line.widths.push_back(0.01);
+        line.widths.push_back(0.01f);
         line.points.push_back({transformed_end.x, transformed_end.y});
         line.colors.push_back(end_color);
-        line.widths.push_back(0.01);
+        line.widths.push_back(0.01f);
         renderer.draw(line);
     }
 }

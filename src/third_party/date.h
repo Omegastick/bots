@@ -1,3 +1,6 @@
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wuseless-cast"
+
 #ifndef DATE_H
 #define DATE_H
 
@@ -7951,3 +7954,5 @@ operator<<(std::basic_ostream<CharT, Traits>& os,
 #endif
 
 #endif  // DATE_H
+
+#pragma GCC diagnostic pop

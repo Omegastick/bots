@@ -9,10 +9,10 @@ namespace SingularityTrainer
 static glm::vec4 hex_to_rgb(int hex)
 {
     glm::vec4 out;
-    out.r = ((hex >> 16) & 0xFF) / 255.0; // Extract the RR byte
-    out.g = ((hex >> 8) & 0xFF) / 255.0;  // Extract the GG byte
-    out.b = ((hex)&0xFF) / 255.0;         // Extract the BB byte
-    out.a = 1;
+    out.r = static_cast<float>((hex >> 16) & 0xFF) / 255.0f; // Extract the RR byte
+    out.g = static_cast<float>((hex >> 8) & 0xFF) / 255.0f;  // Extract the GG byte
+    out.b = static_cast<float>((hex)&0xFF) / 255.0f;         // Extract the BB byte
+    out.a = 1.f;
 
     return out;
 }

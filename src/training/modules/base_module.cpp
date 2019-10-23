@@ -34,10 +34,10 @@ BaseModule::BaseModule()
     transform.SetIdentity();
 
     // Module links
-    module_links.push_back(ModuleLink(0, 0.5, 0, this));
-    module_links.push_back(ModuleLink(-0.5, 0, 90, this));
-    module_links.push_back(ModuleLink(0, -0.5, 180, this));
-    module_links.push_back(ModuleLink(0.5, 0, 270, this));
+    module_links.push_back(ModuleLink(0, 0.5f, 0, this));
+    module_links.push_back(ModuleLink(-0.5f, 0, 90, this));
+    module_links.push_back(ModuleLink(0, -0.5f, 180, this));
+    module_links.push_back(ModuleLink(0.5f, 0, 270, this));
 
     root = this;
 }

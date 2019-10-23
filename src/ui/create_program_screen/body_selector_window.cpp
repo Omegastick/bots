@@ -20,7 +20,7 @@ BodySelectorWindow::BodySelectorWindow(IO &io)
 
 nlohmann::json BodySelectorWindow::update()
 {
-    auto resolution = io.get_resolution();
+    auto resolution = io.get_resolutionf();
     ImGui::SetNextWindowSize({resolution.x * 0.25f, resolution.y * 0.5f}, ImGuiCond_Once);
     ImGui::SetNextWindowPos({resolution.x * 0.05f, resolution.y * 0.2f}, ImGuiCond_Once);
     ImGui::Begin("Pick a body");

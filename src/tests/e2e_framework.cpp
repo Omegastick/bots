@@ -25,7 +25,7 @@ void setup_imgui(double delta_time)
     ImGui::CreateContext();
     ImGuiIO &imgui_io = ImGui::GetIO();
     imgui_io.DisplaySize = ImVec2(1920, 1080);
-    imgui_io.DeltaTime = delta_time;
+    imgui_io.DeltaTime = static_cast<float>(delta_time);
     ImFontConfig font_config;
     imgui_io.Fonts->ClearFonts();
     imgui_io.Fonts->AddFontFromFileTTF("assets/fonts/Roboto-Regular.ttf", 16, &font_config);

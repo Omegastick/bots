@@ -93,7 +93,7 @@ ParticleRenderer::ParticleRenderer(int max_particles, ResourceManager &resource_
 
 void ParticleRenderer::add_particles(std::vector<Particle> &particles, double time)
 {
-    double mod_time = std::fmod(time, 10000);
+    float mod_time = static_cast<float>(std::fmod(time, 10000));
     for (const auto &particle : particles)
     {
         particle_positions[current_particle_index] = particle.start_position;
@@ -117,7 +117,7 @@ void ParticleRenderer::clear_particles()
 
 void ParticleRenderer::draw(double time, glm::mat4 view)
 {
-    double mod_time = std::fmod(time, 10000);
+    float mod_time = static_cast<float>(std::fmod(time, 10000));
     position_vertex_buffer->clear();
     position_vertex_buffer->add_sub_data(&particle_positions[0], 0, particle_count * sizeof(glm::vec2));
     velocity_vertex_buffer->clear();

@@ -200,10 +200,10 @@ void Renderer::scissor(float left, float bottom, float right, float top, const g
 
     glEnable(GL_SCISSOR_TEST);
     glScissor(
-        bottom_left.x * this->width,
-        bottom_left.y * this->height,
-        (top_right.x - bottom_left.x) * this->width,
-        (top_right.y - bottom_left.y) * this->height);
+        static_cast<int>(std::round(bottom_left.x * this->width)),
+        static_cast<int>(std::round(bottom_left.y * this->height)),
+        static_cast<int>(std::round((top_right.x - bottom_left.x) * this->width)),
+        static_cast<int>(std::round((top_right.y - bottom_left.y) * this->height)));
 }
 
 void Renderer::clear_scissor() const

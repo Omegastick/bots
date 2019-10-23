@@ -13,7 +13,11 @@ bool Combo(const char *label, int *currIndex, std::vector<std::string> &values)
     {
         return false;
     }
-    return Combo(label, currIndex, vector_getter, static_cast<void *>(&values), values.size());
+    return Combo(label,
+                 currIndex,
+                 vector_getter,
+                 static_cast<void *>(&values),
+                 static_cast<int>(values.size()));
 }
 
 bool ListBox(const char *label, int *currIndex, std::vector<std::string> &values)
@@ -22,6 +26,10 @@ bool ListBox(const char *label, int *currIndex, std::vector<std::string> &values
     {
         return false;
     }
-    return ListBox(label, currIndex, vector_getter, static_cast<void *>(&values), values.size());
+    return ListBox(label,
+                   currIndex,
+                   vector_getter,
+                   static_cast<void *>(&values),
+                   static_cast<int>(values.size()));
 }
 }

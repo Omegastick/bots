@@ -177,8 +177,8 @@ foreach(target ${ST_TARGETS})
             -Wnull-dereference
             -Wold-style-cast
             -Wuseless-cast
-            -Wdouble-promotion
-            -Wshadow
+            # -Wdouble-promotion
+            # -Wshadow
             -Wformat=2
             -Wconversion)
     endif(MSVC)    
@@ -264,7 +264,7 @@ add_subdirectory(${ZMQ_DIR})
 
 # Link libraries
 target_link_libraries(Misc PUBLIC curlpp_static doctest)
-target_link_libraries(Graphics easy_profiler glad glfw ${GLFW_LIBRARIES} glm imgui doctest)
+target_link_libraries(Graphics doctest easy_profiler glad glfw ${GLFW_LIBRARIES} glm imgui)
 target_link_libraries(Training PUBLIC cpprl doctest  fmt::fmt Graphics ${PYTHON_LIBRARIES} tobanteGaming::Box2D ${TORCH_LIBRARIES})
 # UNIX systems sometimes need to explicitly link the threading library
 if (UNIX)
@@ -272,7 +272,7 @@ if (UNIX)
     target_link_libraries(Training PUBLIC pthread)
     target_link_libraries(SingularityTrainer backtrace )
 endif(UNIX)
-target_link_libraries(Networking Training nlohmann_json::nlohmann_json libzmq-static)
+target_link_libraries(Networking Training libzmq-static)
 target_link_libraries(SingularityTrainer Graphics Misc Training Networking)
 target_link_libraries(HeadlessTrainer Graphics Misc Training)
 target_link_libraries(GraphicsPlayground Graphics Misc Training)
@@ -280,6 +280,7 @@ target_link_libraries(Server Graphics Misc Training Networking)
 target_link_libraries(PythonBindings PRIVATE Graphics Misc Training)
 set_target_properties(PythonBindings PROPERTIES OUTPUT_NAME "singularity_trainer")
 set_target_properties(PythonBindings PROPERTIES SUFFIX ".so")
+
 # Inlcudes
 set(INCLUDE_DIRS src)
 target_include_directories(SingularityTrainer PUBLIC ${INCLUDE_DIRS})
@@ -296,6 +297,7 @@ set(NO_ERR_INCLUDE_DIRS
     ${CURL_INCLUDE_DIRS}
     ${CPPRL_DIR}/include
     ${CURLPP_DIR}/include
+    ${DOCTEST_DIR}/doctest
     ${EASY_PROFILER_DIR}/easy_profiler_core/include
     ${GLAD_DIR}/include 
     ${GLFW_DIR}/include 
@@ -307,7 +309,6 @@ set(NO_ERR_INCLUDE_DIRS
     ${IMGUI_DIR}/examples
     ${BOX2D_DIR}/Box2D
     ${MSGPACK_DIR}/include
-    ${DOCTEST_DIR}/doctest
     ${ARGH_DIR}
     ${JSON_DIR}/include
     ${TROMPELOEIL_DIR}/include

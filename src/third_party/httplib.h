@@ -5,6 +5,15 @@
 //  MIT License
 //
 
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wconversion"
+#pragma GCC diagnostic ignored "-Wshadow"
+#pragma GCC diagnostic ignored "-Wold-style-cast"
+#pragma GCC diagnostic ignored "-Wcomment"
+#pragma GCC diagnostic ignored "-Wduplicated-branches"
+#pragma GCC diagnostic ignored "-Wuseless-cast"
+#pragma GCC diagnostic ignored "-Wformat-nonliteral"
+
 #ifndef CPPHTTPLIB_HTTPLIB_H
 #define CPPHTTPLIB_HTTPLIB_H
 
@@ -4561,3 +4570,5 @@ inline bool SSLClient::check_host_name(const char *pattern,
 } // namespace httplib
 
 #endif // CPPHTTPLIB_HTTPLIB_H
+
+#pragma GCC diagnostic pop

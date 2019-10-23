@@ -28,17 +28,17 @@ GunModule::GunModule(Random &rng) : cooldown(3), rng(rng), steps_since_last_shot
 
     // Box2D fixture
     b2PolygonShape body_shape;
-    body_shape.SetAsBox(0.5, 0.333, b2Vec2(0, 0.167), 0);
+    body_shape.SetAsBox(0.5f, 0.333f, b2Vec2(0, 0.167f), 0);
     shapes.push_back(body_shape);
     b2PolygonShape barrel_shape;
-    barrel_shape.SetAsBox(0.167, 0.333, b2Vec2(0, -0.167), 0);
+    barrel_shape.SetAsBox(0.167f, 0.333f, b2Vec2(0, -0.167f), 0);
     shapes.push_back(barrel_shape);
     transform.SetIdentity();
 
     // Module links
-    module_links.push_back(ModuleLink(-0.5, -0.167, 90, this));
-    module_links.push_back(ModuleLink(0, -0.5, 180, this));
-    module_links.push_back(ModuleLink(0.5, -0.167, 270, this));
+    module_links.push_back(ModuleLink(-0.5f, -0.167f, 90, this));
+    module_links.push_back(ModuleLink(0, -0.5f, 180, this));
+    module_links.push_back(ModuleLink(0.5f, -0.167f, 270, this));
 
     actions.push_back(std::make_unique<ActivateAction>(this));
 }
@@ -50,7 +50,7 @@ void GunModule::activate()
         steps_since_last_shot = 0;
         b2Transform global_transform = get_global_transform();
         b2Vec2 velocity = b2Mul(global_transform.q, b2Vec2(0, 100));
-        b2Vec2 offset = b2Mul(global_transform.q, b2Vec2(0, 0.7));
+        b2Vec2 offset = b2Mul(global_transform.q, b2Vec2(0, 0.7f));
         body->get_environment()->add_entity(std::make_unique<Bullet>(global_transform.p + offset,
                                                                      velocity,
                                                                      *body->get_rigid_body().body->GetWorld(),

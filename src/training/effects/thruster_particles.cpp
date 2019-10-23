@@ -16,8 +16,10 @@ ThrusterParticles::ThrusterParticles(b2Transform transform, glm::vec4 particle_c
 
 void ThrusterParticles::trigger(Renderer &renderer)
 {
-    b2Transform edge_transform = b2Mul(transform, b2Transform(b2Vec2(0, -0.3), b2Rot(glm::pi<float>() / 2)));
-    std::uniform_real_distribution<float> distribution(-0.5, 0.5);
+    b2Transform edge_transform = b2Mul(transform,
+                                       b2Transform(b2Vec2(0, -0.3f),
+                                                   b2Rot(glm::pi<float>() / 2)));
+    std::uniform_real_distribution<float> distribution(-0.5f, 0.5f);
     const int particle_count = 20;
     const float step_subdivision = (1.f / 60.f) / particle_count;
     glm::vec4 end_color = particle_color;
@@ -28,11 +30,12 @@ void ThrusterParticles::trigger(Renderer &renderer)
         float random_number = glm::linearRand(-0.5f, 0.5f);
         b2Rot angle = b2Mul(edge_transform.q, b2Rot(random_number));
         Particle particle{
-            glm::vec2(edge_transform.p.x + edge_transform.q.s * random_number, edge_transform.p.y - edge_transform.q.c * random_number),
+            glm::vec2(edge_transform.p.x + edge_transform.q.s * random_number,
+                      edge_transform.p.y - edge_transform.q.c * random_number),
             -glm::vec2(angle.c * 10, angle.s * 10),
             -i * step_subdivision,
             1,
-            0.02,
+            0.02f,
             particle_color,
             end_color};
         particles.push_back(particle);

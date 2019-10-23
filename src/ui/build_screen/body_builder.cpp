@@ -61,7 +61,7 @@ void BodyBuilder::delete_module(IModule *module)
 
 std::shared_ptr<IModule> BodyBuilder::get_module_at_screen_position(glm::vec2 point)
 {
-    point = screen_to_world_space(point, static_cast<glm::vec2>(io.get_resolution()), projection);
+    point = screen_to_world_space(point, io.get_resolutionf(), projection);
 
     GetAllQueryCallback query_callback;
     world->QueryAABB(&query_callback, {{point.x, point.y},
@@ -189,8 +189,8 @@ TEST_CASE("BodyBuilder")
         DOCTEST_CHECK(modules.size() == 1);
 
         auto transform = modules[0]->get_global_transform();
-        DOCTEST_CHECK(transform.p.Length() == 0);
-        DOCTEST_CHECK(transform.q.GetAngle() == 0);
+        DOCTEST_CHECK(transform.p.Length() == 0.f);
+        DOCTEST_CHECK(transform.q.GetAngle() == 0.f);
 
         auto json = modules[0]->to_json();
         DOCTEST_CHECK(json["type"] == "base");

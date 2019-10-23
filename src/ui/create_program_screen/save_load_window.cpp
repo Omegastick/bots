@@ -22,7 +22,7 @@ bool SaveLoadWindow::update(TrainingProgram &program)
 {
     int loaded = false;
 
-    auto resolution = io.get_resolution();
+    auto resolution = io.get_resolutionf();
     ImGui::SetNextWindowSize({resolution.x * 0.25f, resolution.y * 0.5f}, ImGuiCond_Once);
     ImGui::SetNextWindowPos({resolution.x * 0.05f, resolution.y * 0.2f}, ImGuiCond_Once);
     ImGui::Begin("Pick a body");
@@ -58,7 +58,7 @@ bool SaveLoadWindow::update(TrainingProgram &program)
             matched_file = i;
         }
     }
-    ImGui::ListBox("", &selected_file, &c_strings.front(), files.size());
+    ImGui::ListBox("", &selected_file, &c_strings.front(), static_cast<int>(files.size()));
     if (selected_file != matched_file)
     {
         name = files[selected_file];

@@ -24,7 +24,7 @@
 #include "training/evaluators/elo_evaluator.h"
 #include "training/score_processor.h"
 #include "training/training_program.h"
-#include "misc/date.h"
+#include "third_party/date.h"
 #include "misc/random.h"
 #include "misc/utilities.h"
 
@@ -172,7 +172,7 @@ Trainer::Trainer(TrainingProgram program,
     rollout_storage->set_first_observation(observations);
 }
 
-float Trainer::evaluate()
+double Trainer::evaluate()
 {
     spdlog::debug("Evaluating agent");
     std::vector<IAgent *> new_opponents_vec;
@@ -257,7 +257,7 @@ std::vector<std::pair<std::string, float>> Trainer::step_batch()
                 {
                     std::lock_guard lock_guard(env_mutexes[i]);
                     step_info = environments[i]->step({act_result[1], std::get<0>(opponent_act_result)},
-                                                      1. / 60.);
+                                                      1.f / 60.f);
                 }
                 if (slow)
                 {
@@ -267,7 +267,7 @@ std::vector<std::pair<std::string, float>> Trainer::step_batch()
                 {
                     {
                         std::lock_guard lock_guard(env_mutexes[i]);
-                        environments[i]->forward(1. / 60.);
+                        environments[i]->forward(1.f / 60.f);
                     }
                     if (slow)
                     {
@@ -354,7 +354,10 @@ std::vector<std::pair<std::string, float>> Trainer::learn()
                          .detach();
     }
     // Divide rewards by return variance
-    rollout_storage->compute_returns(next_value, false, program.hyper_parameters.discount_factor, 0.95);
+    rollout_storage->compute_returns(next_value,
+                                     false,
+                                     program.hyper_parameters.discount_factor,
+                                     0.95f);
     returns_rms->update(rollout_storage->get_returns());
     rollout_storage->set_rewards(torch::clamp(
         rollout_storage->get_rewards() / (returns_rms->get_variance().sqrt() + 1e-8),
@@ -362,7 +365,10 @@ std::vector<std::pair<std::string, float>> Trainer::learn()
         10));
 
     // Calculate the returns for real this time
-    rollout_storage->compute_returns(next_value, true, program.hyper_parameters.discount_factor, 0.95);
+    rollout_storage->compute_returns(next_value,
+                                     true,
+                                     program.hyper_parameters.discount_factor,
+                                     0.95f);
 
     auto update_data = algorithm->update(*rollout_storage);
     rollout_storage->after_update();

@@ -252,6 +252,13 @@
 //   Inline sort     :  6.54 s     5.65 s
 //   New rasterizer  :  5.63 s     5.00 s
 
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wconversion"
+#pragma GCC diagnostic ignored "-Wshadow"
+#pragma GCC diagnostic ignored "-Wold-style-cast"
+#pragma GCC diagnostic ignored "-Wcomment"
+#pragma GCC diagnostic ignored "-Wuseless-cast"
+
 //////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////
 ////
@@ -799,9 +806,9 @@ extern "C"
     };
 #endif
 
-#ifndef stbtt_vertex            // you can predefine this to use different values
-                                // (we share this with other code at RAD)
-#define stbtt_vertex_type short // can't use stbtt_int16 because that's not visible in the header file
+#ifndef stbtt_vertex
+
+#define stbtt_vertex_type short
     typedef struct
     {
         stbtt_vertex_type x, y, cx, cy, cx1, cy1;
@@ -5337,6 +5344,8 @@ STBTT_DEF int stbtt_CompareUTF8toUTF16_bigendian(const char *s1, int len1, const
 #endif
 
 #endif // STB_TRUETYPE_IMPLEMENTATION
+
+#pragma GCC diagnostic pop
 
 // FULL VERSION HISTORY
 //
