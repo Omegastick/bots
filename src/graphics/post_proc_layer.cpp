@@ -12,7 +12,7 @@
 namespace SingularityTrainer
 {
 PostProcLayer::PostProcLayer(Shader &shader, int width, int height)
-    : width(height),
+    : width(width),
       height(height),
       shader(shader)
 {

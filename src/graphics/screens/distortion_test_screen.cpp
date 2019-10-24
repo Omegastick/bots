@@ -66,7 +66,7 @@ void DistortionTestScreen::update(double delta_time)
     }
     if (ImGui::IsKeyPressed(GLFW_KEY_W))
     {
-        distortion_layer->apply_implosive_force({96, 54}, 5, 0.2);
+        distortion_layer->apply_implosive_force({96, 54}, 5, 0.2f);
     }
 
     distortion_layer->update_mesh();

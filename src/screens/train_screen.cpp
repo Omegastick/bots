@@ -2,10 +2,12 @@
 
 #include <glm/mat4x4.hpp>
 #include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtc/random.hpp>
 #include <imgui.h>
 #include <fmt/format.h>
 
 #include "train_screen.h"
+#include "graphics/distortion_layer.h"
 #include "graphics/renderers/renderer.h"
 #include "graphics/backend/shader.h"
 #include "graphics/post_proc_layer.h"
@@ -23,7 +25,8 @@ TrainScreen::TrainScreen(std::unique_ptr<Trainer> trainer,
                          ResourceManager &resource_manager,
                          ScreenManager &screen_manager)
     : batch_finished(true),
-      crt_post_proc_layer(std::make_unique<PostProcLayer>(*resource_manager.shader_store.get("crt"))),
+      crt_post_proc_layer(
+          std::make_unique<PostProcLayer>(*resource_manager.shader_store.get("crt"))),
       fast(false),
       io(io),
       lightweight_rendering(false),
@@ -42,7 +45,14 @@ TrainScreen::TrainScreen(std::unique_ptr<Trainer> trainer,
     resource_manager.load_texture("target", "images/target.png");
     resource_manager.load_shader("crt", "shaders/texture.vert", "shaders/crt.frag");
     resource_manager.load_shader("font", "shaders/texture.vert", "shaders/font.frag");
+    resource_manager.load_shader("distortion",
+                                 "shaders/distortion.vert",
+                                 "shaders/distortion.frag");
     resource_manager.load_font("roboto-16", "fonts/Roboto-Regular.ttf", 16);
+
+    auto resolution = io.get_resolution();
+    distortion_layer = std::make_unique<DistortionLayer>(
+        *resource_manager.shader_store.get("distortion"), resolution.x, resolution.y);
 }
 
 TrainScreen::~TrainScreen()
@@ -82,7 +92,7 @@ void TrainScreen::update(const double /*delta_time*/)
         });
     }
 
-    glm::vec2 resolution = io.get_resolution();
+    glm::vec2 resolution = io.get_resolutionf();
     ImGui::SetNextWindowSize({resolution.x * 0.2f, resolution.y * 0.1f}, ImGuiCond_Once);
     ImGui::SetNextWindowPos({resolution.x * 0.05f, resolution.y * 0.3f}, ImGuiCond_Once);
     ImGui::Begin("Health");
@@ -109,6 +119,7 @@ void TrainScreen::update(const double /*delta_time*/)
 
 void TrainScreen::draw(Renderer &renderer, bool /*lightweight*/)
 {
+    renderer.set_distortion_layer(*distortion_layer);
     renderer.push_post_proc_layer(*crt_post_proc_layer);
 
     if (trainer->should_clear_particles())
@@ -118,11 +129,14 @@ void TrainScreen::draw(Renderer &renderer, bool /*lightweight*/)
 
     const double view_height = 50;
     auto view_top = view_height * 0.5;
-    glm::vec2 resolution = io.get_resolution();
+    glm::vec2 resolution = io.get_resolutionf();
     auto view_right = view_top * (resolution.x / resolution.y);
     projection = glm::ortho(-view_right, view_right, -view_top, view_top);
 
+    renderer.apply_explosive_force(resolution * 0.05f, 2, 1);
+
     renderer.scissor(-10, -20, 10, 20, projection);
+    renderer.set_view(projection);
     trainer->draw(renderer, lightweight_rendering);
 
     auto crt_shader = resource_manager.shader_store.get("crt");
