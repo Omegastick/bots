@@ -24,6 +24,11 @@ void DistortionLayer::apply_explosive_force(glm::vec2 position, float size, floa
     spring_mesh.apply_explosive_force(position, size, strength);
 }
 
+void DistortionLayer::apply_implosive_force(glm::vec2 position, float size, float strength)
+{
+    spring_mesh.apply_implosive_force(position, size, strength);
+}
+
 FrameBuffer &DistortionLayer::render(Texture &input_texture)
 {
     update_texture();

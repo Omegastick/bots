@@ -47,6 +47,26 @@ void SpringMesh::apply_explosive_force(glm::vec2 position, float size, float str
     }
 }
 
+void SpringMesh::apply_implosive_force(glm::vec2 position, float size, float strength)
+{
+    int index = 0;
+    for (int row = 0; row < height; ++row)
+    {
+        for (int column = 0; column < width; ++column)
+        {
+            glm::vec3 vertex_position = glm::vec3{column, row, 0} + offsets[index];
+            float distance = glm::length2(vertex_position - glm::vec3{position.x, position.y, 0});
+            if (distance < size * size)
+            {
+                accelerations[index] += strength *
+                                        (glm::vec3(position, 0) - vertex_position) /
+                                        (distance + 1);
+            }
+            index++;
+        }
+    }
+}
+
 void SpringMesh::apply_spring_forces(const glm::vec3 &position_1,
                                      const glm::vec3 &position_2,
                                      const glm::vec3 &velocity_1,

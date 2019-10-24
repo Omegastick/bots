@@ -52,7 +52,7 @@ DistortionTestScreen::DistortionTestScreen(
 
     distortion_layer = std::make_unique<DistortionLayer>(
         *resource_manager.shader_store.get("distortion"),
-        width, height);
+        width, height, -0.1);
 }
 
 void DistortionTestScreen::update(double delta_time)
@@ -60,9 +60,13 @@ void DistortionTestScreen::update(double delta_time)
     display_test_dialog("Distortion test", *screens, *screen_names, delta_time, *screen_manager);
     sprite->transform.rotate(1.f * static_cast<float>(delta_time));
 
-    if (ImGui::IsKeyPressed(GLFW_KEY_SPACE))
+    if (ImGui::IsKeyPressed(GLFW_KEY_Q))
     {
         distortion_layer->apply_explosive_force({96, 54}, 3, 10);
+    }
+    if (ImGui::IsKeyPressed(GLFW_KEY_W))
+    {
+        distortion_layer->apply_implosive_force({96, 54}, 5, 0.2);
     }
 
     distortion_layer->update_mesh();
