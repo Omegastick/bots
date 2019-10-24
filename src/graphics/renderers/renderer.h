@@ -11,6 +11,7 @@
 
 namespace SingularityTrainer
 {
+class DistortionLayer;
 class PostProcLayer;
 class FrameBuffer;
 class ResourceManager;
@@ -59,6 +60,8 @@ class Renderer
     LineRenderer &line_renderer;
     TextRenderer &text_renderer;
 
+    DistortionLayer *distortion_layer;
+
   public:
     BOOST_DI_INJECT(Renderer,
                     (named = ResolutionX) int width,
@@ -93,5 +96,10 @@ class Renderer
     inline int get_width() const { return width; }
     inline int get_height() const { return height; }
     inline void set_view(glm::mat4 view) { this->view = view; }
+
+    void apply_explosive_force(glm::vec2 position, float size, float strength);
+    void apply_implosive_force(glm::vec2 position, float size, float strength);
+    inline void clear_distortion_layer() { distortion_layer = nullptr; }
+    void set_distortion_layer(DistortionLayer &distortion_layer);
 };
 }

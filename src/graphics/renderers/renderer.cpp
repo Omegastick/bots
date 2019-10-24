@@ -15,6 +15,7 @@
 #include "graphics/backend/element_buffer.h"
 #include "graphics/backend/shader.h"
 #include "graphics/backend/frame_buffer.h"
+#include "graphics/distortion_layer.h"
 #include "graphics/render_data.h"
 #include "graphics/post_proc_layer.h"
 #include "graphics/render_data.h"
@@ -34,7 +35,8 @@ Renderer::Renderer(int width, int height,
       sprite_renderer(sprite_renderer),
       particle_renderer(particle_renderer),
       line_renderer(line_renderer),
-      text_renderer(text_renderer)
+      text_renderer(text_renderer),
+      distortion_layer(nullptr)
 {
     base_frame_buffer = std::make_unique<FrameBuffer>();
     base_frame_buffer->set_render_buffer(width, height, 4);
@@ -106,6 +108,11 @@ void Renderer::begin()
 
 void Renderer::render(double time)
 {
+    if (distortion_layer != nullptr)
+    {
+        distortion_layer->update_mesh();
+    }
+
     std::sort(sprites.begin(), sprites.end(),
               [](PackedSprite &a, PackedSprite &b) { return a.texture < b.texture; });
 
@@ -173,6 +180,7 @@ void Renderer::render(double time)
     glBlitFramebuffer(0, 0, width, height, 0, 0, width, height, GL_COLOR_BUFFER_BIT, GL_LINEAR);
 
     post_proc_layers.clear();
+    clear_distortion_layer();
 }
 
 void Renderer::push_post_proc_layer(PostProcLayer &post_proc_layer)
@@ -214,5 +222,27 @@ void Renderer::clear_scissor() const
 void Renderer::clear_particles()
 {
     particle_renderer.clear_particles();
+}
+
+void Renderer::apply_explosive_force(glm::vec2 position, float size, float strength)
+{
+    if (distortion_layer != nullptr)
+    {
+        distortion_layer->apply_explosive_force(position, size, strength);
+    }
+}
+
+void Renderer::apply_implosive_force(glm::vec2 position, float size, float strength)
+{
+    if (distortion_layer != nullptr)
+    {
+        distortion_layer->apply_implosive_force(position, size, strength);
+    }
+}
+
+void Renderer::set_distortion_layer(DistortionLayer &distortion_layer)
+{
+    this->distortion_layer = &distortion_layer;
+    push_post_proc_layer(distortion_layer);
 }
 }

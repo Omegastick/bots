@@ -5,6 +5,7 @@
 
 #include <glm/mat4x4.hpp>
 
+#include "graphics/distortion_layer.h"
 #include "screens/iscreen.h"
 #include "training/training_program.h"
 #include "training/trainers/trainer.h"
@@ -25,6 +26,7 @@ class TrainScreen : public IScreen
     bool batch_finished;
     std::thread batch_thread;
     std::unique_ptr<PostProcLayer> crt_post_proc_layer;
+    std::unique_ptr<DistortionLayer> distortion_layer;
     bool fast;
     IO &io;
     bool lightweight_rendering;
