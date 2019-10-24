@@ -11,4 +11,5 @@ void main()
  {
     vec2 distorted_tex_coord = tex_coord + texture(u_distortion, tex_coord).xy;
     frag_color = texture(u_texture, distorted_tex_coord);
+    // frag_color = abs(texture(u_distortion, tex_coord));
 }

@@ -40,6 +40,7 @@ class SpringMesh
                float elasticity = 0.05f);
 
     void apply_explosive_force(glm::vec2 position, float size, float strength);
+    void apply_implosive_force(glm::vec2 position, float size, float strength);
     std::vector<glm::vec2> get_vertices(float scale_x, float scale_y);
     void update();
 

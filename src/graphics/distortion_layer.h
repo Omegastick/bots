@@ -25,10 +25,11 @@ class DistortionLayer : public PostProcLayer
     DistortionLayer(Shader &shader,
                     int width = 1920,
                     int height = 1080,
-                    float scaling_factor = 0.1f);
+                    float scaling_factor = -0.1f);
     DistortionLayer &operator=(DistortionLayer &&other) = delete;
 
     void apply_explosive_force(glm::vec2 position, float size, float strength);
+    void apply_implosive_force(glm::vec2 position, float size, float strength);
     FrameBuffer &render(Texture &input_texture) override;
     void update_mesh();
     void update_texture();
