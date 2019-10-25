@@ -33,5 +33,7 @@ class DistortionLayer : public PostProcLayer
     FrameBuffer &render(Texture &input_texture) override;
     void update_mesh();
     void update_texture();
+
+    glm::ivec2 get_size() const { return {mesh_width, mesh_height}; }
 };
 }

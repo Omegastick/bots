@@ -133,8 +133,6 @@ void TrainScreen::draw(Renderer &renderer, bool /*lightweight*/)
     auto view_right = view_top * (resolution.x / resolution.y);
     projection = glm::ortho(-view_right, view_right, -view_top, view_top);
 
-    renderer.apply_explosive_force(resolution * 0.05f, 2, 1);
-
     renderer.scissor(-10, -20, 10, 20, projection);
     renderer.set_view(projection);
     trainer->draw(renderer, lightweight_rendering);
