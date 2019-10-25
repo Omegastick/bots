@@ -32,5 +32,7 @@ void BulletExplosion::trigger(Renderer &renderer)
         particles.push_back(particle);
     }
     renderer.draw(particles);
+
+    renderer.apply_explosive_force({position.x, position.y}, 2, 0.1f);
 }
 }

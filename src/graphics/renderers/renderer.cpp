@@ -226,18 +226,34 @@ void Renderer::clear_particles()
 
 void Renderer::apply_explosive_force(glm::vec2 position, float size, float strength)
 {
-    if (distortion_layer != nullptr)
+    if (distortion_layer == nullptr)
     {
-        distortion_layer->apply_explosive_force(position, size, strength);
+        return;
     }
+
+    const glm::vec2 projected_position = view * glm::vec4(position, 0, 0);
+    const glm::vec2 mesh_size = distortion_layer->get_size();
+    const glm::vec2 half_mesh_size = mesh_size * 0.5f;
+    auto calculated_position = projected_position * half_mesh_size;
+    calculated_position += half_mesh_size;
+
+    distortion_layer->apply_explosive_force(calculated_position, size, strength);
 }
 
 void Renderer::apply_implosive_force(glm::vec2 position, float size, float strength)
 {
-    if (distortion_layer != nullptr)
+    if (distortion_layer == nullptr)
     {
-        distortion_layer->apply_implosive_force(position, size, strength);
+        return;
     }
+
+    const glm::vec2 projected_position = view * glm::vec4(position, 0, 0);
+    const glm::vec2 mesh_size = distortion_layer->get_size();
+    const glm::vec2 half_mesh_size = mesh_size * 0.5f;
+    auto calculated_position = projected_position * half_mesh_size;
+    calculated_position += half_mesh_size;
+
+    distortion_layer->apply_implosive_force(calculated_position, size, strength);
 }
 
 void Renderer::set_distortion_layer(DistortionLayer &distortion_layer)
