@@ -55,7 +55,6 @@ MultiplayerScreen::MultiplayerScreen(double tick_length,
       env_factory(env_factory),
       io(io),
       matchmaker(matchmaker),
-      projection(glm::ortho(0.f, 1920.f, 0.f, 1080.f)),
       resource_manager(resource_manager),
       rng(rng),
       screen_manager(screen_manager),
@@ -74,9 +73,15 @@ MultiplayerScreen::MultiplayerScreen(double tick_length,
     resource_manager.load_texture("target", "images/target.png");
     resource_manager.load_shader("crt", "shaders/texture.vert", "shaders/crt.frag");
     resource_manager.load_shader("font", "shaders/texture.vert", "shaders/font.frag");
+    resource_manager.load_shader("distortion",
+                                 "shaders/distortion.vert",
+                                 "shaders/distortion.frag");
     resource_manager.load_font("roboto-16", "fonts/Roboto-Regular.ttf", 16);
 
     crt_post_proc_layer = std::make_unique<PostProcLayer>(*resource_manager.shader_store.get("crt"));
+    auto resolution = io.get_resolution();
+    distortion_layer = std::make_unique<DistortionLayer>(
+        *resource_manager.shader_store.get("distortion"), resolution.x, resolution.y);
 
     zmq_context.setctxopt(ZMQ_BLOCKY, false);
 }
@@ -119,7 +124,13 @@ void MultiplayerScreen::update(double delta_time)
 
 void MultiplayerScreen::draw(Renderer &renderer, bool lightweight)
 {
+    const double view_height = 50;
+    auto view_top = view_height * 0.5;
+    glm::vec2 resolution = io.get_resolutionf();
+    auto view_right = view_top * (resolution.x / resolution.y);
+    auto projection = glm::ortho(-view_right, view_right, -view_top, view_top);
     renderer.set_view(projection);
+    renderer.set_distortion_layer(*distortion_layer);
     renderer.push_post_proc_layer(*crt_post_proc_layer);
 
     if (should_clear_particles)
@@ -130,7 +141,7 @@ void MultiplayerScreen::draw(Renderer &renderer, bool lightweight)
 
     if (env != nullptr)
     {
-        renderer.scissor(-10, -20, 10, 20, glm::ortho(-38.4f, 38.4f, -21.6f, 21.6f));
+        renderer.scissor(-10, -20, 10, 20, projection);
         env->draw(renderer, lightweight);
 
         if (state == MultiplayerScreen::State::Finished)

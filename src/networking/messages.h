@@ -178,7 +178,7 @@ MSGPACK_API_VERSION_NAMESPACE(MSGPACK_DEFAULT_API_NS)
         {
             o.pack_array(3);
             o.pack(v.get_position().x);
-            o.pack(v.get_position().x);
+            o.pack(v.get_position().y);
             o.pack(v.get_rotation());
             return o;
         }
