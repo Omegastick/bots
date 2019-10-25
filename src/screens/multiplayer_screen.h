@@ -6,6 +6,7 @@
 #include <Box2D/Box2D.h>
 #include <glm/mat4x4.hpp>
 
+#include "graphics/distortion_layer.h"
 #include "misc/random.h"
 #include "networking/client_agent.h"
 #include "networking/client_communicator.h"
@@ -51,13 +52,13 @@ class MultiplayerScreen : public IScreen
     std::unique_ptr<ClientCommunicator> client_communicator;
     CredentialsManager &credentials_manager;
     std::unique_ptr<PostProcLayer> crt_post_proc_layer;
+    std::unique_ptr<DistortionLayer> distortion_layer;
     int done_tick;
     std::unique_ptr<PlaybackEnv> env;
     IEnvironmentFactory &env_factory;
     IO &io;
     Matchmaker &matchmaker;
     int player_number;
-    glm::mat4 projection;
     ResourceManager &resource_manager;
     Random &rng;
     ScreenManager &screen_manager;
