@@ -188,12 +188,12 @@ TEST_CASE("SpringMesh")
 
     SUBCASE("Small radius explosive force moves correct vertex")
     {
-        spring_mesh.apply_explosive_force({1, 1}, 0.1f, 100);
+        spring_mesh.apply_explosive_force({0.9f, 1.f}, 0.5f, 100.f);
         spring_mesh.update();
 
         auto &offsets = spring_mesh.get_offsets();
 
-        CHECK(offsets[4].z > 1);
+        CHECK(offsets[4].x > 1);
     }
 
     SUBCASE("Vertices are scaled correctly")
