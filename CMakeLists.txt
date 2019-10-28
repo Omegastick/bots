@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.5.1)
+cmake_minimum_required(VERSION 3.16.0)
 project(SingularityTrainer)
 
 # CMake policies
@@ -118,6 +118,17 @@ add_custom_target(
     COMMENT "Running CppCheck"
 )
 
+# Ccache
+find_program(CCACHE_FOUND ccache)
+if(CCACHE_FOUND)
+    set_property(GLOBAL PROPERTY RULE_LAUNCH_COMPILE ccache)
+endif(CCACHE_FOUND)
+
+# Gold linker
+if(UNIX)
+    set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -fuse-ld=gold -ldl")
+endif(UNIX)
+
 # Executables and local libraries
 add_library(Graphics OBJECT "")
 add_library(Misc OBJECT "")
@@ -208,6 +219,11 @@ if (NOT TARGET spdlog)
     option(SPDLOG_BUILD_TESTING "" OFF)
     add_subdirectory(${SPDLOG_DIR})
 endif(NOT TARGET spdlog)
+## ZMQ
+option(ZMQ_BUILD_TESTS "" OFF)
+option(WITH_DOC "" OFF)
+option(BUILD_SHARED "" OFF)
+add_subdirectory(${ZMQ_DIR})
 ## cURLpp
 find_package(CURL REQUIRED)
 add_subdirectory(${CURLPP_DIR})
@@ -256,11 +272,6 @@ find_package(PythonLibs REQUIRED)
 add_subdirectory(${PYBIND_DIR})
 pybind11_add_module(PythonBindings "")
 set_target_properties(PythonBindings PROPERTIES EXCLUDE_FROM_ALL TRUE)
-## ZMQ
-option(ZMQ_BUILD_TESTS "" OFF)
-option(WITH_DOC "" OFF)
-option(BUILD_SHARED "" OFF)
-add_subdirectory(${ZMQ_DIR})
 
 # Link libraries
 target_link_libraries(Misc PUBLIC curlpp_static doctest)
@@ -330,5 +341,3 @@ target_include_directories(Training SYSTEM PUBLIC ${NO_ERR_INCLUDE_DIRS})
 target_include_directories(PythonBindings SYSTEM PUBLIC ${NO_ERR_INCLUDE_DIRS})
 
 add_subdirectory(src)
-
-message(STATUS ${TORCH_INCLUDE_DIRS})
