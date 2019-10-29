@@ -162,7 +162,6 @@ set_target_properties(Training PROPERTIES POSITION_INDEPENDENT_CODE TRUE)
 # Link time optimization
 include(CheckIPOSupported)
 check_ipo_supported(RESULT IPO_SUPPORTED OUTPUT IPO_ERROR)
-
 if(IPO_SUPPORTED)
     message(STATUS "IPO / LTO enabled")
 else(IPO_SUPPORTED)
@@ -281,7 +280,6 @@ target_link_libraries(Training PUBLIC cpprl doctest  fmt::fmt Graphics ${PYTHON_
 if (UNIX)
     message(STATUS "Linking against Linux libraries")
     target_link_libraries(Training PUBLIC pthread)
-    target_link_libraries(SingularityTrainer backtrace )
 endif(UNIX)
 target_link_libraries(Networking Training libzmq-static)
 target_link_libraries(SingularityTrainer Graphics Misc Training Networking)

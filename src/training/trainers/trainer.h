@@ -1,5 +1,6 @@
 #pragma once
 
+#include <atomic>
 #include <chrono>
 #include <filesystem>
 #include <mutex>
@@ -67,8 +68,9 @@ class Trainer
             EloEvaluator &evaluator,
             Random &rng);
 
-    double evaluate();
     void draw(Renderer &renderer, bool lightweight = false);
+    double evaluate();
+    unsigned long long get_timestep() const;
     std::filesystem::path save_model(std::filesystem::path directory = {});
     std::vector<std::pair<std::string, float>> step_batch();
     bool should_clear_particles();

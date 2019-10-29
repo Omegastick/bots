@@ -91,16 +91,12 @@ void TrainScreen::update(const double /*delta_time*/)
         batch_finished = false;
         batch_thread = std::thread([&] {
             const auto batch_data = trainer->step_batch();
-            const auto &program = trainer->get_training_program();
-            const auto batch_number = trainer->get_batch_number();
-            const auto batch_size = program.hyper_parameters.batch_size;
-            const auto env_count = program.hyper_parameters.num_env;
-            const unsigned long long frame_count = batch_number * batch_size * env_count;
+            const auto timestep = trainer->get_timestep();
             {
                 std::lock_guard lock_guard(train_info_window_mutex);
                 for (const auto &datum : batch_data)
                 {
-                    train_info_window->add_graph_data(datum.first, frame_count, datum.second);
+                    train_info_window->add_graph_data(datum.first, timestep, datum.second);
                 }
             }
 
