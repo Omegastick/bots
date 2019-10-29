@@ -1,6 +1,7 @@
 #pragma once
 
 #include <memory>
+#include <mutex>
 #include <thread>
 
 #include <glm/mat4x4.hpp>
@@ -9,6 +10,7 @@
 #include "screens/iscreen.h"
 #include "training/training_program.h"
 #include "training/trainers/trainer.h"
+#include "ui/train_screen/train_info_window.h"
 
 namespace SingularityTrainer
 {
@@ -33,10 +35,13 @@ class TrainScreen : public IScreen
     glm::mat4 projection;
     ResourceManager &resource_manager;
     ScreenManager &screen_manager;
+    std::unique_ptr<TrainInfoWindow> train_info_window;
+    mutable std::mutex train_info_window_mutex;
     std::unique_ptr<Trainer> trainer;
 
   public:
-    TrainScreen(std::unique_ptr<Trainer> trainer,
+    TrainScreen(std::unique_ptr<TrainInfoWindow> train_info_window,
+                std::unique_ptr<Trainer> trainer,
                 IO &io,
                 ResourceManager &resource_manager,
                 ScreenManager &screen_manager);
@@ -73,7 +78,8 @@ class TrainScreenFactory
     virtual std::shared_ptr<IScreen> make(TrainingProgram program)
     {
         auto trainer = trainer_factory.make(program);
-        return std::make_unique<TrainScreen>(std::move(trainer),
+        return std::make_unique<TrainScreen>(std::make_unique<TrainInfoWindow>(io),
+                                             std::move(trainer),
                                              io,
                                              resource_manager,
                                              screen_manager);

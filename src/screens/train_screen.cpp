@@ -1,4 +1,5 @@
 #include <memory>
+#include <mutex>
 
 #include <glm/mat4x4.hpp>
 #include <glm/gtc/matrix_transform.hpp>
@@ -20,7 +21,8 @@
 
 namespace SingularityTrainer
 {
-TrainScreen::TrainScreen(std::unique_ptr<Trainer> trainer,
+TrainScreen::TrainScreen(std::unique_ptr<TrainInfoWindow> train_info_window,
+                         std::unique_ptr<Trainer> trainer,
                          IO &io,
                          ResourceManager &resource_manager,
                          ScreenManager &screen_manager)
@@ -33,6 +35,7 @@ TrainScreen::TrainScreen(std::unique_ptr<Trainer> trainer,
       projection(glm::ortho(0.f, 1920.f, 0.f, 1080.f)),
       resource_manager(resource_manager),
       screen_manager(screen_manager),
+      train_info_window(std::move(train_info_window)),
       trainer(std::move(trainer))
 {
     resource_manager.load_texture("base_module", "images/base_module.png");
@@ -87,7 +90,20 @@ void TrainScreen::update(const double /*delta_time*/)
         }
         batch_finished = false;
         batch_thread = std::thread([&] {
-            trainer->step_batch();
+            const auto batch_data = trainer->step_batch();
+            const auto &program = trainer->get_training_program();
+            const auto batch_number = trainer->get_batch_number();
+            const auto batch_size = program.hyper_parameters.batch_size;
+            const auto env_count = program.hyper_parameters.num_env;
+            const unsigned long long frame_count = batch_number * batch_size * env_count;
+            {
+                std::lock_guard lock_guard(train_info_window_mutex);
+                for (const auto &datum : batch_data)
+                {
+                    train_info_window->add_graph_data(datum.first, frame_count, datum.second);
+                }
+            }
+
             batch_finished = true;
         });
     }
@@ -113,6 +129,11 @@ void TrainScreen::update(const double /*delta_time*/)
         ImGui::Text("%.1f", score);
     }
     ImGui::End();
+
+    {
+        std::lock_guard lock_guard(train_info_window_mutex);
+        train_info_window->update(1, 10);
+    }
 
     back_button(screen_manager, resolution);
 }

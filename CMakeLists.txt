@@ -114,7 +114,7 @@ list(APPEND CPPCHECK_ARGS
 )
 add_custom_target(
     cppcheck
-    COMMAND "cppcheck ${CPPCHECK_ARGS}"
+    COMMAND cppcheck ${CPPCHECK_ARGS}
     COMMENT "Running CppCheck"
 )
 
