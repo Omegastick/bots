@@ -33,7 +33,7 @@ class Trainer
     std::unique_ptr<Body> example_body;
 
     std::unique_ptr<cpprl::Algorithm> algorithm;
-    int batch_number;
+    unsigned int batch_number;
     Checkpointer &checkpointer;
     int env_count;
     std::vector<std::mutex> env_mutexes;
@@ -73,7 +73,9 @@ class Trainer
     std::vector<std::pair<std::string, float>> step_batch();
     bool should_clear_particles();
 
-    std::vector<std::unique_ptr<IEnvironment>> &get_environments() { return environments; }
+    inline unsigned int get_batch_number() const { return batch_number; }
+    inline std::vector<std::unique_ptr<IEnvironment>> &get_environments() { return environments; }
+    inline const TrainingProgram &get_training_program() const { return program; }
     inline void set_fast() { slow = false; }
     inline void set_slow() { slow = true; }
 };
