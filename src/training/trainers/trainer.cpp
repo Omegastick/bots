@@ -172,6 +172,20 @@ Trainer::Trainer(TrainingProgram program,
     rollout_storage->set_first_observation(observations);
 }
 
+void Trainer::draw(Renderer &renderer, bool lightweight)
+{
+    {
+        std::lock_guard lock_guard(env_mutexes[0]);
+        environments[0]->draw(renderer, lightweight);
+    }
+
+    for (unsigned int i = 1; i < environments.size(); ++i)
+    {
+        std::lock_guard lock_guard(env_mutexes[i]);
+        environments[i]->clear_effects();
+    }
+}
+
 double Trainer::evaluate()
 {
     spdlog::debug("Evaluating agent");
@@ -185,18 +199,13 @@ double Trainer::evaluate()
     return evaluator.evaluate(agent, new_opponents_vec, 80);
 }
 
-void Trainer::draw(Renderer &renderer, bool lightweight)
+/*
+ *  Approximately calculate current timestep.
+ */
+unsigned long long Trainer::get_timestep() const
 {
-    {
-        std::lock_guard lock_guard(env_mutexes[0]);
-        environments[0]->draw(renderer, lightweight);
-    }
-
-    for (unsigned int i = 1; i < environments.size(); ++i)
-    {
-        std::lock_guard lock_guard(env_mutexes[i]);
-        environments[i]->clear_effects();
-    }
+    const auto batch_size = program.hyper_parameters.batch_size;
+    return batch_number * batch_size * env_count;
 }
 
 std::vector<std::pair<std::string, float>> Trainer::step_batch()
@@ -218,28 +227,19 @@ std::vector<std::pair<std::string, float>> Trainer::step_batch()
         storages[i].set_first_observation(rollout_storage->get_observations()[0][i]);
     }
 
-    std::vector<cpprl::Policy> policies;
-    torch::save(policy, "/tmp/policy.pth");
-    for (int i = 0; i < program.hyper_parameters.num_env; ++i)
-    {
-        auto nn_base = std::make_shared<cpprl::MlpBase>(program.body["num_observations"], recurrent);
-        policies.push_back(cpprl::Policy(cpprl::ActionSpace{"MultiBinary", {program.body["num_actions"]}}, nn_base, true));
-        torch::load(policies[i], "/tmp/policy.pth");
-    }
-
     for (int i = 0; i < program.hyper_parameters.num_env; ++i)
     {
         tf::Task last_task;
         for (int step = 0; step < program.hyper_parameters.batch_size; ++step)
         {
-            tf::Task task = task_flow.emplace([this, &storages, step, i, &policies] {
+            tf::Task task = task_flow.emplace([this, &storages, step, i] {
                 // Get action from policy
                 std::vector<torch::Tensor> act_result;
                 {
                     torch::NoGradGuard no_grad;
-                    act_result = policies[i]->act(storages[i].get_observations()[step],
-                                                  storages[i].get_hidden_states()[step],
-                                                  storages[i].get_masks()[step]);
+                    act_result = policy->act(storages[i].get_observations()[step],
+                                             storages[i].get_hidden_states()[step],
+                                             storages[i].get_masks()[step]);
                 }
 
                 // Get opponent action
@@ -374,9 +374,10 @@ std::vector<std::pair<std::string, float>> Trainer::learn()
     rollout_storage->after_update();
 
     spdlog::info("---");
-    long total_frames = static_cast<long>(batch_number) * program.hyper_parameters.batch_size * env_count;
-    spdlog::info("Total frames: {}", total_frames);
-    double fps = (program.hyper_parameters.batch_size * env_count) / static_cast<std::chrono::duration<double>>(update_start_time - last_update_time).count();
+    const auto timestep = get_timestep();
+    spdlog::info("Total frames: {}", timestep);
+    const std::chrono::duration<double> sim_duration = update_start_time - last_update_time;
+    const double fps = (env_count * program.hyper_parameters.batch_size) / sim_duration.count();
     spdlog::info("FPS: {:.2f}", fps);
     for (const auto &datum : update_data)
     {
@@ -391,7 +392,10 @@ std::vector<std::pair<std::string, float>> Trainer::learn()
     if (now - last_save_time > std::chrono::minutes(program.minutes_per_checkpoint))
     {
         auto checkpoint_path = save_model();
-        opponent_pool.push_back(std::make_unique<NNAgent>(policy, program.body, date::format("%F-%H-%M-%S", std::chrono::system_clock::now())));
+        opponent_pool.push_back(std::make_unique<NNAgent>(
+            policy,
+            program.body,
+            date::format("%F-%H-%M-%S", std::chrono::system_clock::now())));
         new_opponents++;
         last_save_time = now;
     }
@@ -403,7 +407,7 @@ std::vector<std::pair<std::string, float>> Trainer::learn()
                        return std::pair<std::string, float>{datum.name, datum.value};
                    });
     update_pairs.push_back({"FPS", fps});
-    update_pairs.push_back({"Total Frames", total_frames});
+    update_pairs.push_back({"Total Frames", timestep});
     update_pairs.push_back({"Update Duration", update_duration.count()});
 
     return update_pairs;
