@@ -96,7 +96,7 @@ void TrainScreen::update(const double /*delta_time*/)
                 std::lock_guard lock_guard(train_info_window_mutex);
                 for (const auto &datum : batch_data)
                 {
-                    train_info_window->add_graph_data(datum.first, timestep, datum.second);
+                    train_info_window->add_data(datum.first, timestep, datum.second);
                 }
             }
 
