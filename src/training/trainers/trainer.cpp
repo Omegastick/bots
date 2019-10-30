@@ -53,7 +53,8 @@ Trainer::Trainer(TrainingProgram program,
       reset_recently(true),
       returns_rms(1),
       rng(rng),
-      slow(false)
+      slow(false),
+      timestep(0)
 {
     torch::manual_seed(0);
 
@@ -199,15 +200,6 @@ double Trainer::evaluate()
     return evaluator.evaluate(agent, new_opponents_vec, 80);
 }
 
-/*
- *  Approximately calculate current timestep.
- */
-unsigned long long Trainer::get_timestep() const
-{
-    const auto batch_size = program.hyper_parameters.batch_size;
-    return batch_number * batch_size * env_count;
-}
-
 std::vector<std::pair<std::string, float>> Trainer::step_batch()
 {
     spdlog::debug("Starting new training batch");
@@ -298,6 +290,8 @@ std::vector<std::pair<std::string, float>> Trainer::step_batch()
                                    act_result[0],
                                    rewards,
                                    1 - dones);
+
+                ++timestep;
             });
 
             if (step != 0)
@@ -374,7 +368,6 @@ std::vector<std::pair<std::string, float>> Trainer::learn()
     rollout_storage->after_update();
 
     spdlog::info("---");
-    const auto timestep = get_timestep();
     spdlog::info("Total frames: {}", timestep);
     const std::chrono::duration<double> sim_duration = update_start_time - last_update_time;
     const double fps = (env_count * program.hyper_parameters.batch_size) / sim_duration.count();
