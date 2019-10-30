@@ -128,7 +128,7 @@ void TrainScreen::update(const double /*delta_time*/)
 
     {
         std::lock_guard lock_guard(train_info_window_mutex);
-        train_info_window->update(1, 10);
+        train_info_window->update(trainer->get_timestep(), trainer->get_batch_number());
     }
 
     back_button(screen_manager, resolution);

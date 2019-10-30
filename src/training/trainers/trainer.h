@@ -31,8 +31,6 @@ class Random;
 class Trainer
 {
   private:
-    std::unique_ptr<Body> example_body;
-
     std::unique_ptr<cpprl::Algorithm> algorithm;
     unsigned int batch_number;
     Checkpointer &checkpointer;
@@ -57,6 +55,7 @@ class Trainer
     Random &rng;
     std::unique_ptr<cpprl::RolloutStorage> rollout_storage;
     bool slow;
+    std::atomic<unsigned long long> timestep;
 
     std::vector<std::pair<std::string, float>> learn();
 
@@ -70,13 +69,13 @@ class Trainer
 
     void draw(Renderer &renderer, bool lightweight = false);
     double evaluate();
-    unsigned long long get_timestep() const;
     std::filesystem::path save_model(std::filesystem::path directory = {});
     std::vector<std::pair<std::string, float>> step_batch();
     bool should_clear_particles();
 
     inline unsigned int get_batch_number() const { return batch_number; }
     inline std::vector<std::unique_ptr<IEnvironment>> &get_environments() { return environments; }
+    inline unsigned long long get_timestep() const { return timestep; }
     inline const TrainingProgram &get_training_program() const { return program; }
     inline void set_fast() { slow = false; }
     inline void set_slow() { slow = true; }
