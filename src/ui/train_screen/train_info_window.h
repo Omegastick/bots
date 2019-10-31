@@ -9,16 +9,17 @@ namespace SingularityTrainer
 {
 class IO;
 
-typedef std::pair<const std::vector<unsigned long long> &, const std::vector<float> &> IndexedData;
+typedef std::pair<const std::vector<double> &, const std::vector<double> &> IndexedData;
 
 class IndexedDataStore
 {
   private:
-    std::vector<unsigned long long> indices;
-    std::vector<float> values;
+    std::vector<double> indices;
+    std::vector<double> values;
 
   public:
-    void add_data(unsigned long long timestep, float value);
+    void add_data(double timestep, double value);
+    void add_data(unsigned long long timestep, double value);
     const IndexedData get_data() const;
 };
 
@@ -31,7 +32,7 @@ class TrainInfoWindow
   public:
     TrainInfoWindow(IO &io);
 
-    void add_data(const std::string &label, unsigned long long timestep, float value);
+    void add_data(const std::string &label, unsigned long long timestep, double value);
     void update(unsigned long long timestep, unsigned int update);
 };
 }
