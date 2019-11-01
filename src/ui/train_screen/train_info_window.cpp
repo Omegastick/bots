@@ -12,7 +12,6 @@
 #include "train_info_window.h"
 #include "misc/io.h"
 #include "misc/utils/range.h"
-#include "third_party/imgui_plot.h"
 
 constexpr unsigned long long max_double_integer = std::pow(2, 53);
 
@@ -34,6 +33,17 @@ void TrainInfoWindow::update(unsigned long long timestep, unsigned int update)
     ImGui::SetNextWindowPos({resolution.x * 0.7f, resolution.y * 0.05f}, ImGuiSetCond_Once);
     ImGui::Begin("Training information");
     ImGui::Text("Update %i - Frame %lli", update, timestep);
+
+    const auto &entropies = data["Entropy"].get_data().second;
+    std::vector<float> entropy_floats(entropies.begin(), entropies.end());
+    ImGui::PlotLines("Entropy",
+                     entropy_floats.data(),
+                     entropy_floats.size(),
+                     0,
+                     nullptr,
+                     FLT_MAX,
+                     FLT_MAX,
+                     {300, 300});
 
     ImGui::End();
 }
