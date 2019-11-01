@@ -274,7 +274,7 @@ set_target_properties(PythonBindings PROPERTIES EXCLUDE_FROM_ALL TRUE)
 
 # Link libraries
 target_link_libraries(Misc PUBLIC curlpp_static doctest)
-target_link_libraries(Graphics doctest easy_profiler glad glfw ${GLFW_LIBRARIES} glm imgui)
+target_link_libraries(Graphics doctest easy_profiler glad glfw ${GLFW_LIBRARIES} glm imgui Misc)
 target_link_libraries(Training PUBLIC cpprl doctest  fmt::fmt Graphics ${PYTHON_LIBRARIES} tobanteGaming::Box2D ${TORCH_LIBRARIES})
 # UNIX systems sometimes need to explicitly link the threading library
 if (UNIX)
