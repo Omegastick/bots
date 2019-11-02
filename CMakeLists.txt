@@ -203,6 +203,7 @@ option(SPDLOG_FMT_EXTERNAL "" ON)
 ## Agones
 # find_package(agones CONFIG REQUIRED)
 ## Fmt
+set(BUILD_SHARED_LIBS FALSE)
 add_subdirectory(${FMT_DIR})
 set_target_properties(fmt PROPERTIES POSITION_INDEPENDENT_CODE TRUE)
 ## PyTorch
@@ -248,14 +249,31 @@ target_compile_definitions(GraphicsPlayground PRIVATE "GLFW_INCLUDE_NONE")
 add_subdirectory(${GLFW_DIR})
 set_target_properties(glfw PROPERTIES POSITION_INDEPENDENT_CODE TRUE)
 ## GLAD
-add_library(glad ${GLAD_DIR}/src/glad.c)
+add_library(glad STATIC ${GLAD_DIR}/src/glad.c)
 target_include_directories(glad PRIVATE ${GLAD_DIR}/include)
 set_target_properties(glad PROPERTIES POSITION_INDEPENDENT_CODE TRUE)
 ## GLM
 option(GLM_TEST_ENABLE "" OFF)
 add_subdirectory(${GLM_DIR})
 ## imgui
-add_subdirectory(${IMGUI_DIR})
+add_library(imgui STATIC)
+target_include_directories(imgui 
+PUBLIC 
+    ${IMGUI_DIR}
+    ${IMGUI_DIR}/examples
+    ${GLFW_DIR}/include
+    ${GLAD_DIR}/include
+)
+target_sources(imgui 
+PRIVATE
+    ${IMGUI_DIR}/imgui_demo.cpp
+    ${IMGUI_DIR}/imgui_draw.cpp
+    ${IMGUI_DIR}/imgui_widgets.cpp
+    ${IMGUI_DIR}/imgui.cpp
+    ${IMGUI_DIR}/examples/imgui_impl_glfw.cpp
+    ${IMGUI_DIR}/examples/imgui_impl_opengl3.cpp
+    ${IMGUI_DIR}/misc/cpp/imgui_stdlib.cpp
+)
 set_target_properties(imgui PROPERTIES POSITION_INDEPENDENT_CODE TRUE)
 ## Box2D
 add_subdirectory(${BOX2D_DIR})
@@ -273,7 +291,7 @@ pybind11_add_module(PythonBindings "")
 set_target_properties(PythonBindings PROPERTIES EXCLUDE_FROM_ALL TRUE)
 
 # Link libraries
-target_link_libraries(Misc PUBLIC curlpp_static doctest)
+target_link_libraries(Misc PUBLIC curlpp_static doctest imgui)
 target_link_libraries(Graphics doctest easy_profiler glad glfw ${GLFW_LIBRARIES} glm imgui Misc)
 target_link_libraries(Training PUBLIC cpprl doctest  fmt::fmt Graphics ${PYTHON_LIBRARIES} tobanteGaming::Box2D ${TORCH_LIBRARIES})
 # UNIX systems sometimes need to explicitly link the threading library

@@ -144,38 +144,33 @@ void Plot(const std::string &label,
 
     // Plot line
     {
-        for (auto i : range(0ul, item_count - 1))
+        std::vector<ImVec2> points;
+        for (auto i : indices(xs))
         {
-            const auto x = xs[i];
-            const auto y = ys[i];
-            const auto x_next = xs[i + 1];
-            const auto y_next = ys[i + 1];
-
-            const auto x0 = ImLerp(inner_bb.Min.x,
+            const auto x = ImLerp(inner_bb.Min.x,
                                    inner_bb.Max.x,
-                                   static_cast<float>((x - x_min) / x_range));
-            const auto x1 = ImLerp(inner_bb.Min.x,
-                                   inner_bb.Max.x,
-                                   static_cast<float>((x_next - x_min) / x_range));
-            const auto y0 = ImLerp(inner_bb.Max.y,
+                                   static_cast<float>((xs[i] - x_min) / x_range));
+            const auto y = ImLerp(inner_bb.Max.y,
                                    inner_bb.Min.y,
-                                   static_cast<float>((y - y_min) / y_range));
-            const auto y1 = ImLerp(inner_bb.Max.y,
-                                   inner_bb.Min.y,
-                                   static_cast<float>((y_next - y_min) / y_range));
+                                   static_cast<float>((ys[i] - y_min) / y_range));
 
-            window.DrawList->AddLine({x0, y0}, {x1, y1}, GetColorU32(ImGuiCol_PlotLines), 3.f);
+            points.push_back({x, y});
 
             // Add circle if hovered
             if (hovered && hovered_idx == i)
             {
-                window.DrawList->AddCircle({x0, y0},
+                window.DrawList->AddCircle({x, y},
                                            5.f,
                                            GetColorU32(ImGuiCol_PlotLines),
                                            12,
                                            2.f);
             }
         }
+        window.DrawList->AddPolyline(points.data(), 
+                                     static_cast<int>(item_count),
+                                     GetColorU32(ImGuiCol_PlotLines), 
+                                     false, 
+                                     3.f);
     }
 }
 }

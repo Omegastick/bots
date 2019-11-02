@@ -31,7 +31,10 @@ void PlotTestScreen::update(double delta_time)
 {
     display_test_dialog("Plot test", screens, screen_names, delta_time, screen_manager);
 
-    ImGui::SetNextWindowPosCenter(ImGuiCond_Once);
+    const auto &io = ImGui::GetIO();
+    ImGui::SetNextWindowPos({io.DisplaySize.x * 0.5f, io.DisplaySize.y * 0.5f}, 
+                            ImGuiCond_Once,
+                            {0.5, 0.5f});
     ImGui::SetNextWindowSize({960, 540}, ImGuiCond_Once);
     ImGui::Begin("Plot test");
     ImGui::Plot("Plot", ys, xs, {0, 400});
