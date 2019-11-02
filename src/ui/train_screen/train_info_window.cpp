@@ -35,8 +35,8 @@ void TrainInfoWindow::add_data(const std::string &label,
 void TrainInfoWindow::update(unsigned long long timestep, unsigned int update)
 {
     auto resolution = io.get_resolutionf();
-    ImGui::SetNextWindowSize({resolution.x * 0.25f, resolution.y * 0.35f}, ImGuiSetCond_Once);
-    ImGui::SetNextWindowPos({resolution.x * 0.7f, resolution.y * 0.05f}, ImGuiSetCond_Once);
+    ImGui::SetNextWindowSize({resolution.x * 0.25f, resolution.y * 0.35f}, ImGuiCond_Once);
+    ImGui::SetNextWindowPos({resolution.x * 0.7f, resolution.y * 0.05f}, ImGuiCond_Once);
     ImGui::Begin("Training information");
     ImGui::Text("Update %i - Frame %lli", update, timestep);
 

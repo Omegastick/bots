@@ -14,7 +14,10 @@ CheckpointSelectorWindow::CheckpointSelectorWindow() : selected_file(-1) {}
 
 std::unique_ptr<cpprl::Policy> CheckpointSelectorWindow::update()
 {
-    ImGui::SetNextWindowPosCenter(ImGuiCond_Always);
+    const auto &io = ImGui::GetIO();
+    ImGui::SetNextWindowPos({io.DisplaySize.x * 0.5f, io.DisplaySize.y * 0.5f}, 
+                            ImGuiCond_Always,
+                            {0.5, 0.5f});
     ImGui::Begin("Pick a checkpoint",
                  NULL,
                  ImGuiWindowFlags_NoResize |

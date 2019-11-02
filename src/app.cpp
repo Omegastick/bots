@@ -64,6 +64,8 @@ void reset_imgui_style()
     // Alignment
     style.WindowTitleAlign = {0.5, 0.5};
 
+    style.AntiAliasedLines = true;
+
     style.Colors[ImGuiCol_Text] = glm_to_im(cl_base00);
     style.Colors[ImGuiCol_TextDisabled] = glm_to_im(cl_base1);
     style.Colors[ImGuiCol_WindowBg] = glm_to_im(cl_base3);

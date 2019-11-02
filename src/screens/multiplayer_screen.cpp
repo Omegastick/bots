@@ -215,7 +215,10 @@ void MultiplayerScreen::connect()
 
 void MultiplayerScreen::input_address()
 {
-    ImGui::SetNextWindowPosCenter(ImGuiCond_Always);
+    const auto &imgui_io = ImGui::GetIO();
+    ImGui::SetNextWindowPos({imgui_io.DisplaySize.x * 0.5f, imgui_io.DisplaySize.y * 0.5f}, 
+                            ImGuiCond_Always,
+                            {0.5, 0.5f});
     auto resolution = io.get_resolutionf();
     ImGui::SetNextWindowSize({resolution.x * 0.2f, resolution.y * 0.1f}, ImGuiCond_Always);
     ImGui::Begin("Multiplayer", NULL, ImGuiWindowFlags_NoResize);
@@ -229,7 +232,10 @@ void MultiplayerScreen::input_address()
 
 void MultiplayerScreen::connection_failure()
 {
-    ImGui::SetNextWindowPosCenter(ImGuiCond_Always);
+    const auto &imgui_io = ImGui::GetIO();
+    ImGui::SetNextWindowPos({imgui_io.DisplaySize.x * 0.5f, imgui_io.DisplaySize.y * 0.5f}, 
+                            ImGuiCond_Always,
+                            {0.5, 0.5f});
     auto resolution = io.get_resolutionf();
     ImGui::SetNextWindowSize({resolution.x * 0.2f, resolution.y * 0.1f}, ImGuiCond_Always);
     ImGui::Begin("Multiplayer", NULL, ImGuiWindowFlags_NoResize);
@@ -329,7 +335,10 @@ void MultiplayerScreen::play(double delta_time)
 
 void MultiplayerScreen::wait_for_matchmaker()
 {
-    ImGui::SetNextWindowPosCenter(ImGuiCond_Always);
+    const auto &imgui_io = ImGui::GetIO();
+    ImGui::SetNextWindowPos({imgui_io.DisplaySize.x * 0.5f, imgui_io.DisplaySize.y * 0.5f}, 
+                            ImGuiCond_Always,
+                            {0.5, 0.5f});
     auto resolution = io.get_resolutionf();
     ImGui::SetNextWindowSize({resolution.x * 0.2f, resolution.y * 0.1f}, ImGuiCond_Always);
     ImGui::Begin("Multiplayer", NULL, ImGuiWindowFlags_NoResize);
@@ -356,7 +365,10 @@ void MultiplayerScreen::wait_for_matchmaker()
 
 void MultiplayerScreen::wait_for_start()
 {
-    ImGui::SetNextWindowPosCenter(ImGuiCond_Always);
+    const auto &imgui_io = ImGui::GetIO();
+    ImGui::SetNextWindowPos({imgui_io.DisplaySize.x * 0.5f, imgui_io.DisplaySize.y * 0.5f}, 
+                            ImGuiCond_Always,
+                            {0.5, 0.5f});
     auto resolution = io.get_resolutionf();
     ImGui::SetNextWindowSize({resolution.x * 0.2f, resolution.y * 0.1f}, ImGuiCond_Always);
     ImGui::Begin("Multiplayer", NULL, ImGuiWindowFlags_NoResize);

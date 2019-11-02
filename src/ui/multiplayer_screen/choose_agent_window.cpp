@@ -23,7 +23,10 @@ std::unique_ptr<IAgent> ChooseAgentWindow::update()
 {
     glm::vec2 resolution = io.get_resolution();
     ImGui::SetNextWindowSize({resolution.x * 0.25f, resolution.y * 0.5f}, ImGuiCond_Once);
-    ImGui::SetNextWindowPosCenter(ImGuiCond_Always);
+    const auto &io = ImGui::GetIO();
+    ImGui::SetNextWindowPos({io.DisplaySize.x * 0.5f, io.DisplaySize.y * 0.5f}, 
+                            ImGuiCond_Always,
+                            {0.5, 0.5f});
     ImGui::Begin("Brain", NULL, ImGuiWindowFlags_NoResize);
 
     if (ImGui::IsWindowAppearing())
