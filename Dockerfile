@@ -1,13 +1,13 @@
 FROM gcc:9 as builder
 
 # Install PyTorch
-RUN wget https://download.pytorch.org/libtorch/cpu/libtorch-cxx11-abi-shared-with-deps-1.2.0.zip
-RUN unzip libtorch-cxx11-abi-shared-with-deps-1.2.0.zip -d /opt/
+RUN wget -O libtorch.zip https://download.pytorch.org/libtorch/cpu/libtorch-cxx11-abi-shared-with-deps-1.3.0%2Bcpu.zip
+RUN unzip libtorch.zip -d /opt/
 
 # Install CMake
-RUN wget -q https://cmake.org/files/v3.14/cmake-3.14.6-Linux-x86_64.sh -O /cmake-3.14.6-Linux-x86_64.sh
+RUN wget -q https://github.com/Kitware/CMake/releases/download/v3.16.0-rc3/cmake-3.16.0-rc3-Linux-x86_64.sh -O /cmake-install.sh
 RUN mkdir /opt/cmake
-RUN sh /cmake-3.14.6-Linux-x86_64.sh --prefix=/opt/cmake --skip-license
+RUN sh /cmake-install.sh --prefix=/opt/cmake --skip-license
 RUN ln -s /opt/cmake/bin/cmake /usr/local/bin/cmake
 RUN cmake --version
 
