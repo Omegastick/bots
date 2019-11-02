@@ -9,11 +9,14 @@
 #include <imgui_internal.h>
 
 #include "plot.h"
+#include "misc/utils/range.h"
+
+using namespace SingularityTrainer;
 
 namespace ImGui
 {
-constexpr double tick_factor_x = 0.3;
-constexpr double tick_factor_y = 0.3;
+constexpr double tick_factor_x = 0.4;
+constexpr double tick_factor_y = 0.4;
 
 void Plot(const std::string &label,
           const std::vector<double> &ys,
@@ -72,16 +75,19 @@ void Plot(const std::string &label,
     {
         const float y0 = inner_bb.Min.y;
         const float y1 = inner_bb.Max.y;
+        int counter = 0;
         for (double x_value = x_min; x_value < x_max; x_value += tick_width)
         {
             const float x = ImLerp(inner_bb.Min.x,
                                    inner_bb.Max.x,
-                                   static_cast<float>(x_value / x_max));
+                                   static_cast<float>((x_value - x_min) / x_range));
+
+            const float alpha = counter++ % 5 == 0 ? 0.8f : 0.2f;
             window.DrawList->AddLine({x, y0},
                                      {x, y1},
-                                     GetColorU32(ImGuiCol_TextDisabled));
+                                     GetColorU32(ImGuiCol_TextDisabled, alpha));
         }
-        window.DrawList->AddLine({inner_bb.Min.x, y0},
+        window.DrawList->AddLine({inner_bb.Max.x, y0},
                                  {inner_bb.Max.x, y1},
                                  GetColorU32(ImGuiCol_TextDisabled));
     }
@@ -90,18 +96,47 @@ void Plot(const std::string &label,
     {
         const float x0 = inner_bb.Min.x;
         const float x1 = inner_bb.Max.x;
+        int counter = 0;
         for (double y_value = y_min; y_value < y_max; y_value += tick_height)
         {
             const float y = ImLerp(inner_bb.Min.y,
                                    inner_bb.Max.y,
-                                   static_cast<float>(y_value / y_max));
+                                   static_cast<float>((y_value - y_min) / y_range));
+            const float alpha = counter++ % 2 == 0 ? 0.8f : 0.2f;
             window.DrawList->AddLine({x0, y},
                                      {x1, y},
-                                     GetColorU32(ImGuiCol_TextDisabled));
+                                     GetColorU32(ImGuiCol_TextDisabled, alpha));
         }
-        window.DrawList->AddLine({x0, inner_bb.Min.y},
+        window.DrawList->AddLine({x0, inner_bb.Max.y},
                                  {x1, inner_bb.Max.y},
                                  GetColorU32(ImGuiCol_TextDisabled));
+    }
+
+    // Plot line
+    {
+        const auto value_count = ys.size();
+        for (auto i : range(0ul, value_count - 1))
+        {
+            const auto x = xs[i];
+            const auto y = ys[i];
+            const auto x_next = xs[i + 1];
+            const auto y_next = ys[i + 1];
+
+            const auto x0 = ImLerp(inner_bb.Min.x,
+                                   inner_bb.Max.x,
+                                   static_cast<float>((x - x_min) / x_range));
+            const auto x1 = ImLerp(inner_bb.Min.x,
+                                   inner_bb.Max.x,
+                                   static_cast<float>((x_next - x_min) / x_range));
+            const auto y0 = ImLerp(inner_bb.Min.y,
+                                   inner_bb.Max.y,
+                                   static_cast<float>((y - y_min) / y_range));
+            const auto y1 = ImLerp(inner_bb.Min.y,
+                                   inner_bb.Max.y,
+                                   static_cast<float>((y_next - y_min) / y_range));
+
+            window.DrawList->AddLine({x0, y0}, {x1, y1}, GetColorU32(ImGuiCol_PlotLines), 3.f);
+        }
     }
 }
 }

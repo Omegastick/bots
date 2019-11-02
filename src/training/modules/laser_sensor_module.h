@@ -34,10 +34,10 @@ class LaserSensorModule : public IModule
   public:
     LaserSensorModule(int laser_count = 19, float fov = 180, float laser_length = 20);
 
-    virtual std::vector<float> get_sensor_reading() const;
-    void draw(Renderer &renderer, bool lightweight = false);
-    virtual nlohmann::json to_json() const;
+    virtual std::vector<float> get_sensor_reading() const override final;
+    virtual void draw(Renderer &renderer, bool lightweight = false) override;
+    virtual nlohmann::json to_json() const override final;
 
-    inline int get_observation_count() const { return laser_count; }
+    inline virtual int get_observation_count() const override final { return laser_count; }
 };
 }

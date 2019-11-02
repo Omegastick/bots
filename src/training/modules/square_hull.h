@@ -9,8 +9,8 @@ class SquareHull : public IModule
   public:
     SquareHull();
 
-    virtual nlohmann::json to_json() const;
+    virtual nlohmann::json to_json() const override final;
 
-    inline int get_observation_count() const { return 0; }
+    inline virtual int get_observation_count() const override final { return 0; }
 };
 }

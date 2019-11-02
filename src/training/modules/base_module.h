@@ -17,9 +17,9 @@ class BaseModule : public IModule
     BaseModule();
     ~BaseModule();
 
-    virtual std::vector<float> get_sensor_reading() const;
-    virtual nlohmann::json to_json() const;
+    virtual std::vector<float> get_sensor_reading() const override final;
+    virtual nlohmann::json to_json() const override final;
 
-    inline int get_observation_count() const { return 3; }
+    inline virtual int get_observation_count() const override final { return 3; }
 };
 }
