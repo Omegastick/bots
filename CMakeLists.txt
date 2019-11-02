@@ -121,7 +121,7 @@ add_custom_target(
 # Ccache
 find_program(CCACHE_FOUND ccache)
 if(CCACHE_FOUND)
-    set_property(GLOBAL PROPERTY RULE_LAUNCH_COMPILE ccache)
+    set_property(GLOBAL PROPERTY RULE_LAUNCH_COMPILE ${CCACHE_FOUND})
 endif(CCACHE_FOUND)
 
 # Gold linker
@@ -237,7 +237,10 @@ set_target_properties(cpprl PROPERTIES POSITION_INDEPENDENT_CODE TRUE)
 set(EASY_PROFILER_NO_SAMPLES TRUE)
 add_subdirectory(${EASY_PROFILER_DIR})
 set_target_properties(easy_profiler PROPERTIES POSITION_INDEPENDENT_CODE TRUE)
-set_target_properties(profiler_gui PROPERTIES EXCLUDE_FROM_ALL TRUE)
+set_target_properties(easy_profiler PROPERTIES EXCLUDE_FROM_ALL TRUE)
+if (TARGET profiler_gui)
+    set_target_properties(profiler_gui PROPERTIES EXCLUDE_FROM_ALL TRUE)
+endif (TARGET profiler_gui)
 set_target_properties(profiler_converter PROPERTIES EXCLUDE_FROM_ALL TRUE)
 ## GLFW
 option(GLFW_BUILD_EXAMPLES "" OFF)
@@ -249,8 +252,9 @@ target_compile_definitions(GraphicsPlayground PRIVATE "GLFW_INCLUDE_NONE")
 add_subdirectory(${GLFW_DIR})
 set_target_properties(glfw PROPERTIES POSITION_INDEPENDENT_CODE TRUE)
 ## GLAD
-add_library(glad STATIC ${GLAD_DIR}/src/glad.c)
-target_include_directories(glad PRIVATE ${GLAD_DIR}/include)
+add_library(glad STATIC)
+target_sources(glad PRIVATE ${GLAD_DIR}/src/glad.c)
+target_include_directories(glad PUBLIC ${GLAD_DIR}/include)
 set_target_properties(glad PROPERTIES POSITION_INDEPENDENT_CODE TRUE)
 ## GLM
 option(GLM_TEST_ENABLE "" OFF)
@@ -258,12 +262,14 @@ add_subdirectory(${GLM_DIR})
 ## imgui
 add_library(imgui STATIC)
 target_include_directories(imgui 
-PUBLIC 
-    ${IMGUI_DIR}
+PRIVATE
     ${IMGUI_DIR}/examples
     ${GLFW_DIR}/include
     ${GLAD_DIR}/include
+PUBLIC 
+    ${IMGUI_DIR}
 )
+target_compile_definitions(imgui PUBLIC IMGUI_IMPL_OPENGL_LOADER_GLAD)
 target_sources(imgui 
 PRIVATE
     ${IMGUI_DIR}/imgui_demo.cpp
@@ -274,6 +280,7 @@ PRIVATE
     ${IMGUI_DIR}/examples/imgui_impl_opengl3.cpp
     ${IMGUI_DIR}/misc/cpp/imgui_stdlib.cpp
 )
+target_link_libraries(imgui PUBLIC glad glfw)
 set_target_properties(imgui PROPERTIES POSITION_INDEPENDENT_CODE TRUE)
 ## Box2D
 add_subdirectory(${BOX2D_DIR})
@@ -292,7 +299,7 @@ set_target_properties(PythonBindings PROPERTIES EXCLUDE_FROM_ALL TRUE)
 
 # Link libraries
 target_link_libraries(Misc PUBLIC curlpp_static doctest imgui)
-target_link_libraries(Graphics doctest easy_profiler glad glfw ${GLFW_LIBRARIES} glm imgui Misc)
+target_link_libraries(Graphics PUBLIC doctest easy_profiler glad glfw ${GLFW_LIBRARIES} glm imgui Misc)
 target_link_libraries(Training PUBLIC cpprl doctest  fmt::fmt Graphics ${PYTHON_LIBRARIES} tobanteGaming::Box2D ${TORCH_LIBRARIES})
 # UNIX systems sometimes need to explicitly link the threading library
 if (UNIX)
@@ -300,7 +307,7 @@ if (UNIX)
     target_link_libraries(Training PUBLIC pthread)
 endif(UNIX)
 target_link_libraries(Networking Training libzmq-static)
-target_link_libraries(SingularityTrainer Graphics Misc Training Networking)
+target_link_libraries(SingularityTrainer Misc Graphics Training Networking)
 target_link_libraries(HeadlessTrainer Graphics Misc Training)
 target_link_libraries(GraphicsPlayground Graphics Misc Training)
 target_link_libraries(Server Graphics Misc Training Networking)
