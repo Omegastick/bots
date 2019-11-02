@@ -37,7 +37,6 @@ void Plot(const std::string &label,
 
     ImGuiContext &g = *GImGui;
     const ImGuiStyle &style = g.Style;
-    const ImGuiID id = window.GetID(label.c_str());
 
     const ImRect frame_bb(
         window.DC.CursorPos,
@@ -67,6 +66,8 @@ void Plot(const std::string &label,
     const double y_min = *std::get<0>(y_minmax);
     const double y_max = *std::get<1>(y_minmax);
     const double y_range = y_max - y_min;
+
+    const auto item_count = ys.size();
 
     const auto tick_width = std::pow(10, std::floor(std::log10(x_range))) * tick_factor_x;
     const auto tick_height = std::pow(10, std::floor(std::log10(y_range))) * tick_factor_y;
@@ -112,10 +113,33 @@ void Plot(const std::string &label,
                                  GetColorU32(ImGuiCol_TextDisabled));
     }
 
+    // Hover tooltip
+    const auto id = window.GetID(label.c_str());
+    const auto hovered = ItemHoverable(frame_bb, id);
+    std::size_t hovered_idx{0};
+    if (hovered)
+    {
+        const auto cursor = g.IO.MousePos;
+        const auto scaled_cursor_x = ImClamp(
+            (cursor.x - inner_bb.Min.x) / (inner_bb.Max.x - inner_bb.Min.x),
+            0.0f,
+            0.9999f);
+        for (auto i : indices(xs))
+        {
+            hovered_idx = i;
+            const auto scaled_x = (xs[i] - x_min) / x_range;
+            if (scaled_x > scaled_cursor_x)
+            {
+                break;
+            }
+        }
+        const std::string text = fmt::format("{:g}: {:g}", xs[hovered_idx], ys[hovered_idx]);
+        SetTooltip("%s", text.c_str());
+    }
+
     // Plot line
     {
-        const auto value_count = ys.size();
-        for (auto i : range(0ul, value_count - 1))
+        for (auto i : range(0ul, item_count - 1))
         {
             const auto x = xs[i];
             const auto y = ys[i];
@@ -136,6 +160,16 @@ void Plot(const std::string &label,
                                    static_cast<float>((y_next - y_min) / y_range));
 
             window.DrawList->AddLine({x0, y0}, {x1, y1}, GetColorU32(ImGuiCol_PlotLines), 3.f);
+
+            // Add circle if hovered
+            if (hovered && hovered_idx == i)
+            {
+                window.DrawList->AddCircle({x0, y0},
+                                           5.f,
+                                           GetColorU32(ImGuiCol_PlotLines),
+                                           12,
+                                           2.f);
+            }
         }
     }
 }
