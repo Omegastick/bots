@@ -2,6 +2,7 @@
 #include <cmath>
 #include <limits>
 #include <map>
+#include <string>
 #include <vector>
 #include <unordered_map>
 
@@ -18,7 +19,11 @@ constexpr unsigned long long max_double_integer = 2ull << 53;
 
 namespace SingularityTrainer
 {
-TrainInfoWindow::TrainInfoWindow(IO &io) : io(io) {}
+TrainInfoWindow::TrainInfoWindow(IO &io) : io(io)
+{
+    data["Entropy"];
+    selected_type = data.begin()->first;
+}
 
 void TrainInfoWindow::add_data(const std::string &label,
                                unsigned long long timestep,
@@ -35,8 +40,31 @@ void TrainInfoWindow::update(unsigned long long timestep, unsigned int update)
     ImGui::Begin("Training information");
     ImGui::Text("Update %i - Frame %lli", update, timestep);
 
-    const auto &entropies = data["Entropy"].get_data();
-    ImGui::Plot("Entropies", entropies.second, entropies.first, {0, resolution.y * 0.3f});
+    std::vector<std::string> data_types;
+    std::transform(data.begin(), data.end(), std::back_inserter(data_types),
+                   [](const std::pair<std::string, IndexedDataStore> &x) { return x.first; });
+    if (ImGui::BeginCombo("##data-types-combo", selected_type.c_str()))
+    {
+        for (const auto i : indices(data_types))
+        {
+            bool selected = selected_type == data_types[i];
+            if (ImGui::Selectable(data_types[i].c_str(), selected))
+            {
+                selected_type = data_types[i];
+            }
+            if (selected)
+            {
+                ImGui::SetItemDefaultFocus();
+            }
+        }
+        ImGui::EndCombo();
+    }
+
+    const auto selected_data = data[selected_type].get_data();
+    ImGui::Plot("##training-graph",
+                selected_data.second,
+                selected_data.first,
+                {0, resolution.y * 0.3f});
 
     ImGui::End();
 }
