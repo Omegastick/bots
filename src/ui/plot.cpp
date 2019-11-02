@@ -58,6 +58,11 @@ void Plot(const std::string &label,
         true,
         style.FrameRounding);
 
+    if (xs.size() == 0)
+    {
+        return;
+    }
+
     const auto x_minmax = std::minmax_element(xs.begin(), xs.end());
     const double x_min = *std::get<0>(x_minmax);
     const double x_max = *std::get<1>(x_minmax);
@@ -103,7 +108,7 @@ void Plot(const std::string &label,
             const float y = ImLerp(inner_bb.Min.y,
                                    inner_bb.Max.y,
                                    static_cast<float>((y_value - y_min) / y_range));
-            const float alpha = counter++ % 2 == 0 ? 0.8f : 0.2f;
+            const float alpha = counter++ % 5 == 0 ? 0.8f : 0.2f;
             window.DrawList->AddLine({x0, y},
                                      {x1, y},
                                      GetColorU32(ImGuiCol_TextDisabled, alpha));
@@ -152,11 +157,11 @@ void Plot(const std::string &label,
             const auto x1 = ImLerp(inner_bb.Min.x,
                                    inner_bb.Max.x,
                                    static_cast<float>((x_next - x_min) / x_range));
-            const auto y0 = ImLerp(inner_bb.Min.y,
-                                   inner_bb.Max.y,
+            const auto y0 = ImLerp(inner_bb.Max.y,
+                                   inner_bb.Min.y,
                                    static_cast<float>((y - y_min) / y_range));
-            const auto y1 = ImLerp(inner_bb.Min.y,
-                                   inner_bb.Max.y,
+            const auto y1 = ImLerp(inner_bb.Max.y,
+                                   inner_bb.Min.y,
                                    static_cast<float>((y_next - y_min) / y_range));
 
             window.DrawList->AddLine({x0, y0}, {x1, y1}, GetColorU32(ImGuiCol_PlotLines), 3.f);
