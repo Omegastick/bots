@@ -36,7 +36,7 @@ void reset_imgui_style()
 
     // Padding/Spacing
     style.WindowPadding = {20, 20};
-    style.FramePadding = {6, 3};
+    style.FramePadding = {3, 3};
     style.ItemSpacing = {13, 10};
     style.ItemInnerSpacing = {7, 3};
     style.IndentSpacing = 20;

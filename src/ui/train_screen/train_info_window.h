@@ -1,8 +1,8 @@
 #pragma once
 
+#include <map>
 #include <string>
 #include <vector>
-#include <unordered_map>
 #include <utility>
 
 namespace SingularityTrainer
@@ -26,8 +26,9 @@ class IndexedDataStore
 class TrainInfoWindow
 {
   private:
-    std::unordered_map<std::string, IndexedDataStore> data;
+    std::map<std::string, IndexedDataStore> data;
     IO &io;
+    std::string selected_type;
 
   public:
     TrainInfoWindow(IO &io);
