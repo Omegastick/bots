@@ -38,7 +38,7 @@ class IModule
     virtual std::vector<IModule *> get_children();
     virtual std::vector<IModule *> get_children(std::vector<IModule *> child_list);
     virtual std::vector<float> get_sensor_reading() const;
-    void draw(Renderer &renderer, bool lightweight = false);
+    virtual void draw(Renderer &renderer, bool lightweight = false);
     virtual b2Transform get_global_transform() const;
     virtual int get_observation_count() const = 0;
     virtual nlohmann::json to_json() const = 0;

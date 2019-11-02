@@ -25,10 +25,10 @@ class GunModule : public IModule, public IActivatable
   public:
     GunModule(Random &rng);
 
-    virtual void activate();
-    virtual void update();
-    virtual nlohmann::json to_json() const;
+    virtual void activate() override;
+    virtual void update() override;
+    virtual nlohmann::json to_json() const override final;
 
-    inline int get_observation_count() const { return 0; }
+    inline virtual int get_observation_count() const override final { return 0; }
 };
 }

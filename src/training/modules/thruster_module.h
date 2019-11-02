@@ -17,11 +17,11 @@ class ThrusterModule : public IModule, public IActivatable
   public:
     ThrusterModule();
 
-    virtual void activate();
-    virtual void sub_update();
-    virtual nlohmann::json to_json() const;
-    virtual void update();
+    virtual void activate() override;
+    virtual void sub_update() override;
+    virtual nlohmann::json to_json() const override final;
+    virtual void update() override;
 
-    inline int get_observation_count() const { return 0; }
+    inline int get_observation_count() const override final { return 0; }
 };
 }
