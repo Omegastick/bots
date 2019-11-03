@@ -17,10 +17,11 @@ namespace ImGui
 {
 constexpr double tick_factor_x = 0.4;
 constexpr double tick_factor_y = 0.4;
+constexpr double pixels_per_point = 5;
 
 void Plot(const std::string &label,
-          const std::vector<double> &ys,
-          const std::vector<double> &xs,
+          const std::vector<double> &raw_ys,
+          const std::vector<double> &raw_xs,
           ImVec2 size)
 {
     ImGuiWindow &window = *GetCurrentWindow();
@@ -58,21 +59,21 @@ void Plot(const std::string &label,
         true,
         style.FrameRounding);
 
-    if (xs.size() == 0)
+    if (raw_xs.size() == 0)
     {
         return;
     }
 
-    const auto x_minmax = std::minmax_element(xs.begin(), xs.end());
+    const auto x_minmax = std::minmax_element(raw_xs.begin(), raw_xs.end());
     const double x_min = *std::get<0>(x_minmax);
     const double x_max = *std::get<1>(x_minmax);
     const double x_range = x_max - x_min;
-    const auto y_minmax = std::minmax_element(ys.begin(), ys.end());
+    const auto y_minmax = std::minmax_element(raw_ys.begin(), raw_ys.end());
     const double y_min = *std::get<0>(y_minmax);
     const double y_max = *std::get<1>(y_minmax);
     const double y_range = y_max - y_min;
 
-    const auto item_count = ys.size();
+    auto item_count = raw_ys.size();
 
     const auto tick_width = std::pow(10, std::floor(std::log10(x_range))) * tick_factor_x;
     const auto tick_height = std::pow(10, std::floor(std::log10(y_range))) * tick_factor_y;
@@ -118,6 +119,36 @@ void Plot(const std::string &label,
                                  GetColorU32(ImGuiCol_TextDisabled));
     }
 
+    // Preprocess data
+    std::vector<double> xs;
+    std::vector<double> ys;
+    if (static_cast<double>(item_count) <= size.x / pixels_per_point)
+    {
+        xs = raw_xs;
+        ys = raw_ys;
+    }
+    else
+    {
+        const auto average_length = static_cast<double>(item_count) /
+                                    (size.x / pixels_per_point);
+        double accumulated_value = 0;
+        double values_seen = 0;
+        for (const auto i : indices(raw_xs))
+        {
+            values_seen++;
+            accumulated_value += raw_ys[i];
+            if (values_seen >= average_length)
+            {
+                xs.push_back(raw_xs[i]);
+                const auto average = accumulated_value / values_seen;
+                ys.push_back(average);
+                values_seen = 0;
+                accumulated_value = 0;
+            }
+        }
+        item_count = xs.size();
+    }
+
     // Hover tooltip
     const auto id = window.GetID(label.c_str());
     const auto hovered = ItemHoverable(frame_bb, id);
@@ -148,11 +179,11 @@ void Plot(const std::string &label,
         for (auto i : indices(xs))
         {
             const auto x = ImLerp(inner_bb.Min.x,
-                                   inner_bb.Max.x,
-                                   static_cast<float>((xs[i] - x_min) / x_range));
+                                  inner_bb.Max.x,
+                                  static_cast<float>((xs[i] - x_min) / x_range));
             const auto y = ImLerp(inner_bb.Max.y,
-                                   inner_bb.Min.y,
-                                   static_cast<float>((ys[i] - y_min) / y_range));
+                                  inner_bb.Min.y,
+                                  static_cast<float>((ys[i] - y_min) / y_range));
 
             points.push_back({x, y});
 
@@ -166,11 +197,11 @@ void Plot(const std::string &label,
                                            2.f);
             }
         }
-        window.DrawList->AddPolyline(points.data(), 
+        window.DrawList->AddPolyline(points.data(),
                                      static_cast<int>(item_count),
-                                     GetColorU32(ImGuiCol_PlotLines), 
-                                     false, 
-                                     3.f);
+                                     GetColorU32(ImGuiCol_PlotLines),
+                                     false,
+                                     1.5f);
     }
 }
 }
