@@ -38,7 +38,7 @@ RUN apt-get update && apt-get install -y \
 
 # Copy over shared libraries
 RUN mkdir /app
-COPY --from=builder /opt/libtorch/lib/* /app/
+COPY --from=builder /opt/libtorch/lib/*.so* /app/
 
 # Copy over executable
 COPY --from=builder /app/build/Server /app/Server

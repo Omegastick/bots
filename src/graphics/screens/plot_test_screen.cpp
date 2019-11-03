@@ -3,6 +3,8 @@
 #include <memory>
 #include <string>
 
+#include <glm/gtc/random.hpp>
+
 #include "plot_test_screen.h"
 #include "graphics/screens/test_utils.h"
 #include "misc/utils/range.h"
@@ -20,10 +22,10 @@ PlotTestScreen::PlotTestScreen(
       screen_names(screen_names),
       screen_manager(screen_manager)
 {
-    for (const auto i : range(0, 100))
+    for (const auto i : range(0, 100000))
     {
-        xs.push_back(i * i);
-        ys.push_back(std::sin(static_cast<double>(i) * 0.1f));
+        xs.push_back(i);
+        ys.push_back(std::sin(static_cast<double>(i) * 0.0001f) + glm::linearRand(-0.1, 0.1));
     }
 }
 
@@ -32,7 +34,7 @@ void PlotTestScreen::update(double delta_time)
     display_test_dialog("Plot test", screens, screen_names, delta_time, screen_manager);
 
     const auto &io = ImGui::GetIO();
-    ImGui::SetNextWindowPos({io.DisplaySize.x * 0.5f, io.DisplaySize.y * 0.5f}, 
+    ImGui::SetNextWindowPos({io.DisplaySize.x * 0.5f, io.DisplaySize.y * 0.5f},
                             ImGuiCond_Once,
                             {0.5, 0.5f});
     ImGui::SetNextWindowSize({960, 540}, ImGuiCond_Once);

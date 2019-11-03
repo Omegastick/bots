@@ -299,8 +299,8 @@ set_target_properties(PythonBindings PROPERTIES EXCLUDE_FROM_ALL TRUE)
 
 # Link libraries
 target_link_libraries(Misc PUBLIC curlpp_static doctest imgui)
-target_link_libraries(Graphics PUBLIC doctest easy_profiler glad glfw ${GLFW_LIBRARIES} glm imgui Misc)
-target_link_libraries(Training PUBLIC cpprl doctest  fmt::fmt Graphics ${PYTHON_LIBRARIES} tobanteGaming::Box2D ${TORCH_LIBRARIES})
+target_link_libraries(Graphics PUBLIC doctest glad glfw ${GLFW_LIBRARIES} glm imgui Misc)
+target_link_libraries(Training PUBLIC cpprl doctest  fmt::fmt Graphics tobanteGaming::Box2D ${TORCH_LIBRARIES})
 # UNIX systems sometimes need to explicitly link the threading library
 if (UNIX)
     message(STATUS "Linking against Linux libraries")
@@ -311,7 +311,7 @@ target_link_libraries(SingularityTrainer Misc Graphics Training Networking)
 target_link_libraries(HeadlessTrainer Graphics Misc Training)
 target_link_libraries(GraphicsPlayground Graphics Misc Training)
 target_link_libraries(Server Graphics Misc Training Networking)
-target_link_libraries(PythonBindings PRIVATE Graphics Misc Training)
+target_link_libraries(PythonBindings PRIVATE Graphics Misc Training ${PYTHON_LIBRARIES})
 set_target_properties(PythonBindings PROPERTIES OUTPUT_NAME "singularity_trainer")
 set_target_properties(PythonBindings PROPERTIES SUFFIX ".so")
 

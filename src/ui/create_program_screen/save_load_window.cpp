@@ -25,7 +25,7 @@ bool SaveLoadWindow::update(TrainingProgram &program)
     auto resolution = io.get_resolutionf();
     ImGui::SetNextWindowSize({resolution.x * 0.25f, resolution.y * 0.5f}, ImGuiCond_Once);
     ImGui::SetNextWindowPos({resolution.x * 0.05f, resolution.y * 0.2f}, ImGuiCond_Once);
-    ImGui::Begin("Pick a body");
+    ImGui::Begin("Save/Load program");
 
     // Enumerate all files
     std::vector<std::string> files;
