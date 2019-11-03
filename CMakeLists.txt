@@ -228,6 +228,7 @@ add_subdirectory(${ZMQ_DIR})
 find_package(CURL REQUIRED)
 add_subdirectory(${CURLPP_DIR})
 set_target_properties(curlpp_static PROPERTIES POSITION_INDEPENDENT_CODE TRUE)
+target_compile_definitions(curlpp_static PUBLIC CURL_STATICLIB)
 ## CppRl
 option(CPPRL_BUILD_TESTS "" OFF)
 option(CPPRL_BUILD_EXAMPLE "" OFF)
@@ -328,7 +329,6 @@ target_include_directories(Training PUBLIC ${INCLUDE_DIRS})
 target_include_directories(PythonBindings PUBLIC ${INCLUDE_DIRS})
 
 set(NO_ERR_INCLUDE_DIRS
-    ${CURL_INCLUDE_DIRS}
     ${CPPRL_DIR}/include
     ${CURLPP_DIR}/include
     ${DOCTEST_DIR}/doctest
