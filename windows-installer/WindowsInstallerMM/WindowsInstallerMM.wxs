@@ -10,32 +10,11 @@
         <Component Id="owcBF6621840A939D993185673123B62610" Guid="866ae76f-0099-8d79-6dc8-37d25756c9ea">
           <File Id="owfBF6621840A939D993185673123B62610" Source="$(var.SourceDir)\build\Release\c10.dll" KeyPath="yes" />
         </Component>
-        <Component Id="owcCD3FEC40EF2484A70379730317BBDFD6" Guid="50fb94c9-a7a5-25ff-1629-5de375eedb37">
-          <File Id="owfCD3FEC40EF2484A70379730317BBDFD6" Source="$(var.SourceDir)\build\Release\caffe2.dll" KeyPath="yes" />
-        </Component>
-        <Component Id="owcCAF8C652C1F14E9AC7C5108A07BF72F5" Guid="427ea274-649c-bb3d-ec0b-dc9dcbc32a1e">
-          <File Id="owfCAF8C652C1F14E9AC7C5108A07BF72F5" Source="$(var.SourceDir)\build\Release\caffe2_detectron_ops.dll" KeyPath="yes" />
-        </Component>
-        <Component Id="owc05FB6B95731254158B07F41C31347A12" Guid="ef220d8c-c810-42af-0ea8-27b5050acd76">
-          <File Id="owf05FB6B95731254158B07F41C31347A12" Source="$(var.SourceDir)\build\Release\caffe2_module_test_dynamic.dll" KeyPath="yes" />
-        </Component>
-        <Component Id="owcD940A6939E2F6EACEFDDF9E39937542A" Guid="4905eb4d-da14-2b1d-8521-00671f4857f2">
-          <File Id="owfD940A6939E2F6EACEFDDF9E39937542A" Source="$(var.SourceDir)\build\Release\foxi.dll" KeyPath="yes" />
-        </Component>
-        <Component Id="owcA0E475333B086D81CEE3DBF6990E3120" Guid="c4e009e0-5333-ad05-044c-ca5eaf003f34">
-          <File Id="owfA0E475333B086D81CEE3DBF6990E3120" Source="$(var.SourceDir)\build\Release\foxi_dummy.dll" KeyPath="yes" />
-        </Component>
         <Component Id="owcD6567A054E7BE72EB1B6458377223A37" Guid="c0f6ed7c-51bc-afea-12cf-bcc2751941be">
           <File Id="owfD6567A054E7BE72EB1B6458377223A37" Source="$(var.SourceDir)\build\Release\libiomp5md.dll" KeyPath="yes" />
         </Component>
         <Component Id="owc57B81D0BA428975B2ECEB2834B0C8CD5" Guid="ee075e60-e91b-51eb-b1ac-15c7e12d2296">
           <File Id="owf57B81D0BA428975B2ECEB2834B0C8CD5" Source="$(var.SourceDir)\build\Release\libiompstubs5md.dll" KeyPath="yes" />
-        </Component>
-        <Component Id="owc000FBE28F0D3C3C18418740BBFE373C0" Guid="85822111-3f7f-5941-ca11-4a1a641ed9ec">
-          <File Id="owf000FBE28F0D3C3C18418740BBFE373C0" Source="$(var.SourceDir)\build\Release\onnxifi.dll" KeyPath="yes" />
-        </Component>
-        <Component Id="owc50748DCE715032A9863AA88E753FA058" Guid="91a95193-3169-bd5f-400e-664477777381">
-          <File Id="owf50748DCE715032A9863AA88E753FA058" Source="$(var.SourceDir)\build\Release\onnxifi_dummy.dll" KeyPath="yes" />
         </Component>
         <Component Id="owc4D7EC7ECEBF4BA1FEB08F421DF7472FA" Guid="c863699d-2542-5b02-ffca-2e68ebce9105">
           <File Id="owf4D7EC7ECEBF4BA1FEB08F421DF7472FA" Source="$(var.SourceDir)\build\Release\SingularityTrainer.exe" KeyPath="yes" />
@@ -115,6 +94,12 @@
             <Component Id="owcC7FCBE9BF104E0E2C5C9E4913AD1EED7" Guid="9165c132-d053-0369-ea28-2a7d54e103f7">
               <File Id="owfC7FCBE9BF104E0E2C5C9E4913AD1EED7" Source="$(var.SourceDir)\assets\shaders\default.vert" KeyPath="yes" />
             </Component>
+            <Component Id="owcAD2E9A2497DF08F0AE3BD39C8E2145F9" Guid="357f8f0e-6864-aed5-9506-81ee6097a5da">
+              <File Id="owfAD2E9A2497DF08F0AE3BD39C8E2145F9" Source="$(var.SourceDir)\assets\shaders\distortion.frag" KeyPath="yes" />
+            </Component>
+            <Component Id="owc5B75BA6986455020AC1175567226EFBA" Guid="e6d8b79f-bad9-2314-49d3-0d63d69e74bd">
+              <File Id="owf5B75BA6986455020AC1175567226EFBA" Source="$(var.SourceDir)\assets\shaders\distortion.vert" KeyPath="yes" />
+            </Component>
             <Component Id="owc7CE484FC6181652A061522544B781B5E" Guid="cf2fae79-818d-c544-5434-a40cea6d97c0">
               <File Id="owf7CE484FC6181652A061522544B781B5E" Source="$(var.SourceDir)\assets\shaders\font.frag" KeyPath="yes" />
             </Component>
@@ -135,6 +120,9 @@
             </Component>
             <Component Id="owc078D422AE6D8648D5998FCD70BE95480" Guid="50cbc222-b800-99e6-0ea9-04e63d986ab7">
               <File Id="owf078D422AE6D8648D5998FCD70BE95480" Source="$(var.SourceDir)\assets\shaders\texture.vert" KeyPath="yes" />
+            </Component>
+            <Component Id="owc5CE6CFF3B848525083E85EED5C291E85" Guid="5b0ddff6-795e-e432-6293-3a57781cad55">
+              <File Id="owf5CE6CFF3B848525083E85EED5C291E85" Source="$(var.SourceDir)\assets\shaders\texture_batched.vert" KeyPath="yes" />
             </Component>
           </Directory>
         </Directory>
