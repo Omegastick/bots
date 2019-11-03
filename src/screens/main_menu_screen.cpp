@@ -46,8 +46,8 @@ MainMenuScreen::MainMenuScreen(CredentialsManager &credentials_manager,
 void MainMenuScreen::update(double /*delta_time*/)
 {
     const auto &imgui_io = ImGui::GetIO();
-    ImGui::SetNextWindowPos({imgui_io.DisplaySize.x * 0.5f, imgui_io.DisplaySize.y * 0.5f}, 
-                            ImGuiCond_Once,
+    ImGui::SetNextWindowPos({imgui_io.DisplaySize.x * 0.5f, imgui_io.DisplaySize.y * 0.5f},
+                            ImGuiCond_Always,
                             {0.5, 0.5f});
     if (credentials_manager.get_token().empty())
     {
