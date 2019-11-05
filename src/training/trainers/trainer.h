@@ -74,6 +74,10 @@ class Trainer
     bool should_clear_particles();
 
     inline unsigned int get_batch_number() const { return batch_number; }
+    inline std::string get_current_opponent(int environment) const
+    {
+        return opponents[environment]->get_name();
+    }
     inline std::vector<std::unique_ptr<IEnvironment>> &get_environments() { return environments; }
     inline unsigned long long get_timestep() const { return timestep; }
     inline const TrainingProgram &get_training_program() const { return program; }
