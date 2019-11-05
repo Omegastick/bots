@@ -1,5 +1,6 @@
 #pragma once
 
+#include <chrono>
 #include <memory>
 #include <mutex>
 #include <thread>
@@ -31,6 +32,7 @@ class TrainScreen : public IScreen
     std::unique_ptr<DistortionLayer> distortion_layer;
     bool fast;
     IO &io;
+    std::chrono::time_point<std::chrono::high_resolution_clock> last_eval_time;
     bool lightweight_rendering;
     glm::mat4 projection;
     ResourceManager &resource_manager;
