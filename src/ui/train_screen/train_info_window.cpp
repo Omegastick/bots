@@ -64,7 +64,7 @@ void TrainInfoWindow::update(unsigned long long timestep, unsigned int update)
     ImGui::Plot("##training-graph",
                 selected_data.second,
                 selected_data.first,
-                {0, resolution.y * 0.3f});
+                {0, 0});
 
     ImGui::End();
 }
