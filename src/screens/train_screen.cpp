@@ -1,3 +1,5 @@
+#include <chrono>
+#include <thread>
 #include <memory>
 #include <mutex>
 
@@ -31,6 +33,7 @@ TrainScreen::TrainScreen(std::unique_ptr<TrainInfoWindow> train_info_window,
           std::make_unique<PostProcLayer>(*resource_manager.shader_store.get("crt"))),
       fast(false),
       io(io),
+      last_eval_time(std::chrono::high_resolution_clock::now()),
       lightweight_rendering(false),
       projection(glm::ortho(0.f, 1920.f, 0.f, 1080.f)),
       resource_manager(resource_manager),
@@ -69,6 +72,7 @@ TrainScreen::~TrainScreen()
 
 void TrainScreen::update(const double /*delta_time*/)
 {
+    glm::vec2 resolution = io.get_resolutionf();
     ImGui::SetNextWindowPos({resolution.x * 0.05f, resolution.y * 0.05f}, ImGuiCond_Once);
     ImGui::Begin("Speed", NULL, ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoResize);
     ImGui::Checkbox("Fast", &fast);
@@ -101,11 +105,19 @@ void TrainScreen::update(const double /*delta_time*/)
                 }
             }
 
+            const auto now = std::chrono::high_resolution_clock::now();
+            if (now - last_eval_time > std::chrono::seconds(60))
+            {
+                const auto timestep = trainer->get_timestep();
+                const auto elo = trainer->evaluate();
+                train_info_window->add_data("Elo", timestep, elo);
+                last_eval_time = now;
+            }
+
             batch_finished = true;
         });
     }
 
-    glm::vec2 resolution = io.get_resolutionf();
     ImGui::SetNextWindowSize({resolution.x * 0.2f, resolution.y * 0.15f}, ImGuiCond_Once);
     ImGui::SetNextWindowPos({resolution.x * 0.05f, resolution.y * 0.3f}, ImGuiCond_Once);
     ImGui::Begin("Health");
