@@ -33,7 +33,11 @@ void Plot(const std::string &label,
     // Calculate size
     if (size.x <= 0)
     {
-        size.x = GetContentRegionAvailWidth();
+        size.x = GetContentRegionAvail().x;
+    }
+    if (size.y <= 0)
+    {
+        size.y = GetContentRegionAvail().y;
     }
 
     ImGuiContext &g = *GImGui;
