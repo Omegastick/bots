@@ -388,7 +388,7 @@ std::vector<std::pair<std::string, float>> Trainer::learn()
         opponent_pool.push_back(std::make_unique<NNAgent>(
             policy,
             program.body,
-            date::format("%F-%H-%M-%S", std::chrono::system_clock::now())));
+            date::format("%F-%H-%M", std::chrono::system_clock::now())));
         new_opponents++;
         last_save_time = now;
     }

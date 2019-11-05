@@ -69,6 +69,7 @@ TrainScreen::~TrainScreen()
 
 void TrainScreen::update(const double /*delta_time*/)
 {
+    ImGui::SetNextWindowPos({resolution.x * 0.05f, resolution.y * 0.05f}, ImGuiCond_Once);
     ImGui::Begin("Speed", NULL, ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoResize);
     ImGui::Checkbox("Fast", &fast);
     ImGui::End();
@@ -105,7 +106,7 @@ void TrainScreen::update(const double /*delta_time*/)
     }
 
     glm::vec2 resolution = io.get_resolutionf();
-    ImGui::SetNextWindowSize({resolution.x * 0.2f, resolution.y * 0.1f}, ImGuiCond_Once);
+    ImGui::SetNextWindowSize({resolution.x * 0.2f, resolution.y * 0.15f}, ImGuiCond_Once);
     ImGui::SetNextWindowPos({resolution.x * 0.05f, resolution.y * 0.3f}, ImGuiCond_Once);
     ImGui::Begin("Health");
     auto bodies = trainer->get_environments()[0]->get_bodies();
@@ -124,6 +125,13 @@ void TrainScreen::update(const double /*delta_time*/)
     {
         ImGui::Text("%.1f", score);
     }
+    ImGui::End();
+
+    ImGui::SetNextWindowSize({resolution.x * 0.15f, resolution.y * 0.075f}, ImGuiCond_Once);
+    ImGui::SetNextWindowPos({resolution.x * 0.7f, resolution.y * 0.5f}, ImGuiCond_Once);
+    ImGui::Begin("Current opponent");
+    const auto opponent = trainer->get_current_opponent(0);
+    ImGui::Text("Current opponent: %s", opponent.c_str());
     ImGui::End();
 
     {
