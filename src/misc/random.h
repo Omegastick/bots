@@ -16,8 +16,8 @@ class Random
   public:
     BOOST_DI_INJECT(Random, (named = RandomSeed) int seed);
     Random(Random &&other);
-    ~Random();
 
+    bool next_bool(double probability);
     int next_int(int min, int max);
     float next_float(float min, float max);
     float next_float(std::uniform_real_distribution<float> distribution);

@@ -14,6 +14,7 @@
 #include "trainer.h"
 #include "misc/random.h"
 #include "misc/resource_manager.h"
+#include "misc/utils/range.h"
 #include "training/agents/iagent.h"
 #include "training/agents/nn_agent.h"
 #include "training/agents/random_agent.h"
@@ -54,6 +55,7 @@ Trainer::Trainer(TrainingProgram program,
       returns_rms(1),
       rng(rng),
       slow(false),
+      start_positions(env_count),
       timestep(0)
 {
     torch::manual_seed(0);
@@ -70,23 +72,6 @@ Trainer::Trainer(TrainingProgram program,
                                                               cpprl::ActionSpace{"MultiBinary", {num_actions}},
                                                               64,
                                                               torch::kCPU);
-
-    // Initialize environments
-    for (int i = 0; i < env_count; ++i)
-    {
-        auto world = std::make_unique<b2World>(b2Vec2_zero);
-        auto rng = std::make_unique<Random>(i);
-        std::vector<std::unique_ptr<Body>> bodies;
-        bodies.push_back(body_factory.make(*world, *rng));
-        bodies.push_back(body_factory.make(*world, *rng));
-        bodies[0]->load_json(program.body);
-        bodies[1]->load_json(program.body);
-        environments.push_back(env_factory.make(std::move(rng),
-                                                std::move(world),
-                                                std::move(bodies),
-                                                program.reward_config));
-    }
-    env_scores.resize(env_count);
 
     // Initialize env mutexes
     std::vector<std::mutex> temp_mutex_vec(program.hyper_parameters.num_env);
@@ -110,6 +95,37 @@ Trainer::Trainer(TrainingProgram program,
     }
     opponent_masks = torch::ones({env_count, 1});
 
+    // Initialize start positions
+    for (const auto i : range(0, env_count))
+    {
+        start_positions[i] = rng.next_bool(0.5);
+    }
+
+    // Initialize environments
+    for (const auto i : range(0, env_count))
+    {
+        auto world = std::make_unique<b2World>(b2Vec2_zero);
+        auto rng = std::make_unique<Random>(i);
+        std::vector<std::unique_ptr<Body>> bodies;
+        bodies.push_back(body_factory.make(*world, *rng));
+        bodies.push_back(body_factory.make(*world, *rng));
+        if (start_positions[i])
+        {
+            bodies[0]->load_json(program.body);
+            bodies[1]->load_json(opponents[i]->get_body_spec());
+        }
+        else
+        {
+            bodies[0]->load_json(opponents[i]->get_body_spec());
+            bodies[1]->load_json(program.body);
+        }
+        environments.push_back(env_factory.make(std::move(rng),
+                                                std::move(world),
+                                                std::move(bodies),
+                                                program.reward_config));
+    }
+    env_scores.resize(env_count);
+
     auto observations = torch::zeros({env_count, num_observations});
     opponent_observations.clear();
     for (unsigned int i = 0; i < environments.size(); ++i)
@@ -121,9 +137,18 @@ Trainer::Trainer(TrainingProgram program,
         // Start each environment with a different number of random steps to decorrelate the environments
         for (unsigned int current_step = 0; current_step < i * 12; current_step++)
         {
-            std::vector<torch::Tensor> actions{
-                torch::rand({1, num_actions}).round(),
-                torch::rand({1, opponents[i]->get_action_size()}).round()};
+            std::vector<torch::Tensor> actions;
+            auto player_actions = torch::rand({1, num_actions}).round();
+            auto opponent_actions = torch::rand({1, opponents[i]->get_action_size()}).round();
+            if (start_positions[i])
+            {
+                actions = {player_actions, opponent_actions};
+            }
+            else
+            {
+                actions = {opponent_actions, player_actions};
+            }
+
             env_observation = environments[i]->step(actions, 1.f / 10.f).observation;
             if (current_step == (i * 12) - 1)
             {
@@ -248,8 +273,18 @@ std::vector<std::pair<std::string, float>> Trainer::step_batch()
                 StepInfo step_info;
                 {
                     std::lock_guard lock_guard(env_mutexes[i]);
-                    step_info = environments[i]->step({act_result[1], std::get<0>(opponent_act_result)},
-                                                      1.f / 60.f);
+                    auto &player_actions = act_result[1];
+                    auto &opponent_actions = std::get<0>(opponent_act_result);
+                    std::vector<torch::Tensor> actions;
+                    if (start_positions[i])
+                    {
+                        actions = {player_actions, opponent_actions};
+                    }
+                    else
+                    {
+                        actions = {opponent_actions, player_actions};
+                    }
+                    step_info = environments[i]->step(actions, 1.f / 60.f);
                 }
                 if (slow)
                 {
@@ -266,12 +301,14 @@ std::vector<std::pair<std::string, float>> Trainer::step_batch()
                         std::this_thread::sleep_for(std::chrono::milliseconds(1000 / 60));
                     }
                 }
-                dones = step_info.done[0];
-                rewards = step_info.reward[0];
-                opponent_observations[i] = step_info.observation[1];
-                opponent_dones = step_info.done[1];
-                env_scores[i] += step_info.reward[0].item().toFloat();
-                if (step_info.done[0].item().toBool())
+                int player_index = start_positions[i] ? 0 : 1;
+                int opponent_index = start_positions[i] ? 1 : 0;
+                dones = step_info.done[player_index];
+                rewards = step_info.reward[player_index];
+                opponent_observations[i] = step_info.observation[opponent_index];
+                opponent_dones = step_info.done[opponent_index];
+                env_scores[i] += step_info.reward[player_index].item().toFloat();
+                if (step_info.done[player_index].item().toBool())
                 {
                     if (i == 0)
                     {
@@ -281,9 +318,11 @@ std::vector<std::pair<std::string, float>> Trainer::step_batch()
                     environments[i]->reset();
                     int selected_opponent = rng.next_int(0, opponent_pool.size());
                     opponents[i] = opponent_pool[selected_opponent].get();
-                    opponent_hidden_states[i] = torch::zeros({opponents[i]->get_hidden_state_size(), 1});
+                    opponent_hidden_states[i] = torch::zeros(
+                        {opponents[i]->get_hidden_state_size(), 1});
+                    start_positions[i] = rng.next_bool(0.5);
                 }
-                storages[i].insert(step_info.observation[0],
+                storages[i].insert(step_info.observation[player_index],
                                    act_result[3],
                                    act_result[1],
                                    act_result[2],

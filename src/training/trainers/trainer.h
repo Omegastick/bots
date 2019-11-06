@@ -55,6 +55,7 @@ class Trainer
     Random &rng;
     std::unique_ptr<cpprl::RolloutStorage> rollout_storage;
     bool slow;
+    std::vector<bool> start_positions;
     std::atomic<unsigned long long> timestep;
 
     std::vector<std::pair<std::string, float>> learn();
