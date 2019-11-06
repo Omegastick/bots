@@ -10,7 +10,10 @@ Random::Random(int seed) : rng(seed) {}
 
 Random::Random(Random &&other) : rng(std::move(other.rng)) {}
 
-Random::~Random() {}
+bool Random::next_bool(double probability)
+{
+    return next_float(0, 1) < probability;
+}
 
 int Random::next_int(int min, int max)
 {
