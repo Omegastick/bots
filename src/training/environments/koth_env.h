@@ -11,19 +11,19 @@
 #include "third_party/di.hpp"
 #include "training/bodies/body.h"
 #include "training/bodies/test_body.h"
+#include "training/effects/ieffect.h"
+#include "training/entities/hill.h"
+#include "training/entities/wall.h"
+#include "training/entities/ientity.h"
 #include "training/environments/ienvironment.h"
 #include "training/training_program.h"
 
 namespace SingularityTrainer
 {
-class IEffect;
-class IEntity;
 class IEvent;
-class Hill;
 struct Particle;
 class Renderer;
 class ResourceManager;
-class Wall;
 
 class KothEnv : public IEnvironment
 {
@@ -57,7 +57,6 @@ class KothEnv : public IEnvironment
             std::unique_ptr<b2World> world,
             std::unique_ptr<Random> rng,
             RewardConfig reward_config);
-    ~KothEnv();
 
     virtual void add_effect(std::unique_ptr<IEffect> effect);
     virtual void add_entity(std::unique_ptr<IEntity> entity);
@@ -70,11 +69,14 @@ class KothEnv : public IEnvironment
     virtual void change_reward(int body, float reward_delta);
     virtual void change_reward(Body *body, float reward_delta);
     virtual void set_done();
-    void draw(Renderer &renderer, bool lightweight = false);
+    virtual void draw(Renderer &renderer, bool lightweight = false);
     virtual double get_elapsed_time() const;
 
     inline std::vector<Body *> get_bodies() { return {body_1.get(), body_2.get()}; }
-    inline std::unordered_map<unsigned int, std::unique_ptr<IEntity>> &get_entities() { return entities; }
+    inline std::unordered_map<unsigned int, std::unique_ptr<IEntity>> &get_entities()
+    {
+        return entities;
+    }
     inline RewardConfig &get_reward_config() { return reward_config; }
     inline Random &get_rng() { return *rng; }
     inline std::vector<float> get_scores() { return scores; }
