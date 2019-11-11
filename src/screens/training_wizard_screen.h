@@ -7,7 +7,7 @@
 #include <glm/mat4x4.hpp>
 #include <torch/torch.h>
 
-#include "graphics/post_proc_layer.h"
+#include "graphics/post_processing/post_proc_layer.h"
 #include "screens/iscreen.h"
 #include "training/bodies/body.h"
 #include "ui/training_wizard_screen/body_selector_window.h"

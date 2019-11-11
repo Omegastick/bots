@@ -10,10 +10,10 @@
 #include <fmt/format.h>
 
 #include "train_screen.h"
-#include "graphics/distortion_layer.h"
+#include "graphics/post_processing/distortion_layer.h"
 #include "graphics/renderers/renderer.h"
 #include "graphics/backend/shader.h"
-#include "graphics/post_proc_layer.h"
+#include "graphics/post_processing/post_proc_layer.h"
 #include "graphics/colors.h"
 #include "misc/io.h"
 #include "misc/resource_manager.h"

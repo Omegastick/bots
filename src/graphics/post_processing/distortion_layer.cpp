@@ -7,7 +7,7 @@
 #include "graphics/backend/vertex_array.h"
 #include "graphics/backend/vertex_buffer.h"
 #include "graphics/backend/vertex_buffer_layout.h"
-#include "graphics/post_proc_layer.h"
+#include "graphics/post_processing/post_proc_layer.h"
 #include "misc/spring_mesh.h"
 
 namespace SingularityTrainer

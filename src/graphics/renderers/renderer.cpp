@@ -15,9 +15,9 @@
 #include "graphics/backend/element_buffer.h"
 #include "graphics/backend/shader.h"
 #include "graphics/backend/frame_buffer.h"
-#include "graphics/distortion_layer.h"
+#include "graphics/post_processing/distortion_layer.h"
 #include "graphics/render_data.h"
-#include "graphics/post_proc_layer.h"
+#include "graphics/post_processing/post_proc_layer.h"
 #include "graphics/render_data.h"
 
 namespace SingularityTrainer
