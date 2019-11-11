@@ -50,9 +50,7 @@ DistortionTestScreen::DistortionTestScreen(
     sprite->transform.set_scale(glm::vec2(100, 100));
     sprite->transform.set_position(glm::vec2(960, 540));
 
-    distortion_layer = std::make_unique<DistortionLayer>(
-        *resource_manager.shader_store.get("distortion"),
-        width, height, -0.1);
+    distortion_layer = std::make_unique<DistortionLayer>(resource_manager, width, height, -0.1);
 }
 
 void DistortionTestScreen::update(double delta_time)

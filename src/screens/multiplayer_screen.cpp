@@ -80,8 +80,9 @@ MultiplayerScreen::MultiplayerScreen(double tick_length,
 
     crt_post_proc_layer = std::make_unique<PostProcLayer>(*resource_manager.shader_store.get("crt"));
     auto resolution = io.get_resolution();
-    distortion_layer = std::make_unique<DistortionLayer>(
-        *resource_manager.shader_store.get("distortion"), resolution.x, resolution.y);
+    distortion_layer = std::make_unique<DistortionLayer>(resource_manager,
+                                                         resolution.x,
+                                                         resolution.y);
 
     zmq_context.setctxopt(ZMQ_BLOCKY, false);
 }
