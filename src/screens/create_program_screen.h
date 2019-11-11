@@ -4,7 +4,7 @@
 
 #include <glm/mat4x4.hpp>
 
-#include "graphics/post_proc_layer.h"
+#include "graphics/post_processing/post_proc_layer.h"
 #include "screens/iscreen.h"
 #include "training/training_program.h"
 #include "ui/create_program_screen/create_program_screen_state.h"

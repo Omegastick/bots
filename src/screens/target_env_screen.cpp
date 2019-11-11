@@ -7,7 +7,7 @@
 #include "screens/target_env_screen.h"
 #include "graphics/renderers/renderer.h"
 #include "graphics/backend/shader.h"
-#include "graphics/post_proc_layer.h"
+#include "graphics/post_processing/post_proc_layer.h"
 #include "graphics/colors.h"
 #include "training/trainers/quick_trainer.h"
 #include "screens/iscreen.h"

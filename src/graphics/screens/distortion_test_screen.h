@@ -6,7 +6,7 @@
 
 #include <glm/glm.hpp>
 
-#include "graphics/distortion_layer.h"
+#include "graphics/post_processing/distortion_layer.h"
 #include "misc/spring_mesh.h"
 #include "screens/iscreen.h"
 

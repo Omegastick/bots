@@ -6,7 +6,7 @@
 #include <Box2D/Box2D.h>
 #include <glm/mat4x4.hpp>
 
-#include "graphics/distortion_layer.h"
+#include "graphics/post_processing/distortion_layer.h"
 #include "misc/random.h"
 #include "networking/client_agent.h"
 #include "networking/client_communicator.h"

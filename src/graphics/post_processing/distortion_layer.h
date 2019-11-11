@@ -6,7 +6,7 @@
 #include "graphics/backend/texture.h"
 #include "graphics/backend/vertex_array.h"
 #include "graphics/backend/vertex_buffer.h"
-#include "graphics/post_proc_layer.h"
+#include "graphics/post_processing/post_proc_layer.h"
 #include "misc/spring_mesh.h"
 
 namespace SingularityTrainer
@@ -26,7 +26,6 @@ class DistortionLayer : public PostProcLayer
                     int width = 1920,
                     int height = 1080,
                     float scaling_factor = -0.1f);
-    DistortionLayer &operator=(DistortionLayer &&other) = delete;
 
     void apply_explosive_force(glm::vec2 position, float size, float strength);
     void apply_implosive_force(glm::vec2 position, float size, float strength);

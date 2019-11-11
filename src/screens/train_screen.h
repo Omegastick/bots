@@ -7,7 +7,7 @@
 
 #include <glm/mat4x4.hpp>
 
-#include "graphics/distortion_layer.h"
+#include "graphics/post_processing/distortion_layer.h"
 #include "screens/iscreen.h"
 #include "training/training_program.h"
 #include "training/trainers/trainer.h"

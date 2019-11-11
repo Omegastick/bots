@@ -11,7 +11,7 @@
 
 #include "screens/watch_screen.h"
 #include "graphics/renderers/renderer.h"
-#include "graphics/post_proc_layer.h"
+#include "graphics/post_processing/post_proc_layer.h"
 #include "training/environments/ienvironment.h"
 #include "misc/resource_manager.h"
 

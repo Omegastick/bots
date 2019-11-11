@@ -15,7 +15,7 @@
 #include "graphics/backend/shader.h"
 #include "graphics/backend/texture.h"
 #include "graphics/render_data.h"
-#include "graphics/post_proc_layer.h"
+#include "graphics/post_processing/post_proc_layer.h"
 #include "misc/resource_manager.h"
 #include "misc/screen_manager.h"
 #include "screens/iscreen.h"

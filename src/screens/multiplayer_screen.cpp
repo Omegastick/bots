@@ -14,7 +14,7 @@
 
 #include "multiplayer_screen.h"
 #include "graphics/backend/shader.h"
-#include "graphics/post_proc_layer.h"
+#include "graphics/post_processing/post_proc_layer.h"
 #include "graphics/renderers/renderer.h"
 #include "graphics/render_data.h"
 #include "misc/credentials_manager.h"

@@ -12,7 +12,7 @@
 
 #include "distortion_test_screen.h"
 #include "graphics/screens/test_utils.h"
-#include "graphics/distortion_layer.h"
+#include "graphics/post_processing/distortion_layer.h"
 #include "graphics/renderers/renderer.h"
 #include "misc/resource_manager.h"
 #include "misc/screen_manager.h"

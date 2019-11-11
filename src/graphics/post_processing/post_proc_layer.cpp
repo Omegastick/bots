@@ -7,7 +7,7 @@
 #include "graphics/backend/vertex_buffer_layout.h"
 #include "graphics/render_data.h"
 #include "graphics/renderers/renderer.h"
-#include "graphics/post_proc_layer.h"
+#include "graphics/post_processing/post_proc_layer.h"
 
 namespace SingularityTrainer
 {
@@ -39,21 +39,6 @@ PostProcLayer::PostProcLayer(Shader &shader, int width, int height)
     vertex_array->add_buffer(*vertex_buffer, layout);
 
     frame_buffer.set_texture(width, height);
-}
-
-PostProcLayer &PostProcLayer::operator=(PostProcLayer &&other)
-{
-    if (this != &other)
-    {
-        frame_buffer = std::move(other.frame_buffer);
-        shader = other.shader;
-        vertex_array = std::move(other.vertex_array);
-        vertex_buffer = std::move(other.vertex_buffer);
-        element_buffer = std::move(other.element_buffer);
-        width = other.width;
-        height = other.height;
-    }
-    return *this;
 }
 
 FrameBuffer &PostProcLayer::render(Texture &input_texture)
