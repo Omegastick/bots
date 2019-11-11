@@ -130,6 +130,12 @@ void init_imgui(const int opengl_version_major, const int opengl_version_minor, 
     io.Fonts->AddFontFromFileTTF("assets/fonts/Roboto-Regular.ttf", 16, &font_config);
     io.Fonts->AddFontFromFileTTF("assets/fonts/Roboto-Regular.ttf", 24, &font_config);
     io.Fonts->AddFontFromFileTTF("assets/fonts/Roboto-Regular.ttf", 32, &font_config);
+    io.Fonts->AddFontFromFileTTF("assets/fonts/SourceCodePro-Light.ttf", 16, &font_config);
+    io.Fonts->AddFontFromFileTTF("assets/fonts/SourceCodePro-Light.ttf", 24, &font_config);
+    io.Fonts->AddFontFromFileTTF("assets/fonts/SourceCodePro-Light.ttf", 32, &font_config);
+    io.Fonts->AddFontFromFileTTF("assets/fonts/SourceCodePro-Regular.ttf", 16, &font_config);
+    io.Fonts->AddFontFromFileTTF("assets/fonts/SourceCodePro-Regular.ttf", 24, &font_config);
+    io.Fonts->AddFontFromFileTTF("assets/fonts/SourceCodePro-Regular.ttf", 32, &font_config);
     io.IniFilename = NULL;
 
     reset_imgui_style();
