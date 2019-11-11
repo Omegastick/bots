@@ -11,7 +11,7 @@
 
 namespace SingularityTrainer
 {
-class Shader;
+class ResourceManager;
 
 class DistortionLayer : public PostProcLayer
 {
@@ -22,7 +22,7 @@ class DistortionLayer : public PostProcLayer
     std::unique_ptr<Texture> texture;
 
   public:
-    DistortionLayer(Shader &shader,
+    DistortionLayer(ResourceManager &resource_manager,
                     int width = 1920,
                     int height = 1080,
                     float scaling_factor = -0.1f);

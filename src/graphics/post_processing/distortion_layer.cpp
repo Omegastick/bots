@@ -8,12 +8,16 @@
 #include "graphics/backend/vertex_buffer.h"
 #include "graphics/backend/vertex_buffer_layout.h"
 #include "graphics/post_processing/post_proc_layer.h"
+#include "misc/resource_manager.h"
 #include "misc/spring_mesh.h"
 
 namespace SingularityTrainer
 {
-DistortionLayer::DistortionLayer(Shader &shader, int width, int height, float scaling_factor)
-    : PostProcLayer(shader, width, height),
+DistortionLayer::DistortionLayer(ResourceManager &resource_manager,
+                                 int width,
+                                 int height,
+                                 float scaling_factor)
+    : PostProcLayer(*resource_manager.shader_store.get("distortion"), width, height),
       mesh_width(static_cast<int>(std::round(width * 0.1))),
       mesh_height(static_cast<int>(std::round(height * 0.1))),
       scaling_factor(scaling_factor),
