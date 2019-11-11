@@ -117,6 +117,7 @@ void Renderer::render(double time)
               [](PackedSprite &a, PackedSprite &b) { return a.texture < b.texture; });
 
     unsigned int texture_index = 0;
+    std::vector<glm::vec4> colors;
     std::vector<glm::mat4> transforms;
     for (const auto &sprite : sprites)
     {
@@ -124,17 +125,19 @@ void Renderer::render(double time)
         {
             if (transforms.size() > 0)
             {
-                sprite_renderer.draw(textures[texture_index], transforms, view);
+                sprite_renderer.draw(textures[texture_index], transforms, colors, view);
+                colors.clear();
                 transforms.clear();
             }
             texture_index = sprite.texture;
         }
 
+        colors.push_back(sprite.color);
         transforms.push_back(sprite.transform);
     }
     if (transforms.size() > 0)
     {
-        sprite_renderer.draw(textures[texture_index], transforms, view);
+        sprite_renderer.draw(textures[texture_index], transforms, colors, view);
     }
     sprites.clear();
 
