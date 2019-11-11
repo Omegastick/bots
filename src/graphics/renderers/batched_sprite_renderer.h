@@ -30,6 +30,7 @@ class BatchedSpriteRenderer
 
     void draw(const std::string &texture,
               const std::vector<glm::mat4> &transforms,
+              const std::vector<glm::vec4> &colors,
               const glm::mat4 &view);
 };
 }

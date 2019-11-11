@@ -56,6 +56,7 @@ BatchedSpriteRenderer::BatchedSpriteRenderer(ResourceManager &resource_manager)
 
 void BatchedSpriteRenderer::draw(const std::string &texture,
                                  const std::vector<glm::mat4> &transforms,
+                                 const std::vector<glm::vec4> &colors,
                                  const glm::mat4 &view)
 {
     vertex_array->bind();
@@ -71,25 +72,25 @@ void BatchedSpriteRenderer::draw(const std::string &texture,
         transformed_vertices[i * 4] = {glm::vec2(transformed_position.x,
                                                  transformed_position.y),
                                        glm::vec2(0.0, 1.0),
-                                       glm::vec4(1.0, 1.0, 1.0, 1.0)};
+                                       colors[i]};
 
         transformed_position = transform * glm::vec4(-0.5, -0.5, 1.0, 1.0);
         transformed_vertices[i * 4 + 1] = {glm::vec2(transformed_position.x,
                                                      transformed_position.y),
                                            glm::vec2(0.0, 0.0),
-                                           glm::vec4(1.0, 1.0, 1.0, 1.0)};
+                                           colors[i]};
 
         transformed_position = transform * glm::vec4(0.5, -0.5, 1.0, 1.0);
         transformed_vertices[i * 4 + 2] = {glm::vec2(transformed_position.x,
                                                      transformed_position.y),
                                            glm::vec2(1.0, 0.0),
-                                           glm::vec4(1.0, 1.0, 1.0, 1.0)};
+                                           colors[i]};
 
         transformed_position = transform * glm::vec4(0.5, 0.5, 1.0, 1.0);
         transformed_vertices[i * 4 + 3] = {glm::vec2(transformed_position.x,
                                                      transformed_position.y),
                                            glm::vec2(1.0, 1.0),
-                                           glm::vec4(1.0, 1.0, 1.0, 1.0)};
+                                           colors[i]};
     }
 
     vertex_buffer->add_data(transformed_vertices.data(),
