@@ -172,9 +172,6 @@ void MultiplayerScreen::draw(Renderer &renderer, bool lightweight)
 
     auto crt_shader = resource_manager.shader_store.get("crt");
     crt_shader->set_uniform_2f("u_resolution", {renderer.get_width(), renderer.get_height()});
-    crt_shader->set_uniform_1f("u_output_gamma", 1);
-    crt_shader->set_uniform_1f("u_strength", 0.8f);
-    crt_shader->set_uniform_1f("u_distortion_factor", 0.1f);
 }
 
 void MultiplayerScreen::choose_agent()
@@ -216,7 +213,7 @@ void MultiplayerScreen::connect()
 void MultiplayerScreen::input_address()
 {
     const auto &imgui_io = ImGui::GetIO();
-    ImGui::SetNextWindowPos({imgui_io.DisplaySize.x * 0.5f, imgui_io.DisplaySize.y * 0.5f}, 
+    ImGui::SetNextWindowPos({imgui_io.DisplaySize.x * 0.5f, imgui_io.DisplaySize.y * 0.5f},
                             ImGuiCond_Always,
                             {0.5, 0.5f});
     auto resolution = io.get_resolutionf();
@@ -233,7 +230,7 @@ void MultiplayerScreen::input_address()
 void MultiplayerScreen::connection_failure()
 {
     const auto &imgui_io = ImGui::GetIO();
-    ImGui::SetNextWindowPos({imgui_io.DisplaySize.x * 0.5f, imgui_io.DisplaySize.y * 0.5f}, 
+    ImGui::SetNextWindowPos({imgui_io.DisplaySize.x * 0.5f, imgui_io.DisplaySize.y * 0.5f},
                             ImGuiCond_Always,
                             {0.5, 0.5f});
     auto resolution = io.get_resolutionf();
@@ -336,7 +333,7 @@ void MultiplayerScreen::play(double delta_time)
 void MultiplayerScreen::wait_for_matchmaker()
 {
     const auto &imgui_io = ImGui::GetIO();
-    ImGui::SetNextWindowPos({imgui_io.DisplaySize.x * 0.5f, imgui_io.DisplaySize.y * 0.5f}, 
+    ImGui::SetNextWindowPos({imgui_io.DisplaySize.x * 0.5f, imgui_io.DisplaySize.y * 0.5f},
                             ImGuiCond_Always,
                             {0.5, 0.5f});
     auto resolution = io.get_resolutionf();
@@ -366,7 +363,7 @@ void MultiplayerScreen::wait_for_matchmaker()
 void MultiplayerScreen::wait_for_start()
 {
     const auto &imgui_io = ImGui::GetIO();
-    ImGui::SetNextWindowPos({imgui_io.DisplaySize.x * 0.5f, imgui_io.DisplaySize.y * 0.5f}, 
+    ImGui::SetNextWindowPos({imgui_io.DisplaySize.x * 0.5f, imgui_io.DisplaySize.y * 0.5f},
                             ImGuiCond_Always,
                             {0.5, 0.5f});
     auto resolution = io.get_resolutionf();
