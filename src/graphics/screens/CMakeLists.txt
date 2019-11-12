@@ -1,6 +1,7 @@
 target_sources(Graphics
 PRIVATE
     ${CMAKE_CURRENT_LIST_DIR}/animation_test_screen.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/bloom_test_screen.cpp
     ${CMAKE_CURRENT_LIST_DIR}/crt_test_screen.cpp
     ${CMAKE_CURRENT_LIST_DIR}/distortion_test_screen.cpp
     ${CMAKE_CURRENT_LIST_DIR}/grid_test_screen.cpp
