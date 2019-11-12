@@ -51,7 +51,6 @@ class MultiplayerScreen : public IScreen
     std::unique_ptr<ClientAgent> client_agent;
     std::unique_ptr<ClientCommunicator> client_communicator;
     CredentialsManager &credentials_manager;
-    std::unique_ptr<PostProcLayer> crt_post_proc_layer;
     std::unique_ptr<DistortionLayer> distortion_layer;
     int done_tick;
     std::unique_ptr<PlaybackEnv> env;

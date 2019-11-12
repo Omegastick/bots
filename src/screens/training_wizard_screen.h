@@ -49,7 +49,6 @@ class TrainingWizardScreen : public IScreen
     double last_action_time;
     cpprl::Policy policy;
     TrainingProgram &program;
-    PostProcLayer crt_post_proc_layer;
     ResourceManager *resource_manager;
     ScreenManager *screen_manager;
     State state;

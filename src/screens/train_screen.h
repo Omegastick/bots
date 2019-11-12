@@ -28,7 +28,6 @@ class TrainScreen : public IScreen
   private:
     bool batch_finished;
     std::thread batch_thread;
-    std::unique_ptr<PostProcLayer> crt_post_proc_layer;
     std::unique_ptr<DistortionLayer> distortion_layer;
     bool fast;
     IO &io;

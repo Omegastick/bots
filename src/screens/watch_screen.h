@@ -47,7 +47,6 @@ class WatchScreen : public IScreen
     ResourceManager *resource_manager;
     Communicator *communicator;
     States state;
-    std::unique_ptr<PostProcLayer> crt_post_proc_layer;
     int frame_counter;
     std::vector<torch::Tensor> observations;
     torch::Tensor hidden_states, masks;

@@ -30,7 +30,7 @@ Hill::Hill(float x, float y, b2World &world)
     sprite = std::make_unique<Sprite>();
     sprite->texture = "target";
     sprite->transform.set_scale({6, 6});
-    sprite->color = cl_cyan;
+    sprite->color = cl_white;
 }
 
 void Hill::draw(Renderer &renderer, bool /*lightweight*/)

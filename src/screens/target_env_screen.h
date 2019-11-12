@@ -22,7 +22,6 @@ class TargetEnvScreen : public IScreen
     bool lightweight_rendering;
     glm::mat4 projection;
     bool fast;
-    std::unique_ptr<PostProcLayer> crt_post_proc_layer;
 
   public:
     TargetEnvScreen(ResourceManager &resource_manager, Random &rng, int env_count);
