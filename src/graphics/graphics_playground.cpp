@@ -230,6 +230,12 @@ int main(int /*argc*/, const char * /*argv*/ [])
     spdlog::debug("Initializing plot test");
     screens.push_back(std::make_shared<PlotTestScreen>(screen_manager, screens, screen_names));
     screen_names.push_back("Plot test");
+    spdlog::debug("Initializing bloom test");
+    screens.push_back(std::make_shared<BloomTestScreen>(screen_manager,
+                                                        resource_manager,
+                                                        screens,
+                                                        screen_names));
+    screen_names.push_back("Bloom test");
     screen_manager.show_screen(screens[0]);
 
     spdlog::debug("Initializing renderer");

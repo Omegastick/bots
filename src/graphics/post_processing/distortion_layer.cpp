@@ -36,7 +36,7 @@ void DistortionLayer::apply_implosive_force(glm::vec2 position, float size, floa
 FrameBuffer &DistortionLayer::render(Texture &input_texture)
 {
     update_texture();
-    shader.set_uniform_1i("u_distortion", 1);
+    shader->set_uniform_1i("u_distortion", 1);
     texture->bind(1);
 
     return PostProcLayer::render(input_texture);
