@@ -14,8 +14,9 @@ class Random;
 
 enum class EffectTypes
 {
-    BulletExplosion = 0,
-    ThrusterParticles = 1
+    BodyHit = 0,
+    BulletExplosion = 1,
+    ThrusterParticles = 2
 };
 
 class EffectTriggered : public IEvent

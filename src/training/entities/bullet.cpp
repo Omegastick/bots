@@ -11,6 +11,7 @@
 #include "training/effects/bullet_explosion.h"
 #include "training/entities/bullet.h"
 #include "training/environments/ienvironment.h"
+#include "training/events/effect_triggered.h"
 #include "training/events/entity_destroyed.h"
 #include "training/icollidable.h"
 #include "training/rigid_body.h"
@@ -98,6 +99,13 @@ void Bullet::begin_contact(RigidBody *other)
         auto other_body = static_cast<Body *>(other->parent);
         other_body->get_environment()->change_reward(other_body, reward_config.hit_self_punishment);
         other_body->hit(1);
+
+        auto &b2_transform = rigid_body->body->GetTransform();
+        env.add_event(std::make_unique<EffectTriggered>(EffectTypes::BodyHit,
+                                                        env.get_elapsed_time(),
+                                                        Transform{b2_transform.p.x,
+                                                                  b2_transform.p.y,
+                                                                  b2_transform.q.GetAngle()}));
     }
 
     // Create particle effect and set destroyed flag
@@ -105,7 +113,6 @@ void Bullet::begin_contact(RigidBody *other)
     {
         destroyed = true;
         auto &b2_transform = rigid_body->body->GetTransform();
-        Transform transform;
         env.add_event(std::make_unique<EntityDestroyed>(id,
                                                         env.get_elapsed_time(),
                                                         Transform{b2_transform.p.x,
