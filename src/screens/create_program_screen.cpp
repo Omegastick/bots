@@ -10,6 +10,7 @@
 #include "create_program_screen.h"
 #include "graphics/backend/shader.h"
 #include "graphics/renderers/renderer.h"
+#include "graphics/post_processing/bloom_layer.h"
 #include "misc/io.h"
 #include "misc/random.h"
 #include "misc/resource_manager.h"
@@ -65,15 +66,9 @@ CreateProgramScreen::CreateProgramScreen(std::unique_ptr<AlgorithmWindow> algori
     resource_manager.load_texture("bullet", "images/bullet.png");
     resource_manager.load_texture("pixel", "images/pixel.png");
     resource_manager.load_texture("target", "images/target.png");
-    resource_manager.load_shader("crt", "shaders/texture.vert", "shaders/crt.frag");
     resource_manager.load_shader("texture", "shaders/texture.vert", "shaders/texture.frag");
     resource_manager.load_shader("font", "shaders/texture.vert", "shaders/font.frag");
     resource_manager.load_font("roboto-16", "fonts/Roboto-Regular.ttf", 16);
-
-    crt_post_proc_layer = std::make_unique<PostProcLayer>(
-        *resource_manager.shader_store.get("crt"),
-        io.get_resolution().x,
-        io.get_resolution().y);
 }
 
 void CreateProgramScreen::algorithm()
@@ -127,12 +122,7 @@ void CreateProgramScreen::draw(Renderer &renderer, bool lightweight)
 {
     renderer.set_view(projection);
 
-    renderer.push_post_proc_layer(*crt_post_proc_layer);
-
     environment->draw(renderer, lightweight);
-
-    auto crt_shader = resource_manager.shader_store.get("crt");
-    crt_shader->set_uniform_2f("u_resolution", {renderer.get_width(), renderer.get_height()});
 }
 
 void CreateProgramScreen::update(double /*delta_time*/)

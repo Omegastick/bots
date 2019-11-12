@@ -29,8 +29,6 @@ TrainScreen::TrainScreen(std::unique_ptr<TrainInfoWindow> train_info_window,
                          ResourceManager &resource_manager,
                          ScreenManager &screen_manager)
     : batch_finished(true),
-      crt_post_proc_layer(
-          std::make_unique<PostProcLayer>(*resource_manager.shader_store.get("crt"))),
       fast(false),
       io(io),
       last_eval_time(std::chrono::high_resolution_clock::now()),
@@ -49,7 +47,6 @@ TrainScreen::TrainScreen(std::unique_ptr<TrainInfoWindow> train_info_window,
     resource_manager.load_texture("bullet", "images/bullet.png");
     resource_manager.load_texture("pixel", "images/pixel.png");
     resource_manager.load_texture("target", "images/target.png");
-    resource_manager.load_shader("crt", "shaders/texture.vert", "shaders/crt.frag");
     resource_manager.load_shader("font", "shaders/texture.vert", "shaders/font.frag");
     resource_manager.load_shader("distortion",
                                  "shaders/distortion.vert",
@@ -158,7 +155,6 @@ void TrainScreen::update(const double /*delta_time*/)
 void TrainScreen::draw(Renderer &renderer, bool /*lightweight*/)
 {
     renderer.set_distortion_layer(*distortion_layer);
-    renderer.push_post_proc_layer(*crt_post_proc_layer);
 
     if (trainer->should_clear_particles())
     {
@@ -174,8 +170,5 @@ void TrainScreen::draw(Renderer &renderer, bool /*lightweight*/)
     renderer.scissor(-10, -20, 10, 20, projection);
     renderer.set_view(projection);
     trainer->draw(renderer, lightweight_rendering);
-
-    auto crt_shader = resource_manager.shader_store.get("crt");
-    crt_shader->set_uniform_2f("u_resolution", {renderer.get_width(), renderer.get_height()});
 }
 }

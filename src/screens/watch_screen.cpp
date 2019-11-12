@@ -36,11 +36,8 @@ WatchScreen::WatchScreen(std::unique_ptr<IEnvironment> environment, ResourceMana
     resource_manager.load_texture("bullet", "images/bullet.png");
     resource_manager.load_texture("pixel", "images/pixel.png");
     resource_manager.load_texture("target", "images/target.png");
-    resource_manager.load_shader("crt", "shaders/texture.vert", "shaders/crt.frag");
     resource_manager.load_shader("font", "shaders/texture.vert", "shaders/font.frag");
     resource_manager.load_font("roboto-16", "fonts/Roboto-Regular.ttf", 16);
-
-    crt_post_proc_layer = std::make_unique<PostProcLayer>(*resource_manager.shader_store.get("crt"));
 }
 
 WatchScreen::~WatchScreen() {}
@@ -79,15 +76,10 @@ void WatchScreen::update(const double /*delta_time*/)
 
 void WatchScreen::draw(Renderer &renderer, bool /*lightweight*/)
 {
-    renderer.push_post_proc_layer(*crt_post_proc_layer);
-
     if (state == States::WATCHING)
     {
         renderer.scissor(-10, -20, 10, 20, glm::ortho(-38.4f, 38.4f, -21.6f, 21.6f));
         environment->draw(renderer);
-
-        auto crt_shader = resource_manager->shader_store.get("crt");
-        crt_shader.set_uniform_2f("u_resolution", {renderer.get_width(), renderer.get_height()});
     }
 }
 

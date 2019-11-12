@@ -1,3 +1,5 @@
+#include <memory>
+
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 #include <argh.h>
@@ -10,10 +12,14 @@
 #include <spdlog/spdlog.h>
 
 #include "app.h"
+#include "graphics/backend/shader.h"
+#include "graphics/post_processing/bloom_layer.h"
+#include "graphics/post_processing/post_proc_layer.h"
 #include "graphics/renderers/renderer.h"
 #include "graphics/window.h"
 #include "misc/animator.h"
 #include "misc/io.h"
+#include "misc/resource_manager.h"
 #include "misc/screen_manager.h"
 #include "misc/utilities.h"
 #include "screens/main_menu_screen.h"
@@ -224,6 +230,7 @@ void mouse_button_callback(GLFWwindow *glfw_window, int button, int action, int 
 App::App(Animator &animator,
          IO &io,
          Renderer &renderer,
+         ResourceManager &resource_manager,
          MainMenuScreenFactory &main_menu_screen_factory,
          ScreenManager &screen_manager,
          Window &window)
@@ -231,6 +238,7 @@ App::App(Animator &animator,
       io(io),
       main_menu_screen_factory(main_menu_screen_factory),
       renderer(renderer),
+      resource_manager(resource_manager),
       screen_manager(screen_manager),
       time(0),
       window(window)
@@ -252,6 +260,20 @@ App::App(Animator &animator,
 
     // Init cURL
     cURLpp::initialize();
+
+    // Initialize post processing
+    resource_manager.load_shader("bloom", "shaders/highpass.vert", "shaders/highpass.frag");
+    resource_manager.load_shader("blur", "shaders/blur.vert", "shaders/blur.frag");
+    resource_manager.load_shader("combine", "shaders/blur.vert", "shaders/combine.frag");
+    resource_manager.load_shader("crt", "shaders/texture.vert", "shaders/crt.frag");
+    resource_manager.load_shader("texture", "shaders/texture.vert", "shaders/texture.frag");
+    bloom_post_proc_layer = std::make_unique<BloomLayer>(resource_manager,
+                                                         io.get_resolution().x,
+                                                         io.get_resolution().y);
+    crt_post_proc_layer = std::make_unique<PostProcLayer>(
+        *resource_manager.shader_store.get("crt"),
+        io.get_resolution().x,
+        io.get_resolution().y);
 }
 
 int App::run(int argc, char *argv[])
@@ -301,7 +323,15 @@ int App::run(int argc, char *argv[])
         if (screen_manager.stack_size() > 0)
         {
             renderer.begin();
+
             screen_manager.draw(renderer);
+
+            renderer.push_post_proc_layer(*crt_post_proc_layer);
+            renderer.push_post_proc_layer(*bloom_post_proc_layer);
+            auto crt_shader = resource_manager.shader_store.get("crt");
+            crt_shader->set_uniform_2f("u_resolution",
+                                       {renderer.get_width(), renderer.get_height()});
+
             renderer.render(time);
 
             ImGui::Render();

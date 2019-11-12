@@ -27,7 +27,7 @@ Wall::Wall(float x, float y, float width, float height, b2World &world)
     sprite->texture = "pixel";
     sprite->transform.set_scale({width, height});
     sprite->transform.set_position({x + (width / 2), y + (height / 2)});
-    sprite->color = cl_cyan;
+    sprite->color = cl_white;
 }
 
 void Wall::draw(Renderer &renderer, bool /*lightweight*/)
