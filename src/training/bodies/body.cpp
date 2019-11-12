@@ -12,6 +12,7 @@
 #include "graphics/colors.h"
 #include "graphics/renderers/renderer.h"
 #include "training/bodies/body.h"
+#include "training/events/effect_triggered.h"
 #include "training/environments/ienvironment.h"
 #include "training/modules/base_module.h"
 #include "training/modules/gun_module.h"
