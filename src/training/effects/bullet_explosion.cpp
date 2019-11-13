@@ -26,7 +26,7 @@ void BulletExplosion::trigger(Renderer &renderer)
             glm::diskRand(4.f),
             -i * step_subdivision,
             0.75f,
-            0.02f,
+            0.03f,
             particle_color,
             end_color};
         particles.push_back(particle);
