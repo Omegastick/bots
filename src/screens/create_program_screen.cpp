@@ -9,6 +9,7 @@
 
 #include "create_program_screen.h"
 #include "graphics/backend/shader.h"
+#include "graphics/colors.h"
 #include "graphics/renderers/renderer.h"
 #include "graphics/post_processing/bloom_layer.h"
 #include "misc/io.h"
@@ -85,7 +86,9 @@ void CreateProgramScreen::body()
         try
         {
             bodies[0]->load_json(json);
+            bodies[0]->set_color(cl_blue);
             bodies[1]->load_json(json);
+            bodies[1]->set_color(cl_red);
         }
         catch (std::runtime_error &ex)
         {

@@ -54,6 +54,7 @@ class Body : public ICollidable
     void load_json(const nlohmann::json &json);
     void register_actions();
     void reset();
+    void set_color(glm::vec4 color);
     void set_rigid_body(std::unique_ptr<RigidBody> rigid_body);
     void sub_update();
     nlohmann::json to_json() const;

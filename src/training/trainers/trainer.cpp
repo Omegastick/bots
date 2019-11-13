@@ -12,6 +12,7 @@
 #include <torch/torch.h>
 
 #include "trainer.h"
+#include "graphics/colors.h"
 #include "misc/random.h"
 #include "misc/resource_manager.h"
 #include "misc/utils/range.h"
@@ -100,6 +101,8 @@ Trainer::Trainer(TrainingProgram program,
     {
         start_positions[i] = rng.next_bool(0.5);
     }
+    // Environment 0 start position is fixed for the first episode
+    start_positions[0] = 0;
 
     // Initialize environments
     for (const auto i : range(0, env_count))
@@ -112,12 +115,16 @@ Trainer::Trainer(TrainingProgram program,
         if (start_positions[i])
         {
             bodies[0]->load_json(program.body);
+            bodies[0]->set_color(cl_blue);
             bodies[1]->load_json(opponents[i]->get_body_spec());
+            bodies[1]->set_color(cl_red);
         }
         else
         {
             bodies[0]->load_json(opponents[i]->get_body_spec());
+            bodies[0]->set_color(cl_red);
             bodies[1]->load_json(program.body);
+            bodies[1]->set_color(cl_blue);
         }
         environments.push_back(env_factory.make(std::move(rng),
                                                 std::move(world),
@@ -321,6 +328,17 @@ std::vector<std::pair<std::string, float>> Trainer::step_batch()
                     opponent_hidden_states[i] = torch::zeros(
                         {opponents[i]->get_hidden_state_size(), 1});
                     start_positions[i] = rng.next_bool(0.5);
+                    auto bodies = environments[i]->get_bodies();
+                    if (start_positions[i])
+                    {
+                        bodies[0]->set_color(cl_blue);
+                        bodies[1]->set_color(cl_red);
+                    }
+                    else
+                    {
+                        bodies[0]->set_color(cl_red);
+                        bodies[1]->set_color(cl_blue);
+                    }
                 }
                 storages[i].insert(step_info.observation[player_index],
                                    act_result[3],

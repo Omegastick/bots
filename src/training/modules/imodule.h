@@ -4,6 +4,7 @@
 #include <vector>
 
 #include <Box2D/Box2D.h>
+#include <glm/vec4.hpp>
 #include <nlohmann/json_fwd.hpp>
 
 #include "graphics/render_data.h"
@@ -41,6 +42,7 @@ class IModule
     virtual void draw(Renderer &renderer, bool lightweight = false);
     virtual b2Transform get_global_transform() const;
     virtual int get_observation_count() const = 0;
+    virtual void set_color(glm::vec4 color);
     virtual nlohmann::json to_json() const = 0;
 
     inline const std::vector<std::unique_ptr<IAction>> &get_actions() const { return actions; }
