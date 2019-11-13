@@ -5,6 +5,7 @@
 
 #include <Box2D/Box2D.h>
 #include <doctest.h>
+#include <glm/vec4.hpp>
 #include <nlohmann/json.hpp>
 #include <spdlog/spdlog.h>
 
@@ -399,6 +400,14 @@ void Body::hit(float damage)
 void Body::reset()
 {
     hp = 10;
+}
+
+void Body::set_color(glm::vec4 color)
+{
+    for (auto &module : modules)
+    {
+        module->set_color(color);
+    }
 }
 
 TEST_CASE("Body")

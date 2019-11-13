@@ -64,6 +64,11 @@ b2Transform IModule::get_global_transform() const
     return b2Mul(body_transform, transform);
 }
 
+void IModule::set_color(glm::vec4 color)
+{
+    sprite->color = color;
+}
+
 void IModule::sub_update() {}
 
 void IModule::update() {}
