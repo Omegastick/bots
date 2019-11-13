@@ -35,7 +35,7 @@ void ThrusterParticles::trigger(Renderer &renderer)
             -glm::vec2(angle.c * 10, angle.s * 10),
             -i * step_subdivision,
             1,
-            0.02f,
+            0.04f,
             particle_color,
             end_color};
         particles.push_back(particle);
