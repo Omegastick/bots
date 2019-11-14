@@ -43,7 +43,6 @@ class Renderer
     glm::mat4 view;
 
     std::vector<PostProcLayer *> post_proc_layers;
-    std::unique_ptr<FrameBuffer> base_frame_buffer;
     std::unique_ptr<FrameBuffer> texture_frame_buffer;
 
     std::vector<std::string> textures;

@@ -77,6 +77,7 @@ set(GLM_DIR ${LIB_DIR}/GLM)
 set(IMGUI_DIR ${LIB_DIR}/imgui)
 set(JSON_DIR ${LIB_DIR}/json)
 set(MSGPACK_DIR ${LIB_DIR}/msgpack-c)
+set(NANOVG_DIR ${LIB_DIR}/nanovg)
 set(PYBIND_DIR ${LIB_DIR}/pybind11)
 set(SPDLOG_DIR ${LIB_DIR}/spdlog)
 set(TASKFLOW_DIR ${LIB_DIR}/cpp-taskflow)
@@ -283,6 +284,17 @@ PRIVATE
 )
 target_link_libraries(imgui PUBLIC glad glfw)
 set_target_properties(imgui PROPERTIES POSITION_INDEPENDENT_CODE TRUE)
+## NanoVG
+add_library(nanovg STATIC)
+target_include_directories(nanovg SYSTEM 
+PRIVATE
+    src/third_party
+PUBLIC
+    ${NANOVG_DIR}/src
+)
+target_sources(nanovg PRIVATE ${NANOVG_DIR}/src/nanovg.c)
+target_link_libraries(nanovg glad)
+set_target_properties(nanovg PROPERTIES POSITION_INDEPENDENT_CODE TRUE)
 ## Box2D
 add_subdirectory(${BOX2D_DIR})
 set_target_properties(Box2D-cmake PROPERTIES POSITION_INDEPENDENT_CODE TRUE)
@@ -300,7 +312,7 @@ set_target_properties(PythonBindings PROPERTIES EXCLUDE_FROM_ALL TRUE)
 
 # Link libraries
 target_link_libraries(Misc PUBLIC curlpp_static doctest imgui)
-target_link_libraries(Graphics PUBLIC doctest glad glfw ${GLFW_LIBRARIES} glm imgui Misc)
+target_link_libraries(Graphics PUBLIC doctest glad glfw ${GLFW_LIBRARIES} glm imgui Misc nanovg)
 target_link_libraries(Training PUBLIC cpprl doctest  fmt::fmt Graphics tobanteGaming::Box2D ${TORCH_LIBRARIES})
 # UNIX systems sometimes need to explicitly link the threading library
 if (UNIX)

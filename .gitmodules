@@ -52,3 +52,6 @@
 [submodule "lib/curlpp"]
 	path = lib/curlpp
 	url = https://github.com/jpbarrette/curlpp
+[submodule "lib/nanovg"]
+	path = lib/nanovg
+	url = git@github.com:Omegastick/nanovg.git

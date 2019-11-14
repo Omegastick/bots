@@ -31,10 +31,10 @@ constexpr glm::vec4 cl_base2(hex_to_rgb(0xeee8d5));
 constexpr glm::vec4 cl_base3(hex_to_rgb(0xfefaf1));
 constexpr glm::vec4 cl_yellow(hex_to_rgb(0xb58900));
 constexpr glm::vec4 cl_orange(hex_to_rgb(0xcb4b16));
-constexpr glm::vec4 cl_red(hex_to_rgb(0xdc322f));
+constexpr glm::vec4 cl_red(hex_to_rgb(0xe94361));
 constexpr glm::vec4 cl_magenta(hex_to_rgb(0xd33682));
 constexpr glm::vec4 cl_violet(hex_to_rgb(0x6c71c4));
-constexpr glm::vec4 cl_blue(hex_to_rgb(0x268bd2));
+constexpr glm::vec4 cl_blue(hex_to_rgb(0x3ca5ee));
 constexpr glm::vec4 cl_cyan(hex_to_rgb(0x2aa198));
 constexpr glm::vec4 cl_green(hex_to_rgb(0x859900));
 

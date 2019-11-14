@@ -236,6 +236,12 @@ int main(int /*argc*/, const char * /*argv*/ [])
                                                         screens,
                                                         screen_names));
     screen_names.push_back("Bloom test");
+    spdlog::debug("Initializing vector test");
+    screens.push_back(std::make_shared<VectorTestScreen>(screen_manager,
+                                                         resource_manager,
+                                                         screens,
+                                                         screen_names));
+    screen_names.push_back("Vector test");
     screen_manager.show_screen(screens[0]);
 
     spdlog::debug("Initializing renderer");

@@ -11,3 +11,4 @@
 #include "graphics/screens/particle_test_screen.h"
 #include "graphics/screens/line_test_screen.h"
 #include "graphics/screens/text_test_screen.h"
+#include "graphics/screens/vector_test_screen.h"
