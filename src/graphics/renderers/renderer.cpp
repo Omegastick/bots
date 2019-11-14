@@ -4,6 +4,7 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/matrix_inverse.hpp>
+#include <spdlog/spdlog.h>
 
 #include "graphics/renderers/renderer.h"
 #include "graphics/renderers/batched_sprite_renderer.h"
@@ -38,9 +39,6 @@ Renderer::Renderer(int width, int height,
       text_renderer(text_renderer),
       distortion_layer(nullptr)
 {
-    base_frame_buffer = std::make_unique<FrameBuffer>();
-    base_frame_buffer->set_render_buffer(width, height, 4);
-
     texture_frame_buffer = std::make_unique<FrameBuffer>();
     texture_frame_buffer->set_texture(width, height);
 
@@ -53,7 +51,6 @@ void Renderer::resize(int width, int height)
     this->width = width;
     this->height = height;
 
-    base_frame_buffer->set_render_buffer(width, height, 4);
     texture_frame_buffer->set_texture(width, height);
 }
 
@@ -95,13 +92,12 @@ void Renderer::draw(const Text &text)
 void Renderer::clear(const glm::vec4 &color)
 {
     glClearColor(color.r, color.g, color.b, color.a);
-    glClear(GL_COLOR_BUFFER_BIT);
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 }
 
 void Renderer::begin()
 {
     clear_scissor();
-    base_frame_buffer->bind();
     glViewport(0, 0, width, height);
     clear();
 }
@@ -166,7 +162,7 @@ void Renderer::render(double time)
         }
     }
 
-    base_frame_buffer->bind_read();
+    glBindFramebuffer(GL_READ_FRAMEBUFFER, 0);
     texture_frame_buffer->bind_draw();
     glViewport(0, 0, width, height);
     glBlitFramebuffer(0, 0, width, height, 0, 0, width, height, GL_COLOR_BUFFER_BIT, GL_LINEAR);

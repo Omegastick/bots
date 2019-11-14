@@ -102,7 +102,7 @@ Trainer::Trainer(TrainingProgram program,
         start_positions[i] = rng.next_bool(0.5);
     }
     // Environment 0 start position is fixed for the first episode
-    start_positions[0] = 0;
+    start_positions[0] = 1;
 
     // Initialize environments
     for (const auto i : range(0, env_count))

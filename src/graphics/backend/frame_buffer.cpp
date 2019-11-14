@@ -74,6 +74,7 @@ void FrameBuffer::set_render_buffer(int width, int height, int multisampling)
     {
         throw std::runtime_error("Failed to initialize render buffer");
     }
+    unbind();
 }
 
 void FrameBuffer::set_texture(int width, int height)
@@ -90,6 +91,7 @@ void FrameBuffer::set_texture(int width, int height)
     {
         throw std::runtime_error("Failed to initialize frame buffer object");
     }
+    unbind();
 }
 
 glm::vec2 FrameBuffer::get_texture_size() const
