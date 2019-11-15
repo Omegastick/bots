@@ -84,6 +84,16 @@ void VectorTestScreen::draw(Renderer &renderer, bool /*lightweight*/)
     trapezoid.transform.rotate(rotation);
     vector_renderer.draw(trapezoid);
 
+    SemiCircle semicircle{
+        0.5f,
+        {0.5f, 0.5f, 0.5f, 0.5f},
+        cl_white,
+        0.2f,
+        Transform()};
+    semicircle.transform.set_position({5, 5});
+    semicircle.transform.rotate(rotation);
+    vector_renderer.draw(semicircle);
+
     vector_renderer.end_frame();
 }
 }
