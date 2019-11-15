@@ -42,4 +42,41 @@ struct Text
     std::string text;
     Transform transform;
 };
+
+// Vector graphics
+struct Rectangle
+{
+    glm::vec4 fill_color;
+    glm::vec4 stroke_color;
+    float stroke_width;
+    Transform transform;
+};
+
+struct Circle
+{
+    float radius;
+    glm::vec4 fill_color;
+    glm::vec4 stroke_color;
+    float stroke_width;
+    Transform transform;
+};
+
+struct SemiCircle
+{
+    float radius;
+    glm::vec4 fill_color;
+    glm::vec4 stroke_color;
+    float stroke_width;
+    Transform transform;
+};
+
+struct Trapezoid
+{
+    float top_width;
+    float bottom_width;
+    glm::vec4 fill_color;
+    glm::vec4 stroke_color;
+    float stroke_width;
+    Transform transform;
+};
 }
