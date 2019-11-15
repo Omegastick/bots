@@ -6,7 +6,6 @@
 
 #include <glm/glm.hpp>
 
-#include "graphics/renderers/vector_renderer.h"
 #include "screens/iscreen.h"
 
 namespace SingularityTrainer
@@ -25,7 +24,6 @@ class VectorTestScreen : public IScreen
     ScreenManager &screen_manager;
     glm::mat4 projection;
     float rotation;
-    VectorRenderer vector_renderer;
 
   public:
     VectorTestScreen(ScreenManager &screen_manager,

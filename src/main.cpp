@@ -8,6 +8,7 @@
 #include "graphics/renderers/renderer.h"
 #include "graphics/renderers/batched_sprite_renderer.h"
 #include "graphics/renderers/text_renderer.h"
+#include "graphics/renderers/vector_renderer.h"
 #include "graphics/window.h"
 #include "misc/animator.h"
 #include "misc/credentials_manager.h"

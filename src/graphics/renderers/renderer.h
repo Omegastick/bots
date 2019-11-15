@@ -24,6 +24,7 @@ class BatchedSpriteRenderer;
 class ParticleRenderer;
 class LineRenderer;
 class TextRenderer;
+class VectorRenderer;
 
 static auto ResolutionX = [] {};
 static auto ResolutionY = [] {};
@@ -58,6 +59,7 @@ class Renderer
     ParticleRenderer &particle_renderer;
     LineRenderer &line_renderer;
     TextRenderer &text_renderer;
+    VectorRenderer &vector_renderer;
 
     DistortionLayer *distortion_layer;
 
@@ -69,7 +71,8 @@ class Renderer
                     BatchedSpriteRenderer &sprite_renderer,
                     ParticleRenderer &particle_renderer,
                     LineRenderer &line_renderer,
-                    TextRenderer &text_renderer);
+                    TextRenderer &text_renderer,
+                    VectorRenderer &vector_renderer);
 
     void resize(int width, int height);
 
@@ -77,6 +80,10 @@ class Renderer
     void draw(const std::vector<Particle> &particles);
     void draw(const Sprite &sprite);
     void draw(const Text &text);
+    void draw(const Circle &circle);
+    void draw(const Rectangle &rectangle);
+    void draw(const SemiCircle &semicircle);
+    void draw(const Trapezoid &trapezoid);
 
     void clear(const glm::vec4 &color = cl_background);
 
@@ -92,9 +99,10 @@ class Renderer
     void begin();
     void render(double time);
 
+    void set_view(const glm::mat4 &view);
+
     inline int get_width() const { return width; }
     inline int get_height() const { return height; }
-    inline void set_view(glm::mat4 view) { this->view = view; }
 
     void apply_explosive_force(glm::vec2 position, float size, float strength);
     void apply_implosive_force(glm::vec2 position, float size, float strength);
