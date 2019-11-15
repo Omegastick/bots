@@ -11,6 +11,7 @@
 #include "graphics/renderers/particle_renderer.h"
 #include "graphics/renderers/line_renderer.h"
 #include "graphics/renderers/text_renderer.h"
+#include "graphics/renderers/vector_renderer.h"
 #include "graphics/backend/vertex_array.h"
 #include "graphics/backend/shader.h"
 #include "graphics/backend/element_buffer.h"
@@ -28,7 +29,8 @@ Renderer::Renderer(int width, int height,
                    BatchedSpriteRenderer &sprite_renderer,
                    ParticleRenderer &particle_renderer,
                    LineRenderer &line_renderer,
-                   TextRenderer &text_renderer)
+                   TextRenderer &text_renderer,
+                   VectorRenderer &vector_renderer)
     : width(width),
       height(height),
       view(glm::ortho(0, width, 0, height)),
@@ -37,6 +39,7 @@ Renderer::Renderer(int width, int height,
       particle_renderer(particle_renderer),
       line_renderer(line_renderer),
       text_renderer(text_renderer),
+      vector_renderer(vector_renderer),
       distortion_layer(nullptr)
 {
     texture_frame_buffer = std::make_unique<FrameBuffer>();
@@ -89,6 +92,26 @@ void Renderer::draw(const Text &text)
     texts.push_back(text);
 }
 
+void Renderer::draw(const Circle &circle)
+{
+    vector_renderer.draw(circle);
+}
+
+void Renderer::draw(const Rectangle &rectangle)
+{
+    vector_renderer.draw(rectangle);
+}
+
+void Renderer::draw(const SemiCircle &semicircle)
+{
+    vector_renderer.draw(semicircle);
+}
+
+void Renderer::draw(const Trapezoid &trapezoid)
+{
+    vector_renderer.draw(trapezoid);
+}
+
 void Renderer::clear(const glm::vec4 &color)
 {
     glClearColor(color.r, color.g, color.b, color.a);
@@ -100,6 +123,7 @@ void Renderer::begin()
     clear_scissor();
     glViewport(0, 0, width, height);
     clear();
+    vector_renderer.begin_frame({width, height});
 }
 
 void Renderer::render(double time)
@@ -108,6 +132,8 @@ void Renderer::render(double time)
     {
         distortion_layer->update_mesh();
     }
+
+    vector_renderer.end_frame();
 
     std::sort(sprites.begin(), sprites.end(),
               [](PackedSprite &a, PackedSprite &b) { return a.texture < b.texture; });
@@ -259,5 +285,11 @@ void Renderer::set_distortion_layer(DistortionLayer &distortion_layer)
 {
     this->distortion_layer = &distortion_layer;
     push_post_proc_layer(distortion_layer);
+}
+
+void Renderer::set_view(const glm::mat4 &view)
+{
+    this->view = view;
+    vector_renderer.set_view(view);
 }
 }

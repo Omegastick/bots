@@ -21,6 +21,7 @@
 #include "graphics/renderers/renderer.h"
 #include "graphics/renderers/batched_sprite_renderer.h"
 #include "graphics/renderers/text_renderer.h"
+#include "graphics/renderers/vector_renderer.h"
 #include "graphics/screens/screens.h"
 #include "misc/animator.h"
 #include "misc/io.h"
@@ -249,7 +250,15 @@ int main(int /*argc*/, const char * /*argv*/ [])
     ParticleRenderer particle_renderer(100000, resource_manager);
     BatchedSpriteRenderer sprite_renderer(resource_manager);
     TextRenderer text_renderer(resource_manager);
-    Renderer renderer(resolution_x, resolution_y, resource_manager, sprite_renderer, particle_renderer, line_renderer, text_renderer);
+    VectorRenderer vector_renderer;
+    Renderer renderer(resolution_x,
+                      resolution_y,
+                      resource_manager,
+                      sprite_renderer,
+                      particle_renderer,
+                      line_renderer,
+                      text_renderer,
+                      vector_renderer);
     window.set_renderer(renderer);
     window.set_resize_callback(resize_window_callback);
 

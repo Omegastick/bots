@@ -41,10 +41,7 @@ void VectorTestScreen::update(double delta_time)
 
 void VectorTestScreen::draw(Renderer &renderer, bool /*lightweight*/)
 {
-    vector_renderer.begin_frame({renderer.get_width(), renderer.get_height()});
-
     renderer.set_view(projection);
-    vector_renderer.set_view(projection);
 
     for (float x = -4.8f; x <= 4.8f; x += 19.2f / 20.f)
     {
@@ -58,7 +55,7 @@ void VectorTestScreen::draw(Renderer &renderer, bool /*lightweight*/)
             rectangle.transform.set_position({x, y});
             rectangle.transform.resize({1.f, 1.f});
             rectangle.transform.rotate(rotation);
-            vector_renderer.draw(rectangle);
+            renderer.draw(rectangle);
 
             Circle circle{
                 0.2f,
@@ -68,7 +65,7 @@ void VectorTestScreen::draw(Renderer &renderer, bool /*lightweight*/)
                 Transform()};
             circle.transform.set_position({x, y});
             circle.transform.rotate(rotation);
-            vector_renderer.draw(circle);
+            renderer.draw(circle);
         }
     }
 
@@ -82,7 +79,7 @@ void VectorTestScreen::draw(Renderer &renderer, bool /*lightweight*/)
     trapezoid.transform.set_position({-5, -5});
     trapezoid.transform.resize({1.f, 1.f});
     trapezoid.transform.rotate(rotation);
-    vector_renderer.draw(trapezoid);
+    renderer.draw(trapezoid);
 
     SemiCircle semicircle{
         0.5f,
@@ -92,8 +89,6 @@ void VectorTestScreen::draw(Renderer &renderer, bool /*lightweight*/)
         Transform()};
     semicircle.transform.set_position({5, 5});
     semicircle.transform.rotate(rotation);
-    vector_renderer.draw(semicircle);
-
-    vector_renderer.end_frame();
+    renderer.draw(semicircle);
 }
 }
