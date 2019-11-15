@@ -7,12 +7,10 @@
 #include <GLFW/glfw3.h>
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
-#include <nanovg.h>
-#define NANOVG_GL3_IMPLEMENTATION
-#include <nanovg_gl.h>
 #include <imgui.h>
 
 #include "vector_test_screen.h"
+#include "graphics/colors.h"
 #include "graphics/render_data.h"
 #include "graphics/renderers/renderer.h"
 #include "graphics/screens/test_utils.h"
@@ -31,42 +29,49 @@ VectorTestScreen::VectorTestScreen(
       screens(screens),
       screen_names(screen_names),
       screen_manager(screen_manager),
-      projection(glm::ortho(0.f, 1920.f, 0.f, 1080.f))
-{
-    vg = nvgCreateGL3(NVG_STENCIL_STROKES | NVG_DEBUG);
-}
-
-VectorTestScreen::~VectorTestScreen()
-{
-    nvgDeleteGL3(vg);
-}
+      projection(glm::ortho(-19.2f, 19.2f, -10.8f, 10.8f)),
+      rotation(0) {}
 
 void VectorTestScreen::update(double delta_time)
 {
     display_test_dialog("Vector test", screens, screen_names, delta_time, screen_manager);
 
-    rotation += delta_time * 0.1;
+    rotation += static_cast<float>(delta_time) * 0.1f;
 }
 
 void VectorTestScreen::draw(Renderer &renderer, bool /*lightweight*/)
 {
+    vector_renderer.begin_frame({renderer.get_width(), renderer.get_height()});
+
     renderer.set_view(projection);
+    vector_renderer.set_view(projection);
 
-    nvgBeginFrame(vg, renderer.get_width(), renderer.get_height(), 1);
+    for (float x = -4.8f; x <= 4.8f; x += 19.2f / 20.f)
+    {
+        for (float y = -2.7f; y <= 2.7f; y += 10.8f / 10.f)
+        {
+            Rectangle rectangle{
+                {0.5f, 0.5f, 0.5f, 0.5f},
+                cl_white,
+                0.2f,
+                Transform()};
+            rectangle.transform.set_position({x, y});
+            rectangle.transform.resize({1.f, 1.f});
+            rectangle.transform.rotate(rotation);
+            vector_renderer.draw(rectangle);
 
-    nvgBeginPath(vg);
+            Circle circle{
+                0.2f,
+                cl_white,
+                {0, 0, 0, 0},
+                0.f,
+                Transform()};
+            circle.transform.set_position({x, y});
+            circle.transform.rotate(rotation);
+            vector_renderer.draw(circle);
+        }
+    }
 
-    nvgTranslate(vg, 960, 540);
-    nvgRotate(vg, static_cast<float>(rotation));
-
-    nvgRect(vg, -100, -150, 200, 300);
-
-    nvgRect(vg, -20, -30, 40, 60);
-    nvgPathWinding(vg, NVG_HOLE);
-
-    nvgFillColor(vg, nvgRGBA(128, 255, 64, 255));
-    nvgFill(vg);
-
-    nvgEndFrame(vg);
+    vector_renderer.end_frame();
 }
 }
