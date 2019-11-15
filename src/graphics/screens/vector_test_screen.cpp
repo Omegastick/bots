@@ -72,6 +72,18 @@ void VectorTestScreen::draw(Renderer &renderer, bool /*lightweight*/)
         }
     }
 
+    Trapezoid trapezoid{
+        0.5f,
+        1.5f,
+        {0.5f, 0.5f, 0.5f, 0.5f},
+        cl_white,
+        0.2f,
+        Transform()};
+    trapezoid.transform.set_position({-5, -5});
+    trapezoid.transform.resize({1.f, 1.f});
+    trapezoid.transform.rotate(rotation);
+    vector_renderer.draw(trapezoid);
+
     vector_renderer.end_frame();
 }
 }
