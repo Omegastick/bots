@@ -1,5 +1,6 @@
 #include <glad/glad.h>
 #include <glm/glm.hpp>
+#include <glm/gtc/constants.hpp>
 #include <nanovg.h>
 #define NANOVG_GL3_IMPLEMENTATION
 #include <nanovg_gl.h>
@@ -88,7 +89,36 @@ void VectorRenderer::draw(const Rectangle &rectangle)
     nvgRestore(vg);
 }
 
-void VectorRenderer::draw(const SemiCircle &semicircle) {}
+void VectorRenderer::draw(const SemiCircle &semicircle)
+{
+    nvgSave(vg);
+
+    const auto position = semicircle.transform.get_position();
+    nvgTranslate(vg, position.x, position.y);
+
+    const auto rotation = semicircle.transform.get_rotation();
+    nvgRotate(vg, rotation);
+
+    nvgBeginPath(vg);
+
+    nvgArc(vg, 0, 0, semicircle.radius, 0, glm::pi<float>(), NVG_CCW);
+    nvgClosePath(vg);
+
+    if (semicircle.fill_color.a != 0.f)
+    {
+        nvgFillColor(vg, glm_to_nvg(semicircle.fill_color));
+        nvgFill(vg);
+    }
+
+    if (semicircle.stroke_width != 0.f)
+    {
+        nvgStrokeWidth(vg, semicircle.stroke_width);
+        nvgStrokeColor(vg, glm_to_nvg(semicircle.stroke_color));
+        nvgStroke(vg);
+    }
+
+    nvgRestore(vg);
+}
 
 void VectorRenderer::draw(const Trapezoid &trapezoid)
 {
@@ -103,10 +133,10 @@ void VectorRenderer::draw(const Trapezoid &trapezoid)
     nvgBeginPath(vg);
 
     const auto size = trapezoid.transform.get_scale();
-    nvgMoveTo(vg, -trapezoid.bottom_width * 0.5 * size.x, size.y * 0.5);
-    nvgLineTo(vg, trapezoid.bottom_width * 0.5 * size.x, size.y * 0.5);
-    nvgLineTo(vg, trapezoid.top_width * 0.5 * size.x, -size.y * 0.5);
-    nvgLineTo(vg, -trapezoid.top_width * 0.5 * size.x, -size.y * 0.5);
+    nvgMoveTo(vg, -trapezoid.bottom_width * 0.5f * size.x, size.y * 0.5f);
+    nvgLineTo(vg, trapezoid.bottom_width * 0.5f * size.x, size.y * 0.5f);
+    nvgLineTo(vg, trapezoid.top_width * 0.5f * size.x, -size.y * 0.5f);
+    nvgLineTo(vg, -trapezoid.top_width * 0.5f * size.x, -size.y * 0.5f);
     nvgClosePath(vg);
 
     if (trapezoid.fill_color.a != 0.f)
