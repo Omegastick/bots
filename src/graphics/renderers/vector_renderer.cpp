@@ -38,6 +38,9 @@ void VectorRenderer::draw(const Circle &circle)
     const auto position = circle.transform.get_position();
     nvgTranslate(vg, position.x, position.y);
 
+    const auto origin = circle.transform.get_origin();
+    nvgTranslate(vg, -origin.x, -origin.y);
+
     nvgBeginPath(vg);
 
     nvgCircle(vg, 0, 0, circle.radius);
@@ -67,6 +70,9 @@ void VectorRenderer::draw(const Rectangle &rectangle)
 
     const auto rotation = rectangle.transform.get_rotation();
     nvgRotate(vg, rotation);
+
+    const auto origin = rectangle.transform.get_origin();
+    nvgTranslate(vg, -origin.x, -origin.y);
 
     nvgBeginPath(vg);
 
@@ -99,9 +105,12 @@ void VectorRenderer::draw(const SemiCircle &semicircle)
     const auto rotation = semicircle.transform.get_rotation();
     nvgRotate(vg, rotation);
 
+    const auto origin = semicircle.transform.get_origin();
+    nvgTranslate(vg, -origin.x, -origin.y);
+
     nvgBeginPath(vg);
 
-    nvgArc(vg, 0, 0, semicircle.radius, 0, glm::pi<float>(), NVG_CCW);
+    nvgArc(vg, 0, 0, semicircle.radius, glm::pi<float>(), 0, NVG_CCW);
     nvgClosePath(vg);
 
     if (semicircle.fill_color.a != 0.f)
@@ -130,13 +139,16 @@ void VectorRenderer::draw(const Trapezoid &trapezoid)
     const auto rotation = trapezoid.transform.get_rotation();
     nvgRotate(vg, rotation);
 
+    const auto origin = trapezoid.transform.get_origin();
+    nvgTranslate(vg, -origin.x, -origin.y);
+
     nvgBeginPath(vg);
 
     const auto size = trapezoid.transform.get_scale();
-    nvgMoveTo(vg, -trapezoid.bottom_width * 0.5f * size.x, size.y * 0.5f);
-    nvgLineTo(vg, trapezoid.bottom_width * 0.5f * size.x, size.y * 0.5f);
-    nvgLineTo(vg, trapezoid.top_width * 0.5f * size.x, -size.y * 0.5f);
-    nvgLineTo(vg, -trapezoid.top_width * 0.5f * size.x, -size.y * 0.5f);
+    nvgMoveTo(vg, -trapezoid.top_width * 0.5f * size.x, size.y * 0.5f);
+    nvgLineTo(vg, trapezoid.top_width * 0.5f * size.x, size.y * 0.5f);
+    nvgLineTo(vg, trapezoid.bottom_width * 0.5f * size.x, -size.y * 0.5f);
+    nvgLineTo(vg, -trapezoid.bottom_width * 0.5f * size.x, -size.y * 0.5f);
     nvgClosePath(vg);
 
     if (trapezoid.fill_color.a != 0.f)
@@ -155,7 +167,13 @@ void VectorRenderer::draw(const Trapezoid &trapezoid)
     nvgRestore(vg);
 }
 
-void VectorRenderer::end_frame() { nvgEndFrame(vg); }
+void VectorRenderer::end_frame()
+{
+    nvgEndFrame(vg);
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    glEnable(GL_SCISSOR_TEST);
+}
 
 void VectorRenderer::set_view(const glm::mat4 &view)
 {

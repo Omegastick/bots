@@ -4,17 +4,18 @@
 
 #include "square_hull.h"
 #include "graphics/colors.h"
+#include "graphics/renderers/renderer.h"
 #include "training/modules/thruster_module.h"
 
 namespace SingularityTrainer
 {
-SquareHull::SquareHull()
+SquareHull::SquareHull() : rectangle{{0.5f, 0.5f, 0.5f, 0.5f},
+                                     cl_white,
+                                     0.1f,
+                                     Transform()}
 {
-    // Sprite
-    sprite = std::make_unique<Sprite>();
-    sprite->texture = "square_hull";
-    sprite->transform.set_scale(glm::vec2(1, 1));
-    sprite->color = cl_white;
+    // Graphics
+    rectangle.transform.set_scale({1, 1});
 
     // Box2D
     b2PolygonShape shape;
@@ -27,6 +28,26 @@ SquareHull::SquareHull()
     module_links.push_back(ModuleLink(-0.5f, 0, 90, this));
     module_links.push_back(ModuleLink(0, -0.5f, 180, this));
     module_links.push_back(ModuleLink(0.5f, 0, 270, this));
+}
+
+void SquareHull::draw(Renderer &renderer, bool /*lightweight*/)
+{
+    b2Transform world_transform = get_global_transform();
+    glm::vec2 screen_position(world_transform.p.x, world_transform.p.y);
+    rectangle.transform.set_position(screen_position);
+    auto rotation = world_transform.q.GetAngle();
+    rectangle.transform.set_rotation(rotation);
+
+    renderer.draw(rectangle);
+}
+
+void SquareHull::set_color(glm::vec4 color)
+{
+    auto fill = color;
+    fill.a = 0.2f;
+
+    rectangle.fill_color = fill;
+    rectangle.stroke_color = color;
 }
 
 nlohmann::json SquareHull::to_json() const

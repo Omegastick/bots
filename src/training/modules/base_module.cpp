@@ -8,7 +8,10 @@
 #include <spdlog/spdlog.h>
 
 #include "graphics/colors.h"
+#include "graphics/render_data.h"
+#include "graphics/renderers/renderer.h"
 #include "misc/resource_manager.h"
+#include "misc/transform.h"
 #include "training/bodies/body.h"
 #include "training/environments/ienvironment.h"
 #include "training/modules/base_module.h"
@@ -19,13 +22,18 @@
 
 namespace SingularityTrainer
 {
-BaseModule::BaseModule()
+BaseModule::BaseModule() : rectangle{{0.5f, 0.5f, 0.5f, 0.5f},
+                                     cl_white,
+                                     0.1f,
+                                     Transform()},
+                           circle{0.2f,
+                                  {0, 0, 0, 0},
+                                  cl_white,
+                                  0.1f,
+                                  Transform()}
 {
-    // Sprite
-    sprite = std::make_unique<Sprite>();
-    sprite->texture = "base_module";
-    sprite->transform.set_scale(glm::vec2(1, 1));
-    sprite->color = cl_white;
+    // Graphics
+    rectangle.transform.set_scale({1, 1});
 
     // Box2D
     b2PolygonShape shape;
@@ -42,7 +50,18 @@ BaseModule::BaseModule()
     root = this;
 }
 
-BaseModule::~BaseModule() {}
+void BaseModule::draw(Renderer &renderer, bool /*lightweight*/)
+{
+    b2Transform world_transform = get_global_transform();
+    glm::vec2 screen_position(world_transform.p.x, world_transform.p.y);
+    rectangle.transform.set_position(screen_position);
+    circle.transform.set_position(screen_position);
+    auto rotation = world_transform.q.GetAngle();
+    rectangle.transform.set_rotation(rotation);
+
+    renderer.draw(rectangle);
+    renderer.draw(circle);
+}
 
 std::vector<float> BaseModule::get_sensor_reading() const
 {
@@ -50,6 +69,16 @@ std::vector<float> BaseModule::get_sensor_reading() const
     linear_velocity = b2Mul(b2Rot(body->get_rigid_body().body->GetAngle()), linear_velocity);
     float angular_velocity = body->get_rigid_body().body->GetAngularVelocity();
     return {linear_velocity.x, linear_velocity.y, angular_velocity};
+}
+
+void BaseModule::set_color(glm::vec4 color)
+{
+    auto fill = color;
+    fill.a = 0.2f;
+
+    circle.stroke_color = color;
+    rectangle.fill_color = fill;
+    rectangle.stroke_color = color;
 }
 
 nlohmann::json BaseModule::to_json() const

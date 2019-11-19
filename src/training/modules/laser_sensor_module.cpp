@@ -23,22 +23,21 @@ namespace SingularityTrainer
 LaserSensorModule::LaserSensorModule(int laser_count, float fov, float laser_length)
     : laser_count(laser_count),
       fov(fov),
-      laser_length(laser_length)
+      laser_length(laser_length),
+      semi_circle{0.5f,
+                  {0.5f, 0.5f, 0.5f, 0.5f},
+                  cl_white,
+                  0.1f,
+                  Transform()}
 {
-    // Sprite
-    sprite = std::make_unique<Sprite>();
-    sprite->texture = "laser_sensor_module";
-    sprite->transform.set_scale(glm::vec2(1, 0.5f));
-    sprite->color = cl_white;
-
     // Box2D
     b2PolygonShape shape;
-    shape.SetAsBox(0.5, 0.25f);
+    shape.SetAsBox(0.5, 0.25f, b2Vec2(0.f, 0.125f), 0);
     shapes.push_back(shape);
     transform.SetIdentity();
 
     // Module links
-    module_links.push_back(ModuleLink(0, -0.25f, 180, this));
+    module_links.push_back(ModuleLink(0.f, 0.f, 180, this));
 }
 
 std::vector<float> LaserSensorModule::cast_lasers() const
@@ -77,7 +76,13 @@ std::vector<float> LaserSensorModule::get_sensor_reading() const
 
 void LaserSensorModule::draw(Renderer &renderer, bool lightweight)
 {
-    IModule::draw(renderer, lightweight);
+    b2Transform world_transform = get_global_transform();
+    glm::vec2 screen_position(world_transform.p.x, world_transform.p.y);
+    semi_circle.transform.set_position(screen_position);
+    auto rotation = world_transform.q.GetAngle();
+    semi_circle.transform.set_rotation(rotation);
+
+    renderer.draw(semi_circle);
 
     if (body == nullptr || lightweight)
     {
@@ -119,6 +124,15 @@ void LaserSensorModule::draw(Renderer &renderer, bool lightweight)
         line.widths.push_back(0.01f);
         renderer.draw(line);
     }
+}
+
+void LaserSensorModule::set_color(glm::vec4 color)
+{
+    auto fill = color;
+    fill.a = 0.2f;
+
+    semi_circle.fill_color = fill;
+    semi_circle.stroke_color = color;
 }
 
 nlohmann::json LaserSensorModule::to_json() const

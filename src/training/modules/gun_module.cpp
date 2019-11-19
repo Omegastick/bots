@@ -7,6 +7,7 @@
 #include <nlohmann/json.hpp>
 
 #include "graphics/render_data.h"
+#include "graphics/renderers/renderer.h"
 #include "misc/random.h"
 #include "misc/resource_manager.h"
 #include "training/actions/activate_action.h"
@@ -19,19 +20,30 @@
 
 namespace SingularityTrainer
 {
-GunModule::GunModule(Random &rng) : cooldown(3), rng(rng), steps_since_last_shot(0)
+GunModule::GunModule(Random &rng) : barrel_rectangle{{0.5f, 0.5f, 0.5f, 0.5f},
+                                                     cl_white,
+                                                     0.1f,
+                                                     Transform()},
+                                    body_rectangle{{0.5f, 0.5f, 0.5f, 0.5f},
+                                                   cl_white,
+                                                   0.1f,
+                                                   Transform()},
+                                    cooldown(3),
+                                    rng(rng),
+                                    steps_since_last_shot(0)
 {
-    // Sprite
-    sprite = std::make_unique<Sprite>();
-    sprite->texture = "gun_module";
-    sprite->transform.set_scale(glm::vec2(1, 1));
+    // Graphics
+    body_rectangle.transform.set_scale({1.f, 0.666f});
+    body_rectangle.transform.set_origin({0.f, 0.167f});
+    barrel_rectangle.transform.set_scale({0.333f, 0.333});
+    barrel_rectangle.transform.set_origin({0.f, -0.333f});
 
     // Box2D fixture
     b2PolygonShape body_shape;
     body_shape.SetAsBox(0.5f, 0.333f, b2Vec2(0, 0.167f), 0);
     shapes.push_back(body_shape);
     b2PolygonShape barrel_shape;
-    barrel_shape.SetAsBox(0.167f, 0.333f, b2Vec2(0, -0.167f), 0);
+    barrel_shape.SetAsBox(0.167f, 0.167f, b2Vec2(0, -0.167f), 0);
     shapes.push_back(barrel_shape);
     transform.SetIdentity();
 
@@ -58,6 +70,31 @@ void GunModule::activate()
                                                                      rng.next_int(0, INT_MAX),
                                                                      *body->get_environment()));
     }
+}
+
+void GunModule::draw(Renderer &renderer, bool /*lightweight*/)
+{
+    b2Transform world_transform = get_global_transform();
+    glm::vec2 screen_position(world_transform.p.x, world_transform.p.y);
+    body_rectangle.transform.set_position(screen_position);
+    barrel_rectangle.transform.set_position(screen_position);
+    auto rotation = world_transform.q.GetAngle();
+    body_rectangle.transform.set_rotation(rotation);
+    barrel_rectangle.transform.set_rotation(rotation);
+
+    renderer.draw(body_rectangle);
+    renderer.draw(barrel_rectangle);
+}
+
+void GunModule::set_color(glm::vec4 color)
+{
+    auto fill = color;
+    fill.a = 0.2f;
+
+    body_rectangle.fill_color = fill;
+    barrel_rectangle.fill_color = fill;
+    body_rectangle.stroke_color = color;
+    barrel_rectangle.stroke_color = color;
 }
 
 nlohmann::json GunModule::to_json() const
