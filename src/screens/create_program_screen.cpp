@@ -70,6 +70,7 @@ CreateProgramScreen::CreateProgramScreen(std::unique_ptr<AlgorithmWindow> algori
     resource_manager.load_shader("texture", "shaders/texture.vert", "shaders/texture.frag");
     resource_manager.load_shader("font", "shaders/texture.vert", "shaders/font.frag");
     resource_manager.load_font("roboto-16", "fonts/Roboto-Regular.ttf", 16);
+    resource_manager.load_font("roboto-32", "fonts/Roboto-Regular.ttf", 32);
 }
 
 void CreateProgramScreen::algorithm()

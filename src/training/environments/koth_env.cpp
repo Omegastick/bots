@@ -229,10 +229,10 @@ void KothEnv::draw(Renderer &renderer, bool lightweight)
     int seconds_remaining = static_cast<int>(std::ceil(max_time - elapsed_time));
     Text timer;
     timer.text = std::to_string(seconds_remaining);
-    timer.font = "roboto-16";
+    timer.font = "roboto-32";
     timer.color = cl_white;
     timer.transform.set_position({0, 0});
-    timer.transform.set_scale({0.15, 0.15});
+    timer.transform.set_scale({0.0725, 0.0725});
     const double character_width = 1.1;
     double width = character_width * timer.text.size();
     const double height = 1.2;

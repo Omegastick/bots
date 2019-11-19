@@ -52,6 +52,7 @@ TrainScreen::TrainScreen(std::unique_ptr<TrainInfoWindow> train_info_window,
                                  "shaders/distortion.vert",
                                  "shaders/distortion.frag");
     resource_manager.load_font("roboto-16", "fonts/Roboto-Regular.ttf", 16);
+    resource_manager.load_font("roboto-32", "fonts/Roboto-Regular.ttf", 32);
 
     auto resolution = io.get_resolution();
     distortion_layer = std::make_unique<DistortionLayer>(resource_manager,

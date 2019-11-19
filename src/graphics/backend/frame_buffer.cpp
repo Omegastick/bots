@@ -64,7 +64,7 @@ void FrameBuffer::set_render_buffer(int width, int height, int multisampling)
     glGenRenderbuffers(1, &render_buffer);
     bind();
     glBindRenderbuffer(GL_RENDERBUFFER, render_buffer);
-    glRenderbufferStorageMultisample(GL_RENDERBUFFER, multisampling, GL_RGBA8, width, height);
+    glRenderbufferStorageMultisample(GL_RENDERBUFFER, multisampling, GL_RGBA16F, width, height);
     glFramebufferRenderbuffer(GL_FRAMEBUFFER,
                               GL_COLOR_ATTACHMENT0,
                               GL_RENDERBUFFER,

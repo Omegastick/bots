@@ -266,11 +266,16 @@ App::App(Animator &animator,
     resource_manager.load_shader("blur", "shaders/blur.vert", "shaders/blur.frag");
     resource_manager.load_shader("combine", "shaders/blur.vert", "shaders/combine.frag");
     resource_manager.load_shader("crt", "shaders/texture.vert", "shaders/crt.frag");
+    resource_manager.load_shader("tone_map", "shaders/tone_map.vert", "shaders/tone_map.frag");
     resource_manager.load_shader("texture", "shaders/texture.vert", "shaders/texture.frag");
     bloom_post_proc_layer = std::make_unique<BloomLayer>(resource_manager,
                                                          io.get_resolution().x,
                                                          io.get_resolution().y);
     crt_post_proc_layer = std::make_unique<PostProcLayer>(
+        *resource_manager.shader_store.get("crt"),
+        io.get_resolution().x,
+        io.get_resolution().y);
+    tone_map_post_proc_layer = std::make_unique<PostProcLayer>(
         *resource_manager.shader_store.get("crt"),
         io.get_resolution().x,
         io.get_resolution().y);
@@ -328,6 +333,7 @@ int App::run(int argc, char *argv[])
 
             renderer.push_post_proc_layer(*crt_post_proc_layer);
             renderer.push_post_proc_layer(*bloom_post_proc_layer);
+            renderer.push_post_proc_layer(*tone_map_post_proc_layer);
             auto crt_shader = resource_manager.shader_store.get("crt");
             crt_shader->set_uniform_2f("u_resolution",
                                        {renderer.get_width(), renderer.get_height()});
