@@ -10,12 +10,12 @@
 
 namespace SingularityTrainer
 {
-class Sprite;
+struct Sprite;
 class ResourceManager;
 class ScreenManager;
 class Renderer;
 
-class SpriteTestScreen : public IScreen
+struct SpriteTestScreen : public IScreen
 {
   private:
     std::vector<std::shared_ptr<IScreen>> *screens;

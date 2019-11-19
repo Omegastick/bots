@@ -14,7 +14,7 @@ class Body;
 class Renderer;
 struct RewardConfig;
 class RigidBody;
-class Sprite;
+struct Sprite;
 
 class Hill : public ICollidable
 {
