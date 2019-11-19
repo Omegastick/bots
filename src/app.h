@@ -22,6 +22,7 @@ class App
     Animator &animator;
     std::unique_ptr<PostProcLayer> bloom_post_proc_layer;
     std::unique_ptr<PostProcLayer> crt_post_proc_layer;
+    std::unique_ptr<PostProcLayer> tone_map_post_proc_layer;
     IO &io;
     MainMenuScreenFactory &main_menu_screen_factory;
     Renderer &renderer;

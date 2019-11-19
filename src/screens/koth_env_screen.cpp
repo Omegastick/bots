@@ -33,6 +33,7 @@ KothEnvScreen::KothEnvScreen(ResourceManager &resource_manager, Random &rng, int
     resource_manager.load_texture("target", "images/target.png");
     resource_manager.load_shader("font", "shaders/texture.vert", "shaders/font.frag");
     resource_manager.load_font("roboto-16", "fonts/Roboto-Regular.ttf", 16);
+    resource_manager.load_font("roboto-32", "fonts/Roboto-Regular.ttf", 32);
 
     trainer->begin_training();
 }
