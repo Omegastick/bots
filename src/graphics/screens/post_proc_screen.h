@@ -15,7 +15,7 @@ class Shader;
 class ScreenManager;
 class PostProcLayer;
 class ResourceManager;
-class Sprite;
+struct Sprite;
 class Texture;
 
 class PostProcScreen : public IScreen

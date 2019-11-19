@@ -11,7 +11,7 @@
 
 namespace SingularityTrainer
 {
-class Sprite;
+struct Sprite;
 class RigidBody;
 class Body;
 class IEnvironment;

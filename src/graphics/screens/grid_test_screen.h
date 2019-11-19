@@ -12,7 +12,7 @@
 
 namespace SingularityTrainer
 {
-class Sprite;
+struct Sprite;
 class ResourceManager;
 class ScreenManager;
 class Renderer;

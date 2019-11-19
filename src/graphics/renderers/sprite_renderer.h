@@ -11,7 +11,7 @@
 namespace SingularityTrainer
 {
 class ResourceManager;
-class Sprite;
+struct Sprite;
 
 struct SpriteVertex
 {
@@ -20,7 +20,7 @@ struct SpriteVertex
     glm::vec4 color;
 };
 
-class SpriteRenderer
+struct SpriteRenderer
 {
   private:
     std::unique_ptr<VertexArray> vertex_array;

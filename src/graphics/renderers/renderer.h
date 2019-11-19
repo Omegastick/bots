@@ -18,7 +18,7 @@ class ResourceManager;
 class VertexArray;
 class ElementBuffer;
 class Shader;
-class Sprite;
+struct Sprite;
 struct Text;
 class BatchedSpriteRenderer;
 class ParticleRenderer;

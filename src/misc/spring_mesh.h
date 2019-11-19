@@ -11,9 +11,9 @@ namespace SingularityTrainer
 class SpringMesh
 {
   private:
-    int width;
-    int height;
-    int no_vertices;
+    unsigned int width;
+    unsigned int height;
+    unsigned int no_vertices;
 
     float damping;
     float friction;

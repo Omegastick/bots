@@ -8,7 +8,7 @@
 
 namespace SingularityTrainer
 {
-class Sprite;
+struct Sprite;
 class Renderer;
 class RigidBody;
 
