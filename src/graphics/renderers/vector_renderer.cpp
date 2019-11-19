@@ -29,6 +29,7 @@ void VectorRenderer::begin_frame(glm::vec2 resolution)
 {
     this->resolution = resolution;
     nvgBeginFrame(vg, resolution.x, resolution.y, 1.f);
+    nvgLineJoin(vg, NVG_BEVEL);
 }
 
 void VectorRenderer::draw(const Circle &circle)
