@@ -41,17 +41,6 @@ std::vector<IModule *> IModule::get_children(std::vector<IModule *> child_list)
 
 std::vector<float> IModule::get_sensor_reading() const { return std::vector<float>(); }
 
-void IModule::draw(Renderer &renderer, bool /*lightweight*/)
-{
-    b2Transform world_transform = get_global_transform();
-    glm::vec2 screen_position(world_transform.p.x, world_transform.p.y);
-    sprite->transform.set_position(screen_position);
-    auto rotation = world_transform.q.GetAngle();
-    sprite->transform.set_rotation(rotation);
-
-    renderer.draw(*sprite);
-}
-
 b2Transform IModule::get_global_transform() const
 {
     if (body == nullptr)
@@ -62,11 +51,6 @@ b2Transform IModule::get_global_transform() const
     b2Transform body_transform = b2_body->GetTransform();
 
     return b2Mul(body_transform, transform);
-}
-
-void IModule::set_color(glm::vec4 color)
-{
-    sprite->color = color;
 }
 
 void IModule::sub_update() {}

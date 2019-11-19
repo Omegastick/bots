@@ -5,6 +5,7 @@
 
 #include <Box2D/Box2D.h>
 
+#include "graphics/render_data.h"
 #include "training/modules/imodule.h"
 
 namespace SingularityTrainer
@@ -28,14 +29,16 @@ class LaserSensorModule : public IModule
     int laser_count;
     float fov;
     float laser_length;
+    SemiCircle semi_circle;
 
     std::vector<float> cast_lasers() const;
 
   public:
     LaserSensorModule(int laser_count = 19, float fov = 180, float laser_length = 20);
 
-    virtual std::vector<float> get_sensor_reading() const override final;
     virtual void draw(Renderer &renderer, bool lightweight = false) override;
+    virtual std::vector<float> get_sensor_reading() const override final;
+    virtual void set_color(glm::vec4 color) override;
     virtual nlohmann::json to_json() const override final;
 
     inline virtual int get_observation_count() const override final { return laser_count; }

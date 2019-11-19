@@ -10,6 +10,7 @@
 #include <nlohmann/json.hpp>
 
 #include "graphics/colors.h"
+#include "graphics/renderers/renderer.h"
 #include "misc/resource_manager.h"
 #include "training/actions/activate_action.h"
 #include "training/bodies/body.h"
@@ -22,26 +23,30 @@
 
 namespace SingularityTrainer
 {
-ThrusterModule::ThrusterModule() : active(false)
+ThrusterModule::ThrusterModule() : active(false),
+                                   trapezoid{0.666f,
+                                             1.f,
+                                             {0.5f, 0.5f, 0.5f, 0.5f},
+                                             cl_white,
+                                             0.1f,
+                                             Transform()}
 {
-    // Sprite
-    sprite = std::make_unique<Sprite>();
-    sprite->texture = "thruster_module";
-    sprite->transform.set_scale(glm::vec2(1, 0.333));
+    // Graphics
+    trapezoid.transform.set_scale({1.f, 0.25f});
 
     // Box2D fixture
     b2Vec2 vertices[4];
-    vertices[0] = b2Vec2(-0.333f, -0.167f);
-    vertices[1] = b2Vec2(-0.5f, 0.167f);
-    vertices[2] = b2Vec2(0.5f, 0.167f);
-    vertices[3] = b2Vec2(0.333f, -0.167f);
+    vertices[0] = b2Vec2(-0.333f, -0.125f);
+    vertices[1] = b2Vec2(-0.5f, 0.125f);
+    vertices[2] = b2Vec2(0.5f, 0.125f);
+    vertices[3] = b2Vec2(0.333f, -0.125f);
     b2PolygonShape shape;
     shape.Set(vertices, 4);
     shapes.push_back(shape);
     transform.SetIdentity();
 
     // Module links
-    module_links.push_back(ModuleLink(0, 0.167f, 0, this));
+    module_links.push_back(ModuleLink(0, 0.125f, 0, this));
 
     actions.push_back(std::make_unique<ActivateAction>(this));
 }
@@ -52,6 +57,26 @@ void ThrusterModule::activate()
     b2Transform global_transform = get_global_transform();
     b2Vec2 velocity = b2Mul(global_transform.q, b2Vec2(0, 50));
     body->get_rigid_body().body->ApplyForce(velocity, global_transform.p, true);
+}
+
+void ThrusterModule::draw(Renderer &renderer, bool /*lightweight*/)
+{
+    b2Transform world_transform = get_global_transform();
+    glm::vec2 screen_position(world_transform.p.x, world_transform.p.y);
+    trapezoid.transform.set_position(screen_position);
+    auto rotation = world_transform.q.GetAngle();
+    trapezoid.transform.set_rotation(rotation);
+
+    renderer.draw(trapezoid);
+}
+
+void ThrusterModule::set_color(glm::vec4 color)
+{
+    auto fill = color;
+    fill.a = 0.2f;
+
+    trapezoid.fill_color = fill;
+    trapezoid.stroke_color = color;
 }
 
 nlohmann::json ThrusterModule::to_json() const

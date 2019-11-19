@@ -5,6 +5,7 @@
 #include <Box2D/Box2D.h>
 #include <nlohmann/json_fwd.hpp>
 
+#include "graphics/render_data.h"
 #include "training/modules/imodule.h"
 
 namespace SingularityTrainer
@@ -13,12 +14,17 @@ class Body;
 
 class BaseModule : public IModule
 {
+  private:
+    Rectangle rectangle;
+    Circle circle;
+
   public:
     BaseModule();
-    ~BaseModule();
 
-    virtual std::vector<float> get_sensor_reading() const override final;
-    virtual nlohmann::json to_json() const override final;
+    virtual void draw(Renderer &renderer, bool lightweight = false) override;
+    virtual std::vector<float> get_sensor_reading() const override;
+    virtual void set_color(glm::vec4 color) override;
+    virtual nlohmann::json to_json() const override;
 
     inline virtual int get_observation_count() const override final { return 3; }
 };

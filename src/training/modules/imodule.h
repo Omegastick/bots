@@ -17,7 +17,6 @@ class ModuleLink;
 class IAction;
 class Body;
 class Renderer;
-class Sprite;
 
 class IModule
 {
@@ -28,7 +27,6 @@ class IModule
     std::vector<std::unique_ptr<IAction>> actions;
     b2Transform transform;
     std::vector<b2PolygonShape> shapes;
-    std::unique_ptr<Sprite> sprite;
 
   public:
     IModule();
@@ -39,10 +37,10 @@ class IModule
     virtual std::vector<IModule *> get_children();
     virtual std::vector<IModule *> get_children(std::vector<IModule *> child_list);
     virtual std::vector<float> get_sensor_reading() const;
-    virtual void draw(Renderer &renderer, bool lightweight = false);
+    virtual void draw(Renderer &renderer, bool lightweight = false) = 0;
     virtual b2Transform get_global_transform() const;
     virtual int get_observation_count() const = 0;
-    virtual void set_color(glm::vec4 color);
+    virtual void set_color(glm::vec4 color) = 0;
     virtual nlohmann::json to_json() const = 0;
 
     inline const std::vector<std::unique_ptr<IAction>> &get_actions() const { return actions; }
