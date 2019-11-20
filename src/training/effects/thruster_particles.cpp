@@ -20,10 +20,8 @@ void ThrusterParticles::trigger(Renderer &renderer)
                                        b2Transform(b2Vec2(0, -0.3f),
                                                    b2Rot(glm::pi<float>() / 2)));
     std::uniform_real_distribution<float> distribution(-0.5f, 0.5f);
-    const int particle_count = 20;
+    const int particle_count = 15;
     const float step_subdivision = (1.f / 60.f) / particle_count;
-    glm::vec4 end_color = particle_color;
-    end_color.a = 0;
     std::vector<Particle> particles;
     for (int i = 0; i < particle_count; ++i)
     {
@@ -34,10 +32,10 @@ void ThrusterParticles::trigger(Renderer &renderer)
                       edge_transform.p.y - edge_transform.q.c * random_number),
             -glm::vec2(angle.c * 10, angle.s * 10),
             -i * step_subdivision,
-            1,
-            0.04f,
+            0.8f,
+            0.05f,
             particle_color,
-            end_color};
+            {0, -1, -1, -0.1f}};
         particles.push_back(particle);
     }
     renderer.draw(particles);

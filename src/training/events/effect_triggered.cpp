@@ -27,7 +27,7 @@ void EffectTriggered::trigger(IEnvironment &env)
         env.add_effect(std::make_unique<ThrusterParticles>(
             b2Transform({transform.get_position().x, transform.get_position().y},
                         b2Rot(transform.get_rotation())),
-            cl_white));
+            glm::vec4{1.23f, 0.53f, 0.28f, 1.f}));
     }
     else if (effect_type == EffectTypes::BodyHit)
     {
