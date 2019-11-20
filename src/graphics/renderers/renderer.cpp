@@ -126,6 +126,13 @@ void Renderer::begin()
     vector_renderer.begin_frame({width, height});
 }
 
+void Renderer::begin_subframe()
+{
+    clear_scissor();
+    glViewport(0, 0, width, height);
+    vector_renderer.begin_frame({width, height});
+}
+
 void Renderer::render(double time)
 {
     if (distortion_layer != nullptr)

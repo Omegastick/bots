@@ -305,18 +305,6 @@ void MultiplayerScreen::play(double delta_time)
 
     glm::vec2 resolution = io.get_resolution();
     ImGui::SetNextWindowSize({resolution.x * 0.2f, resolution.y * 0.1f}, ImGuiCond_Once);
-    ImGui::SetNextWindowPos({resolution.x * 0.05f, resolution.y * 0.3f}, ImGuiCond_Once);
-    ImGui::Begin("Health");
-    auto bodies = env->get_bodies();
-    for (const auto &body : bodies)
-    {
-        float health = body->get_hp();
-        float max_health = 10;
-        ImGui::ProgressBar(health / max_health, {-1, 0}, fmt::format("{}/{}", health, max_health).c_str());
-    }
-    ImGui::End();
-
-    ImGui::SetNextWindowSize({resolution.x * 0.2f, resolution.y * 0.1f}, ImGuiCond_Once);
     ImGui::SetNextWindowPos({resolution.x * 0.05f, resolution.y * 0.5f}, ImGuiCond_Once);
     ImGui::Begin("Scores");
     for (const auto &score : env->get_scores())

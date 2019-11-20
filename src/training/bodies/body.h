@@ -41,7 +41,6 @@ class Body : public ICollidable
     Body(Body &&other);
     Body(const Body &) = delete;
     Body &operator=(Body &&other);
-    virtual ~Body() {}
 
     void act(std::vector<int> action_flags);
     void add_module(const std::shared_ptr<IModule> module);
