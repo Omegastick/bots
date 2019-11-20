@@ -117,19 +117,6 @@ void TrainScreen::update(const double /*delta_time*/)
         });
     }
 
-    ImGui::SetNextWindowSize({resolution.x * 0.2f, resolution.y * 0.15f}, ImGuiCond_Once);
-    ImGui::SetNextWindowPos({resolution.x * 0.05f, resolution.y * 0.3f}, ImGuiCond_Once);
-    ImGui::Begin("Health");
-    auto bodies = trainer->get_environments()[0]->get_bodies();
-    for (const auto &body : bodies)
-    {
-        const float health = body->get_hp();
-        const float max_health = 10;
-        ImGui::ProgressBar(health / max_health, {-1, 0}, fmt::format("{}/{}", health, max_health).c_str());
-    }
-    ImGui::End();
-
-    ImGui::SetNextWindowSize({resolution.x * 0.2f, resolution.y * 0.1f}, ImGuiCond_Once);
     ImGui::SetNextWindowPos({resolution.x * 0.05f, resolution.y * 0.5f}, ImGuiCond_Once);
     ImGui::Begin("Scores");
     for (const auto &score : trainer->get_environments()[0]->get_scores())

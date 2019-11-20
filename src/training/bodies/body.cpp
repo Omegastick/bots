@@ -124,17 +124,6 @@ void Body::draw(Renderer &renderer, bool lightweight)
         module->draw(renderer, lightweight);
     }
 
-    std::stringstream hp_stream;
-    hp_stream << hp;
-    Text text;
-    text.font = "roboto-32";
-    text.text = hp_stream.str();
-    text.color = cl_white;
-    b2Vec2 position = rigid_body->body->GetPosition();
-    text.transform.set_position({position.x, position.y});
-    text.transform.set_scale({0.05, 0.05});
-    renderer.draw(text);
-
     // if (debug_draw)
     // {
     //     b2Transform transform = rigid_body->body->GetTransform();

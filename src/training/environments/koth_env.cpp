@@ -225,6 +225,32 @@ void KothEnv::draw(Renderer &renderer, bool lightweight)
     }
     effects.clear();
 
+    // Health bars
+    for (const auto &body : get_bodies())
+    {
+        if (body->get_modules().empty())
+        {
+            continue;
+        }
+        const auto hp = static_cast<double>(body->get_hp());
+        const auto hp_ratio = hp / 10.;
+
+        const auto b2_position = body->get_rigid_body().body->GetPosition();
+        const glm::vec2 position(b2_position.x, b2_position.y);
+        const double full_bar_width = 3;
+        const auto bar_width = full_bar_width * hp_ratio;
+        Line health_bar{{{position + glm::vec2{-full_bar_width * 0.5, -2}},
+                         {position + glm::vec2{full_bar_width * 0.5, -2}}},
+                        {{0.1f, 0.1f}},
+                        {{set_alpha(cl_base0, 0.5), set_alpha(cl_base0, 0.5)}}};
+        renderer.draw(health_bar);
+        health_bar.points = {{position + glm::vec2{-bar_width * 0.5, -2}},
+                             {position + glm::vec2{bar_width * 0.5, -2}}};
+        health_bar.colors = {cl_red, cl_red};
+        renderer.draw(health_bar);
+    }
+
+    // Timer
     double max_time = max_steps / 10.f;
     int seconds_remaining = static_cast<int>(std::ceil(max_time - elapsed_time));
     Text timer;

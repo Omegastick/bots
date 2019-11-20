@@ -14,6 +14,11 @@ constexpr glm::vec4 hex_to_rgb(int hex)
             1.f};
 }
 
+constexpr glm::vec4 set_alpha(glm::vec4 color, float alpha)
+{
+    return {color.r, color.g, color.b, alpha};
+}
+
 // const glm::vec4 cl_background(0.05, 0.06, 0.06, 1.0);
 // const glm::vec4 cl_white(0.95, 0.95, 0.96, 1.0);
 // const glm::vec4 cl_accent(0.16, 0.89, 0.47, 1.0);

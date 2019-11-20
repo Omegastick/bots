@@ -97,6 +97,7 @@ class Renderer
     void clear_particles();
 
     void begin();
+    void begin_subframe();
     void render(double time);
 
     void set_view(const glm::mat4 &view);
