@@ -19,6 +19,7 @@ class b2World;
 
 namespace SingularityTrainer
 {
+class Animator;
 class IO;
 class ModuleFactory;
 class Random;
@@ -37,7 +38,7 @@ class BuildScreen : public IScreen
     std::vector<std::string> available_parts;
     glm::mat4 projection;
     b2World b2_world;
-    SaveBodyWindow save_body_window;
+    std::unique_ptr<SaveBodyWindow> save_body_window;
     BodyBuilder body_builder;
     std::shared_ptr<IModule> module_to_place;
     std::shared_ptr<IModule> selected_module;
@@ -46,6 +47,8 @@ class BuildScreen : public IScreen
 
   public:
     BuildScreen(BodyBuilder &&body_builder,
+                std::unique_ptr<SaveBodyWindow> save_body_window,
+
                 ModuleFactory &module_factory,
                 ResourceManager &resource_manager,
                 ScreenManager &screen_manager,
@@ -58,6 +61,7 @@ class BuildScreen : public IScreen
 class BuildScreenFactory : public IScreenFactory
 {
   private:
+    Animator &animator;
     BodyBuilderFactory &body_builder_factory;
     ModuleFactory &module_factory;
     ResourceManager &resource_manager;
@@ -65,12 +69,14 @@ class BuildScreenFactory : public IScreenFactory
     IO &io;
 
   public:
-    BuildScreenFactory(BodyBuilderFactory &body_builder_factory,
+    BuildScreenFactory(Animator &animator,
+                       BodyBuilderFactory &body_builder_factory,
                        ModuleFactory &module_factory,
                        ResourceManager &resource_manager,
                        ScreenManager &screen_manager,
                        IO &io)
-        : body_builder_factory(body_builder_factory),
+        : animator(animator),
+          body_builder_factory(body_builder_factory),
           module_factory(module_factory),
           resource_manager(resource_manager),
           screen_manager(screen_manager),
@@ -79,6 +85,7 @@ class BuildScreenFactory : public IScreenFactory
     inline std::shared_ptr<IScreen> make()
     {
         return std::make_shared<BuildScreen>(std::move(*body_builder_factory.make()),
+                                             std::make_unique<SaveBodyWindow>(animator, io),
                                              module_factory,
                                              resource_manager,
                                              screen_manager,

@@ -1,7 +1,7 @@
 #pragma once
 
 #include <functional>
-#include <vector>
+#include <map>
 
 namespace SingularityTrainer
 {
@@ -16,12 +16,14 @@ struct Animation
 class Animator
 {
   private:
-    std::vector<Animation> animations;
+    std::map<unsigned long, Animation> animations;
+    unsigned long current_id;
 
   public:
     Animator();
 
-    void add_animation(Animation &&animation);
+    unsigned long add_animation(Animation &&animation);
+    void delete_animation(unsigned long id);
     void update(double delta_time);
 };
 }

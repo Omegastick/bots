@@ -26,6 +26,7 @@
 namespace SingularityTrainer
 {
 BuildScreen::BuildScreen(BodyBuilder &&body_builder,
+                         std::unique_ptr<SaveBodyWindow> save_body_window,
                          ModuleFactory &module_factory,
                          ResourceManager &resource_manager,
                          ScreenManager &screen_manager,
@@ -42,7 +43,7 @@ BuildScreen::BuildScreen(BodyBuilder &&body_builder,
                        "thruster_module"}),
       projection(glm::ortho(0.f, 1920.f, 0.f, 1080.f)),
       b2_world(b2Vec2(0, 0)),
-      save_body_window(),
+      save_body_window(std::move(save_body_window)),
       body_builder(std::move(body_builder)),
       module_to_place(nullptr),
       test_sprite{cl_white, "laser_sensor_module", Transform()},
@@ -112,7 +113,7 @@ void BuildScreen::update(double /*delta_time*/)
     part_detail_window.select_part(selected_module.get());
 
     part_detail_window.update();
-    save_body_window.update(body_builder.get_body());
+    save_body_window->update(body_builder.get_body());
 
     auto resolution = io->get_resolution();
     back_button(*screen_manager, resolution);

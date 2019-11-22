@@ -1,5 +1,6 @@
 #include <filesystem>
 #include <fstream>
+#include <limits>
 #include <string>
 
 #include <imgui.h>
@@ -7,22 +8,36 @@
 #include <nlohmann/json.hpp>
 #include <spdlog/spdlog.h>
 
-#include "ui/build_screen/save_body_window.h"
+#include "save_body_window.h"
+#include "misc/animator.h"
+#include "misc/io.h"
 #include "training/bodies/body.h"
 
 namespace fs = std::filesystem;
 
 namespace SingularityTrainer
 {
-SaveBodyWindow::SaveBodyWindow() : name("") {}
+SaveBodyWindow::SaveBodyWindow(Animator &animator, IO &io)
+    : animation_id(std::numeric_limits<unsigned long>::max()),
+      animator(animator),
+      io(io),
+      name(""),
+      recently_saved(false) {}
+
+SaveBodyWindow::~SaveBodyWindow()
+{
+    animator.delete_animation(animation_id);
+}
 
 bool SaveBodyWindow::update(Body &body)
 {
-    bool saved = false;
+    const auto resolution = io.get_resolutionf();
+    ImGui::SetNextWindowPos({resolution.x * 0.05f, resolution.y * 0.666f}, ImGuiCond_Once);
     ImGui::Begin("Save body");
 
     ImGui::InputText("Name", &name);
 
+    bool saved = false;
     if (ImGui::Button("Save"))
     {
         // Check bodies directory exists
@@ -43,6 +58,19 @@ bool SaveBodyWindow::update(Body &body)
         std::ofstream file(file_name);
         file << json;
         saved = true;
+        recently_saved = true;
+
+        animator.delete_animation(animation_id);
+        animation_id = animator.add_animation({[](double) {},
+                                               1.,
+                                               [&]() {
+                                                   recently_saved = false;
+                                               }});
+    }
+
+    if (recently_saved)
+    {
+        ImGui::Text("Saved");
     }
 
     ImGui::End();
