@@ -22,9 +22,9 @@ PartSelectorWindow::PartSelectorWindow(IO &io, ResourceManager &resource_manager
 std::string PartSelectorWindow::update(std::vector<std::string> &parts)
 {
     std::string selected_part = "";
-    ImGui::PushStyleColor(ImGuiCol_Button, glm_to_im(cl_base03));
-    ImGui::PushStyleColor(ImGuiCol_ButtonHovered, glm_to_im(cl_base03));
-    ImGui::PushStyleColor(ImGuiCol_ButtonActive, glm_to_im(cl_base02));
+    ImGui::PushStyleColor(ImGuiCol_Button, cl_base03);
+    ImGui::PushStyleColor(ImGuiCol_ButtonHovered, cl_base03);
+    ImGui::PushStyleColor(ImGuiCol_ButtonActive, cl_base02);
     ImGui::PushStyleVar(ImGuiStyleVar_FrameRounding, 5);
     auto resolution = io->get_resolution();
     ImGui::SetNextWindowSize({resolution.x * 0.2f, resolution.y * 0.95f}, ImGuiCond_Once);
