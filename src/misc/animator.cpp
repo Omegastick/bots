@@ -6,46 +6,50 @@
 
 namespace SingularityTrainer
 {
-template <class ForwardIt, class UnaryPredicate>
-ForwardIt remove_if_with_callback(ForwardIt first, ForwardIt last, UnaryPredicate predicate)
+template <class Key, class T, class Compare, class Alloc, class Predicate>
+void erase_if_with_callback(std::map<Key, T, Compare, Alloc> &c, Predicate predicate)
 {
-    auto iter = std::find_if(first, last, predicate);
-    if (iter != last)
+    for (auto i = c.begin(), last = c.end(); i != last;)
     {
-        iter->finish_callback();
-        for (ForwardIt i = iter; ++i != last;)
+        if (predicate(*i))
         {
-            if (!predicate(*i))
-            {
-                *iter++ = std::move(*i);
-            }
+            i->second.finish_callback();
+            i = c.erase(i);
+        }
+        else
+        {
+            ++i;
         }
     }
-
-    return iter;
 }
 
-Animator::Animator() {}
+Animator::Animator() : current_id(0) {}
 
-void Animator::add_animation(Animation &&animation)
+unsigned long Animator::add_animation(Animation &&animation)
 {
-    animations.push_back(std::move(animation));
+    animations[current_id++] = std::move(animation);
+    return current_id - 1;
+}
+
+void Animator::delete_animation(unsigned long id)
+{
+    animations.erase(id);
 }
 
 void Animator::update(double delta_time)
 {
-    for (auto &animation : animations)
+    for (auto &[id, animation] : animations)
     {
         animation.step_function(delta_time / animation.length);
         animation.elapsed_time += delta_time;
     }
 
-    animations.erase(remove_if_with_callback(
-                         animations.begin(), animations.end(),
-                         [](const Animation &animation) {
-                             return animation.elapsed_time >= animation.length;
-                         }),
-                     animations.end());
+    erase_if_with_callback(animations,
+                           [](const std::pair<const long unsigned int,
+                                              SingularityTrainer::Animation>
+                                  animation) {
+                               return animation.second.elapsed_time >= animation.second.length;
+                           });
 }
 
 TEST_CASE("Animator")
@@ -139,7 +143,7 @@ TEST_CASE("Animator")
 
     SUBCASE("Animations step callbacks are called with the percentage by which to step forward")
     {
-        double passed_value = false;
+        double passed_value = 0;
         Animation animation{
             [&](double step_percent) { passed_value = step_percent; },
             2.};
@@ -148,6 +152,30 @@ TEST_CASE("Animator")
         animator.update(1);
 
         CHECK(passed_value == doctest::Approx(0.5));
+    }
+
+    SUBCASE("IDs are assigned sequentially")
+    {
+        CHECK(animator.add_animation({[](double) {}, 1.f, [] {}}) == 0);
+        CHECK(animator.add_animation({[](double) {}, 1.f, [] {}}) == 1);
+
+        animator.delete_animation(1);
+
+        CHECK(animator.add_animation({[](double) {}, 1.f, [] {}}) == 2);
+    }
+
+    SUBCASE("Deleted animations don't trigger")
+    {
+        bool called = false;
+        Animation animation{
+            [&](double) { called = true; },
+            1.};
+        animator.add_animation(std::move(animation));
+        animator.delete_animation(0);
+
+        animator.update(1);
+
+        CHECK(called == false);
     }
 }
 }

@@ -5,6 +5,7 @@
 #include <doctest.h>
 #include <imgui.h>
 
+#include "misc/animator.h"
 #include "misc/io.h"
 #include "misc/credentials_manager.h"
 #include "misc/ihttp_client.h"
