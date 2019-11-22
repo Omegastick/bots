@@ -282,7 +282,7 @@ PRIVATE
     ${IMGUI_DIR}/examples/imgui_impl_opengl3.cpp
     ${IMGUI_DIR}/misc/cpp/imgui_stdlib.cpp
 )
-target_link_libraries(imgui PUBLIC glad glfw)
+target_link_libraries(imgui PUBLIC glad glfw glm)
 set_target_properties(imgui PROPERTIES POSITION_INDEPENDENT_CODE TRUE)
 ## NanoVG
 add_library(nanovg STATIC)

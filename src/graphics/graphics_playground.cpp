@@ -53,7 +53,7 @@ void reset_imgui_style()
 
     // Padding/Spacing
     style.WindowPadding = {20, 20};
-    style.FramePadding = {6, 3};
+    style.FramePadding = {3, 3};
     style.ItemSpacing = {13, 10};
     style.ItemInnerSpacing = {7, 3};
     style.IndentSpacing = 20;
@@ -81,44 +81,46 @@ void reset_imgui_style()
     // Alignment
     style.WindowTitleAlign = {0.5, 0.5};
 
-    style.Colors[ImGuiCol_Text] = glm_to_im(cl_base00);
-    style.Colors[ImGuiCol_TextDisabled] = glm_to_im(cl_base1);
-    style.Colors[ImGuiCol_WindowBg] = glm_to_im(cl_base3);
-    style.Colors[ImGuiCol_ChildBg] = glm_to_im(cl_base3);
-    style.Colors[ImGuiCol_PopupBg] = glm_to_im(cl_base3);
-    style.Colors[ImGuiCol_Border] = glm_to_im(cl_base00);
-    style.Colors[ImGuiCol_BorderShadow] = glm_to_im(cl_base01);
-    style.Colors[ImGuiCol_FrameBg] = glm_to_im(cl_base2);
-    style.Colors[ImGuiCol_FrameBgHovered] = glm_to_im(cl_base2);
-    style.Colors[ImGuiCol_FrameBgActive] = glm_to_im(cl_base2);
-    style.Colors[ImGuiCol_TitleBg] = glm_to_im({cl_base3.r, cl_base3.g, cl_base3.b, 0.9});
-    style.Colors[ImGuiCol_TitleBgCollapsed] = glm_to_im({cl_base3.r, cl_base3.g, cl_base3.b, 0.9});
-    style.Colors[ImGuiCol_TitleBgActive] = glm_to_im(cl_base3);
-    style.Colors[ImGuiCol_MenuBarBg] = glm_to_im(cl_base2);
-    style.Colors[ImGuiCol_ScrollbarBg] = glm_to_im(cl_base3);
-    style.Colors[ImGuiCol_ScrollbarGrab] = glm_to_im(cl_base2);
-    style.Colors[ImGuiCol_ScrollbarGrabHovered] = glm_to_im(cl_base1);
-    style.Colors[ImGuiCol_ScrollbarGrabActive] = glm_to_im(cl_base1);
-    style.Colors[ImGuiCol_CheckMark] = glm_to_im(cl_base1);
-    style.Colors[ImGuiCol_SliderGrab] = glm_to_im(cl_base01);
-    style.Colors[ImGuiCol_SliderGrabActive] = glm_to_im(cl_base01);
-    style.Colors[ImGuiCol_Button] = glm_to_im(cl_base2);
-    style.Colors[ImGuiCol_ButtonHovered] = glm_to_im(cl_base1);
-    style.Colors[ImGuiCol_ButtonActive] = glm_to_im(cl_base0);
-    style.Colors[ImGuiCol_Tab] = glm_to_im(cl_base2);
-    style.Colors[ImGuiCol_TabHovered] = glm_to_im(cl_base1_l);
-    style.Colors[ImGuiCol_TabActive] = glm_to_im(cl_base1_l);
-    style.Colors[ImGuiCol_Header] = glm_to_im(cl_base1_l);
-    style.Colors[ImGuiCol_HeaderHovered] = glm_to_im(cl_base1_l);
-    style.Colors[ImGuiCol_HeaderActive] = glm_to_im(cl_base1_l);
-    style.Colors[ImGuiCol_ResizeGrip] = glm_to_im(cl_base2);
-    style.Colors[ImGuiCol_ResizeGripHovered] = glm_to_im(cl_base2);
-    style.Colors[ImGuiCol_ResizeGripActive] = glm_to_im(cl_base01);
-    style.Colors[ImGuiCol_PlotLines] = glm_to_im(cl_base00);
-    style.Colors[ImGuiCol_PlotLinesHovered] = glm_to_im(cl_base01);
-    style.Colors[ImGuiCol_PlotHistogram] = glm_to_im(cl_base00);
-    style.Colors[ImGuiCol_PlotHistogramHovered] = glm_to_im(cl_base00);
-    style.Colors[ImGuiCol_TextSelectedBg] = glm_to_im(cl_base02);
+    style.AntiAliasedLines = true;
+
+    style.Colors[ImGuiCol_Text] = cl_base00;
+    style.Colors[ImGuiCol_TextDisabled] = cl_base1;
+    style.Colors[ImGuiCol_WindowBg] = cl_base3;
+    style.Colors[ImGuiCol_ChildBg] = cl_base3;
+    style.Colors[ImGuiCol_PopupBg] = cl_base3;
+    style.Colors[ImGuiCol_Border] = cl_base00;
+    style.Colors[ImGuiCol_BorderShadow] = cl_base01;
+    style.Colors[ImGuiCol_FrameBg] = cl_base2;
+    style.Colors[ImGuiCol_FrameBgHovered] = cl_base2;
+    style.Colors[ImGuiCol_FrameBgActive] = cl_base2;
+    style.Colors[ImGuiCol_TitleBg] = set_alpha(cl_base3, 0.9f);
+    style.Colors[ImGuiCol_TitleBgCollapsed] = set_alpha(cl_base3, 0.9f);
+    style.Colors[ImGuiCol_TitleBgActive] = cl_base3;
+    style.Colors[ImGuiCol_MenuBarBg] = cl_base2;
+    style.Colors[ImGuiCol_ScrollbarBg] = cl_base3;
+    style.Colors[ImGuiCol_ScrollbarGrab] = cl_base2;
+    style.Colors[ImGuiCol_ScrollbarGrabHovered] = cl_base1;
+    style.Colors[ImGuiCol_ScrollbarGrabActive] = cl_base1;
+    style.Colors[ImGuiCol_CheckMark] = cl_base1;
+    style.Colors[ImGuiCol_SliderGrab] = cl_base01;
+    style.Colors[ImGuiCol_SliderGrabActive] = cl_base01;
+    style.Colors[ImGuiCol_Button] = cl_base2;
+    style.Colors[ImGuiCol_ButtonHovered] = cl_base1;
+    style.Colors[ImGuiCol_ButtonActive] = cl_base0;
+    style.Colors[ImGuiCol_Tab] = cl_base2;
+    style.Colors[ImGuiCol_TabHovered] = cl_base1_l;
+    style.Colors[ImGuiCol_TabActive] = cl_base1_l;
+    style.Colors[ImGuiCol_Header] = cl_base1_l;
+    style.Colors[ImGuiCol_HeaderHovered] = cl_base1_l;
+    style.Colors[ImGuiCol_HeaderActive] = cl_base1_l;
+    style.Colors[ImGuiCol_ResizeGrip] = cl_base2;
+    style.Colors[ImGuiCol_ResizeGripHovered] = cl_base2;
+    style.Colors[ImGuiCol_ResizeGripActive] = cl_base01;
+    style.Colors[ImGuiCol_PlotLines] = cl_base00;
+    style.Colors[ImGuiCol_PlotLinesHovered] = cl_base01;
+    style.Colors[ImGuiCol_PlotHistogram] = cl_base00;
+    style.Colors[ImGuiCol_PlotHistogramHovered] = cl_base00;
+    style.Colors[ImGuiCol_TextSelectedBg] = cl_base02;
 }
 
 void resize_window_callback(GLFWwindow *glfw_window, int x, int y)

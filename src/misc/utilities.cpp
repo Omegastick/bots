@@ -80,11 +80,6 @@ bool approx(const b2Vec2 &vector_1, const b2Vec2 &vector_2)
     return x && y;
 }
 
-ImVec4 glm_to_im(const glm::vec4 &in)
-{
-    return {in.x, in.y, in.z, in.w};
-}
-
 glm::vec2 screen_to_world_space(glm::vec2 point, glm::vec2 resolution, glm::mat4 projection)
 {
     point = point / resolution;
