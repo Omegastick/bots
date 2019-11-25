@@ -20,7 +20,7 @@ PRIVATE
     ${CMAKE_CURRENT_LIST_DIR}/python_bindings.cpp
 )
 
-target_sources(Networking
+target_sources(Shared
 PRIVATE
     ${CMAKE_CURRENT_LIST_DIR}/server_app.cpp
 )

@@ -1,4 +1,4 @@
-target_sources(Graphics
+target_sources(Shared
 PRIVATE
     ${CMAKE_CURRENT_LIST_DIR}/animation_test_screen.cpp
     ${CMAKE_CURRENT_LIST_DIR}/bloom_test_screen.cpp

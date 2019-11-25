@@ -131,10 +131,7 @@ if(UNIX)
 endif(UNIX)
 
 # Executables and local libraries
-add_library(Graphics OBJECT "")
-add_library(Misc OBJECT "")
-add_library(Networking OBJECT "")
-add_library(Training OBJECT "")
+add_library(Shared OBJECT "")
 add_executable(SingularityTrainer "")
 add_executable(HeadlessTrainer "")
 add_executable(GraphicsPlayground "")
@@ -144,10 +141,7 @@ set(ST_TARGETS
     HeadlessTrainer
     GraphicsPlayground
     Server
-    Graphics
-    Misc
-    Networking
-    Training
+    Shared
 )
 
 # Disable HeadlessTrainer and GraphicsPlayground by default
@@ -155,10 +149,7 @@ set_target_properties(HeadlessTrainer PROPERTIES EXCLUDE_FROM_ALL TRUE)
 set_target_properties(GraphicsPlayground PROPERTIES EXCLUDE_FROM_ALL TRUE)
 
 # Set position independent code
-set_target_properties(Graphics PROPERTIES POSITION_INDEPENDENT_CODE TRUE)
-set_target_properties(Misc PROPERTIES POSITION_INDEPENDENT_CODE TRUE)
-set_target_properties(Networking PROPERTIES POSITION_INDEPENDENT_CODE TRUE)
-set_target_properties(Training PROPERTIES POSITION_INDEPENDENT_CODE TRUE)
+set_target_properties(Shared PROPERTIES POSITION_INDEPENDENT_CODE TRUE)
 
 # Link time optimization
 include(CheckIPOSupported)
@@ -311,20 +302,32 @@ pybind11_add_module(PythonBindings "")
 set_target_properties(PythonBindings PROPERTIES EXCLUDE_FROM_ALL TRUE)
 
 # Link libraries
-target_link_libraries(Misc PUBLIC curlpp_static doctest imgui)
-target_link_libraries(Graphics PUBLIC doctest glad glfw ${GLFW_LIBRARIES} glm imgui Misc nanovg)
-target_link_libraries(Training PUBLIC cpprl doctest  fmt::fmt Graphics tobanteGaming::Box2D ${TORCH_LIBRARIES})
+target_link_libraries(Shared
+PUBLIC
+    cpprl
+    curlpp_static
+    doctest
+    fmt::fmt
+    glad
+    glfw
+    ${GLFW_LIBRARIES}
+    glm
+    imgui
+    libzmq-static
+    nanovg
+    tobanteGaming::Box2D
+    ${TORCH_LIBRARIES}
+)
 # UNIX systems sometimes need to explicitly link the threading library
 if (UNIX)
     message(STATUS "Linking against Linux libraries")
-    target_link_libraries(Training PUBLIC pthread)
+    target_link_libraries(Shared PUBLIC pthread)
 endif(UNIX)
-target_link_libraries(Networking Training libzmq-static)
-target_link_libraries(SingularityTrainer Misc Graphics Training Networking)
-target_link_libraries(HeadlessTrainer Graphics Misc Training)
-target_link_libraries(GraphicsPlayground Graphics Misc Training)
-target_link_libraries(Server Graphics Misc Training Networking)
-target_link_libraries(PythonBindings PRIVATE Graphics Misc Training ${PYTHON_LIBRARIES})
+target_link_libraries(SingularityTrainer Shared)
+target_link_libraries(HeadlessTrainer Shared)
+target_link_libraries(GraphicsPlayground Shared)
+target_link_libraries(Server Shared)
+target_link_libraries(PythonBindings PRIVATE ${PYTHON_LIBRARIES} Shared)
 set_target_properties(PythonBindings PROPERTIES OUTPUT_NAME "singularity_trainer")
 set_target_properties(PythonBindings PROPERTIES SUFFIX ".so")
 
@@ -334,10 +337,7 @@ target_include_directories(SingularityTrainer PUBLIC ${INCLUDE_DIRS})
 target_include_directories(HeadlessTrainer PUBLIC ${INCLUDE_DIRS})
 target_include_directories(GraphicsPlayground PUBLIC ${INCLUDE_DIRS})
 target_include_directories(Server PUBLIC ${INCLUDE_DIRS})
-target_include_directories(Graphics PUBLIC ${INCLUDE_DIRS})
-target_include_directories(Misc PUBLIC ${INCLUDE_DIRS})
-target_include_directories(Networking PUBLIC ${INCLUDE_DIRS})
-target_include_directories(Training PUBLIC ${INCLUDE_DIRS})
+target_include_directories(Shared PUBLIC ${INCLUDE_DIRS})
 target_include_directories(PythonBindings PUBLIC ${INCLUDE_DIRS})
 
 set(NO_ERR_INCLUDE_DIRS
@@ -369,10 +369,7 @@ target_include_directories(SingularityTrainer SYSTEM PUBLIC ${NO_ERR_INCLUDE_DIR
 target_include_directories(HeadlessTrainer SYSTEM PUBLIC ${NO_ERR_INCLUDE_DIRS})
 target_include_directories(GraphicsPlayground SYSTEM PUBLIC ${NO_ERR_INCLUDE_DIRS})
 target_include_directories(Server SYSTEM PUBLIC ${NO_ERR_INCLUDE_DIRS})
-target_include_directories(Graphics SYSTEM PUBLIC ${NO_ERR_INCLUDE_DIRS})
-target_include_directories(Misc SYSTEM PUBLIC ${NO_ERR_INCLUDE_DIRS})
-target_include_directories(Networking SYSTEM PUBLIC ${NO_ERR_INCLUDE_DIRS})
-target_include_directories(Training SYSTEM PUBLIC ${NO_ERR_INCLUDE_DIRS})
+target_include_directories(Shared SYSTEM PUBLIC ${NO_ERR_INCLUDE_DIRS})
 target_include_directories(PythonBindings SYSTEM PUBLIC ${NO_ERR_INCLUDE_DIRS})
 
 add_subdirectory(src)

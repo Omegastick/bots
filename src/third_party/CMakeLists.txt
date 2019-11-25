@@ -23,7 +23,7 @@ PUBLIC
     ${CMAKE_CURRENT_LIST_DIR}/doctest.cpp
 )
 
-target_sources(Graphics
+target_sources(Shared
 PRIVATE
     ${CMAKE_CURRENT_LIST_DIR}/stb_image.cpp
     ${CMAKE_CURRENT_LIST_DIR}/stb_truetype.cpp

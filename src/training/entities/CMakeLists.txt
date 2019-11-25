@@ -1,4 +1,4 @@
-target_sources(Training
+target_sources(Shared
 PRIVATE
     ${CMAKE_CURRENT_LIST_DIR}/bullet.cpp
     ${CMAKE_CURRENT_LIST_DIR}/hill.cpp

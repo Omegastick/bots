@@ -10,8 +10,8 @@
 
 namespace SingularityTrainer
 {
-SpringMesh::SpringMesh(int width,
-                       int height,
+SpringMesh::SpringMesh(unsigned int width,
+                       unsigned int height,
                        float damping,
                        float friction,
                        float stiffness,
@@ -29,10 +29,10 @@ SpringMesh::SpringMesh(int width,
 
 void SpringMesh::apply_explosive_force(glm::vec2 position, float size, float strength)
 {
-    int index = 0;
-    for (int row = 0; row < height; ++row)
+    unsigned int index = 0;
+    for (unsigned int row = 0; row < height; ++row)
     {
-        for (int column = 0; column < width; ++column)
+        for (unsigned int column = 0; column < width; ++column)
         {
             glm::vec3 vertex_position = glm::vec3{column, row, 0} + offsets[index];
             float distance = glm::length2(vertex_position - glm::vec3{position.x, position.y, 0});
@@ -49,10 +49,10 @@ void SpringMesh::apply_explosive_force(glm::vec2 position, float size, float str
 
 void SpringMesh::apply_implosive_force(glm::vec2 position, float size, float strength)
 {
-    int index = 0;
-    for (int row = 0; row < height; ++row)
+    unsigned int index = 0;
+    for (unsigned int row = 0; row < height; ++row)
     {
-        for (int column = 0; column < width; ++column)
+        for (unsigned int column = 0; column < width; ++column)
         {
             glm::vec3 vertex_position = glm::vec3{column, row, 0} + offsets[index];
             float distance = glm::length2(vertex_position - glm::vec3{position.x, position.y, 0});
@@ -93,10 +93,10 @@ void SpringMesh::apply_spring_forces(const glm::vec3 &position_1,
 std::vector<glm::vec2> SpringMesh::get_vertices(float scale_x, float scale_y)
 {
     std::vector<glm::vec2> vertices(no_vertices);
-    int index = 0;
-    for (int row = 0; row < height; ++row)
+    unsigned int index = 0;
+    for (unsigned int row = 0; row < height; ++row)
     {
-        for (int column = 0; column < width; ++column)
+        for (unsigned int column = 0; column < width; ++column)
         {
             vertices[index] = {(static_cast<float>(column) + offsets[index].x) /
                                    static_cast<float>(width - 1) *
@@ -114,7 +114,7 @@ std::vector<glm::vec2> SpringMesh::get_vertices(float scale_x, float scale_y)
 void SpringMesh::update()
 {
     // Update vertex positions
-    for (int i = 0; i < no_vertices; ++i)
+    for (unsigned int i = 0; i < no_vertices; ++i)
     {
         if (i < width ||
             i > no_vertices - width ||
@@ -134,12 +134,12 @@ void SpringMesh::update()
     ::memset(accelerations.data(), 0.f, accelerations.size() * sizeof(accelerations[0]));
 
     // Apply springs horizontally
-    int index_1 = 0;
-    for (int row = 0; row < height; ++row)
+    unsigned int index_1 = 0;
+    for (unsigned int row = 0; row < height; ++row)
     {
-        for (int column = 0; column < width - 1; ++column)
+        for (unsigned int column = 0; column < width - 1; ++column)
         {
-            int index_2 = index_1 + 1;
+            unsigned int index_2 = index_1 + 1;
             apply_spring_forces(glm::vec3{column, row, 0} + offsets[index_1],
                                 glm::vec3{column + 1, row, 0} + offsets[index_2],
                                 velocities[index_1],
@@ -152,11 +152,11 @@ void SpringMesh::update()
 
     // Apply springs vertically
     index_1 = 0;
-    for (int column = 0; column < width; ++column)
+    for (unsigned int column = 0; column < width; ++column)
     {
-        for (int row = 0; row < height - 1; ++row)
+        for (unsigned int row = 0; row < height - 1; ++row)
         {
-            int index_2 = index_1 + width;
+            unsigned int index_2 = index_1 + width;
             apply_spring_forces(glm::vec3{column, row, 0} + offsets[index_1],
                                 glm::vec3{column, row + 1, 0} + offsets[index_2],
                                 velocities[index_1],

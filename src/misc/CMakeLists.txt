@@ -1,4 +1,4 @@
-target_sources(Misc
+target_sources(Shared
 PRIVATE
     ${CMAKE_CURRENT_LIST_DIR}/animator.cpp
     ${CMAKE_CURRENT_LIST_DIR}/credentials_manager.cpp

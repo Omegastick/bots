@@ -4,7 +4,7 @@ add_subdirectory(multiplayer_screen)
 add_subdirectory(train_screen)
 add_subdirectory(watch_screen)
 
-target_sources(Misc
+target_sources(Shared
 PRIVATE
     ${CMAKE_CURRENT_LIST_DIR}/plot.cpp
 )
