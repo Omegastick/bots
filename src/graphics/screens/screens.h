@@ -4,6 +4,7 @@
 #include "graphics/screens/distortion_test_screen.h"
 #include "graphics/screens/grid_test_screen.h"
 #include "graphics/screens/quad_screen.h"
+#include "graphics/screens/texture_store_test_screen.h"
 #include "graphics/screens/texture_test_screen.h"
 #include "graphics/screens/sprite_test_screen.h"
 #include "graphics/screens/plot_test_screen.h"

@@ -11,7 +11,6 @@ class Texture
   private:
     unsigned int id;
     std::string filepath;
-    // unsigned char *buffer;
     int width, height, bpp;
 
   public:
@@ -19,6 +18,10 @@ class Texture
     Texture(int width, int height, unsigned char *data, unsigned int format = GL_RED);
     Texture(int width, int height, float *data);
     explicit Texture(const std::string &filepath);
+
+    Texture(Texture &&other);
+    Texture &operator=(Texture &&other);
+    Texture &operator=(const Texture &other) = delete;
     ~Texture();
 
     void bind(unsigned int slot = 0) const;

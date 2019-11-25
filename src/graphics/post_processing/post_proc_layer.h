@@ -23,11 +23,11 @@ class PostProcLayer
     std::unique_ptr<ElementBuffer> element_buffer;
 
     int width, height;
-    Shader *shader;
+    const Shader *shader;
 
   public:
     PostProcLayer(int width = 1920, int height = 1080);
-    PostProcLayer(Shader &shader, int width = 1920, int height = 1080);
+    PostProcLayer(const Shader &shader, int width = 1920, int height = 1080);
 
     virtual FrameBuffer &render(Texture &input_texture);
     virtual void resize(int width, int height);

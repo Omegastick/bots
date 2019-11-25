@@ -5,6 +5,7 @@
 
 #include <glm/glm.hpp>
 
+#include "graphics/backend/frame_buffer.h"
 #include "graphics/colors.h"
 #include "graphics/render_data.h"
 #include "third_party/di.hpp"
@@ -13,7 +14,6 @@ namespace SingularityTrainer
 {
 class DistortionLayer;
 class PostProcLayer;
-class FrameBuffer;
 class ResourceManager;
 class VertexArray;
 class ElementBuffer;
@@ -99,6 +99,7 @@ class Renderer
     void begin();
     void begin_subframe();
     void render(double time);
+    const FrameBuffer *render_to_buffer(double time);
 
     void set_view(const glm::mat4 &view);
 
