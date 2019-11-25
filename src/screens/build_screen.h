@@ -5,7 +5,6 @@
 #include <vector>
 
 #include <Box2D/Box2D.h>
-#include <glm/mat4x4.hpp>
 
 #include "graphics/render_data.h"
 #include "screens/iscreen.h"
@@ -22,6 +21,7 @@ namespace SingularityTrainer
 class Animator;
 class IO;
 class ModuleFactory;
+class ModuleTextureStore;
 class Random;
 class Renderer;
 class ResourceManager;
@@ -31,12 +31,11 @@ class BuildScreen : public IScreen
 {
   private:
     ModuleFactory &module_factory;
-    ScreenManager *screen_manager;
-    IO *io;
+    ScreenManager &screen_manager;
+    IO &io;
     PartDetailWindow part_detail_window;
-    PartSelectorWindow part_selector_window;
+    std::unique_ptr<PartSelectorWindow> part_selector_window;
     std::vector<std::string> available_parts;
-    glm::mat4 projection;
     b2World b2_world;
     std::unique_ptr<SaveBodyWindow> save_body_window;
     BodyBuilder body_builder;
@@ -47,8 +46,8 @@ class BuildScreen : public IScreen
 
   public:
     BuildScreen(BodyBuilder &&body_builder,
+                std::unique_ptr<PartSelectorWindow> part_selector_window,
                 std::unique_ptr<SaveBodyWindow> save_body_window,
-
                 ModuleFactory &module_factory,
                 ResourceManager &resource_manager,
                 ScreenManager &screen_manager,
@@ -64,6 +63,7 @@ class BuildScreenFactory : public IScreenFactory
     Animator &animator;
     BodyBuilderFactory &body_builder_factory;
     ModuleFactory &module_factory;
+    ModuleTextureStore &module_texture_store;
     ResourceManager &resource_manager;
     ScreenManager &screen_manager;
     IO &io;
@@ -72,12 +72,14 @@ class BuildScreenFactory : public IScreenFactory
     BuildScreenFactory(Animator &animator,
                        BodyBuilderFactory &body_builder_factory,
                        ModuleFactory &module_factory,
+                       ModuleTextureStore &module_texture_store,
                        ResourceManager &resource_manager,
                        ScreenManager &screen_manager,
                        IO &io)
         : animator(animator),
           body_builder_factory(body_builder_factory),
           module_factory(module_factory),
+          module_texture_store(module_texture_store),
           resource_manager(resource_manager),
           screen_manager(screen_manager),
           io(io) {}
@@ -85,6 +87,10 @@ class BuildScreenFactory : public IScreenFactory
     inline std::shared_ptr<IScreen> make()
     {
         return std::make_shared<BuildScreen>(std::move(*body_builder_factory.make()),
+                                             std::make_unique<PartSelectorWindow>(
+                                                 io,
+                                                 module_texture_store,
+                                                 resource_manager),
                                              std::make_unique<SaveBodyWindow>(animator, io),
                                              module_factory,
                                              resource_manager,

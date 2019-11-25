@@ -26,22 +26,22 @@
 namespace SingularityTrainer
 {
 BuildScreen::BuildScreen(BodyBuilder &&body_builder,
+                         std::unique_ptr<PartSelectorWindow> part_selector_window,
                          std::unique_ptr<SaveBodyWindow> save_body_window,
                          ModuleFactory &module_factory,
                          ResourceManager &resource_manager,
                          ScreenManager &screen_manager,
                          IO &io)
     : module_factory(module_factory),
-      screen_manager(&screen_manager),
-      io(&io),
+      screen_manager(screen_manager),
+      io(io),
       part_detail_window(io),
-      part_selector_window(io, resource_manager),
+      part_selector_window(std::move(part_selector_window)),
       available_parts({"base_module",
                        "gun_module",
                        "laser_sensor_module",
                        "square_hull",
                        "thruster_module"}),
-      projection(glm::ortho(0.f, 1920.f, 0.f, 1080.f)),
       b2_world(b2Vec2(0, 0)),
       save_body_window(std::move(save_body_window)),
       body_builder(std::move(body_builder)),
@@ -64,17 +64,17 @@ BuildScreen::BuildScreen(BodyBuilder &&body_builder,
 
 void BuildScreen::update(double /*delta_time*/)
 {
-    auto selected_part = part_selector_window.update(available_parts);
+    auto selected_part = part_selector_window->update(available_parts);
     if (selected_part != "")
     {
         module_to_place = module_factory.create_module(selected_part);
     }
 
-    if (io->get_left_click())
+    if (io.get_left_click())
     {
         if (module_to_place == nullptr)
         {
-            selected_module = body_builder.get_module_at_screen_position(io->get_cursor_position());
+            selected_module = body_builder.get_module_at_screen_position(io.get_cursor_position());
         }
         else
         {
@@ -87,16 +87,16 @@ void BuildScreen::update(double /*delta_time*/)
         }
     }
 
-    if (io->get_key_pressed_this_frame(GLFW_KEY_Q))
+    if (io.get_key_pressed_this_frame(GLFW_KEY_Q))
     {
         current_rotation += 1;
     }
-    else if (io->get_key_pressed_this_frame(GLFW_KEY_E))
+    else if (io.get_key_pressed_this_frame(GLFW_KEY_E))
     {
         current_rotation -= 1;
     }
 
-    if (selected_module != nullptr && io->get_key_pressed_this_frame(GLFW_KEY_DELETE))
+    if (selected_module != nullptr && io.get_key_pressed_this_frame(GLFW_KEY_DELETE))
     {
         try
         {
@@ -115,18 +115,24 @@ void BuildScreen::update(double /*delta_time*/)
     part_detail_window.update();
     save_body_window->update(body_builder.get_body());
 
-    auto resolution = io->get_resolution();
-    back_button(*screen_manager, resolution);
+    auto resolution = io.get_resolution();
+    back_button(screen_manager, resolution);
 }
 
 void BuildScreen::draw(Renderer &renderer, bool /*lightweight*/)
 {
+    const double view_height = 25;
+    auto view_top = view_height * 0.5;
+    glm::vec2 resolution = io.get_resolutionf();
+    auto view_right = view_top * (resolution.x / resolution.y);
+    const auto projection = glm::ortho(-view_right, view_right, -view_top, view_top);
     renderer.set_view(projection);
+    body_builder.set_view(projection);
 
     if (module_to_place != nullptr)
     {
-        auto cursor_world_position = screen_to_world_space(io->get_cursor_position(),
-                                                           io->get_resolution(),
+        auto cursor_world_position = screen_to_world_space(io.get_cursor_position(),
+                                                           io.get_resolution(),
                                                            body_builder.get_projection());
         module_to_place->get_transform().p = {cursor_world_position.x, cursor_world_position.y};
         module_to_place->get_transform().q = b2Rot(glm::radians(current_rotation * 90.f));
