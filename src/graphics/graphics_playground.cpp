@@ -235,12 +235,6 @@ int main(int /*argc*/, const char * /*argv*/ [])
     ScreenManager screen_manager;
     std::vector<std::shared_ptr<IScreen>> screens;
     std::vector<std::string> screen_names;
-    spdlog::debug("Initializing quad test");
-    screens.push_back(std::make_shared<QuadScreen>(&screen_manager, &screens, &screen_names));
-    screen_names.push_back("Quad test");
-    spdlog::debug("Initializing texture test");
-    screens.push_back(std::make_shared<TextureTestScreen>(&screen_manager, &screens, &screen_names));
-    screen_names.push_back("Texture test");
     spdlog::debug("Initializing sprite test");
     screens.push_back(std::make_shared<SpriteTestScreen>(&screen_manager, resource_manager, &screens, &screen_names));
     screen_names.push_back("Sprite test");

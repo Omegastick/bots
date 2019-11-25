@@ -9,10 +9,8 @@ PRIVATE
     ${CMAKE_CURRENT_LIST_DIR}/particle_test_screen.cpp
     ${CMAKE_CURRENT_LIST_DIR}/plot_test_screen.cpp
     ${CMAKE_CURRENT_LIST_DIR}/post_proc_screen.cpp
-    ${CMAKE_CURRENT_LIST_DIR}/quad_screen.cpp
     ${CMAKE_CURRENT_LIST_DIR}/sprite_test_screen.cpp
     ${CMAKE_CURRENT_LIST_DIR}/text_test_screen.cpp
     ${CMAKE_CURRENT_LIST_DIR}/texture_store_test_screen.cpp
-    ${CMAKE_CURRENT_LIST_DIR}/texture_test_screen.cpp
     ${CMAKE_CURRENT_LIST_DIR}/vector_test_screen.cpp
 )
