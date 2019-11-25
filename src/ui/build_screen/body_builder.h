@@ -56,6 +56,7 @@ class BodyBuilder
 
     inline Body &get_body() { return *body; }
     inline glm::mat4 &get_projection() { return projection; }
+    inline void set_view(const glm::mat4 &projection) { this->projection = projection; }
 };
 
 class BodyBuilderFactory

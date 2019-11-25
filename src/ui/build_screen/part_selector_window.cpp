@@ -8,14 +8,20 @@
 #include "graphics/backend/texture.h"
 #include "graphics/colors.h"
 #include "misc/io.h"
+#include "misc/module_texture_store.h"
 #include "misc/resource_manager.h"
 #include "ui/build_screen/part_selector_window.h"
 #include "misc/utilities.h"
 
 namespace SingularityTrainer
 {
-PartSelectorWindow::PartSelectorWindow(IO &io, ResourceManager &resource_manager)
-    : io(&io), resource_manager(&resource_manager)
+PartSelectorWindow::PartSelectorWindow(
+    IO &io,
+    ModuleTextureStore &module_texture_store,
+    ResourceManager &resource_manager)
+    : io(io),
+      module_texture_store(module_texture_store),
+      resource_manager(resource_manager)
 {
 }
 
@@ -26,21 +32,21 @@ std::string PartSelectorWindow::update(std::vector<std::string> &parts)
     ImGui::PushStyleColor(ImGuiCol_ButtonHovered, cl_base03);
     ImGui::PushStyleColor(ImGuiCol_ButtonActive, cl_base02);
     ImGui::PushStyleVar(ImGuiStyleVar_FrameRounding, 5);
-    auto resolution = io->get_resolution();
+    auto resolution = io.get_resolution();
     ImGui::SetNextWindowSize({resolution.x * 0.2f, resolution.y * 0.95f}, ImGuiCond_Once);
     ImGui::SetNextWindowPos({resolution.x * 0.775f, resolution.y * 0.025f},
                             ImGuiCond_Once);
     ImGui::Begin("Part Selector");
     auto style = ImGui::GetStyle();
-    auto image_size = ((ImGui::GetContentRegionAvailWidth() - style.ScrollbarSize * 2) / 3) - style.ItemSpacing.x;
+    auto image_size = (ImGui::GetContentRegionAvailWidth() - style.ScrollbarSize * 2) / 3 - style.ItemSpacing.x;
     for (unsigned int i = 0; i < parts.size(); ++i)
     {
         if (i % 3 != 0)
         {
             ImGui::SameLine();
         }
-        auto texture = resource_manager->texture_store.get(parts[i]);
-        if (ImGui::ImageButton(ImTextureID(texture->get_id()), ImVec2(image_size, image_size), {1, 1}, {0, 0}))
+        const auto &texture = module_texture_store.get(parts[i]);
+        if (ImGui::ImageButton(ImTextureID(texture.get_id()), ImVec2(image_size, image_size), {1, 1}, {0, 0}))
         {
             selected_part = parts[i];
         }
