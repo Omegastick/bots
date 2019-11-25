@@ -32,8 +32,8 @@ class SpringMesh
                              glm::vec3 &acceleration_2);
 
   public:
-    SpringMesh(int width,
-               int height,
+    SpringMesh(unsigned int width,
+               unsigned int height,
                float damping = 0.06f,
                float friction = 0.98f,
                float stiffness = 0.28f,

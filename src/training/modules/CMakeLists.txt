@@ -1,4 +1,4 @@
-target_sources(Training
+target_sources(Shared
 PRIVATE
     ${CMAKE_CURRENT_LIST_DIR}/base_module.cpp
     ${CMAKE_CURRENT_LIST_DIR}/gun_module.cpp
