@@ -32,8 +32,7 @@ TextureStoreTestScreen::TextureStoreTestScreen(ModuleTextureStore &module_textur
       projection(glm::ortho(-19.2f, 19.2f, -10.8f, 10.8f)),
       module_texture_store(module_texture_store)
 {
-    module_texture_store.get("base_module");
-    auto &texture = module_texture_store.get("gun_module");
+    auto &texture = module_texture_store.get("base_module");
     resource_manager.texture_store.add_raw("base_tex", &texture);
 }
 
@@ -46,7 +45,7 @@ void TextureStoreTestScreen::draw(Renderer &renderer, bool /*lightweight*/)
 {
     renderer.set_view(projection);
     Transform transform;
-    transform.set_scale({1, 1});
-    renderer.draw(Sprite{{1, 1, 1, 1}, "base_tex", Transform()});
+    transform.set_scale({10, 10});
+    renderer.draw(Sprite{glm::vec4(1), "base_tex", transform});
 }
 }
