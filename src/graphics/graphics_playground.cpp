@@ -25,6 +25,9 @@
 #include "graphics/screens/screens.h"
 #include "misc/animator.h"
 #include "misc/io.h"
+#include "misc/module_factory.h"
+#include "misc/module_texture_store.h"
+#include "misc/random.h"
 #include "misc/resource_manager.h"
 #include "misc/screen_manager.h"
 #include "misc/utilities.h"
@@ -192,6 +195,41 @@ int main(int /*argc*/, const char * /*argv*/ [])
     ResourceManager resource_manager("assets/");
     Animator animator;
 
+    spdlog::debug("Initializing renderer");
+    LineRenderer line_renderer(resource_manager);
+    ParticleRenderer particle_renderer(100000, resource_manager);
+    BatchedSpriteRenderer sprite_renderer(resource_manager);
+    TextRenderer text_renderer(resource_manager);
+    VectorRenderer vector_renderer;
+    Renderer renderer(resolution_x,
+                      resolution_y,
+                      resource_manager,
+                      sprite_renderer,
+                      particle_renderer,
+                      line_renderer,
+                      text_renderer,
+                      vector_renderer);
+    window.set_renderer(renderer);
+    window.set_resize_callback(resize_window_callback);
+
+    Random rng(0);
+    ModuleFactory module_factory(rng);
+
+    LineRenderer module_line_renderer(resource_manager);
+    ParticleRenderer module_particle_renderer(100000, resource_manager);
+    BatchedSpriteRenderer module_sprite_renderer(resource_manager);
+    TextRenderer module_text_renderer(resource_manager);
+    VectorRenderer module_vector_renderer;
+    Renderer module_renderer(resolution_x,
+                             resolution_y,
+                             resource_manager,
+                             sprite_renderer,
+                             particle_renderer,
+                             line_renderer,
+                             text_renderer,
+                             vector_renderer);
+    ModuleTextureStore module_texture_store(module_factory, std::move(module_renderer));
+
     // Screens
     spdlog::debug("Initializing screens");
     ScreenManager screen_manager;
@@ -245,24 +283,14 @@ int main(int /*argc*/, const char * /*argv*/ [])
                                                          screens,
                                                          screen_names));
     screen_names.push_back("Vector test");
+    spdlog::debug("Initializing vector test");
+    screens.push_back(std::make_shared<TextureStoreTestScreen>(module_texture_store,
+                                                               screen_manager,
+                                                               resource_manager,
+                                                               screens,
+                                                               screen_names));
+    screen_names.push_back("Texture store test");
     screen_manager.show_screen(screens[0]);
-
-    spdlog::debug("Initializing renderer");
-    LineRenderer line_renderer(resource_manager);
-    ParticleRenderer particle_renderer(100000, resource_manager);
-    BatchedSpriteRenderer sprite_renderer(resource_manager);
-    TextRenderer text_renderer(resource_manager);
-    VectorRenderer vector_renderer;
-    Renderer renderer(resolution_x,
-                      resolution_y,
-                      resource_manager,
-                      sprite_renderer,
-                      particle_renderer,
-                      line_renderer,
-                      text_renderer,
-                      vector_renderer);
-    window.set_renderer(renderer);
-    window.set_resize_callback(resize_window_callback);
 
     // ImGui
     init_imgui(opengl_version_major, opengl_version_minor, window.window);

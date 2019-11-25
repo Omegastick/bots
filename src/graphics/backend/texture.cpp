@@ -1,3 +1,4 @@
+#include <limits>
 #include <string>
 
 #include <glad/glad.h>
@@ -77,9 +78,36 @@ Texture::Texture(const std::string &filepath)
     }
 }
 
+Texture::Texture(Texture &&other)
+    : id(other.id),
+      filepath(std::move(other.filepath)),
+      width(other.width),
+      height(other.height),
+      bpp(other.bpp)
+{
+    other.id = std::numeric_limits<unsigned int>::max();
+}
+
+Texture &Texture::operator=(Texture &&other)
+{
+    if (this != &other)
+    {
+        id = other.id;
+        other.id = std::numeric_limits<unsigned int>::max();
+        filepath = std::move(other.filepath);
+        width = other.width;
+        height = other.height;
+        bpp = other.bpp;
+    }
+    return *this;
+}
+
 Texture::~Texture()
 {
-    glDeleteTextures(1, &id);
+    if (id != std::numeric_limits<unsigned int>::max())
+    {
+        glDeleteTextures(1, &id);
+    }
 }
 
 void Texture::bind(unsigned int slot) const

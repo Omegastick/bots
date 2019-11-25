@@ -16,6 +16,6 @@ class ModuleFactory
   public:
     ModuleFactory(Random &rng) : rng(rng) {}
 
-    std::shared_ptr<IModule> create_module(std::string &module_id);
+    std::shared_ptr<IModule> create_module(const std::string &module_id);
 };
 }

@@ -7,6 +7,7 @@ PRIVATE
     ${CMAKE_CURRENT_LIST_DIR}/io.cpp
     ${CMAKE_CURRENT_LIST_DIR}/matchmaker.cpp
     ${CMAKE_CURRENT_LIST_DIR}/module_factory.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/module_texture_store.cpp
     ${CMAKE_CURRENT_LIST_DIR}/random.cpp
     ${CMAKE_CURRENT_LIST_DIR}/resource_manager.cpp
     ${CMAKE_CURRENT_LIST_DIR}/screen_manager.cpp

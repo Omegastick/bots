@@ -40,7 +40,7 @@ PostProcLayer::PostProcLayer(int width, int height)
     frame_buffer.set_texture(width, height);
 }
 
-PostProcLayer::PostProcLayer(Shader &shader, int width, int height)
+PostProcLayer::PostProcLayer(const Shader &shader, int width, int height)
     : PostProcLayer(width, height)
 {
     this->shader = &shader;

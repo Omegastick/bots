@@ -44,9 +44,6 @@ Renderer::Renderer(int width, int height,
 {
     texture_frame_buffer = std::make_unique<FrameBuffer>();
     texture_frame_buffer->set_texture(width, height);
-
-    glBindFramebuffer(GL_FRAMEBUFFER, 0);
-    glBindRenderbuffer(GL_RENDERBUFFER, 0);
 }
 
 void Renderer::resize(int width, int height)
@@ -120,9 +117,6 @@ void Renderer::clear(const glm::vec4 &color)
 
 void Renderer::begin()
 {
-    clear_scissor();
-    glViewport(0, 0, width, height);
-    clear();
     vector_renderer.begin_frame({width, height});
 }
 
@@ -135,6 +129,19 @@ void Renderer::begin_subframe()
 
 void Renderer::render(double time)
 {
+    const auto read_buffer = render_to_buffer(time);
+
+    read_buffer->bind_read();
+    glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
+    glBlitFramebuffer(0, 0, width, height, 0, 0, width, height, GL_COLOR_BUFFER_BIT, GL_LINEAR);
+}
+
+const FrameBuffer *Renderer::render_to_buffer(double time)
+{
+    clear_scissor();
+    glViewport(0, 0, width, height);
+    clear();
+
     if (distortion_layer != nullptr)
     {
         distortion_layer->update_mesh();
@@ -207,12 +214,10 @@ void Renderer::render(double time)
         read_buffer = &post_proc_layer->render(read_buffer->get_texture());
     }
 
-    read_buffer->bind_read();
-    glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
-    glBlitFramebuffer(0, 0, width, height, 0, 0, width, height, GL_COLOR_BUFFER_BIT, GL_LINEAR);
-
     post_proc_layers.clear();
     clear_distortion_layer();
+
+    return read_buffer;
 }
 
 void Renderer::push_post_proc_layer(PostProcLayer &post_proc_layer)

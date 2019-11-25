@@ -82,7 +82,7 @@ void glDebugOutput(unsigned int source,
         break;
     }
 
-    error_message << message;
+    error_message << id << " - " << message;
 
     switch (severity)
     {
