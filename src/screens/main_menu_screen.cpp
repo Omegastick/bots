@@ -132,7 +132,7 @@ std::future<int> MainMenuScreen::get_elo(const std::string &base_url, int timeou
     return std::async(
         std::launch::async,
         [=] {
-            auto response = http_client.post(base_url + "get_elo",
+            auto response = http_client.post(base_url + "get_user",
                                              {{"username", credentials_manager.get_username()}});
             auto future_status = response.wait_for(std::chrono::seconds(timeout));
             if (future_status == std::future_status::timeout)

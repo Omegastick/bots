@@ -229,9 +229,9 @@ def finish_game(request: Request) -> str:
     return json.dumps({'success': True})
 
 
-def get_elo(request: Request) -> str:
+def get_user(request: Request) -> str:
     """
-    Given a username, returns the Elo associated with that user.
+    Given a username, returns the data associated with that user.
     """
     request_json = request.json
     if 'username' not in request_json:
@@ -258,7 +258,12 @@ def get_elo(request: Request) -> str:
         # User doesn't exist
         abort(400, f"User {username} doesn't exist")
 
-    return json.dumps({'elo': user.to_dict()['elo']})
+    user_data = user.to_dict()
+    return json.dumps({
+        'elo': user_data['elo'],
+        'credits': user_data['credits'],
+        'modules': user_data['modules']
+    })
 
 
 def unlock_module(request: Request) -> str:

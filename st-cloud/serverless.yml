@@ -29,8 +29,8 @@ functions:
     handler: finish_game
     events:
       - http: path
-  get_elo:
-    handler: get_elo
+  get_user:
+    handler: get_user
     events:
       - http: path
   unlock_module:
