@@ -87,11 +87,20 @@ def login(request: Request) -> str:
                            f" {matching_users_dicts}")
     else:
         # Create a new user
-        user = users.add({'username': username, 'elo': 0})[1]
+        user = users.add({
+            'username': username,
+            'elo': 0,
+            'credits': 0,
+            'modules': [
+                "base_module",
+                "gun_module",
+                "thruster_module",
+                "laser_sensor_module"
+            ]
+        })[1]
 
     token = secrets.token_urlsafe()
-    user.update({'token': token,
-                 'token_set_time': firestore.SERVER_TIMESTAMP})
+    user.update({'token': token, 'token_set_time': firestore.SERVER_TIMESTAMP})
 
     return json.dumps({'token': token})
 
@@ -208,10 +217,13 @@ def finish_game(request: Request) -> str:
 
     # Update Elos in database
     batch = db.batch()
-    batch.update(users.document(user_1.id), {'elo': user_1_elo,
-                                             'status': 'idle'})
-    batch.update(users.document(user_2.id), {'elo': user_2_elo,
-                                             'status': 'idle'})
+    batch.update(users.document(user_1.id),
+                 {'elo': user_1_elo,
+                  'credits': user_1.to_dict()['credits'] + 100,
+                  'status': 'idle'})
+    batch.update(users.document(user_2.id),
+                 {'elo': user_2_elo,
+                  'status': 'idle'})
     batch.commit()
 
     return json.dumps({'success': True})
@@ -247,6 +259,53 @@ def get_elo(request: Request) -> str:
         abort(400, f"User {username} doesn't exist")
 
     return json.dumps({'elo': user.to_dict()['elo']})
+
+
+def unlock_module(request: Request) -> str:
+    """
+    If the requesting player has enough credits
+    """
+    auth_header = request.headers.get("Authorization")
+    if not auth_header:
+        abort(401, "No authorization header")
+    token = auth_header.split(' ')[1]
+
+    users = db.collection('users')
+
+    matching_users_query = users.where('token', '==', token)
+    matching_users = list(matching_users_query.stream())
+
+    if not matching_users:
+        abort(401, "Invalid authorization")
+    if len(matching_users) > 1:
+        raise RuntimeError("Duplicate tokens in database")
+
+    user = matching_users[0]
+
+    if 'module' not in request.json:
+        abort(400, "No module provided")
+
+    modules = db.collection('modules')
+    modules_query = modules.where('name', '==', request.json['module'])
+    matching_modules = list(modules_query.stream())
+
+    if not matching_modules:
+        abort(400, "Module doesn't exist")
+
+    module = matching_modules[0]
+
+    available_credits = user.to_dict()['credits']
+    price = module.to_dict()['price']
+
+    if available_credits < price:
+        abort(400, "Can't afford module")
+
+    users.document(user.id).update({
+        'credits': available_credits - price,
+        'modules': firestore.ArrayUnion([module.to_dict()['name']])
+    })
+
+    return json.dumps({'success': True})
 
 
 def wait_for_game(users: firestore.CollectionReference,

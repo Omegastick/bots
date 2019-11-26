@@ -12,6 +12,8 @@
 
 namespace SingularityTrainer
 {
+constexpr int image_size = 500;
+
 const glm::mat4 projection = glm::ortho(-1, 1, -1, 1);
 
 ModuleTextureStore::ModuleTextureStore(ModuleFactory &module_factory, Renderer &&renderer)
@@ -29,7 +31,7 @@ const Texture &ModuleTextureStore::get(const std::string &module)
     spdlog::debug("Creating module texture for {}", module);
     const auto constructed_module = module_factory.create_module(module);
 
-    renderer.resize(300, 300);
+    renderer.resize(image_size, image_size);
     renderer.begin();
     renderer.set_view(projection);
 
@@ -37,10 +39,10 @@ const Texture &ModuleTextureStore::get(const std::string &module)
 
     const auto *frame_buffer = renderer.render_to_buffer(0);
 
-    cache.insert(std::make_pair(module, Texture(300, 300, nullptr, GL_RGBA)));
+    cache.insert(std::make_pair(module, Texture(image_size, image_size, nullptr, GL_RGBA)));
     cache.find(module)->second.bind();
     frame_buffer->bind_read();
-    glCopyTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA16F, 0, 0, 300, 300, 0);
+    glCopyTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA16F, 0, 0, image_size, image_size, 0);
 
     return cache.find(module)->second;
 }
