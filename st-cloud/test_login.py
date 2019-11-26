@@ -75,3 +75,7 @@ def test_login_creates_new_user_on_new_login(db):
 
     matching_users = list(users.where('username', '==', '__test1').stream())
     assert len(matching_users) == 1
+    assert matching_users[0].to_dict()['elo'] == 0
+    assert matching_users[0].to_dict()['credits'] == 0
+    assert matching_users[0].to_dict()['modules'] == [
+        "base_module", "gun_module", "thruster_module", "laser_sensor_module"]

@@ -33,6 +33,10 @@ functions:
     handler: get_elo
     events:
       - http: path
+  unlock_module:
+    handler: unlock_module
+    events:
+      - http: path
 # you can define resources, templates etc. the same way you would in a
 # Google Cloud deployment configuration
 #resources:

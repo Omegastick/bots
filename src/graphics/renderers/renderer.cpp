@@ -129,6 +129,7 @@ void Renderer::begin_subframe()
 
 void Renderer::render(double time)
 {
+    glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
     const auto read_buffer = render_to_buffer(time);
 
     read_buffer->bind_read();

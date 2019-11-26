@@ -85,7 +85,8 @@ def test_finish_game_returns_ok():
         .collection.return_value
         .where.return_value
         .stream.return_value) = [
-            MagicMock(id='asd', to_dict=Mock(return_value={'elo': 0}))]
+            MagicMock(id='asd', to_dict=Mock(return_value={'elo': 0,
+                                                           'credits': 0}))]
 
     request = Mock(json={
         'players': ['Bob', 'Steve'],
@@ -128,6 +129,9 @@ def test_finish_game_updates_database(db):
 
     assert user_1.to_dict()['elo'] > 0
     assert user_2.to_dict()['elo'] < 0
+
+    assert user_1.to_dict()['credits'] > 0
+    assert user_2.to_dict()['credits'] == 0
 
     assert user_1.to_dict()['status'] == 'idle'
     assert user_2.to_dict()['status'] == 'idle'

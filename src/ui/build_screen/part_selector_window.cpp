@@ -37,18 +37,25 @@ std::string PartSelectorWindow::update(std::vector<std::string> &parts)
     ImGui::SetNextWindowPos({resolution.x * 0.775f, resolution.y * 0.025f},
                             ImGuiCond_Once);
     ImGui::Begin("Part Selector");
-    auto style = ImGui::GetStyle();
-    auto image_size = (ImGui::GetContentRegionAvailWidth() - style.ScrollbarSize * 2) / 3 - style.ItemSpacing.x;
+    const auto &style = ImGui::GetStyle();
+    const float image_size = resolution.x * 0.05f;
+    const float window_visible_x = ImGui::GetWindowPos().x + ImGui::GetWindowContentRegionMax().x;
     for (unsigned int i = 0; i < parts.size(); ++i)
     {
-        if (i % 3 != 0)
-        {
-            ImGui::SameLine();
-        }
         const auto &texture = module_texture_store.get(parts[i]);
-        if (ImGui::ImageButton(ImTextureID(texture.get_id()), ImVec2(image_size, image_size), {1, 1}, {0, 0}))
+        if (ImGui::ImageButton(ImTextureID(texture.get_id()),
+                               ImVec2(image_size, image_size),
+                               {1, 1},
+                               {0, 0}))
         {
             selected_part = parts[i];
+        }
+
+        const float last_button_x = ImGui::GetItemRectMax().x;
+        const float next_button_x = last_button_x + style.ItemSpacing.x + image_size;
+        if (i + 1 < parts.size() && next_button_x < window_visible_x)
+        {
+            ImGui::SameLine();
         }
     }
     ImGui::End();
