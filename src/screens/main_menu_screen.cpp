@@ -154,7 +154,7 @@ std::future<MainMenuScreen::UserInfo> MainMenuScreen::get_user_info(const std::s
             if (future_status == std::future_status::timeout)
             {
                 throw std::runtime_error(
-                    fmt::format("Get elo request timed out after {} seconds", timeout));
+                    fmt::format("Get user info request timed out after {} seconds", timeout));
             }
 
             auto json = response.get();
