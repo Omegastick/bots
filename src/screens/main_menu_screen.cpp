@@ -2,6 +2,7 @@
 #include <future>
 #include <stdexcept>
 #include <string>
+#include <thread>
 #include <utility>
 
 #include <glad/glad.h>
@@ -41,7 +42,8 @@ MainMenuScreen::MainMenuScreen(CredentialsManager &credentials_manager,
       create_program_screen_factory(create_program_screen_factory),
       multiplayer_screen_factory(multiplayer_screen_factory),
       screen_manager(screen_manager),
-      user_info_received(false) {}
+      user_info_received(false),
+      waiting_for_server(false) {}
 
 void MainMenuScreen::update(double /*delta_time*/)
 {
@@ -56,10 +58,18 @@ void MainMenuScreen::update(double /*delta_time*/)
         ImGui::InputText("Username", &username);
         if (ImGui::Button("Login"))
         {
-            credentials_manager.login(username);
-            spdlog::debug("Logged in as: {}", username);
-            spdlog::debug("Token: {}", credentials_manager.get_token());
-            user_info_future = get_user_info(st_cloud_base_url);
+            std::thread([&] {
+                credentials_manager.login(username);
+                spdlog::debug("Logged in as: {}", username);
+                user_info_future = get_user_info(st_cloud_base_url);
+            })
+                .detach();
+            waiting_for_server = true;
+        }
+        if (waiting_for_server)
+        {
+            ImGui::SameLine();
+            ImGui::Text("Please wait...");
         }
         ImGui::End();
 
@@ -78,7 +88,11 @@ void MainMenuScreen::update(double /*delta_time*/)
         ImGui::PushStyleColor(ImGuiCol_Text, {cl_base3.r, cl_base3.g, cl_base3.b, 1});
         auto imgui_io = ImGui::GetIO();
         ImGui::PushFont(imgui_io.Fonts->Fonts[2]);
-        ImGui::Begin("Main menu", NULL, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoTitleBar);
+        ImGui::Begin("Main menu",
+                     NULL,
+                     (ImGuiWindowFlags_NoResize |
+                      ImGuiWindowFlags_AlwaysAutoResize |
+                      ImGuiWindowFlags_NoTitleBar));
         if (ImGui::Button("Train Agent"))
         {
             train_agent();
@@ -154,6 +168,7 @@ std::future<MainMenuScreen::UserInfo> MainMenuScreen::get_user_info(const std::s
             spdlog::debug("Elo received: {}", elo_decimal);
 
             long credits = static_cast<long>(json["credits"]);
+            spdlog::debug("Credits received: {}", credits);
 
             return MainMenuScreen::UserInfo{credits, static_cast<long>(std::round(elo_decimal))};
         });
