@@ -313,6 +313,15 @@ def unlock_module(request: Request) -> str:
     return json.dumps({'success': True})
 
 
+def get_all_modules(_: Request) -> str:
+    """
+    Return all modules and their prices.
+    """
+    modules = list(db.collection('modules').stream())
+
+    return json.dumps({'modules': [module.to_dict() for module in modules]})
+
+
 def wait_for_game(users: firestore.CollectionReference,
                   user: firestore.DocumentSnapshot) -> str:
     """

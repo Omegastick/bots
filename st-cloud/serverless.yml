@@ -37,6 +37,10 @@ functions:
     handler: unlock_module
     events:
       - http: path
+  get_all_modules:
+    handler: get_all_modules
+    events:
+      - http: path
 # you can define resources, templates etc. the same way you would in a
 # Google Cloud deployment configuration
 #resources:
