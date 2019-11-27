@@ -1,12 +1,20 @@
 #pragma GCC diagnostic ignored "-Wint-to-pointer-cast"
 
+#include <future>
 #include <string>
+#include <thread>
 #include <vector>
 
+#include <doctest/doctest.h>
+#include <doctest/trompeloeil.hpp>
+#include <fmt/format.h>
 #include <imgui.h>
+#include <spdlog/spdlog.h>
 
 #include "graphics/backend/texture.h"
 #include "graphics/colors.h"
+#include "misc/credentials_manager.h"
+#include "misc/ihttp_client.h"
 #include "misc/io.h"
 #include "misc/module_texture_store.h"
 #include "misc/resource_manager.h"
@@ -15,17 +23,45 @@
 
 namespace SingularityTrainer
 {
-PartSelectorWindow::PartSelectorWindow(
-    IO &io,
-    ModuleTextureStore &module_texture_store,
-    ResourceManager &resource_manager)
-    : io(io),
+PartSelectorWindow::PartSelectorWindow(CredentialsManager &credentials_manager,
+                                       IHttpClient &http_client,
+                                       IO &io,
+                                       ModuleTextureStore &module_texture_store,
+                                       ResourceManager &resource_manager)
+    : credentials_manager(credentials_manager),
+      http_client(http_client),
+      io(io),
       module_texture_store(module_texture_store),
       resource_manager(resource_manager)
 {
+    refresh_parts();
 }
 
-std::string PartSelectorWindow::update(std::vector<std::string> &parts)
+void PartSelectorWindow::refresh_parts(int timeout)
+{
+    std::thread([&] {
+        auto response = http_client.post(st_cloud_base_url + "get_user",
+                                         {{"username", credentials_manager.get_username()}});
+        auto future_status = response.wait_for(std::chrono::seconds(timeout));
+        if (future_status == std::future_status::timeout)
+        {
+            throw std::runtime_error(
+                fmt::format("Get user info request timed out after {} seconds", timeout));
+        }
+
+        auto json = response.get();
+        if (!json.contains("modules"))
+        {
+            spdlog::error("Bad Json received: {}", json.dump());
+            throw std::runtime_error("Bad Json received from 'get_user' request");
+        }
+
+        parts = json["modules"].get<std::vector<std::string>>();
+    })
+        .detach();
+}
+
+std::string PartSelectorWindow::update()
 {
     std::string selected_part = "";
     ImGui::PushStyleColor(ImGuiCol_Button, cl_base03);

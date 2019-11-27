@@ -37,11 +37,6 @@ BuildScreen::BuildScreen(BodyBuilder &&body_builder,
       io(io),
       part_detail_window(io),
       part_selector_window(std::move(part_selector_window)),
-      available_parts({"base_module",
-                       "gun_module",
-                       "laser_sensor_module",
-                       "square_hull",
-                       "thruster_module"}),
       b2_world(b2Vec2(0, 0)),
       save_body_window(std::move(save_body_window)),
       body_builder(std::move(body_builder)),
@@ -51,10 +46,6 @@ BuildScreen::BuildScreen(BodyBuilder &&body_builder,
 {
     resource_manager.load_texture("square", "images/square.png");
     resource_manager.load_texture("base_module", "images/base_module.png");
-    for (const auto &part : available_parts)
-    {
-        resource_manager.load_texture(part, "images/" + part + ".png");
-    }
     resource_manager.load_shader("texture", "shaders/texture.vert", "shaders/texture.frag");
     resource_manager.load_shader("font", "shaders/texture.vert", "shaders/font.frag");
     resource_manager.load_font("roboto-16", "fonts/Roboto-Regular.ttf", 16);
@@ -64,7 +55,7 @@ BuildScreen::BuildScreen(BodyBuilder &&body_builder,
 
 void BuildScreen::update(double /*delta_time*/)
 {
-    auto selected_part = part_selector_window->update(available_parts);
+    auto selected_part = part_selector_window->update();
     if (selected_part != "")
     {
         module_to_place = module_factory.create_module(selected_part);

@@ -16,7 +16,7 @@ import main
 
 
 @patch('main.db', MagicMock())
-def test_get_elo_returns_400_if_username_isnt_provided():
+def test_get_user_returns_400_if_username_isnt_provided():
     """
     When get_user is called with a username that doesn't exist, a 400 error
     code should be returned.
@@ -27,7 +27,7 @@ def test_get_elo_returns_400_if_username_isnt_provided():
 
 
 @patch('main.db', MagicMock())
-def test_get_elo_returns_400_if_username_doesnt_exist():
+def test_get_user_returns_400_if_username_doesnt_exist():
     """
     When get_user is called with a username that doesn't exist, a 400 error
     code should be returned.
@@ -43,7 +43,7 @@ def test_get_elo_returns_400_if_username_doesnt_exist():
 
 
 @patch('main.db', MagicMock())
-def test_get_elo_returns_elo():
+def test_get_user_returns_info():
     """
     When get_user is called with no errors, it should return the player's
     information.
@@ -69,7 +69,7 @@ def test_get_elo_returns_elo():
 
 
 @pytest.mark.integration
-def test_get_elo_queries_database(db):
+def test_get_user_queries_database(db):
     """
     When get_user is called correctly, it should retrieve the correct
     information from the database.

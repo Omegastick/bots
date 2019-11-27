@@ -19,6 +19,8 @@ class b2World;
 namespace SingularityTrainer
 {
 class Animator;
+class CredentialsManager;
+class IHttpClient;
 class IO;
 class ModuleFactory;
 class ModuleTextureStore;
@@ -35,7 +37,6 @@ class BuildScreen : public IScreen
     IO &io;
     PartDetailWindow part_detail_window;
     std::unique_ptr<PartSelectorWindow> part_selector_window;
-    std::vector<std::string> available_parts;
     b2World b2_world;
     std::unique_ptr<SaveBodyWindow> save_body_window;
     BodyBuilder body_builder;
@@ -62,6 +63,8 @@ class BuildScreenFactory : public IScreenFactory
   private:
     Animator &animator;
     BodyBuilderFactory &body_builder_factory;
+    CredentialsManager &credentials_manager;
+    IHttpClient &http_client;
     ModuleFactory &module_factory;
     ModuleTextureStore &module_texture_store;
     ResourceManager &resource_manager;
@@ -71,6 +74,8 @@ class BuildScreenFactory : public IScreenFactory
   public:
     BuildScreenFactory(Animator &animator,
                        BodyBuilderFactory &body_builder_factory,
+                       CredentialsManager &credentials_manager,
+                       IHttpClient &http_client,
                        ModuleFactory &module_factory,
                        ModuleTextureStore &module_texture_store,
                        ResourceManager &resource_manager,
@@ -78,6 +83,8 @@ class BuildScreenFactory : public IScreenFactory
                        IO &io)
         : animator(animator),
           body_builder_factory(body_builder_factory),
+          credentials_manager(credentials_manager),
+          http_client(http_client),
           module_factory(module_factory),
           module_texture_store(module_texture_store),
           resource_manager(resource_manager),
@@ -88,6 +95,8 @@ class BuildScreenFactory : public IScreenFactory
     {
         return std::make_shared<BuildScreen>(std::move(*body_builder_factory.make()),
                                              std::make_unique<PartSelectorWindow>(
+                                                 credentials_manager,
+                                                 http_client,
                                                  io,
                                                  module_texture_store,
                                                  resource_manager),
