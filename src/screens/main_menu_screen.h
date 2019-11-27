@@ -38,6 +38,7 @@ class MainMenuScreen : public IScreen
     std::future<UserInfo> user_info_future;
     bool user_info_received;
     std::string username;
+    bool waiting_for_server;
 
   public:
     MainMenuScreen(CredentialsManager &credentials_manager,
