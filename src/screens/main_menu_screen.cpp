@@ -2,6 +2,7 @@
 #include <future>
 #include <stdexcept>
 #include <string>
+#include <utility>
 
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
@@ -34,14 +35,13 @@ MainMenuScreen::MainMenuScreen(CredentialsManager &credentials_manager,
                                IScreenFactory &multiplayer_screen_factory,
                                ScreenManager &screen_manager)
     : credentials_manager(credentials_manager),
-      elo(0),
-      elo_received(false),
       http_client(http_client),
       io(io),
       build_screen_factory(build_screen_factory),
       create_program_screen_factory(create_program_screen_factory),
       multiplayer_screen_factory(multiplayer_screen_factory),
-      screen_manager(screen_manager) {}
+      screen_manager(screen_manager),
+      user_info_received(false) {}
 
 void MainMenuScreen::update(double /*delta_time*/)
 {
@@ -59,7 +59,7 @@ void MainMenuScreen::update(double /*delta_time*/)
             credentials_manager.login(username);
             spdlog::debug("Logged in as: {}", username);
             spdlog::debug("Token: {}", credentials_manager.get_token());
-            elo_future = get_elo(st_cloud_base_url);
+            user_info_future = get_user_info(st_cloud_base_url);
         }
         ImGui::End();
 
@@ -96,17 +96,18 @@ void MainMenuScreen::update(double /*delta_time*/)
             quit();
         }
 
-        if (elo_received)
+        if (user_info_received)
         {
-            ImGui::Text("Elo: %d", elo);
+            ImGui::Text("Credits: %ld", user_info.credits);
+            ImGui::Text("Elo: %ld", user_info.elo);
         }
-        else if (elo_future.valid())
+        else if (user_info_future.valid())
         {
-            auto future_status = elo_future.wait_for(std::chrono::seconds(0));
+            auto future_status = user_info_future.wait_for(std::chrono::seconds(0));
             if (future_status == std::future_status::ready)
             {
-                elo = elo_future.get();
-                elo_received = true;
+                user_info = user_info_future.get();
+                user_info_received = true;
             }
         }
         ImGui::End();
@@ -127,7 +128,8 @@ void MainMenuScreen::build_body()
     screen_manager.show_screen(build_screen_factory.make());
 }
 
-std::future<int> MainMenuScreen::get_elo(const std::string &base_url, int timeout)
+std::future<MainMenuScreen::UserInfo> MainMenuScreen::get_user_info(const std::string &base_url,
+                                                                    int timeout)
 {
     return std::async(
         std::launch::async,
@@ -142,16 +144,18 @@ std::future<int> MainMenuScreen::get_elo(const std::string &base_url, int timeou
             }
 
             auto json = response.get();
-            if (!json.contains("elo"))
+            if (!json.contains("elo") || !json.contains("credits"))
             {
                 spdlog::error("Bad Json received: {}", json.dump());
-                throw std::runtime_error("Received Json doesn't contain 'elo' field");
+                throw std::runtime_error("Bad Json received from 'get_user' request");
             }
 
             double elo_decimal = json["elo"];
             spdlog::debug("Elo received: {}", elo_decimal);
 
-            return static_cast<int>(std::round(elo_decimal));
+            long credits = static_cast<long>(json["credits"]);
+
+            return MainMenuScreen::UserInfo{credits, static_cast<long>(std::round(elo_decimal))};
         });
 }
 
@@ -164,8 +168,8 @@ void MainMenuScreen::on_show()
 {
     if (!credentials_manager.get_username().empty())
     {
-        elo_received = false;
-        elo_future = get_elo(st_cloud_base_url);
+        user_info_received = false;
+        user_info_future = get_user_info(st_cloud_base_url);
     }
 }
 
@@ -211,35 +215,37 @@ TEST_CASE("MainMenuScreen")
         DOCTEST_CHECK(screen_manager.stack_size() == 2);
     }
 
-    SUBCASE("get_elo()")
+    SUBCASE("get_user_info()")
     {
-        SUBCASE("Returns correct Elo")
+        SUBCASE("Returns correct info")
         {
             credentials_manager.set_username("test_username");
             std::promise<nlohmann::json> promise;
-            REQUIRE_CALL(http_client, post("http://asd.com/get_elo",
+            REQUIRE_CALL(http_client, post("http://asd.com/get_user",
                                            nlohmann::json{{"username", "test_username"}},
                                            _))
                 .LR_RETURN(promise.get_future());
-            promise.set_value(nlohmann::json{{"elo", 123}});
-            auto elo_future = main_menu_screen->get_elo("http://asd.com/");
+            promise.set_value(nlohmann::json{{"credits", 321}, {"elo", 123}});
+            auto user_info_future = main_menu_screen->get_user_info("http://asd.com/");
 
-            CHECK(elo_future.get() == 123);
+            const auto user_info = user_info_future.get();
+            CHECK(user_info.credits == 321);
+            CHECK(user_info.elo == 123);
         }
 
         SUBCASE("Sets exception on timeout")
         {
             credentials_manager.set_username("test_username");
             std::promise<nlohmann::json> promise;
-            REQUIRE_CALL(http_client, post("http://asd.com/get_elo",
+            REQUIRE_CALL(http_client, post("http://asd.com/get_user",
                                            nlohmann::json{{"username", "test_username"}},
                                            _))
                 .LR_RETURN(promise.get_future());
-            auto elo_future = main_menu_screen->get_elo("http://asd.com/", 0);
+            auto user_info_future = main_menu_screen->get_user_info("http://asd.com/", 0);
             std::this_thread::sleep_for(std::chrono::milliseconds(10));
-            promise.set_value(nlohmann::json{{"elo", 123}});
+            promise.set_value(nlohmann::json{{"credits", 321}, {"elo", 123}});
 
-            CHECK_THROWS(elo_future.get());
+            CHECK_THROWS(user_info_future.get());
         }
     }
 

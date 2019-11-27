@@ -2,6 +2,7 @@
 
 #include <future>
 #include <string>
+#include <tuple>
 
 #include "screens/iscreen.h"
 #include "third_party/di.hpp"
@@ -17,11 +18,15 @@ class ScreenManager;
 
 class MainMenuScreen : public IScreen
 {
+  public:
+    struct UserInfo
+    {
+        long credits;
+        long elo;
+    };
+
   private:
     CredentialsManager &credentials_manager;
-    int elo;
-    std::future<int> elo_future;
-    bool elo_received;
     IHttpClient &http_client;
     IO &io;
     IScreenFactory &build_screen_factory;
@@ -29,6 +34,9 @@ class MainMenuScreen : public IScreen
     IScreenFactory &multiplayer_screen_factory;
     TrainingProgram program;
     ScreenManager &screen_manager;
+    UserInfo user_info;
+    std::future<UserInfo> user_info_future;
+    bool user_info_received;
     std::string username;
 
   public:
@@ -45,7 +53,7 @@ class MainMenuScreen : public IScreen
     void update(double delta_time);
 
     void build_body();
-    std::future<int> get_elo(const std::string &base_url, int timeout = 10);
+    std::future<UserInfo> get_user_info(const std::string &base_url, int timeout = 10);
     void multiplayer();
     void train_agent();
     void quit();
