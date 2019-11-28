@@ -34,6 +34,7 @@ class UnlockPartsWindow
     std::mutex parts_mutex;
     ResourceManager &resource_manager;
     Part *selected_part;
+    std::atomic<bool> waiting_for_server;
     std::atomic<bool> waiting_for_unlock_response;
 
   public:
