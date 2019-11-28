@@ -1,5 +1,6 @@
 #pragma once
 
+#include <atomic>
 #include <string>
 #include <vector>
 
@@ -20,6 +21,7 @@ class PartSelectorWindow
     ModuleTextureStore &module_texture_store;
     std::vector<std::string> parts;
     ResourceManager &resource_manager;
+    std::atomic<bool> waiting_for_server;
 
   public:
     PartSelectorWindow(CredentialsManager &credentials_manager,

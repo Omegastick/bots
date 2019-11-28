@@ -18,8 +18,9 @@
 #include "misc/io.h"
 #include "misc/module_texture_store.h"
 #include "misc/resource_manager.h"
-#include "ui/build_screen/part_selector_window.h"
 #include "misc/utilities.h"
+#include "ui/build_screen/part_selector_window.h"
+#include "ui/spinner.h"
 
 namespace SingularityTrainer
 {
@@ -32,11 +33,13 @@ PartSelectorWindow::PartSelectorWindow(CredentialsManager &credentials_manager,
       http_client(http_client),
       io(io),
       module_texture_store(module_texture_store),
-      resource_manager(resource_manager) {}
+      resource_manager(resource_manager),
+      waiting_for_server(false) {}
 
 void PartSelectorWindow::refresh_parts(int timeout)
 {
     std::thread([&, timeout] {
+        waiting_for_server = true;
         auto response = http_client.post(st_cloud_base_url + "get_user",
                                          {{"username", credentials_manager.get_username()}});
         auto future_status = response.wait_for(std::chrono::seconds(timeout));
@@ -62,6 +65,7 @@ void PartSelectorWindow::refresh_parts(int timeout)
         }
 
         parts = json["modules"].get<std::vector<std::string>>();
+        waiting_for_server = false;
     })
         .detach();
 }
@@ -70,7 +74,6 @@ std::string PartSelectorWindow::update(const std::string &selected_part,
                                        bool &show_unlock_parts_window)
 {
     std::string new_selected_part = "";
-    ImGui::PushStyleVar(ImGuiStyleVar_FrameRounding, 5);
     auto resolution = io.get_resolution();
     ImGui::SetNextWindowSize({resolution.x * 0.2f, resolution.y * 0.5f}, ImGuiCond_Once);
     ImGui::SetNextWindowPos({resolution.x * 0.775f, resolution.y * 0.025f},
@@ -80,39 +83,51 @@ std::string PartSelectorWindow::update(const std::string &selected_part,
     {
         refresh_parts();
     }
+
     const auto &style = ImGui::GetStyle();
-    const float image_size = resolution.x * 0.05f;
-    const float window_visible_x = ImGui::GetWindowPos().x + ImGui::GetWindowContentRegionMax().x;
-    for (unsigned int i = 0; i < parts.size(); ++i)
+
+    if (!waiting_for_server)
     {
-        const auto &texture = module_texture_store.get(parts[i]);
-        bool active = false;
-        if (parts[i] == selected_part)
+        ImGui::PushStyleVar(ImGuiStyleVar_FrameRounding, 5);
+        const float image_size = resolution.x * 0.05f;
+        const float window_visible_x = ImGui::GetWindowPos().x +
+                                       ImGui::GetWindowContentRegionMax().x;
+        for (unsigned int i = 0; i < parts.size(); ++i)
         {
-            ImGui::PushStyleColor(ImGuiCol_Button, cl_base00);
-            active = true;
-        }
-        if (ImGui::ImageButton(ImTextureID(texture.get_id()),
-                               ImVec2(image_size, image_size),
-                               {1, 1},
-                               {0, 0}))
-        {
-            new_selected_part = parts[i];
-        }
-        if (active)
-        {
-            ImGui::PopStyleColor();
-        }
+            const auto &texture = module_texture_store.get(parts[i]);
+            bool active = false;
+            if (parts[i] == selected_part)
+            {
+                ImGui::PushStyleColor(ImGuiCol_Button, cl_base00);
+                active = true;
+            }
+            if (ImGui::ImageButton(ImTextureID(texture.get_id()),
+                                   ImVec2(image_size, image_size),
+                                   {1, 1},
+                                   {0, 0}))
+            {
+                new_selected_part = parts[i];
+            }
+            if (active)
+            {
+                ImGui::PopStyleColor();
+            }
 
-        const float last_button_x = ImGui::GetItemRectMax().x;
-        const float next_button_x = last_button_x + style.ItemSpacing.x + image_size;
-        if (i + 1 < parts.size() && next_button_x < window_visible_x)
-        {
-            ImGui::SameLine();
+            const float last_button_x = ImGui::GetItemRectMax().x;
+            const float next_button_x = last_button_x + style.ItemSpacing.x + image_size;
+            if (i + 1 < parts.size() && next_button_x < window_visible_x)
+            {
+                ImGui::SameLine();
+            }
         }
+        ImGui::PopStyleVar();
     }
-
-    ImGui::PopStyleVar();
+    else
+    {
+        ImGui::SetCursorPos((glm::vec2{ImGui::GetContentRegionAvail()} * 0.5f) -
+                            glm::vec2{7.5f, 7.5f});
+        ImGui::Spinner("##spinner", 15, 6, cl_base01);
+    }
 
     ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, {6, 6});
     ImGui::PushStyleColor(ImGuiCol_Button, cl_base03);
