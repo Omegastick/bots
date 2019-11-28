@@ -113,7 +113,10 @@ def find_game(request: Request) -> str:
     auth_header = request.headers.get("Authorization")
     if not auth_header:
         abort(401, "No authorization header")
-    token = auth_header.split(' ')[1]
+    try:
+        token = auth_header.split(' ')[1]
+    except IndexError:
+        abort(401, "Bad authorization header")
 
     users = db.collection('users')
 
@@ -180,7 +183,10 @@ def finish_game(request: Request) -> str:
     auth_header = request.headers.get("Authorization")
     if not auth_header:
         abort(401, "No authorization header")
-    token = auth_header.split(' ')[1]
+    try:
+        token = auth_header.split(' ')[1]
+    except IndexError:
+        abort(401, "Bad authorization header")
 
     secret = db.collection('secrets').document('server').get().get('value')
     if token != secret:
@@ -273,7 +279,10 @@ def unlock_module(request: Request) -> str:
     auth_header = request.headers.get("Authorization")
     if not auth_header:
         abort(401, "No authorization header")
-    token = auth_header.split(' ')[1]
+    try:
+        token = auth_header.split(' ')[1]
+    except IndexError:
+        abort(401, "Bad authorization header")
 
     users = db.collection('users')
 
