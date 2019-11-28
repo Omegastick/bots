@@ -111,7 +111,11 @@ void BuildScreen::update(double /*delta_time*/)
 
     part_detail_window.update();
     save_body_window->update(body_builder.get_body());
-    unlock_parts_window->update(show_unlock_parts_window);
+    const auto part_bought = unlock_parts_window->update(show_unlock_parts_window);
+    if (part_bought)
+    {
+        part_selector_window->refresh_parts();
+    }
 
     auto resolution = io.get_resolution();
     back_button(screen_manager, resolution);
