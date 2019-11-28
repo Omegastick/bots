@@ -32,28 +32,33 @@ PartSelectorWindow::PartSelectorWindow(CredentialsManager &credentials_manager,
       http_client(http_client),
       io(io),
       module_texture_store(module_texture_store),
-      resource_manager(resource_manager)
-{
-    refresh_parts();
-}
+      resource_manager(resource_manager) {}
 
 void PartSelectorWindow::refresh_parts(int timeout)
 {
-    std::thread([&] {
+    std::thread([&, timeout] {
         auto response = http_client.post(st_cloud_base_url + "get_user",
                                          {{"username", credentials_manager.get_username()}});
         auto future_status = response.wait_for(std::chrono::seconds(timeout));
         if (future_status == std::future_status::timeout)
         {
-            throw std::runtime_error(
-                fmt::format("Get user info request timed out after {} seconds", timeout));
+            spdlog::error("Get user info request timed out after {} seconds", timeout);
         }
 
-        auto json = response.get();
+        nlohmann::json json;
+        try
+        {
+            json = response.get();
+        }
+        catch (const std::exception &exception)
+        {
+            spdlog::error("Error getting list of owned parts: {}", exception.what());
+            return;
+        }
         if (!json.contains("modules"))
         {
             spdlog::error("Bad Json received: {}", json.dump());
-            throw std::runtime_error("Bad Json received from 'get_user' request");
+            return;
         }
 
         parts = json["modules"].get<std::vector<std::string>>();
@@ -61,30 +66,42 @@ void PartSelectorWindow::refresh_parts(int timeout)
         .detach();
 }
 
-std::string PartSelectorWindow::update()
+std::string PartSelectorWindow::update(const std::string &selected_part,
+                                       bool &show_unlock_parts_window)
 {
-    std::string selected_part = "";
-    ImGui::PushStyleColor(ImGuiCol_Button, cl_base03);
-    ImGui::PushStyleColor(ImGuiCol_ButtonHovered, cl_base03);
-    ImGui::PushStyleColor(ImGuiCol_ButtonActive, cl_base02);
+    std::string new_selected_part = "";
     ImGui::PushStyleVar(ImGuiStyleVar_FrameRounding, 5);
     auto resolution = io.get_resolution();
-    ImGui::SetNextWindowSize({resolution.x * 0.2f, resolution.y * 0.95f}, ImGuiCond_Once);
+    ImGui::SetNextWindowSize({resolution.x * 0.2f, resolution.y * 0.5f}, ImGuiCond_Once);
     ImGui::SetNextWindowPos({resolution.x * 0.775f, resolution.y * 0.025f},
                             ImGuiCond_Once);
     ImGui::Begin("Part Selector");
+    if (ImGui::IsWindowAppearing())
+    {
+        refresh_parts();
+    }
     const auto &style = ImGui::GetStyle();
     const float image_size = resolution.x * 0.05f;
     const float window_visible_x = ImGui::GetWindowPos().x + ImGui::GetWindowContentRegionMax().x;
     for (unsigned int i = 0; i < parts.size(); ++i)
     {
         const auto &texture = module_texture_store.get(parts[i]);
+        bool active = false;
+        if (parts[i] == selected_part)
+        {
+            ImGui::PushStyleColor(ImGuiCol_Button, cl_base00);
+            active = true;
+        }
         if (ImGui::ImageButton(ImTextureID(texture.get_id()),
                                ImVec2(image_size, image_size),
                                {1, 1},
                                {0, 0}))
         {
-            selected_part = parts[i];
+            new_selected_part = parts[i];
+        }
+        if (active)
+        {
+            ImGui::PopStyleColor();
         }
 
         const float last_button_x = ImGui::GetItemRectMax().x;
@@ -94,10 +111,16 @@ std::string PartSelectorWindow::update()
             ImGui::SameLine();
         }
     }
-    ImGui::End();
-    ImGui::PopStyleVar();
-    ImGui::PopStyleColor(3);
 
-    return selected_part;
+    ImGui::PopStyleVar();
+
+    if (ImGui::Button("Unlock parts"))
+    {
+        show_unlock_parts_window = true;
+    }
+
+    ImGui::End();
+
+    return new_selected_part;
 }
 }

@@ -2,6 +2,8 @@
 #include <stdexcept>
 #include <string>
 
+#include <fmt/format.h>
+
 #include "misc/module_factory.h"
 #include "training/modules/base_module.h"
 #include "training/modules/gun_module.h"
@@ -35,6 +37,6 @@ std::shared_ptr<IModule> ModuleFactory::create_module(const std::string &module_
         return std::make_shared<ThrusterModule>();
     }
 
-    throw std::runtime_error("No such module");
+    throw std::runtime_error(fmt::format("No such module {}", module_id));
 }
 }

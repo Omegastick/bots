@@ -120,8 +120,15 @@ void MainMenuScreen::update(double /*delta_time*/)
             auto future_status = user_info_future.wait_for(std::chrono::seconds(0));
             if (future_status == std::future_status::ready)
             {
-                user_info = user_info_future.get();
-                user_info_received = true;
+                try
+                {
+                    user_info = user_info_future.get();
+                    user_info_received = true;
+                }
+                catch (std::exception &exception)
+                {
+                    spdlog::error(exception.what());
+                }
             }
         }
         ImGui::End();

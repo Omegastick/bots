@@ -29,6 +29,6 @@ class PartSelectorWindow
                        ResourceManager &resource_manager);
 
     void refresh_parts(int timeout = 10);
-    std::string update();
+    std::string update(const std::string &selected_part, bool &show_unlock_parts_window);
 };
 }

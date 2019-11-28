@@ -13,6 +13,7 @@
 #include "ui/build_screen/part_selector_window.h"
 #include "ui/build_screen/save_body_window.h"
 #include "ui/build_screen/body_builder.h"
+#include "ui/build_screen/unlock_parts_window.h"
 
 class b2World;
 
@@ -32,8 +33,11 @@ class ScreenManager;
 class BuildScreen : public IScreen
 {
   private:
+    float current_rotation;
     ModuleFactory &module_factory;
     ScreenManager &screen_manager;
+    std::string selected_module_name;
+    bool show_unlock_parts_window;
     IO &io;
     PartDetailWindow part_detail_window;
     std::unique_ptr<PartSelectorWindow> part_selector_window;
@@ -42,13 +46,13 @@ class BuildScreen : public IScreen
     BodyBuilder body_builder;
     std::shared_ptr<IModule> module_to_place;
     std::shared_ptr<IModule> selected_module;
-    Sprite test_sprite;
-    int current_rotation;
+    std::unique_ptr<UnlockPartsWindow> unlock_parts_window;
 
   public:
     BuildScreen(BodyBuilder &&body_builder,
                 std::unique_ptr<PartSelectorWindow> part_selector_window,
                 std::unique_ptr<SaveBodyWindow> save_body_window,
+                std::unique_ptr<UnlockPartsWindow> unlock_parts_window,
                 ModuleFactory &module_factory,
                 ResourceManager &resource_manager,
                 ScreenManager &screen_manager,
@@ -101,6 +105,12 @@ class BuildScreenFactory : public IScreenFactory
                                                  module_texture_store,
                                                  resource_manager),
                                              std::make_unique<SaveBodyWindow>(animator, io),
+                                             std::make_unique<UnlockPartsWindow>(
+                                                 credentials_manager,
+                                                 http_client,
+                                                 io,
+                                                 module_texture_store,
+                                                 resource_manager),
                                              module_factory,
                                              resource_manager,
                                              screen_manager,
