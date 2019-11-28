@@ -114,10 +114,21 @@ std::string PartSelectorWindow::update(const std::string &selected_part,
 
     ImGui::PopStyleVar();
 
+    ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, {6, 6});
+    ImGui::PushStyleColor(ImGuiCol_Button, cl_base03);
+    ImGui::PushStyleColor(ImGuiCol_ButtonHovered, cl_base02);
+    ImGui::PushStyleColor(ImGuiCol_ButtonActive, cl_base01);
+    ImGui::PushStyleColor(ImGuiCol_Text, cl_base3);
+    const float line_height = ImGui::GetTextLineHeightWithSpacing();
+    ImGui::SetCursorPosY(ImGui::GetWindowContentRegionMax().y -
+                         line_height -
+                         (style.FramePadding.y));
     if (ImGui::Button("Unlock parts"))
     {
         show_unlock_parts_window = true;
     }
+    ImGui::PopStyleColor(4);
+    ImGui::PopStyleVar();
 
     ImGui::End();
 

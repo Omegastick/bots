@@ -32,13 +32,56 @@ UnlockPartsWindow::UnlockPartsWindow(CredentialsManager &credentials_manager,
                                      IO &io,
                                      ModuleTextureStore &module_texture_store,
                                      ResourceManager &resource_manager)
-    : credentials_manager(credentials_manager),
+    : bought_part(false),
+      credentials_manager(credentials_manager),
       credits(0),
       http_client(http_client),
       io(io),
       module_texture_store(module_texture_store),
       resource_manager(resource_manager),
-      selected_part(nullptr) {}
+      selected_part(nullptr),
+      waiting_for_unlock_response(false) {}
+
+void UnlockPartsWindow::unlock_part(const std::string &part, int timeout)
+{
+    std::thread([&, timeout] {
+        waiting_for_unlock_response = true;
+        auto response = http_client.post(
+            st_cloud_base_url + "unlock_module",
+            {{"module", part}},
+            {"Authorization: Bearer " + credentials_manager.get_token()});
+        auto future_status = response.wait_for(std::chrono::seconds(timeout));
+        if (future_status == std::future_status::timeout)
+        {
+            spdlog::error("Unlock part request timed out after {} seconds", timeout);
+            waiting_for_unlock_response = false;
+            return;
+        }
+
+        nlohmann::json json;
+        try
+        {
+            json = response.get();
+        }
+        catch (const std::exception &exception)
+        {
+            spdlog::error("Error unlocking part: {}", exception.what());
+            waiting_for_unlock_response = false;
+            return;
+        }
+        if (!json.contains("success") || !json["success"])
+        {
+            spdlog::error("Bad Json received: {}", json.dump());
+            waiting_for_unlock_response = false;
+            return;
+        }
+
+        refresh_info();
+        waiting_for_unlock_response = false;
+        bought_part = true;
+    })
+        .detach();
+}
 
 void UnlockPartsWindow::refresh_info(int timeout)
 {
@@ -182,10 +225,15 @@ bool UnlockPartsWindow::update(bool &show)
                 selected_part = &parts[i];
             }
             ImGui::Text("%s", parts[i].name.c_str());
+            if (parts[i].owned)
+            {
+                ImGui::Text("Owned");
+            }
+            else
             {
                 std::lock_guard lock_guard(credits_mutex);
                 const auto color = credits >= parts[i].price ? cl_green : cl_red;
-                ImGui::TextColored(color, "%ld", parts[i].price);
+                ImGui::TextColored(color, "%ld credits", parts[i].price);
             }
             ImGui::PopStyleVar();
             ImGui::EndGroup();
@@ -213,16 +261,24 @@ bool UnlockPartsWindow::update(bool &show)
             const auto color = can_afford ? cl_green : cl_red;
             ImGui::TextColored(color, "%ld", selected_part->price);
         }
-        if (can_afford)
+        if (waiting_for_unlock_response)
         {
-            ImGui::Button("Buy");
+            ImGui::Text("Please wait...");
+        }
+        else if (can_afford && !selected_part->owned)
+        {
+            if (ImGui::Button("Unlock"))
+            {
+                unlock_part(selected_part->name);
+            }
         }
         else
         {
             ImGui::PushStyleVar(ImGuiStyleVar_Alpha, 0.5f);
-            ImGui::Button("Buy");
+            ImGui::Button("Unlock");
             ImGui::PopStyleVar();
         }
+
         ImGui::EndGroup();
 
         const float image_size = resolution.x * 0.1f;
@@ -236,6 +292,14 @@ bool UnlockPartsWindow::update(bool &show)
 
     ImGui::End();
 
-    return false;
+    if (bought_part)
+    {
+        bought_part = false;
+        return true;
+    }
+    else
+    {
+        return false;
+    }
 }
 }

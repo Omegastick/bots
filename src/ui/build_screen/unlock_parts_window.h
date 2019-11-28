@@ -1,5 +1,6 @@
 #pragma once
 
+#include <atomic>
 #include <mutex>
 #include <string>
 #include <vector>
@@ -22,6 +23,7 @@ class UnlockPartsWindow
         long price;
     };
 
+    std::atomic<bool> bought_part;
     CredentialsManager &credentials_manager;
     long credits;
     std::mutex credits_mutex;
@@ -32,6 +34,7 @@ class UnlockPartsWindow
     std::mutex parts_mutex;
     ResourceManager &resource_manager;
     Part *selected_part;
+    std::atomic<bool> waiting_for_unlock_response;
 
   public:
     UnlockPartsWindow(CredentialsManager &credentials_manager,
@@ -40,6 +43,7 @@ class UnlockPartsWindow
                       ModuleTextureStore &module_texture_store,
                       ResourceManager &resource_manager);
 
+    void unlock_part(const std::string &part, int timeout = 10);
     void refresh_info(int timeout = 10);
     bool update(bool &show);
 };
