@@ -24,6 +24,7 @@
 #include "misc/module_texture_store.h"
 #include "misc/resource_manager.h"
 #include "misc/utilities.h"
+#include "ui/spinner.h"
 
 namespace SingularityTrainer
 {
@@ -40,6 +41,7 @@ UnlockPartsWindow::UnlockPartsWindow(CredentialsManager &credentials_manager,
       module_texture_store(module_texture_store),
       resource_manager(resource_manager),
       selected_part(nullptr),
+      waiting_for_server(false),
       waiting_for_unlock_response(false) {}
 
 void UnlockPartsWindow::unlock_part(const std::string &part, int timeout)
@@ -86,6 +88,7 @@ void UnlockPartsWindow::unlock_part(const std::string &part, int timeout)
 void UnlockPartsWindow::refresh_info(int timeout)
 {
     std::thread([&, timeout] {
+        waiting_for_server = true;
         auto owned_parts_promise = std::async([&, timeout] {
             auto response = http_client.post(st_cloud_base_url + "get_user",
                                              {{"username", credentials_manager.get_username()}});
@@ -174,6 +177,7 @@ void UnlockPartsWindow::refresh_info(int timeout)
         {
             selected_part = &parts[0];
         }
+        waiting_for_server = false;
     })
         .detach();
 }
@@ -185,7 +189,6 @@ bool UnlockPartsWindow::update(bool &show)
         return false;
     }
 
-    ImGui::PushStyleVar(ImGuiStyleVar_FrameRounding, 5);
     auto resolution = io.get_resolution();
     ImGui::SetNextWindowSize({resolution.x * 0.5f, resolution.y * 0.4f}, ImGuiCond_Once);
     ImGui::SetNextWindowPos({resolution.x * 0.5f, resolution.y * 0.5f},
@@ -202,51 +205,62 @@ bool UnlockPartsWindow::update(bool &show)
     ImGui::Text("Credits: %ld", credits);
     ImGui::Separator();
 
-    const auto &style = ImGui::GetStyle();
-    const float window_visible_x = ImGui::GetWindowPos().x + ImGui::GetWindowContentRegionMax().x;
+    if (!waiting_for_server)
     {
-        std::lock_guard lock_guard(parts_mutex);
-        const float image_size = resolution.x * 0.05f;
-        for (unsigned int i = 0; i < parts.size(); ++i)
+        ImGui::PushStyleVar(ImGuiStyleVar_FrameRounding, 5);
+        const auto &style = ImGui::GetStyle();
+        const float window_visible_x = ImGui::GetWindowPos().x +
+                                       ImGui::GetWindowContentRegionMax().x;
         {
-            ImGui::BeginGroup();
-            const auto &texture = module_texture_store.get(parts[i].name);
-            const auto tint = parts[i].owned ? glm::vec4{1, 1, 1, 1}
-                                             : glm::vec4{0.5f, 0.5f, 0.5f, 1};
-            ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, {13, 3});
-            if (ImGui::ImageButton(ImTextureID(texture.get_id()),
-                                   ImVec2(image_size, image_size),
-                                   {1, 1},
-                                   {0, 0},
-                                   -1,
-                                   {0, 0, 0, 0},
-                                   tint))
+            std::lock_guard lock_guard(parts_mutex);
+            const float image_size = resolution.x * 0.05f;
+            for (unsigned int i = 0; i < parts.size(); ++i)
             {
-                selected_part = &parts[i];
-            }
-            ImGui::Text("%s", parts[i].name.c_str());
-            if (parts[i].owned)
-            {
-                ImGui::Text("Owned");
-            }
-            else
-            {
-                std::lock_guard lock_guard(credits_mutex);
-                const auto color = credits >= parts[i].price ? cl_green : cl_red;
-                ImGui::TextColored(color, "%ld credits", parts[i].price);
-            }
-            ImGui::PopStyleVar();
-            ImGui::EndGroup();
+                ImGui::BeginGroup();
+                const auto &texture = module_texture_store.get(parts[i].name);
+                const auto tint = parts[i].owned ? glm::vec4{1, 1, 1, 1}
+                                                 : glm::vec4{0.5f, 0.5f, 0.5f, 1};
+                ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, {13, 3});
+                if (ImGui::ImageButton(ImTextureID(texture.get_id()),
+                                       ImVec2(image_size, image_size),
+                                       {1, 1},
+                                       {0, 0},
+                                       -1,
+                                       {0, 0, 0, 0},
+                                       tint))
+                {
+                    selected_part = &parts[i];
+                }
+                ImGui::Text("%s", parts[i].name.c_str());
+                if (parts[i].owned)
+                {
+                    ImGui::Text("Owned");
+                }
+                else
+                {
+                    std::lock_guard lock_guard(credits_mutex);
+                    const auto color = credits >= parts[i].price ? cl_green : cl_red;
+                    ImGui::TextColored(color, "%ld credits", parts[i].price);
+                }
+                ImGui::PopStyleVar();
+                ImGui::EndGroup();
 
-            const float last_button_x = ImGui::GetItemRectMax().x;
-            const float next_button_x = last_button_x + style.ItemSpacing.x + image_size;
-            if (i + 1 < parts.size() && next_button_x < window_visible_x)
-            {
-                ImGui::SameLine();
+                const float last_button_x = ImGui::GetItemRectMax().x;
+                const float next_button_x = last_button_x + style.ItemSpacing.x + image_size;
+                if (i + 1 < parts.size() && next_button_x < window_visible_x)
+                {
+                    ImGui::SameLine();
+                }
             }
         }
+        ImGui::PopStyleVar();
     }
-    ImGui::PopStyleVar();
+    else
+    {
+        ImGui::SetCursorPos((glm::vec2{ImGui::GetContentRegionAvail()} * 0.5f) -
+                            glm::vec2{7.5f, 7.5f});
+        ImGui::Spinner("##spinner", 15, 6, cl_base01);
+    }
 
     ImGui::EndChild();
     ImGui::NextColumn();
