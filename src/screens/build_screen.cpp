@@ -22,18 +22,22 @@
 #include "ui/back_button.h"
 #include "ui/build_screen/part_selector_window.h"
 #include "ui/build_screen/body_builder.h"
+#include "ui/build_screen/unlock_parts_window.h"
 
 namespace SingularityTrainer
 {
 BuildScreen::BuildScreen(BodyBuilder &&body_builder,
                          std::unique_ptr<PartSelectorWindow> part_selector_window,
                          std::unique_ptr<SaveBodyWindow> save_body_window,
+                         std::unique_ptr<UnlockPartsWindow> unlock_parts_window,
                          ModuleFactory &module_factory,
                          ResourceManager &resource_manager,
                          ScreenManager &screen_manager,
                          IO &io)
-    : module_factory(module_factory),
+    : current_rotation(0),
+      module_factory(module_factory),
       screen_manager(screen_manager),
+      show_unlock_parts_window(false),
       io(io),
       part_detail_window(io),
       part_selector_window(std::move(part_selector_window)),
@@ -41,24 +45,24 @@ BuildScreen::BuildScreen(BodyBuilder &&body_builder,
       save_body_window(std::move(save_body_window)),
       body_builder(std::move(body_builder)),
       module_to_place(nullptr),
-      test_sprite{cl_white, "laser_sensor_module", Transform()},
-      current_rotation(0)
+      unlock_parts_window(std::move(unlock_parts_window))
+
 {
     resource_manager.load_texture("square", "images/square.png");
     resource_manager.load_texture("base_module", "images/base_module.png");
     resource_manager.load_shader("texture", "shaders/texture.vert", "shaders/texture.frag");
     resource_manager.load_shader("font", "shaders/texture.vert", "shaders/font.frag");
     resource_manager.load_font("roboto-16", "fonts/Roboto-Regular.ttf", 16);
-
-    test_sprite.transform.set_scale({0.2, 0.2});
 }
 
 void BuildScreen::update(double /*delta_time*/)
 {
-    auto selected_part = part_selector_window->update();
-    if (selected_part != "")
+    const auto part_selector_output = part_selector_window->update(selected_module_name,
+                                                                   show_unlock_parts_window);
+    if (part_selector_output != "")
     {
-        module_to_place = module_factory.create_module(selected_part);
+        module_to_place = module_factory.create_module(part_selector_output);
+        selected_module_name = part_selector_output;
     }
 
     if (io.get_left_click())
@@ -66,10 +70,12 @@ void BuildScreen::update(double /*delta_time*/)
         if (module_to_place == nullptr)
         {
             selected_module = body_builder.get_module_at_screen_position(io.get_cursor_position());
+            selected_module_name = "";
         }
         else
         {
             selected_module = body_builder.place_module(module_to_place);
+            selected_module_name = "";
         }
 
         if (selected_module != nullptr)
@@ -105,6 +111,7 @@ void BuildScreen::update(double /*delta_time*/)
 
     part_detail_window.update();
     save_body_window->update(body_builder.get_body());
+    unlock_parts_window->update(show_unlock_parts_window);
 
     auto resolution = io.get_resolution();
     back_button(screen_manager, resolution);

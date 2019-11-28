@@ -21,8 +21,8 @@ void main() {
 
     vec3 row_mask = mix(
         vec3(1.0, 1.0, 1.0),
-        vec3(0.0, 0.0, 0.0),
-        floor(mod(gl_FragCoord.y, 3.0) * 0.666)
+        vec3(0.2, 0.2, 0.2),
+        floor(mod(gl_FragCoord.y, 2.0))
     );
     
     color *= column_mask;
