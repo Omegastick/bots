@@ -1,3 +1,5 @@
+#include <cmath>
+
 #define IMGUI_DEFINE_MATH_OPERATORS
 #include <imgui.h>
 #include <imgui_internal.h>
@@ -26,7 +28,7 @@ bool Spinner(const char *label, float radius, float thickness, const ImVec4 &col
     window->DrawList->PathClear();
 
     const float num_segments = 30;
-    const float start = abs(ImSin(static_cast<float>(g.Time) * 1.8f) * (num_segments - 5));
+    const float start = std::abs(ImSin(static_cast<float>(g.Time) * 1.8f) * (num_segments - 5));
 
     const float a_min = IM_PI * 2.0f * start / num_segments;
     const float a_max = IM_PI * 2.0f * (num_segments - 3) / num_segments;
