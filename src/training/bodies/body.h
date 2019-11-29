@@ -63,6 +63,7 @@ class Body : public ICollidable
     void update_body();
 
     inline const std::vector<IAction *> &get_actions() const { return actions; }
+    inline const ColorScheme &get_color_scheme() const { return color_scheme; }
     inline IEnvironment *get_environment() const { return environment; }
     inline float get_hp() const { return hp; }
     inline const std::vector<std::shared_ptr<IModule>> &get_modules() const { return modules; }

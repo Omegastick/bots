@@ -27,6 +27,7 @@
 namespace SingularityTrainer
 {
 BuildScreen::BuildScreen(BodyBuilder &&body_builder,
+                         std::unique_ptr<ColorSchemeWindow> color_scheme_window,
                          std::unique_ptr<PartSelectorWindow> part_selector_window,
                          std::unique_ptr<SaveBodyWindow> save_body_window,
                          std::unique_ptr<UnlockPartsWindow> unlock_parts_window,
@@ -34,7 +35,8 @@ BuildScreen::BuildScreen(BodyBuilder &&body_builder,
                          ResourceManager &resource_manager,
                          ScreenManager &screen_manager,
                          IO &io)
-    : current_rotation(0),
+    : color_scheme_window(std::move(color_scheme_window)),
+      current_rotation(0),
       module_factory(module_factory),
       screen_manager(screen_manager),
       show_unlock_parts_window(false),
@@ -109,6 +111,7 @@ void BuildScreen::update(double /*delta_time*/)
     body_builder.select_module(selected_module.get());
     part_detail_window.select_part(selected_module.get());
 
+    color_scheme_window->update(body_builder.get_body());
     part_detail_window.update();
     save_body_window->update(body_builder.get_body());
     const auto part_bought = unlock_parts_window->update(show_unlock_parts_window);
