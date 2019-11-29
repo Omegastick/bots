@@ -24,6 +24,7 @@
 #include "misc/module_texture_store.h"
 #include "misc/resource_manager.h"
 #include "misc/utilities.h"
+#include "training/modules/module_info.h"
 #include "ui/spinner.h"
 
 namespace SingularityTrainer
@@ -231,7 +232,11 @@ bool UnlockPartsWindow::update(bool &show)
                 {
                     selected_part = &parts[i];
                 }
-                ImGui::Text("%s", parts[i].name.c_str());
+
+                const auto cursor_x = ImGui::GetCursorPos().x;
+                ImGui::PushTextWrapPos(cursor_x + image_size);
+                ImGui::Text("%s", module_info(parts[i].name).name.c_str());
+                ImGui::PopTextWrapPos();
                 if (parts[i].owned)
                 {
                     ImGui::Text("Owned");
@@ -268,7 +273,7 @@ bool UnlockPartsWindow::update(bool &show)
     if (selected_part != nullptr)
     {
         ImGui::BeginGroup();
-        ImGui::Text("%s", selected_part->name.c_str());
+        ImGui::Text("%s", module_info(selected_part->name).name.c_str());
         bool can_afford = credits >= selected_part->price ? true : false;
         {
             std::lock_guard lock_guard(credits_mutex);
@@ -302,6 +307,8 @@ bool UnlockPartsWindow::update(bool &show)
                      {image_size, image_size},
                      {1, 1},
                      {0, 0});
+
+        ImGui::TextWrapped("%s", module_info(selected_part->name).description.c_str());
     }
 
     ImGui::End();

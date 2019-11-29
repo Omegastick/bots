@@ -19,6 +19,7 @@
 #include "misc/module_texture_store.h"
 #include "misc/resource_manager.h"
 #include "misc/utilities.h"
+#include "training/modules/module_info.h"
 #include "ui/build_screen/part_selector_window.h"
 #include "ui/spinner.h"
 
@@ -94,6 +95,7 @@ std::string PartSelectorWindow::update(const std::string &selected_part,
                                        ImGui::GetWindowContentRegionMax().x;
         for (unsigned int i = 0; i < parts.size(); ++i)
         {
+            ImGui::BeginGroup();
             const auto &texture = module_texture_store.get(parts[i]);
             bool active = false;
             if (parts[i] == selected_part)
@@ -112,6 +114,12 @@ std::string PartSelectorWindow::update(const std::string &selected_part,
             {
                 ImGui::PopStyleColor();
             }
+
+            const auto cursor_x = ImGui::GetCursorPos().x;
+            ImGui::PushTextWrapPos(cursor_x + image_size);
+            ImGui::Text("%s", module_info(parts[i]).name.c_str());
+            ImGui::PopTextWrapPos();
+            ImGui::EndGroup();
 
             const float last_button_x = ImGui::GetItemRectMax().x;
             const float next_button_x = last_button_x + style.ItemSpacing.x + image_size;
