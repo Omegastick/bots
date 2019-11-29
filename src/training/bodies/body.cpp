@@ -26,7 +26,7 @@
 
 namespace SingularityTrainer
 {
-static const std::string schema_version = "v1alpha4";
+static const std::string schema_version = "v1alpha5";
 
 Body::Body(Random &rng) : hp(0), rng(&rng)
 {
@@ -202,6 +202,16 @@ void Body::load_json(const nlohmann::json &json)
 
     name = json["name"];
     modules = {};
+    const auto primary_color_scheme_json = json["color_scheme"]["primary"];
+    const auto secondary_color_scheme_json = json["color_scheme"]["secondary"];
+    color_scheme = {glm::vec4(primary_color_scheme_json[0],
+                              primary_color_scheme_json[1],
+                              primary_color_scheme_json[2],
+                              primary_color_scheme_json[3]),
+                    glm::vec4(secondary_color_scheme_json[0],
+                              secondary_color_scheme_json[1],
+                              secondary_color_scheme_json[2],
+                              secondary_color_scheme_json[3])};
 
     if (json["base_module"] != nullptr)
     {
@@ -210,6 +220,7 @@ void Body::load_json(const nlohmann::json &json)
 
     update_body();
     register_actions();
+    set_color(color_scheme);
 
     hp = 10;
 }
@@ -306,6 +317,17 @@ nlohmann::json Body::to_json() const
     }
     json["num_observations"] = observation_count;
     json["num_actions"] = get_input_count();
+    json["color_scheme"] = {
+        {"primary",
+         {color_scheme.primary.r,
+          color_scheme.primary.g,
+          color_scheme.primary.b,
+          color_scheme.primary.a}},
+        {"secondary",
+         {color_scheme.secondary.r,
+          color_scheme.secondary.g,
+          color_scheme.secondary.b,
+          color_scheme.secondary.a}}};
 
     return json;
 }
@@ -391,11 +413,12 @@ void Body::reset()
     hp = 10;
 }
 
-void Body::set_color(glm::vec4 color)
+void Body::set_color(const ColorScheme &color_scheme)
 {
+    this->color_scheme = color_scheme;
     for (auto &module : modules)
     {
-        module->set_color(color);
+        module->set_color(color_scheme);
     }
 }
 

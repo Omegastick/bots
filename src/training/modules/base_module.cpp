@@ -71,14 +71,11 @@ std::vector<float> BaseModule::get_sensor_reading() const
     return {linear_velocity.x, linear_velocity.y, angular_velocity};
 }
 
-void BaseModule::set_color(glm::vec4 color)
+void BaseModule::set_color(const ColorScheme &color_scheme)
 {
-    auto fill = color;
-    fill.a = 0.2f;
-
-    circle.stroke_color = color;
-    rectangle.fill_color = fill;
-    rectangle.stroke_color = color;
+    circle.stroke_color = color_scheme.primary;
+    rectangle.fill_color = color_scheme.secondary;
+    rectangle.stroke_color = color_scheme.primary;
 }
 
 nlohmann::json BaseModule::to_json() const

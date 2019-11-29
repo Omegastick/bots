@@ -70,13 +70,10 @@ void ThrusterModule::draw(Renderer &renderer, bool /*lightweight*/)
     renderer.draw(trapezoid);
 }
 
-void ThrusterModule::set_color(glm::vec4 color)
+void ThrusterModule::set_color(const ColorScheme &color_scheme)
 {
-    auto fill = color;
-    fill.a = 0.2f;
-
-    trapezoid.fill_color = fill;
-    trapezoid.stroke_color = color;
+    trapezoid.fill_color = color_scheme.secondary;
+    trapezoid.stroke_color = color_scheme.primary;
 }
 
 nlohmann::json ThrusterModule::to_json() const

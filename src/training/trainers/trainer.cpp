@@ -115,16 +115,14 @@ Trainer::Trainer(TrainingProgram program,
         if (start_positions[i])
         {
             bodies[0]->load_json(program.body);
-            bodies[0]->set_color(cl_blue);
             bodies[1]->load_json(opponents[i]->get_body_spec());
-            bodies[1]->set_color(cl_red);
+            bodies[1]->set_color({cl_red, set_alpha(cl_red, 0.2f)});
         }
         else
         {
             bodies[0]->load_json(opponents[i]->get_body_spec());
-            bodies[0]->set_color(cl_red);
+            bodies[0]->set_color({cl_red, set_alpha(cl_red, 0.2f)});
             bodies[1]->load_json(program.body);
-            bodies[1]->set_color(cl_blue);
         }
         environments.push_back(env_factory.make(std::move(rng),
                                                 std::move(world),
@@ -331,13 +329,15 @@ std::vector<std::pair<std::string, float>> Trainer::step_batch()
                     auto bodies = environments[i]->get_bodies();
                     if (start_positions[i])
                     {
-                        bodies[0]->set_color(cl_blue);
-                        bodies[1]->set_color(cl_red);
+                        bodies[0]->load_json(program.body);
+                        bodies[1]->load_json(opponents[i]->get_body_spec());
+                        bodies[1]->set_color({cl_red, set_alpha(cl_red, 0.2f)});
                     }
                     else
                     {
-                        bodies[0]->set_color(cl_red);
-                        bodies[1]->set_color(cl_blue);
+                        bodies[0]->load_json(opponents[i]->get_body_spec());
+                        bodies[0]->set_color({cl_red, set_alpha(cl_red, 0.2f)});
+                        bodies[1]->load_json(program.body);
                     }
                 }
                 storages[i].insert(step_info.observation[player_index],

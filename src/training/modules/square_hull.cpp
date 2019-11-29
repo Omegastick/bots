@@ -41,13 +41,10 @@ void SquareHull::draw(Renderer &renderer, bool /*lightweight*/)
     renderer.draw(rectangle);
 }
 
-void SquareHull::set_color(glm::vec4 color)
+void SquareHull::set_color(const ColorScheme &color_scheme)
 {
-    auto fill = color;
-    fill.a = 0.2f;
-
-    rectangle.fill_color = fill;
-    rectangle.stroke_color = color;
+    rectangle.fill_color = color_scheme.secondary;
+    rectangle.stroke_color = color_scheme.primary;
 }
 
 nlohmann::json SquareHull::to_json() const

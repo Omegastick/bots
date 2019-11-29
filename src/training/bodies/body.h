@@ -7,6 +7,7 @@
 #include <Box2D/Box2D.h>
 #include <nlohmann/json_fwd.hpp>
 
+#include "graphics/colors.h"
 #include "training/icollidable.h"
 #include "training/rigid_body.h"
 #include "training/modules/imodule.h"
@@ -22,6 +23,7 @@ class IEnvironment;
 class Body : public ICollidable
 {
   private:
+    ColorScheme color_scheme;
     std::vector<std::shared_ptr<IModule>> modules;
     std::vector<IAction *> actions;
     std::unique_ptr<RigidBody> rigid_body;
@@ -53,7 +55,7 @@ class Body : public ICollidable
     void load_json(const nlohmann::json &json);
     void register_actions();
     void reset();
-    void set_color(glm::vec4 color);
+    void set_color(const ColorScheme &color_scheme);
     void set_rigid_body(std::unique_ptr<RigidBody> rigid_body);
     void sub_update();
     nlohmann::json to_json() const;

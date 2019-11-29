@@ -14,7 +14,7 @@ class SquareHull : public IModule
     SquareHull();
 
     virtual void draw(Renderer &renderer, bool lightweight = false) override;
-    virtual void set_color(glm::vec4 color) override;
+    virtual void set_color(const ColorScheme &color_scheme) override;
     virtual nlohmann::json to_json() const override final;
 
     inline virtual int get_observation_count() const override final { return 0; }
