@@ -9,6 +9,7 @@
 #include "graphics/render_data.h"
 #include "screens/iscreen.h"
 #include "training/modules/gun_module.h"
+#include "ui/build_screen/color_scheme_window.h"
 #include "ui/build_screen/part_detail_window.h"
 #include "ui/build_screen/part_selector_window.h"
 #include "ui/build_screen/save_body_window.h"
@@ -33,6 +34,7 @@ class ScreenManager;
 class BuildScreen : public IScreen
 {
   private:
+    std::unique_ptr<ColorSchemeWindow> color_scheme_window;
     float current_rotation;
     ModuleFactory &module_factory;
     ScreenManager &screen_manager;
@@ -50,6 +52,7 @@ class BuildScreen : public IScreen
 
   public:
     BuildScreen(BodyBuilder &&body_builder,
+                std::unique_ptr<ColorSchemeWindow> color_scheme_window,
                 std::unique_ptr<PartSelectorWindow> part_selector_window,
                 std::unique_ptr<SaveBodyWindow> save_body_window,
                 std::unique_ptr<UnlockPartsWindow> unlock_parts_window,
@@ -98,6 +101,7 @@ class BuildScreenFactory : public IScreenFactory
     inline std::shared_ptr<IScreen> make()
     {
         return std::make_shared<BuildScreen>(std::move(*body_builder_factory.make()),
+                                             std::make_unique<ColorSchemeWindow>(io),
                                              std::make_unique<PartSelectorWindow>(
                                                  credentials_manager,
                                                  http_client,
