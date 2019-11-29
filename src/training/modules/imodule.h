@@ -7,6 +7,7 @@
 #include <glm/vec4.hpp>
 #include <nlohmann/json_fwd.hpp>
 
+#include "graphics/colors.h"
 #include "graphics/render_data.h"
 #include "training/actions/iaction.h"
 #include "training/modules/module_link.h"
@@ -40,7 +41,7 @@ class IModule
     virtual void draw(Renderer &renderer, bool lightweight = false) = 0;
     virtual b2Transform get_global_transform() const;
     virtual int get_observation_count() const = 0;
-    virtual void set_color(glm::vec4 color) = 0;
+    virtual void set_color(const ColorScheme &color_scheme) = 0;
     virtual nlohmann::json to_json() const = 0;
 
     inline const std::vector<std::unique_ptr<IAction>> &get_actions() const { return actions; }

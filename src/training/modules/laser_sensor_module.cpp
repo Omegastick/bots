@@ -126,13 +126,10 @@ void LaserSensorModule::draw(Renderer &renderer, bool lightweight)
     }
 }
 
-void LaserSensorModule::set_color(glm::vec4 color)
+void LaserSensorModule::set_color(const ColorScheme &color_scheme)
 {
-    auto fill = color;
-    fill.a = 0.2f;
-
-    semi_circle.fill_color = fill;
-    semi_circle.stroke_color = color;
+    semi_circle.fill_color = color_scheme.secondary;
+    semi_circle.stroke_color = color_scheme.primary;
 }
 
 nlohmann::json LaserSensorModule::to_json() const

@@ -87,9 +87,8 @@ void CreateProgramScreen::body()
         try
         {
             bodies[0]->load_json(json);
-            bodies[0]->set_color(cl_blue);
             bodies[1]->load_json(json);
-            bodies[1]->set_color(cl_red);
+            bodies[1]->set_color({cl_red, set_alpha(cl_red, 0.2f)});
         }
         catch (std::runtime_error &ex)
         {

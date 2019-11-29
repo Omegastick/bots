@@ -48,4 +48,10 @@ constexpr glm::vec4 cl_white = cl_base3;
 constexpr glm::vec4 cl_accent = cl_red;
 constexpr glm::vec4 cl_dark_neutral = cl_base01;
 constexpr glm::vec4 cl_light_neutral = cl_base1;
+
+struct ColorScheme
+{
+    glm::vec4 primary = cl_white;
+    glm::vec4 secondary = {0.5, 0.5, 0.5, 0.5};
+};
 }

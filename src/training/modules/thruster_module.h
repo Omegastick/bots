@@ -20,7 +20,7 @@ class ThrusterModule : public IModule, public IActivatable
 
     virtual void activate() override;
     virtual void draw(Renderer &renderer, bool lightweight = false) override;
-    virtual void set_color(glm::vec4 color) override;
+    virtual void set_color(const ColorScheme &color_scheme) override;
     virtual void sub_update() override;
     virtual nlohmann::json to_json() const override final;
     virtual void update() override;

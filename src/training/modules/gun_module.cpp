@@ -86,15 +86,12 @@ void GunModule::draw(Renderer &renderer, bool /*lightweight*/)
     renderer.draw(barrel_rectangle);
 }
 
-void GunModule::set_color(glm::vec4 color)
+void GunModule::set_color(const ColorScheme &color_scheme)
 {
-    auto fill = color;
-    fill.a = 0.2f;
-
-    body_rectangle.fill_color = fill;
-    barrel_rectangle.fill_color = fill;
-    body_rectangle.stroke_color = color;
-    barrel_rectangle.stroke_color = color;
+    body_rectangle.fill_color = color_scheme.secondary;
+    barrel_rectangle.fill_color = color_scheme.secondary;
+    body_rectangle.stroke_color = color_scheme.primary;
+    barrel_rectangle.stroke_color = color_scheme.primary;
 }
 
 nlohmann::json GunModule::to_json() const

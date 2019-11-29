@@ -23,7 +23,7 @@ class BaseModule : public IModule
 
     virtual void draw(Renderer &renderer, bool lightweight = false) override;
     virtual std::vector<float> get_sensor_reading() const override;
-    virtual void set_color(glm::vec4 color) override;
+    virtual void set_color(const ColorScheme &color_scheme) override;
     virtual nlohmann::json to_json() const override;
 
     inline virtual int get_observation_count() const override final { return 3; }
