@@ -315,6 +315,7 @@ std::vector<std::pair<std::string, float>> Trainer::step_batch()
                 env_scores[i] += step_info.reward[player_index].item().toFloat();
                 if (step_info.done[player_index].item().toBool())
                 {
+                    std::lock_guard lock_guard(env_mutexes[i]);
                     if (i == 0)
                     {
                         reset_recently = true;
