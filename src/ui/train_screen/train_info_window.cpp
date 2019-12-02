@@ -2,6 +2,7 @@
 #include <cmath>
 #include <limits>
 #include <map>
+#include <mutex>
 #include <string>
 #include <vector>
 #include <unordered_map>
@@ -29,11 +30,13 @@ void TrainInfoWindow::add_data(const std::string &label,
                                unsigned long long timestep,
                                double value)
 {
+    std::lock_guard lock_guard(data_mutex);
     data[label].add_data(timestep, value);
 }
 
 void TrainInfoWindow::update(unsigned long long timestep, unsigned int update)
 {
+    std::lock_guard lock_guard(data_mutex);
     auto resolution = io.get_resolutionf();
     ImGui::SetNextWindowSize({resolution.x * 0.25f, resolution.y * 0.35f}, ImGuiCond_Once);
     ImGui::SetNextWindowPos({resolution.x * 0.7f, resolution.y * 0.05f}, ImGuiCond_Once);
