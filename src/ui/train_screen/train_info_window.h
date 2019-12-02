@@ -1,6 +1,7 @@
 #pragma once
 
 #include <map>
+#include <mutex>
 #include <string>
 #include <vector>
 #include <utility>
@@ -27,6 +28,7 @@ class TrainInfoWindow
 {
   private:
     std::map<std::string, IndexedDataStore> data;
+    std::mutex data_mutex;
     IO &io;
     std::string selected_type;
 
