@@ -29,10 +29,6 @@ WatchScreen::WatchScreen(std::unique_ptr<IEnvironment> environment, ResourceMana
       frame_counter(0),
       scores({{0}})
 {
-    resource_manager.load_texture("base_module", "images/base_module.png");
-    resource_manager.load_texture("gun_module", "images/gun_module.png");
-    resource_manager.load_texture("thruster_module", "images/thruster_module.png");
-    resource_manager.load_texture("laser_sensor_module", "images/laser_sensor_module.png");
     resource_manager.load_texture("bullet", "images/bullet.png");
     resource_manager.load_texture("pixel", "images/pixel.png");
     resource_manager.load_texture("target", "images/target.png");

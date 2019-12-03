@@ -19,15 +19,19 @@
 #include "third_party/httplib.h"
 #include "training/environments/koth_env.h"
 
-namespace SingularityTrainer
+namespace
 {
-const std::string agones_url_base = "localhost";
 volatile sig_atomic_t stop;
 
 void inthand(int /*signum*/)
 {
     stop = 1;
 }
+}
+
+namespace SingularityTrainer
+{
+const std::string agones_url_base = "localhost";
 
 static void health_check()
 {
