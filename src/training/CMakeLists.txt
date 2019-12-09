@@ -5,6 +5,7 @@ PRIVATE
     ${CMAKE_CURRENT_LIST_DIR}/rigid_body.cpp
     ${CMAKE_CURRENT_LIST_DIR}/saver.cpp
     ${CMAKE_CURRENT_LIST_DIR}/score_processor.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/trainer.cpp
     ${CMAKE_CURRENT_LIST_DIR}/training_program.cpp
 )
 
@@ -17,4 +18,4 @@ add_subdirectory(environments)
 add_subdirectory(evaluators)
 add_subdirectory(events)
 add_subdirectory(modules)
-add_subdirectory(trainers)
+add_subdirectory(rollout_generators)

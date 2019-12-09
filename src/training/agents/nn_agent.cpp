@@ -25,7 +25,7 @@ ActResult NNAgent::act(torch::Tensor observations,
     auto act_result = policy->act(observations,
                                   hidden_states,
                                   masks);
-    return {act_result[1], act_result[3]};
+    return {act_result[0], act_result[1], act_result[2], act_result[3]};
 }
 
 std::unique_ptr<IAgent> NNAgent::clone() const
@@ -49,8 +49,8 @@ TEST_CASE("NNAgent")
                                      torch::zeros({6}),
                                      torch::zeros({1}));
 
-            DOCTEST_CHECK(std::get<0>(actions).size(0) == 1);
-            DOCTEST_CHECK(std::get<0>(actions).size(1) == 4);
+            DOCTEST_CHECK(actions.action.size(0) == 1);
+            DOCTEST_CHECK(actions.action.size(1) == 4);
         }
 
         SUBCASE("With [1, N] shaped tensor")
@@ -59,8 +59,8 @@ TEST_CASE("NNAgent")
                                      torch::zeros({1, 6}),
                                      torch::zeros({1, 1}));
 
-            DOCTEST_CHECK(std::get<0>(actions).size(0) == 1);
-            DOCTEST_CHECK(std::get<0>(actions).size(1) == 4);
+            DOCTEST_CHECK(actions.action.size(0) == 1);
+            DOCTEST_CHECK(actions.action.size(1) == 4);
         }
 
         SUBCASE("Multiple parallel actions")
@@ -69,8 +69,8 @@ TEST_CASE("NNAgent")
                                      torch::zeros({3, 6}),
                                      torch::zeros({3, 1}));
 
-            DOCTEST_CHECK(std::get<0>(actions).size(0) == 3);
-            DOCTEST_CHECK(std::get<0>(actions).size(1) == 4);
+            DOCTEST_CHECK(actions.action.size(0) == 3);
+            DOCTEST_CHECK(actions.action.size(1) == 4);
         }
     }
 }

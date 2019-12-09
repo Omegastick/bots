@@ -268,7 +268,7 @@ std::vector<std::pair<std::string, float>> Trainer::step_batch()
                 auto opponent_act_result = opponents[i]->act(opponent_observations[i],
                                                              opponent_hidden_states[i],
                                                              opponent_masks[i]);
-                opponent_hidden_states[i] = std::get<1>(opponent_act_result);
+                opponent_hidden_states[i] = opponent_act_result.hidden_state;
 
                 // Step environment
                 torch::Tensor dones = torch::zeros({1, 1});
@@ -279,7 +279,7 @@ std::vector<std::pair<std::string, float>> Trainer::step_batch()
                 {
                     std::lock_guard lock_guard(env_mutexes[i]);
                     auto &player_actions = act_result[1];
-                    auto &opponent_actions = std::get<0>(opponent_act_result);
+                    auto &opponent_actions = opponent_act_result.action;
                     std::vector<torch::Tensor> actions;
                     if (start_positions[i])
                     {

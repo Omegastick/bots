@@ -36,8 +36,8 @@ std::vector<int> ClientAgent::get_action(const EnvState &env_state)
     auto act_result = agent->act(observation_tensor,
                                  hidden_state,
                                  torch::ones({1}));
-    hidden_state = std::get<1>(act_result);
-    auto actions_tensor = std::get<0>(act_result).to(torch::kInt);
+    hidden_state = act_result.hidden_state;
+    auto actions_tensor = act_result.action.to(torch::kInt);
     return std::vector<int>(actions_tensor.data_ptr<int>(),
                             actions_tensor.data_ptr<int>() + actions_tensor.numel());
 }

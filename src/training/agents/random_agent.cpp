@@ -18,9 +18,15 @@ ActResult RandomAgent::act(torch::Tensor observations,
 {
     if (observations.dim() == 1)
     {
-        return {torch::zeros({1, num_outputs}).random_(2), {}};
+        return {torch::zeros({1}),
+                torch::zeros({1, num_outputs}).random_(2),
+                torch::zeros({1}),
+                torch::zeros({1})};
     }
-    return {torch::zeros({observations.size(0), num_outputs}).random_(2), {}};
+    return {torch::zeros({1}),
+            torch::zeros({observations.size(0), num_outputs}).random_(2),
+            torch::zeros({1}),
+            torch::zeros({1})};
 }
 
 std::unique_ptr<IAgent> RandomAgent::clone() const
@@ -42,8 +48,8 @@ TEST_CASE("RandomAgent")
                                      torch::zeros({6}),
                                      torch::zeros({1}));
 
-            DOCTEST_CHECK(std::get<0>(actions).size(0) == 1);
-            DOCTEST_CHECK(std::get<0>(actions).size(1) == 4);
+            DOCTEST_CHECK(actions.action.size(0) == 1);
+            DOCTEST_CHECK(actions.action.size(1) == 4);
         }
 
         SUBCASE("With [1, N] shaped tensor")
@@ -52,8 +58,8 @@ TEST_CASE("RandomAgent")
                                      torch::zeros({1, 6}),
                                      torch::zeros({1, 1}));
 
-            DOCTEST_CHECK(std::get<0>(actions).size(0) == 1);
-            DOCTEST_CHECK(std::get<0>(actions).size(1) == 4);
+            DOCTEST_CHECK(actions.action.size(0) == 1);
+            DOCTEST_CHECK(actions.action.size(1) == 4);
         }
 
         SUBCASE("Multiple parallel actions")
@@ -62,8 +68,8 @@ TEST_CASE("RandomAgent")
                                      torch::zeros({3, 6}),
                                      torch::zeros({3, 1}));
 
-            DOCTEST_CHECK(std::get<0>(actions).size(0) == 3);
-            DOCTEST_CHECK(std::get<0>(actions).size(1) == 4);
+            DOCTEST_CHECK(actions.action.size(0) == 3);
+            DOCTEST_CHECK(actions.action.size(1) == 4);
         }
     }
 }

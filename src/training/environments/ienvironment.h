@@ -6,7 +6,9 @@
 
 #include <Box2D/Box2D.h>
 #include <torch/torch.h>
+#include <trompeloeil.hpp>
 
+#include "graphics/renderers/renderer.h"
 #include "misc/random.h"
 #include "misc/transform.h"
 #include "training/events/ievent.h"
@@ -17,7 +19,6 @@ class Body;
 class IEffect;
 class IEntity;
 struct Particle;
-class Renderer;
 struct RewardConfig;
 
 struct EntityState
@@ -134,4 +135,28 @@ class IEnvironmentFactory
 };
 
 inline IEnvironmentFactory::~IEnvironmentFactory() {}
+
+class MockEnvironment : public trompeloeil::mock_interface<IEnvironment>
+{
+  public:
+    IMPLEMENT_MOCK1(add_effect);
+    IMPLEMENT_MOCK1(add_entity);
+    IMPLEMENT_MOCK1(add_event);
+    MAKE_MOCK2(change_reward, void(int, float));
+    MAKE_MOCK2(change_reward, void(Body *, float));
+    IMPLEMENT_MOCK0(clear_effects);
+    IMPLEMENT_MOCK1(forward);
+    IMPLEMENT_MOCK0(get_bodies);
+    IMPLEMENT_CONST_MOCK0(get_elapsed_time);
+    IMPLEMENT_MOCK0(get_entities);
+    IMPLEMENT_MOCK2(draw);
+    IMPLEMENT_MOCK0(get_reward_config);
+    IMPLEMENT_MOCK0(get_scores);
+    IMPLEMENT_MOCK0(get_world);
+    IMPLEMENT_MOCK0(reset);
+    IMPLEMENT_MOCK0(set_done);
+    IMPLEMENT_MOCK1(set_elapsed_time);
+    IMPLEMENT_MOCK1(set_state);
+    IMPLEMENT_MOCK2(step);
+};
 }
