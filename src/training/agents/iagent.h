@@ -9,8 +9,10 @@
 
 namespace SingularityTrainer
 {
-// Actions, Hiden states
-typedef std::tuple<torch::Tensor, torch::Tensor> ActResult;
+struct ActResult
+{
+    torch::Tensor value, action, log_probs, hidden_state;
+};
 
 class IAgent
 {

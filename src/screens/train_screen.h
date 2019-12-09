@@ -10,7 +10,7 @@
 #include "graphics/post_processing/distortion_layer.h"
 #include "screens/iscreen.h"
 #include "training/training_program.h"
-#include "training/trainers/trainer.h"
+#include "training/trainer.h"
 #include "ui/train_screen/train_info_window.h"
 
 namespace SingularityTrainer

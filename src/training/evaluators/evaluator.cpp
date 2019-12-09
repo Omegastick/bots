@@ -55,15 +55,15 @@ EvaluationResult Evaluator::evaluate(const IAgent &agent_1, const IAgent &agent_
     int victor;
     while (!done)
     {
-        torch::Tensor action_1;
-        torch::Tensor action_2;
-        std::tie(action_1, hidden_state_1) = agent_1.act(observation_1,
-                                                         hidden_state_1,
-                                                         mask_1);
-        std::tie(action_2, hidden_state_2) = agent_2.act(observation_2,
-                                                         hidden_state_2,
-                                                         mask_2);
-        auto step_info = environment->step({action_1, action_2}, 1.f / 60.f);
+        const auto act_result_1 = agent_1.act(observation_1,
+                                              hidden_state_1,
+                                              mask_1);
+        const auto act_result_2 = agent_2.act(observation_2,
+                                              hidden_state_2,
+                                              mask_2);
+        hidden_state_1 = act_result_1.hidden_state;
+        hidden_state_2 = act_result_2.hidden_state;
+        auto step_info = environment->step({act_result_1.action, act_result_2.action}, 1.f / 60.f);
         for (int k = 0; k < 5; ++k)
         {
             environment->forward(1.f / 60.f);

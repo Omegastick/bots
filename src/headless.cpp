@@ -11,7 +11,7 @@
 #include "training/environments/koth_env.h"
 #include "training/evaluators/elo_evaluator.h"
 #include "training/saver.h"
-#include "training/trainers/trainer.h"
+#include "training/trainer.h"
 
 using namespace SingularityTrainer;
 
