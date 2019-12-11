@@ -79,7 +79,7 @@ class KothEnv : public IEnvironment
     }
     inline RewardConfig &get_reward_config() { return reward_config; }
     inline Random &get_rng() { return *rng; }
-    inline std::vector<float> get_scores() { return scores; }
+    inline std::vector<float> get_scores() const { return scores; }
     inline b2World &get_world() { return *world; };
     inline void set_body_1(std::unique_ptr<Body> body) { this->body_1 = std::move(body); }
     inline void set_body_2(std::unique_ptr<Body> body) { this->body_2 = std::move(body); }

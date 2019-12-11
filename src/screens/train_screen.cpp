@@ -114,7 +114,8 @@ void TrainScreen::update(const double /*delta_time*/)
 
     ImGui::SetNextWindowPos({resolution.x * 0.05f, resolution.y * 0.5f}, ImGuiCond_Once);
     ImGui::Begin("Scores");
-    for (const auto &score : trainer->get_environments()[0]->get_scores())
+    const auto scores = trainer->get_scores();
+    for (const auto &score : scores[0])
     {
         ImGui::Text("%.1f", score);
     }
@@ -123,7 +124,7 @@ void TrainScreen::update(const double /*delta_time*/)
     ImGui::SetNextWindowSize({resolution.x * 0.15f, resolution.y * 0.075f}, ImGuiCond_Once);
     ImGui::SetNextWindowPos({resolution.x * 0.7f, resolution.y * 0.5f}, ImGuiCond_Once);
     ImGui::Begin("Current opponent");
-    const auto opponent = trainer->get_current_opponent(0);
+    const auto opponent = trainer->get_current_opponent();
     ImGui::Text("Current opponent: %s", opponent.c_str());
     ImGui::End();
 
