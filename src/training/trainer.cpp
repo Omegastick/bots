@@ -36,353 +36,58 @@ namespace SingularityTrainer
 {
 const bool recurrent = false;
 
-Trainer::Trainer(TrainingProgram program,
-                 BodyFactory &body_factory,
+Trainer::Trainer(std::unique_ptr<NNAgent> agent,
+                 std::unique_ptr<cpprl::Algorithm> algorithm,
+                 std::unique_ptr<std::vector<std::unique_ptr<IAgent>>> opponent_pool,
+                 TrainingProgram program,
+                 std::unique_ptr<MultiRolloutGenerator> rollout_generator,
                  Checkpointer &checkpointer,
-                 IEnvironmentFactory &env_factory,
                  EloEvaluator &evaluator,
                  Random &rng)
-    : batch_number(0),
+    : agent(std::move(agent)),
+      algorithm(std::move(algorithm)),
       checkpointer(checkpointer),
       env_count(program.hyper_parameters.num_env),
       evaluator(evaluator),
       last_save_time(std::chrono::high_resolution_clock::now()),
       last_update_time(std::chrono::high_resolution_clock::now()),
       new_opponents(1 + program.opponent_pool.size()),
-      policy(nullptr),
+      opponent_pool(std::move(opponent_pool)),
       previous_checkpoint(program.checkpoint),
       program(program),
       reset_recently(true),
       returns_rms(1),
       rng(rng),
-      slow(false),
-      start_positions(env_count),
-      timestep(0)
-{
-    torch::manual_seed(0);
-
-    // Initialize rollout storage
-    b2World b2_world({0, 0});
-    auto temp_body = body_factory.make(b2_world, rng);
-    temp_body->load_json(program.body);
-    int num_observations = temp_body->get_observation().size();
-    int num_actions = temp_body->get_input_count();
-    rollout_storage = std::make_unique<cpprl::RolloutStorage>(program.hyper_parameters.batch_size,
-                                                              program.hyper_parameters.num_env,
-                                                              c10::IntArrayRef{num_observations},
-                                                              cpprl::ActionSpace{"MultiBinary", {num_actions}},
-                                                              64,
-                                                              torch::kCPU);
-
-    // Initialize env mutexes
-    std::vector<std::mutex> temp_mutex_vec(program.hyper_parameters.num_env);
-    env_mutexes.swap(temp_mutex_vec);
-
-    // Initialize opponent pool
-    opponent_pool.push_back(std::make_unique<RandomAgent>(program.body, rng, "Random Agent"));
-    for (const auto &checkpoint_path : program.opponent_pool)
-    {
-        auto policy = checkpointer.load(checkpoint_path).policy;
-        opponent_pool.push_back(std::make_unique<NNAgent>(policy, program.body, checkpoint_path));
-    }
-
-    // Initialize opponents
-    opponents.resize(env_count);
-    for (int i = 0; i < env_count; ++i)
-    {
-        int selected_opponent = rng.next_int(0, opponent_pool.size());
-        opponents[i] = opponent_pool[selected_opponent].get();
-        opponent_hidden_states.push_back(torch::zeros({opponents[i]->get_hidden_state_size(), 1}));
-    }
-    opponent_masks = torch::ones({env_count, 1});
-
-    // Initialize start positions
-    for (const auto i : range(0, env_count))
-    {
-        start_positions[i] = rng.next_bool(0.5);
-    }
-    // Environment 0 start position is fixed for the first episode
-    start_positions[0] = 1;
-
-    // Initialize environments
-    for (const auto i : range(0, env_count))
-    {
-        auto world = std::make_unique<b2World>(b2Vec2_zero);
-        auto rng = std::make_unique<Random>(i);
-        std::vector<std::unique_ptr<Body>> bodies;
-        bodies.push_back(body_factory.make(*world, *rng));
-        bodies.push_back(body_factory.make(*world, *rng));
-        if (start_positions[i])
-        {
-            bodies[0]->load_json(program.body);
-            bodies[1]->load_json(opponents[i]->get_body_spec());
-            bodies[1]->set_color({cl_red, set_alpha(cl_red, 0.2f)});
-        }
-        else
-        {
-            bodies[0]->load_json(opponents[i]->get_body_spec());
-            bodies[0]->set_color({cl_red, set_alpha(cl_red, 0.2f)});
-            bodies[1]->load_json(program.body);
-        }
-        environments.push_back(env_factory.make(std::move(rng),
-                                                std::move(world),
-                                                std::move(bodies),
-                                                program.reward_config));
-    }
-    env_scores.resize(env_count);
-
-    auto observations = torch::zeros({env_count, num_observations});
-    opponent_observations.clear();
-    for (unsigned int i = 0; i < environments.size(); ++i)
-    {
-        auto env_observation = environments[i]->reset().observation;
-        observations[i] = env_observation[0];
-        opponent_observations.push_back(env_observation[1]);
-
-        // Start each environment with a different number of random steps to decorrelate the environments
-        for (unsigned int current_step = 0; current_step < i * 12; current_step++)
-        {
-            std::vector<torch::Tensor> actions;
-            auto player_actions = torch::rand({1, num_actions}).round();
-            auto opponent_actions = torch::rand({1, opponents[i]->get_action_size()}).round();
-            if (start_positions[i])
-            {
-                actions = {player_actions, opponent_actions};
-            }
-            else
-            {
-                actions = {opponent_actions, player_actions};
-            }
-
-            env_observation = environments[i]->step(actions, 1.f / 10.f).observation;
-            if (current_step == (i * 12) - 1)
-            {
-                observations[i] = env_observation[0];
-                opponent_observations[i] = env_observation[1];
-            }
-        }
-    }
-
-    if (program.checkpoint.empty())
-    {
-        spdlog::debug("Making new agent");
-        auto nn_base = std::make_shared<cpprl::MlpBase>(num_observations, recurrent);
-        policy = cpprl::Policy(cpprl::ActionSpace{"MultiBinary", {num_actions}}, nn_base, true);
-    }
-    else
-    {
-        spdlog::debug("Loading {}", program.checkpoint);
-        auto checkpoint = checkpointer.load(program.checkpoint);
-        policy = checkpoint.policy;
-    }
-
-    if (program.hyper_parameters.algorithm == Algorithm::A2C)
-    {
-        algorithm = std::make_unique<cpprl::A2C>(policy,
-                                                 program.hyper_parameters.actor_loss_coef,
-                                                 program.hyper_parameters.value_loss_coef,
-                                                 program.hyper_parameters.entropy_coef,
-                                                 program.hyper_parameters.learning_rate);
-    }
-    else if (program.hyper_parameters.algorithm == Algorithm::PPO)
-    {
-        algorithm = std::make_unique<cpprl::PPO>(policy,
-                                                 program.hyper_parameters.clip_param,
-                                                 program.hyper_parameters.num_epoch,
-                                                 program.hyper_parameters.num_minibatch,
-                                                 program.hyper_parameters.actor_loss_coef,
-                                                 program.hyper_parameters.value_loss_coef,
-                                                 program.hyper_parameters.entropy_coef,
-                                                 program.hyper_parameters.learning_rate);
-    }
-    else
-    {
-        throw std::runtime_error("Algorithm not supported");
-    }
-
-    rollout_storage->set_first_observation(observations);
-}
+      rollout_generator(std::move(rollout_generator)) {}
 
 void Trainer::draw(Renderer &renderer, bool lightweight)
 {
-    {
-        std::lock_guard lock_guard(env_mutexes[0]);
-        environments[0]->draw(renderer, lightweight);
-    }
-
-    for (unsigned int i = 1; i < environments.size(); ++i)
-    {
-        std::lock_guard lock_guard(env_mutexes[i]);
-        environments[i]->clear_effects();
-    }
+    rollout_generator->draw(renderer, lightweight);
 }
 
 double Trainer::evaluate()
 {
     spdlog::debug("Evaluating agent");
     std::vector<IAgent *> new_opponents_vec;
-    for (unsigned int i = opponent_pool.size() - new_opponents; i < opponent_pool.size(); ++i)
+    for (unsigned int i = opponent_pool->size() - new_opponents; i < opponent_pool->size(); ++i)
     {
-        new_opponents_vec.push_back(opponent_pool[i].get());
+        new_opponents_vec.push_back((*opponent_pool)[i].get());
     }
     new_opponents = 0;
-    NNAgent agent(policy, program.body, "Current Agent");
-    return evaluator.evaluate(agent, new_opponents_vec, 80);
+    return evaluator.evaluate(*agent, new_opponents_vec, 80);
 }
 
 std::vector<std::pair<std::string, float>> Trainer::step_batch()
 {
-    spdlog::debug("Starting new training batch");
-    tf::Executor executor;
-    tf::Taskflow task_flow;
-
-    std::vector<cpprl::RolloutStorage> storages;
-
-    for (int i = 0; i < program.hyper_parameters.num_env; ++i)
-    {
-        storages.push_back({program.hyper_parameters.batch_size,
-                            1,
-                            c10::IntArrayRef{program.body["num_observations"]},
-                            cpprl::ActionSpace{"MultiBinary", {program.body["num_actions"]}},
-                            64,
-                            torch::kCPU});
-        storages[i].set_first_observation(rollout_storage->get_observations()[0][i]);
-    }
-
-    for (int i = 0; i < program.hyper_parameters.num_env; ++i)
-    {
-        tf::Task last_task;
-        for (int step = 0; step < program.hyper_parameters.batch_size; ++step)
-        {
-            tf::Task task = task_flow.emplace([this, &storages, step, i] {
-                // Get action from policy
-                std::vector<torch::Tensor> act_result;
-                {
-                    torch::NoGradGuard no_grad;
-                    act_result = policy->act(storages[i].get_observations()[step],
-                                             storages[i].get_hidden_states()[step],
-                                             storages[i].get_masks()[step]);
-                }
-
-                // Get opponent action
-                auto opponent_act_result = opponents[i]->act(opponent_observations[i],
-                                                             opponent_hidden_states[i],
-                                                             opponent_masks[i]);
-                opponent_hidden_states[i] = opponent_act_result.hidden_state;
-
-                // Step environment
-                torch::Tensor dones = torch::zeros({1, 1});
-                torch::Tensor opponent_dones = torch::zeros({1, 1});
-                torch::Tensor rewards = torch::zeros({1, 1});
-
-                StepInfo step_info;
-                {
-                    std::lock_guard lock_guard(env_mutexes[i]);
-                    auto &player_actions = act_result[1];
-                    auto &opponent_actions = opponent_act_result.action;
-                    std::vector<torch::Tensor> actions;
-                    if (start_positions[i])
-                    {
-                        actions = {player_actions, opponent_actions};
-                    }
-                    else
-                    {
-                        actions = {opponent_actions, player_actions};
-                    }
-                    step_info = environments[i]->step(actions, 1.f / 60.f);
-                }
-                if (slow)
-                {
-                    std::this_thread::sleep_for(std::chrono::milliseconds(1000 / 60));
-                }
-                for (int mini_step = 0; mini_step < 5; ++mini_step)
-                {
-                    {
-                        std::lock_guard lock_guard(env_mutexes[i]);
-                        environments[i]->forward(1.f / 60.f);
-                    }
-                    if (slow)
-                    {
-                        std::this_thread::sleep_for(std::chrono::milliseconds(1000 / 60));
-                    }
-                }
-                int player_index = start_positions[i] ? 0 : 1;
-                int opponent_index = start_positions[i] ? 1 : 0;
-                dones = step_info.done[player_index];
-                rewards = step_info.reward[player_index];
-                opponent_observations[i] = step_info.observation[opponent_index];
-                opponent_dones = step_info.done[opponent_index];
-                env_scores[i] += step_info.reward[player_index].item().toFloat();
-                if (step_info.done[player_index].item().toBool())
-                {
-                    std::lock_guard lock_guard(env_mutexes[i]);
-                    if (i == 0)
-                    {
-                        reset_recently = true;
-                    }
-                    env_scores[i] = 0;
-                    environments[i]->reset();
-                    int selected_opponent = rng.next_int(0, opponent_pool.size());
-                    opponents[i] = opponent_pool[selected_opponent].get();
-                    opponent_hidden_states[i] = torch::zeros(
-                        {opponents[i]->get_hidden_state_size(), 1});
-                    start_positions[i] = rng.next_bool(0.5);
-                    auto bodies = environments[i]->get_bodies();
-                    if (start_positions[i])
-                    {
-                        bodies[0]->load_json(program.body);
-                        bodies[1]->load_json(opponents[i]->get_body_spec());
-                        bodies[1]->set_color({cl_red, set_alpha(cl_red, 0.2f)});
-                    }
-                    else
-                    {
-                        bodies[0]->load_json(opponents[i]->get_body_spec());
-                        bodies[0]->set_color({cl_red, set_alpha(cl_red, 0.2f)});
-                        bodies[1]->load_json(program.body);
-                    }
-                }
-                storages[i].insert(step_info.observation[player_index],
-                                   act_result[3],
-                                   act_result[1],
-                                   act_result[2],
-                                   act_result[0],
-                                   rewards,
-                                   1 - dones);
-
-                ++timestep;
-            });
-
-            if (step != 0)
-            {
-                last_task.precede(task);
-            }
-            last_task = task;
-        }
-    }
-
-    spdlog::debug("Gathering training data");
-    executor.run(task_flow);
-    executor.wait_for_all();
-
-    batch_number++;
-
-    spdlog::debug("Processing training data");
-    std::vector<cpprl::RolloutStorage *> storage_ptrs;
-    std::transform(storages.begin(), storages.end(), std::back_inserter(storage_ptrs),
-                   [](cpprl::RolloutStorage &storage) { return &storage; });
-    rollout_storage = std::make_unique<cpprl::RolloutStorage>(storage_ptrs, torch::kCPU);
-
-    spdlog::debug("Learning from training data");
-    auto update_data = learn();
-
-    spdlog::debug("Training batch finished");
+    auto rollout = rollout_generator->generate();
+    auto update_data = learn(rollout);
     return update_data;
 }
 
 std::filesystem::path Trainer::save_model(std::filesystem::path directory)
 {
     spdlog::debug("Saving model");
-    previous_checkpoint = checkpointer.save(policy,
+    previous_checkpoint = checkpointer.save(agent->get_policy(),
                                             program.body,
                                             {},
                                             previous_checkpoint,
@@ -392,41 +97,41 @@ std::filesystem::path Trainer::save_model(std::filesystem::path directory)
     return previous_checkpoint;
 }
 
-std::vector<std::pair<std::string, float>> Trainer::learn()
+std::vector<std::pair<std::string, float>> Trainer::learn(cpprl::RolloutStorage &rollout)
 {
     auto update_start_time = std::chrono::high_resolution_clock::now();
 
     torch::Tensor next_value;
     {
         torch::NoGradGuard no_grad;
-        next_value = policy->get_values(
-                               rollout_storage->get_observations()[-1],
-                               rollout_storage->get_hidden_states()[-1],
-                               rollout_storage->get_masks()[-1])
+        next_value = agent->get_policy()->get_values(
+                                            rollout.get_observations()[-1],
+                                            rollout.get_hidden_states()[-1],
+                                            rollout.get_masks()[-1])
                          .detach();
     }
     // Divide rewards by return variance
-    rollout_storage->compute_returns(next_value,
-                                     false,
-                                     program.hyper_parameters.discount_factor,
-                                     0.95f);
-    returns_rms->update(rollout_storage->get_returns());
-    rollout_storage->set_rewards(torch::clamp(
-        rollout_storage->get_rewards() / (returns_rms->get_variance().sqrt() + 1e-8),
+    rollout.compute_returns(next_value,
+                            false,
+                            program.hyper_parameters.discount_factor,
+                            0.95f);
+    returns_rms->update(rollout.get_returns());
+    rollout.set_rewards(torch::clamp(
+        rollout.get_rewards() / (returns_rms->get_variance().sqrt() + 1e-8),
         -10,
         10));
 
     // Calculate the returns for real this time
-    rollout_storage->compute_returns(next_value,
-                                     true,
-                                     program.hyper_parameters.discount_factor,
-                                     0.95f);
+    rollout.compute_returns(next_value,
+                            true,
+                            program.hyper_parameters.discount_factor,
+                            0.95f);
 
-    auto update_data = algorithm->update(*rollout_storage);
-    rollout_storage->after_update();
+    auto update_data = algorithm->update(rollout);
+    rollout.after_update();
 
     spdlog::info("---");
-    spdlog::info("Total frames: {}", timestep);
+    spdlog::info("Total frames: {}", rollout_generator->get_timestep());
     const std::chrono::duration<double> sim_duration = update_start_time - last_update_time;
     const double fps = (env_count * program.hyper_parameters.batch_size) / sim_duration.count();
     spdlog::info("FPS: {:.2f}", fps);
@@ -443,8 +148,8 @@ std::vector<std::pair<std::string, float>> Trainer::learn()
     if (now - last_save_time > std::chrono::minutes(program.minutes_per_checkpoint))
     {
         auto checkpoint_path = save_model();
-        opponent_pool.push_back(std::make_unique<NNAgent>(
-            policy,
+        opponent_pool->push_back(std::make_unique<NNAgent>(
+            agent->get_policy(),
             program.body,
             date::format("%F-%H-%M", std::chrono::system_clock::now())));
         new_opponents++;
@@ -458,7 +163,7 @@ std::vector<std::pair<std::string, float>> Trainer::learn()
                        return std::pair<std::string, float>{datum.name, datum.value};
                    });
     update_pairs.push_back({"FPS", fps});
-    update_pairs.push_back({"Total Frames", timestep});
+    update_pairs.push_back({"Total Frames", rollout_generator->get_timestep()});
     update_pairs.push_back({"Update Duration", update_duration.count()});
 
     return update_pairs;
@@ -472,5 +177,102 @@ bool Trainer::should_clear_particles()
         return true;
     }
     return false;
+}
+
+std::unique_ptr<Trainer> TrainerFactory::make(TrainingProgram &program) const
+{
+    torch::manual_seed(0);
+
+    const unsigned int num_observations = program.body["num_observations"];
+    const unsigned int num_actions = program.body["num_actions"];
+
+    // Initialize opponent pool
+    auto opponent_pool = std::make_unique<std::vector<std::unique_ptr<IAgent>>>();
+    opponent_pool->push_back(std::make_unique<RandomAgent>(program.body, rng, "Random Agent"));
+    for (const auto &checkpoint_path : program.opponent_pool)
+    {
+        auto policy = checkpointer.load(checkpoint_path).policy;
+        opponent_pool->push_back(std::make_unique<NNAgent>(policy, program.body, checkpoint_path));
+    }
+
+    // Initialize environments
+    std::vector<std::unique_ptr<IEnvironment>> environments;
+    for (const auto i : range(0, program.hyper_parameters.num_env))
+    {
+        auto world = std::make_unique<b2World>(b2Vec2_zero);
+        auto rng = std::make_unique<Random>(i);
+        std::vector<std::unique_ptr<Body>> bodies;
+        bodies.push_back(body_factory.make(*world, *rng));
+        bodies.push_back(body_factory.make(*world, *rng));
+        environments.push_back(env_factory.make(std::move(rng),
+                                                std::move(world),
+                                                std::move(bodies),
+                                                program.reward_config));
+    }
+
+    cpprl::Policy policy(nullptr);
+    if (program.checkpoint.empty())
+    {
+        spdlog::debug("Making new agent");
+        auto nn_base = std::make_shared<cpprl::MlpBase>(num_observations, recurrent);
+        policy = cpprl::Policy(cpprl::ActionSpace{"MultiBinary", {num_actions}}, nn_base, true);
+    }
+    else
+    {
+        spdlog::debug("Loading {}", program.checkpoint);
+        auto checkpoint = checkpointer.load(program.checkpoint);
+        policy = checkpoint.policy;
+    }
+
+    auto agent = std::make_unique<NNAgent>(policy, program.body, "Agent");
+
+    std::vector<std::unique_ptr<ISingleRolloutGenerator>> sub_generators;
+    for (const auto i : range(0, program.hyper_parameters.num_env))
+    {
+        sub_generators.push_back(std::make_unique<SingleRolloutGenerator>(
+            *agent,
+            std::move(environments[i]),
+            *opponent_pool,
+            rng,
+            i != 0));
+    }
+
+    auto rollout_generator = std::make_unique<MultiRolloutGenerator>(
+        program.hyper_parameters.batch_size,
+        std::move(sub_generators));
+
+    std::unique_ptr<cpprl::Algorithm> algorithm;
+    if (program.hyper_parameters.algorithm == Algorithm::A2C)
+    {
+        algorithm = std::make_unique<cpprl::A2C>(agent->get_policy(),
+                                                 program.hyper_parameters.actor_loss_coef,
+                                                 program.hyper_parameters.value_loss_coef,
+                                                 program.hyper_parameters.entropy_coef,
+                                                 program.hyper_parameters.learning_rate);
+    }
+    else if (program.hyper_parameters.algorithm == Algorithm::PPO)
+    {
+        algorithm = std::make_unique<cpprl::PPO>(agent->get_policy(),
+                                                 program.hyper_parameters.clip_param,
+                                                 program.hyper_parameters.num_epoch,
+                                                 program.hyper_parameters.num_minibatch,
+                                                 program.hyper_parameters.actor_loss_coef,
+                                                 program.hyper_parameters.value_loss_coef,
+                                                 program.hyper_parameters.entropy_coef,
+                                                 program.hyper_parameters.learning_rate);
+    }
+    else
+    {
+        throw std::runtime_error("Algorithm not supported");
+    }
+
+    return std::make_unique<Trainer>(std::move(agent),
+                                     std::move(algorithm),
+                                     std::move(opponent_pool),
+                                     program,
+                                     std::move(rollout_generator),
+                                     checkpointer,
+                                     evaluator,
+                                     rng);
 }
 }

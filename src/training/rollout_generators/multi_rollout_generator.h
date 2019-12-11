@@ -1,5 +1,6 @@
 #pragma once
 
+#include <atomic>
 #include <memory>
 #include <vector>
 
@@ -15,6 +16,7 @@ class MultiRolloutGenerator
     unsigned long batch_number;
     unsigned long num_steps;
     std::vector<std::unique_ptr<ISingleRolloutGenerator>> sub_generators;
+    std::atomic<unsigned long long> timestep;
 
   public:
     MultiRolloutGenerator(unsigned long num_steps,
@@ -24,5 +26,14 @@ class MultiRolloutGenerator
     cpprl::RolloutStorage generate();
 
     inline unsigned long get_batch_number() const { return batch_number; }
+    inline std::string get_current_opponent(int environment) const
+    {
+        return sub_generators[environment]->get_current_opponent();
+    }
+    std::vector<std::vector<float>> get_scores() const;
+
+    inline unsigned long long get_timestep() { return timestep; }
+    inline void set_fast() { sub_generators[0]->set_fast(); }
+    inline void set_slow() { sub_generators[0]->set_slow(); }
 };
 }

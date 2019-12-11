@@ -21,6 +21,7 @@ class NNAgent : public IAgent
     virtual std::unique_ptr<IAgent> clone() const;
 
     inline int get_hidden_state_size() const { return policy->get_hidden_size(); }
+    inline cpprl::Policy &get_policy() { return policy; }
     inline void set_policy(cpprl::Policy policy) { this->policy = policy; }
 };
 }

@@ -218,7 +218,10 @@ void Body::load_json(const nlohmann::json &json)
         recurse_json_modules(json["base_module"]);
     }
 
-    update_body();
+    if (rigid_body != nullptr)
+    {
+        update_body();
+    }
     register_actions();
     set_color(color_scheme);
 

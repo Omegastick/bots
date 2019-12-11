@@ -24,6 +24,8 @@
 
 namespace SingularityTrainer
 {
+constexpr std::size_t max_effects = 10000;
+
 class KothContactListener : public b2ContactListener
 {
     void BeginContact(b2Contact *contact)
@@ -166,6 +168,9 @@ KothEnv::KothEnv(int max_steps,
 
 void KothEnv::add_effect(std::unique_ptr<IEffect> effect)
 {
+    if (effects.size() > max_effects) {
+        return;
+    }
     effects.push_back(std::move(effect));
 }
 

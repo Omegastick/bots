@@ -18,8 +18,13 @@ MultiRolloutGenerator::MultiRolloutGenerator(
     std::vector<std::unique_ptr<ISingleRolloutGenerator>> &&sub_generators)
     : batch_number(0),
       num_steps(num_steps),
-      sub_generators(std::move(sub_generators))
+      sub_generators(std::move(sub_generators)),
+      timestep(0)
 {
+    for (auto &sub_generator : this->sub_generators)
+    {
+        sub_generator->set_timestep_pointer(&timestep);
+    }
 }
 
 void MultiRolloutGenerator::draw(Renderer &renderer, bool lightweight)
@@ -50,6 +55,18 @@ cpprl::RolloutStorage MultiRolloutGenerator::generate()
     return {storage_ptrs, torch::kCPU};
 }
 
+std::vector<std::vector<float>> MultiRolloutGenerator::get_scores() const
+{
+    std::vector<std::vector<float>> scores;
+    for (const auto &sub_generator : sub_generators)
+    {
+        scores.push_back(sub_generator->get_environment().get_scores());
+    }
+    return scores;
+}
+
+using trompeloeil::_;
+
 TEST_CASE("MultiRolloutGenerator")
 {
     std::vector<std::unique_ptr<ISingleRolloutGenerator>> sub_generators;
@@ -64,6 +81,7 @@ TEST_CASE("MultiRolloutGenerator")
                                                                     cpprl::ActionSpace{"Asd", {2}},
                                                                     0,
                                                                     torch::kCPU)));
+        expectations.push_back(NAMED_ALLOW_CALL(*sub_generator, set_timestep_pointer(_)));
         sub_generators.push_back(std::move(sub_generator));
     }
     MultiRolloutGenerator generator(5, std::move(sub_generators));
