@@ -23,6 +23,7 @@
 #include "misc/screen_manager.h"
 #include "misc/utilities.h"
 #include "screens/main_menu_screen.h"
+#include "ui/background.h"
 
 namespace SingularityTrainer
 {
@@ -228,6 +229,7 @@ void mouse_button_callback(GLFWwindow *glfw_window, int button, int action, int 
 }
 
 App::App(Animator &animator,
+         Background &background,
          IO &io,
          Renderer &renderer,
          ResourceManager &resource_manager,
@@ -235,6 +237,7 @@ App::App(Animator &animator,
          ScreenManager &screen_manager,
          Window &window)
     : animator(animator),
+      background(background),
       io(io),
       main_menu_screen_factory(main_menu_screen_factory),
       renderer(renderer),
@@ -314,6 +317,7 @@ int App::run(int argc, char *argv[])
         ImGui::NewFrame();
 
         animator.update(delta_time);
+        background.update(delta_time);
         screen_manager.update(delta_time);
         if (screen_manager.stack_size() == 0)
         {
@@ -329,6 +333,7 @@ int App::run(int argc, char *argv[])
         {
             renderer.begin();
 
+            background.draw(renderer);
             screen_manager.draw(renderer);
 
             renderer.push_post_proc_layer(*crt_post_proc_layer);

@@ -27,20 +27,17 @@
 #include "misc/screen_manager.h"
 #include "screens/iscreen.h"
 #include "training/training_program.h"
-#include "ui/background.h"
 
 namespace SingularityTrainer
 {
-MainMenuScreen::MainMenuScreen(Background &background,
-                               CredentialsManager &credentials_manager,
+MainMenuScreen::MainMenuScreen(CredentialsManager &credentials_manager,
                                IHttpClient &http_client,
                                IO &io,
                                IScreenFactory &build_screen_factory,
                                IScreenFactory &create_program_screen_factory,
                                IScreenFactory &multiplayer_screen_factory,
                                ScreenManager &screen_manager)
-    : background(background),
-      credentials_manager(credentials_manager),
+    : credentials_manager(credentials_manager),
       http_client(http_client),
       io(io),
       build_screen_factory(build_screen_factory),
@@ -50,7 +47,7 @@ MainMenuScreen::MainMenuScreen(Background &background,
       user_info_received(false),
       waiting_for_server(false) {}
 
-void MainMenuScreen::update(double delta_time)
+void MainMenuScreen::update(double /*delta_time*/)
 {
     const auto &imgui_io = ImGui::GetIO();
     ImGui::SetNextWindowPos({imgui_io.DisplaySize.x * 0.5f, imgui_io.DisplaySize.y * 0.5f},
@@ -141,17 +138,18 @@ void MainMenuScreen::update(double delta_time)
         ImGui::PopStyleColor(5);
     }
 
-    background.update(delta_time);
-
     // ImGui::ShowStyleEditor();
     // ImGui::ShowDemoWindow();
 }
 
 void MainMenuScreen::draw(Renderer &renderer, bool /*lightweight*/)
 {
-    const auto view = glm::ortho(-960.f, 960.f, -540.f, 540.f);
+    const double view_height = 50;
+    auto view_top = view_height * 0.5;
+    glm::vec2 resolution = io.get_resolution();
+    auto view_right = view_top * (resolution.x / resolution.y);
+    const auto view = glm::ortho(-view_right, view_right, -view_top, view_top);
     renderer.set_view(view);
-    background.draw(renderer);
 }
 
 void MainMenuScreen::build_body()
@@ -219,8 +217,6 @@ using trompeloeil::_;
 
 TEST_CASE("MainMenuScreen")
 {
-    Random rng(0);
-    Background background(rng);
     MockHttpClient http_client;
     CredentialsManager credentials_manager(http_client);
     IO io;
@@ -228,8 +224,7 @@ TEST_CASE("MainMenuScreen")
     MockScreenFactory create_program_screen_factory;
     MockScreenFactory multiplayer_screen_factory;
     ScreenManager screen_manager;
-    auto main_menu_screen = std::make_shared<MainMenuScreen>(background,
-                                                             credentials_manager,
+    auto main_menu_screen = std::make_shared<MainMenuScreen>(credentials_manager,
                                                              http_client,
                                                              io,
                                                              build_screen_factory,
