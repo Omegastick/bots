@@ -34,6 +34,7 @@
 #include "training/evaluators/elo_evaluator.h"
 #include "training/saver.h"
 #include "third_party/di.hpp"
+#include "ui/background.h"
 
 using namespace SingularityTrainer;
 

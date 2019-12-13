@@ -148,6 +148,12 @@ const FrameBuffer *Renderer::render_to_buffer(double time)
         distortion_layer->update_mesh();
     }
 
+    for (const auto &line : lines)
+    {
+        line_renderer.draw(line, view);
+    }
+    lines.clear();
+
     vector_renderer.end_frame();
 
     std::sort(sprites.begin(), sprites.end(),
@@ -181,12 +187,6 @@ const FrameBuffer *Renderer::render_to_buffer(double time)
     particle_renderer.add_particles(particles, time);
     particle_renderer.draw(time, view);
     particles.clear();
-
-    for (const auto &line : lines)
-    {
-        line_renderer.draw(line, view);
-    }
-    lines.clear();
 
     for (const auto &text : texts)
     {

@@ -32,7 +32,7 @@ struct Sprite
 {
     glm::vec4 color = cl_white;
     std::string texture;
-    Transform transform;
+    Transform transform = Transform();
 };
 
 struct Text
@@ -40,7 +40,7 @@ struct Text
     glm::vec4 color = cl_white;
     std::string font;
     std::string text;
-    Transform transform;
+    Transform transform = Transform();
 };
 
 // Vector graphics
@@ -49,7 +49,7 @@ struct Rectangle
     glm::vec4 fill_color;
     glm::vec4 stroke_color;
     float stroke_width;
-    Transform transform;
+    Transform transform = Transform();
 };
 
 struct Circle
@@ -58,7 +58,7 @@ struct Circle
     glm::vec4 fill_color;
     glm::vec4 stroke_color;
     float stroke_width;
-    Transform transform;
+    Transform transform = Transform();
 };
 
 struct SemiCircle
@@ -67,7 +67,7 @@ struct SemiCircle
     glm::vec4 fill_color;
     glm::vec4 stroke_color;
     float stroke_width;
-    Transform transform;
+    Transform transform = Transform();
 };
 
 struct Trapezoid
@@ -77,6 +77,6 @@ struct Trapezoid
     glm::vec4 fill_color;
     glm::vec4 stroke_color;
     float stroke_width;
-    Transform transform;
+    Transform transform = Transform();
 };
 }

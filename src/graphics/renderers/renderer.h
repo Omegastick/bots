@@ -101,6 +101,7 @@ class Renderer
     void render(double time);
     const FrameBuffer *render_to_buffer(double time);
 
+    inline const glm::mat4 &get_view() const { return view; }
     void set_view(const glm::mat4 &view);
 
     inline int get_width() const { return width; }
