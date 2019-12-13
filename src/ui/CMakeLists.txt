@@ -6,6 +6,7 @@ add_subdirectory(watch_screen)
 
 target_sources(Shared
 PRIVATE
+    ${CMAKE_CURRENT_LIST_DIR}/background.cpp
     ${CMAKE_CURRENT_LIST_DIR}/plot.cpp
     ${CMAKE_CURRENT_LIST_DIR}/spinner.cpp
 )
