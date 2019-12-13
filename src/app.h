@@ -9,6 +9,7 @@
 namespace SingularityTrainer
 {
 class Animator;
+class Background;
 class IO;
 class MainMenuScreenFactory;
 class Renderer;
@@ -20,6 +21,7 @@ class App
 {
   private:
     Animator &animator;
+    Background &background;
     std::unique_ptr<PostProcLayer> bloom_post_proc_layer;
     std::unique_ptr<PostProcLayer> crt_post_proc_layer;
     std::unique_ptr<PostProcLayer> tone_map_post_proc_layer;
@@ -35,6 +37,7 @@ class App
 
   public:
     App(Animator &animator,
+        Background &background,
         IO &io,
         Renderer &renderer,
         ResourceManager &resource_manager,

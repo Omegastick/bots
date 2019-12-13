@@ -118,6 +118,7 @@ void Renderer::clear(const glm::vec4 &color)
 void Renderer::begin()
 {
     vector_renderer.begin_frame({width, height});
+    vector_renderer.set_view(view);
 }
 
 void Renderer::begin_subframe()
@@ -125,6 +126,7 @@ void Renderer::begin_subframe()
     clear_scissor();
     glViewport(0, 0, width, height);
     vector_renderer.begin_frame({width, height});
+    vector_renderer.set_view(view);
 }
 
 void Renderer::render(double time)

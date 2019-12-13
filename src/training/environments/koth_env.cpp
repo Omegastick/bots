@@ -168,7 +168,8 @@ KothEnv::KothEnv(int max_steps,
 
 void KothEnv::add_effect(std::unique_ptr<IEffect> effect)
 {
-    if (effects.size() > max_effects) {
+    if (effects.size() > max_effects)
+    {
         return;
     }
     effects.push_back(std::move(effect));
@@ -206,6 +207,10 @@ double KothEnv::get_elapsed_time() const
 
 void KothEnv::draw(Renderer &renderer, bool lightweight)
 {
+    Rectangle background{set_alpha(cl_base03, 0.95f), cl_base03, 0};
+    background.transform.set_scale({20, 40});
+    renderer.draw(background);
+
     hill->draw(renderer, lightweight);
 
     body_1->draw(renderer, lightweight);
