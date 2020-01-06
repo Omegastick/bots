@@ -21,7 +21,7 @@
 #include "training/environments/koth_env.h"
 #include "ui/back_button.h"
 
-namespace SingularityTrainer
+namespace ai
 {
 TrainScreen::TrainScreen(std::unique_ptr<TrainInfoWindow> train_info_window,
                          std::unique_ptr<Trainer> trainer,

@@ -5,7 +5,7 @@
 
 #include "training/bodies/body.h"
 
-namespace SingularityTrainer
+namespace ai
 {
 class Random;
 class RigidBody;

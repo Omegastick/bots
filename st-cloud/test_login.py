@@ -1,5 +1,5 @@
 """
-Tests for the Singularity Trainer cloud login function.
+Tests for the Artificial Insentience cloud login function.
 """
 
 # pylint: disable=no-member

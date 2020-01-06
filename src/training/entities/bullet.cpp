@@ -17,7 +17,7 @@
 #include "training/rigid_body.h"
 #include "training/training_program.h"
 
-namespace SingularityTrainer
+namespace ai
 {
 Bullet::Bullet(b2Vec2 position,
                b2Vec2 velocity,

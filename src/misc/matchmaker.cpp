@@ -13,7 +13,7 @@
 #include "misc/credentials_manager.h"
 #include "misc/ihttp_client.h"
 
-namespace SingularityTrainer
+namespace ai
 {
 const std::string find_game_url =
     "https://asia-northeast1-st-dev-252104.cloudfunctions.net/find_game";

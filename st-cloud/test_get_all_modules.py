@@ -1,5 +1,5 @@
 """
-Tests for the Singularity Trainer cloud get_all_modules function.
+Tests for the Artificial Insentience cloud get_all_modules function.
 """
 
 # pylint: disable=no-member

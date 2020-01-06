@@ -13,7 +13,7 @@
 #include "training/rigid_body.h"
 #include "misc/random.h"
 
-namespace SingularityTrainer
+namespace ai
 {
 class ContactListener : public b2ContactListener
 {

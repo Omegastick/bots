@@ -13,7 +13,7 @@
 #include "training/trainer.h"
 #include "ui/train_screen/train_info_window.h"
 
-namespace SingularityTrainer
+namespace ai
 {
 class Communicator;
 class IO;

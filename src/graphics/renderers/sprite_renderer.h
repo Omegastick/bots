@@ -8,7 +8,7 @@
 #include "graphics/backend/vertex_array.h"
 #include "graphics/backend/vertex_buffer.h"
 
-namespace SingularityTrainer
+namespace ai
 {
 class ResourceManager;
 struct Sprite;

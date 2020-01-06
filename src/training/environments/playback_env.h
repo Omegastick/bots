@@ -12,7 +12,7 @@
 #include "training/environments/ienvironment.h"
 #include "training/events/ievent.h"
 
-namespace SingularityTrainer
+namespace ai
 {
 const auto TickLength = [] {};
 

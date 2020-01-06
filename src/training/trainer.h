@@ -19,7 +19,7 @@
 #include "training/rollout_generators/multi_rollout_generator.h"
 #include "training/training_program.h"
 
-namespace SingularityTrainer
+namespace ai
 {
 class BodyFactory;
 class Checkpointer;

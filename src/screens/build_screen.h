@@ -18,7 +18,7 @@
 
 class b2World;
 
-namespace SingularityTrainer
+namespace ai
 {
 class Animator;
 class CredentialsManager;

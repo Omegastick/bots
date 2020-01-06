@@ -30,7 +30,7 @@
 #include "ui/create_program_screen/save_load_window.h"
 #include "ui/create_program_screen/tabs.h"
 
-namespace SingularityTrainer
+namespace ai
 {
 
 CreateProgramScreen::CreateProgramScreen(std::unique_ptr<AlgorithmWindow> algorithm_window,

@@ -7,7 +7,7 @@
 
 #include "networking/server_communicator.h"
 
-namespace SingularityTrainer
+namespace ai
 {
 class MsgPackCodec
 {

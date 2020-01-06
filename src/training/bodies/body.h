@@ -12,7 +12,7 @@
 #include "training/rigid_body.h"
 #include "training/modules/imodule.h"
 
-namespace SingularityTrainer
+namespace ai
 {
 class IAction;
 class IModule;

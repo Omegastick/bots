@@ -6,7 +6,7 @@
 #include <glad/glad.h>
 #include <spdlog/spdlog.h>
 
-namespace SingularityTrainer
+namespace ai
 {
 struct BufferLayoutElement
 {

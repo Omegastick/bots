@@ -2,7 +2,7 @@
 
 #include "iagent.h"
 
-namespace SingularityTrainer
+namespace ai
 {
 IAgent::IAgent(const nlohmann::json &body_spec, const std::string &name)
     : body_spec(body_spec), name(name) {}

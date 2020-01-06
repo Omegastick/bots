@@ -22,7 +22,7 @@
 #include "training/training_program.h"
 #include "misc/random.h"
 
-namespace SingularityTrainer
+namespace ai
 {
 constexpr std::size_t max_effects = 10000;
 

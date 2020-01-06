@@ -4,7 +4,7 @@
 
 #include <argh.h>
 
-namespace SingularityTrainer
+namespace ai
 {
 class Random;
 class TrainerFactory;

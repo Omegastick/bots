@@ -13,7 +13,7 @@
 #include "training/events/effect_triggered.h"
 #include "training/events/entity_destroyed.h"
 
-namespace SingularityTrainer
+namespace ai
 {
 enum class MessageType
 {
@@ -141,11 +141,11 @@ inline MessageType get_message_type(const msgpack::object &object)
 }
 }
 
-MSGPACK_ADD_ENUM(SingularityTrainer::MessageType)
+MSGPACK_ADD_ENUM(ai::MessageType)
 
 namespace msgpack
 {
-using namespace SingularityTrainer;
+using namespace ai;
 
 MSGPACK_API_VERSION_NAMESPACE(MSGPACK_DEFAULT_API_NS)
 {

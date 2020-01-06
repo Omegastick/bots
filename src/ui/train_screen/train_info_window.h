@@ -6,7 +6,7 @@
 #include <vector>
 #include <utility>
 
-namespace SingularityTrainer
+namespace ai
 {
 class IO;
 

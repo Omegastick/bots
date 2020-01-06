@@ -22,7 +22,7 @@
 #include "graphics/post_processing/post_proc_layer.h"
 #include "graphics/render_data.h"
 
-namespace SingularityTrainer
+namespace ai
 {
 Renderer::Renderer(int width, int height,
                    ResourceManager &resource_manager,

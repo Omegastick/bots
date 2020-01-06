@@ -17,7 +17,7 @@ constexpr int num_nodes = 100;
 constexpr glm::vec2 wind = {0.01f, 0.01f};
 constexpr float drift_strength = 0.004f;
 
-namespace SingularityTrainer
+namespace ai
 {
 Background::Background(Random &rng)
     : delta_time(0),

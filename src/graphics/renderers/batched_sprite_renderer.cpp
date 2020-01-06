@@ -14,7 +14,7 @@
 #include "graphics/render_data.h"
 #include "misc/resource_manager.h"
 
-namespace SingularityTrainer
+namespace ai
 {
 BatchedSpriteRenderer::BatchedSpriteRenderer(ResourceManager &resource_manager)
     : resource_manager(&resource_manager),

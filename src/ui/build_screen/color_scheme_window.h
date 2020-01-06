@@ -2,7 +2,7 @@
 
 #include "graphics/colors.h"
 
-namespace SingularityTrainer
+namespace ai
 {
 class Body;
 class IO;

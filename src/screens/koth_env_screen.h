@@ -6,7 +6,7 @@
 
 #include "screens/iscreen.h"
 
-namespace SingularityTrainer
+namespace ai
 {
 class Communicator;
 class PostProcLayer;

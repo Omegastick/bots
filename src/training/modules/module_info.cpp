@@ -3,7 +3,7 @@
 
 #include "module_info.h"
 
-namespace SingularityTrainer
+namespace ai
 {
 const std::unordered_map<std::string, const ModuleInfo> module_info_map{
     {"base_module",

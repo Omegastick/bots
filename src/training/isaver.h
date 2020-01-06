@@ -4,7 +4,7 @@
 #include <cpprl/model/policy.h>
 #include <nlohmann/json_fwd.hpp>
 
-namespace SingularityTrainer
+namespace ai
 {
 class ISaver
 {

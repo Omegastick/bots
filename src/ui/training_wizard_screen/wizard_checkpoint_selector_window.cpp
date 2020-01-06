@@ -11,7 +11,7 @@
 
 namespace fs = std::filesystem;
 
-namespace SingularityTrainer
+namespace ai
 {
 WizardCheckpointSelectorWindow::WizardCheckpointSelectorWindow(IO &io)
     : last_selected_file(-1),

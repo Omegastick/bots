@@ -5,7 +5,7 @@
 
 #include <Box2D/Box2D.h>
 
-namespace SingularityTrainer
+namespace ai
 {
 class RigidBody
 {

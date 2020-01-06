@@ -3,7 +3,7 @@ kind: GameServerAllocation
 spec:
   required:
     matchLabels:
-      agones.dev/fleet: singularity-trainer
+      agones.dev/fleet: artificial-insentience
   metadata:
     annotations:
       player_1_username: Bob

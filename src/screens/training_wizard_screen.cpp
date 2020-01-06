@@ -21,7 +21,7 @@
 #include "ui/training_wizard_screen/body_selector_window.h"
 #include "ui/training_wizard_screen/wizard_action.h"
 
-namespace SingularityTrainer
+namespace ai
 {
 TrainingWizardScreen::TrainingWizardScreen(std::unique_ptr<Body> body,
                                            std::unique_ptr<b2World> world,

@@ -1,7 +1,7 @@
 apiVersion: "agones.dev/v1"
 kind: GameServer
 metadata:
-  generateName: singularity-trainer-
+  generateName: artificial-insentience-
 spec:
   ports:
     - name: default
@@ -16,7 +16,7 @@ spec:
   template:
     spec:
       containers:
-        - name: singularity-trainer
+        - name: artificial-insentience
           image: gcr.io/st-dev-252104/st-server
           imagePullPolicy: Always
           env:

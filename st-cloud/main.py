@@ -1,5 +1,5 @@
 """
-Serverless functions for the Singularity Trainer matchmaking server.
+Serverless functions for the Artificial Insentience matchmaking server.
 """
 # pylint: disable=invalid-name
 
@@ -350,7 +350,7 @@ def allocate_gameserver(player_usernames: List[str],
                   "spec": {
                       "required": {
                           "matchLabels": {
-                              "agones.dev/fleet": "singularity-trainer"
+                              "agones.dev/fleet": "artificial-insentience"
                           }
                       },
                       "metadata": {

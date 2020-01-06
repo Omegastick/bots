@@ -9,7 +9,7 @@
 #include "graphics/renderers/renderer.h"
 #include "graphics/post_processing/post_proc_layer.h"
 
-namespace SingularityTrainer
+namespace ai
 {
 PostProcLayer::PostProcLayer(int width, int height)
     : width(width),

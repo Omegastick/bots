@@ -38,7 +38,7 @@
 #include "ui/back_button.h"
 #include "ui/multiplayer_screen/choose_agent_window.h"
 
-namespace SingularityTrainer
+namespace ai
 {
 MultiplayerScreen::MultiplayerScreen(double tick_length,
                                      std::unique_ptr<ChooseAgentWindow> choose_agent_window,

@@ -8,7 +8,7 @@
 
 #include "misc/utilities.h"
 
-namespace SingularityTrainer
+namespace ai
 {
 glm::vec2 radial_distort(glm::vec2 coordinate, glm::vec2 resolution, float strength)
 {

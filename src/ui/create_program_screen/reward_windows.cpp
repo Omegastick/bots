@@ -13,7 +13,7 @@
 #include "training/environments/ienvironment.h"
 #include "training/training_program.h"
 
-namespace SingularityTrainer
+namespace ai
 {
 void draw_line_to_point(const ImVec2 &point)
 {

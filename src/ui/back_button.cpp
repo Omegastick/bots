@@ -4,7 +4,7 @@
 #include "back_button.h"
 #include "misc/screen_manager.h"
 
-namespace SingularityTrainer
+namespace ai
 {
 void back_button(ScreenManager &screen_manager, const glm::vec2 &resolution)
 {

@@ -4,7 +4,7 @@ class b2World;
 
 #include "ui/training_wizard_screen/wizard_action.h"
 
-namespace SingularityTrainer
+namespace ai
 {
 class Body;
 class IO;

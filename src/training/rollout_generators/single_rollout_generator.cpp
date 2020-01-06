@@ -12,7 +12,7 @@
 #include "training/bodies/test_body.h"
 #include "training/environments/ienvironment.h"
 
-namespace SingularityTrainer
+namespace ai
 {
 SingleRolloutGenerator::SingleRolloutGenerator(
     const IAgent &agent,

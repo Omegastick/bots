@@ -25,11 +25,11 @@
 #include "screens/main_menu_screen.h"
 #include "ui/background.h"
 
-namespace SingularityTrainer
+namespace ai
 {
 const int resolution_x = 1920;
 const int resolution_y = 1080;
-const std::string window_title = "Singularity Trainer";
+const std::string window_title = "Artificial Insentience";
 const int opengl_version_major = 4;
 const int opengl_version_minor = 3;
 

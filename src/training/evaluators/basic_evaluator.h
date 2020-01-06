@@ -4,7 +4,7 @@
 
 #include "training/evaluators/evaluator.h"
 
-namespace SingularityTrainer
+namespace ai
 {
 class BodyFactory;
 class IAgent;

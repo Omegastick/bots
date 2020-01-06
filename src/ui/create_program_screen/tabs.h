@@ -2,7 +2,7 @@
 
 #include "ui/create_program_screen/create_program_screen_state.h"
 
-namespace SingularityTrainer
+namespace ai
 {
 class IO;
 

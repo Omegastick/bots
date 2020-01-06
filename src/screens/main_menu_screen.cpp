@@ -28,7 +28,7 @@
 #include "screens/iscreen.h"
 #include "training/training_program.h"
 
-namespace SingularityTrainer
+namespace ai
 {
 MainMenuScreen::MainMenuScreen(CredentialsManager &credentials_manager,
                                IHttpClient &http_client,

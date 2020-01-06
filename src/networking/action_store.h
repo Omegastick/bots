@@ -3,7 +3,7 @@
 #include <map>
 #include <vector>
 
-namespace SingularityTrainer
+namespace ai
 {
 class ActionStore
 {

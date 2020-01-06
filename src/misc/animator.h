@@ -3,7 +3,7 @@
 #include <functional>
 #include <map>
 
-namespace SingularityTrainer
+namespace ai
 {
 struct Animation
 {

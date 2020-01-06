@@ -13,7 +13,7 @@
 #include "training/saver.h"
 #include "training/trainer.h"
 
-using namespace SingularityTrainer;
+using namespace ai;
 
 namespace di = boost::di;
 

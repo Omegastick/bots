@@ -8,7 +8,7 @@
 #include "training/entities/wall.h"
 #include "training/rigid_body.h"
 
-namespace SingularityTrainer
+namespace ai
 {
 Wall::Wall(float x, float y, float width, float height, b2World &world)
 {

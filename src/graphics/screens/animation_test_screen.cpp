@@ -17,7 +17,7 @@
 #include "misc/screen_manager.h"
 #include "screens/iscreen.h"
 
-namespace SingularityTrainer
+namespace ai
 {
 AnimationTestScreen::AnimationTestScreen(
     ScreenManager *screen_manager,

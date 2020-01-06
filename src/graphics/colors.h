@@ -2,7 +2,7 @@
 
 #include <glm/vec4.hpp>
 
-namespace SingularityTrainer
+namespace ai
 {
 // Converts hex colours to RGB.
 // From: https://stackoverflow.com/questions/3723846/convert-from-hex-color-to-rgb-struct-in-c

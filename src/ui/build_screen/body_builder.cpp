@@ -20,7 +20,7 @@
 #include "training/rigid_body.h"
 #include "misc/utilities.h"
 
-namespace SingularityTrainer
+namespace ai
 {
 const double max_link_distance = 1;
 

@@ -18,7 +18,7 @@
 #include "misc/transform.h"
 #include "screens/iscreen.h"
 
-namespace SingularityTrainer
+namespace ai
 {
 TextureStoreTestScreen::TextureStoreTestScreen(ModuleTextureStore &module_texture_store,
                                                ScreenManager &screen_manager,

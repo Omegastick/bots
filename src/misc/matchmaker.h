@@ -3,7 +3,7 @@
 #include <future>
 #include <string>
 
-namespace SingularityTrainer
+namespace ai
 {
 class CredentialsManager;
 class IHttpClient;

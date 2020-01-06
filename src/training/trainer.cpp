@@ -32,7 +32,7 @@
 
 namespace fs = std::filesystem;
 
-namespace SingularityTrainer
+namespace ai
 {
 const bool recurrent = false;
 

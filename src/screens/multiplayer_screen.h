@@ -18,7 +18,7 @@
 #include "training/environments/playback_env.h"
 #include "ui/multiplayer_screen/choose_agent_window.h"
 
-namespace SingularityTrainer
+namespace ai
 {
 class BodyFactory;
 class CredentialsManager;

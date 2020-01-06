@@ -18,7 +18,7 @@
 
 constexpr unsigned long long max_double_integer = 2ull << 53;
 
-namespace SingularityTrainer
+namespace ai
 {
 TrainInfoWindow::TrainInfoWindow(IO &io) : io(io)
 {
@@ -91,7 +91,7 @@ void IndexedDataStore::add_data(double timestep, double value)
     else
     {
         unsigned long index = 0;
-        for (auto i : SingularityTrainer::indices(indices))
+        for (auto i : ai::indices(indices))
         {
             if (indices[i] > timestep)
             {

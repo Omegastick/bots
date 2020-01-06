@@ -5,7 +5,7 @@
 
 #include "training/effects/ieffect.h"
 
-namespace SingularityTrainer
+namespace ai
 {
 class Renderer;
 

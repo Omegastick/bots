@@ -4,7 +4,7 @@
 #include "graphics/backend/shader.h"
 #include "misc/resource_manager.h"
 
-namespace SingularityTrainer
+namespace ai
 {
 BloomLayer::BloomLayer(ResourceManager &resource_manager, int width, int height)
     : PostProcLayer(*resource_manager.shader_store.get("bloom"), width, height),

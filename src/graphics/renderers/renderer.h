@@ -10,7 +10,7 @@
 #include "graphics/render_data.h"
 #include "third_party/di.hpp"
 
-namespace SingularityTrainer
+namespace ai
 {
 class DistortionLayer;
 class PostProcLayer;

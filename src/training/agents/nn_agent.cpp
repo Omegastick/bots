@@ -6,7 +6,7 @@
 #include "misc/random.h"
 #include "training/bodies/test_body.h"
 
-namespace SingularityTrainer
+namespace ai
 {
 NNAgent::NNAgent(cpprl::Policy policy, const nlohmann::json &body_spec, const std::string &name)
     : IAgent(body_spec, name),

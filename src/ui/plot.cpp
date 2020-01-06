@@ -11,7 +11,7 @@
 #include "plot.h"
 #include "misc/utils/range.h"
 
-using namespace SingularityTrainer;
+using namespace ai;
 
 namespace ImGui
 {

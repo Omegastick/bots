@@ -2,7 +2,7 @@
 
 #include <glad/glad.h>
 
-namespace SingularityTrainer
+namespace ai
 {
 class VertexBuffer
 {

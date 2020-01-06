@@ -6,7 +6,7 @@
 #include "graphics/render_data.h"
 #include "graphics/renderers/renderer.h"
 
-namespace SingularityTrainer
+namespace ai
 {
 BulletExplosion::BulletExplosion(b2Vec2 position, glm::vec4 particle_color)
     : particle_color(particle_color),

@@ -12,7 +12,7 @@
 #include "training/agents/nn_agent.h"
 #include "training/checkpointer.h"
 
-namespace SingularityTrainer
+namespace ai
 {
 ChooseAgentWindow::ChooseAgentWindow(Checkpointer &checkpointer, IO &io)
     : checkpointer(checkpointer),

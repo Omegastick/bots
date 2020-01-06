@@ -4,7 +4,7 @@
 
 #include "third_party/di.hpp"
 
-namespace SingularityTrainer
+namespace ai
 {
 static auto RandomSeed = [] {};
 

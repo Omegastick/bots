@@ -1,5 +1,5 @@
 """
-Tests for the Singularity Trainer cloud unlock_module function.
+Tests for the Artificial Insentience cloud unlock_module function.
 """
 
 # pylint: disable=no-member

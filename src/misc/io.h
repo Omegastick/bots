@@ -2,7 +2,7 @@
 
 #include <glm/glm.hpp>
 
-namespace SingularityTrainer
+namespace ai
 {
 class IO
 {

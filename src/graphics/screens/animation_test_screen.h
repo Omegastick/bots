@@ -8,7 +8,7 @@
 
 #include "screens/iscreen.h"
 
-namespace SingularityTrainer
+namespace ai
 {
 class Animator;
 struct Sprite;

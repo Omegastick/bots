@@ -13,7 +13,7 @@
 
 #include "http_client.h"
 
-namespace SingularityTrainer
+namespace ai
 {
 HttpClient::HttpClient(const std::string &proxy_host, long proxy_port)
     : proxy_host(proxy_host),

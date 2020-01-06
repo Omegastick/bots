@@ -21,7 +21,7 @@
 #include "misc/screen_manager.h"
 #include "screens/iscreen.h"
 
-namespace SingularityTrainer
+namespace ai
 {
 TextTestScreen::TextTestScreen(
     ScreenManager *screen_manager,

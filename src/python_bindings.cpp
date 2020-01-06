@@ -19,10 +19,10 @@
 namespace py = pybind11;
 namespace di = boost::di;
 
-using namespace SingularityTrainer;
-PYBIND11_MODULE(singularity_trainer, m)
+using namespace ai;
+PYBIND11_MODULE(artificial_insentience, m)
 {
-    m.doc() = "Singularity Trainer Python bindings";
+    m.doc() = "Artificial Insentience Python bindings";
 
     py::class_<Trainer>(m, "Trainer")
         .def("evaluate", &Trainer::evaluate)

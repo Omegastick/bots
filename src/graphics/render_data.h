@@ -8,7 +8,7 @@
 #include "graphics/colors.h"
 #include "misc/transform.h"
 
-namespace SingularityTrainer
+namespace ai
 {
 struct Line
 {

@@ -8,7 +8,7 @@
 
 #include "spring_mesh.h"
 
-namespace SingularityTrainer
+namespace ai
 {
 SpringMesh::SpringMesh(unsigned int width,
                        unsigned int height,

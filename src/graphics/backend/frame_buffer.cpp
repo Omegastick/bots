@@ -5,7 +5,7 @@
 #include "graphics/backend/frame_buffer.h"
 #include "graphics/backend/texture.h"
 
-namespace SingularityTrainer
+namespace ai
 {
 FrameBuffer::FrameBuffer() : id(-1), render_buffer(-1)
 {

@@ -8,7 +8,7 @@
 
 #include "training/environments/ienvironment.h"
 
-namespace SingularityTrainer
+namespace ai
 {
 class IAgent;
 

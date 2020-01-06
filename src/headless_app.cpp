@@ -11,7 +11,7 @@
 #include "headless_app.h"
 #include "training/trainer.h"
 
-namespace SingularityTrainer
+namespace ai
 {
 volatile sig_atomic_t stop;
 

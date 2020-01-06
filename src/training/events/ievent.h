@@ -2,7 +2,7 @@
 
 #include <msgpack.hpp>
 
-namespace SingularityTrainer
+namespace ai
 {
 class IEnvironment;
 
@@ -28,4 +28,4 @@ class IEvent
 inline IEvent::~IEvent() {}
 }
 
-MSGPACK_ADD_ENUM(SingularityTrainer::EventTypes)
+MSGPACK_ADD_ENUM(ai::EventTypes)

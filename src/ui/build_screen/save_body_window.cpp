@@ -15,7 +15,7 @@
 
 namespace fs = std::filesystem;
 
-namespace SingularityTrainer
+namespace ai
 {
 SaveBodyWindow::SaveBodyWindow(Animator &animator, IO &io)
     : animation_id(std::numeric_limits<unsigned long>::max()),

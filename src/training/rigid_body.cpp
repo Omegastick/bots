@@ -2,7 +2,7 @@
 
 #include "training/rigid_body.h"
 
-namespace SingularityTrainer
+namespace ai
 {
 RigidBody::RigidBody(b2BodyType type, b2Vec2 position, b2World &world, void *parent, RigidBody::ParentTypes parent_type)
     : parent(parent),

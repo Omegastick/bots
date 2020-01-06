@@ -2,7 +2,7 @@
 
 #include "training/actions/iaction.h"
 
-namespace SingularityTrainer
+namespace ai
 {
 class IActivatable;
 

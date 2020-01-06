@@ -6,7 +6,7 @@
 
 #include "misc/io.h"
 
-namespace SingularityTrainer
+namespace ai
 {
 IO::IO()
     : cursor_x(0), cursor_y(0),

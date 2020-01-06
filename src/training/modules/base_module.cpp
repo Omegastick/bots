@@ -20,7 +20,7 @@
 #include "training/modules/thruster_module.h"
 #include "training/rigid_body.h"
 
-namespace SingularityTrainer
+namespace ai
 {
 BaseModule::BaseModule() : rectangle{{0.5f, 0.5f, 0.5f, 0.5f},
                                      cl_white,

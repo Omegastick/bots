@@ -2,7 +2,7 @@
 
 #include "training/score_processor.h"
 
-namespace SingularityTrainer
+namespace ai
 {
 ScoreProcessor::ScoreProcessor(int agent_count, float smoothing_weight) : smoothing_weight(smoothing_weight)
 {

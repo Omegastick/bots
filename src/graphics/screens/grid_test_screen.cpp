@@ -22,7 +22,7 @@
 #include "misc/spring_mesh.h"
 #include "screens/iscreen.h"
 
-namespace SingularityTrainer
+namespace ai
 {
 const int width = 192;
 const int height = 108;

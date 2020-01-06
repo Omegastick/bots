@@ -13,7 +13,7 @@
 
 #include "training/environments/ienvironment.h"
 
-namespace SingularityTrainer
+namespace ai
 {
 class Random;
 class ResourceManager;

@@ -1,5 +1,5 @@
 """
-Conftest for Singularity Trainer cloud.
+Conftest for Artificial Insentience cloud.
 """
 
 import os

@@ -12,7 +12,7 @@
 
 namespace fs = std::filesystem;
 
-namespace SingularityTrainer
+namespace ai
 {
 SaveLoadWindow::SaveLoadWindow(IO &io)
     : io(io),

@@ -3,7 +3,7 @@
 #include <memory>
 #include <string>
 
-namespace SingularityTrainer
+namespace ai
 {
 class IModule;
 class Random;

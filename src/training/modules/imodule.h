@@ -12,7 +12,7 @@
 #include "training/actions/iaction.h"
 #include "training/modules/module_link.h"
 
-namespace SingularityTrainer
+namespace ai
 {
 class ModuleLink;
 class IAction;

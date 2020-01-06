@@ -7,7 +7,7 @@
 #include "misc/transform.h"
 #include "training/events/ievent.h"
 
-namespace SingularityTrainer
+namespace ai
 {
 class IEnvironment;
 class Random;
@@ -37,4 +37,4 @@ class EffectTriggered : public IEvent
 };
 }
 
-MSGPACK_ADD_ENUM(SingularityTrainer::EffectTypes)
+MSGPACK_ADD_ENUM(ai::EffectTypes)

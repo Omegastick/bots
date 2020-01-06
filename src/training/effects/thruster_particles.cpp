@@ -8,7 +8,7 @@
 #include "graphics/renderers/renderer.h"
 #include "misc/random.h"
 
-namespace SingularityTrainer
+namespace ai
 {
 ThrusterParticles::ThrusterParticles(b2Transform transform, glm::vec4 particle_color)
     : particle_color(particle_color),

@@ -3,7 +3,7 @@
 #include "ientity.h"
 #include "training/environments/ienvironment.h"
 
-namespace SingularityTrainer
+namespace ai
 {
 IEntity::IEntity(unsigned int id, IEnvironment &env) : id(id), env(env) {}
 

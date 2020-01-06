@@ -20,7 +20,7 @@
 #include "misc/screen_manager.h"
 #include "screens/iscreen.h"
 
-namespace SingularityTrainer
+namespace ai
 {
 PostProcScreen::PostProcScreen(
     ScreenManager *screen_manager,

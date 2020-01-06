@@ -6,7 +6,7 @@
 #include "training/environments/koth_env.h"
 #include "third_party/zmq.hpp"
 
-using namespace SingularityTrainer;
+using namespace ai;
 
 namespace di = boost::di;
 

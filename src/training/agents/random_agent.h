@@ -4,7 +4,7 @@
 
 #include "iagent.h"
 
-namespace SingularityTrainer
+namespace ai
 {
 class Random;
 

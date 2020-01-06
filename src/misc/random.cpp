@@ -4,7 +4,7 @@
 
 #include "misc/random.h"
 
-namespace SingularityTrainer
+namespace ai
 {
 Random::Random(int seed) : rng(seed) {}
 

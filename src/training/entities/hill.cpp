@@ -11,7 +11,7 @@
 #include "training/rigid_body.h"
 #include "training/training_program.h"
 
-namespace SingularityTrainer
+namespace ai
 {
 Hill::Hill(float x, float y, b2World &world)
 {

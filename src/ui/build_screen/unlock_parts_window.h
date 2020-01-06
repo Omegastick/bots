@@ -5,7 +5,7 @@
 #include <string>
 #include <vector>
 
-namespace SingularityTrainer
+namespace ai
 {
 class CredentialsManager;
 class IHttpClient;

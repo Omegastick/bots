@@ -6,7 +6,7 @@
 #include "graphics/backend/texture.h"
 #include "third_party/stb_truetype.h"
 
-namespace SingularityTrainer
+namespace ai
 {
 class Font
 {

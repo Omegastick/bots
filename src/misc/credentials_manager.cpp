@@ -7,7 +7,7 @@
 #include "credentials_manager.h"
 #include "misc/ihttp_client.h"
 
-namespace SingularityTrainer
+namespace ai
 {
 CredentialsManager::CredentialsManager(IHttpClient &http_client)
     : http_client(http_client)

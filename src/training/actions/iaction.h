@@ -2,7 +2,7 @@
 
 #include <vector>
 
-namespace SingularityTrainer
+namespace ai
 {
 class IAction
 {

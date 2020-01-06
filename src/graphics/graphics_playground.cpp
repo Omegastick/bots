@@ -33,7 +33,7 @@
 #include "misc/utilities.h"
 #include "screens/iscreen.h"
 
-using namespace SingularityTrainer;
+using namespace ai;
 
 const int resolution_x = 1920;
 const int resolution_y = 1080;

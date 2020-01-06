@@ -19,7 +19,7 @@ inline void print(std::ostream &os, const std::list<std::string> &list)
 }
 }
 
-namespace SingularityTrainer
+namespace ai
 {
 const std::string st_cloud_base_url = "https://asia-northeast1-st-dev-252104.cloudfunctions.net/";
 

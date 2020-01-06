@@ -8,7 +8,7 @@
 #include "third_party/di.hpp"
 #include "training/training_program.h"
 
-namespace SingularityTrainer
+namespace ai
 {
 class CredentialsManager;
 class IHttpClient;

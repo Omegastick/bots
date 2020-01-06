@@ -6,7 +6,7 @@
 
 #include "isaver.h"
 
-namespace SingularityTrainer
+namespace ai
 {
 class Saver : public ISaver
 {

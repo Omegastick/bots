@@ -7,7 +7,7 @@
 #include "screens/iscreen.h"
 #include "misc/screen_manager.h"
 
-namespace SingularityTrainer
+namespace ai
 {
 ScreenManager::ScreenManager() {}
 

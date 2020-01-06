@@ -9,7 +9,7 @@
 #include "graphics/post_processing/post_proc_layer.h"
 #include "misc/spring_mesh.h"
 
-namespace SingularityTrainer
+namespace ai
 {
 class ResourceManager;
 

@@ -13,7 +13,7 @@
 #include "third_party/zmq.hpp"
 #include "third_party/zmq_addon.hpp"
 
-namespace SingularityTrainer
+namespace ai
 {
 ServerCommunicator::ServerCommunicator(std::unique_ptr<zmq::socket_t> socket)
     : socket(std::move(socket)) {}

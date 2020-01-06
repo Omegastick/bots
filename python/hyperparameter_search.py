@@ -9,7 +9,7 @@ import ray.tune as tune
 from ray.tune.suggest.hyperopt import HyperOptSearch
 from ray.tune.logger import Logger, JsonLogger, CSVLogger
 from ray.tune.result import TRAINING_ITERATION, TIME_TOTAL_S, TIMESTEPS_TOTAL
-import singularity_trainer as st
+import artificial_insentience as st
 import tensorflow as tf
 
 
