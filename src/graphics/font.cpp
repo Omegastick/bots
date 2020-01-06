@@ -9,7 +9,7 @@
 #include "graphics/backend/texture.h"
 #include "third_party/stb_truetype.h"
 
-namespace SingularityTrainer
+namespace ai
 {
 Font::Font(const std::string &filepath, float size)
 {

@@ -10,7 +10,7 @@
 #include "graphics/font.h"
 #include "graphics/render_data.h"
 
-namespace SingularityTrainer
+namespace ai
 {
 class VertexArray;
 class VertexBuffer;

@@ -7,7 +7,7 @@
 #include "graphics/renderers/renderer.h"
 #include "graphics/window.h"
 
-namespace SingularityTrainer
+namespace ai
 {
 void glDebugOutput(unsigned int source,
                    unsigned int type,

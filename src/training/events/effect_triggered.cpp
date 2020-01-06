@@ -10,7 +10,7 @@
 #include "training/environments/ienvironment.h"
 #include "training/events/ievent.h"
 
-namespace SingularityTrainer
+namespace ai
 {
 EffectTriggered::EffectTriggered(EffectTypes effect_type, double time, Transform transform)
     : effect_type(effect_type),

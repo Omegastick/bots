@@ -13,7 +13,7 @@
 #include "misc/transform.h"
 #include "training/events/ievent.h"
 
-namespace SingularityTrainer
+namespace ai
 {
 class Body;
 class IEffect;

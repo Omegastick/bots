@@ -24,7 +24,7 @@
 #include "ui/build_screen/body_builder.h"
 #include "ui/build_screen/unlock_parts_window.h"
 
-namespace SingularityTrainer
+namespace ai
 {
 BuildScreen::BuildScreen(BodyBuilder &&body_builder,
                          std::unique_ptr<ColorSchemeWindow> color_scheme_window,

@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.15.0)
-project(SingularityTrainer)
+project(artificialinsentience)
 
 # CMake policies
 cmake_policy(SET CMP0069 NEW)
@@ -131,25 +131,25 @@ if(UNIX)
 endif(UNIX)
 
 # Executables and local libraries
-add_library(Shared OBJECT "")
-add_executable(SingularityTrainer "")
-add_executable(HeadlessTrainer "")
-add_executable(GraphicsPlayground "")
-add_executable(Server "")
+add_library(shared OBJECT "")
+add_executable(artificialinsentience "")
+add_executable(headlesstrainer "")
+add_executable(graphicsplayground "")
+add_executable(server "")
 set(ST_TARGETS
-    SingularityTrainer
-    HeadlessTrainer
-    GraphicsPlayground
-    Server
-    Shared
+    artificialinsentience
+    headlesstrainer
+    graphicsplayground
+    server
+    shared
 )
 
-# Disable HeadlessTrainer and GraphicsPlayground by default
-set_target_properties(HeadlessTrainer PROPERTIES EXCLUDE_FROM_ALL TRUE)
-set_target_properties(GraphicsPlayground PROPERTIES EXCLUDE_FROM_ALL TRUE)
+# Disable headlesstrainer and graphicsplayground by default
+set_target_properties(headlesstrainer PROPERTIES EXCLUDE_FROM_ALL TRUE)
+set_target_properties(graphicsplayground PROPERTIES EXCLUDE_FROM_ALL TRUE)
 
 # Set position independent code
-set_target_properties(Shared PROPERTIES POSITION_INDEPENDENT_CODE TRUE)
+set_target_properties(shared PROPERTIES POSITION_INDEPENDENT_CODE TRUE)
 
 # Link time optimization
 include(CheckIPOSupported)
@@ -240,8 +240,8 @@ option(GLFW_BUILD_EXAMPLES "" OFF)
 option(GLFW_BUILD_TESTS "" OFF)
 option(GLFW_BUILD_DOCS "" OFF)
 option(GLFW_INSTALL "" OFF)
-target_compile_definitions(SingularityTrainer PRIVATE "GLFW_INCLUDE_NONE")
-target_compile_definitions(GraphicsPlayground PRIVATE "GLFW_INCLUDE_NONE")
+target_compile_definitions(artificialinsentience PRIVATE "GLFW_INCLUDE_NONE")
+target_compile_definitions(graphicsplayground PRIVATE "GLFW_INCLUDE_NONE")
 add_subdirectory(${GLFW_DIR})
 set_target_properties(glfw PROPERTIES POSITION_INDEPENDENT_CODE TRUE)
 ## GLAD
@@ -298,11 +298,11 @@ add_subdirectory(${JSON_DIR})
 find_package(PythonLibs REQUIRED)
 ## Pybind11
 add_subdirectory(${PYBIND_DIR})
-pybind11_add_module(PythonBindings "")
-set_target_properties(PythonBindings PROPERTIES EXCLUDE_FROM_ALL TRUE)
+pybind11_add_module(pythonbindings "")
+set_target_properties(pythonbindings PROPERTIES EXCLUDE_FROM_ALL TRUE)
 
 # Link libraries
-target_link_libraries(Shared
+target_link_libraries(shared
 PUBLIC
     cpprl
     curlpp_static
@@ -321,24 +321,24 @@ PUBLIC
 # UNIX systems sometimes need to explicitly link the threading library
 if (UNIX)
     message(STATUS "Linking against Linux libraries")
-    target_link_libraries(Shared PUBLIC pthread)
+    target_link_libraries(shared PUBLIC pthread)
 endif(UNIX)
-target_link_libraries(SingularityTrainer Shared)
-target_link_libraries(HeadlessTrainer Shared)
-target_link_libraries(GraphicsPlayground Shared)
-target_link_libraries(Server Shared)
-target_link_libraries(PythonBindings PRIVATE ${PYTHON_LIBRARIES} Shared)
-set_target_properties(PythonBindings PROPERTIES OUTPUT_NAME "singularity_trainer")
-set_target_properties(PythonBindings PROPERTIES SUFFIX ".so")
+target_link_libraries(artificialinsentience shared)
+target_link_libraries(headlesstrainer shared)
+target_link_libraries(graphicsplayground shared)
+target_link_libraries(server shared)
+target_link_libraries(pythonbindings PRIVATE ${PYTHON_LIBRARIES} shared)
+set_target_properties(pythonbindings PROPERTIES OUTPUT_NAME "artificial_insentience")
+set_target_properties(pythonbindings PROPERTIES SUFFIX ".so")
 
 # Inlcudes
 set(INCLUDE_DIRS src)
-target_include_directories(SingularityTrainer PUBLIC ${INCLUDE_DIRS})
-target_include_directories(HeadlessTrainer PUBLIC ${INCLUDE_DIRS})
-target_include_directories(GraphicsPlayground PUBLIC ${INCLUDE_DIRS})
-target_include_directories(Server PUBLIC ${INCLUDE_DIRS})
-target_include_directories(Shared PUBLIC ${INCLUDE_DIRS})
-target_include_directories(PythonBindings PUBLIC ${INCLUDE_DIRS})
+target_include_directories(artificialinsentience PUBLIC ${INCLUDE_DIRS})
+target_include_directories(headlesstrainer PUBLIC ${INCLUDE_DIRS})
+target_include_directories(graphicsplayground PUBLIC ${INCLUDE_DIRS})
+target_include_directories(server PUBLIC ${INCLUDE_DIRS})
+target_include_directories(shared PUBLIC ${INCLUDE_DIRS})
+target_include_directories(pythonbindings PUBLIC ${INCLUDE_DIRS})
 
 set(NO_ERR_INCLUDE_DIRS
     ${CPPRL_DIR}/include
@@ -365,11 +365,11 @@ set(NO_ERR_INCLUDE_DIRS
     ${ZMQ_DIR}/include
 )
 
-target_include_directories(SingularityTrainer SYSTEM PUBLIC ${NO_ERR_INCLUDE_DIRS})
-target_include_directories(HeadlessTrainer SYSTEM PUBLIC ${NO_ERR_INCLUDE_DIRS})
-target_include_directories(GraphicsPlayground SYSTEM PUBLIC ${NO_ERR_INCLUDE_DIRS})
-target_include_directories(Server SYSTEM PUBLIC ${NO_ERR_INCLUDE_DIRS})
-target_include_directories(Shared SYSTEM PUBLIC ${NO_ERR_INCLUDE_DIRS})
-target_include_directories(PythonBindings SYSTEM PUBLIC ${NO_ERR_INCLUDE_DIRS})
+target_include_directories(artificialinsentience SYSTEM PUBLIC ${NO_ERR_INCLUDE_DIRS})
+target_include_directories(headlesstrainer SYSTEM PUBLIC ${NO_ERR_INCLUDE_DIRS})
+target_include_directories(graphicsplayground SYSTEM PUBLIC ${NO_ERR_INCLUDE_DIRS})
+target_include_directories(server SYSTEM PUBLIC ${NO_ERR_INCLUDE_DIRS})
+target_include_directories(shared SYSTEM PUBLIC ${NO_ERR_INCLUDE_DIRS})
+target_include_directories(pythonbindings SYSTEM PUBLIC ${NO_ERR_INCLUDE_DIRS})
 
 add_subdirectory(src)

@@ -1,6 +1,6 @@
 #pragma once
 
-namespace SingularityTrainer
+namespace ai
 {
 class IActivatable
 {

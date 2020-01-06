@@ -3,7 +3,7 @@
 
 #include "graphics/backend/vertex_buffer_layout.h"
 
-namespace SingularityTrainer
+namespace ai
 {
 VertexBufferLayout::VertexBufferLayout() : stride(0) {}
 }

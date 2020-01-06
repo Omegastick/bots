@@ -8,7 +8,7 @@
 
 #include "saver.h"
 
-namespace SingularityTrainer
+namespace ai
 {
 void create_directory_if_doesnt_exist(std::filesystem::path path)
 {

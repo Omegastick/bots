@@ -6,7 +6,7 @@
 #include "training/checkpointer.h"
 #include "training/training_program.h"
 
-namespace SingularityTrainer
+namespace ai
 {
 BrainWindow::BrainWindow(Checkpointer &checkpointer, IO &io)
     : checkpointer(checkpointer),

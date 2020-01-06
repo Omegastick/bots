@@ -21,7 +21,7 @@ std::ostream &operator<<(std::ostream &os, const vec3 &value)
 }
 }
 
-namespace SingularityTrainer
+namespace ai
 {
 Transform::Transform()
     : origin(0, 0),

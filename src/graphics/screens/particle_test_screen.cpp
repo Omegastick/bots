@@ -20,7 +20,7 @@
 #include "misc/resource_manager.h"
 #include "misc/screen_manager.h"
 
-namespace SingularityTrainer
+namespace ai
 {
 ParticleTestScreen::ParticleTestScreen(
     ScreenManager *screen_manager,

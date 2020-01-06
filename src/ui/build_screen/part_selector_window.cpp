@@ -23,7 +23,7 @@
 #include "ui/build_screen/part_selector_window.h"
 #include "ui/spinner.h"
 
-namespace SingularityTrainer
+namespace ai
 {
 PartSelectorWindow::PartSelectorWindow(CredentialsManager &credentials_manager,
                                        IHttpClient &http_client,

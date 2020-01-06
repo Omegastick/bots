@@ -11,7 +11,7 @@
 
 namespace fs = std::filesystem;
 
-namespace SingularityTrainer
+namespace ai
 {
 BodySelectorWindow::BodySelectorWindow(IO &io)
     : io(io),

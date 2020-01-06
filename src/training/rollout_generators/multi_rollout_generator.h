@@ -6,7 +6,7 @@
 
 #include "training/rollout_generators/single_rollout_generator.h"
 
-namespace SingularityTrainer
+namespace ai
 {
 class Renderer;
 

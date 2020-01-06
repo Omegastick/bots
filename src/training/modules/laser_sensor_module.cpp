@@ -18,7 +18,7 @@
 #include "training/rigid_body.h"
 #include "misc/utilities.h"
 
-namespace SingularityTrainer
+namespace ai
 {
 LaserSensorModule::LaserSensorModule(int laser_count, float fov, float laser_length)
     : laser_count(laser_count),

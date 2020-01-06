@@ -18,7 +18,7 @@
 #include "misc/screen_manager.h"
 #include "screens/iscreen.h"
 
-namespace SingularityTrainer
+namespace ai
 {
 const int width = 1920;
 const int height = 1080;

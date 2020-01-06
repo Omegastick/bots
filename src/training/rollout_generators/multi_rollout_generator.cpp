@@ -11,7 +11,7 @@
 #include "graphics/renderers/renderer.h"
 #include "training/rollout_generators/single_rollout_generator.h"
 
-namespace SingularityTrainer
+namespace ai
 {
 MultiRolloutGenerator::MultiRolloutGenerator(
     unsigned long num_steps,

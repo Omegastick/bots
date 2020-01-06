@@ -3,7 +3,7 @@
 #include <memory>
 #include <unordered_map>
 
-namespace SingularityTrainer
+namespace ai
 {
 template <class T>
 class AssetStore

@@ -4,7 +4,7 @@
 
 #include <glm/vec2.hpp>
 
-namespace SingularityTrainer
+namespace ai
 {
 class Random;
 class Renderer;

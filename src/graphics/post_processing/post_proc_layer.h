@@ -9,7 +9,7 @@
 #include "graphics/backend/vertex_buffer.h"
 #include "graphics/backend/element_buffer.h"
 
-namespace SingularityTrainer
+namespace ai
 {
 class Renderer;
 class Shader;

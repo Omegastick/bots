@@ -20,7 +20,7 @@
 #include "training/environments/ienvironment.h"
 #include "training/rigid_body.h"
 
-namespace SingularityTrainer
+namespace ai
 {
 const float pi = glm::pi<float>();
 

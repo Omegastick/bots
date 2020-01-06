@@ -10,7 +10,7 @@
 #include "training/rigid_body.h"
 #include "misc/utilities.h"
 
-namespace SingularityTrainer
+namespace ai
 {
 IModule::IModule()
     : body(nullptr),

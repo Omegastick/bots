@@ -8,7 +8,7 @@
 #include "graphics/render_data.h"
 #include "training/modules/imodule.h"
 
-namespace SingularityTrainer
+namespace ai
 {
 class Body;
 

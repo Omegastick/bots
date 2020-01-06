@@ -14,7 +14,7 @@
 #include "networking/msgpack_codec.h"
 #include "third_party/zmq.hpp"
 
-namespace SingularityTrainer
+namespace ai
 {
 ClientCommunicator::ClientCommunicator(std::unique_ptr<zmq::socket_t> socket)
     : socket(std::move(socket)) {}

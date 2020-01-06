@@ -10,7 +10,7 @@
 #include "misc/spring_mesh.h"
 #include "screens/iscreen.h"
 
-namespace SingularityTrainer
+namespace ai
 {
 struct Sprite;
 class ResourceManager;

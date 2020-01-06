@@ -5,7 +5,7 @@
 #include <glm/vec2.hpp>
 #include <glm/vec3.hpp>
 
-namespace SingularityTrainer
+namespace ai
 {
 
 class SpringMesh

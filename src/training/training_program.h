@@ -5,7 +5,7 @@
 
 #include <nlohmann/json.hpp>
 
-namespace SingularityTrainer
+namespace ai
 {
 enum class Algorithm
 {

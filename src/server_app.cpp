@@ -29,7 +29,7 @@ void inthand(int /*signum*/)
 }
 }
 
-namespace SingularityTrainer
+namespace ai
 {
 const std::string agones_url_base = "localhost";
 

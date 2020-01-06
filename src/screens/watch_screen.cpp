@@ -17,7 +17,7 @@
 
 namespace fs = std::filesystem;
 
-namespace SingularityTrainer
+namespace ai
 {
 WatchScreen::WatchScreen(std::unique_ptr<IEnvironment> environment, ResourceManager &resource_manager, IO &io)
     : checkpoint_selector_window(io),

@@ -13,7 +13,7 @@
 #include "screens/iscreen.h"
 #include "misc/resource_manager.h"
 
-namespace SingularityTrainer
+namespace ai
 {
 TargetEnvScreen::TargetEnvScreen(ResourceManager &resource_manager, Random &rng, int env_count)
     : resource_manager(&resource_manager),

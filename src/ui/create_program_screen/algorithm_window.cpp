@@ -4,7 +4,7 @@
 #include "misc/io.h"
 #include "training/training_program.h"
 
-namespace SingularityTrainer
+namespace ai
 {
 void help_marker(const std::string_view text)
 {

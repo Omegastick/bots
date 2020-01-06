@@ -9,7 +9,7 @@
 #include "graphics/backend/vertex_buffer.h"
 #include "third_party/di.hpp"
 
-namespace SingularityTrainer
+namespace ai
 {
 class ResourceManager;
 struct Particle;

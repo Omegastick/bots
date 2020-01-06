@@ -9,7 +9,7 @@
 #include "training/modules/module_link.h"
 #include "misc/utilities.h"
 
-namespace SingularityTrainer
+namespace ai
 {
 ModuleLink::ModuleLink(float x, float y, float rot, IModule *parent)
     : is_parent(false),

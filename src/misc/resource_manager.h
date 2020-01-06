@@ -5,7 +5,7 @@
 #include "misc/asset_store.h"
 #include "third_party/di.hpp"
 
-namespace SingularityTrainer
+namespace ai
 {
 class Texture;
 class Shader;

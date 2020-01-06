@@ -10,7 +10,7 @@
 #include "networking/action_store.h"
 #include "networking/messages.h"
 
-namespace SingularityTrainer
+namespace ai
 {
 class BodyFactory;
 class Random;

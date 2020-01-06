@@ -9,7 +9,7 @@ namespace cpprl
 class Policy;
 }
 
-namespace SingularityTrainer
+namespace ai
 {
 class IO;
 struct TrainingProgram;

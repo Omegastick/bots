@@ -8,7 +8,7 @@
 
 #include "msgpack_codec.h"
 
-namespace SingularityTrainer
+namespace ai
 {
 TEST_CASE("MsgPackCodec")
 {

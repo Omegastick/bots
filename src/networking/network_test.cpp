@@ -26,7 +26,7 @@
 
 namespace di = boost::di;
 
-namespace SingularityTrainer
+namespace ai
 {
 
 void run_client(const std::string &id, const std::string &token)

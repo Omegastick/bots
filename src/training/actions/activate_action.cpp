@@ -3,7 +3,7 @@
 #include "training/actions/activate_action.h"
 #include "training/modules/interfaces/iactivatable.h"
 
-namespace SingularityTrainer
+namespace ai
 {
 ActivateAction::ActivateAction(IActivatable *module) : module(module)
 {

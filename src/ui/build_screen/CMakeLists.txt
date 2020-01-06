@@ -1,4 +1,4 @@
-target_sources(SingularityTrainer
+target_sources(artificialinsentience
 PRIVATE
     ${CMAKE_CURRENT_LIST_DIR}/body_builder.cpp
     ${CMAKE_CURRENT_LIST_DIR}/color_scheme_window.cpp

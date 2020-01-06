@@ -4,7 +4,7 @@
 
 #include <glm/mat4x4.hpp>
 
-namespace SingularityTrainer
+namespace ai
 {
 class IEnvironment;
 class IO;

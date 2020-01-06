@@ -18,7 +18,7 @@
 #include "training/bodies/body.h"
 #include "training/bodies/test_body.h"
 
-namespace SingularityTrainer
+namespace ai
 {
 Game::Game(double tick_length,
            BodyFactory &body_factory,

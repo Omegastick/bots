@@ -18,7 +18,7 @@
 #include "training/environments/ienvironment.h"
 #include "training/training_program.h"
 
-namespace SingularityTrainer
+namespace ai
 {
 class IEvent;
 struct Particle;

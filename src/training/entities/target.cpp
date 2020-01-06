@@ -8,7 +8,7 @@
 #include "training/icollidable.h"
 #include "training/rigid_body.h"
 
-namespace SingularityTrainer
+namespace ai
 {
 Target::Target(float x, float y, b2World &world, IEnvironment &env) : environment(env)
 {

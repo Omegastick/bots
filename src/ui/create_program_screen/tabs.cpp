@@ -60,7 +60,7 @@ bool TabButton(const char *label, int *v, int v_button)
 }
 }
 
-namespace SingularityTrainer
+namespace ai
 {
 Tabs::Tabs(IO &io) : io(io), selected_tab(CreateProgramScreenState::Body) {}
 

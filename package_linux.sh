@@ -9,7 +9,7 @@ function cleanup {
 trap cleanup EXIT
 
 VERSION=0.0.0
-FILENAME="singularity-trainer-${VERSION}-linux.tar.gz"
+FILENAME="artificial-insentience-${VERSION}-linux.tar.gz"
 
 
 # Set up temp directory
@@ -17,7 +17,7 @@ mkdir -p packaging
 cd packaging || exit
 
 # Copy executable
-cp ../build/SingularityTrainer .
+cp ../build/artificial_insentience .
 
 # Copy assets
 cp -r ../assets .

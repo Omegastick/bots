@@ -7,7 +7,7 @@
 
 #include "misc/ihttp_client.h"
 
-namespace SingularityTrainer
+namespace ai
 {
 class HttpClient : public IHttpClient
 {

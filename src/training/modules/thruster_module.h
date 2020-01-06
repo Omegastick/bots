@@ -7,7 +7,7 @@
 #include "training/modules/imodule.h"
 #include "training/modules/interfaces/iactivatable.h"
 
-namespace SingularityTrainer
+namespace ai
 {
 class ThrusterModule : public IModule, public IActivatable
 {

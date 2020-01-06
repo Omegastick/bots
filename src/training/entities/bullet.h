@@ -9,7 +9,7 @@
 #include "ientity.h"
 #include "training/icollidable.h"
 
-namespace SingularityTrainer
+namespace ai
 {
 struct Sprite;
 class RigidBody;

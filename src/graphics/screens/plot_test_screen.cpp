@@ -11,7 +11,7 @@
 #include "screens/iscreen.h"
 #include "ui/plot.h"
 
-namespace SingularityTrainer
+namespace ai
 {
 
 PlotTestScreen::PlotTestScreen(

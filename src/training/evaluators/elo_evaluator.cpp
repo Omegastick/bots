@@ -18,7 +18,7 @@
 #include "training/bodies/body.h"
 #include "training/bodies/test_body.h"
 
-namespace SingularityTrainer
+namespace ai
 {
 const double elo_constant = 16;
 

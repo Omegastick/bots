@@ -8,7 +8,7 @@
 #include "graphics/backend/shader.h"
 #include "graphics/font.h"
 
-namespace SingularityTrainer
+namespace ai
 {
 ResourceManager::ResourceManager(std::string path_to_assets_folder) : base_path(path_to_assets_folder) {}
 ResourceManager::~ResourceManager() {}

@@ -2,7 +2,7 @@
 
 #include "vertex_buffer.h"
 
-namespace SingularityTrainer
+namespace ai
 {
 VertexBuffer::VertexBuffer(const void *data, unsigned int size, unsigned int usage_mode)
     : size(size), usage_mode(usage_mode)

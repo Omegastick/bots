@@ -12,7 +12,7 @@
 #include "third_party/zmq.hpp"
 #include "third_party/zmq_addon.hpp"
 
-namespace SingularityTrainer
+namespace ai
 {
 class ServerApp
 {

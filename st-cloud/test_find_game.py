@@ -1,5 +1,5 @@
 """
-Tests for the Singularity Trainer find game cloud function.
+Tests for the Artificial Insentience find game cloud function.
 """
 
 # pylint: disable=no-member,invalid-name
@@ -28,7 +28,7 @@ UNALLOCATED_GAMESERVER = {
         },
         'required': {
             'matchLabels': {
-                'agones.dev/fleet': 'singularity-trainer'
+                'agones.dev/fleet': 'artificial-insentience'
             }
         },
         'scheduling': 'Packed',
@@ -45,7 +45,7 @@ ALLOCATED_GAMESERVER = {
     'kind': 'GameServerAllocation',
     'apiVersion': 'v1',
     'metadata': {
-        'name': 'singularity-trainer-sv5mj-wq4dp',
+        'name': 'artificial-insentience-sv5mj-wq4dp',
         'namespace': 'default',
         'creationTimestamp': '2019-09-09T08:50:28Z'
     },
@@ -55,7 +55,7 @@ ALLOCATED_GAMESERVER = {
         },
         'required': {
             'matchLabels': {
-                'agones.dev/fleet': 'singularity-trainer'
+                'agones.dev/fleet': 'artificial-insentience'
             }
         },
         'scheduling': 'Packed',
@@ -63,7 +63,7 @@ ALLOCATED_GAMESERVER = {
     },
     'status': {
         'state': 'Allocated',
-        'gameServerName': 'singularity-trainer-sv5mj-wq4dp',
+        'gameServerName': 'artificial-insentience-sv5mj-wq4dp',
         'ports': [{'name': 'default', 'port': 7693}],
         'address': '34.84.249.148',
         'nodeName': 'gke-st-dev-default-pool-add6043f-llk4'

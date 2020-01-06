@@ -4,7 +4,7 @@
 #include <glm/mat4x4.hpp>
 #include <msgpack.hpp>
 
-namespace SingularityTrainer
+namespace ai
 {
 class Transform
 {

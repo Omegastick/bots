@@ -6,7 +6,7 @@
 
 #include "action_store.h"
 
-namespace SingularityTrainer
+namespace ai
 {
 ActionStore::ActionStore(std::vector<int> actions_per_player)
     : actions_per_player(actions_per_player)

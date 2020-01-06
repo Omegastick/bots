@@ -1,5 +1,5 @@
 """
-Train an agent using Singularity Trainer.
+Train an agent using Artificial Insentience.
 """
 from datetime import datetime
 import logging
@@ -8,7 +8,7 @@ import sys
 import time
 import tensorflow as tf
 
-import singularity_trainer
+import artificial_insentience
 
 
 def main():
@@ -27,7 +27,7 @@ def main():
                         datefmt='%Y%m%d %H:%M:%S')
 
     with open(sys.argv[1], 'r') as file:
-        trainer = singularity_trainer.make_trainer(file.read())
+        trainer = artificial_insentience.make_trainer(file.read())
 
     log_dir = os.path.join(
         "runs", datetime.now().strftime("%Y%m%d-%H%M%S"))

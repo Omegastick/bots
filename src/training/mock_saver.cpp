@@ -5,7 +5,7 @@
 
 #include "mock_saver.h"
 
-namespace SingularityTrainer
+namespace ai
 {
 nlohmann::json MockSaver::load_json(std::filesystem::path /*path*/)
 {

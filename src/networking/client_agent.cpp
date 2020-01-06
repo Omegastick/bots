@@ -15,7 +15,7 @@
 #include "training/environments/ienvironment.h"
 #include "training/environments/koth_env.h"
 
-namespace SingularityTrainer
+namespace ai
 {
 ClientAgent::ClientAgent(std::unique_ptr<IAgent> agent,
                          int agent_number,

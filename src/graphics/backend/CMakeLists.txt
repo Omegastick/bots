@@ -1,4 +1,4 @@
-target_sources(Shared
+target_sources(shared
 PRIVATE
     ${CMAKE_CURRENT_LIST_DIR}/shader.cpp
     ${CMAKE_CURRENT_LIST_DIR}/vertex_buffer.cpp

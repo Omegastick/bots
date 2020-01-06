@@ -6,7 +6,7 @@
 #include "misc/io.h"
 #include "training/bodies/body.h"
 
-namespace SingularityTrainer
+namespace ai
 {
 ColorSchemeWindow::ColorSchemeWindow(IO &io) : io(&io), selected_swatch(0) {}
 

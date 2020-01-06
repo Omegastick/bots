@@ -12,7 +12,7 @@
 #include "training/bodies/test_body.h"
 #include "training/environments/koth_env.h"
 
-namespace SingularityTrainer
+namespace ai
 {
 BasicEvaluator::BasicEvaluator(BodyFactory &body_factory,
                                IEnvironmentFactory &env_factory,

@@ -6,7 +6,7 @@
 
 #include "training/icollidable.h"
 
-namespace SingularityTrainer
+namespace ai
 {
 class IEnvironment;
 struct Sprite;

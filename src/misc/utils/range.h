@@ -17,7 +17,7 @@
 #include <iterator>
 #include <type_traits>
 
-namespace SingularityTrainer
+namespace ai
 {
 namespace detail
 {

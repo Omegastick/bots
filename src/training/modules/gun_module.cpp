@@ -18,7 +18,7 @@
 #include "training/modules/imodule.h"
 #include "training/rigid_body.h"
 
-namespace SingularityTrainer
+namespace ai
 {
 GunModule::GunModule(Random &rng) : barrel_rectangle{{0.5f, 0.5f, 0.5f, 0.5f},
                                                      cl_white,

@@ -27,7 +27,7 @@
 #include "training/modules/module_info.h"
 #include "ui/spinner.h"
 
-namespace SingularityTrainer
+namespace ai
 {
 UnlockPartsWindow::UnlockPartsWindow(CredentialsManager &credentials_manager,
                                      IHttpClient &http_client,

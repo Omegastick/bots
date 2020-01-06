@@ -1,5 +1,5 @@
 """
-Tests for the Singularity Trainer cloud finish_game function.
+Tests for the Artificial Insentience cloud finish_game function.
 """
 
 # pylint: disable=no-member

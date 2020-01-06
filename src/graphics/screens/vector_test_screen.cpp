@@ -18,7 +18,7 @@
 #include "misc/screen_manager.h"
 #include "screens/iscreen.h"
 
-namespace SingularityTrainer
+namespace ai
 {
 VectorTestScreen::VectorTestScreen(
     ScreenManager &screen_manager,

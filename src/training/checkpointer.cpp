@@ -16,7 +16,7 @@
 
 namespace fs = std::filesystem;
 
-namespace SingularityTrainer
+namespace ai
 {
 static const char alphanum[] =
     "0123456789"

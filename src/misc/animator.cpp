@@ -4,7 +4,7 @@
 
 #include <doctest.h>
 
-namespace SingularityTrainer
+namespace ai
 {
 template <class Key, class T, class Compare, class Alloc, class Predicate>
 void erase_if_with_callback(std::map<Key, T, Compare, Alloc> &c, Predicate predicate)
@@ -46,7 +46,7 @@ void Animator::update(double delta_time)
 
     erase_if_with_callback(animations,
                            [](const std::pair<const long unsigned int,
-                                              SingularityTrainer::Animation>
+                                              ai::Animation>
                                   animation) {
                                return animation.second.elapsed_time >= animation.second.length;
                            });

@@ -6,7 +6,7 @@
 
 #include "training/rigid_body.h"
 
-namespace SingularityTrainer
+namespace ai
 {
 class IEnvironment;
 class Renderer;

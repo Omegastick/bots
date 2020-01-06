@@ -11,7 +11,7 @@
 #include "misc/resource_manager.h"
 #include "misc/spring_mesh.h"
 
-namespace SingularityTrainer
+namespace ai
 {
 DistortionLayer::DistortionLayer(ResourceManager &resource_manager,
                                  int width,

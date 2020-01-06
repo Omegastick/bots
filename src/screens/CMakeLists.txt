@@ -1,4 +1,4 @@
-target_sources(SingularityTrainer
+target_sources(artificialinsentience
 PRIVATE
     ${CMAKE_CURRENT_LIST_DIR}/build_screen.cpp
     ${CMAKE_CURRENT_LIST_DIR}/create_program_screen.cpp

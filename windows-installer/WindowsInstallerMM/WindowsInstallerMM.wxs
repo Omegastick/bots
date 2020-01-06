@@ -3,7 +3,7 @@
   <?define ComponentRules="OneToOne"?>
   <!-- SourceDir instructs IsWiX the location of the directory that contains files for this merge module -->
   <?define SourceDir="..\.."?>
-  <Module Id="SingularityTrainer" Language="1033" Version="1.0.0.0">
+  <Module Id="artificial_insentience" Language="1033" Version="1.0.0.0">
     <Package Id="021d64bb-d84e-4421-a368-764d482473e7" Manufacturer="Isaac Poulton" InstallerVersion="200" />
     <Directory Id="TARGETDIR" Name="SourceDir">
       <Directory Id="MergeRedirectFolder">
@@ -17,7 +17,7 @@
           <File Id="owf57B81D0BA428975B2ECEB2834B0C8CD5" Source="$(var.SourceDir)\build\Release\libiompstubs5md.dll" KeyPath="yes" />
         </Component>
         <Component Id="owc4D7EC7ECEBF4BA1FEB08F421DF7472FA" Guid="c863699d-2542-5b02-ffca-2e68ebce9105">
-          <File Id="owf4D7EC7ECEBF4BA1FEB08F421DF7472FA" Source="$(var.SourceDir)\build\Release\SingularityTrainer.exe" KeyPath="yes" />
+          <File Id="owf4D7EC7ECEBF4BA1FEB08F421DF7472FA" Source="$(var.SourceDir)\build\Release\artificial_insentience.exe" KeyPath="yes" />
         </Component>
         <Component Id="owcB9FF29E7C8F2EC16436A153226478FDD" Guid="2e0268fe-19b0-89d1-ee9d-3cba5c7dab4f">
           <File Id="owfB9FF29E7C8F2EC16436A153226478FDD" Source="$(var.SourceDir)\build\Release\torch.dll" KeyPath="yes" />

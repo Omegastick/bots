@@ -5,7 +5,7 @@
 
 #include "training/training_program.h"
 
-namespace SingularityTrainer
+namespace ai
 {
 static const std::string schema_version = "v1alpha3";
 

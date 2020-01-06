@@ -9,7 +9,7 @@
 #include "screens/iscreen.h"
 #include "graphics/renderers/particle_renderer.h"
 
-namespace SingularityTrainer
+namespace ai
 {
 class Renderer;
 class ScreenManager;

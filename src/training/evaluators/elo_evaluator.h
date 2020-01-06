@@ -11,7 +11,7 @@
 #include "training/agents/nn_agent.h"
 #include "training/evaluators/evaluator.h"
 
-namespace SingularityTrainer
+namespace ai
 {
 class Random;
 

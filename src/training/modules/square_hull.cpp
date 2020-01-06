@@ -7,7 +7,7 @@
 #include "graphics/renderers/renderer.h"
 #include "training/modules/thruster_module.h"
 
-namespace SingularityTrainer
+namespace ai
 {
 SquareHull::SquareHull() : rectangle{{0.5f, 0.5f, 0.5f, 0.5f},
                                      cl_white,

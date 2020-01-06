@@ -13,7 +13,7 @@ NVGcolor glm_to_nvg(const glm::vec4 color)
     return nvgRGBAf(color.r, color.g, color.b, color.a);
 }
 
-namespace SingularityTrainer
+namespace ai
 {
 VectorRenderer::VectorRenderer()
 {

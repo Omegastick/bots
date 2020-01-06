@@ -21,7 +21,7 @@
 #include "training/rigid_body.h"
 #include "misc/random.h"
 
-namespace SingularityTrainer
+namespace ai
 {
 ThrusterModule::ThrusterModule() : active(false),
                                    trapezoid{0.666f,

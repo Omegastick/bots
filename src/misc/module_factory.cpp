@@ -12,7 +12,7 @@
 #include "training/modules/square_hull.h"
 #include "training/modules/thruster_module.h"
 
-namespace SingularityTrainer
+namespace ai
 {
 std::shared_ptr<IModule> ModuleFactory::create_module(const std::string &module_id)
 {

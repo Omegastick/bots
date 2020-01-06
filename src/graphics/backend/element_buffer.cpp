@@ -2,7 +2,7 @@
 
 #include "element_buffer.h"
 
-namespace SingularityTrainer
+namespace ai
 {
 ElementBuffer::ElementBuffer(const void *data, const unsigned int count) : count(count)
 {

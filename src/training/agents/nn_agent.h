@@ -5,7 +5,7 @@
 
 #include "iagent.h"
 
-namespace SingularityTrainer
+namespace ai
 {
 class NNAgent : public IAgent
 {

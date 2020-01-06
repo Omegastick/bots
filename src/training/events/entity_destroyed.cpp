@@ -7,7 +7,7 @@
 #include "training/environments/ienvironment.h"
 #include "training/events/ievent.h"
 
-namespace SingularityTrainer
+namespace ai
 {
 EntityDestroyed::EntityDestroyed(unsigned int entity_id, double time, Transform transform)
     : entity_id(entity_id),

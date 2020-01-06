@@ -4,7 +4,7 @@
 
 #include <nlohmann/json_fwd.hpp>
 
-namespace SingularityTrainer
+namespace ai
 {
 class IO;
 

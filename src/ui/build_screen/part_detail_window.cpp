@@ -7,7 +7,7 @@
 #include "misc/io.h"
 #include "training/modules/imodule.h"
 
-namespace SingularityTrainer
+namespace ai
 {
 PartDetailWindow::PartDetailWindow(IO &io) : selected_part(nullptr), io(&io) {}
 

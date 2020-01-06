@@ -11,7 +11,7 @@
 #include "misc/screen_manager.h"
 #include "graphics/imgui_utils.h"
 
-namespace SingularityTrainer
+namespace ai
 {
 inline void display_test_dialog(
     const std::string &test_title,

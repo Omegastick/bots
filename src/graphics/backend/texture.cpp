@@ -6,7 +6,7 @@
 #include "graphics/backend/texture.h"
 #include "third_party/stb_image.h"
 
-namespace SingularityTrainer
+namespace ai
 {
 Texture::Texture(int width, int height)
     : id(0), width(width), height(height), bpp(4)

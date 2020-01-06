@@ -7,7 +7,7 @@
 #include <nlohmann/json.hpp>
 #include <torch/torch.h>
 
-namespace SingularityTrainer
+namespace ai
 {
 struct ActResult
 {

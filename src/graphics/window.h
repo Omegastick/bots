@@ -8,7 +8,7 @@
 #include "graphics/renderers/renderer.h"
 #include "third_party/di.hpp"
 
-namespace SingularityTrainer
+namespace ai
 {
 class IO;
 

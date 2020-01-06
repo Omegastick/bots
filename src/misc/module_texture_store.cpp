@@ -10,7 +10,7 @@
 #include "misc/module_factory.h"
 #include "training/modules/imodule.h"
 
-namespace SingularityTrainer
+namespace ai
 {
 constexpr int image_size = 500;
 

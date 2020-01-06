@@ -24,7 +24,7 @@
 #include "misc/utilities.h"
 #include "misc/random.h"
 
-namespace SingularityTrainer
+namespace ai
 {
 static const std::string schema_version = "v1alpha5";
 

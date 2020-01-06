@@ -3,7 +3,7 @@
 #include "graphics/backend/frame_buffer.h"
 #include "graphics/post_processing/post_proc_layer.h"
 
-namespace SingularityTrainer
+namespace ai
 {
 class ResourceManager;
 

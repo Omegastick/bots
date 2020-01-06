@@ -8,7 +8,7 @@
 
 #include "graphics/backend/shader.h"
 
-namespace SingularityTrainer
+namespace ai
 {
 Shader::Shader(const std::string &vert_filepath, const std::string &frag_filepath)
 {

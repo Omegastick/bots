@@ -15,7 +15,7 @@ namespace cpprl
 class Policy;
 }
 
-namespace SingularityTrainer
+namespace ai
 {
 class Random;
 

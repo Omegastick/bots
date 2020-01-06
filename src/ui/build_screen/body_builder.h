@@ -8,7 +8,7 @@
 
 #include "training/bodies/body.h"
 
-namespace SingularityTrainer
+namespace ai
 {
 class IModule;
 class IO;

@@ -2,7 +2,7 @@
 
 #include <memory>
 
-namespace SingularityTrainer
+namespace ai
 {
 class IO;
 struct TrainingProgram;

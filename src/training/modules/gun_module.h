@@ -11,7 +11,7 @@
 #include "training/modules/interfaces/iactivatable.h"
 #include "training/entities/bullet.h"
 
-namespace SingularityTrainer
+namespace ai
 {
 class Body;
 class Random;

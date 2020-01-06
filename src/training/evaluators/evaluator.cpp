@@ -15,7 +15,7 @@
 #include "training/environments/ienvironment.h"
 #include "training/environments/koth_env.h"
 
-namespace SingularityTrainer
+namespace ai
 {
 Evaluator::Evaluator(BodyFactory &body_factory,
                      IEnvironmentFactory &env_factory)

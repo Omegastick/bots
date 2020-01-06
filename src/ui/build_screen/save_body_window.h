@@ -2,7 +2,7 @@
 
 #include <string>
 
-namespace SingularityTrainer
+namespace ai
 {
 class Animator;
 class Body;

@@ -7,7 +7,7 @@
 
 class NVGcontext;
 
-namespace SingularityTrainer
+namespace ai
 {
 class VectorRenderer
 {

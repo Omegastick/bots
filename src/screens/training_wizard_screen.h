@@ -13,7 +13,7 @@
 #include "ui/training_wizard_screen/body_selector_window.h"
 #include "ui/training_wizard_screen/wizard_checkpoint_selector_window.h"
 
-namespace SingularityTrainer
+namespace ai
 {
 class Animator;
 class IO;

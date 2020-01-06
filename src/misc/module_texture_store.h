@@ -5,7 +5,7 @@
 #include "graphics/backend/texture.h"
 #include "graphics/renderers/renderer.h"
 
-namespace SingularityTrainer
+namespace ai
 {
 class ModuleFactory;
 

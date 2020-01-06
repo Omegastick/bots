@@ -9,7 +9,7 @@
 #include "graphics/render_data.h"
 #include "misc/resource_manager.h"
 
-namespace SingularityTrainer
+namespace ai
 {
 ParticleRenderer::ParticleRenderer(int max_particles, ResourceManager &resource_manager)
     : resource_manager(&resource_manager),

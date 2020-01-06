@@ -11,7 +11,7 @@ RUN sh /cmake-install.sh --prefix=/opt/cmake --skip-license
 RUN ln -s /opt/cmake/bin/cmake /usr/local/bin/cmake
 RUN cmake --version
 
-# Build Singularity Trainer server
+# Build Artificial Insentience server
 ## Install dependencies
 RUN apt-get update && apt-get install -y \
     libglu1-mesa-dev \

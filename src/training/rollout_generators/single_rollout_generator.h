@@ -15,7 +15,7 @@ namespace cpprl
 class RolloutStorage;
 }
 
-namespace SingularityTrainer
+namespace ai
 {
 class Random;
 class Renderer;

@@ -4,7 +4,7 @@
 #include <memory>
 #include <stack>
 
-namespace SingularityTrainer
+namespace ai
 {
 class IScreen;
 class Renderer;

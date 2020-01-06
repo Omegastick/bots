@@ -4,7 +4,7 @@
 #include <memory>
 #include <vector>
 
-namespace SingularityTrainer
+namespace ai
 {
 class Checkpointer;
 class IO;

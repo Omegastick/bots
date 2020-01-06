@@ -15,7 +15,7 @@
 #include "graphics/colors.h"
 #include "misc/utilities.h"
 
-namespace SingularityTrainer
+namespace ai
 {
 TestBody::TestBody(std::unique_ptr<RigidBody> rigid_body,
                    Random &rng,

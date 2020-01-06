@@ -18,7 +18,7 @@ namespace cpprl
 class NNBase;
 }
 
-namespace SingularityTrainer
+namespace ai
 {
 class Communicator;
 class IO;

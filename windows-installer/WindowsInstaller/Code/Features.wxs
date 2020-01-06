@@ -4,13 +4,13 @@
     <Directory Id="TARGETDIR" Name="SourceDir">
       <Directory Id="ProgramFilesFolder">
         <Directory Id="CompanyFolder" Name="Omegastick">
-          <Directory Id="INSTALLLOCATION" Name="Singularity Trainer">
+          <Directory Id="INSTALLLOCATION" Name="Artificial Insentience">
             <Merge Id="WindowsInstallerMM" SourceFile="$(var.WindowsInstallerMM.TargetPath)" DiskId="1" Language="1033"/>
           </Directory>
         </Directory>
       </Directory>
     </Directory>
-    <Feature Id="SingularityTrainer" Title="Singularity Trainer" Description="Installs all the files needed for Singularity Trainer" Level="1" AllowAdvertise="no" ConfigurableDirectory="INSTALLLOCATION">
+    <Feature Id="artificial_insentience" Title="Artificial Insentience" Description="Installs all the files needed for Artificial Insentience" Level="1" AllowAdvertise="no" ConfigurableDirectory="INSTALLLOCATION">
       <MergeRef Id="WindowsInstallerMM"/>
       <!-- Uncomment the below line to pull in IIS Metadata.  Otherwise delete if not needed -->
       <!--<ComponentGroupRef Id="webSite" />-->

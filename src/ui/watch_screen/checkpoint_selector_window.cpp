@@ -8,7 +8,7 @@
 
 namespace fs = std::filesystem;
 
-namespace SingularityTrainer
+namespace ai
 {
 CheckpointSelectorWindow::CheckpointSelectorWindow() : selected_file(-1) {}
 
