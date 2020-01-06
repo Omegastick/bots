@@ -4,6 +4,7 @@
 
 #include <glm/glm.hpp>
 #include <glm/gtx/norm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
 
 #include "background.h"
 #include "graphics/colors.h"
@@ -42,6 +43,7 @@ Background::Background(Random &rng)
 
 void Background::draw(Renderer &renderer) const
 {
+    renderer.set_view(glm::ortho(-960.f, 960.f, -540.f, 540.f));
     const auto view = renderer.get_view();
     float view_x = 1.f / view[0][0] * 1.5f;
     float view_y = 1.f / view[1][1] * 1.5f;

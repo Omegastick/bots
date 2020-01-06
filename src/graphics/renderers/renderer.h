@@ -39,6 +39,12 @@ class Renderer
         glm::mat4 transform;
     };
 
+    struct PackedLine
+    {
+        Line line;
+        glm::mat4 view;
+    };
+
     int width, height;
 
     glm::mat4 view;
@@ -48,7 +54,7 @@ class Renderer
 
     std::vector<std::string> textures;
 
-    std::vector<Line> lines;
+    std::vector<PackedLine> lines;
     std::vector<Particle> particles;
     std::vector<PackedSprite> sprites;
     std::vector<Text> texts;

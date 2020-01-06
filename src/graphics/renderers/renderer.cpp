@@ -56,7 +56,7 @@ void Renderer::resize(int width, int height)
 
 void Renderer::draw(const Line &line)
 {
-    lines.push_back(line);
+    lines.push_back({line, view});
 }
 
 void Renderer::draw(const std::vector<Particle> &particles)
@@ -152,7 +152,7 @@ const FrameBuffer *Renderer::render_to_buffer(double time)
 
     for (const auto &line : lines)
     {
-        line_renderer.draw(line, view);
+        line_renderer.draw(line.line, line.view);
     }
     lines.clear();
 
