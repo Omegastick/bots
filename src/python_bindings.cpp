@@ -22,7 +22,7 @@ namespace di = boost::di;
 using namespace ai;
 PYBIND11_MODULE(artificial_insentience, m)
 {
-    m.doc() = "Artificial Insentience Python bindings";
+    m.doc() = "AI: Artificial Insentience Python bindings";
 
     py::class_<Trainer>(m, "Trainer")
         .def("evaluate", &Trainer::evaluate)

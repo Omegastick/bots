@@ -18,8 +18,8 @@
     <DirectoryRef Id="INSTALLLOCATION">
       <Directory Id="webSite" Name="WebSite">
         <Component Id="webSite" Guid="dbc4ba2d-b7de-4e1c-8a1d-ac9775206628" KeyPath="yes">
-          <iis:WebAppPool Id="webSite" Name="Artificial Insentience" Identity="applicationPoolIdentity" ManagedRuntimeVersion="v4.0" ManagedPipelineMode="Integrated"/>
-          <iis:WebSite Id="webSite" SiteId="*" Description="Artificial Insentience Web Site" Directory="webSite" ConfigureIfExists="no">
+          <iis:WebAppPool Id="webSite" Name="AI: Artificial Insentience" Identity="applicationPoolIdentity" ManagedRuntimeVersion="v4.0" ManagedPipelineMode="Integrated"/>
+          <iis:WebSite Id="webSite" SiteId="*" Description="AI: Artificial Insentience Web Site" Directory="webSite" ConfigureIfExists="no">
             <iis:WebAddress Id="webSite" Port="8080" />
             <iis:WebDirProperties Id="webSite" AnonymousAccess="yes" WindowsAuthentication="no" />
             <iis:WebApplication Id="webSite" WebAppPool="webSite" Name="webSite" />

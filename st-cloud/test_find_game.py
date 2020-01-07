@@ -1,5 +1,5 @@
 """
-Tests for the Artificial Insentience find game cloud function.
+Tests for the AI: Artificial Insentience find game cloud function.
 """
 
 # pylint: disable=no-member,invalid-name

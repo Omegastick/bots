@@ -29,7 +29,7 @@ namespace ai
 {
 const int resolution_x = 1920;
 const int resolution_y = 1080;
-const std::string window_title = "Artificial Insentience";
+const std::string window_title = "AI: Artificial Insentience";
 const int opengl_version_major = 4;
 const int opengl_version_minor = 3;
 

@@ -1,5 +1,5 @@
 """
-Tests for the Artificial Insentience cloud get_user function.
+Tests for the AI: Artificial Insentience cloud get_user function.
 """
 
 # pylint: disable=no-member

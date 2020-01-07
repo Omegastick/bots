@@ -1,5 +1,5 @@
 """
-Serverless functions for the Artificial Insentience matchmaking server.
+Serverless functions for the AI: Artificial Insentience matchmaking server.
 """
 # pylint: disable=invalid-name
 

@@ -1,5 +1,5 @@
 """
-Train an agent using Artificial Insentience.
+Train an agent using AI: Artificial Insentience.
 """
 from datetime import datetime
 import logging

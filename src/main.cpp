@@ -46,7 +46,7 @@ int main(int argc, char *argv[])
         di::bind<int>.named(RandomSeed).to(static_cast<int>(std::chrono::high_resolution_clock::now().time_since_epoch().count())),
         di::bind<int>.named(ResolutionX).to(1920),
         di::bind<int>.named(ResolutionY).to(1080),
-        di::bind<std::string>.named(Title).to("Artificial Insentience"),
+        di::bind<std::string>.named(Title).to("AI: Artificial Insentience"),
         di::bind<int>.named(MajorOpenGLVersion).to(4),
         di::bind<int>.named(MinorOpenGLVersion).to(3),
         di::bind<std::string>.named(AssetsPath).to("assets/"),
