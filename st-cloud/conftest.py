@@ -1,5 +1,5 @@
 """
-Conftest for Artificial Insentience cloud.
+Conftest for AI: Artificial Insentience cloud.
 """
 
 import os

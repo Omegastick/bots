@@ -1,5 +1,5 @@
 """
-Tests for the Artificial Insentience cloud login function.
+Tests for the AI: Artificial Insentience cloud login function.
 """
 
 # pylint: disable=no-member

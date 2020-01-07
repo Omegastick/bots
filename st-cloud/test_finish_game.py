@@ -1,5 +1,5 @@
 """
-Tests for the Artificial Insentience cloud finish_game function.
+Tests for the AI: Artificial Insentience cloud finish_game function.
 """
 
 # pylint: disable=no-member

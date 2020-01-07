@@ -16,6 +16,7 @@
 constexpr int num_nodes = 100;
 constexpr glm::vec2 wind = {0.01f, 0.01f};
 constexpr float drift_strength = 0.004f;
+constexpr float initial_randomness = 0.075f;
 
 namespace ai
 {
@@ -27,12 +28,18 @@ Background::Background(Random &rng)
     std::iota(neighbor_indices.begin(), neighbor_indices.end(), 0);
 
     nodes.reserve(num_nodes);
-    for (int i = 0; i < num_nodes; ++i)
+    const float side_length = std::sqrt(num_nodes);
+    for (float x = 0; x < side_length; ++x)
     {
-        nodes.push_back({{rng.next_float(-1, 1),
-                          rng.next_float(-1, 1)},
-                         {rng.next_float(-drift_strength, drift_strength),
-                          rng.next_float(-drift_strength, drift_strength)}});
+        for (float y = 0; y < side_length; ++y)
+        {
+            const float x_pos = (x / side_length) * 2 - 1;
+            const float y_pos = (y / side_length) * 2 - 1;
+            nodes.push_back({{x_pos + rng.next_float(-initial_randomness, initial_randomness),
+                              y_pos + rng.next_float(-initial_randomness, initial_randomness)},
+                             {rng.next_float(-drift_strength, drift_strength),
+                              rng.next_float(-drift_strength, drift_strength)}});
+        }
     }
 
     for (auto &node : nodes)
