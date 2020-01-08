@@ -55,3 +55,6 @@
 [submodule "lib/nanovg"]
 	path = lib/nanovg
 	url = git@github.com:Omegastick/nanovg.git
+[submodule "lib/openal-soft"]
+	path = lib/openal-soft
+	url = git@github.com:kcat/openal-soft.git

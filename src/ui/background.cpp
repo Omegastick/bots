@@ -71,10 +71,15 @@ void Background::draw(Renderer &renderer) const
             {
                 continue;
             }
+            if (node.position.x < neighbor->position.x &&
+                std::find(std::begin(neighbor->neighbors),
+                          std::end(neighbor->neighbors),
+                          &node) != std::end(neighbor->neighbors))
+            {
+                continue;
+            }
             const float distance = std::pow(
-                                       glm::length(node.position - neighbor->position) + 1,
-                                       3.f) *
-                                   10.f;
+                (glm::length(node.position - neighbor->position) * 2.f) + 1.f, 5.f);
             renderer.draw(Line{{node.position * scale, neighbor->position * scale},
                                {0.003f * scale, 0.003f * scale},
                                {set_alpha(cl_white, 1.f / distance),
