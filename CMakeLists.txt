@@ -79,6 +79,7 @@ set(JSON_DIR ${LIB_DIR}/json)
 set(MSGPACK_DIR ${LIB_DIR}/msgpack-c)
 set(NANOVG_DIR ${LIB_DIR}/nanovg)
 set(PYBIND_DIR ${LIB_DIR}/pybind11)
+set(SOLOUD_DIR ${LIB_DIR}/soloud)
 set(SPDLOG_DIR ${LIB_DIR}/spdlog)
 set(TASKFLOW_DIR ${LIB_DIR}/cpp-taskflow)
 set(TROMPELOEIL_DIR ${LIB_DIR}/trompeloeil)
@@ -286,6 +287,20 @@ PUBLIC
 target_sources(nanovg PRIVATE ${NANOVG_DIR}/src/nanovg.c)
 target_link_libraries(nanovg glad)
 set_target_properties(nanovg PROPERTIES POSITION_INDEPENDENT_CODE TRUE)
+## Soloud
+option (SOLOUD_DYNAMIC "Set to ON to build dynamic SoLoud" OFF)
+option (SOLOUD_STATIC "Set to ON to build static SoLoud" ON)
+option (SOLOUD_BUILD_DEMOS "Set to ON for building demos" OFF)
+option (SOLOUD_BACKEND_NULL "Set to ON for building NULL backend" OFF)
+option (SOLOUD_BACKEND_SDL2 "Set to ON for building SDL2 backend" OFF)
+option (SOLOUD_BACKEND_COREAUDIO "Set to ON for building CoreAudio backend" OFF)
+option (SOLOUD_BACKEND_OPENSLES "Set to ON for building OpenSLES backend" OFF)
+option (SOLOUD_BACKEND_XAUDIO2 "Set to ON for building XAudio2 backend" OFF)
+option (SOLOUD_BACKEND_WINMM "Set to ON for building WINMM backend" OFF)
+option (SOLOUD_BACKEND_WASAPI "Set to ON for building WASAPI backend" OFF)
+add_definitions("-DWITH_ALSA")
+add_subdirectory(${SOLOUD_DIR}/contrib)
+target_sources(soloud PRIVATE ${SOLOUD_DIR}/src/backend/alsa/soloud_alsa.cpp)
 ## Box2D
 add_subdirectory(${BOX2D_DIR})
 set_target_properties(Box2D-cmake PROPERTIES POSITION_INDEPENDENT_CODE TRUE)
@@ -315,13 +330,14 @@ PUBLIC
     imgui
     libzmq-static
     nanovg
+    soloud
     tobanteGaming::Box2D
     ${TORCH_LIBRARIES}
 )
 # UNIX systems sometimes need to explicitly link the threading library
 if (UNIX)
     message(STATUS "Linking against Linux libraries")
-    target_link_libraries(shared PUBLIC pthread)
+    target_link_libraries(shared PUBLIC asound pthread)
 endif(UNIX)
 target_link_libraries(artificialinsentience shared)
 target_link_libraries(headlesstrainer shared)
@@ -348,6 +364,7 @@ set(NO_ERR_INCLUDE_DIRS
     ${GLAD_DIR}/include 
     ${GLFW_DIR}/include 
     ${GLM_DIR} 
+    ${SOLOUD_DIR}/include
     ${SPDLOG_DIR}/include
     ${TASKFLOW_DIR}
     ${TORCH_INCLUDE_DIRS}

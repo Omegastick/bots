@@ -25,6 +25,7 @@ PRIVATE
     ${CMAKE_CURRENT_LIST_DIR}/server_app.cpp
 )
 
+add_subdirectory(audio)
 add_subdirectory(graphics)
 add_subdirectory(misc)
 add_subdirectory(screens)
