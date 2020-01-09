@@ -249,14 +249,12 @@ void KothEnv::draw(Renderer &renderer, bool lightweight)
         const glm::vec2 position(b2_position.x, b2_position.y);
         const double full_bar_width = 3;
         const auto bar_width = full_bar_width * hp_ratio;
-        Line health_bar{{{position + glm::vec2{-full_bar_width * 0.5, -2}},
-                         {position + glm::vec2{full_bar_width * 0.5, -2}}},
-                        {{0.1f, 0.1f}},
-                        {{set_alpha(cl_base0, 0.5), set_alpha(cl_base0, 0.5)}}};
+        Rectangle health_bar{set_alpha(cl_base0, 0.5), glm::vec4{0, 0, 0, 0}, 0};
+        health_bar.transform.set_scale({full_bar_width, 0.2f});
+        health_bar.transform.set_position({position + glm::vec2{0, -2}});
         renderer.draw(health_bar);
-        health_bar.points = {{position + glm::vec2{-bar_width * 0.5, -2}},
-                             {position + glm::vec2{bar_width * 0.5, -2}}};
-        health_bar.colors = {cl_red, cl_red};
+        health_bar.transform.set_scale({bar_width, 0.2f});
+        health_bar.fill_color = cl_red;
         renderer.draw(health_bar);
     }
 
