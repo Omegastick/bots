@@ -44,17 +44,17 @@ struct Text
 };
 
 // Vector graphics
-struct Rectangle
+struct Circle
 {
+    float radius;
     glm::vec4 fill_color;
     glm::vec4 stroke_color;
     float stroke_width;
     Transform transform = Transform();
 };
 
-struct Circle
+struct Rectangle
 {
-    float radius;
     glm::vec4 fill_color;
     glm::vec4 stroke_color;
     float stroke_width;
