@@ -10,13 +10,13 @@ class AssetStore
 {
   public:
     void add(const std::string &id, std::shared_ptr<T> asset);
-    void add_raw(const std::string &id, const T *asset);
-    const T *get(const std::string &id);
+    void add_raw(const std::string &id, T *asset);
+    T *get(const std::string &id);
     bool check_exists(const std::string &id);
 
   private:
     std::unordered_map<std::string, std::shared_ptr<T>> asset_map;
-    std::unordered_map<std::string, const T *> raw_asset_map;
+    std::unordered_map<std::string, T *> raw_asset_map;
 };
 
 template <class T>
@@ -33,7 +33,7 @@ void AssetStore<T>::add(const std::string &id, std::shared_ptr<T> asset)
 }
 
 template <class T>
-void AssetStore<T>::add_raw(const std::string &id, const T *asset)
+void AssetStore<T>::add_raw(const std::string &id, T *asset)
 {
     // Check for duplicates
     if (check_exists(id))
@@ -64,7 +64,7 @@ bool AssetStore<T>::check_exists(const std::string &id)
 }
 
 template <class T>
-const T *AssetStore<T>::get(const std::string &id)
+T *AssetStore<T>::get(const std::string &id)
 {
     auto it = asset_map.find(id);
     if (it != asset_map.end())

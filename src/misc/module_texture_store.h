@@ -18,6 +18,6 @@ class ModuleTextureStore
   public:
     ModuleTextureStore(ModuleFactory &module_factory, Renderer &&renderer);
 
-    const Texture &get(const std::string &module);
+    Texture &get(const std::string &module);
 };
 }

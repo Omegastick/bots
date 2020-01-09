@@ -58,3 +58,6 @@
 [submodule "lib/openal-soft"]
 	path = lib/openal-soft
 	url = git@github.com:kcat/openal-soft.git
+[submodule "lib/soloud"]
+	path = lib/soloud
+	url = git@github.com:jarikomppa/soloud.git

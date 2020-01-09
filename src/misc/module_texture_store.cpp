@@ -20,7 +20,7 @@ ModuleTextureStore::ModuleTextureStore(ModuleFactory &module_factory, Renderer &
     : module_factory(module_factory),
       renderer(std::move(renderer)) {}
 
-const Texture &ModuleTextureStore::get(const std::string &module)
+Texture &ModuleTextureStore::get(const std::string &module)
 {
     const auto found_texture = cache.find(module);
     if (found_texture != cache.end())
