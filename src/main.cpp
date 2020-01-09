@@ -3,6 +3,7 @@
 #include <sstream>
 
 #include "app.h"
+#include "audio/audio_engine.h"
 #include "graphics/renderers/line_renderer.h"
 #include "graphics/renderers/particle_renderer.h"
 #include "graphics/renderers/renderer.h"
@@ -28,6 +29,7 @@
 #include "training/bodies/body.h"
 #include "training/bodies/test_body.h"
 #include "training/checkpointer.h"
+#include "training/entities/bullet.h"
 #include "training/environments/ienvironment.h"
 #include "training/environments/koth_env.h"
 #include "training/environments/playback_env.h"
@@ -60,7 +62,10 @@ int main(int argc, char *argv[])
         di::bind<BodyFactory>.to<BodyFactory>(),
         di::bind<IScreenFactory>.named(BuildScreenFactoryType).to<BuildScreenFactory>(),
         di::bind<IScreenFactory>.named(CreateProgramScreenFactoryType).to<CreateProgramScreenFactory>(),
-        di::bind<IScreenFactory>.named(MultiplayerScreenFactoryType).to<MultiplayerScreenFactory>());
+        di::bind<IScreenFactory>.named(MultiplayerScreenFactoryType).to<MultiplayerScreenFactory>(),
+        di::bind<IAudioEngine>.to<AudioEngine>(),
+        di::bind<IModuleFactory>.to<ModuleFactory>(),
+        di::bind<IBulletFactory>.to<BulletFactory>());
     auto app = injector.create<App>();
     app.run(argc, argv);
 }

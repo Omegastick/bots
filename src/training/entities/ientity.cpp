@@ -29,6 +29,11 @@ b2Vec2 IEntity::get_linear_velocity() const
     return rigid_body->body->GetLinearVelocity();
 }
 
+bool IEntity::is_visible() const
+{
+    return env.is_visible();
+}
+
 void IEntity::set_transform(b2Vec2 position, float rotation)
 {
     rigid_body->body->SetTransform(position, rotation);

@@ -20,17 +20,19 @@
 
 namespace ai
 {
-GunModule::GunModule(Random &rng) : barrel_rectangle{{0.5f, 0.5f, 0.5f, 0.5f},
-                                                     cl_white,
-                                                     0.1f,
-                                                     Transform()},
-                                    body_rectangle{{0.5f, 0.5f, 0.5f, 0.5f},
-                                                   cl_white,
-                                                   0.1f,
-                                                   Transform()},
-                                    cooldown(3),
-                                    rng(rng),
-                                    steps_since_last_shot(0)
+GunModule::GunModule(IBulletFactory &bullet_factory, Random &rng)
+    : barrel_rectangle{{0.5f, 0.5f, 0.5f, 0.5f},
+                       cl_white,
+                       0.1f,
+                       Transform()},
+      body_rectangle{{0.5f, 0.5f, 0.5f, 0.5f},
+                     cl_white,
+                     0.1f,
+                     Transform()},
+      bullet_factory(bullet_factory),
+      cooldown(3),
+      rng(rng),
+      steps_since_last_shot(0)
 {
     // Graphics
     body_rectangle.transform.set_scale({1.f, 0.666f});
@@ -63,12 +65,13 @@ void GunModule::activate()
         b2Transform global_transform = get_global_transform();
         b2Vec2 velocity = b2Mul(global_transform.q, b2Vec2(0, 100));
         b2Vec2 offset = b2Mul(global_transform.q, b2Vec2(0, 0.7f));
-        body->get_environment()->add_entity(std::make_unique<Bullet>(global_transform.p + offset,
-                                                                     velocity,
-                                                                     *body->get_rigid_body().body->GetWorld(),
-                                                                     body,
-                                                                     rng.next_int(0, INT_MAX),
-                                                                     *body->get_environment()));
+        body->get_environment()->add_entity(
+            bullet_factory.make(global_transform.p + offset,
+                                velocity,
+                                *body->get_rigid_body().body->GetWorld(),
+                                body,
+                                rng.next_int(0, INT_MAX),
+                                *body->get_environment()));
     }
 }
 
@@ -97,7 +100,7 @@ void GunModule::set_color(const ColorScheme &color_scheme)
 nlohmann::json GunModule::to_json() const
 {
     auto json = nlohmann::json::object();
-    json["type"] = "gun";
+    json["type"] = "gun_module";
 
     json["links"] = nlohmann::json::array();
     for (const auto &link : module_links)
@@ -130,24 +133,25 @@ void GunModule::update()
 TEST_CASE("GunModule converts to correct Json")
 {
     Random rng(0);
-    GunModule module(rng);
+    MockBulletFactory bullet_factory;
+    GunModule module(bullet_factory, rng);
 
     auto json = module.to_json();
 
     SUBCASE("GunModule Json has correct type")
     {
-        CHECK(json["type"] == "gun");
+        DOCTEST_CHECK(json["type"] == "gun_module");
     }
 
     SUBCASE("GunModule Json has correct number of links")
     {
-        CHECK(json["links"].size() == 3);
+        DOCTEST_CHECK(json["links"].size() == 3);
     }
 
     SUBCASE("Nested modules are represented correctly in Json")
     {
         // Attach gun module
-        GunModule gun_module(rng);
+        GunModule gun_module(bullet_factory, rng);
         module.get_module_links()[0].link(gun_module.get_module_links()[0]);
 
         // Update json
@@ -155,17 +159,17 @@ TEST_CASE("GunModule converts to correct Json")
 
         SUBCASE("Submodule Json has correct type")
         {
-            CHECK(json["links"][0]["child"]["type"] == "gun");
+            DOCTEST_CHECK(json["links"][0]["child"]["type"] == "gun_module");
         }
 
         SUBCASE("Link's child link number is correct")
         {
-            CHECK(json["links"][0]["child_link"] == 0);
+            DOCTEST_CHECK(json["links"][0]["child_link"] == 0);
         }
 
         SUBCASE("Submodule link to parent is null in Json")
         {
-            CHECK(json["links"][0]["child"]["links"][0] == nullptr);
+            DOCTEST_CHECK(json["links"][0]["child"]["links"][0] == nullptr);
         }
     }
 }

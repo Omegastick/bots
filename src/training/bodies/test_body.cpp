@@ -4,8 +4,9 @@
 
 #include <Box2D/Box2D.h>
 
+#include "test_body.h"
+#include "misc/module_factory.h"
 #include "misc/random.h"
-#include "training/bodies/test_body.h"
 #include "training/modules/base_module.h"
 #include "training/modules/gun_module.h"
 #include "training/modules/laser_sensor_module.h"
@@ -18,15 +19,16 @@
 namespace ai
 {
 TestBody::TestBody(std::unique_ptr<RigidBody> rigid_body,
+                   IModuleFactory &module_factory,
                    Random &rng,
-                   IEnvironment &environment) : Body(rng)
+                   IEnvironment &environment) : Body(module_factory, rng)
 {
     set_rigid_body(std::move(rigid_body));
     set_environment(environment);
     setup();
 }
 
-TestBody::TestBody(Random &rng) : Body(rng)
+TestBody::TestBody(IModuleFactory &module_factory, Random &rng) : Body(module_factory, rng)
 {
     setup();
 }
@@ -36,12 +38,12 @@ void TestBody::setup()
     hp = 10;
 
     // Instantiate modules
-    auto base_module = std::make_shared<BaseModule>();
-    auto gun_module_right = std::make_shared<GunModule>(*rng);
-    auto gun_module_left = std::make_shared<GunModule>(*rng);
-    auto thruster_module_left = std::make_shared<ThrusterModule>();
-    auto thruster_module_right = std::make_shared<ThrusterModule>();
-    auto laser_sensor_module = std::make_shared<LaserSensorModule>(20, 180, 20);
+    auto base_module = module_factory.create_module("base_module");
+    auto gun_module_right = module_factory.create_module("gun_module");
+    auto gun_module_left = module_factory.create_module("gun_module");
+    auto thruster_module_left = module_factory.create_module("thruster_module");
+    auto thruster_module_right = module_factory.create_module("thruster_module");
+    auto laser_sensor_module = module_factory.create_module("laser_sensor_module");
 
     // Connect modules
     base_module->get_module_links()[1].link(gun_module_right->get_module_links()[2]);

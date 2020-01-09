@@ -137,7 +137,7 @@ TEST_CASE("Checkpointer")
         nlohmann::json body_spec = {
             {"base_module", {
                 {"links", {nullptr, nullptr, nullptr, nullptr}},
-                    {"type", "base"}}
+                    {"type", "base_module"}}
                 },
             {"name", "qweqwe"},
             {"num_observations", 5},
@@ -184,7 +184,7 @@ TEST_CASE("Checkpointer")
                 {"body_spec", {
                     {"base_module", {
                         {"links", {nullptr, nullptr, nullptr, nullptr}},
-                        {"type", "base"}}
+                        {"type", "base_module"}}
                     },
                     {"name", "qweqwe"},
                     {"num_observations", 5},
@@ -202,7 +202,7 @@ TEST_CASE("Checkpointer")
         auto data = checkpointer.load_data("/asd");
 
         DOCTEST_CHECK(data.body_spec["schema"] == "v1alpha2");
-        DOCTEST_CHECK(data.body_spec["base_module"]["type"] == "base");
+        DOCTEST_CHECK(data.body_spec["base_module"]["type"] == "base_module");
         DOCTEST_CHECK(data.data["asd"] == doctest::Approx(123));
         DOCTEST_CHECK(data.data["sdf"] == doctest::Approx(5.43));
         DOCTEST_CHECK(data.previous_checkpoint == "/asd/sdf.meta");

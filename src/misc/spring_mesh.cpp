@@ -176,14 +176,14 @@ TEST_CASE("SpringMesh")
     {
         auto vertices = spring_mesh.get_vertices(1, 1);
 
-        CHECK(vertices.size() == 12);
+        DOCTEST_CHECK(vertices.size() == 12);
     }
 
     SUBCASE("Number of offsets returned is equal to width * height")
     {
         auto &offsets = spring_mesh.get_offsets();
 
-        CHECK(offsets.size() == 12);
+        DOCTEST_CHECK(offsets.size() == 12);
     }
 
     SUBCASE("Small radius explosive force moves correct vertex")
@@ -193,15 +193,15 @@ TEST_CASE("SpringMesh")
 
         auto &offsets = spring_mesh.get_offsets();
 
-        CHECK(offsets[4].x > 1);
+        DOCTEST_CHECK(offsets[4].x > 1);
     }
 
     SUBCASE("Vertices are scaled correctly")
     {
         auto vertices = spring_mesh.get_vertices(5, 7);
 
-        CHECK(vertices[0] == glm::vec2{0, 0});
-        CHECK(vertices[11] == glm::vec2(5, 7));
+        DOCTEST_CHECK(vertices[0] == glm::vec2{0, 0});
+        DOCTEST_CHECK(vertices[11] == glm::vec2(5, 7));
     }
 }
 }

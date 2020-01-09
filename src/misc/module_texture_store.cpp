@@ -16,7 +16,7 @@ constexpr int image_size = 500;
 
 const glm::mat4 projection = glm::ortho(-1, 1, -1, 1);
 
-ModuleTextureStore::ModuleTextureStore(ModuleFactory &module_factory, Renderer &&renderer)
+ModuleTextureStore::ModuleTextureStore(IModuleFactory &module_factory, Renderer &&renderer)
     : module_factory(module_factory),
       renderer(std::move(renderer)) {}
 

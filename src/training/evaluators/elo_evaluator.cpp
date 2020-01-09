@@ -10,10 +10,13 @@
 #include <taskflow/taskflow.hpp>
 
 #include "elo_evaluator.h"
+#include "audio/audio_engine.h"
+#include "misc/module_factory.h"
 #include "misc/random.h"
 #include "training/agents/iagent.h"
 #include "training/agents/nn_agent.h"
 #include "training/agents/random_agent.h"
+#include "training/entities/bullet.h"
 #include "training/environments/koth_env.h"
 #include "training/bodies/body.h"
 #include "training/bodies/test_body.h"
@@ -178,11 +181,14 @@ TEST_CASE("EloEvaluator")
     SUBCASE("Calculates elos within expected boundaries when evaluating random agents")
     {
         Random rng(0);
-        BodyFactory body_factory(rng);
-        KothEnvFactory env_factory(100, body_factory);
+        MockAudioEngine audio_engine;
+        BulletFactory bullet_factory(audio_engine);
+        ModuleFactory module_factory(bullet_factory, rng);
+        BodyFactory body_factory(module_factory, rng);
+        KothEnvFactory env_factory(100, body_factory, bullet_factory);
         EloEvaluator evaluator(body_factory, env_factory, rng);
 
-        auto body_spec = TestBody(rng).to_json();
+        auto body_spec = TestBody(module_factory, rng).to_json();
 
         RandomAgent agent_1(body_spec, rng, "Agent 1");
         RandomAgent agent_2(body_spec, rng, "Agent 2");

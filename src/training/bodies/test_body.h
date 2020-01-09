@@ -14,8 +14,11 @@ class IEnvironment;
 class TestBody : public Body
 {
   public:
-    TestBody(Random &rng);
-    TestBody(std::unique_ptr<RigidBody> rigid_body, Random &rng, IEnvironment &environment);
+    TestBody(IModuleFactory &module_factory, Random &rng);
+    TestBody(std::unique_ptr<RigidBody> rigid_body,
+             IModuleFactory &module_factory,
+             Random &rng,
+             IEnvironment &environment);
 
     void setup();
 };
@@ -23,16 +26,17 @@ class TestBody : public Body
 class TestBodyFactory : public BodyFactory
 {
   public:
-    TestBodyFactory(Random &rng) : BodyFactory(rng) {}
+    TestBodyFactory(IModuleFactory &module_factory, Random &rng)
+        : BodyFactory(module_factory, rng) {}
 
     std::unique_ptr<Body> make(Random &rng)
     {
-        return std::make_unique<TestBody>(rng);
+        return std::make_unique<TestBody>(module_factory, rng);
     }
 
     virtual std::unique_ptr<Body> make(b2World &world, Random &rng)
     {
-        auto body = std::make_unique<TestBody>(rng);
+        auto body = std::make_unique<TestBody>(module_factory, rng);
         auto rigid_body = std::make_unique<RigidBody>(
             b2_dynamicBody,
             b2Vec2_zero,

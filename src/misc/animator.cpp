@@ -66,7 +66,7 @@ TEST_CASE("Animator")
 
         animator.update(1);
 
-        CHECK(called == true);
+        DOCTEST_CHECK(called == true);
     }
 
     SUBCASE("Multiple added animations are called in update()")
@@ -85,8 +85,8 @@ TEST_CASE("Animator")
 
         animator.update(1);
 
-        CHECK(called_1 == true);
-        CHECK(called_2 == true);
+        DOCTEST_CHECK(called_1 == true);
+        DOCTEST_CHECK(called_2 == true);
     }
 
     SUBCASE("Animations are removed once they time out")
@@ -99,11 +99,11 @@ TEST_CASE("Animator")
 
         animator.update(1);
 
-        CHECK(called == true);
+        DOCTEST_CHECK(called == true);
 
         animator.update(1);
 
-        CHECK(called == true);
+        DOCTEST_CHECK(called == true);
     }
 
     SUBCASE("Animations can be stepped in non-integer increments")
@@ -116,11 +116,11 @@ TEST_CASE("Animator")
 
         animator.update(0.5);
 
-        CHECK(called == true);
+        DOCTEST_CHECK(called == true);
 
         animator.update(0.5);
 
-        CHECK(called == false);
+        DOCTEST_CHECK(called == false);
     }
 
     SUBCASE("Final callback is called when an animation finishes")
@@ -134,11 +134,11 @@ TEST_CASE("Animator")
 
         animator.update(0.5);
 
-        CHECK(finished == false);
+        DOCTEST_CHECK(finished == false);
 
         animator.update(0.5);
 
-        CHECK(finished == true);
+        DOCTEST_CHECK(finished == true);
     }
 
     SUBCASE("Animations step callbacks are called with the percentage by which to step forward")
@@ -151,17 +151,17 @@ TEST_CASE("Animator")
 
         animator.update(1);
 
-        CHECK(passed_value == doctest::Approx(0.5));
+        DOCTEST_CHECK(passed_value == doctest::Approx(0.5));
     }
 
     SUBCASE("IDs are assigned sequentially")
     {
-        CHECK(animator.add_animation({[](double) {}, 1.f, [] {}}) == 0);
-        CHECK(animator.add_animation({[](double) {}, 1.f, [] {}}) == 1);
+        DOCTEST_CHECK(animator.add_animation({[](double) {}, 1.f, [] {}}) == 0);
+        DOCTEST_CHECK(animator.add_animation({[](double) {}, 1.f, [] {}}) == 1);
 
         animator.delete_animation(1);
 
-        CHECK(animator.add_animation({[](double) {}, 1.f, [] {}}) == 2);
+        DOCTEST_CHECK(animator.add_animation({[](double) {}, 1.f, [] {}}) == 2);
     }
 
     SUBCASE("Deleted animations don't trigger")
@@ -175,7 +175,7 @@ TEST_CASE("Animator")
 
         animator.update(1);
 
-        CHECK(called == false);
+        DOCTEST_CHECK(called == false);
     }
 }
 }

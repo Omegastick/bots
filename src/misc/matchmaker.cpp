@@ -115,14 +115,14 @@ TEST_CASE("Matchmaker")
 
             auto future = matchmaker.find_game();
 
-            CHECK(future.wait_for(std::chrono::seconds(0)) == std::future_status::timeout);
+            DOCTEST_CHECK(future.wait_for(std::chrono::seconds(0)) == std::future_status::timeout);
 
             promise_1.set_value(nlohmann::json{{"status", "waiting_for_game"}});
-            CHECK(future.wait_for(std::chrono::seconds(0)) == std::future_status::timeout);
+            DOCTEST_CHECK(future.wait_for(std::chrono::seconds(0)) == std::future_status::timeout);
 
             promise_2.set_value(nlohmann::json{{"status", "in_game"},
                                                {"gameserver", "tcp://asd:123"}});
-            CHECK(future.wait_for(std::chrono::seconds(1)) == std::future_status::ready);
+            DOCTEST_CHECK(future.wait_for(std::chrono::seconds(1)) == std::future_status::ready);
         }
 
         SUBCASE("Sets future value to gameserver URL")
@@ -135,7 +135,7 @@ TEST_CASE("Matchmaker")
 
             promise.set_value(nlohmann::json{{"status", "in_game"},
                                              {"gameserver", "tcp://asd:123"}});
-            CHECK(url_future.get() == "tcp://asd:123");
+            DOCTEST_CHECK(url_future.get() == "tcp://asd:123");
         }
 
         SUBCASE("Sends correct authorization token")
@@ -149,7 +149,7 @@ TEST_CASE("Matchmaker")
 
             promise.set_value(nlohmann::json{{"status", "in_game"},
                                              {"gameserver", "tcp://asd:123"}});
-            CHECK(future.get() == "tcp://asd:123");
+            DOCTEST_CHECK(future.get() == "tcp://asd:123");
         }
     }
 

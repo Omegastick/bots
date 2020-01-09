@@ -2,7 +2,7 @@
 
 namespace ai
 {
-SoundHandle::SoundHandle(AudioEngine &audio_engine, int handle)
+SoundHandle::SoundHandle(IAudioEngine &audio_engine, int handle)
     : audio_engine(audio_engine),
       handle(handle) {}
 }

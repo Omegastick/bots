@@ -135,7 +135,7 @@ void LaserSensorModule::set_color(const ColorScheme &color_scheme)
 nlohmann::json LaserSensorModule::to_json() const
 {
     auto json = nlohmann::json::object();
-    json["type"] = "laser_sensor";
+    json["type"] = "laser_sensor_module";
 
     json["links"] = nlohmann::json::array();
     for (const auto &link : module_links)
@@ -187,12 +187,12 @@ TEST_CASE("LaserSensorModule converts to correct Json")
 
     SUBCASE("LaserSensorModule Json has correct type")
     {
-        CHECK(json["type"] == "laser_sensor");
+        DOCTEST_CHECK(json["type"] == "laser_sensor_module");
     }
 
     SUBCASE("LaserSensorModule Json has correct number of links")
     {
-        CHECK(json["links"].size() == 1);
+        DOCTEST_CHECK(json["links"].size() == 1);
     }
 
     SUBCASE("Nested modules are represented correctly in Json")
@@ -206,17 +206,17 @@ TEST_CASE("LaserSensorModule converts to correct Json")
 
         SUBCASE("Submodule Json has correct type")
         {
-            CHECK(json["links"][0]["child"]["type"] == "thruster");
+            DOCTEST_CHECK(json["links"][0]["child"]["type"] == "thruster_module");
         }
 
         SUBCASE("Link's child link number is correct")
         {
-            CHECK(json["links"][0]["child_link"] == 0);
+            DOCTEST_CHECK(json["links"][0]["child_link"] == 0);
         }
 
         SUBCASE("Submodule link to parent is null in Json")
         {
-            CHECK(json["links"][0]["child"]["links"][0] == nullptr);
+            DOCTEST_CHECK(json["links"][0]["child"]["links"][0] == nullptr);
         }
     }
 }

@@ -11,7 +11,10 @@
 #include <spdlog/spdlog.h>
 
 #include "server_app.h"
+#include "audio/audio_engine.h"
+#include "misc/module_factory.h"
 #include "misc/random.h"
+#include "misc/resource_manager.h"
 #include "networking/client_communicator.h"
 #include "networking/client_agent.h"
 #include "networking/game.h"
@@ -22,6 +25,7 @@
 #include "third_party/zmq.hpp"
 #include "training/agents/random_agent.h"
 #include "training/bodies/test_body.h"
+#include "training/entities/bullet.h"
 #include "training/environments/koth_env.h"
 
 namespace di = boost::di;
@@ -39,8 +43,11 @@ void run_client(const std::string &id, const std::string &token)
     ClientCommunicator client_communicator(std::move(client_socket));
 
     Random rng(0);
-    TestBodyFactory body_factory(rng);
-    KothEnvFactory env_factory(100, body_factory);
+    MockAudioEngine audio_engine;
+    BulletFactory bullet_factory(audio_engine);
+    ModuleFactory module_factory(bullet_factory, rng);
+    TestBodyFactory body_factory(module_factory, rng);
+    KothEnvFactory env_factory(100, body_factory, bullet_factory);
     auto env = env_factory.make();
 
     auto body_spec = env->get_bodies()[0]->to_json();
@@ -105,7 +112,10 @@ TEST_CASE("Network")
     const auto injector = di::make_injector(
         di::bind<int>.named(MaxSteps).to(100),
         di::bind<double>.named(TickLength).to(0.001),
-        di::bind<IEnvironmentFactory>.to<KothEnvFactory>());
+        di::bind<IEnvironmentFactory>.to<KothEnvFactory>(),
+        di::bind<IAudioEngine>.to<AudioEngine>(),
+        di::bind<IModuleFactory>.to<ModuleFactory>(),
+        di::bind<IBulletFactory>.to<BulletFactory>());
     auto app = injector.create<ServerApp>();
     char filepath[] = "./asd";
     char quiet[] = "--quiet";

@@ -7,13 +7,16 @@
 #include <nlohmann/json.hpp>
 #include <spdlog/spdlog.h>
 
-#include "ui/build_screen/body_builder.h"
+#include "body_builder.h"
+#include "audio/audio_engine.h"
 #include "graphics/colors.h"
 #include "graphics/render_data.h"
 #include "graphics/renderers/renderer.h"
 #include "misc/io.h"
+#include "misc/module_factory.h"
 #include "misc/random.h"
 #include "training/bodies/body.h"
+#include "training/entities/bullet.h"
 #include "training/modules/base_module.h"
 #include "training/modules/gun_module.h"
 #include "training/modules/module_link.h"
@@ -174,7 +177,10 @@ void BodyBuilder::draw(Renderer &renderer, bool lightweight)
 TEST_CASE("BodyBuilder")
 {
     Random rng(0);
-    BodyFactory body_factory(rng);
+    MockAudioEngine audio_engine;
+    BulletFactory bullet_factory(audio_engine);
+    ModuleFactory module_factory(bullet_factory, rng);
+    BodyFactory body_factory(module_factory, rng);
     IO io;
     io.set_resolution(1920, 1080);
     auto world = std::make_unique<b2World>(b2Vec2_zero);
@@ -193,15 +199,17 @@ TEST_CASE("BodyBuilder")
         DOCTEST_CHECK(transform.q.GetAngle() == 0.f);
 
         auto json = modules[0]->to_json();
-        DOCTEST_CHECK(json["type"] == "base");
+        DOCTEST_CHECK(json["type"] == "base_module");
     }
 
     SUBCASE("delete_module()")
     {
         SUBCASE("Correctly deletes a module")
         {
-            auto gun_module = std::make_shared<GunModule>(rng);
-            auto point = screen_to_world_space({1030, 545}, io.get_resolution(), body_builder.get_projection());
+            auto gun_module = module_factory.create_module("gun_module");
+            auto point = screen_to_world_space({1030, 545},
+                                               io.get_resolution(),
+                                               body_builder.get_projection());
             gun_module->get_transform().p = {point.x, point.y};
             auto placed_module = body_builder.place_module(gun_module);
 
@@ -223,7 +231,7 @@ TEST_CASE("BodyBuilder")
     {
         SUBCASE("Correctly places a gun module")
         {
-            auto gun_module = std::make_shared<GunModule>(rng);
+            auto gun_module = module_factory.create_module("gun_module");
             auto point = screen_to_world_space({1030, 545}, io.get_resolution(), body_builder.get_projection());
             gun_module->get_transform().p = {point.x, point.y};
 
@@ -238,12 +246,12 @@ TEST_CASE("BodyBuilder")
 
         SUBCASE("Correctly places two gun modules")
         {
-            auto gun_module_1 = std::make_shared<GunModule>(rng);
+            auto gun_module_1 = module_factory.create_module("gun_module");
             auto point = screen_to_world_space({1030, 545}, io.get_resolution(), body_builder.get_projection());
             gun_module_1->get_transform().p = {point.x, point.y};
             body_builder.place_module(gun_module_1);
 
-            auto gun_module_2 = std::make_shared<GunModule>(rng);
+            auto gun_module_2 = module_factory.create_module("gun_module");
             point = screen_to_world_space({960, 625}, io.get_resolution(), body_builder.get_projection());
             gun_module_2->get_transform().p = {point.x, point.y};
             auto selected_module = body_builder.place_module(gun_module_2);
@@ -257,12 +265,12 @@ TEST_CASE("BodyBuilder")
 
         SUBCASE("Can chain modules")
         {
-            auto gun_module_1 = std::make_shared<GunModule>(rng);
+            auto gun_module_1 = module_factory.create_module("gun_module");
             auto point = screen_to_world_space({1030, 545}, io.get_resolution(), body_builder.get_projection());
             gun_module_1->get_transform().p = {point.x, point.y};
             body_builder.place_module(gun_module_1);
 
-            auto gun_module_2 = std::make_shared<GunModule>(rng);
+            auto gun_module_2 = module_factory.create_module("gun_module");
             point = screen_to_world_space({1160, 545}, io.get_resolution(), body_builder.get_projection());
             gun_module_2->get_transform().p = {point.x, point.y};
             auto selected_module = body_builder.place_module(gun_module_2);

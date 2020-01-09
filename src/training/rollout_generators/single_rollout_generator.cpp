@@ -7,9 +7,11 @@
 #include <doctest.h>
 
 #include "single_rollout_generator.h"
+#include "misc/module_factory.h"
 #include "training/agents/iagent.h"
 #include "training/agents/random_agent.h"
 #include "training/bodies/test_body.h"
+#include "training/entities/bullet.h"
 #include "training/environments/ienvironment.h"
 
 namespace ai
@@ -193,7 +195,9 @@ using trompeloeil::_;
 TEST_CASE("SingleRolloutGenerator")
 {
     Random rng(0);
-    TestBody body(rng);
+    MockBulletFactory bullet_factory;
+    ModuleFactory module_factory(bullet_factory, rng);
+    TestBody body(module_factory, rng);
     const auto body_json = body.to_json();
     RandomAgent agent(body_json, rng, "Player");
     auto environment = std::make_unique<MockEnvironment>();

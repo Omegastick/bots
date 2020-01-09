@@ -259,8 +259,8 @@ TEST_CASE("MainMenuScreen")
             auto user_info_future = main_menu_screen->get_user_info("http://asd.com/");
 
             const auto user_info = user_info_future.get();
-            CHECK(user_info.credits == 321);
-            CHECK(user_info.elo == 123);
+            DOCTEST_CHECK(user_info.credits == 321);
+            DOCTEST_CHECK(user_info.elo == 123);
         }
 
         SUBCASE("Sets exception on timeout")
