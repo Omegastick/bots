@@ -24,7 +24,7 @@ class Animator;
 class CredentialsManager;
 class IHttpClient;
 class IO;
-class ModuleFactory;
+class IModuleFactory;
 class ModuleTextureStore;
 class Random;
 class Renderer;
@@ -36,7 +36,7 @@ class BuildScreen : public IScreen
   private:
     std::unique_ptr<ColorSchemeWindow> color_scheme_window;
     float current_rotation;
-    ModuleFactory &module_factory;
+    IModuleFactory &module_factory;
     ScreenManager &screen_manager;
     std::string selected_module_name;
     bool show_unlock_parts_window;
@@ -56,7 +56,7 @@ class BuildScreen : public IScreen
                 std::unique_ptr<PartSelectorWindow> part_selector_window,
                 std::unique_ptr<SaveBodyWindow> save_body_window,
                 std::unique_ptr<UnlockPartsWindow> unlock_parts_window,
-                ModuleFactory &module_factory,
+                IModuleFactory &module_factory,
                 ResourceManager &resource_manager,
                 ScreenManager &screen_manager,
                 IO &io);
@@ -72,7 +72,7 @@ class BuildScreenFactory : public IScreenFactory
     BodyBuilderFactory &body_builder_factory;
     CredentialsManager &credentials_manager;
     IHttpClient &http_client;
-    ModuleFactory &module_factory;
+    IModuleFactory &module_factory;
     ModuleTextureStore &module_texture_store;
     ResourceManager &resource_manager;
     ScreenManager &screen_manager;
@@ -83,7 +83,7 @@ class BuildScreenFactory : public IScreenFactory
                        BodyBuilderFactory &body_builder_factory,
                        CredentialsManager &credentials_manager,
                        IHttpClient &http_client,
-                       ModuleFactory &module_factory,
+                       IModuleFactory &module_factory,
                        ModuleTextureStore &module_texture_store,
                        ResourceManager &resource_manager,
                        ScreenManager &screen_manager,

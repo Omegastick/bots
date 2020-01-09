@@ -44,7 +44,7 @@ TEST_CASE("Random")
             auto number = rng.next_float(-10, 10);
             out_of_range = out_of_range || number < -10 || number > 10;
         }
-        CHECK(!out_of_range);
+        DOCTEST_CHECK(!out_of_range);
     }
 
     SUBCASE("Generated ints should be in the right range")
@@ -55,7 +55,7 @@ TEST_CASE("Random")
             auto number = rng.next_int(-10, 10);
             out_of_range = out_of_range || number < -10 || number >= 10;
         }
-        CHECK(!out_of_range);
+        DOCTEST_CHECK(!out_of_range);
     }
 }
 }

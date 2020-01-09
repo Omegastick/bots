@@ -213,7 +213,7 @@ int main(int /*argc*/, const char * /*argv*/ [])
     window.set_resize_callback(resize_window_callback);
 
     Random rng(0);
-    ModuleFactory module_factory(rng);
+    IModuleFactory module_factory(rng);
 
     LineRenderer module_line_renderer(resource_manager);
     ParticleRenderer module_particle_renderer(100000, resource_manager);

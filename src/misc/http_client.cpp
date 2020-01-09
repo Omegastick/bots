@@ -119,7 +119,7 @@ TEST_CASE("HttpClient")
         {
             auto response = client.get("https://httpbin.org/get").get();
 
-            CHECK(response["url"] == "https://httpbin.org/get");
+            DOCTEST_CHECK(response["url"] == "https://httpbin.org/get");
         }
 
         SUBCASE("Sends specified headers")
@@ -129,8 +129,8 @@ TEST_CASE("HttpClient")
             headers.push_back("Sdf: 234");
             auto response = client.get("https://httpbin.org/get", headers).get();
 
-            CHECK(response["headers"]["Asd"] == "123");
-            CHECK(response["headers"]["Sdf"] == "234");
+            DOCTEST_CHECK(response["headers"]["Asd"] == "123");
+            DOCTEST_CHECK(response["headers"]["Sdf"] == "234");
         }
     }
 
@@ -145,7 +145,7 @@ TEST_CASE("HttpClient")
         {
             auto response = client.post("https://httpbin.org/post", {{"foo", "bar"}}).get();
 
-            CHECK(response["json"] == nlohmann::json({{"foo", "bar"}}));
+            DOCTEST_CHECK(response["json"] == nlohmann::json({{"foo", "bar"}}));
         }
 
         SUBCASE("Sends specified headers")
@@ -155,8 +155,8 @@ TEST_CASE("HttpClient")
             headers.push_back("Sdf: 234");
             auto response = client.post("https://httpbin.org/post", {}, headers).get();
 
-            CHECK(response["headers"]["Asd"] == "123");
-            CHECK(response["headers"]["Sdf"] == "234");
+            DOCTEST_CHECK(response["headers"]["Asd"] == "123");
+            DOCTEST_CHECK(response["headers"]["Sdf"] == "234");
         }
     }
 }

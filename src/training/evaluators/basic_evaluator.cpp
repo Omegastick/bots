@@ -6,10 +6,13 @@
 #include <taskflow/taskflow.hpp>
 
 #include "basic_evaluator.h"
+#include "audio/audio_engine.h"
+#include "misc/module_factory.h"
 #include "misc/random.h"
 #include "training/agents/nn_agent.h"
 #include "training/agents/random_agent.h"
 #include "training/bodies/test_body.h"
+#include "training/entities/bullet.h"
 #include "training/environments/koth_env.h"
 
 namespace ai
@@ -23,7 +26,9 @@ BasicEvaluator::BasicEvaluator(BodyFactory &body_factory,
 double BasicEvaluator::evaluate(const IAgent &agent,
                                 int number_of_trials)
 {
-    TestBody test_body(rng);
+    MockBulletFactory bullet_factory;
+    ModuleFactory module_factory(bullet_factory, rng);
+    TestBody test_body(module_factory, rng);
     auto test_body_json = test_body.to_json();
     RandomAgent random_agent(test_body_json, rng, "Random Agent");
 
@@ -69,11 +74,14 @@ TEST_CASE("BasicEvaluator")
     SUBCASE("evaluate() runs the correct number of trials")
     {
         Random rng(0);
-        BodyFactory body_factory(rng);
-        KothEnvFactory env_factory(10, body_factory);
+        MockAudioEngine audio_engine;
+        BulletFactory bullet_factory(audio_engine);
+        ModuleFactory module_factory(bullet_factory, rng);
+        BodyFactory body_factory(module_factory, rng);
+        KothEnvFactory env_factory(10, body_factory, bullet_factory);
         BasicEvaluator evaluator(body_factory, env_factory, rng);
 
-        TestBody body(rng);
+        TestBody body(module_factory, rng);
         auto body_spec = body.to_json();
         RandomAgent agent(body_spec, rng, "Agent");
 

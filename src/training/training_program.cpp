@@ -141,31 +141,31 @@ TEST_CASE("TrainingProgram")
         json["reward_config"] = reward_config;
 
         TrainingProgram program(json);
-        CHECK(program.body == nlohmann::json("Body"));
-        CHECK(program.checkpoint == "12345");
-        CHECK(program.minutes_per_checkpoint == 54321);
-        CHECK(program.opponent_pool == std::vector<std::string>{"asd", "sdf"});
+        DOCTEST_CHECK(program.body == nlohmann::json("Body"));
+        DOCTEST_CHECK(program.checkpoint == "12345");
+        DOCTEST_CHECK(program.minutes_per_checkpoint == 54321);
+        DOCTEST_CHECK(program.opponent_pool == std::vector<std::string>{"asd", "sdf"});
 
-        CHECK(program.hyper_parameters.algorithm == Algorithm::A2C);
-        CHECK(program.hyper_parameters.batch_size == doctest::Approx(4));
-        CHECK(program.hyper_parameters.discount_factor == doctest::Approx(0.2f));
-        CHECK(program.hyper_parameters.entropy_coef == doctest::Approx(0.3f));
-        CHECK(program.hyper_parameters.num_env == doctest::Approx(2));
-        CHECK(program.hyper_parameters.learning_rate == doctest::Approx(2.2f));
-        CHECK(program.hyper_parameters.actor_loss_coef == doctest::Approx(100));
-        CHECK(program.hyper_parameters.value_loss_coef == doctest::Approx(22.3f));
-        CHECK(program.hyper_parameters.clip_param == doctest::Approx(0.3f));
-        CHECK(program.hyper_parameters.num_epoch == doctest::Approx(34));
-        CHECK(program.hyper_parameters.num_minibatch == doctest::Approx(2));
+        DOCTEST_CHECK(program.hyper_parameters.algorithm == Algorithm::A2C);
+        DOCTEST_CHECK(program.hyper_parameters.batch_size == doctest::Approx(4));
+        DOCTEST_CHECK(program.hyper_parameters.discount_factor == doctest::Approx(0.2f));
+        DOCTEST_CHECK(program.hyper_parameters.entropy_coef == doctest::Approx(0.3f));
+        DOCTEST_CHECK(program.hyper_parameters.num_env == doctest::Approx(2));
+        DOCTEST_CHECK(program.hyper_parameters.learning_rate == doctest::Approx(2.2f));
+        DOCTEST_CHECK(program.hyper_parameters.actor_loss_coef == doctest::Approx(100));
+        DOCTEST_CHECK(program.hyper_parameters.value_loss_coef == doctest::Approx(22.3f));
+        DOCTEST_CHECK(program.hyper_parameters.clip_param == doctest::Approx(0.3f));
+        DOCTEST_CHECK(program.hyper_parameters.num_epoch == doctest::Approx(34));
+        DOCTEST_CHECK(program.hyper_parameters.num_minibatch == doctest::Approx(2));
 
-        CHECK(program.reward_config.victory_reward == doctest::Approx(23));
-        CHECK(program.reward_config.loss_punishment == doctest::Approx(-23));
-        CHECK(program.reward_config.hit_enemy_reward == doctest::Approx(3));
-        CHECK(program.reward_config.hit_enemy_type == HpOrHit::Hp);
-        CHECK(program.reward_config.hit_self_punishment == doctest::Approx(-40));
-        CHECK(program.reward_config.hit_self_type == HpOrHit::Hit);
-        CHECK(program.reward_config.hill_tick_reward == doctest::Approx(2.3f));
-        CHECK(program.reward_config.enemy_hill_tick_punishment == doctest::Approx(2));
+        DOCTEST_CHECK(program.reward_config.victory_reward == doctest::Approx(23));
+        DOCTEST_CHECK(program.reward_config.loss_punishment == doctest::Approx(-23));
+        DOCTEST_CHECK(program.reward_config.hit_enemy_reward == doctest::Approx(3));
+        DOCTEST_CHECK(program.reward_config.hit_enemy_type == HpOrHit::Hp);
+        DOCTEST_CHECK(program.reward_config.hit_self_punishment == doctest::Approx(-40));
+        DOCTEST_CHECK(program.reward_config.hit_self_type == HpOrHit::Hit);
+        DOCTEST_CHECK(program.reward_config.hill_tick_reward == doctest::Approx(2.3f));
+        DOCTEST_CHECK(program.reward_config.enemy_hill_tick_punishment == doctest::Approx(2));
     }
 
     SUBCASE("Can be converted to Json and back")
@@ -200,31 +200,31 @@ TEST_CASE("TrainingProgram")
         auto json = program.to_json();
         TrainingProgram recreated_program(json);
 
-        CHECK(recreated_program.body == nlohmann::json("Body"));
-        CHECK(recreated_program.checkpoint == "12345");
-        CHECK(recreated_program.minutes_per_checkpoint == 54321);
-        CHECK(recreated_program.opponent_pool == std::vector<std::string>{"asd", "sdf"});
+        DOCTEST_CHECK(recreated_program.body == nlohmann::json("Body"));
+        DOCTEST_CHECK(recreated_program.checkpoint == "12345");
+        DOCTEST_CHECK(recreated_program.minutes_per_checkpoint == 54321);
+        DOCTEST_CHECK(recreated_program.opponent_pool == std::vector<std::string>{"asd", "sdf"});
 
-        CHECK(recreated_program.hyper_parameters.algorithm == Algorithm::A2C);
-        CHECK(recreated_program.hyper_parameters.batch_size == doctest::Approx(4));
-        CHECK(recreated_program.hyper_parameters.discount_factor == doctest::Approx(0.2f));
-        CHECK(recreated_program.hyper_parameters.entropy_coef == doctest::Approx(0.3f));
-        CHECK(recreated_program.hyper_parameters.num_env == doctest::Approx(2));
-        CHECK(recreated_program.hyper_parameters.learning_rate == doctest::Approx(2.2f));
-        CHECK(recreated_program.hyper_parameters.actor_loss_coef == doctest::Approx(100));
-        CHECK(recreated_program.hyper_parameters.value_loss_coef == doctest::Approx(22.3f));
-        CHECK(recreated_program.hyper_parameters.clip_param == doctest::Approx(0.3f));
-        CHECK(recreated_program.hyper_parameters.num_epoch == doctest::Approx(34));
-        CHECK(recreated_program.hyper_parameters.num_minibatch == doctest::Approx(2));
+        DOCTEST_CHECK(recreated_program.hyper_parameters.algorithm == Algorithm::A2C);
+        DOCTEST_CHECK(recreated_program.hyper_parameters.batch_size == doctest::Approx(4));
+        DOCTEST_CHECK(recreated_program.hyper_parameters.discount_factor == doctest::Approx(0.2f));
+        DOCTEST_CHECK(recreated_program.hyper_parameters.entropy_coef == doctest::Approx(0.3f));
+        DOCTEST_CHECK(recreated_program.hyper_parameters.num_env == doctest::Approx(2));
+        DOCTEST_CHECK(recreated_program.hyper_parameters.learning_rate == doctest::Approx(2.2f));
+        DOCTEST_CHECK(recreated_program.hyper_parameters.actor_loss_coef == doctest::Approx(100));
+        DOCTEST_CHECK(recreated_program.hyper_parameters.value_loss_coef == doctest::Approx(22.3f));
+        DOCTEST_CHECK(recreated_program.hyper_parameters.clip_param == doctest::Approx(0.3f));
+        DOCTEST_CHECK(recreated_program.hyper_parameters.num_epoch == doctest::Approx(34));
+        DOCTEST_CHECK(recreated_program.hyper_parameters.num_minibatch == doctest::Approx(2));
 
-        CHECK(recreated_program.reward_config.victory_reward == doctest::Approx(23));
-        CHECK(recreated_program.reward_config.loss_punishment == doctest::Approx(-23));
-        CHECK(recreated_program.reward_config.hit_enemy_reward == doctest::Approx(3));
-        CHECK(recreated_program.reward_config.hit_enemy_type == HpOrHit::Hp);
-        CHECK(recreated_program.reward_config.hit_self_punishment == doctest::Approx(-40));
-        CHECK(recreated_program.reward_config.hit_self_type == HpOrHit::Hit);
-        CHECK(recreated_program.reward_config.hill_tick_reward == doctest::Approx(2.3f));
-        CHECK(recreated_program.reward_config.enemy_hill_tick_punishment == doctest::Approx(2));
+        DOCTEST_CHECK(recreated_program.reward_config.victory_reward == doctest::Approx(23));
+        DOCTEST_CHECK(recreated_program.reward_config.loss_punishment == doctest::Approx(-23));
+        DOCTEST_CHECK(recreated_program.reward_config.hit_enemy_reward == doctest::Approx(3));
+        DOCTEST_CHECK(recreated_program.reward_config.hit_enemy_type == HpOrHit::Hp);
+        DOCTEST_CHECK(recreated_program.reward_config.hit_self_punishment == doctest::Approx(-40));
+        DOCTEST_CHECK(recreated_program.reward_config.hit_self_type == HpOrHit::Hit);
+        DOCTEST_CHECK(recreated_program.reward_config.hill_tick_reward == doctest::Approx(2.3f));
+        DOCTEST_CHECK(recreated_program.reward_config.enemy_hill_tick_punishment == doctest::Approx(2));
     }
 }
 }

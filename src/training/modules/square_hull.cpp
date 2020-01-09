@@ -83,12 +83,12 @@ TEST_CASE("SquareHull converts to correct Json")
 
     SUBCASE("SquareHull Json has correct type")
     {
-        CHECK(json["type"] == "square_hull");
+        DOCTEST_CHECK(json["type"] == "square_hull");
     }
 
     SUBCASE("SquareHull Json has correct number of links")
     {
-        CHECK(json["links"].size() == 4);
+        DOCTEST_CHECK(json["links"].size() == 4);
     }
 
     SUBCASE("Nested modules are represented correctly in Json")
@@ -102,17 +102,17 @@ TEST_CASE("SquareHull converts to correct Json")
 
         SUBCASE("Submodule Json has correct type")
         {
-            CHECK(json["links"][0]["child"]["type"] == "thruster");
+            DOCTEST_CHECK(json["links"][0]["child"]["type"] == "thruster_module");
         }
 
         SUBCASE("Link's child link number is correct")
         {
-            CHECK(json["links"][0]["child_link"] == 0);
+            DOCTEST_CHECK(json["links"][0]["child_link"] == 0);
         }
 
         SUBCASE("Submodule link to parent is null in Json")
         {
-            CHECK(json["links"][0]["child"]["links"][0] == nullptr);
+            DOCTEST_CHECK(json["links"][0]["child"]["links"][0] == nullptr);
         }
     }
 }

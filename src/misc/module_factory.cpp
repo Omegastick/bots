@@ -4,7 +4,8 @@
 
 #include <fmt/format.h>
 
-#include "misc/module_factory.h"
+#include "module_factory.h"
+#include "training/entities/bullet.h"
 #include "training/modules/base_module.h"
 #include "training/modules/gun_module.h"
 #include "training/modules/imodule.h"
@@ -22,7 +23,7 @@ std::shared_ptr<IModule> ModuleFactory::create_module(const std::string &module_
     }
     else if (module_id == "gun_module")
     {
-        return std::make_shared<GunModule>(rng);
+        return std::make_shared<GunModule>(bullet_factory, rng);
     }
     else if (module_id == "laser_sensor_module")
     {

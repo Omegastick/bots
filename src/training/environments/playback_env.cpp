@@ -9,7 +9,9 @@
 #include <spdlog/spdlog.h>
 
 #include "playback_env.h"
+#include "audio/audio_engine.h"
 #include "graphics/render_data.h"
+#include "misc/module_factory.h"
 #include "misc/random.h"
 #include "training/bodies/test_body.h"
 #include "training/entities/bullet.h"
@@ -290,8 +292,11 @@ void PlaybackEnv::update(double delta_time)
 TEST_CASE("PlaybackEnv")
 {
     Random rng(0);
-    TestBodyFactory body_factory(rng);
-    KothEnvFactory env_factory(100, body_factory);
+    MockAudioEngine audio_engine;
+    BulletFactory bullet_factory(audio_engine);
+    ModuleFactory module_factory(bullet_factory, rng);
+    TestBodyFactory body_factory(module_factory, rng);
+    KothEnvFactory env_factory(100, body_factory, bullet_factory);
     auto env = env_factory.make();
     PlaybackEnv playback_env(std::move(env), 0.1f);
 

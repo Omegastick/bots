@@ -9,10 +9,12 @@
 #include <nlohmann/json.hpp>
 #include <spdlog/spdlog.h>
 
-#include "misc/random.h"
+#include "body.h"
 #include "graphics/colors.h"
 #include "graphics/renderers/renderer.h"
-#include "training/bodies/body.h"
+#include "misc/module_factory.h"
+#include "misc/random.h"
+#include "misc/utilities.h"
 #include "training/events/effect_triggered.h"
 #include "training/environments/ienvironment.h"
 #include "training/modules/base_module.h"
@@ -21,18 +23,18 @@
 #include "training/modules/square_hull.h"
 #include "training/modules/thruster_module.h"
 #include "training/rigid_body.h"
-#include "misc/utilities.h"
-#include "misc/random.h"
 
 namespace ai
 {
-static const std::string schema_version = "v1alpha5";
+static const std::string schema_version = "v1alpha6";
 
-Body::Body(Random &rng) : hp(0), rng(&rng)
+Body::Body(IModuleFactory &module_factory, Random &rng) : hp(0),
+                                                          module_factory(module_factory),
+                                                          rng(&rng)
 {
 }
 
-Body::Body(Body &&other)
+Body::Body(Body &&other) : module_factory(other.module_factory)
 {
     (*this) = std::move(other);
 }
@@ -51,6 +53,7 @@ Body &Body::operator=(Body &&other)
     other.debug_draw = false;
     rng = other.rng;
     other.rng = nullptr;
+    module_factory = other.module_factory;
     hp = other.hp;
     other.hp = 0;
     environment = other.environment;
@@ -231,26 +234,7 @@ void Body::load_json(const nlohmann::json &json)
 void Body::recurse_json_modules(const nlohmann::json &module_json, IModule *parent_module, int parent_link, int child_link)
 {
     std::shared_ptr<IModule> module;
-    if (module_json["type"] == "base")
-    {
-        module = std::make_shared<BaseModule>();
-    }
-    else if (module_json["type"] == "gun")
-    {
-        module = std::make_shared<GunModule>(*rng);
-    }
-    else if (module_json["type"] == "laser_sensor")
-    {
-        module = std::make_shared<LaserSensorModule>(module_json["laser_count"]);
-    }
-    else if (module_json["type"] == "square_hull")
-    {
-        module = std::make_shared<SquareHull>();
-    }
-    else if (module_json["type"] == "thruster")
-    {
-        module = std::make_shared<ThrusterModule>();
-    }
+    module = module_factory.create_module(module_json["type"]);
 
     add_module(module);
 
@@ -425,9 +409,29 @@ void Body::set_color(const ColorScheme &color_scheme)
     }
 }
 
+std::unique_ptr<Body> BodyFactory::make()
+{
+    return std::make_unique<Body>(module_factory, rng);
+}
+
+std::unique_ptr<Body> BodyFactory::make(b2World &world, Random &rng)
+{
+    auto body = std::make_unique<Body>(module_factory, rng);
+    auto rigid_body = std::make_unique<RigidBody>(
+        b2_dynamicBody,
+        b2Vec2_zero,
+        world,
+        nullptr,
+        RigidBody::ParentTypes::Body);
+    body->set_rigid_body(std::move(rigid_body));
+    return body;
+}
+
 TEST_CASE("Body")
 {
     Random rng(1);
+    MockBulletFactory bullet_factory;
+    ModuleFactory module_factory(bullet_factory, rng);
     b2World b2_world({0, 0});
     auto rigid_body = std::make_unique<RigidBody>(b2_dynamicBody,
                                                   b2Vec2_zero,
@@ -437,12 +441,12 @@ TEST_CASE("Body")
 
     SUBCASE("Can have modules added")
     {
-        Body body(rng);
+        Body body(module_factory, rng);
         body.set_rigid_body(std::move(rigid_body));
 
         DOCTEST_CHECK(body.get_modules().size() == 0);
 
-        auto module = std::make_shared<BaseModule>();
+        auto module = module_factory.create_module("base_module");
         body.add_module(module);
 
         DOCTEST_CHECK(body.get_modules().size() == 1);
@@ -455,12 +459,12 @@ TEST_CASE("Body")
 
     SUBCASE("Can be saved to Json and loaded back")
     {
-        Body body(rng);
+        Body body(module_factory, rng);
         body.set_rigid_body(std::move(rigid_body));
 
-        auto base_module = std::make_shared<BaseModule>();
-        auto thruster_module = std::make_shared<ThrusterModule>();
-        auto gun_module = std::make_shared<GunModule>(rng);
+        auto base_module = module_factory.create_module("base_module");
+        auto thruster_module = module_factory.create_module("thruster_module");
+        auto gun_module = module_factory.create_module("gun_module");
 
         base_module->get_module_links()[0].link(gun_module->get_module_links()[0]);
         gun_module->get_module_links()[2].link(thruster_module->get_module_links()[0]);
@@ -480,7 +484,7 @@ TEST_CASE("Body")
                                                  b2_world,
                                                  nullptr,
                                                  RigidBody::ParentTypes::Body);
-        Body loaded_body(rng);
+        Body loaded_body(module_factory, rng);
         loaded_body.set_rigid_body(std::move(rigid_body));
         loaded_body.load_json(json);
 
@@ -497,7 +501,7 @@ TEST_CASE("Body")
 
     SUBCASE("With no modules are converted to Json correctly")
     {
-        Body body(rng);
+        Body body(module_factory, rng);
         body.set_rigid_body(std::move(rigid_body));
 
         auto json = body.to_json();
@@ -511,7 +515,7 @@ TEST_CASE("Body")
     {
         auto json = "{\"schema\": \"bad_schema\"}"_json;
 
-        Body body(rng);
+        Body body(module_factory, rng);
         CHECK_THROWS(body.load_json(json));
     }
 
@@ -519,7 +523,7 @@ TEST_CASE("Body")
     {
         SUBCASE("0")
         {
-            Body body(rng);
+            Body body(module_factory, rng);
             body.set_rigid_body(std::move(rigid_body));
 
             int num_inputs = body.get_input_count();
@@ -528,11 +532,11 @@ TEST_CASE("Body")
 
         SUBCASE("1")
         {
-            Body body(rng);
+            Body body(module_factory, rng);
             body.set_rigid_body(std::move(rigid_body));
 
-            auto base_module = std::make_shared<BaseModule>();
-            auto gun_module = std::make_shared<GunModule>(rng);
+            auto base_module = module_factory.create_module("base_module");
+            auto gun_module = module_factory.create_module("gun_module");
 
             base_module->get_module_links()[0].link(gun_module->get_module_links()[0]);
 
@@ -545,12 +549,12 @@ TEST_CASE("Body")
 
         SUBCASE("2")
         {
-            Body body(rng);
+            Body body(module_factory, rng);
             body.set_rigid_body(std::move(rigid_body));
 
-            auto base_module = std::make_shared<BaseModule>();
-            auto gun_module = std::make_shared<GunModule>(rng);
-            auto gun_module_2 = std::make_shared<GunModule>(rng);
+            auto base_module = module_factory.create_module("base_module");
+            auto gun_module = module_factory.create_module("gun_module");
+            auto gun_module_2 = module_factory.create_module("gun_module");
 
             base_module->get_module_links()[0].link(gun_module->get_module_links()[0]);
             base_module->get_module_links()[1].link(gun_module->get_module_links()[0]);
@@ -568,11 +572,11 @@ TEST_CASE("Body")
     {
         SUBCASE("Removes the module from the Body")
         {
-            Body body(rng);
+            Body body(module_factory, rng);
             body.set_rigid_body(std::move(rigid_body));
 
-            auto base_module = std::make_shared<BaseModule>();
-            auto gun_module = std::make_shared<GunModule>(rng);
+            auto base_module = module_factory.create_module("base_module");
+            auto gun_module = module_factory.create_module("gun_module");
 
             base_module->get_module_links()[0].link(gun_module->get_module_links()[0]);
 
@@ -591,12 +595,12 @@ TEST_CASE("Body")
 
         SUBCASE("Throws when trying to remove module with children")
         {
-            Body body(rng);
+            Body body(module_factory, rng);
             body.set_rigid_body(std::move(rigid_body));
 
-            auto base_module = std::make_shared<BaseModule>();
-            auto thruster_module = std::make_shared<ThrusterModule>();
-            auto gun_module = std::make_shared<GunModule>(rng);
+            auto base_module = module_factory.create_module("base_module");
+            auto thruster_module = module_factory.create_module("thruster_module");
+            auto gun_module = module_factory.create_module("gun_module");
 
             base_module->get_module_links()[0].link(gun_module->get_module_links()[0]);
             gun_module->get_module_links()[2].link(thruster_module->get_module_links()[0]);

@@ -98,22 +98,22 @@ TEST_CASE("IO")
     {
         auto resolution = io.get_resolutionf();
 
-        CHECK(resolution.x == 0);
-        CHECK(resolution.y == 0);
+        DOCTEST_CHECK(resolution.x == 0);
+        DOCTEST_CHECK(resolution.y == 0);
     }
 
     SUBCASE("Cursor position is initialized to 0")
     {
         auto cursor_pos = io.get_cursor_position();
 
-        CHECK(cursor_pos.x == 0);
-        CHECK(cursor_pos.y == 0);
+        DOCTEST_CHECK(cursor_pos.x == 0);
+        DOCTEST_CHECK(cursor_pos.y == 0);
     }
 
     SUBCASE("Mouse buttons are initialized to false")
     {
-        CHECK(!io.get_left_click());
-        CHECK(!io.get_right_click());
+        DOCTEST_CHECK(!io.get_left_click());
+        DOCTEST_CHECK(!io.get_right_click());
     }
 
     SUBCASE("Keyboard keys are initialized to unpressed (false)")
@@ -124,7 +124,7 @@ TEST_CASE("IO")
             any_keys_pressed = any_keys_pressed || io.get_key_pressed(i);
         }
 
-        CHECK(!any_keys_pressed);
+        DOCTEST_CHECK(!any_keys_pressed);
     }
 
     SUBCASE("Setting and getting resolution works")
@@ -132,8 +132,8 @@ TEST_CASE("IO")
         io.set_resolution(100, 80);
         auto resolution = io.get_resolutionf();
 
-        CHECK(resolution.x == 100);
-        CHECK(resolution.y == 80);
+        DOCTEST_CHECK(resolution.x == 100);
+        DOCTEST_CHECK(resolution.y == 80);
     }
 
     SUBCASE("Setting and getting cursor position works")
@@ -141,33 +141,33 @@ TEST_CASE("IO")
         io.set_cursor_position(100, 80);
         auto cursor_pos = io.get_cursor_position();
 
-        CHECK(cursor_pos.x == 100);
-        CHECK(cursor_pos.y == 80);
+        DOCTEST_CHECK(cursor_pos.x == 100);
+        DOCTEST_CHECK(cursor_pos.y == 80);
     }
 
     SUBCASE("Setting and getting left click works")
     {
         io.left_click();
 
-        CHECK(io.get_left_click());
+        DOCTEST_CHECK(io.get_left_click());
     }
 
     SUBCASE("Setting and getting right click works")
     {
         io.right_click();
 
-        CHECK(io.get_right_click());
+        DOCTEST_CHECK(io.get_right_click());
     }
 
     SUBCASE("Pushing keys works")
     {
         io.press_key(5);
 
-        CHECK(io.get_key_pressed(5));
+        DOCTEST_CHECK(io.get_key_pressed(5));
 
         io.release_key(5);
 
-        CHECK(!io.get_key_pressed(5));
+        DOCTEST_CHECK(!io.get_key_pressed(5));
     }
 }
 }

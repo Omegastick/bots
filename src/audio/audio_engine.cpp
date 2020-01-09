@@ -2,10 +2,13 @@
 #include <spdlog/spdlog.h>
 
 #include "audio_engine.h"
+#include "misc/resource_manager.h"
 
 namespace ai
 {
-AudioEngine::AudioEngine() : time(0)
+AudioEngine::AudioEngine(ResourceManager &resource_manager)
+    : resource_manager(resource_manager),
+      time(0)
 {
     soloud = SoLoud::Soloud();
     if (soloud.init() != 0)
@@ -18,6 +21,11 @@ SoundHandle AudioEngine::play(AudioSource &audio_source)
 {
     const int handle = soloud.playClocked(time, audio_source);
     return SoundHandle(*this, handle);
+}
+
+SoundHandle AudioEngine::play(const std::string &audio_source)
+{
+    return play(*resource_manager.audio_source_store.get(audio_source));
 }
 
 void AudioEngine::update(double delta_time)

@@ -27,6 +27,7 @@ class IEntity
     virtual b2Transform get_transform() const;
     virtual float get_angular_velocity() const;
     virtual b2Vec2 get_linear_velocity() const;
+    virtual bool is_visible() const;
     virtual void set_transform(b2Vec2 position, float rotation);
     virtual void set_angular_velocity(float angular_velocity);
     virtual void set_linear_velocity(b2Vec2 linear_velocity);

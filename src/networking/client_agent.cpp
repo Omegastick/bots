@@ -7,11 +7,14 @@
 #include <torch/torch.h>
 
 #include "client_agent.h"
+#include "audio/audio_engine.h"
+#include "misc/module_factory.h"
 #include "misc/random.h"
 #include "training/agents/iagent.h"
 #include "training/agents/random_agent.h"
 #include "training/bodies/body.h"
 #include "training/bodies/test_body.h"
+#include "training/entities/bullet.h"
 #include "training/environments/ienvironment.h"
 #include "training/environments/koth_env.h"
 
@@ -53,10 +56,15 @@ void ClientAgent::set_bodies(const std::vector<nlohmann::json> &body_specs)
 TEST_CASE("ClientAgent")
 {
     Random rng(0);
-    TestBodyFactory body_factory(rng);
-    KothEnvFactory env_factory(10, body_factory);
+    MockAudioEngine audio_engine;
+    BulletFactory bullet_factory(audio_engine);
+    ModuleFactory module_factory(bullet_factory, rng);
+    TestBodyFactory body_factory(module_factory, rng);
+    KothEnvFactory env_factory(10, body_factory, bullet_factory);
     auto env = env_factory.make();
-    auto agent = std::make_unique<RandomAgent>(env->get_bodies()[0]->to_json(), rng, "Random agent");
+    auto agent = std::make_unique<RandomAgent>(env->get_bodies()[0]->to_json(),
+                                               rng,
+                                               "Random agent");
 
     ClientAgent client_agent(std::move(agent), 1, std::move(env));
 

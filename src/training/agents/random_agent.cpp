@@ -2,8 +2,11 @@
 #include <nlohmann/json.hpp>
 
 #include "random_agent.h"
+#include "audio/audio_engine.h"
+#include "misc/module_factory.h"
 #include "misc/random.h"
 #include "training/bodies/test_body.h"
+#include "training/entities/bullet.h"
 
 namespace ai
 {
@@ -37,7 +40,10 @@ std::unique_ptr<IAgent> RandomAgent::clone() const
 TEST_CASE("RandomAgent")
 {
     Random rng(0);
-    TestBody body(rng);
+    MockAudioEngine audio_engine;
+    BulletFactory bullet_factory(audio_engine);
+    ModuleFactory module_factory(bullet_factory, rng);
+    TestBody body(module_factory, rng);
     RandomAgent agent(body.to_json(), rng, "Test");
 
     SUBCASE("act() returns correctly sized actions")

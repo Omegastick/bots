@@ -5,20 +5,23 @@
 
 #include <Box2D/Box2D.h>
 #include <glm/vec4.hpp>
+#include <trompeloeil.hpp>
 
-#include "ientity.h"
+#include "training/entities/ientity.h"
+#include "training/environments/ienvironment.h"
 #include "training/icollidable.h"
 
 namespace ai
 {
-struct Sprite;
-class RigidBody;
+class IAudioEngine;
 class Body;
-class IEnvironment;
+class RigidBody;
+struct Sprite;
 
 class Bullet : public ICollidable, public IEntity
 {
   private:
+    IAudioEngine &audio_engine;
     int life;
     b2Vec2 last_position;
     std::unique_ptr<Sprite> sprite;
@@ -32,8 +35,8 @@ class Bullet : public ICollidable, public IEntity
            b2World &world,
            Body *owner,
            unsigned int id,
-           IEnvironment &env);
-    ~Bullet();
+           IEnvironment &env,
+           IAudioEngine &audio_engine);
 
     virtual void begin_contact(RigidBody *other);
     virtual void destroy();
@@ -41,5 +44,38 @@ class Bullet : public ICollidable, public IEntity
     virtual void draw(Renderer &renderer, bool lightweight = false);
     virtual bool should_destroy();
     virtual void update();
+};
+
+class IBulletFactory
+{
+  public:
+    virtual std::unique_ptr<Bullet> make(b2Vec2 position,
+                                         b2Vec2 velocity,
+                                         b2World &world,
+                                         Body *owner,
+                                         unsigned int id,
+                                         IEnvironment &env) = 0;
+};
+
+class BulletFactory : public IBulletFactory
+{
+  private:
+    IAudioEngine &audio_engine;
+
+  public:
+    explicit BulletFactory(IAudioEngine &audio_engine);
+
+    std::unique_ptr<Bullet> make(b2Vec2 position,
+                                 b2Vec2 velocity,
+                                 b2World &world,
+                                 Body *owner,
+                                 unsigned int id,
+                                 IEnvironment &env);
+};
+
+class MockBulletFactory : public trompeloeil::mock_interface<IBulletFactory>
+{
+  public:
+    IMPLEMENT_MOCK6(make);
 };
 }

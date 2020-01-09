@@ -14,18 +14,20 @@
 namespace ai
 {
 class Body;
+class IBulletFactory;
 class Random;
 
 class GunModule : public IModule, public IActivatable
 {
   private:
     Rectangle barrel_rectangle, body_rectangle;
+    IBulletFactory &bullet_factory;
     int cooldown;
     Random &rng;
     int steps_since_last_shot;
 
   public:
-    GunModule(Random &rng);
+    GunModule(IBulletFactory &bullet_factory, Random &rng);
 
     virtual void activate() override;
     virtual void draw(Renderer &renderer, bool lightweight = false) override;

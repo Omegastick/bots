@@ -7,16 +7,16 @@
 
 namespace ai
 {
-class ModuleFactory;
+class IModuleFactory;
 
 class ModuleTextureStore
 {
     std::unordered_map<std::string, Texture> cache;
-    ModuleFactory &module_factory;
+    IModuleFactory &module_factory;
     Renderer renderer;
 
   public:
-    ModuleTextureStore(ModuleFactory &module_factory, Renderer &&renderer);
+    ModuleTextureStore(IModuleFactory &module_factory, Renderer &&renderer);
 
     Texture &get(const std::string &module);
 };

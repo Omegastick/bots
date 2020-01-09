@@ -3,8 +3,11 @@
 #include <nlohmann/json.hpp>
 
 #include "nn_agent.h"
+#include "audio/audio_engine.h"
+#include "misc/module_factory.h"
 #include "misc/random.h"
 #include "training/bodies/test_body.h"
+#include "training/entities/bullet.h"
 
 namespace ai
 {
@@ -38,7 +41,10 @@ TEST_CASE("NNAgent")
     auto nn_base = std::make_shared<cpprl::MlpBase>(5, true, 6);
     auto policy = cpprl::Policy(cpprl::ActionSpace{"MultiBinary", {4}}, nn_base);
     Random rng(0);
-    TestBody body(rng);
+    MockAudioEngine audio_engine;
+    BulletFactory bullet_factory(audio_engine);
+    ModuleFactory module_factory(bullet_factory, rng);
+    TestBody body(module_factory, rng);
     NNAgent agent(policy, body.to_json(), "Test");
 
     SUBCASE("act() returns correctly sized actions")

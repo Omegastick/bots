@@ -12,6 +12,7 @@
 #include "training/bodies/body.h"
 #include "training/bodies/test_body.h"
 #include "training/effects/ieffect.h"
+#include "training/entities/bullet.h"
 #include "training/entities/hill.h"
 #include "training/entities/wall.h"
 #include "training/entities/ientity.h"
@@ -30,11 +31,13 @@ class KothEnv : public IEnvironment
   private:
     std::unique_ptr<Body> body_1;
     std::unique_ptr<Body> body_2;
+    IBulletFactory &bullet_factory;
     std::vector<std::unique_ptr<IEffect>> effects;
     std::unordered_map<unsigned int, std::unique_ptr<IEntity>> entities;
     std::vector<std::unique_ptr<IEvent>> events;
     int max_steps;
     std::unique_ptr<Random> rng;
+    bool visible;
     std::unique_ptr<b2World> world;
     std::vector<std::unique_ptr<Wall>> walls;
     std::unique_ptr<Hill> hill;
@@ -56,7 +59,8 @@ class KothEnv : public IEnvironment
             std::unique_ptr<Body> body_2,
             std::unique_ptr<b2World> world,
             std::unique_ptr<Random> rng,
-            RewardConfig reward_config);
+            RewardConfig reward_config,
+            IBulletFactory &bullet_factory);
 
     virtual void add_effect(std::unique_ptr<IEffect> effect);
     virtual void add_entity(std::unique_ptr<IEntity> entity);
@@ -81,9 +85,11 @@ class KothEnv : public IEnvironment
     inline Random &get_rng() { return *rng; }
     inline std::vector<float> get_scores() const { return scores; }
     inline b2World &get_world() { return *world; };
+    inline bool is_visible() const { return visible; }
     inline void set_body_1(std::unique_ptr<Body> body) { this->body_1 = std::move(body); }
     inline void set_body_2(std::unique_ptr<Body> body) { this->body_2 = std::move(body); }
     inline void set_elapsed_time(double elapsed_time) { this->elapsed_time = elapsed_time; }
+    inline void set_visibility(bool visibility) { visible = visibility; }
 };
 
 static auto MaxSteps = [] {};
@@ -92,13 +98,16 @@ class KothEnvFactory : public IEnvironmentFactory
 {
   private:
     BodyFactory &body_factory;
+    IBulletFactory &bullet_factory;
     int max_steps;
 
   public:
     BOOST_DI_INJECT(KothEnvFactory,
                     (named = MaxSteps) int max_steps,
-                    BodyFactory &body_factory)
+                    BodyFactory &body_factory,
+                    IBulletFactory &bullet_factory)
         : body_factory(body_factory),
+          bullet_factory(bullet_factory),
           max_steps(max_steps) {}
 
     virtual int get_num_bodies() { return 2; }
@@ -113,7 +122,8 @@ class KothEnvFactory : public IEnvironmentFactory
                                          std::move(bodies[1]),
                                          std::move(world),
                                          std::move(rng),
-                                         reward_config);
+                                         reward_config,
+                                         bullet_factory);
     }
 
     virtual std::unique_ptr<IEnvironment> make()
@@ -125,7 +135,8 @@ class KothEnvFactory : public IEnvironmentFactory
                                          body_factory.make(*world, *rng),
                                          std::move(world),
                                          std::move(rng),
-                                         RewardConfig());
+                                         RewardConfig(),
+                                         bullet_factory);
     }
 };
 }

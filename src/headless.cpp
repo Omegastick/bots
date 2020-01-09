@@ -7,6 +7,7 @@
 #include "training/bodies/body.h"
 #include "training/bodies/test_body.h"
 #include "training/checkpointer.h"
+#include "training/entities/bullet.h"
 #include "training/environments/ienvironment.h"
 #include "training/environments/koth_env.h"
 #include "training/evaluators/elo_evaluator.h"
@@ -23,7 +24,10 @@ int main(int argc, char *argv[])
         di::bind<int>.named(MaxSteps).to(600),
         di::bind<IEnvironmentFactory>.to<KothEnvFactory>(),
         di::bind<ISaver>.to<Saver>(),
-        di::bind<std::string>.named(CheckpointDirectory).to("checkpoints"));
+        di::bind<std::string>.named(CheckpointDirectory).to("checkpoints"),
+        di::bind<IAudioEngine>.to<AudioEngine>(),
+        di::bind<IModuleFactory>.to<ModuleFactory>(),
+        di::bind<IBulletFactory>.to<BulletFactory>());
     auto app = injector.create<HeadlessApp>();
     app.run(argc, argv);
 }

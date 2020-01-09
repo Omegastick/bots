@@ -8,9 +8,11 @@
 #include <torch/torch.h>
 
 #include "koth_env.h"
+#include "audio/audio_engine.h"
 #include "graphics/colors.h"
 #include "graphics/render_data.h"
 #include "graphics/renderers/renderer.h"
+#include "misc/module_factory.h"
 #include "training/bodies/test_body.h"
 #include "training/effects/ieffect.h"
 #include "training/entities/bullet.h"
@@ -105,9 +107,11 @@ KothEnv::KothEnv(int max_steps,
                  std::unique_ptr<Body> body_2,
                  std::unique_ptr<b2World> world,
                  std::unique_ptr<Random> rng,
-                 RewardConfig reward_config)
+                 RewardConfig reward_config,
+                 IBulletFactory &bullet_factory)
     : body_1(std::move(body_1)),
       body_2(std::move(body_2)),
+      bullet_factory(bullet_factory),
       effects(),
       entities(),
       max_steps(max_steps),
@@ -418,12 +422,12 @@ void KothEnv::set_state(const EnvState &state)
         else
         {
             // Make new bullet
-            add_entity(std::make_unique<Bullet>(b2Vec2{0, 0},
-                                                b2Vec2{0, 0},
-                                                *world,
-                                                body_1.get(),
-                                                bullet.first,
-                                                *this));
+            add_entity(bullet_factory.make(b2Vec2{0, 0},
+                                           b2Vec2{0, 0},
+                                           *world,
+                                           body_1.get(),
+                                           bullet.first,
+                                           *this));
             entities[bullet.first]->set_transform(bullet.second.p,
                                                   bullet.second.q.GetAngle());
         }
@@ -480,8 +484,11 @@ StepInfo KothEnv::reset()
 TEST_CASE("KothEnv")
 {
     Random rng(0);
-    TestBodyFactory body_factory(rng);
-    KothEnvFactory env_factory(100, body_factory);
+    MockAudioEngine audio_engine;
+    BulletFactory bullet_factory(audio_engine);
+    ModuleFactory module_factory(bullet_factory, rng);
+    TestBodyFactory body_factory(module_factory, rng);
+    KothEnvFactory env_factory(100, body_factory, bullet_factory);
     auto env = env_factory.make();
 
     SUBCASE("set_state()")

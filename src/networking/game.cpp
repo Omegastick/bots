@@ -11,7 +11,10 @@
 #include <torch/torch.h>
 
 #include "game.h"
+#include "audio/audio_engine.h"
+#include "misc/module_factory.h"
 #include "misc/random.h"
+#include "training/entities/bullet.h"
 #include "training/entities/ientity.h"
 #include "training/environments/ienvironment.h"
 #include "training/environments/koth_env.h"
@@ -140,13 +143,16 @@ TickResult Game::tick(double current_time)
 TEST_CASE("Game")
 {
     Random rng(0);
-    TestBodyFactory body_factory(rng);
-    KothEnvFactory env_factory(10, body_factory);
+    MockAudioEngine audio_engine;
+    BulletFactory bullet_factory(audio_engine);
+    ModuleFactory module_factory(bullet_factory, rng);
+    TestBodyFactory body_factory(module_factory, rng);
+    KothEnvFactory env_factory(10, body_factory, bullet_factory);
     Game game(0.1, body_factory, env_factory, rng);
 
     SUBCASE("add_body() returns true after enough bodies are added")
     {
-        TestBody test_body(rng);
+        TestBody test_body(module_factory, rng);
         auto body_spec = test_body.to_json();
 
         DOCTEST_CHECK(game.add_body(body_spec) == false);
@@ -155,7 +161,7 @@ TEST_CASE("Game")
 
     SUBCASE("ready_to_tick()")
     {
-        TestBody test_body(rng);
+        TestBody test_body(module_factory, rng);
         auto body_spec = test_body.to_json();
 
         SUBCASE("Returns false if bodies have not been added")
@@ -192,7 +198,7 @@ TEST_CASE("Game")
         {
             DOCTEST_CHECK_THROWS(game.tick(0));
 
-            TestBody test_body(rng);
+            TestBody test_body(module_factory, rng);
             auto body_spec = test_body.to_json();
             game.add_body(body_spec);
 
@@ -201,7 +207,7 @@ TEST_CASE("Game")
 
         SUBCASE("Returns a finished result within the maximum amount of time steps")
         {
-            TestBody test_body(rng);
+            TestBody test_body(module_factory, rng);
             auto body_spec = test_body.to_json();
 
             game.add_body(body_spec);

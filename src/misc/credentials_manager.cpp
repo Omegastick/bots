@@ -40,7 +40,7 @@ TEST_CASE("CredentialsManager")
 
             credentials_manager.login("asd");
 
-            CHECK(credentials_manager.get_token() == "asd123");
+            DOCTEST_CHECK(credentials_manager.get_token() == "asd123");
         }
 
         SUBCASE("Sets username")
@@ -52,7 +52,7 @@ TEST_CASE("CredentialsManager")
 
             credentials_manager.login("asd");
 
-            CHECK(credentials_manager.get_username() == "asd");
+            DOCTEST_CHECK(credentials_manager.get_username() == "asd");
         }
     }
 }

@@ -16,6 +16,7 @@ namespace ai
 {
 class IAction;
 class IModule;
+class IModuleFactory;
 class RigidBody;
 class Random;
 class IEnvironment;
@@ -23,23 +24,27 @@ class IEnvironment;
 class Body : public ICollidable
 {
   private:
-    ColorScheme color_scheme;
-    std::vector<std::shared_ptr<IModule>> modules;
     std::vector<IAction *> actions;
-    std::unique_ptr<RigidBody> rigid_body;
+    ColorScheme color_scheme;
     bool debug_draw;
     IEnvironment *environment;
+    std::vector<std::shared_ptr<IModule>> modules;
     std::string name;
+    std::unique_ptr<RigidBody> rigid_body;
 
     void init_rigid_body();
-    void recurse_json_modules(const nlohmann::json &module_json, IModule *parent_module = nullptr, int parent_link = 0, int child_link = 0);
+    void recurse_json_modules(const nlohmann::json &module_json,
+                              IModule *parent_module = nullptr,
+                              int parent_link = 0,
+                              int child_link = 0);
 
   protected:
     float hp;
+    IModuleFactory &module_factory;
     Random *rng;
 
   public:
-    Body(Random &rng);
+    Body(IModuleFactory &module_factory, Random &rng);
     Body(Body &&other);
     Body(const Body &) = delete;
     Body &operator=(Body &&other);
@@ -78,30 +83,15 @@ class Body : public ICollidable
 
 class BodyFactory
 {
-  private:
+  protected:
+    IModuleFactory &module_factory;
     Random &rng;
 
   public:
-    BodyFactory(Random &rng)
-        : rng(rng) {}
-    virtual ~BodyFactory() {}
+    BodyFactory(IModuleFactory &module_factory, Random &rng)
+        : module_factory(module_factory), rng(rng) {}
 
-    virtual std::unique_ptr<Body> make()
-    {
-        return std::make_unique<Body>(rng);
-    }
-
-    virtual std::unique_ptr<Body> make(b2World &world, Random &rng)
-    {
-        auto body = std::make_unique<Body>(rng);
-        auto rigid_body = std::make_unique<RigidBody>(
-            b2_dynamicBody,
-            b2Vec2_zero,
-            world,
-            nullptr,
-            RigidBody::ParentTypes::Body);
-        body->set_rigid_body(std::move(rigid_body));
-        return body;
-    }
+    virtual std::unique_ptr<Body> make();
+    virtual std::unique_ptr<Body> make(b2World &world, Random &rng);
 };
 }

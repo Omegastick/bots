@@ -31,7 +31,7 @@ BuildScreen::BuildScreen(BodyBuilder &&body_builder,
                          std::unique_ptr<PartSelectorWindow> part_selector_window,
                          std::unique_ptr<SaveBodyWindow> save_body_window,
                          std::unique_ptr<UnlockPartsWindow> unlock_parts_window,
-                         ModuleFactory &module_factory,
+                         IModuleFactory &module_factory,
                          ResourceManager &resource_manager,
                          ScreenManager &screen_manager,
                          IO &io)

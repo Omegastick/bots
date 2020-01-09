@@ -4,15 +4,15 @@
 
 namespace ai
 {
-class AudioEngine;
+class IAudioEngine;
 
 class SoundHandle
 {
   private:
-    AudioEngine &audio_engine;
+    IAudioEngine &audio_engine;
     int handle;
 
   public:
-    SoundHandle(AudioEngine &audio_engine, int handle);
+    SoundHandle(IAudioEngine &audio_engine, int handle);
 };
 }

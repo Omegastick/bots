@@ -7,11 +7,14 @@
 #include <torch/torch.h>
 
 #include "evaluator.h"
+#include "audio/audio_engine.h"
+#include "misc/module_factory.h"
 #include "misc/random.h"
 #include "training/agents/iagent.h"
 #include "training/agents/random_agent.h"
 #include "training/bodies/body.h"
 #include "training/bodies/test_body.h"
+#include "training/entities/bullet.h"
 #include "training/environments/ienvironment.h"
 #include "training/environments/koth_env.h"
 
@@ -96,11 +99,14 @@ TEST_CASE("Evaluator")
     SUBCASE("evaluate() returns a draw if the length of the game is too short for a win")
     {
         Random rng(0);
-        BodyFactory body_factory(rng);
-        KothEnvFactory env_factory(10, body_factory);
+        MockAudioEngine audio_engine;
+        BulletFactory bullet_factory(audio_engine);
+        ModuleFactory module_factory(bullet_factory, rng);
+        BodyFactory body_factory(module_factory, rng);
+        KothEnvFactory env_factory(10, body_factory, bullet_factory);
         Evaluator evaluator(body_factory, env_factory);
 
-        TestBody body(rng);
+        TestBody body(module_factory, rng);
         auto body_spec = body.to_json();
 
         RandomAgent agent(body_spec, rng, "Random Agent");

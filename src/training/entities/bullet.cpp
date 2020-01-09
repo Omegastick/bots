@@ -24,8 +24,10 @@ Bullet::Bullet(b2Vec2 position,
                b2World &world,
                Body *owner,
                unsigned int id,
-               IEnvironment &env)
+               IEnvironment &env,
+               IAudioEngine &audio_engine)
     : IEntity(id, env),
+      audio_engine(audio_engine),
       life(10),
       last_position(b2Vec2_zero),
       particle_color(cl_white),
@@ -51,8 +53,6 @@ Bullet::Bullet(b2Vec2 position,
 
     rigid_body->body->ApplyForceToCenter(velocity, true);
 }
-
-Bullet::~Bullet() {}
 
 void Bullet::draw(Renderer &renderer, bool /*lightweight*/)
 {
@@ -140,5 +140,24 @@ void Bullet::update()
 {
     --life;
     destroyed = destroyed || life <= 0;
+}
+
+BulletFactory::BulletFactory(IAudioEngine &audio_engine)
+    : audio_engine(audio_engine) {}
+
+std::unique_ptr<Bullet> BulletFactory::make(b2Vec2 position,
+                                            b2Vec2 velocity,
+                                            b2World &world,
+                                            Body *owner,
+                                            unsigned int id,
+                                            IEnvironment &env)
+{
+    return std::make_unique<Bullet>(position,
+                                    velocity,
+                                    world,
+                                    owner,
+                                    id,
+                                    env,
+                                    audio_engine);
 }
 }
