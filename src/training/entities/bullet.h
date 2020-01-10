@@ -38,12 +38,11 @@ class Bullet : public ICollidable, public IEntity
            IEnvironment &env,
            IAudioEngine &audio_engine);
 
-    virtual void begin_contact(RigidBody *other);
-    virtual void destroy();
-    virtual void end_contact(RigidBody *other);
-    virtual void draw(Renderer &renderer, bool lightweight = false);
-    virtual bool should_destroy();
-    virtual void update();
+    void begin_contact(RigidBody *other) override;
+    void end_contact(RigidBody *other) override;
+    void draw(Renderer &renderer, bool lightweight = false) override;
+    bool should_destroy() override;
+    void update() override;
 };
 
 class IBulletFactory

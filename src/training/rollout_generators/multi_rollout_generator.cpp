@@ -21,9 +21,11 @@ MultiRolloutGenerator::MultiRolloutGenerator(
       sub_generators(std::move(sub_generators)),
       timestep(0)
 {
-    for (auto &sub_generator : this->sub_generators)
+    for (unsigned int i = 0; i < this->sub_generators.size(); ++i)
     {
-        sub_generator->set_timestep_pointer(&timestep);
+        this->sub_generators[i]->set_timestep_pointer(&timestep);
+        this->sub_generators[i]->set_audibility(i == 0);
+        this->sub_generators[i]->fast_forward(i * 100);
     }
 }
 
@@ -65,6 +67,17 @@ std::vector<std::vector<float>> MultiRolloutGenerator::get_scores() const
     return scores;
 }
 
+void MultiRolloutGenerator::set_fast()
+{
+    sub_generators[0]->set_fast();
+    sub_generators[0]->set_audibility(false);
+}
+void MultiRolloutGenerator::set_slow()
+{
+    sub_generators[0]->set_slow();
+    sub_generators[0]->set_audibility(true);
+}
+
 using trompeloeil::_;
 
 TEST_CASE("MultiRolloutGenerator")
@@ -74,6 +87,8 @@ TEST_CASE("MultiRolloutGenerator")
     for (int i = 0; i < 4; ++i)
     {
         auto sub_generator = std::make_unique<MockSingleRolloutGenerator>();
+        expectations.push_back(NAMED_ALLOW_CALL(*sub_generator, set_audibility(_)));
+        expectations.push_back(NAMED_ALLOW_CALL(*sub_generator, fast_forward(_)));
         expectations.push_back(NAMED_ALLOW_CALL(*sub_generator, generate(5))
                                    .LR_RETURN(cpprl::RolloutStorage(5,
                                                                     1,

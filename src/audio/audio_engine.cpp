@@ -19,7 +19,7 @@ AudioEngine::AudioEngine(ResourceManager &resource_manager)
 
 SoundHandle AudioEngine::play(AudioSource &audio_source)
 {
-    const int handle = soloud.playClocked(time, audio_source);
+    const int handle = soloud.play(audio_source);
     return SoundHandle(*this, handle);
 }
 

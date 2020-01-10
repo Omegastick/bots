@@ -74,6 +74,7 @@ void Game::setup_env()
                            std::move(b2_world),
                            std::move(bodies),
                            RewardConfig());
+    env->set_audibility(false);
     env->reset();
 
     action_store = std::make_unique<ActionStore>(actions_per_player);
@@ -147,7 +148,7 @@ TEST_CASE("Game")
     BulletFactory bullet_factory(audio_engine);
     ModuleFactory module_factory(bullet_factory, rng);
     TestBodyFactory body_factory(module_factory, rng);
-    KothEnvFactory env_factory(10, body_factory, bullet_factory);
+    KothEnvFactory env_factory(10, audio_engine, body_factory, bullet_factory);
     Game game(0.1, body_factory, env_factory, rng);
 
     SUBCASE("add_body() returns true after enough bodies are added")

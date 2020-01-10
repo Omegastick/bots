@@ -260,15 +260,17 @@ MSGPACK_API_VERSION_NAMESPACE(MSGPACK_DEFAULT_API_NS)
                 const auto &event = events_array.ptr[i];
                 if (event.via.array.ptr[0].as<EventTypes>() == EventTypes::EntityDestroyed)
                 {
-                    events.push_back(std::make_unique<EntityDestroyed>(event.via.array.ptr[1].as<int>(),
-                                                                       event.via.array.ptr[2].as<double>(),
-                                                                       event.via.array.ptr[3].as<Transform>()));
+                    events.push_back(
+                        std::make_unique<EntityDestroyed>(event.via.array.ptr[1].as<int>(),
+                                                          event.via.array.ptr[2].as<double>(),
+                                                          event.via.array.ptr[3].as<Transform>()));
                 }
                 else if (event.via.array.ptr[0].as<EventTypes>() == EventTypes::EffectTriggered)
                 {
-                    events.push_back(std::make_unique<EffectTriggered>(event.via.array.ptr[1].as<EffectTypes>(),
-                                                                       event.via.array.ptr[2].as<double>(),
-                                                                       event.via.array.ptr[3].as<Transform>()));
+                    events.push_back(
+                        std::make_unique<EffectTriggered>(event.via.array.ptr[1].as<EffectTypes>(),
+                                                          event.via.array.ptr[2].as<double>(),
+                                                          event.via.array.ptr[3].as<Transform>()));
                 }
             }
             return StateMessage(o.via.array.ptr[1].as<std::vector<Transform>>(),

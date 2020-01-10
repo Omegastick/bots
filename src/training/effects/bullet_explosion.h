@@ -7,6 +7,7 @@
 
 namespace ai
 {
+class IAudioEngine;
 class Renderer;
 
 class BulletExplosion : public IEffect
@@ -18,6 +19,6 @@ class BulletExplosion : public IEffect
   public:
     BulletExplosion(b2Vec2 position, glm::vec4 particle_color);
 
-    virtual void trigger(Renderer &renderer);
+    virtual void trigger(Renderer &renderer, IAudioEngine *audio_engine = nullptr);
 };
 }

@@ -233,8 +233,7 @@ std::unique_ptr<Trainer> TrainerFactory::make(TrainingProgram &program) const
             *agent,
             std::move(environments[i]),
             *opponent_pool,
-            rng,
-            i != 0));
+            rng));
     }
 
     auto rollout_generator = std::make_unique<MultiRolloutGenerator>(

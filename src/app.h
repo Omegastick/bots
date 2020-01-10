@@ -9,6 +9,7 @@
 namespace ai
 {
 class Animator;
+class AudioEngine;
 class Background;
 class IO;
 class MainMenuScreenFactory;
@@ -21,6 +22,7 @@ class App
 {
   private:
     Animator &animator;
+    AudioEngine &audio_engine;
     Background &background;
     std::unique_ptr<PostProcLayer> bloom_post_proc_layer;
     std::unique_ptr<PostProcLayer> crt_post_proc_layer;
@@ -37,6 +39,7 @@ class App
 
   public:
     App(Animator &animator,
+        AudioEngine &audio_engine,
         Background &background,
         IO &io,
         Renderer &renderer,

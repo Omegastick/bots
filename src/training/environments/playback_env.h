@@ -34,6 +34,7 @@ class PlaybackEnv
     void add_new_state(EnvState state);
     void draw(Renderer &renderer, bool lightweight = false);
     void reset();
+    void set_audibility(bool audible);
     void set_bodies(const std::vector<nlohmann::json> &body_specs);
     void update(double delta_time);
 

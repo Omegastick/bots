@@ -21,6 +21,7 @@
 
 namespace ai
 {
+class IAudioEngine;
 class IEvent;
 struct Particle;
 class Renderer;
@@ -29,6 +30,8 @@ class ResourceManager;
 class KothEnv : public IEnvironment
 {
   private:
+    bool audible;
+    IAudioEngine &audio_engine;
     std::unique_ptr<Body> body_1;
     std::unique_ptr<Body> body_2;
     IBulletFactory &bullet_factory;
@@ -37,7 +40,6 @@ class KothEnv : public IEnvironment
     std::vector<std::unique_ptr<IEvent>> events;
     int max_steps;
     std::unique_ptr<Random> rng;
-    bool visible;
     std::unique_ptr<b2World> world;
     std::vector<std::unique_ptr<Wall>> walls;
     std::unique_ptr<Hill> hill;
@@ -60,6 +62,7 @@ class KothEnv : public IEnvironment
             std::unique_ptr<b2World> world,
             std::unique_ptr<Random> rng,
             RewardConfig reward_config,
+            IAudioEngine &audio_engine,
             IBulletFactory &bullet_factory);
 
     virtual void add_effect(std::unique_ptr<IEffect> effect);
@@ -85,11 +88,11 @@ class KothEnv : public IEnvironment
     inline Random &get_rng() { return *rng; }
     inline std::vector<float> get_scores() const { return scores; }
     inline b2World &get_world() { return *world; };
-    inline bool is_visible() const { return visible; }
+    inline bool is_audible() const { return audible; }
     inline void set_body_1(std::unique_ptr<Body> body) { this->body_1 = std::move(body); }
     inline void set_body_2(std::unique_ptr<Body> body) { this->body_2 = std::move(body); }
     inline void set_elapsed_time(double elapsed_time) { this->elapsed_time = elapsed_time; }
-    inline void set_visibility(bool visibility) { visible = visibility; }
+    inline void set_audibility(bool visibility) { audible = visibility; }
 };
 
 static auto MaxSteps = [] {};
@@ -97,6 +100,7 @@ static auto MaxSteps = [] {};
 class KothEnvFactory : public IEnvironmentFactory
 {
   private:
+    IAudioEngine &audio_engine;
     BodyFactory &body_factory;
     IBulletFactory &bullet_factory;
     int max_steps;
@@ -104,39 +108,19 @@ class KothEnvFactory : public IEnvironmentFactory
   public:
     BOOST_DI_INJECT(KothEnvFactory,
                     (named = MaxSteps) int max_steps,
+                    IAudioEngine &audio_engine,
                     BodyFactory &body_factory,
                     IBulletFactory &bullet_factory)
-        : body_factory(body_factory),
+        : audio_engine(audio_engine),
+          body_factory(body_factory),
           bullet_factory(bullet_factory),
           max_steps(max_steps) {}
 
-    virtual int get_num_bodies() { return 2; }
-    virtual std::unique_ptr<IEnvironment> make(
-        std::unique_ptr<Random> rng,
-        std::unique_ptr<b2World> world,
-        std::vector<std::unique_ptr<Body>> bodies,
-        RewardConfig reward_config)
-    {
-        return std::make_unique<KothEnv>(max_steps,
-                                         std::move(bodies[0]),
-                                         std::move(bodies[1]),
-                                         std::move(world),
-                                         std::move(rng),
-                                         reward_config,
-                                         bullet_factory);
-    }
-
-    virtual std::unique_ptr<IEnvironment> make()
-    {
-        auto rng = std::make_unique<Random>(0);
-        auto world = std::make_unique<b2World>(b2Vec2(0, 0));
-        return std::make_unique<KothEnv>(max_steps,
-                                         body_factory.make(*world, *rng),
-                                         body_factory.make(*world, *rng),
-                                         std::move(world),
-                                         std::move(rng),
-                                         RewardConfig(),
-                                         bullet_factory);
-    }
+    int get_num_bodies() override;
+    std::unique_ptr<IEnvironment> make() override;
+    std::unique_ptr<IEnvironment> make(std::unique_ptr<Random> rng,
+                                       std::unique_ptr<b2World> world,
+                                       std::vector<std::unique_ptr<Body>> bodies,
+                                       RewardConfig reward_config) override;
 };
 }

@@ -12,6 +12,7 @@
 #include <spdlog/spdlog.h>
 
 #include "app.h"
+#include "audio/audio_engine.h"
 #include "graphics/backend/shader.h"
 #include "graphics/post_processing/bloom_layer.h"
 #include "graphics/post_processing/post_proc_layer.h"
@@ -229,6 +230,7 @@ void mouse_button_callback(GLFWwindow *glfw_window, int button, int action, int 
 }
 
 App::App(Animator &animator,
+         AudioEngine &audio_engine,
          Background &background,
          IO &io,
          Renderer &renderer,
@@ -237,6 +239,7 @@ App::App(Animator &animator,
          ScreenManager &screen_manager,
          Window &window)
     : animator(animator),
+      audio_engine(audio_engine),
       background(background),
       io(io),
       main_menu_screen_factory(main_menu_screen_factory),
@@ -282,6 +285,9 @@ App::App(Animator &animator,
         *resource_manager.shader_store.get("crt"),
         io.get_resolution().x,
         io.get_resolution().y);
+
+    // Load sounds
+    resource_manager.load_audio_source("hit", "hit.wav");
 }
 
 int App::run(int argc, char *argv[])
@@ -317,6 +323,7 @@ int App::run(int argc, char *argv[])
         ImGui::NewFrame();
 
         animator.update(delta_time);
+        audio_engine.update(delta_time);
         background.update(delta_time);
         screen_manager.update(delta_time);
         if (screen_manager.stack_size() == 0)
@@ -326,30 +333,32 @@ int App::run(int argc, char *argv[])
 
         io.tick();
 
+        if (screen_manager.stack_size() == 0)
+        {
+            break;
+        }
+
         /*
          *  Draw
          */
-        if (screen_manager.stack_size() > 0)
-        {
-            renderer.begin();
+        renderer.begin();
 
-            background.draw(renderer);
-            screen_manager.draw(renderer);
+        background.draw(renderer);
+        screen_manager.draw(renderer);
 
-            renderer.push_post_proc_layer(*crt_post_proc_layer);
-            renderer.push_post_proc_layer(*bloom_post_proc_layer);
-            renderer.push_post_proc_layer(*tone_map_post_proc_layer);
-            auto crt_shader = resource_manager.shader_store.get("crt");
-            crt_shader->set_uniform_2f("u_resolution",
-                                       {renderer.get_width(), renderer.get_height()});
+        renderer.push_post_proc_layer(*crt_post_proc_layer);
+        renderer.push_post_proc_layer(*bloom_post_proc_layer);
+        renderer.push_post_proc_layer(*tone_map_post_proc_layer);
+        auto crt_shader = resource_manager.shader_store.get("crt");
+        crt_shader->set_uniform_2f("u_resolution",
+                                   {renderer.get_width(), renderer.get_height()});
 
-            renderer.render(time);
+        renderer.render(time);
 
-            ImGui::Render();
-            ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+        ImGui::Render();
+        ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 
-            window.swap_buffers();
-        }
+        window.swap_buffers();
     }
 
     // Allow screens to perform cleanup
