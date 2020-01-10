@@ -60,7 +60,7 @@ TEST_CASE("ClientAgent")
     BulletFactory bullet_factory(audio_engine);
     ModuleFactory module_factory(bullet_factory, rng);
     TestBodyFactory body_factory(module_factory, rng);
-    KothEnvFactory env_factory(10, body_factory, bullet_factory);
+    KothEnvFactory env_factory(10, audio_engine, body_factory, bullet_factory);
     auto env = env_factory.make();
     auto agent = std::make_unique<RandomAgent>(env->get_bodies()[0]->to_json(),
                                                rng,

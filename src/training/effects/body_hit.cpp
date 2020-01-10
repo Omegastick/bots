@@ -3,6 +3,7 @@
 #include <glm/gtc/random.hpp>
 
 #include "body_hit.h"
+#include "audio/audio_engine.h"
 #include "graphics/render_data.h"
 #include "graphics/renderers/renderer.h"
 
@@ -12,7 +13,7 @@ BodyHit::BodyHit(b2Vec2 position, glm::vec4 particle_color)
     : particle_color(particle_color),
       position(position) {}
 
-void BodyHit::trigger(Renderer &renderer)
+void BodyHit::trigger(Renderer &renderer, IAudioEngine * /*audio_engine*/)
 {
     const int particle_count = 200;
     const float step_subdivision = 1.f / particle_count / 10.f;

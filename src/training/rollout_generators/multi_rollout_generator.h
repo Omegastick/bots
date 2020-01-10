@@ -24,6 +24,8 @@ class MultiRolloutGenerator
 
     void draw(Renderer &renderer, bool lightweight = false);
     cpprl::RolloutStorage generate();
+    void set_fast();
+    void set_slow();
 
     inline unsigned long get_batch_number() const { return batch_number; }
     inline std::string get_current_opponent(int environment) const
@@ -33,7 +35,5 @@ class MultiRolloutGenerator
     std::vector<std::vector<float>> get_scores() const;
 
     inline unsigned long long get_timestep() { return timestep; }
-    inline void set_fast() { sub_generators[0]->set_fast(); }
-    inline void set_slow() { sub_generators[0]->set_slow(); }
 };
 }

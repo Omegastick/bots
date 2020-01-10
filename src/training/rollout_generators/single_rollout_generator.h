@@ -26,12 +26,14 @@ class ISingleRolloutGenerator
     virtual ~ISingleRolloutGenerator() = 0;
 
     virtual void draw(Renderer &renderer, bool lightweight = false) = 0;
+    virtual void fast_forward(unsigned int steps) = 0;
     virtual cpprl::RolloutStorage generate(unsigned long length) = 0;
     virtual std::string get_current_opponent() const = 0;
     virtual const IEnvironment &get_environment() const = 0;
     virtual void set_fast() = 0;
     virtual void set_slow() = 0;
     virtual void set_timestep_pointer(std::atomic<unsigned long long> *timestep) = 0;
+    virtual void set_audibility(bool visibility) = 0;
 };
 
 inline ISingleRolloutGenerator::~ISingleRolloutGenerator() {}
@@ -61,10 +63,10 @@ class SingleRolloutGenerator : public ISingleRolloutGenerator
                            std::unique_ptr<IEnvironment> environment,
                            const std::vector<std::unique_ptr<IAgent>> &opponent_pool,
                            Random &rng,
-                           bool skip_start,
                            std::atomic<unsigned long long> *timestep = nullptr);
 
     void draw(Renderer &renderer, bool lightweight = false) override;
+    void fast_forward(unsigned int steps) override;
     cpprl::RolloutStorage generate(unsigned long length) override;
 
     inline std::string get_current_opponent() const override
@@ -78,17 +80,23 @@ class SingleRolloutGenerator : public ISingleRolloutGenerator
     {
         this->timestep = timestep;
     }
+    inline void set_audibility(bool visibility) override
+    {
+        environment->set_audibility(visibility);
+    }
 };
 
 class MockSingleRolloutGenerator : public trompeloeil::mock_interface<ISingleRolloutGenerator>
 {
   public:
     IMPLEMENT_MOCK2(draw);
+    IMPLEMENT_MOCK1(fast_forward);
     IMPLEMENT_MOCK1(generate);
     IMPLEMENT_CONST_MOCK0(get_current_opponent);
     IMPLEMENT_CONST_MOCK0(get_environment);
     IMPLEMENT_MOCK0(set_fast);
     IMPLEMENT_MOCK0(set_slow);
     IMPLEMENT_MOCK1(set_timestep_pointer);
+    IMPLEMENT_MOCK1(set_audibility);
 };
 }

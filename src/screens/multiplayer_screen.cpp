@@ -191,6 +191,7 @@ void MultiplayerScreen::connect()
     client_communicator = std::make_unique<ClientCommunicator>(std::move(client_socket));
 
     env = std::make_unique<PlaybackEnv>(env_factory.make(), tick_length);
+    env->set_audibility(true);
 
     ConnectMessage connect_message(agent->get_body_spec().dump(),
                                    credentials_manager.get_token());

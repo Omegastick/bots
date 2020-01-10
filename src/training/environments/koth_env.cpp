@@ -108,8 +108,11 @@ KothEnv::KothEnv(int max_steps,
                  std::unique_ptr<b2World> world,
                  std::unique_ptr<Random> rng,
                  RewardConfig reward_config,
+                 IAudioEngine &audio_engine,
                  IBulletFactory &bullet_factory)
-    : body_1(std::move(body_1)),
+    : audible(false),
+      audio_engine(audio_engine),
+      body_1(std::move(body_1)),
       body_2(std::move(body_2)),
       bullet_factory(bullet_factory),
       effects(),
@@ -234,7 +237,14 @@ void KothEnv::draw(Renderer &renderer, bool lightweight)
     {
         for (auto &effect : effects)
         {
-            effect->trigger(renderer);
+            if (is_audible())
+            {
+                effect->trigger(renderer, &audio_engine);
+            }
+            else
+            {
+                effect->trigger(renderer);
+            }
         }
     }
     effects.clear();
@@ -481,6 +491,37 @@ StepInfo KothEnv::reset()
     return step_info;
 }
 
+int KothEnvFactory::get_num_bodies() { return 2; }
+
+std::unique_ptr<IEnvironment> KothEnvFactory::make(std::unique_ptr<Random> rng,
+                                                   std::unique_ptr<b2World> world,
+                                                   std::vector<std::unique_ptr<Body>> bodies,
+                                                   RewardConfig reward_config)
+{
+    return std::make_unique<KothEnv>(max_steps,
+                                     std::move(bodies[0]),
+                                     std::move(bodies[1]),
+                                     std::move(world),
+                                     std::move(rng),
+                                     reward_config,
+                                     audio_engine,
+                                     bullet_factory);
+}
+
+std::unique_ptr<IEnvironment> KothEnvFactory::make()
+{
+    auto rng = std::make_unique<Random>(0);
+    auto world = std::make_unique<b2World>(b2Vec2(0, 0));
+    return std::make_unique<KothEnv>(max_steps,
+                                     body_factory.make(*world, *rng),
+                                     body_factory.make(*world, *rng),
+                                     std::move(world),
+                                     std::move(rng),
+                                     RewardConfig(),
+                                     audio_engine,
+                                     bullet_factory);
+}
+
 TEST_CASE("KothEnv")
 {
     Random rng(0);
@@ -488,7 +529,7 @@ TEST_CASE("KothEnv")
     BulletFactory bullet_factory(audio_engine);
     ModuleFactory module_factory(bullet_factory, rng);
     TestBodyFactory body_factory(module_factory, rng);
-    KothEnvFactory env_factory(100, body_factory, bullet_factory);
+    KothEnvFactory env_factory(100, audio_engine, body_factory, bullet_factory);
     auto env = env_factory.make();
 
     SUBCASE("set_state()")

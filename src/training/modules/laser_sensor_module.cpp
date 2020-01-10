@@ -32,7 +32,7 @@ LaserSensorModule::LaserSensorModule(int laser_count, float fov, float laser_len
 {
     // Box2D
     b2PolygonShape shape;
-    shape.SetAsBox(0.5, 0.25f, b2Vec2(0.f, 0.125f), 0);
+    shape.SetAsBox(0.5f, 0.27f, b2Vec2(0.f, 0.126f), 0);
     shapes.push_back(shape);
     transform.SetIdentity();
 
@@ -55,7 +55,9 @@ std::vector<float> LaserSensorModule::cast_lasers() const
         b2Rot angle(glm::radians((segment_width * i) - (fov / 2)));
         b2Vec2 laser = b2Mul(angle, b2Vec2(0, laser_length));
 
-        body->get_rigid_body().body->GetWorld()->RayCast(&raycast_callback, global_transform.p, b2Mul(global_transform, laser));
+        body->get_rigid_body().body->GetWorld()->RayCast(&raycast_callback,
+                                                         global_transform.p,
+                                                         b2Mul(global_transform, laser));
         if (raycast_callback.distance == -1)
         {
             lasers[i] = 1;

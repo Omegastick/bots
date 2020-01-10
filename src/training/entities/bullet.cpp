@@ -4,7 +4,10 @@
 #include <Box2D/Box2D.h>
 #include <glm/glm.hpp>
 #include <glm/gtc/random.hpp>
+#include <spdlog/spdlog.h>
 
+#include "bullet.h"
+#include "audio/audio_engine.h"
 #include "graphics/colors.h"
 #include "graphics/renderers/renderer.h"
 #include "training/bodies/body.h"
@@ -108,25 +111,21 @@ void Bullet::begin_contact(RigidBody *other)
                                                                   b2_transform.q.GetAngle()}));
     }
 
-    // Create particle effect and set destroyed flag
     if (!destroyed)
     {
         destroyed = true;
         auto &b2_transform = rigid_body->body->GetTransform();
+        env.add_event(std::make_unique<EffectTriggered>(EffectTypes::BulletExplosion,
+                                                        env.get_elapsed_time(),
+                                                        Transform{b2_transform.p.x,
+                                                                  b2_transform.p.y,
+                                                                  b2_transform.q.GetAngle()}));
         env.add_event(std::make_unique<EntityDestroyed>(id,
                                                         env.get_elapsed_time(),
                                                         Transform{b2_transform.p.x,
                                                                   b2_transform.p.y,
                                                                   b2_transform.q.GetAngle()}));
     }
-}
-
-void Bullet::destroy()
-{
-    env.add_effect(std::make_unique<BulletExplosion>(rigid_body->body->GetTransform().p,
-                                                     particle_color));
-
-    IEntity::destroy();
 }
 
 void Bullet::end_contact(RigidBody * /*other*/) {}

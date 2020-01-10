@@ -21,7 +21,6 @@ SingleRolloutGenerator::SingleRolloutGenerator(
     std::unique_ptr<IEnvironment> environment,
     const std::vector<std::unique_ptr<IAgent>> &opponent_pool,
     Random &rng,
-    bool skip_start,
     std::atomic<unsigned long long> *timestep)
     : agent(agent),
       environment(std::move(environment)),
@@ -46,25 +45,24 @@ SingleRolloutGenerator::SingleRolloutGenerator(
     bodies[1]->load_json(opponent->get_body_spec());
     bodies[1]->set_color({cl_red, set_alpha(cl_red, 0.2f)});
 
-    auto env_observation = this->environment->reset().observation;
+    this->environment->reset();
+}
+
+void SingleRolloutGenerator::fast_forward(unsigned int steps)
+{
+    auto env_observation = environment->reset().observation;
     last_observation = env_observation[0];
     opponent_last_observation = env_observation[1];
 
-    if (!skip_start)
-    {
-        return;
-    }
-    // Run the environment for a bit
-    const int pre_steps = rng.next_int(1, 600);
-    for (int current_step = 0; current_step < pre_steps; current_step++)
+    for (unsigned int current_step = 0; current_step < steps; current_step++)
     {
         std::vector<torch::Tensor> actions;
         auto player_actions = torch::rand({1, agent.get_action_size()}).round();
         auto opponent_actions = torch::rand({1, opponent->get_action_size()}).round();
         actions = std::vector<torch::Tensor>{player_actions, opponent_actions};
 
-        env_observation = this->environment->step(actions, 1.f / 10.f).observation;
-        if (current_step == pre_steps - 1)
+        env_observation = environment->step(actions, 1.f / 10.f).observation;
+        if (current_step == steps - 1)
         {
             last_observation = env_observation[0];
             opponent_last_observation = env_observation[1];
@@ -219,7 +217,7 @@ TEST_CASE("SingleRolloutGenerator")
     std::vector<std::unique_ptr<IAgent>> opponent_pool;
     opponent_pool.emplace_back(std::make_unique<RandomAgent>(body_json, rng, "Opponent 1"));
     opponent_pool.emplace_back(std::make_unique<RandomAgent>(body_json, rng, "Opponent 2"));
-    SingleRolloutGenerator generator(agent, std::move(environment), opponent_pool, rng, true);
+    SingleRolloutGenerator generator(agent, std::move(environment), opponent_pool, rng);
 
     SUBCASE("Generates the correct amount of frames")
     {

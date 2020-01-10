@@ -78,7 +78,7 @@ TEST_CASE("BasicEvaluator")
         BulletFactory bullet_factory(audio_engine);
         ModuleFactory module_factory(bullet_factory, rng);
         BodyFactory body_factory(module_factory, rng);
-        KothEnvFactory env_factory(10, body_factory, bullet_factory);
+        KothEnvFactory env_factory(10, audio_engine, body_factory, bullet_factory);
         BasicEvaluator evaluator(body_factory, env_factory, rng);
 
         TestBody body(module_factory, rng);

@@ -47,7 +47,7 @@ void run_client(const std::string &id, const std::string &token)
     BulletFactory bullet_factory(audio_engine);
     ModuleFactory module_factory(bullet_factory, rng);
     TestBodyFactory body_factory(module_factory, rng);
-    KothEnvFactory env_factory(100, body_factory, bullet_factory);
+    KothEnvFactory env_factory(100, audio_engine, body_factory, bullet_factory);
     auto env = env_factory.make();
 
     auto body_spec = env->get_bodies()[0]->to_json();

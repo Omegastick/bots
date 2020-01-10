@@ -4,6 +4,7 @@
 #include <glm/gtc/constants.hpp>
 
 #include "thruster_particles.h"
+#include "audio/audio_engine.h"
 #include "graphics/render_data.h"
 #include "graphics/renderers/renderer.h"
 #include "misc/random.h"
@@ -14,7 +15,7 @@ ThrusterParticles::ThrusterParticles(b2Transform transform, glm::vec4 particle_c
     : particle_color(particle_color),
       transform(transform) {}
 
-void ThrusterParticles::trigger(Renderer &renderer)
+void ThrusterParticles::trigger(Renderer &renderer, IAudioEngine * /*audio_engine*/)
 {
     b2Transform edge_transform = b2Mul(transform,
                                        b2Transform(b2Vec2(0, -0.3f),

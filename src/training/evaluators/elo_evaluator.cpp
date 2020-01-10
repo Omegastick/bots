@@ -185,7 +185,7 @@ TEST_CASE("EloEvaluator")
         BulletFactory bullet_factory(audio_engine);
         ModuleFactory module_factory(bullet_factory, rng);
         BodyFactory body_factory(module_factory, rng);
-        KothEnvFactory env_factory(100, body_factory, bullet_factory);
+        KothEnvFactory env_factory(100, audio_engine, body_factory, bullet_factory);
         EloEvaluator evaluator(body_factory, env_factory, rng);
 
         auto body_spec = TestBody(module_factory, rng).to_json();

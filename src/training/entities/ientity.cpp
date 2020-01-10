@@ -29,9 +29,9 @@ b2Vec2 IEntity::get_linear_velocity() const
     return rigid_body->body->GetLinearVelocity();
 }
 
-bool IEntity::is_visible() const
+bool IEntity::is_audible() const
 {
-    return env.is_visible();
+    return env.is_audible();
 }
 
 void IEntity::set_transform(b2Vec2 position, float rotation)

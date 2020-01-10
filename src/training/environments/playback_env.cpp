@@ -55,9 +55,7 @@ float lerp_angle(float start, float end, float interpolate)
 PlaybackEnv::PlaybackEnv(std::unique_ptr<IEnvironment> env, double tick_length)
     : current_tick(0),
       env(std::move(env)),
-      tick_length(tick_length)
-{
-}
+      tick_length(tick_length) {}
 
 void PlaybackEnv::add_events(std::vector<std::unique_ptr<IEvent>> events)
 {
@@ -80,6 +78,11 @@ void PlaybackEnv::draw(Renderer &renderer, bool lightweight)
 void PlaybackEnv::reset()
 {
     env->reset();
+}
+
+void PlaybackEnv::set_audibility(bool audible)
+{
+    env->set_audibility(audible);
 }
 
 void PlaybackEnv::set_bodies(const std::vector<nlohmann::json> &body_specs)
@@ -296,7 +299,7 @@ TEST_CASE("PlaybackEnv")
     BulletFactory bullet_factory(audio_engine);
     ModuleFactory module_factory(bullet_factory, rng);
     TestBodyFactory body_factory(module_factory, rng);
-    KothEnvFactory env_factory(100, body_factory, bullet_factory);
+    KothEnvFactory env_factory(100, audio_engine, body_factory, bullet_factory);
     auto env = env_factory.make();
     PlaybackEnv playback_env(std::move(env), 0.1f);
 

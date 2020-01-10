@@ -39,6 +39,7 @@ EvaluationResult Evaluator::evaluate(const IAgent &agent_1, const IAgent &agent_
                                         std::move(world),
                                         std::move(bodies),
                                         RewardConfig());
+    environment->set_audibility(false);
 
     // Get first observations
     auto observation_1 = torch::zeros({1, agent_1.get_body_spec()["num_observations"]});
@@ -103,7 +104,7 @@ TEST_CASE("Evaluator")
         BulletFactory bullet_factory(audio_engine);
         ModuleFactory module_factory(bullet_factory, rng);
         BodyFactory body_factory(module_factory, rng);
-        KothEnvFactory env_factory(10, body_factory, bullet_factory);
+        KothEnvFactory env_factory(10, audio_engine, body_factory, bullet_factory);
         Evaluator evaluator(body_factory, env_factory);
 
         TestBody body(module_factory, rng);

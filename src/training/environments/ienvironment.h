@@ -112,12 +112,12 @@ class IEnvironment
     virtual RewardConfig &get_reward_config() = 0;
     virtual std::vector<float> get_scores() const = 0;
     virtual b2World &get_world() = 0;
-    virtual bool is_visible() const = 0;
+    virtual bool is_audible() const = 0;
     virtual StepInfo reset() = 0;
     virtual void set_done() = 0;
     virtual void set_elapsed_time(double elapsed_time) = 0;
     virtual void set_state(const EnvState &state) = 0;
-    virtual void set_visibility(bool visibility) = 0;
+    virtual void set_audibility(bool visibility) = 0;
     virtual StepInfo step(std::vector<torch::Tensor> actions, float step_length) = 0;
 };
 
@@ -155,12 +155,12 @@ class MockEnvironment : public trompeloeil::mock_interface<IEnvironment>
     IMPLEMENT_MOCK0(get_reward_config);
     IMPLEMENT_CONST_MOCK0(get_scores);
     IMPLEMENT_MOCK0(get_world);
-    IMPLEMENT_CONST_MOCK0(is_visible);
+    IMPLEMENT_CONST_MOCK0(is_audible);
     IMPLEMENT_MOCK0(reset);
     IMPLEMENT_MOCK0(set_done);
     IMPLEMENT_MOCK1(set_elapsed_time);
     IMPLEMENT_MOCK1(set_state);
-    IMPLEMENT_MOCK1(set_visibility);
+    IMPLEMENT_MOCK1(set_audibility);
     IMPLEMENT_MOCK2(step);
 };
 }
