@@ -8,9 +8,11 @@
 #include "screens/iscreen.h"
 #include "training/training_program.h"
 #include "ui/create_program_screen/create_program_screen_state.h"
+#include "ui/create_program_screen/create_program_screen_ui.h"
 
 namespace ai
 {
+class AudioEngine;
 class BodyFactory;
 class AlgorithmWindow;
 class BodySelectorWindow;
@@ -36,30 +38,22 @@ class CreateProgramScreen : public IScreen
     void rewards();
     void save_load();
 
-    std::unique_ptr<AlgorithmWindow> algorithm_window;
-    std::unique_ptr<BodySelectorWindow> body_selector_window;
-    std::unique_ptr<BrainWindow> brain_window;
+    AudioEngine &audio_engine;
     std::unique_ptr<IEnvironment> environment;
     IO &io;
     std::unique_ptr<TrainingProgram> program;
     glm::mat4 projection;
     ResourceManager &resource_manager;
-    std::unique_ptr<RewardWindows> reward_windows;
-    std::unique_ptr<SaveLoadWindow> save_load_window;
     ScreenManager &screen_manager;
     CreateProgramScreenState state;
-    std::unique_ptr<Tabs> tabs;
     TrainScreenFactory &train_screen_factory;
+    std::unique_ptr<CreateProgramScreenUI> ui;
 
   public:
-    CreateProgramScreen(std::unique_ptr<AlgorithmWindow> algorithm_window,
-                        std::unique_ptr<BodySelectorWindow> body_selector_window,
-                        std::unique_ptr<BrainWindow> brain_window,
-                        std::unique_ptr<RewardWindows> reward_windows,
+    CreateProgramScreen(std::unique_ptr<CreateProgramScreenUI> ui,
                         std::unique_ptr<IEnvironment> environment,
                         std::unique_ptr<TrainingProgram> program,
-                        std::unique_ptr<SaveLoadWindow> save_load_window,
-                        std::unique_ptr<Tabs> tabs,
+                        AudioEngine &audio_engine,
                         IO &io,
                         ResourceManager &resource_manager,
                         ScreenManager &screen_manager,
@@ -76,8 +70,10 @@ class CreateProgramScreen : public IScreen
 class CreateProgramScreenFactory : public IScreenFactory
 {
   private:
+    AudioEngine &audio_engine;
     BodyFactory &body_factory;
     Checkpointer &checkpointer;
+    CreateProgramScreenUIFactory &ui_factory;
     IEnvironmentFactory &env_factory;
     IO &io;
     ResourceManager &resource_manager;
@@ -85,15 +81,19 @@ class CreateProgramScreenFactory : public IScreenFactory
     TrainScreenFactory &train_screen_factory;
 
   public:
-    CreateProgramScreenFactory(BodyFactory &body_factory,
+    CreateProgramScreenFactory(AudioEngine &audio_engine,
+                               BodyFactory &body_factory,
                                Checkpointer &checkpointer,
+                               CreateProgramScreenUIFactory &ui_factory,
                                IEnvironmentFactory &env_factory,
                                IO &io,
                                ResourceManager &resource_manager,
                                ScreenManager &screen_manager,
                                TrainScreenFactory &train_screen_factory)
-        : body_factory(body_factory),
+        : audio_engine(audio_engine),
+          body_factory(body_factory),
           checkpointer(checkpointer),
+          ui_factory(ui_factory),
           env_factory(env_factory),
           io(io),
           resource_manager(resource_manager),
