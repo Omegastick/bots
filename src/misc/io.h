@@ -1,12 +1,22 @@
 #pragma once
 
+#include <functional>
+#include <vector>
+
 #include <glm/glm.hpp>
 
 namespace ai
 {
+enum class MouseButton
+{
+    Left,
+    Right
+};
+
 class IO
 {
   private:
+    std::vector<std::function<void(MouseButton)>> click_callbacks;
     double cursor_x, cursor_y;
     int resolution_x, resolution_y;
     bool left_clicked, right_clicked;
@@ -16,6 +26,7 @@ class IO
   public:
     IO();
 
+    void add_click_callback(std::function<void(MouseButton)> callback);
     glm::dvec2 get_cursor_position() const;
     bool get_key_pressed(int key) const;
     bool get_key_pressed_this_frame(int key) const;
