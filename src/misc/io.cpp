@@ -15,6 +15,11 @@ IO::IO()
       keys{false},
       keys_this_frame{false} {}
 
+void IO::add_click_callback(std::function<void(MouseButton)> callback)
+{
+    click_callbacks.push_back(callback);
+}
+
 glm::dvec2 IO::get_cursor_position() const
 {
     return {cursor_x, cursor_y};
@@ -85,8 +90,22 @@ void IO::set_resolution(int x, int y)
 
 void IO::tick()
 {
-    left_clicked = false;
-    right_clicked = false;
+    if (left_clicked)
+    {
+        for (const auto callback : click_callbacks)
+        {
+            callback(MouseButton::Left);
+        }
+        left_clicked = false;
+    }
+    if (right_clicked)
+    {
+        for (const auto callback : click_callbacks)
+        {
+            callback(MouseButton::Right);
+        }
+        right_clicked = false;
+    }
     std::fill(std::begin(keys_this_frame), std::end(keys_this_frame), false);
 }
 
@@ -168,6 +187,27 @@ TEST_CASE("IO")
         io.release_key(5);
 
         DOCTEST_CHECK(!io.get_key_pressed(5));
+    }
+
+    SUBCASE("Click callbacks")
+    {
+        SUBCASE("Left click callback is called with correct parameter")
+        {
+            MouseButton parameter = MouseButton::Right;
+            io.add_click_callback([&](MouseButton button) { parameter = button; });
+            io.left_click();
+            io.tick();
+            DOCTEST_CHECK(parameter == MouseButton::Left);
+        }
+
+        SUBCASE("Right click callback is called with correct parameter")
+        {
+            MouseButton parameter = MouseButton::Left;
+            io.add_click_callback([&](MouseButton button) { parameter = button; });
+            io.right_click();
+            io.tick();
+            DOCTEST_CHECK(parameter == MouseButton::Right);
+        }
     }
 }
 }
