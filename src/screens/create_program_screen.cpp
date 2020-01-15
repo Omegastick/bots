@@ -8,6 +8,7 @@
 #include <spdlog/spdlog.h>
 
 #include "create_program_screen.h"
+#include "audio/audio_engine.h"
 #include "graphics/backend/shader.h"
 #include "graphics/colors.h"
 #include "graphics/renderers/renderer.h"
@@ -23,41 +24,28 @@
 #include "training/environments/koth_env.h"
 #include "training/training_program.h"
 #include "ui/back_button.h"
-#include "ui/create_program_screen/algorithm_window.h"
-#include "ui/create_program_screen/body_selector_window.h"
-#include "ui/create_program_screen/brain_window.h"
-#include "ui/create_program_screen/reward_windows.h"
-#include "ui/create_program_screen/save_load_window.h"
-#include "ui/create_program_screen/tabs.h"
+#include "ui/create_program_screen/create_program_screen_ui.h"
 
 namespace ai
 {
 
-CreateProgramScreen::CreateProgramScreen(std::unique_ptr<AlgorithmWindow> algorithm_window,
-                                         std::unique_ptr<BodySelectorWindow> body_selector_window,
-                                         std::unique_ptr<BrainWindow> brain_window,
-                                         std::unique_ptr<RewardWindows> reward_windows,
+CreateProgramScreen::CreateProgramScreen(std::unique_ptr<CreateProgramScreenUI> ui,
                                          std::unique_ptr<IEnvironment> environment,
                                          std::unique_ptr<TrainingProgram> program,
-                                         std::unique_ptr<SaveLoadWindow> save_load_window,
-                                         std::unique_ptr<Tabs> tabs,
+                                         AudioEngine &audio_engine,
                                          IO &io,
                                          ResourceManager &resource_manager,
                                          ScreenManager &screen_manager,
                                          TrainScreenFactory &train_screen_factory)
-    : algorithm_window(std::move(algorithm_window)),
-      body_selector_window(std::move(body_selector_window)),
-      brain_window(std::move(brain_window)),
+    : audio_engine(audio_engine),
       environment(std::move(environment)),
       io(io),
       program(std::move(program)),
       resource_manager(resource_manager),
-      reward_windows(std::move(reward_windows)),
-      save_load_window(std::move(save_load_window)),
       screen_manager(screen_manager),
       state(CreateProgramScreenState::Body),
-      tabs(std::move(tabs)),
-      train_screen_factory(train_screen_factory)
+      train_screen_factory(train_screen_factory),
+      ui(std::move(ui))
 {
     resource_manager.load_texture("bullet", "images/bullet.png");
     resource_manager.load_texture("pixel", "images/pixel.png");
@@ -70,12 +58,12 @@ CreateProgramScreen::CreateProgramScreen(std::unique_ptr<AlgorithmWindow> algori
 
 void CreateProgramScreen::algorithm()
 {
-    algorithm_window->update(program->hyper_parameters);
+    ui->algorithm_window.update(program->hyper_parameters);
 }
 
 void CreateProgramScreen::body()
 {
-    auto json = body_selector_window->update();
+    auto json = ui->body_selector_window.update();
     if (!json.empty())
     {
         auto bodies = environment->get_bodies();
@@ -97,17 +85,17 @@ void CreateProgramScreen::body()
 
 void CreateProgramScreen::brain()
 {
-    brain_window->update(*program);
+    ui->brain_window.update(*program);
 }
 
 void CreateProgramScreen::rewards()
 {
-    reward_windows->update(*environment, projection, program->reward_config);
+    ui->reward_windows.update(*environment, projection, program->reward_config);
 }
 
 void CreateProgramScreen::save_load()
 {
-    if (save_load_window->update(*program))
+    if (ui->save_load_window.update(*program))
     {
         auto bodies = environment->get_bodies();
         bodies[0]->load_json(program->body);
@@ -131,7 +119,7 @@ void CreateProgramScreen::update(double /*delta_time*/)
     auto view_right = view_top * (resolution.x / resolution.y);
     projection = glm::ortho(-view_right, view_right, -view_top, view_top);
 
-    state = tabs->update();
+    state = ui->tabs.update();
 
     switch (state)
     {
@@ -163,6 +151,7 @@ void CreateProgramScreen::update(double /*delta_time*/)
     ImGui::Begin("##run_training", NULL, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoTitleBar);
     if (ImGui::Button("Run"))
     {
+        audio_engine.play("hit");
         run_training();
     }
     ImGui::End();
@@ -190,14 +179,10 @@ std::shared_ptr<IScreen> CreateProgramScreenFactory::make()
                                         std::move(world),
                                         std::move(bodies),
                                         RewardConfig());
-    return std::make_shared<CreateProgramScreen>(std::make_unique<AlgorithmWindow>(io),
-                                                 std::make_unique<BodySelectorWindow>(io),
-                                                 std::make_unique<BrainWindow>(checkpointer, io),
-                                                 std::make_unique<RewardWindows>(io),
+    return std::make_shared<CreateProgramScreen>(ui_factory.make(),
                                                  std::move(environment),
                                                  std::make_unique<TrainingProgram>(),
-                                                 std::make_unique<SaveLoadWindow>(io),
-                                                 std::make_unique<Tabs>(io),
+                                                 audio_engine,
                                                  io,
                                                  resource_manager,
                                                  screen_manager,

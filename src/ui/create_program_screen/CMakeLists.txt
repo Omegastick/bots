@@ -3,6 +3,7 @@ PRIVATE
     ${CMAKE_CURRENT_LIST_DIR}/algorithm_window.cpp
     ${CMAKE_CURRENT_LIST_DIR}/body_selector_window.cpp
     ${CMAKE_CURRENT_LIST_DIR}/brain_window.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/create_program_screen_ui.cpp
     ${CMAKE_CURRENT_LIST_DIR}/reward_windows.cpp
     ${CMAKE_CURRENT_LIST_DIR}/save_load_window.cpp
     ${CMAKE_CURRENT_LIST_DIR}/tabs.cpp
