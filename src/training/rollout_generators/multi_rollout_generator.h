@@ -26,6 +26,7 @@ class MultiRolloutGenerator
     cpprl::RolloutStorage generate();
     void set_fast();
     void set_slow();
+    void stop();
 
     inline unsigned long get_batch_number() const { return batch_number; }
     inline std::string get_current_opponent(int environment) const

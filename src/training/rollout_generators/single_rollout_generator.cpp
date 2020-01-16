@@ -30,6 +30,7 @@ SingleRolloutGenerator::SingleRolloutGenerator(
       reset_recently(false),
       rng(rng),
       score(0),
+      should_stop(false),
       slow(false),
       start_position(false),
       timestep(timestep)
@@ -83,6 +84,11 @@ cpprl::RolloutStorage SingleRolloutGenerator::generate(unsigned long length)
 
     for (unsigned long step = 0; step < length; ++step)
     {
+        if (should_stop)
+        {
+            should_stop = false;
+            break;
+        }
         // Get action from agent
         ActResult act_result, opponent_act_result;
         {
@@ -186,6 +192,11 @@ void SingleRolloutGenerator::draw(Renderer &renderer, bool /*lightweight*/)
 {
     std::lock_guard lock_guard(mutex);
     environment->draw(renderer, !slow);
+}
+
+void SingleRolloutGenerator::stop()
+{
+    should_stop = true;
 }
 
 using trompeloeil::_;

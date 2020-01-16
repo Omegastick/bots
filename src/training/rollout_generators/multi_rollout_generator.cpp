@@ -78,6 +78,14 @@ void MultiRolloutGenerator::set_slow()
     sub_generators[0]->set_audibility(true);
 }
 
+void MultiRolloutGenerator::stop()
+{
+    for (auto &sub_generator : sub_generators)
+    {
+        sub_generator->stop();
+    }
+}
+
 using trompeloeil::_;
 
 TEST_CASE("MultiRolloutGenerator")

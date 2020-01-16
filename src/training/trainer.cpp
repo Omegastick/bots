@@ -80,6 +80,10 @@ double Trainer::evaluate()
 std::vector<std::pair<std::string, float>> Trainer::step_batch()
 {
     auto rollout = rollout_generator->generate();
+    if (skip_update)
+    {
+        return {};
+    }
     auto update_data = learn(rollout);
     return update_data;
 }
@@ -177,6 +181,12 @@ bool Trainer::should_clear_particles()
         return true;
     }
     return false;
+}
+
+void Trainer::stop()
+{
+    skip_update = true;
+    rollout_generator->stop();
 }
 
 std::unique_ptr<Trainer> TrainerFactory::make(TrainingProgram &program) const
