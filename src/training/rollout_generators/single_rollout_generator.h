@@ -34,6 +34,7 @@ class ISingleRolloutGenerator
     virtual void set_slow() = 0;
     virtual void set_timestep_pointer(std::atomic<unsigned long long> *timestep) = 0;
     virtual void set_audibility(bool visibility) = 0;
+    virtual void stop() = 0;
 };
 
 inline ISingleRolloutGenerator::~ISingleRolloutGenerator() {}
@@ -54,6 +55,7 @@ class SingleRolloutGenerator : public ISingleRolloutGenerator
     std::atomic<bool> reset_recently;
     Random &rng;
     std::atomic<float> score;
+    std::atomic<bool> should_stop;
     std::atomic<bool> slow;
     bool start_position;
     std::atomic<unsigned long long> *timestep;
@@ -84,6 +86,7 @@ class SingleRolloutGenerator : public ISingleRolloutGenerator
     {
         environment->set_audibility(visibility);
     }
+    void stop() override;
 };
 
 class MockSingleRolloutGenerator : public trompeloeil::mock_interface<ISingleRolloutGenerator>
@@ -98,5 +101,6 @@ class MockSingleRolloutGenerator : public trompeloeil::mock_interface<ISingleRol
     IMPLEMENT_MOCK0(set_slow);
     IMPLEMENT_MOCK1(set_timestep_pointer);
     IMPLEMENT_MOCK1(set_audibility);
+    IMPLEMENT_MOCK0(stop);
 };
 }

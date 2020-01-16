@@ -45,6 +45,7 @@ class Trainer
     cpprl::RunningMeanStd returns_rms;
     Random &rng;
     std::unique_ptr<MultiRolloutGenerator> rollout_generator;
+    std::atomic<bool> skip_update;
 
     std::vector<std::pair<std::string, float>> learn(cpprl::RolloutStorage &rollout);
 
@@ -63,6 +64,7 @@ class Trainer
     std::filesystem::path save_model(std::filesystem::path directory = {});
     std::vector<std::pair<std::string, float>> step_batch();
     bool should_clear_particles();
+    void stop();
 
     inline unsigned int get_batch_number() const { return rollout_generator->get_batch_number(); }
     inline std::string get_current_opponent() const

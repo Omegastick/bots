@@ -57,7 +57,7 @@ TrainScreen::TrainScreen(std::unique_ptr<TrainInfoWindow> train_info_window,
 
 TrainScreen::~TrainScreen()
 {
-    trainer->set_fast();
+    trainer->stop();
     if (batch_thread.joinable())
     {
         batch_thread.join();
