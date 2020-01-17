@@ -11,13 +11,13 @@
 #include "graphics/renderers/renderer.h"
 #include "misc/random.h"
 #include "misc/transform.h"
+#include "training/effects/ieffect.h"
+#include "training/entities/ientity.h"
 #include "training/events/ievent.h"
 
 namespace ai
 {
 class Body;
-class IEffect;
-class IEntity;
 struct Particle;
 struct RewardConfig;
 

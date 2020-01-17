@@ -1,5 +1,6 @@
 #include <algorithm>
 #include <cmath>
+#include <numeric>
 #include <vector>
 
 #include <glm/glm.hpp>
