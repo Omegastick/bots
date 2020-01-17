@@ -17,7 +17,7 @@ void BulletExplosion::trigger(Renderer &renderer, IAudioEngine *audio_engine)
 {
     if (audio_engine)
     {
-        audio_engine->play("hit");
+        audio_engine->play("hit_wall");
     }
     const int particle_count = 100;
     const float step_subdivision = 1.f / particle_count / 10.f;

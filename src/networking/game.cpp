@@ -146,7 +146,7 @@ TEST_CASE("Game")
     Random rng(0);
     MockAudioEngine audio_engine;
     BulletFactory bullet_factory(audio_engine);
-    ModuleFactory module_factory(bullet_factory, rng);
+    ModuleFactory module_factory(audio_engine, bullet_factory, rng);
     TestBodyFactory body_factory(module_factory, rng);
     KothEnvFactory env_factory(10, audio_engine, body_factory, bullet_factory);
     Game game(0.1, body_factory, env_factory, rng);

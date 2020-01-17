@@ -287,7 +287,10 @@ App::App(Animator &animator,
         io.get_resolution().y);
 
     // Load sounds
-    resource_manager.load_audio_source("hit", "audio/hit.wav");
+    resource_manager.load_audio_source("hit_wall", "audio/hit_wall.wav");
+    resource_manager.load_audio_source("hit_body", "audio/hit_body.wav");
+    resource_manager.load_audio_source("fire", "audio/fire.wav");
+    resource_manager.audio_source_store.get("fire")->setVolume(0.5f);
     resource_manager.load_audio_source("chord", "audio/chord.wav");
     resource_manager.load_audio_source("note", "audio/note.wav");
 }

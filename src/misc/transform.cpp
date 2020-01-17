@@ -94,6 +94,13 @@ glm::mat4 Transform::get() const
     return transform;
 }
 
+bool approx_equal(glm::vec3 a, glm::vec3 b)
+{
+    return a.x == doctest::Approx(b.x) &&
+           a.y == doctest::Approx(b.y) &&
+           a.z == doctest::Approx(b.z);
+}
+
 TEST_CASE("Transform")
 {
     Transform transform;
@@ -103,15 +110,15 @@ TEST_CASE("Transform")
         SUBCASE("Changes the translation of the transform")
         {
             transform.move({2, 3});
-            DOCTEST_CHECK(glm::vec3(transform.get()[3]) == glm::vec3{2, 3, 0});
+            DOCTEST_CHECK(approx_equal(glm::vec3(transform.get()[3]), glm::vec3{2, 3, 0}));
         }
 
         SUBCASE("Multiple calls stack the translations")
         {
             transform.move({1, 2});
-            DOCTEST_CHECK(glm::vec3(transform.get()[3]) == glm::vec3{1, 2, 0});
+            DOCTEST_CHECK(approx_equal(glm::vec3(transform.get()[3]), glm::vec3{1, 2, 0}));
             transform.move({-3, -4});
-            DOCTEST_CHECK(glm::vec3(transform.get()[3]) == glm::vec3{-2, -2, 0});
+            DOCTEST_CHECK(approx_equal(glm::vec3(transform.get()[3]), glm::vec3{-2, -2, 0}));
         }
     }
 
@@ -127,17 +134,17 @@ TEST_CASE("Transform")
         {
             transform.rotate(1);
             glm::decompose(transform.get(), scale, rotation, translation, skew, perspective);
-            DOCTEST_CHECK(glm::eulerAngles(rotation) == glm::vec3{0, 0, 1});
+            DOCTEST_CHECK(approx_equal(glm::eulerAngles(rotation), glm::vec3{0, 0, 1}));
         }
 
         SUBCASE("Multiple calls stack")
         {
             transform.rotate(-1);
             glm::decompose(transform.get(), scale, rotation, translation, skew, perspective);
-            DOCTEST_CHECK(glm::eulerAngles(rotation) == glm::vec3{0, 0, -1});
+            DOCTEST_CHECK(approx_equal(glm::eulerAngles(rotation), glm::vec3{0, 0, -1}));
             transform.rotate(2);
             glm::decompose(transform.get(), scale, rotation, translation, skew, perspective);
-            DOCTEST_CHECK(glm::eulerAngles(rotation) == glm::vec3{0, 0, 1});
+            DOCTEST_CHECK(approx_equal(glm::eulerAngles(rotation), glm::vec3{0, 0, 1}));
         }
     }
 
@@ -148,17 +155,17 @@ TEST_CASE("Transform")
         {
             transform.resize({2, 3});
             auto t = transform.get();
-            DOCTEST_CHECK(glm::vec3(t[0][0], t[1][1], t[2][2]) == glm::vec3{2, 3, 1});
+            DOCTEST_CHECK(approx_equal(glm::vec3(t[0][0], t[1][1], t[2][2]), glm::vec3{2, 3, 1}));
         }
 
         SUBCASE("Multiple calls stack")
         {
             transform.resize({2, 3});
             auto t = transform.get();
-            DOCTEST_CHECK(glm::vec3(t[0][0], t[1][1], t[2][2]) == glm::vec3{2, 3, 1});
+            DOCTEST_CHECK(approx_equal(glm::vec3(t[0][0], t[1][1], t[2][2]), glm::vec3{2, 3, 1}));
             transform.resize({-1, 2});
             t = transform.get();
-            DOCTEST_CHECK(glm::vec3(t[0][0], t[1][1], t[2][2]) == glm::vec3{-2, 6, 1});
+            DOCTEST_CHECK(approx_equal(glm::vec3(t[0][0], t[1][1], t[2][2]), glm::vec3{-2, 6, 1}));
         }
     }
 
@@ -167,15 +174,15 @@ TEST_CASE("Transform")
         SUBCASE("Changes the translation of the transform")
         {
             transform.set_position({2, 3});
-            DOCTEST_CHECK(glm::vec3(transform.get()[3]) == glm::vec3{2, 3, 0});
+            DOCTEST_CHECK(approx_equal(glm::vec3(transform.get()[3]), glm::vec3{2, 3, 0}));
         }
 
         SUBCASE("Multiple calls don't stack the translations")
         {
             transform.set_position({1, 2});
-            DOCTEST_CHECK(glm::vec3(transform.get()[3]) == glm::vec3{1, 2, 0});
+            DOCTEST_CHECK(approx_equal(glm::vec3(transform.get()[3]), glm::vec3{1, 2, 0}));
             transform.set_position({-3, -4});
-            DOCTEST_CHECK(glm::vec3(transform.get()[3]) == glm::vec3{-3, -4, 0});
+            DOCTEST_CHECK(approx_equal(glm::vec3(transform.get()[3]), glm::vec3{-3, -4, 0}));
         }
     }
 
@@ -191,17 +198,17 @@ TEST_CASE("Transform")
         {
             transform.set_rotation(1);
             glm::decompose(transform.get(), scale, rotation, translation, skew, perspective);
-            DOCTEST_CHECK(glm::eulerAngles(rotation) == glm::vec3{0, 0, 1});
+            DOCTEST_CHECK(approx_equal(glm::eulerAngles(rotation), glm::vec3{0, 0, 1}));
         }
 
         SUBCASE("Multiple calls don't stack")
         {
             transform.set_rotation(-1);
             glm::decompose(transform.get(), scale, rotation, translation, skew, perspective);
-            DOCTEST_CHECK(glm::eulerAngles(rotation) == glm::vec3{0, 0, -1});
+            DOCTEST_CHECK(approx_equal(glm::eulerAngles(rotation), glm::vec3{0, 0, -1}));
             transform.set_rotation(2);
             glm::decompose(transform.get(), scale, rotation, translation, skew, perspective);
-            DOCTEST_CHECK(glm::eulerAngles(rotation) == glm::vec3{0, 0, 2});
+            DOCTEST_CHECK(approx_equal(glm::eulerAngles(rotation), glm::vec3{0, 0, 2}));
         }
     }
 
@@ -212,17 +219,17 @@ TEST_CASE("Transform")
         {
             transform.set_scale({2, 3});
             auto t = transform.get();
-            DOCTEST_CHECK(glm::vec3(t[0][0], t[1][1], t[2][2]) == glm::vec3{2, 3, 1});
+            DOCTEST_CHECK(approx_equal(glm::vec3(t[0][0], t[1][1], t[2][2]), glm::vec3{2, 3, 1}));
         }
 
         SUBCASE("Multiple calls don't stack")
         {
             transform.set_scale({2, 3});
             auto t = transform.get();
-            DOCTEST_CHECK(glm::vec3(t[0][0], t[1][1], t[2][2]) == glm::vec3{2, 3, 1});
+            DOCTEST_CHECK(approx_equal(glm::vec3(t[0][0], t[1][1], t[2][2]), glm::vec3{2, 3, 1}));
             transform.set_scale({-1, 2});
             t = transform.get();
-            DOCTEST_CHECK(glm::vec3(t[0][0], t[1][1], t[2][2]) == glm::vec3{-1, 2, 1});
+            DOCTEST_CHECK(approx_equal(glm::vec3(t[0][0], t[1][1], t[2][2]), glm::vec3{-1, 2, 1}));
         }
     }
 }

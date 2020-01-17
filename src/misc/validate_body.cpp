@@ -8,6 +8,7 @@
 #include <nlohmann/json.hpp>
 
 #include "validate_body.h"
+#include "audio/audio_engine.h"
 #include "misc/module_factory.h"
 #include "misc/random.h"
 #include "training/bodies/body.h"
@@ -94,8 +95,9 @@ ValidationResult validate_body(const Body &body, const std::vector<std::string> 
 TEST_CASE("validate_body")
 {
     Random rng(0);
+    MockAudioEngine audio_engine;
     MockBulletFactory bullet_factory;
-    ModuleFactory module_factory(bullet_factory, rng);
+    ModuleFactory module_factory(audio_engine, bullet_factory, rng);
     TestBodyFactory body_factory(module_factory, rng);
     b2World b2_world({0, 0});
     const std::vector<std::string> available_modules = {"base_module",

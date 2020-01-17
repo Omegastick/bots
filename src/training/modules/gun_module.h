@@ -14,12 +14,14 @@
 namespace ai
 {
 class Body;
+class IAudioEngine;
 class IBulletFactory;
 class Random;
 
 class GunModule : public IModule, public IActivatable
 {
   private:
+    IAudioEngine &audio_engine;
     Rectangle barrel_rectangle, body_rectangle;
     IBulletFactory &bullet_factory;
     int cooldown;
@@ -27,7 +29,7 @@ class GunModule : public IModule, public IActivatable
     int steps_since_last_shot;
 
   public:
-    GunModule(IBulletFactory &bullet_factory, Random &rng);
+    GunModule(IAudioEngine &audio_engine, IBulletFactory &bullet_factory, Random &rng);
 
     virtual void activate() override;
     virtual void draw(Renderer &renderer, bool lightweight = false) override;

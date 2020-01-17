@@ -26,8 +26,11 @@ BasicEvaluator::BasicEvaluator(BodyFactory &body_factory,
 double BasicEvaluator::evaluate(const IAgent &agent,
                                 int number_of_trials)
 {
+    MockAudioEngine audio_engine;
+    ALLOW_CALL(audio_engine, play(ANY(std::string)))
+        .LR_RETURN(SoundHandle(audio_engine, 0));
     MockBulletFactory bullet_factory;
-    ModuleFactory module_factory(bullet_factory, rng);
+    ModuleFactory module_factory(audio_engine, bullet_factory, rng);
     TestBody test_body(module_factory, rng);
     auto test_body_json = test_body.to_json();
     RandomAgent random_agent(test_body_json, rng, "Random Agent");
@@ -76,7 +79,7 @@ TEST_CASE("BasicEvaluator")
         Random rng(0);
         MockAudioEngine audio_engine;
         BulletFactory bullet_factory(audio_engine);
-        ModuleFactory module_factory(bullet_factory, rng);
+        ModuleFactory module_factory(audio_engine, bullet_factory, rng);
         BodyFactory body_factory(module_factory, rng);
         KothEnvFactory env_factory(10, audio_engine, body_factory, bullet_factory);
         BasicEvaluator evaluator(body_factory, env_factory, rng);

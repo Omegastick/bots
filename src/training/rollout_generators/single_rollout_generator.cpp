@@ -7,6 +7,7 @@
 #include <doctest.h>
 
 #include "single_rollout_generator.h"
+#include "audio/audio_engine.h"
 #include "misc/module_factory.h"
 #include "training/agents/iagent.h"
 #include "training/agents/random_agent.h"
@@ -204,8 +205,9 @@ using trompeloeil::_;
 TEST_CASE("SingleRolloutGenerator")
 {
     Random rng(0);
+    MockAudioEngine audio_engine;
     MockBulletFactory bullet_factory;
-    ModuleFactory module_factory(bullet_factory, rng);
+    ModuleFactory module_factory(audio_engine, bullet_factory, rng);
     TestBody body(module_factory, rng);
     const auto body_json = body.to_json();
     RandomAgent agent(body_json, rng, "Player");

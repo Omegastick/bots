@@ -13,8 +13,12 @@ BodyHit::BodyHit(b2Vec2 position, glm::vec4 particle_color)
     : particle_color(particle_color),
       position(position) {}
 
-void BodyHit::trigger(Renderer &renderer, IAudioEngine * /*audio_engine*/)
+void BodyHit::trigger(Renderer &renderer, IAudioEngine *audio_engine)
 {
+    if (audio_engine)
+    {
+        audio_engine->play("hit_body");
+    }
     const int particle_count = 200;
     const float step_subdivision = 1.f / particle_count / 10.f;
     glm::vec4 end_color = particle_color;

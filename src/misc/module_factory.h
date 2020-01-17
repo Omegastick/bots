@@ -7,6 +7,7 @@
 
 namespace ai
 {
+class IAudioEngine;
 class IBulletFactory;
 class IModule;
 class Random;
@@ -20,12 +21,12 @@ class IModuleFactory
 class ModuleFactory : public IModuleFactory
 {
   private:
+    IAudioEngine &audio_engine;
     IBulletFactory &bullet_factory;
     Random &rng;
 
   public:
-    ModuleFactory(IBulletFactory &bullet_factory, Random &rng)
-        : bullet_factory(bullet_factory), rng(rng) {}
+    ModuleFactory(IAudioEngine &audio_engine, IBulletFactory &bullet_factory, Random &rng);
 
     std::shared_ptr<IModule> make(const std::string &module_id) override;
 };

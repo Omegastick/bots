@@ -179,7 +179,7 @@ TEST_CASE("BodyBuilder")
     Random rng(0);
     MockAudioEngine audio_engine;
     BulletFactory bullet_factory(audio_engine);
-    ModuleFactory module_factory(bullet_factory, rng);
+    ModuleFactory module_factory(audio_engine, bullet_factory, rng);
     BodyFactory body_factory(module_factory, rng);
     IO io;
     io.set_resolution(1920, 1080);

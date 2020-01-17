@@ -297,7 +297,7 @@ TEST_CASE("PlaybackEnv")
     Random rng(0);
     MockAudioEngine audio_engine;
     BulletFactory bullet_factory(audio_engine);
-    ModuleFactory module_factory(bullet_factory, rng);
+    ModuleFactory module_factory(audio_engine, bullet_factory, rng);
     TestBodyFactory body_factory(module_factory, rng);
     KothEnvFactory env_factory(100, audio_engine, body_factory, bullet_factory);
     auto env = env_factory.make();
