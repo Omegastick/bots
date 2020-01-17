@@ -17,6 +17,8 @@
 #include <spdlog/spdlog.h>
 
 #include "screens/main_menu_screen.h"
+#include "audio/audio_engine.h"
+#include "audio/sound_handle.h"
 #include "graphics/renderers/renderer.h"
 #include "graphics/render_data.h"
 #include "misc/credentials_manager.h"
@@ -30,14 +32,16 @@
 
 namespace ai
 {
-MainMenuScreen::MainMenuScreen(CredentialsManager &credentials_manager,
+MainMenuScreen::MainMenuScreen(IAudioEngine &audio_engine,
+                               CredentialsManager &credentials_manager,
                                IHttpClient &http_client,
                                IO &io,
                                IScreenFactory &build_screen_factory,
                                IScreenFactory &create_program_screen_factory,
                                IScreenFactory &multiplayer_screen_factory,
                                ScreenManager &screen_manager)
-    : credentials_manager(credentials_manager),
+    : audio_engine(audio_engine),
+      credentials_manager(credentials_manager),
       http_client(http_client),
       io(io),
       build_screen_factory(build_screen_factory),
@@ -66,6 +70,7 @@ void MainMenuScreen::update(double /*delta_time*/)
                 user_info_future = get_user_info(st_cloud_base_url);
             })
                 .detach();
+            audio_engine.play("note");
             waiting_for_server = true;
         }
         if (waiting_for_server)
@@ -77,6 +82,7 @@ void MainMenuScreen::update(double /*delta_time*/)
 
         if (io.get_key_pressed(GLFW_KEY_LEFT_CONTROL) && io.get_key_pressed(GLFW_KEY_SPACE))
         {
+            audio_engine.play("note");
             credentials_manager.set_token("No token");
         }
     }
@@ -97,18 +103,22 @@ void MainMenuScreen::update(double /*delta_time*/)
                       ImGuiWindowFlags_NoTitleBar));
         if (ImGui::Button("Train Agent"))
         {
+            audio_engine.play("note");
             train_agent();
         }
         if (ImGui::Button("Build Body"))
         {
+            audio_engine.play("note");
             build_body();
         }
         if (ImGui::Button("Multiplayer"))
         {
+            audio_engine.play("note");
             multiplayer();
         }
         if (ImGui::Button("Quit"))
         {
+            audio_engine.play("note");
             quit();
         }
 
@@ -217,6 +227,9 @@ using trompeloeil::_;
 
 TEST_CASE("MainMenuScreen")
 {
+    MockAudioEngine audio_engine;
+    ALLOW_CALL(audio_engine, play(ANY(std::string)))
+        .LR_RETURN(SoundHandle(audio_engine, 0));
     MockHttpClient http_client;
     CredentialsManager credentials_manager(http_client);
     IO io;
@@ -224,7 +237,8 @@ TEST_CASE("MainMenuScreen")
     MockScreenFactory create_program_screen_factory;
     MockScreenFactory multiplayer_screen_factory;
     ScreenManager screen_manager;
-    auto main_menu_screen = std::make_shared<MainMenuScreen>(credentials_manager,
+    auto main_menu_screen = std::make_shared<MainMenuScreen>(audio_engine,
+                                                             credentials_manager,
                                                              http_client,
                                                              io,
                                                              build_screen_factory,

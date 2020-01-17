@@ -11,6 +11,7 @@
 namespace ai
 {
 class CredentialsManager;
+class IAudioEngine;
 class IHttpClient;
 class IO;
 class Renderer;
@@ -26,6 +27,7 @@ class MainMenuScreen : public IScreen
     };
 
   private:
+    IAudioEngine &audio_engine;
     CredentialsManager &credentials_manager;
     IHttpClient &http_client;
     IO &io;
@@ -41,7 +43,8 @@ class MainMenuScreen : public IScreen
     bool waiting_for_server;
 
   public:
-    MainMenuScreen(CredentialsManager &credentials_manager,
+    MainMenuScreen(IAudioEngine &audio_engine,
+                   CredentialsManager &credentials_manager,
                    IHttpClient &http_client,
                    IO &io,
                    IScreenFactory &build_screen_factory,
@@ -67,6 +70,7 @@ static auto MultiplayerScreenFactoryType = [] {};
 class MainMenuScreenFactory : public IScreenFactory
 {
   private:
+    IAudioEngine &audio_engine;
     CredentialsManager &credentials_manager;
     IHttpClient &http_client;
     IO &io;
@@ -77,6 +81,7 @@ class MainMenuScreenFactory : public IScreenFactory
 
   public:
     BOOST_DI_INJECT(MainMenuScreenFactory,
+                    IAudioEngine &audio_engine,
                     CredentialsManager &credentials_manager,
                     IHttpClient &http_client,
                     IO &io,
@@ -87,7 +92,8 @@ class MainMenuScreenFactory : public IScreenFactory
                     (named = MultiplayerScreenFactoryType)
                         IScreenFactory &multiplayer_screen_factory,
                     ScreenManager &screen_manager)
-        : credentials_manager(credentials_manager),
+        : audio_engine(audio_engine),
+          credentials_manager(credentials_manager),
           http_client(http_client),
           io(io),
           build_screen_factory(build_screen_factory),
@@ -97,7 +103,8 @@ class MainMenuScreenFactory : public IScreenFactory
 
     virtual std::shared_ptr<IScreen> make()
     {
-        return std::make_shared<MainMenuScreen>(credentials_manager,
+        return std::make_shared<MainMenuScreen>(audio_engine,
+                                                credentials_manager,
                                                 http_client,
                                                 io,
                                                 build_screen_factory,
