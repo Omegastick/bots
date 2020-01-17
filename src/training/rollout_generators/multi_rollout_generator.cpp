@@ -34,21 +34,29 @@ void MultiRolloutGenerator::draw(Renderer &renderer, bool lightweight)
     sub_generators[0]->draw(renderer, lightweight);
 }
 
+// Workaround for MSVC
+// https://stackoverflow.com/questions/49830864/stdpromiset-where-t-must-be-default-constructible-in-visual-studio-2017
+struct RolloutStorageFuture
+{
+    std::unique_ptr<cpprl::RolloutStorage> storage;
+};
+
 cpprl::RolloutStorage MultiRolloutGenerator::generate()
 {
-    std::vector<std::future<cpprl::RolloutStorage>> storage_futures;
+    std::vector<std::future<RolloutStorageFuture>> storage_futures;
     for (auto &sub_generator : sub_generators)
     {
         storage_futures.emplace_back(std::async(std::launch::async, [&] {
-            return sub_generator->generate(num_steps);
+            return RolloutStorageFuture{
+                std::make_unique<cpprl::RolloutStorage>(sub_generator->generate(num_steps))};
         }));
     }
 
     std::vector<cpprl::RolloutStorage> storages;
     std::transform(storage_futures.begin(), storage_futures.end(),
                    std::back_inserter(storages),
-                   [](std::future<cpprl::RolloutStorage> &storage_future) {
-                       return storage_future.get();
+                   [](std::future<RolloutStorageFuture> &storage_future) {
+                       return *storage_future.get().storage;
                    });
 
     std::vector<cpprl::RolloutStorage *> storage_ptrs;
