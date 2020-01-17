@@ -151,7 +151,7 @@ void CreateProgramScreen::update(double /*delta_time*/)
     ImGui::Begin("##run_training", NULL, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoTitleBar);
     if (ImGui::Button("Run"))
     {
-        audio_engine.play("hit");
+        audio_engine.play("chord");
         run_training();
     }
     ImGui::End();
