@@ -62,7 +62,7 @@ void BuildScreen::update(double /*delta_time*/)
                                                                    show_unlock_parts_window);
     if (part_selector_output != "")
     {
-        module_to_place = module_factory.create_module(part_selector_output);
+        module_to_place = module_factory.make(part_selector_output);
         selected_module_name = part_selector_output;
     }
 

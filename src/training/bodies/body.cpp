@@ -234,7 +234,7 @@ void Body::load_json(const nlohmann::json &json)
 void Body::recurse_json_modules(const nlohmann::json &module_json, IModule *parent_module, int parent_link, int child_link)
 {
     std::shared_ptr<IModule> module;
-    module = module_factory.create_module(module_json["type"]);
+    module = module_factory.make(module_json["type"]);
 
     add_module(module);
 
@@ -446,7 +446,7 @@ TEST_CASE("Body")
 
         DOCTEST_CHECK(body.get_modules().size() == 0);
 
-        auto module = module_factory.create_module("base_module");
+        auto module = module_factory.make("base_module");
         body.add_module(module);
 
         DOCTEST_CHECK(body.get_modules().size() == 1);
@@ -462,9 +462,9 @@ TEST_CASE("Body")
         Body body(module_factory, rng);
         body.set_rigid_body(std::move(rigid_body));
 
-        auto base_module = module_factory.create_module("base_module");
-        auto thruster_module = module_factory.create_module("thruster_module");
-        auto gun_module = module_factory.create_module("gun_module");
+        auto base_module = module_factory.make("base_module");
+        auto thruster_module = module_factory.make("thruster_module");
+        auto gun_module = module_factory.make("gun_module");
 
         base_module->get_module_links()[0].link(gun_module->get_module_links()[0]);
         gun_module->get_module_links()[2].link(thruster_module->get_module_links()[0]);
@@ -535,8 +535,8 @@ TEST_CASE("Body")
             Body body(module_factory, rng);
             body.set_rigid_body(std::move(rigid_body));
 
-            auto base_module = module_factory.create_module("base_module");
-            auto gun_module = module_factory.create_module("gun_module");
+            auto base_module = module_factory.make("base_module");
+            auto gun_module = module_factory.make("gun_module");
 
             base_module->get_module_links()[0].link(gun_module->get_module_links()[0]);
 
@@ -552,9 +552,9 @@ TEST_CASE("Body")
             Body body(module_factory, rng);
             body.set_rigid_body(std::move(rigid_body));
 
-            auto base_module = module_factory.create_module("base_module");
-            auto gun_module = module_factory.create_module("gun_module");
-            auto gun_module_2 = module_factory.create_module("gun_module");
+            auto base_module = module_factory.make("base_module");
+            auto gun_module = module_factory.make("gun_module");
+            auto gun_module_2 = module_factory.make("gun_module");
 
             base_module->get_module_links()[0].link(gun_module->get_module_links()[0]);
             base_module->get_module_links()[1].link(gun_module->get_module_links()[0]);
@@ -575,8 +575,8 @@ TEST_CASE("Body")
             Body body(module_factory, rng);
             body.set_rigid_body(std::move(rigid_body));
 
-            auto base_module = module_factory.create_module("base_module");
-            auto gun_module = module_factory.create_module("gun_module");
+            auto base_module = module_factory.make("base_module");
+            auto gun_module = module_factory.make("gun_module");
 
             base_module->get_module_links()[0].link(gun_module->get_module_links()[0]);
 
@@ -598,9 +598,9 @@ TEST_CASE("Body")
             Body body(module_factory, rng);
             body.set_rigid_body(std::move(rigid_body));
 
-            auto base_module = module_factory.create_module("base_module");
-            auto thruster_module = module_factory.create_module("thruster_module");
-            auto gun_module = module_factory.create_module("gun_module");
+            auto base_module = module_factory.make("base_module");
+            auto thruster_module = module_factory.make("thruster_module");
+            auto gun_module = module_factory.make("gun_module");
 
             base_module->get_module_links()[0].link(gun_module->get_module_links()[0]);
             gun_module->get_module_links()[2].link(thruster_module->get_module_links()[0]);

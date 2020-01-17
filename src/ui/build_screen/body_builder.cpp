@@ -206,7 +206,7 @@ TEST_CASE("BodyBuilder")
     {
         SUBCASE("Correctly deletes a module")
         {
-            auto gun_module = module_factory.create_module("gun_module");
+            auto gun_module = module_factory.make("gun_module");
             auto point = screen_to_world_space({1030, 545},
                                                io.get_resolution(),
                                                body_builder.get_projection());
@@ -231,7 +231,7 @@ TEST_CASE("BodyBuilder")
     {
         SUBCASE("Correctly places a gun module")
         {
-            auto gun_module = module_factory.create_module("gun_module");
+            auto gun_module = module_factory.make("gun_module");
             auto point = screen_to_world_space({1030, 545}, io.get_resolution(), body_builder.get_projection());
             gun_module->get_transform().p = {point.x, point.y};
 
@@ -246,12 +246,12 @@ TEST_CASE("BodyBuilder")
 
         SUBCASE("Correctly places two gun modules")
         {
-            auto gun_module_1 = module_factory.create_module("gun_module");
+            auto gun_module_1 = module_factory.make("gun_module");
             auto point = screen_to_world_space({1030, 545}, io.get_resolution(), body_builder.get_projection());
             gun_module_1->get_transform().p = {point.x, point.y};
             body_builder.place_module(gun_module_1);
 
-            auto gun_module_2 = module_factory.create_module("gun_module");
+            auto gun_module_2 = module_factory.make("gun_module");
             point = screen_to_world_space({960, 625}, io.get_resolution(), body_builder.get_projection());
             gun_module_2->get_transform().p = {point.x, point.y};
             auto selected_module = body_builder.place_module(gun_module_2);
@@ -265,12 +265,12 @@ TEST_CASE("BodyBuilder")
 
         SUBCASE("Can chain modules")
         {
-            auto gun_module_1 = module_factory.create_module("gun_module");
+            auto gun_module_1 = module_factory.make("gun_module");
             auto point = screen_to_world_space({1030, 545}, io.get_resolution(), body_builder.get_projection());
             gun_module_1->get_transform().p = {point.x, point.y};
             body_builder.place_module(gun_module_1);
 
-            auto gun_module_2 = module_factory.create_module("gun_module");
+            auto gun_module_2 = module_factory.make("gun_module");
             point = screen_to_world_space({1160, 545}, io.get_resolution(), body_builder.get_projection());
             gun_module_2->get_transform().p = {point.x, point.y};
             auto selected_module = body_builder.place_module(gun_module_2);

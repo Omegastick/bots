@@ -14,7 +14,7 @@ class Random;
 class IModuleFactory
 {
   public:
-    virtual std::shared_ptr<IModule> create_module(const std::string &module_id) = 0;
+    virtual std::shared_ptr<IModule> make(const std::string &module_id) = 0;
 };
 
 class ModuleFactory : public IModuleFactory
@@ -27,12 +27,12 @@ class ModuleFactory : public IModuleFactory
     ModuleFactory(IBulletFactory &bullet_factory, Random &rng)
         : bullet_factory(bullet_factory), rng(rng) {}
 
-    std::shared_ptr<IModule> create_module(const std::string &module_id) override;
+    std::shared_ptr<IModule> make(const std::string &module_id) override;
 };
 
 class MockModuleFactory : public trompeloeil::mock_interface<IModuleFactory>
 {
   public:
-    IMPLEMENT_MOCK1(create_module);
+    IMPLEMENT_MOCK1(make);
 };
 }
