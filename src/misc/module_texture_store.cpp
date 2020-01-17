@@ -29,7 +29,7 @@ Texture &ModuleTextureStore::get(const std::string &module)
     }
 
     spdlog::debug("Creating module texture for {}", module);
-    const auto constructed_module = module_factory.create_module(module);
+    const auto constructed_module = module_factory.make(module);
 
     renderer.resize(image_size, image_size);
     renderer.begin();

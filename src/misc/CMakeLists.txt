@@ -14,4 +14,5 @@ PRIVATE
     ${CMAKE_CURRENT_LIST_DIR}/spring_mesh.cpp
     ${CMAKE_CURRENT_LIST_DIR}/transform.cpp
     ${CMAKE_CURRENT_LIST_DIR}/utilities.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/validate_body.cpp
 )

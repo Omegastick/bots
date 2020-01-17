@@ -15,7 +15,7 @@
 
 namespace ai
 {
-std::shared_ptr<IModule> ModuleFactory::create_module(const std::string &module_id)
+std::shared_ptr<IModule> ModuleFactory::make(const std::string &module_id)
 {
     if (module_id == "base_module")
     {

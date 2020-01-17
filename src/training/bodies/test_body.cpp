@@ -38,12 +38,12 @@ void TestBody::setup()
     hp = 10;
 
     // Instantiate modules
-    auto base_module = module_factory.create_module("base_module");
-    auto gun_module_right = module_factory.create_module("gun_module");
-    auto gun_module_left = module_factory.create_module("gun_module");
-    auto thruster_module_left = module_factory.create_module("thruster_module");
-    auto thruster_module_right = module_factory.create_module("thruster_module");
-    auto laser_sensor_module = module_factory.create_module("laser_sensor_module");
+    auto base_module = module_factory.make("base_module");
+    auto gun_module_right = module_factory.make("gun_module");
+    auto gun_module_left = module_factory.make("gun_module");
+    auto thruster_module_left = module_factory.make("thruster_module");
+    auto thruster_module_right = module_factory.make("thruster_module");
+    auto laser_sensor_module = module_factory.make("laser_sensor_module");
 
     // Connect modules
     base_module->get_module_links()[1].link(gun_module_right->get_module_links()[2]);
