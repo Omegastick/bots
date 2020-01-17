@@ -58,7 +58,8 @@ Trainer::Trainer(std::unique_ptr<NNAgent> agent,
       reset_recently(true),
       returns_rms(1),
       rng(rng),
-      rollout_generator(std::move(rollout_generator)) {}
+      rollout_generator(std::move(rollout_generator)),
+      skip_update(false) {}
 
 void Trainer::draw(Renderer &renderer, bool lightweight)
 {

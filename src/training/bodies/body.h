@@ -57,6 +57,7 @@ class Body : public ICollidable
     int get_input_count() const;
     void draw(Renderer &renderer, bool lightweight = false);
     void hit(float damage);
+    bool is_audible() const;
     void load_json(const nlohmann::json &json);
     void register_actions();
     void reset();

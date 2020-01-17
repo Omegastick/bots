@@ -42,7 +42,7 @@ TEST_CASE("RandomAgent")
     Random rng(0);
     MockAudioEngine audio_engine;
     BulletFactory bullet_factory(audio_engine);
-    ModuleFactory module_factory(bullet_factory, rng);
+    ModuleFactory module_factory(audio_engine, bullet_factory, rng);
     TestBody body(module_factory, rng);
     RandomAgent agent(body.to_json(), rng, "Test");
 

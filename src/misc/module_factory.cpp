@@ -15,6 +15,11 @@
 
 namespace ai
 {
+ModuleFactory::ModuleFactory(IAudioEngine &audio_engine,
+                             IBulletFactory &bullet_factory,
+                             Random &rng)
+    : audio_engine(audio_engine), bullet_factory(bullet_factory), rng(rng) {}
+
 std::shared_ptr<IModule> ModuleFactory::make(const std::string &module_id)
 {
     if (module_id == "base_module")
@@ -23,7 +28,7 @@ std::shared_ptr<IModule> ModuleFactory::make(const std::string &module_id)
     }
     else if (module_id == "gun_module")
     {
-        return std::make_shared<GunModule>(bullet_factory, rng);
+        return std::make_shared<GunModule>(audio_engine, bullet_factory, rng);
     }
     else if (module_id == "laser_sensor_module")
     {

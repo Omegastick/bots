@@ -183,7 +183,7 @@ TEST_CASE("EloEvaluator")
         Random rng(0);
         MockAudioEngine audio_engine;
         BulletFactory bullet_factory(audio_engine);
-        ModuleFactory module_factory(bullet_factory, rng);
+        ModuleFactory module_factory(audio_engine, bullet_factory, rng);
         BodyFactory body_factory(module_factory, rng);
         KothEnvFactory env_factory(100, audio_engine, body_factory, bullet_factory);
         EloEvaluator evaluator(body_factory, env_factory, rng);

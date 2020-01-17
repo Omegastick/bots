@@ -10,6 +10,7 @@
 #include <spdlog/spdlog.h>
 
 #include "body.h"
+#include "audio/audio_engine.h"
 #include "graphics/colors.h"
 #include "graphics/renderers/renderer.h"
 #include "misc/module_factory.h"
@@ -231,7 +232,15 @@ void Body::load_json(const nlohmann::json &json)
     hp = 10;
 }
 
-void Body::recurse_json_modules(const nlohmann::json &module_json, IModule *parent_module, int parent_link, int child_link)
+bool Body::is_audible() const
+{
+    return environment->is_audible();
+}
+
+void Body::recurse_json_modules(const nlohmann::json &module_json,
+                                IModule *parent_module,
+                                int parent_link,
+                                int child_link)
 {
     std::shared_ptr<IModule> module;
     module = module_factory.make(module_json["type"]);
@@ -430,8 +439,9 @@ std::unique_ptr<Body> BodyFactory::make(b2World &world, Random &rng)
 TEST_CASE("Body")
 {
     Random rng(1);
+    MockAudioEngine audio_engine;
     MockBulletFactory bullet_factory;
-    ModuleFactory module_factory(bullet_factory, rng);
+    ModuleFactory module_factory(audio_engine, bullet_factory, rng);
     b2World b2_world({0, 0});
     auto rigid_body = std::make_unique<RigidBody>(b2_dynamicBody,
                                                   b2Vec2_zero,

@@ -6,6 +6,7 @@
 #include <doctest.h>
 #include <nlohmann/json.hpp>
 
+#include "audio/audio_engine.h"
 #include "graphics/render_data.h"
 #include "graphics/renderers/renderer.h"
 #include "misc/random.h"
@@ -20,8 +21,9 @@
 
 namespace ai
 {
-GunModule::GunModule(IBulletFactory &bullet_factory, Random &rng)
-    : barrel_rectangle{{0.5f, 0.5f, 0.5f, 0.5f},
+GunModule::GunModule(IAudioEngine &audio_engine, IBulletFactory &bullet_factory, Random &rng)
+    : audio_engine(audio_engine),
+      barrel_rectangle{{0.5f, 0.5f, 0.5f, 0.5f},
                        cl_white,
                        0.1f,
                        Transform()},
@@ -62,6 +64,10 @@ void GunModule::activate()
     if (steps_since_last_shot > cooldown)
     {
         steps_since_last_shot = 0;
+        if (body->is_audible())
+        {
+            audio_engine.play("fire");
+        }
         b2Transform global_transform = get_global_transform();
         b2Vec2 velocity = b2Mul(global_transform.q, b2Vec2(0, 100));
         b2Vec2 offset = b2Mul(global_transform.q, b2Vec2(0, 0.7f));
@@ -133,8 +139,9 @@ void GunModule::update()
 TEST_CASE("GunModule converts to correct Json")
 {
     Random rng(0);
+    MockAudioEngine audio_engine;
     MockBulletFactory bullet_factory;
-    GunModule module(bullet_factory, rng);
+    GunModule module(audio_engine, bullet_factory, rng);
 
     auto json = module.to_json();
 
@@ -151,7 +158,7 @@ TEST_CASE("GunModule converts to correct Json")
     SUBCASE("Nested modules are represented correctly in Json")
     {
         // Attach gun module
-        GunModule gun_module(bullet_factory, rng);
+        GunModule gun_module(audio_engine, bullet_factory, rng);
         module.get_module_links()[0].link(gun_module.get_module_links()[0]);
 
         // Update json
