@@ -6,6 +6,7 @@
   src: url("../fonts/Inter-UI-Regular.woff2") format("woff2"),
        url("../fonts/Inter-UI-Regular.woff") format("woff");
 }
+
 @font-face {
   font-family: 'Inter UI';
   font-style:  italic;
@@ -23,6 +24,7 @@
   src: url("../fonts/Inter-UI-Medium.woff2") format("woff2"),
        url("../fonts/Inter-UI-Medium.woff") format("woff");
 }
+
 @font-face {
   font-family: 'Inter UI';
   font-style:  italic;
@@ -40,6 +42,7 @@
   src: url("../fonts/Inter-UI-Bold.woff2") format("woff2"),
        url("../fonts/Inter-UI-Bold.woff") format("woff");
 }
+
 @font-face {
   font-family: 'Inter UI';
   font-style:  italic;
@@ -47,4 +50,12 @@
   font-weight: 800;
   src: url("../fonts/Inter-UI-BoldItalic.woff2") format("woff2"),
        url("../fonts/Inter-UI-BoldItalic.woff") format("woff");
+}
+
+@font-face {
+  font-family: 'SourceCodePro';
+  font-style:  normal;
+  font-display: auto;
+  font-weight: 400;
+  src: url("../fonts/SourceCodePro-Light.tff") format("tff");
 }

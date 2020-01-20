@@ -4,7 +4,7 @@
   z-index: 9999;
 
   .dark-theme & {
-    background: #252627;
+    background: $dark-background;
   }
 
   @media #{$media-size-phone} {

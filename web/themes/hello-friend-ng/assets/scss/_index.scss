@@ -1,3 +1,49 @@
 .title {
-    font-family: monospace, monospace
+    font-family: monospace, monospace;
+    text-shadow: 0 0 1em transparentize($dark-color, $amount: 0.5);
+
+    &__cursor {
+        position: relative;
+        z-index: 10;
+        box-shadow: 0 0 1em transparentize($dark-color, $amount: 0.5);
+        display: inline-block;
+        width:  0.4em;
+        height: 0.75em;
+        background: $dark-color;
+        margin-left: 5px;
+        border-radius: 1px;
+        animation: cursor 1s infinite;
+    }
+    
+    &__mark {
+        margin-right: 0.3em;
+    }
+}
+
+h1.title {
+    font-size: 3em;
+}
+
+#call-to-action {
+    background: $dark-background;
+    border: 1px solid $dark-border-color;
+    font-family: 'Source Code Pro';
+    font-size: 4em;
+    margin-top: 2em;
+    padding-top: 0.5em;
+    padding-bottom: 0.5em;
+    padding-left: 1em;
+    padding-right: 1em;
+}
+
+#call-to-action:hover {
+    background: $dark-background-secondary
+}
+
+#call-to-action:active {
+    background: darken($dark-background-secondary, 3%);
+}
+
+#spacer {
+    height: 20vh;
 }
