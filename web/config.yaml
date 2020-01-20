@@ -1,6 +1,6 @@
 baseURL: "http://artificialinsentience.com/"
 languageCode: en-gb
-title: My New Hugo Site
+title: "AI: Artificial Insentience"
 theme: hello-friend-ng
 author:
   name: Isaac Poulton
@@ -20,23 +20,17 @@ params:
 
 languages:
   en:
-    title: AI
-    subtitle: Artificial Insentience
+    title: ai://artificial_insentience
+    callToAction: Create your AI
     keywords: ""
     copyright: ""
     readOtherPosts: Read other posts
     params:
       logo:
-        logoText: artificial_insentience
+        logoText: "AI: Artificial Insentience"
         logoHomeLink: /
 menu:
   main:
     - identifier: blog
       name: Dev Blog
       url: /posts
-    - identifier: screenshots
-      name: Screenshots
-      url: /screenshots
-    - identifier: asd
-      name: Asd
-      url: /asd

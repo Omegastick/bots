@@ -1,10 +1,15 @@
 {{ define "main" }}
 <main aria-role="main">
+    <div id="spacer"></div>
     <div>
-        <h1 class="title">{{ .Site.Title }}</h1>
+        <h1 class="title">
+            <span class="title__mark">></span>{{ .Site.Params.Title }}<span class="title__cursor"></span>
+        </h1>
 
-        {{- with .Site.Params.subtitle }}
-        <p class="title">{{.}}</p>
+        {{- with .Site.Params.Subtitle }}
+        <p class="title">
+            {{.}}
+        </p>
         {{- end }}
 
         {{- with .Site.Params.social }}
@@ -12,6 +17,9 @@
             {{ partial "social-icons.html" . }}
         </div>
         {{- end }}
+    </div>
+    <div class="button-container">
+        <button id="call-to-action">{{ .Site.Params.CallToAction }}</button>
     </div>
 </main>
 {{ end }}
