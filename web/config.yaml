@@ -1,0 +1,42 @@
+baseURL: "http://artificialinsentience.com/"
+languageCode: en-gb
+title: My New Hugo Site
+theme: hello-friend-ng
+author:
+  name: Isaac Poulton
+
+params:
+  dateform: 2 Jan 2006
+  dateformShort: 2 Jan 2006
+  dateformNum: "2006-01-02"
+  dateformNumTime: "2006-01-02 15:04 -0700"
+  disableReadOtherPosts: false
+  description: "AI: Artificial Insentience"
+  keywords: "homepage, blog, science, informatics, development, programming"
+  images:
+    - ""
+  contentTypeName: posts
+  defaultTheme: dark
+
+languages:
+  en:
+    title: AI
+    subtitle: Artificial Insentience
+    keywords: ""
+    copyright: ""
+    readOtherPosts: Read other posts
+    params:
+      logo:
+        logoText: artificial_insentience
+        logoHomeLink: /
+menu:
+  main:
+    - identifier: blog
+      name: Dev Blog
+      url: /posts
+    - identifier: screenshots
+      name: Screenshots
+      url: /screenshots
+    - identifier: asd
+      name: Asd
+      url: /asd
