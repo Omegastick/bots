@@ -45,7 +45,6 @@ void Hill::begin_contact(RigidBody *other)
     if (other->parent_type == RigidBody::ParentTypes::Body)
     {
         occupants[static_cast<Body *>(other->parent)]++;
-        spdlog::debug("Agent {} entered the hill", reinterpret_cast<intptr_t>(other->parent));
     }
 }
 
@@ -59,7 +58,6 @@ void Hill::end_contact(RigidBody *other)
         {
             occupants.erase(other_body);
         }
-        spdlog::debug("Agent {} leaving the hill", reinterpret_cast<intptr_t>(other->parent));
     }
 }
 

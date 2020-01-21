@@ -62,7 +62,10 @@ cpprl::RolloutStorage MultiRolloutGenerator::generate()
     std::vector<cpprl::RolloutStorage *> storage_ptrs;
     std::transform(storages.begin(), storages.end(), std::back_inserter(storage_ptrs),
                    [](cpprl::RolloutStorage &storage) { return &storage; });
-    return {storage_ptrs, torch::kCPU};
+
+    batch_number++;
+
+    return cpprl::RolloutStorage(storage_ptrs, torch::kCPU);
 }
 
 std::vector<std::vector<float>> MultiRolloutGenerator::get_scores() const

@@ -1,21 +1,19 @@
 baseURL: "http://artificialinsentience.com/"
 languageCode: en-gb
 title: "AI: Artificial Insentience"
-theme: hello-friend-ng
 author:
   name: Isaac Poulton
+disqusShortName: artificialinsentience
 
 params:
+  comments: true
   dateform: 2 Jan 2006
   dateformShort: 2 Jan 2006
   dateformNum: "2006-01-02"
   dateformNumTime: "2006-01-02 15:04 -0700"
   disableReadOtherPosts: false
   description: "AI: Artificial Insentience"
-  keywords: "homepage, blog, science, informatics, development, programming"
-  images:
-    - ""
-  contentTypeName: posts
+  keywords: "ai, game, artificial intelligence, artificial insentience"
   defaultTheme: dark
 
 languages:
@@ -34,3 +32,6 @@ menu:
     - identifier: blog
       name: Dev Blog
       url: /posts
+    - identifier: press_kit
+      name: Press Kit
+      url: /press_kit

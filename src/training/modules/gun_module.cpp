@@ -68,6 +68,7 @@ void GunModule::activate()
         {
             audio_engine.play("fire");
         }
+        static thread_local int bullet_id = 0;
         b2Transform global_transform = get_global_transform();
         b2Vec2 velocity = b2Mul(global_transform.q, b2Vec2(0, 100));
         b2Vec2 offset = b2Mul(global_transform.q, b2Vec2(0, 0.7f));
@@ -76,7 +77,7 @@ void GunModule::activate()
                                 velocity,
                                 *body->get_rigid_body().body->GetWorld(),
                                 body,
-                                rng.next_int(0, INT_MAX),
+                                bullet_id++,
                                 *body->get_environment()));
     }
 }

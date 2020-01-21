@@ -155,7 +155,6 @@ KothEnv::KothEnv(int max_steps,
             {
                 if (body.second > 0)
                 {
-                    spdlog::debug("Rewarding agent {}", reinterpret_cast<intptr_t>(body.first));
                     int body_number = body_numbers[body.first];
                     change_reward(body_number, this->reward_config.hill_tick_reward);
                     change_score(body_number, 1);
@@ -166,7 +165,7 @@ KothEnv::KothEnv(int max_steps,
                 }
             }
         }
-        else if (const auto body_count = bodies.size(); body_count > 1)
+        else if (const auto body_count = bodies.size(); body_count > 2)
         {
             spdlog::debug("{} agents on the hill", body_count);
         }
