@@ -1,0 +1,16 @@
+{{ define "main" }}
+<main class="screenshots">
+    <h1>{{ .Title }}</h1>
+
+    {{- if .Content }}
+    <div class="content">{{ .Content }}</div>
+    {{- end }}
+
+    <div class="gallery">
+        {{- range .Data.Pages }}
+        {{ .Title }}
+        <img src="/screenshots/{{ .Title }}.jpg" alt="{{ .Title }}" position="center" style="border-radius: 8px;" />
+        {{- end }}
+    </div>
+</main>
+{{ end }}
