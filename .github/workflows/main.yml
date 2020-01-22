@@ -45,7 +45,7 @@ jobs:
           vcpkgTriplet: '${{ matrix.triplet }}'
       - name: Print output of run-vcpkg task
         run: echo "'${{ steps.runvcpkg.outputs.RUNVCPKG_VCPKG_ROOT }}' '${{  steps.runvcpkg.outputs.RUNVCPKG_VCPKG_TRIPLET }}' "
-      - name: Run CMake with triplet
+      - name: Build
         uses: lukka/run-cmake@v0
         id: runcmake
         with:
