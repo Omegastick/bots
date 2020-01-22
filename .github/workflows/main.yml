@@ -11,11 +11,11 @@ jobs:
         os: [ubuntu-latest, windows-latest]
         include:
           - os: windows-latest
-            triplet: x64-windows
+            triplet: x64-windows-static
             vcpkgCommitId: '2019.11'
             vcpkgPackages: ''
           - os: ubuntu-latest
-            triplet: x64-linux
+            triplet: x64-linux-static
             vcpkgCommitId: '2019.11'
             vcpkgPackages: 'doctest'
           
