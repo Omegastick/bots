@@ -21,7 +21,7 @@ class BatchedSpriteRenderer
     std::unique_ptr<VertexArray> vertex_array;
     std::unique_ptr<VertexBuffer> vertex_buffer;
     std::unique_ptr<ElementBuffer> element_buffer;
-    ResourceManager *resource_manager;
+    ResourceManager &resource_manager;
     int max_sprites;
     std::vector<SpriteVertex> transformed_vertices;
 
@@ -32,5 +32,6 @@ class BatchedSpriteRenderer
               const std::vector<glm::mat4> &transforms,
               const std::vector<glm::vec4> &colors,
               const glm::mat4 &view);
+    void init();
 };
 }

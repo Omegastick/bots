@@ -105,6 +105,23 @@ void glDebugOutput(unsigned int source,
 }
 
 Window::Window(int x, int y, std::string title, int opengl_major_version, int opengl_minor_version)
+    : x(x),
+      y(y),
+      opengl_major_version(opengl_major_version),
+      opengl_minor_version(opengl_minor_version),
+      title(title),
+      window(nullptr) {}
+
+Window::~Window()
+{
+    if (window)
+    {
+        glfwDestroyWindow(window);
+        glfwTerminate();
+    }
+}
+
+void Window::init()
 {
     spdlog::debug("Creating {}x{} window with target OpenGL version {}.{}", x, y, opengl_major_version, opengl_minor_version);
     if (!glfwInit())
@@ -156,12 +173,6 @@ Window::Window(int x, int y, std::string title, int opengl_major_version, int op
     glfwSetWindowUserPointer(window, this);
 
     spdlog::debug("Actual OpenGL version: {}", glGetString(GL_VERSION));
-}
-
-Window::~Window()
-{
-    glfwDestroyWindow(window);
-    glfwTerminate();
 }
 
 void Window::close()

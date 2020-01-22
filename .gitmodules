@@ -1,63 +1,60 @@
 [submodule "lib/glfw"]
 	path = lib/GLFW
-	url = git@github.com:glfw/glfw.git
+	url = https://github.com/glfw/glfw.git
 [submodule "lib/glm"]
 	path = lib/GLM
-	url = git@github.com:g-truc/glm.git
+	url = https://github.com/g-truc/glm.git
 [submodule "lib/imgui"]
 	path = lib/imgui
-	url = git@github.com:Omegastick/imgui.git
+	url = https://github.com/Omegastick/imgui.git
 [submodule "lib/Box2D-cmake"]
 	path = lib/Box2D-cmake
-	url = git@github.com:tobanteGaming/Box2D-cmake.git
+	url = https://github.com/tobanteGaming/Box2D-cmake.git
 [submodule "lib/doctest"]
 	path = lib/doctest
-	url = git@github.com:onqtam/doctest.git
+	url = https://github.com/onqtam/doctest.git
 [submodule "lib/argh"]
 	path = lib/argh
-	url = git@github.com:adishavit/argh.git
+	url = https://github.com/adishavit/argh.git
 [submodule "lib/json"]
 	path = lib/json
-	url = git@github.com:nlohmann/json.git
+	url = https://github.com/nlohmann/json.git
 [submodule "lib/pytorch-cpp-rl"]
 	path = lib/pytorch-cpp-rl
-	url = git@github.com:Omegastick/pytorch-cpp-rl.git
+	url = https://github.com/Omegastick/pytorch-cpp-rl.git
 [submodule "lib/tweeny"]
 	path = lib/tweeny
-	url = git@github.com:Omegastick/tweeny.git
+	url = https://github.com/Omegastick/tweeny.git
 [submodule "lib/spdlog"]
 	path = lib/spdlog
-	url = git@github.com:gabime/spdlog.git
+	url = https://github.com/gabime/spdlog.git
 [submodule "lib/fmt"]
 	path = lib/fmt
 	url = https://github.com/fmtlib/fmt.git
 [submodule "lib/pybind11"]
 	path = lib/pybind11
-	url = git@github.com:pybind/pybind11.git
+	url = https://github.com/pybind/pybind11.git
 [submodule "lib/cpp-taskflow"]
 	path = lib/cpp-taskflow
-	url = git@github.com:cpp-taskflow/cpp-taskflow.git
+	url = https://github.com/cpp-taskflow/cpp-taskflow.git
 [submodule "lib/libzmq"]
 	path = lib/libzmq
 	url = https://github.com/zeromq/libzmq.git
 [submodule "lib/msgpack-c"]
 	path = lib/msgpack-c
-	url = git@github.com:msgpack/msgpack-c.git
+	url = https://github.com/msgpack/msgpack-c.git
 [submodule "lib/easy_profiler"]
 	path = lib/easy_profiler
-	url = git@github.com:yse/easy_profiler.git
+	url = https://github.com/yse/easy_profiler.git
 [submodule "lib/trompeloeil"]
 	path = lib/trompeloeil
-	url = git@github.com:rollbear/trompeloeil.git
-[submodule "lib/curlpp"]
-	path = lib/curlpp
-	url = https://github.com/jpbarrette/curlpp
+	url = https://github.com/rollbear/trompeloeil.git
 [submodule "lib/nanovg"]
 	path = lib/nanovg
-	url = git@github.com:Omegastick/nanovg.git
+	url = https://github.com/Omegastick/nanovg.git
 [submodule "lib/openal-soft"]
 	path = lib/openal-soft
-	url = git@github.com:kcat/openal-soft.git
+	url = https://github.com/kcat/openal-soft.git
 [submodule "lib/soloud"]
 	path = lib/soloud
-	url = git@github.com:jarikomppa/soloud.git
+	url = https://github.com/jarikomppa/soloud.git

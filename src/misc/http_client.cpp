@@ -5,8 +5,7 @@
 #include <stdexcept>
 #include <string>
 
-#include <curlpp/cURLpp.hpp>
-#include <curlpp/Options.hpp>
+#include <curl/curl.h>
 #include <doctest.h>
 #include <nlohmann/json.hpp>
 #include <spdlog/spdlog.h>
@@ -15,16 +14,22 @@
 
 namespace ai
 {
+std::size_t write_callback(char *data, size_t, size_t size, void *stream)
+{
+    static_cast<std::ostringstream *>(stream)->write(data, size);
+    return size;
+}
+
 HttpClient::HttpClient(const std::string &proxy_host, long proxy_port)
     : proxy_host(proxy_host),
       proxy_port(proxy_port) {}
 
-void HttpClient::set_proxy(cURLpp::Easy &curl_handle)
+void HttpClient::set_proxy(CURL *curl_handle)
 {
     if (!proxy_host.empty() && proxy_port >= 0)
     {
-        curl_handle.setOpt(cURLpp::Options::Proxy(proxy_host));
-        curl_handle.setOpt(cURLpp::Options::ProxyPort(proxy_port));
+        curl_easy_setopt(curl_handle, CURLOPT_PROXY, proxy_host.c_str());
+        curl_easy_setopt(curl_handle, CURLOPT_PROXYPORT, proxy_port);
     }
 }
 
@@ -36,31 +41,43 @@ std::future<nlohmann::json> HttpClient::get(const std::string &url,
         throw std::runtime_error("Input URL is empty");
     }
 
-    return std::async(std::launch::async,
-                      [=]() {
-                          curlpp::Cleanup clean;
-                          curlpp::Easy request;
-                          request.setOpt(new curlpp::options::Url(url));
+    return std::async(
+        std::launch::async,
+        [=]() {
+            const auto handle = curl_easy_init();
+            curl_easy_setopt(handle, CURLOPT_URL, url.c_str());
 
-                          std::ostringstream response;
-                          request.setOpt(new curlpp::options::WriteStream(&response));
+            std::ostringstream response;
+            curl_easy_setopt(handle, CURLOPT_WRITEDATA, &response);
+            curl_easy_setopt(handle, CURLOPT_WRITEFUNCTION, write_callback);
 
-                          request.setOpt(new curlpp::options::HttpHeader(headers));
+            curl_slist *headers_slist = nullptr;
+            for (auto header : headers)
+            {
+                headers_slist = curl_slist_append(headers_slist, header.c_str());
+            }
+            if (!headers.empty())
+            {
+                curl_easy_setopt(handle, CURLOPT_HTTPHEADER, headers_slist);
+            }
 
-                          request.perform();
+            curl_easy_perform(handle);
+            curl_slist_free_all(headers_slist);
+            curl_easy_cleanup(handle);
 
-                          nlohmann::json json;
-                          try
-                          {
-                              json = nlohmann::json::parse(response.str());
-                          }
-                          catch (nlohmann::json::parse_error &error)
-                          {
-                              spdlog::error("Bad response: {}", response.str());
-                              throw;
-                          }
-                          return json;
-                      });
+            nlohmann::json json;
+            try
+            {
+                json = nlohmann::json::parse(response.str());
+            }
+            catch (nlohmann::json::parse_error &error)
+            {
+                spdlog::error("Bad response: {}", response.str());
+                throw;
+            }
+
+            return json;
+        });
 }
 
 std::future<nlohmann::json> HttpClient::post(const std::string &url,
@@ -73,35 +90,44 @@ std::future<nlohmann::json> HttpClient::post(const std::string &url,
     }
 
     auto body = json.dump();
-    return std::async(std::launch::async,
-                      [=]() {
-                          auto _headers = headers;
-                          _headers.push_back("Content-Type: application/json");
+    return std::async(
+        std::launch::async,
+        [=]() {
+            auto _headers = headers;
+            _headers.push_back("Content-Type: application/json");
 
-                          curlpp::Cleanup clean;
-                          curlpp::Easy request;
-                          request.setOpt(new curlpp::options::Url(url));
-                          request.setOpt(new curlpp::options::HttpHeader(_headers));
-                          request.setOpt(new curlpp::options::PostFields(body));
-                          request.setOpt(new curlpp::options::PostFieldSize(body.length()));
+            const auto handle = curl_easy_init();
+            curl_easy_setopt(handle, CURLOPT_URL, url.c_str());
 
-                          std::ostringstream response;
-                          request.setOpt(new curlpp::options::WriteStream(&response));
+            std::ostringstream response;
+            curl_easy_setopt(handle, CURLOPT_WRITEDATA, &response);
+            curl_easy_setopt(handle, CURLOPT_WRITEFUNCTION, write_callback);
 
-                          request.perform();
+            curl_easy_setopt(handle, CURLOPT_POSTFIELDS, body.c_str());
 
-                          nlohmann::json json;
-                          try
-                          {
-                              json = nlohmann::json::parse(response.str());
-                          }
-                          catch (nlohmann::json::parse_error &error)
-                          {
-                              spdlog::error("Bad response: {}", response.str());
-                              throw;
-                          }
-                          return json;
-                      });
+            curl_slist *headers_slist = nullptr;
+            for (auto header : _headers)
+            {
+                headers_slist = curl_slist_append(headers_slist, header.c_str());
+            }
+            curl_easy_setopt(handle, CURLOPT_HTTPHEADER, headers_slist);
+
+            curl_easy_perform(handle);
+            curl_slist_free_all(headers_slist);
+            curl_easy_cleanup(handle);
+
+            nlohmann::json json;
+            try
+            {
+                json = nlohmann::json::parse(response.str());
+            }
+            catch (nlohmann::json::parse_error &error)
+            {
+                spdlog::error("Bad response: {}", response.str());
+                throw;
+            }
+            return json;
+        });
 }
 
 TEST_CASE("HttpClient")

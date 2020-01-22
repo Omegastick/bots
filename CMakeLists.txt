@@ -67,7 +67,6 @@ set(LIB_DIR lib)
 set(ARGH_DIR ${LIB_DIR}/argh)
 set(BOX2D_DIR ${LIB_DIR}/Box2D-cmake)
 set(CPPRL_DIR ${LIB_DIR}/pytorch-cpp-rl)
-set(CURLPP_DIR ${LIB_DIR}/curlpp)
 set(DOCTEST_DIR ${LIB_DIR}/doctest)
 set(EASY_PROFILER_DIR ${LIB_DIR}/easy_profiler)
 set(FMT_DIR ${LIB_DIR}/fmt)
@@ -92,6 +91,15 @@ if(UNIX)
     set(CMAKE_CXX_FLAGS_RELEASE "-O3")
     set(CMAKE_CXX_FLAGS_RELWITHDEBINFO "-O3 -g -rdynamic")
 endif(UNIX)
+if(MSVC)
+    message(STATUS "Static linking CRT")
+    add_compile_options(
+        "$<$<CONFIG:Debug>:/MTd>"
+        "$<$<CONFIG:RelWithDebInfo>:/MT>"
+        "$<$<CONFIG:Release>:/MT>"
+        "$<$<CONFIG:MinSizeRel>:/MT>"
+    )
+endif(MSVC)
 
 # CppCheck
 list(APPEND CPPCHECK_ARGS
@@ -217,11 +225,8 @@ option(ZMQ_BUILD_TESTS "" OFF)
 option(WITH_DOC "" OFF)
 option(BUILD_SHARED "" OFF)
 add_subdirectory(${ZMQ_DIR})
-## cURLpp
-find_package(CURL REQUIRED)
-add_subdirectory(${CURLPP_DIR})
-set_target_properties(curlpp_static PROPERTIES POSITION_INDEPENDENT_CODE TRUE)
-target_compile_definitions(curlpp_static PUBLIC CURL_STATICLIB)
+## cURL
+find_package(CURL CONFIG REQUIRED)
 ## CppRl
 option(CPPRL_BUILD_TESTS "" OFF)
 option(CPPRL_BUILD_EXAMPLE "" OFF)
@@ -307,6 +312,8 @@ else (UNIX)
     add_definitions("-DWITH_WINMM")
 endif (UNIX)
 add_subdirectory(${SOLOUD_DIR}/contrib)
+add_definitions("-DWITH_NULL")
+target_sources(soloud PRIVATE ${SOLOUD_DIR}/src/backend/null/soloud_null.cpp)
 if (UNIX)
     target_sources(soloud PRIVATE ${SOLOUD_DIR}/src/backend/alsa/soloud_alsa.cpp)
 else (UNIX)
@@ -331,7 +338,7 @@ set_target_properties(pythonbindings PROPERTIES EXCLUDE_FROM_ALL TRUE)
 target_link_libraries(shared
 PUBLIC
     cpprl
-    curlpp_static
+    CURL::libcurl
     doctest
     fmt::fmt
     glad
@@ -369,7 +376,6 @@ target_include_directories(pythonbindings PUBLIC ${INCLUDE_DIRS})
 
 set(NO_ERR_INCLUDE_DIRS
     ${CPPRL_DIR}/include
-    ${CURLPP_DIR}/include
     ${DOCTEST_DIR}/doctest
     ${EASY_PROFILER_DIR}/easy_profiler_core/include
     ${GLAD_DIR}/include 
@@ -401,3 +407,6 @@ target_include_directories(shared SYSTEM PUBLIC ${NO_ERR_INCLUDE_DIRS})
 target_include_directories(pythonbindings SYSTEM PUBLIC ${NO_ERR_INCLUDE_DIRS})
 
 add_subdirectory(src)
+
+add_executable(curlpp_test curlpp_test.cpp)
+target_link_libraries(curlpp_test PRIVATE CURL::libcurl)

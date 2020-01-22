@@ -22,7 +22,10 @@ struct GlyphInfo
     float offset_y = 0;
 };
 
-GlyphInfo get_glyph_info(const stbtt_packedchar *char_info, unsigned int character, float offset_x, float offset_y)
+GlyphInfo get_glyph_info(const stbtt_packedchar *char_info,
+                         unsigned int character,
+                         float offset_x,
+                         float offset_y)
 {
     stbtt_aligned_quad quad;
 
@@ -48,24 +51,11 @@ GlyphInfo get_glyph_info(const stbtt_packedchar *char_info, unsigned int charact
 }
 
 TextRenderer::TextRenderer(ResourceManager &resource_manager)
-    : resource_manager(&resource_manager)
-{
-    vertex_array = std::make_unique<VertexArray>();
-    vertex_buffer = std::make_unique<VertexBuffer>(nullptr, 0);
-    element_buffer = std::make_unique<ElementBuffer>(nullptr, 0);
-
-    VertexBufferLayout vertex_buffer_layout;
-    vertex_buffer_layout.push<float>(2);
-    vertex_buffer_layout.push<float>(2);
-    vertex_buffer_layout.push<float>(4);
-    vertex_array->add_buffer(*vertex_buffer, vertex_buffer_layout);
-
-    resource_manager.load_shader("line", "shaders/line.vert", "shaders/default.frag");
-}
+    : resource_manager(resource_manager) {}
 
 void TextRenderer::draw(const Text &text, const glm::mat4 &view)
 {
-    auto font = resource_manager->font_store.get(text.font);
+    auto font = resource_manager.font_store.get(text.font);
 
     vertex_array->bind();
 
@@ -122,7 +112,7 @@ void TextRenderer::draw(const Text &text, const glm::mat4 &view)
     vertex_buffer->add_data(vertices.data(), sizeof(float) * vertices.size());
     element_buffer->set_data(indices.data(), indices.size());
 
-    auto shader = resource_manager->shader_store.get("font");
+    auto shader = resource_manager.shader_store.get("font");
     auto mvp = view * text.transform.get();
     shader->set_uniform_mat4f("u_mvp", mvp);
     shader->set_uniform_1i("u_texture", 0);
@@ -130,5 +120,20 @@ void TextRenderer::draw(const Text &text, const glm::mat4 &view)
     font->bind();
 
     glDrawElements(GL_TRIANGLES, element_buffer->get_count(), GL_UNSIGNED_INT, 0);
+}
+
+void TextRenderer::init()
+{
+    vertex_array = std::make_unique<VertexArray>();
+    vertex_buffer = std::make_unique<VertexBuffer>(nullptr, 0);
+    element_buffer = std::make_unique<ElementBuffer>(nullptr, 0);
+
+    VertexBufferLayout vertex_buffer_layout;
+    vertex_buffer_layout.push<float>(2);
+    vertex_buffer_layout.push<float>(2);
+    vertex_buffer_layout.push<float>(4);
+    vertex_array->add_buffer(*vertex_buffer, vertex_buffer_layout);
+
+    resource_manager.load_shader("line", "shaders/line.vert", "shaders/default.frag");
 }
 }

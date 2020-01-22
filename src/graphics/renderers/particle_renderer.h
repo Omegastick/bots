@@ -19,7 +19,7 @@ static auto MaxParticles = [] {};
 class ParticleRenderer
 {
   private:
-    ResourceManager *resource_manager;
+    ResourceManager &resource_manager;
     int max_particles;
     int particle_count;
     int current_particle_index;
@@ -46,5 +46,6 @@ class ParticleRenderer
     void add_particles(std::vector<Particle> &particles, double time);
     void clear_particles();
     void draw(double time, glm::mat4 view);
+    void init();
 };
 }

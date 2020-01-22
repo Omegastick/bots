@@ -13,7 +13,27 @@
 
 namespace ai
 {
-SpriteRenderer::SpriteRenderer(ResourceManager &resource_manager) : resource_manager(&resource_manager)
+SpriteRenderer::SpriteRenderer(ResourceManager &resource_manager)
+    : resource_manager(resource_manager) {}
+
+void SpriteRenderer::draw(const Sprite &sprite, const glm::mat4 &view)
+{
+    vertex_array->bind();
+
+    auto shader = resource_manager.shader_store.get("texture");
+    shader->bind();
+
+    auto mvp = view * sprite.transform.get();
+
+    shader->set_uniform_mat4f("u_mvp", mvp);
+    shader->set_uniform_1i("u_texture", 0);
+
+    resource_manager.texture_store.get(sprite.texture)->bind();
+
+    glDrawElements(GL_TRIANGLES, element_buffer->get_count(), GL_UNSIGNED_INT, 0);
+}
+
+void SpriteRenderer::init()
 {
     resource_manager.load_shader("texture", "shaders/texture.vert", "shaders/texture.frag");
     vertex_array = std::make_unique<VertexArray>();
@@ -35,22 +55,5 @@ SpriteRenderer::SpriteRenderer(ResourceManager &resource_manager) : resource_man
     layout.push<float>(2);
     layout.push<float>(4);
     vertex_array->add_buffer(*vertex_buffer, layout);
-}
-
-void SpriteRenderer::draw(const Sprite &sprite, const glm::mat4 &view)
-{
-    vertex_array->bind();
-
-    auto shader = resource_manager->shader_store.get("texture");
-    shader->bind();
-
-    auto mvp = view * sprite.transform.get();
-
-    shader->set_uniform_mat4f("u_mvp", mvp);
-    shader->set_uniform_1i("u_texture", 0);
-
-    resource_manager->texture_store.get(sprite.texture)->bind();
-
-    glDrawElements(GL_TRIANGLES, element_buffer->get_count(), GL_UNSIGNED_INT, 0);
 }
 }

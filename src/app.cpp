@@ -3,7 +3,7 @@
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 #include <argh.h>
-#include <curlpp/cURLpp.hpp>
+#include <curl/curl.h>
 #include <doctest.h>
 #include <imgui.h>
 #include <imgui_internal.h>
@@ -252,7 +252,23 @@ App::App(Animator &animator,
     // Logging
     spdlog::set_level(spdlog::level::debug);
     spdlog::set_pattern("%^[%T %7l] %v%$");
+
+    // Init cURL
+    curl_global_init(CURL_GLOBAL_ALL);
+}
+
+int App::run(int argc, char *argv[])
+{
+    argh::parser args(argv);
+    if (args[{"-t", "--test"}])
+    {
+        return run_tests(argc, argv, args);
+    }
+
+    window.init();
     glfwSetErrorCallback(error_callback);
+    renderer.init();
+    audio_engine.init(AudioDriver::Auto);
 
     // Create window
     window.set_resize_callback(resize_window_callback);
@@ -263,9 +279,6 @@ App::App(Animator &animator,
     window.set_renderer(renderer);
     window.set_io(io);
     io.set_resolution(resolution_x, resolution_y);
-
-    // Init cURL
-    cURLpp::initialize();
 
     // Initialize post processing
     resource_manager.load_shader("bloom", "shaders/highpass.vert", "shaders/highpass.frag");
@@ -293,15 +306,6 @@ App::App(Animator &animator,
     resource_manager.audio_source_store.get("fire")->setVolume(0.5f);
     resource_manager.load_audio_source("chord", "audio/chord.wav");
     resource_manager.load_audio_source("note", "audio/note.wav");
-}
-
-int App::run(int argc, char *argv[])
-{
-    argh::parser args(argv);
-    if (args[{"-t", "--test"}])
-    {
-        return run_tests(argc, argv, args);
-    }
 
     init_imgui(opengl_version_major, opengl_version_minor, window.window);
 
@@ -370,13 +374,15 @@ int App::run(int argc, char *argv[])
     screen_manager.exit();
 
     // Cleanup cURL
-    cURLpp::terminate();
+    curl_global_cleanup();
 
     return 0;
 }
 
 int App::run_tests(int argc, char *argv[], const argh::parser &args)
 {
+    audio_engine.init(AudioDriver::Null);
+
     if (!args["--with-logs"])
     {
         spdlog::set_level(spdlog::level::off);

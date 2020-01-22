@@ -1,0 +1,93 @@
+name: artificial_insentience
+on: [push]
+
+jobs:
+  job:
+    name: ${{ matrix.os }}-build
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+        include:
+          - os: windows-latest
+            torchInstallDir: C:/libtorch/
+            triplet: x64-windows-static
+            vcpkgRoot: C:/vcpkg
+          - os: ubuntu-latest
+            torchInstallDir: /tmp/libtorch
+            triplet: x64-linux
+            vcpkgRoot: /usr/local/share/vcpkg
+    steps:
+      - name: Install apt dependencies
+        if: matrix.os == 'ubuntu-latest'
+        run: |
+          sudo add-apt-repository -y ppa:ubuntu-toolchain-r/test
+          sudo apt-get install -y libxrandr-dev libxinerama-dev libx11-dev libxcursor-dev libxi-dev freeglut3-dev libasound2-dev g++-9
+      - uses: actions/checkout@v2
+      - uses: actions/cache@v1
+        name: Restore Vcpkg cache
+        id: cache-vcpkg
+        with:
+          path: ${{ github.workspace}}/vcpkg/
+          key: ${{ matrix.os }}-vcpkg-${{ hashFiles('**/requirements.txt') }}
+          restore-keys: ${{ matrix.os }}-vcpkg-
+      - name: Vcpkg
+        if: steps.cache-vcpkg.outputs.cache-hit != 'true'
+        env:
+          CXX: /usr/bin/g++-9
+          CC: /usr/bin/gcc-9
+        working-directory: ${{ github.workspace }}
+        shell: bash
+        run: |
+          if cd vcpkg; then
+            git fetch
+          else
+            git clone https://github.com/Microsoft/vcpkg.git
+            cd vcpkg
+          fi
+          if [ "${{ matrix.os }}" == "ubuntu-latest" ]; then
+            ./bootstrap-vcpkg.sh
+          else
+            ./bootstrap-vcpkg.bat
+          fi
+          ./vcpkg integrate install
+          ./vcpkg install --recurse --triplet ${{ matrix.triplet }} curl[core,ssl,openssl] opengl
+      - name: Checkout submodules
+        run: |
+          git submodule sync --recursive
+          git submodule update --init --recursive
+      - name: Install PyTorch on Linux
+        if: matrix.os == 'ubuntu-latest'
+        run: |
+          wget https://download.pytorch.org/libtorch/cpu/libtorch-shared-with-deps-1.3.0%2Bcpu.zip -O /tmp/libtorch.zip
+          unzip /tmp/libtorch.zip -d /tmp/
+      - name: Install PyTorch on Windows
+        if: matrix.os == 'windows-latest'
+        run: |
+          curl -fsS -o libtorch.zip https://download.pytorch.org/libtorch/cpu/libtorch-win-shared-with-deps-debug-1.3.0.zip
+          7z x libtorch.zip -y -oC:\
+      - name: Configure
+        env:
+          CXX: /usr/bin/g++-9
+          CC: /usr/bin/gcc-9
+        shell: bash
+        run: |
+          mkdir build
+          cd build
+          cmake -DCMAKE_PREFIX_PATH=${{ matrix.torchInstallDir }} -DCMAKE_TOOLCHAIN_FILE=../vcpkg/scripts/buildsystems/vcpkg.cmake -DVCPKG_TARGET_TRIPLET=${{ matrix.triplet }} ..
+      - name: Build
+        run: |
+          cd build
+          cmake --build .
+      - name: Test on Linux
+        if: matrix.os == 'ubuntu-latest'
+        run: |
+          cd ${{ github.workspace }}
+          build/artificialinsentience -t
+      - name: Test on Windows
+        if: matrix.os == 'windows-latest'
+        run: |
+          cd ${{ github.workspace }}
+          $env:Path += ";C:\libtorch\lib"
+          build\Debug\artificialinsentience.exe -t

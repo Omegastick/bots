@@ -25,6 +25,7 @@ class VectorRenderer
     void draw(const SemiCircle &semicircle);
     void draw(const Trapezoid &trapezoid);
     void end_frame();
+    void init();
     void set_view(const glm::mat4 &view);
 };
 }

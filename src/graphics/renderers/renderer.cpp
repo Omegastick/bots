@@ -42,8 +42,18 @@ Renderer::Renderer(int width, int height,
       vector_renderer(vector_renderer),
       distortion_layer(nullptr)
 {
+}
+
+void Renderer::init()
+{
     texture_frame_buffer = std::make_unique<FrameBuffer>();
     texture_frame_buffer->set_texture(width, height);
+
+    sprite_renderer.init();
+    particle_renderer.init();
+    line_renderer.init();
+    text_renderer.init();
+    vector_renderer.init();
 }
 
 void Renderer::resize(int width, int height)

@@ -16,13 +16,14 @@ NVGcolor glm_to_nvg(const glm::vec4 color)
 namespace ai
 {
 VectorRenderer::VectorRenderer()
-{
-    vg = nvgCreateGL3(NVG_ANTIALIAS | NVG_STENCIL_STROKES | NVG_DEBUG);
-}
+    : vg(nullptr) {}
 
 VectorRenderer::~VectorRenderer()
 {
-    nvgDeleteGL3(vg);
+    if (vg)
+    {
+        nvgDeleteGL3(vg);
+    }
 }
 
 void VectorRenderer::begin_frame(glm::vec2 resolution)
@@ -174,6 +175,11 @@ void VectorRenderer::end_frame()
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     glEnable(GL_SCISSOR_TEST);
+}
+
+void VectorRenderer::init()
+{
+    vg = nvgCreateGL3(NVG_ANTIALIAS | NVG_STENCIL_STROKES | NVG_DEBUG);
 }
 
 void VectorRenderer::set_view(const glm::mat4 &view)
