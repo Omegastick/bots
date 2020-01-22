@@ -19,6 +19,8 @@ jobs:
             triplet: x64-linux
             vcpkgRoot: /usr/local/share/vcpkg
     steps:
+      - name: gcc-9
+        run: which gcc-9
       - name: Install apt dependencies
         if: matrix.os == 'ubuntu-latest'
         run: |
