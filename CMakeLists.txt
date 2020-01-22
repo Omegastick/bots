@@ -218,7 +218,7 @@ option(WITH_DOC "" OFF)
 option(BUILD_SHARED "" OFF)
 add_subdirectory(${ZMQ_DIR})
 ## cURLpp
-find_package(CURL REQUIRED)
+find_package(CURL CONFIG REQUIRED)
 add_subdirectory(${CURLPP_DIR})
 set_target_properties(curlpp_static PROPERTIES POSITION_INDEPENDENT_CODE TRUE)
 target_compile_definitions(curlpp_static PUBLIC CURL_STATICLIB)
