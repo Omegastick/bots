@@ -15,7 +15,7 @@ jobs:
             vcpkgCommitId: '2019.11'
             vcpkgPackages: ''
           - os: ubuntu-latest
-            triplet: x64-linux-static
+            triplet: x64-linux
             vcpkgCommitId: '2019.11'
             vcpkgPackages: 'doctest'
           
