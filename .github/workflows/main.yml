@@ -14,10 +14,12 @@ jobs:
             triplet: x64-windows-static
             vcpkgCommitId: '2019.11'
             vcpkgPackages: ''
+            torchInstallDir: 'C:/libtorch/'
           - os: ubuntu-latest
             triplet: x64-linux
             vcpkgCommitId: '2019.11'
             vcpkgPackages: 'doctest'
+            torchInstallDir: '/tmp/libtorch'
           
     steps:
       - name: Install PyTorch on Linnux
@@ -53,6 +55,6 @@ jobs:
           cmakeListsOrSettingsJson: 'CMakeListsTxtBasic'
           cmakeListsTxtPath: '${{ github.workspace }}/CMakeLists.txt'
           useVcpkgToolchainFile: true
-          buildWithCMakeArgs: ''
+          buildWithCMakeArgs: '-DCMAKE_PREFIX_PATH=${{ matrix.torchInstallDir }}'
           vcpkgTriplet: ${{ steps.runvcpkg.outputs.RUNVCPKG_VCPKG_TRIPLET }}
           buildDirectory: '${{ runner.workspace }}/build/'
