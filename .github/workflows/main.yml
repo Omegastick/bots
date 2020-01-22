@@ -1,0 +1,58 @@
+# Copyright (c) 2019-2020 Luca Cappa
+# Copyright (c) 2020 Isaac Poulton
+# SPDX short identifier: MIT
+name: artificial_insentience
+on: [push]
+
+jobs:
+  job:
+    name: ${{ matrix.os }}-build
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+        include:
+          - os: windows-latest
+            triplet: x64-windows
+            vcpkgCommitId: '2019.11'
+            vcpkgPackages: ''
+          - os: ubuntu-latest
+            triplet: x64-linux
+            vcpkgCommitId: '2019.11'
+            vcpkgPackages: ''
+          
+    steps:
+      - name: Install PyTorch on Linnux
+        if: ${{ matrix.os }} == 'ubuntu-latest'
+        run: |
+            wget https://download.pytorch.org/libtorch/cpu/libtorch-shared-with-deps-1.3.0%2Bcpu.zip -O /tmp/libtorch.zip
+            unzip /tmp/libtorch.zip -d /tmp/
+      - name: Install PyTorch on Windows
+        if: ${{ matrix.os }} == 'windows-latest'
+        run: |
+          curl -fsS -o libtorch.zip https://download.pytorch.org/libtorch/cpu/libtorch-win-shared-with-deps-1.3.0.zip
+          7z x libtorch.zip -y -oC:\
+          set PATH=C:\libtorch\lib;%PATH%
+      - uses: actions/checkout@v1
+        with:
+          submodules: true
+      - name: Run vcpkg
+        uses: lukka/run-vcpkg@v0
+        id: runvcpkg
+        with:
+          vcpkgArguments: '${{ matrix.vcpkgPackages }}'
+          vcpkgTriplet: '${{ matrix.triplet }}'
+      - name: Print output of run-vcpkg task
+        run: echo "'${{ steps.runvcpkg.outputs.RUNVCPKG_VCPKG_ROOT }}' '${{  steps.runvcpkg.outputs.RUNVCPKG_VCPKG_TRIPLET }}' "
+      - name: Run CMake with triplet
+        uses: lukka/run-cmake@v0
+        id: runcmake
+        with:
+          cmakeGenerator: 'Ninja'  
+          cmakeListsOrSettingsJson: 'CMakeListsTxtBasic'
+          cmakeListsTxtPath: '${{ github.workspace }}/CMakeLists.txt'
+          useVcpkgToolchainFile: true
+          buildWithCMakeArgs: ''
+          vcpkgTriplet: ${{ steps.runvcpkg.outputs.RUNVCPKG_VCPKG_TRIPLET }}
+          buildDirectory: '${{ runner.workspace }}/build/'
