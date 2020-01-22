@@ -92,9 +92,6 @@ if(UNIX)
     set(CMAKE_CXX_FLAGS_RELEASE "-O3")
     set(CMAKE_CXX_FLAGS_RELWITHDEBINFO "-O3 -g -rdynamic")
 endif(UNIX)
-if (WIN32)
-    set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS_RELEASE} /MD")
-endif ()
 
 # CppCheck
 list(APPEND CPPCHECK_ARGS
