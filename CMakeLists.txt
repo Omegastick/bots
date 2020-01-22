@@ -92,6 +92,15 @@ if(UNIX)
     set(CMAKE_CXX_FLAGS_RELEASE "-O3")
     set(CMAKE_CXX_FLAGS_RELWITHDEBINFO "-O3 -g -rdynamic")
 endif(UNIX)
+if(MSVC)
+    message(STATUS "Static linking CRT")
+    add_compile_options(
+        "$<$<CONFIG:Debug>:/MTd>"
+        "$<$<CONFIG:RelWithDebInfo>:/MT>"
+        "$<$<CONFIG:Release>:/MT>"
+        "$<$<CONFIG:MinSizeRel>:/MT>"
+    )
+endif(MSVC)
 
 # CppCheck
 list(APPEND CPPCHECK_ARGS
