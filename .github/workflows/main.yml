@@ -24,6 +24,11 @@ jobs:
         run: |
           sudo add-apt-repository -y ppa:ubuntu-toolchain-r/test
           sudo apt-get install -y libxrandr-dev libxinerama-dev libx11-dev libxcursor-dev libxi-dev freeglut3-dev libasound2-dev g++-9
+      - uses: actions/cache@v1
+        name: Vcpkg cache
+        with:
+          path: ${{ matrix.vcpkgRoot }}/packages/
+          key: ${{ matrix.os }}-vcpkg
       - name: Vcpkg
         run: vcpkg install --triplet ${{ matrix.triplet }} curlpp opengl
       - name: Install PyTorch on Linnux
@@ -50,6 +55,11 @@ jobs:
           mkdir build
           cd build
           cmake -DCMAKE_PREFIX_PATH=${{ matrix.torchInstallDir }} -DCMAKE_TOOLCHAIN_FILE=${{ matrix.vcpkgRoot }}/scripts/buildsystems/vcpkg.cmake -DVCPKG_TARGET_TRIPLET=${{ matrix.triplet }} ..
+      - uses: actions/cache@v1
+        name: Restore build cache
+        with:
+          path: ${{ matrix.vcpkgRoot }}/packages/
+          key: ${{ matrix.os }}-build
       - name: Build
         run: |
           cd build
