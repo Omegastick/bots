@@ -11,13 +11,13 @@ jobs:
         os: [ubuntu-latest, windows-latest]
         include:
           - os: windows-latest
-            torchInstallDir: 'C:/libtorch/'
+            torchInstallDir: C:/libtorch/
             triplet: x64-windows-static
-            vcpkgRoot: '/usr/local/share/vcpkg'
+            vcpkgRoot: /usr/local/share/vcpkg
           - os: ubuntu-latest
-            torchInstallDir: '/tmp/libtorch'
-            triplet: 'x64-linux'
-            vcpkgRoot: 'C:/vcpkg'          
+            torchInstallDir: /tmp/libtorch
+            triplet: x64-linux
+            vcpkgRoot: C:/vcpkg
     steps:
       - name: Install curl
         run: vcpkg install curl:${{ matrix.triplet }}
@@ -41,7 +41,7 @@ jobs:
         run: |
           mkdir build
           cd build
-          cmake -DCMAKE_PREFIX_PATH=${{ matrix.torchInstallDir }} -DCMAKE_TOOCHAIN_FILE=${{ matrix.vcpkgRoot }}/scripts/buildsystems/vcpkg.cmake -DVCPKG_TARGET_TRIPLET=x${{ matrix.triplet }} ..
+          cmake -DCMAKE_PREFIX_PATH=${{ matrix.torchInstallDir }} -DCMAKE_TOOLCHAIN_FILE=${{ matrix.vcpkgRoot }}/scripts/buildsystems/vcpkg.cmake -DVCPKG_TARGET_TRIPLET=${{ matrix.triplet }} ..
       - name: Build on Linux
         if: matrix.os == 'ubuntu_latest'
         run: cmake --build .
