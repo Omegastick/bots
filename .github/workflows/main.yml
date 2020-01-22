@@ -13,11 +13,11 @@ jobs:
           - os: windows-latest
             torchInstallDir: C:/libtorch/
             triplet: x64-windows-static
-            vcpkgRoot: /usr/local/share/vcpkg
+            vcpkgRoot: C:/vcpkg
           - os: ubuntu-latest
             torchInstallDir: /tmp/libtorch
             triplet: x64-linux
-            vcpkgRoot: C:/vcpkg
+            vcpkgRoot: /usr/local/share/vcpkg
     steps:
       - name: Install curl
         run: vcpkg install curl:${{ matrix.triplet }}
