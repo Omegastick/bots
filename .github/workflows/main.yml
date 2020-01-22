@@ -21,18 +21,18 @@ jobs:
     steps:
       - name: Install apt dependencies
         if: matrix.os == 'ubuntu-latest'
-        run: sudo apt-get install -y libxrandr-dev libxinerama-dev libx11-dev libxcursor-dev libxi-dev
+        run: sudo apt-get install -y libxrandr-dev libxinerama-dev libx11-dev libxcursor-dev libxi-dev freeglut3-dev
       - name: Vcpkg
         run: vcpkg install --triplet ${{ matrix.triplet }} curlpp opengl
       - name: Install PyTorch on Linnux
         if: matrix.os == 'ubuntu-latest'
         run: |
-            wget https://download.pytorch.org/libtorch/cpu/libtorch-shared-with-deps-1.4.0%2Bcpu.zip -O /tmp/libtorch.zip
+            wget https://download.pytorch.org/libtorch/cpu/libtorch-shared-with-deps-1.3.0%2Bcpu.zip -O /tmp/libtorch.zip
             unzip /tmp/libtorch.zip -d /tmp/
       - name: Install PyTorch on Windows
         if: matrix.os == 'windows-latest'
         run: |
-          curl -fsS -o libtorch.zip https://download.pytorch.org/libtorch/cpu/libtorch-win-shared-with-deps-debug-1.4.0.zip
+          curl -fsS -o libtorch.zip https://download.pytorch.org/libtorch/cpu/libtorch-win-shared-with-deps-debug-1.3.0.zip
           7z x libtorch.zip -y -oC:\
           $env:Path += ";C:\libtorch\lib"
       - uses: actions/checkout@v2
