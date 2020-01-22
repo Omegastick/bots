@@ -19,7 +19,9 @@ jobs:
           
     steps:
       - name: vcpkg
-        run: vcpkg install curl:${{ matrix.triplet }}
+        run: |
+          echo $VCPKG_ROOT
+          vcpkg install curl:${{ matrix.triplet }}
       - name: Install PyTorch on Linnux
         if: matrix.os == 'ubuntu-latest'
         run: |
