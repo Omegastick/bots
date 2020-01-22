@@ -23,14 +23,14 @@ jobs:
         if: matrix.os == 'ubuntu-latest'
         run: |
           sudo add-apt-repository -y ppa:jonathonf/gcc-9.0
-          sudo apt-get install -y libxrandr-dev libxinerama-dev libx11-dev libxcursor-dev libxi-dev freeglut3-dev libasound2-dev
+          sudo apt-get install -y libxrandr-dev libxinerama-dev libx11-dev libxcursor-dev libxi-dev freeglut3-dev libasound2-dev gcc-9
       - name: Vcpkg
         run: vcpkg install --triplet ${{ matrix.triplet }} curlpp opengl
       - name: Install PyTorch on Linnux
         if: matrix.os == 'ubuntu-latest'
         run: |
-            wget https://download.pytorch.org/libtorch/cpu/libtorch-shared-with-deps-1.3.0%2Bcpu.zip -O /tmp/libtorch.zip
-            unzip /tmp/libtorch.zip -d /tmp/
+          wget https://download.pytorch.org/libtorch/cpu/libtorch-shared-with-deps-1.3.0%2Bcpu.zip -O /tmp/libtorch.zip
+          unzip /tmp/libtorch.zip -d /tmp/
       - name: Install PyTorch on Windows
         if: matrix.os == 'windows-latest'
         run: |
