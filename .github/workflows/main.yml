@@ -19,6 +19,8 @@ jobs:
             triplet: x64-linux
             vcpkgRoot: /usr/local/share/vcpkg
     steps:
+      - name: cmake
+        run: cmake --version
       - name: Vcpkg
         run: vcpkg install curl:${{ matrix.triplet }} openssl:${{ matrix.triplet }}
       - name: Install PyTorch on Linnux
