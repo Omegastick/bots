@@ -19,6 +19,8 @@ jobs:
             triplet: x64-linux
             vcpkgRoot: /usr/local/share/vcpkg
     steps:
+      - name: Install apt dependencies
+        run: apt-get install -y libxrandr-dev
       - name: Vcpkg
         run: vcpkg install --triplet ${{ matrix.triplet }} curlpp
       - name: Install PyTorch on Linnux
@@ -43,8 +45,8 @@ jobs:
           cd build
           cmake -DCMAKE_PREFIX_PATH=${{ matrix.torchInstallDir }} -DCMAKE_TOOLCHAIN_FILE=${{ matrix.vcpkgRoot }}/scripts/buildsystems/vcpkg.cmake -DVCPKG_TARGET_TRIPLET=${{ matrix.triplet }} ..
       - name: Build on Linux
-        if: matrix.os == 'ubuntu_latest'
+        if: matrix.os == 'ubuntu-latest'
         run: cmake --build .
       - name: Build on Windows
-        if: matrix.os == 'windows_latest'
+        if: matrix.os == 'windows-latest'
         run: cmake --build . --config Debug
