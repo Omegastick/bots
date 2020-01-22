@@ -16,6 +16,8 @@ jobs:
             torchInstallDir: '/tmp/libtorch'
           
     steps:
+      - name: vcpkg
+        run: which vcpkg
       - name: Install PyTorch on Linnux
         if: matrix.os == 'ubuntu-latest'
         run: |
