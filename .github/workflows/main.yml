@@ -30,10 +30,14 @@ jobs:
         run: |
           curl -fsS -o libtorch.zip https://download.pytorch.org/libtorch/cpu/libtorch-win-shared-with-deps-1.3.0.zip
           7z x libtorch.zip -y -oC:\
-          set PATH=C:\libtorch\lib;%PATH%
-      - uses: actions/checkout@v1
-        with:
-          submodules: true
+          $env:Path += C:\libtorch\lib
+      - uses: actions/checkout@v2
+      - name: Checkout submodules
+        shell: bash
+        run: |
+          auth_header="$(git config --local --get http.https://github.com/.extraheader)"
+          git submodule sync --recursive
+          git -c "http.extraheader=$auth_header" -c protocol.version=2 submodule update --init --force --recursive --depth=1
       - name: Run vcpkg
         uses: lukka/run-vcpkg@v0
         id: runvcpkg
