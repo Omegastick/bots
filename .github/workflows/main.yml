@@ -13,7 +13,7 @@ jobs:
           - os: windows-latest
             triplet: x64-windows-static
             vcpkgCommitId: '2019.11'
-            vcpkgPackages: ''
+            vcpkgPackages: 'doctest'
             torchInstallDir: 'C:/libtorch/'
           - os: ubuntu-latest
             triplet: x64-linux
@@ -55,6 +55,6 @@ jobs:
           cmakeListsOrSettingsJson: 'CMakeListsTxtBasic'
           cmakeListsTxtPath: '${{ github.workspace }}/CMakeLists.txt'
           useVcpkgToolchainFile: true
-          buildWithCMakeArgs: '-DCMAKE_PREFIX_PATH=${{ matrix.torchInstallDir }}'
+          cmakeAppendedArgs: '-DCMAKE_PREFIX_PATH=${{ matrix.torchInstallDir }}'
           vcpkgTriplet: ${{ steps.runvcpkg.outputs.RUNVCPKG_VCPKG_TRIPLET }}
           buildDirectory: '${{ runner.workspace }}/build/'
