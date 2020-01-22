@@ -218,6 +218,7 @@ option(WITH_DOC "" OFF)
 option(BUILD_SHARED "" OFF)
 add_subdirectory(${ZMQ_DIR})
 ## cURLpp
+set(OPENSSL_USE_STATIC_LIBS TRUE)
 find_package(CURL CONFIG REQUIRED)
 find_package(OpenSSL REQUIRED)
 add_subdirectory(${CURLPP_DIR})
