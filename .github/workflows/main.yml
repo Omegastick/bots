@@ -41,7 +41,7 @@ jobs:
         run: |
           mkdir build
           cd build
-          cmake -DCMAKE_PREFIX_PATH=${{ matrix.torchInstallDir }} -DCMAKE_TOOCHAIN_FILE=${{ matrix.vcpkgRoot }}/scripts/buildsystems/vcpkg.cmake ..
+          cmake -DCMAKE_PREFIX_PATH=${{ matrix.torchInstallDir }} -DCMAKE_TOOCHAIN_FILE=${{ matrix.vcpkgRoot }}/scripts/buildsystems/vcpkg.cmake -DVCPKG_TARGET_TRIPLET=x${{ matrix.triplet }} ..
       - name: Build on Linux
         if: matrix.os == 'ubuntu_latest
         run: cmake --build .
