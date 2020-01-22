@@ -218,12 +218,7 @@ option(WITH_DOC "" OFF)
 option(BUILD_SHARED "" OFF)
 add_subdirectory(${ZMQ_DIR})
 ## cURLpp
-set(OPENSSL_USE_STATIC_LIBS TRUE)
-find_package(CURL CONFIG REQUIRED)
-find_package(OpenSSL REQUIRED)
-add_subdirectory(${CURLPP_DIR})
-set_target_properties(curlpp_static PROPERTIES POSITION_INDEPENDENT_CODE TRUE)
-target_compile_definitions(curlpp_static PUBLIC CURL_STATICLIB)
+find_package(unofficial-curlpp CONFIG REQUIRED)
 ## CppRl
 option(CPPRL_BUILD_TESTS "" OFF)
 option(CPPRL_BUILD_EXAMPLE "" OFF)
@@ -333,7 +328,7 @@ set_target_properties(pythonbindings PROPERTIES EXCLUDE_FROM_ALL TRUE)
 target_link_libraries(shared
 PUBLIC
     cpprl
-    curlpp_static
+    unofficial::curlpp::curlpp
     doctest
     fmt::fmt
     glad
