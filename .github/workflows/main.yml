@@ -43,6 +43,9 @@ jobs:
           git submodule sync --recursive
           git submodule update --init --recursive
       - name: Configure
+        env:
+          CXX: /usr/bin/g++-9
+          CC: /usr/bin/gcc-9
         run: |
           mkdir build
           cd build
