@@ -27,7 +27,7 @@ jobs:
       - uses: actions/cache@v1
         name: Vcpkg cache
         with:
-          path: ${{ matrix.vcpkgRoot }}/packages/
+          path: ${{ matrix.vcpkgRoot }}/
           key: ${{ matrix.os }}-vcpkg
       - name: Vcpkg
         run: vcpkg install --triplet ${{ matrix.triplet }} curlpp opengl
