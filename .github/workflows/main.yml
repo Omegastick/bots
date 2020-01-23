@@ -19,6 +19,11 @@ jobs:
             triplet: x64-linux
             vcpkgRoot: /usr/local/share/vcpkg
     steps:
+      - uses: actions/checkout@v2
+      - name: Checkout submodules
+        run: |
+          git submodule sync --recursive
+          git submodule update --init --recursive
       - name: Install apt dependencies
         if: matrix.os == 'ubuntu-latest'
         run: |
@@ -28,7 +33,7 @@ jobs:
         name: Vcpkg cache
         with:
           path: ${{ matrix.vcpkgRoot }}/
-          key: ${{ matrix.os }}-vcpkg-${{ hashFiles(join(matrix.vcpkgRoot, '/**')) }}
+          key: ${{ matrix.os }}-vcpkg-${{ hashFiles('.') }}
           restore-keys: ${{ matrix.os }}-vcpkg-
       - name: Vcpkg
         run: vcpkg install --triplet ${{ matrix.triplet }} curlpp opengl
@@ -43,11 +48,6 @@ jobs:
           curl -fsS -o libtorch.zip https://download.pytorch.org/libtorch/cpu/libtorch-win-shared-with-deps-debug-1.3.0.zip
           7z x libtorch.zip -y -oC:\
           $env:Path += ";C:\libtorch\lib"
-      - uses: actions/checkout@v2
-      - name: Checkout submodules
-        run: |
-          git submodule sync --recursive
-          git submodule update --init --recursive
       - name: Configure
         env:
           CXX: /usr/bin/g++-9
