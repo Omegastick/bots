@@ -28,7 +28,7 @@ jobs:
         name: Vcpkg cache
         with:
           path: ${{ matrix.vcpkgRoot }}/
-          key: ${{ matrix.os }}-vcpkg-${{ hashFiles(matrix.vcpkgRoot) }}
+          key: ${{ matrix.os }}-vcpkg-${{ hashFiles(matrix.vcpkgRoot/**) }}
           restore-keys: ${{ matrix.os }}-vcpkg-
       - name: Vcpkg
         run: vcpkg install --triplet ${{ matrix.triplet }} curlpp opengl
@@ -60,7 +60,7 @@ jobs:
         name: Restore build cache
         with:
           path: ${{ matrix.vcpkgRoot }}/packages/
-          key: ${{ matrix.os }}-build-${{ hashFiles('build/') }}
+          key: ${{ matrix.os }}-build-${{ hashFiles('build/**') }}
           restore-keys: ${{ matrix.os }}-build-
       - name: Build
         run: |
