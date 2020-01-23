@@ -28,7 +28,8 @@ jobs:
         name: Vcpkg cache
         with:
           path: ${{ matrix.vcpkgRoot }}/
-          key: ${{ matrix.os }}-vcpkg
+          key: ${{ matrix.os }}-vcpkg-${{ hashFiles(matrix.vcpkgRoot) }}
+          restore-keys: ${{ matrix.os }}-vcpkg-
       - name: Vcpkg
         run: vcpkg install --triplet ${{ matrix.triplet }} curlpp opengl
       - name: Install PyTorch on Linnux
@@ -59,7 +60,8 @@ jobs:
         name: Restore build cache
         with:
           path: ${{ matrix.vcpkgRoot }}/packages/
-          key: ${{ matrix.os }}-build
+          key: ${{ matrix.os }}-build-${{ hashFiles('build/') }}
+          restore-keys: ${{ matrix.os }}-build-
       - name: Build
         run: |
           cd build
