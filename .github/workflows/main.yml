@@ -24,7 +24,6 @@ jobs:
         run: |
           sudo add-apt-repository -y ppa:ubuntu-toolchain-r/test
           sudo apt-get install -y libxrandr-dev libxinerama-dev libx11-dev libxcursor-dev libxi-dev freeglut3-dev libasound2-dev g++-9
-          sudo apt remove -y *curlpp*
       - name: Vcpkg
         run: vcpkg install --triplet ${{ matrix.triplet }} curlpp opengl
       - name: Install PyTorch on Linnux
@@ -51,13 +50,7 @@ jobs:
           mkdir build
           cd build
           cmake -DCMAKE_PREFIX_PATH=${{ matrix.torchInstallDir }} -DCMAKE_TOOLCHAIN_FILE=${{ matrix.vcpkgRoot }}/scripts/buildsystems/vcpkg.cmake -DVCPKG_TARGET_TRIPLET=${{ matrix.triplet }} ..
-      - name: Build on Linux
-        if: matrix.os == 'ubuntu-latest'
+      - name: Build
         run: |
           cd build
           cmake --build .
-      - name: Build on Windows
-        if: matrix.os == 'windows-latest'
-        run: |
-          cd build
-          cmake --build . --config Debug
