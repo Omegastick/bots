@@ -30,6 +30,9 @@ jobs:
           sudo add-apt-repository -y ppa:ubuntu-toolchain-r/test
           sudo apt-get install -y libxrandr-dev libxinerama-dev libx11-dev libxcursor-dev libxi-dev freeglut3-dev libasound2-dev g++-9
       - name: Vcpkg
+        env:
+          CXX: /usr/bin/g++-9
+          CC: /usr/bin/gcc-9
         run: vcpkg install --triplet ${{ matrix.triplet }} curlpp opengl
       - name: Install PyTorch on Linnux
         if: matrix.os == 'ubuntu-latest'
