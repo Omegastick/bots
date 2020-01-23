@@ -33,7 +33,7 @@ jobs:
         name: Vcpkg cache
         with:
           path: ${{ matrix.vcpkgRoot }}/
-          key: ${{ matrix.os }}-vcpkg-${{ hashFiles('.') }}
+          key: ${{ matrix.os }}-vcpkg-${{ hashFiles('**') }}
           restore-keys: ${{ matrix.os }}-vcpkg-
       - name: Vcpkg
         run: vcpkg install --triplet ${{ matrix.triplet }} curlpp opengl
