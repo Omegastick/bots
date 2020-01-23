@@ -66,4 +66,4 @@ jobs:
       - name: Build
         run: |
           cd build
-          cmake --build .
+          cmake --build . --target curlpp_test

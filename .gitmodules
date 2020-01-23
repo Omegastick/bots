@@ -49,9 +49,6 @@
 [submodule "lib/trompeloeil"]
 	path = lib/trompeloeil
 	url = https://github.com/rollbear/trompeloeil.git
-[submodule "lib/curlpp"]
-	path = lib/curlpp
-	url = https://github.com/jpbarrette/curlpp
 [submodule "lib/nanovg"]
 	path = lib/nanovg
 	url = https://github.com/Omegastick/nanovg.git
