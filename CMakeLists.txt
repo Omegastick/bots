@@ -375,7 +375,6 @@ target_include_directories(pythonbindings PUBLIC ${INCLUDE_DIRS})
 
 set(NO_ERR_INCLUDE_DIRS
     ${CPPRL_DIR}/include
-    ${CURLPP_DIR}/include
     ${DOCTEST_DIR}/doctest
     ${EASY_PROFILER_DIR}/easy_profiler_core/include
     ${GLAD_DIR}/include 
