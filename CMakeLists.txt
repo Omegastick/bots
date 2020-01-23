@@ -407,4 +407,6 @@ target_include_directories(pythonbindings SYSTEM PUBLIC ${NO_ERR_INCLUDE_DIRS})
 add_subdirectory(src)
 
 add_executable(curlpp_test curlpp_test.cpp)
+add_definitions(CURL_STATICLIB)
+add_definitions(CURLPP_STATICLIB)
 target_link_libraries(curlpp_test PRIVATE unofficial::curlpp::curlpp)
