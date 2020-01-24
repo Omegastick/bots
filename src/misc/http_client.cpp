@@ -14,6 +14,12 @@
 
 namespace ai
 {
+std::size_t write_callback(char *data, size_t, size_t size, void *stream)
+{
+    static_cast<std::ostringstream *>(stream)->write(data, size);
+    return size;
+}
+
 HttpClient::HttpClient(const std::string &proxy_host, long proxy_port)
     : proxy_host(proxy_host),
       proxy_port(proxy_port) {}
@@ -38,24 +44,25 @@ std::future<nlohmann::json> HttpClient::get(const std::string &url,
     return std::async(
         std::launch::async,
         [=]() {
-            auto *handle = curl_easy_init();
+            const auto handle = curl_easy_init();
             curl_easy_setopt(handle, CURLOPT_URL, url.c_str());
 
             std::ostringstream response;
-            curl_easy_setopt(handle,
-                             CURLOPT_WRITEINFO,
-                             [&](char *data, size_t size, size_t, void *) {
-                                 response.write(data, size);
-                             });
+            curl_easy_setopt(handle, CURLOPT_WRITEDATA, &response);
+            curl_easy_setopt(handle, CURLOPT_WRITEFUNCTION, write_callback);
 
-            curl_slist *headers_slist;
+            curl_slist *headers_slist = nullptr;
             for (auto header : headers)
             {
-                curl_slist_append(headers_slist, header);
+                headers_slist = curl_slist_append(headers_slist, header.c_str());
             }
-            curl_easy_setopt(handle, CURLOPT_HTTPHEADER, headers_slsist);
+            if (!headers.empty())
+            {
+                curl_easy_setopt(handle, CURLOPT_HTTPHEADER, headers_slist);
+            }
 
             curl_easy_perform(handle);
+            curl_slist_free_all(headers_slist);
             curl_easy_cleanup(handle);
 
             nlohmann::json json;
@@ -89,26 +96,24 @@ std::future<nlohmann::json> HttpClient::post(const std::string &url,
             auto _headers = headers;
             _headers.push_back("Content-Type: application/json");
 
-            const auto *handle = curl_easy_init();
+            const auto handle = curl_easy_init();
             curl_easy_setopt(handle, CURLOPT_URL, url.c_str());
 
             std::ostringstream response;
-            curl_easy_setopt(handle,
-                             CURLOPT_WRITEINFO,
-                             [&](char *data, size_t size, size_t, void *) {
-                                 response.write(data, size);
-                             });
+            curl_easy_setopt(handle, CURLOPT_WRITEDATA, &response);
+            curl_easy_setopt(handle, CURLOPT_WRITEFUNCTION, write_callback);
 
             curl_easy_setopt(handle, CURLOPT_POSTFIELDS, body.c_str());
 
-            curl_slist *headers_slist;
-            for (auto header : headers)
+            curl_slist *headers_slist = nullptr;
+            for (auto header : _headers)
             {
-                curl_slist_append(headers_slist, header);
+                headers_slist = curl_slist_append(headers_slist, header.c_str());
             }
-            curl_easy_setopt(handle, CURLOPT_HTTPHEADER, headers_slsist);
+            curl_easy_setopt(handle, CURLOPT_HTTPHEADER, headers_slist);
 
             curl_easy_perform(handle);
+            curl_slist_free_all(headers_slist);
             curl_easy_cleanup(handle);
 
             nlohmann::json json;

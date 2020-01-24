@@ -7,7 +7,7 @@
 
 #include "misc/ihttp_client.h"
 
-class CURL;
+typedef void CURL;
 
 namespace ai
 {
