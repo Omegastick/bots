@@ -8,12 +8,12 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-latest, windows-latest]
+        os: [ubuntu-latest]
         include:
-          - os: windows-latest
-            torchInstallDir: C:/libtorch/
-            triplet: x64-windows-static
-            vcpkgRoot: C:/vcpkg
+          # - os: windows-latest
+          #   torchInstallDir: C:/libtorch/
+          #   triplet: x64-windows-static
+          #   vcpkgRoot: C:/vcpkg
           - os: ubuntu-latest
             torchInstallDir: /tmp/libtorch
             triplet: x64-linux
@@ -65,14 +65,12 @@ jobs:
           cmake --build .
       - name: Test on Linux
         if: matrix.os == 'ubuntu-latest'
-        env:
-          LD_PRELOAD: /usr/lib/libSegFault.so
         run: |
           cd ${{ github.workspace }}
-          build/artificialinsentience -t --http
+          build/artificialinsentience -t
       - name: Test on Windows
         if: matrix.os == 'windows-latest'
         run: |
           cd ${{ github.workspace }}
           $env:Path += ";C:\libtorch\lib"
-          build\Debug\artificialinsentience.exe -t --http
+          build\Debug\artificialinsentience.exe -t
