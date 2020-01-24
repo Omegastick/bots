@@ -19,6 +19,11 @@ jobs:
             triplet: x64-linux
             vcpkgRoot: /usr/local/share/vcpkg
     steps:
+      - name: Install apt dependencies
+        if: matrix.os == 'ubuntu-latest'
+        run: |
+          sudo add-apt-repository -y ppa:ubuntu-toolchain-r/test
+          sudo apt-get install -y libxrandr-dev libxinerama-dev libx11-dev libxcursor-dev libxi-dev freeglut3-dev libasound2-dev g++-9
       - uses: actions/checkout@v2
       - name: Install vcpkg
         env:
@@ -34,11 +39,6 @@ jobs:
         run: |
           git submodule sync --recursive
           git submodule update --init --recursive
-      - name: Install apt dependencies
-        if: matrix.os == 'ubuntu-latest'
-        run: |
-          sudo add-apt-repository -y ppa:ubuntu-toolchain-r/test
-          sudo apt-get install -y libxrandr-dev libxinerama-dev libx11-dev libxcursor-dev libxi-dev freeglut3-dev libasound2-dev g++-9
       - name: Install PyTorch on Linux
         if: matrix.os == 'ubuntu-latest'
         run: |
