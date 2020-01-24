@@ -65,6 +65,8 @@ jobs:
           cmake --build .
       - name: Test on Linux
         if: matrix.os == 'ubuntu-latest'
+        env:
+          LD_PRELOAD: /usr/lib/libSegFault.so
         run: |
           cd ${{ github.workspace }}
           build/artificialinsentience -t --http
