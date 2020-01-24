@@ -64,3 +64,13 @@ jobs:
         run: |
           cd build
           cmake --build .
+      - name: Test on Linux
+        shell: bash
+        run: |
+          cd ${{ github.workspace }}
+          build/artificialinsentience -t --http
+      - name: Test on Windows
+        shell: bash
+        run: |
+          cd ${{ gihub.workspace }}
+          build/Debug/artificialinsentience -t --http
