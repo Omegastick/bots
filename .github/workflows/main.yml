@@ -33,7 +33,7 @@ jobs:
         env:
           CXX: /usr/bin/g++-9
           CC: /usr/bin/gcc-9
-        run: vcpkg install --triplet ${{ matrix.triplet }} curl[core, ssl, openssl] opengl
+        run: vcpkg install --triplet ${{ matrix.triplet }} curl[core,ssl,openssl] opengl
       - name: Install PyTorch on Linux
         if: matrix.os == 'ubuntu-latest'
         run: |
