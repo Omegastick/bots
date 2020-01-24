@@ -72,5 +72,5 @@ jobs:
       - name: Test on Windows
         shell: bash
         run: |
-          cd ${{ gihub.workspace }}
+          cd ${{ github.workspace }}
           build/Debug/artificialinsentience -t --http
