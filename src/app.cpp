@@ -3,7 +3,7 @@
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 #include <argh.h>
-#include <curlpp/cURLpp.hpp>
+#include <curl/curl.h>
 #include <doctest.h>
 #include <imgui.h>
 #include <imgui_internal.h>
@@ -265,7 +265,7 @@ App::App(Animator &animator,
     io.set_resolution(resolution_x, resolution_y);
 
     // Init cURL
-    cURLpp::initialize();
+    curl_global_init(CURL_GLOBAL_ALL);
 
     // Initialize post processing
     resource_manager.load_shader("bloom", "shaders/highpass.vert", "shaders/highpass.frag");
@@ -370,7 +370,7 @@ int App::run(int argc, char *argv[])
     screen_manager.exit();
 
     // Cleanup cURL
-    cURLpp::terminate();
+    curl_global_cleanup();
 
     return 0;
 }

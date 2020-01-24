@@ -2,10 +2,12 @@
 #include <list>
 #include <string>
 
-#include <curlpp/Easy.hpp>
+#include <curl/>
 #include <nlohmann/json.hpp>
 
 #include "misc/ihttp_client.h"
+
+class CURL;
 
 namespace ai
 {
@@ -15,7 +17,7 @@ class HttpClient : public IHttpClient
     std::string proxy_host;
     long proxy_port;
 
-    void set_proxy(cURLpp::Easy &curl_handle);
+    void set_proxy(CURL *curl_handle);
 
   public:
     HttpClient(const std::string &proxy_host = "", long proxy_port = -1);
