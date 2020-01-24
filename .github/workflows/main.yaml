@@ -42,6 +42,7 @@ jobs:
           git clone https://github.com/Microsoft/vcpkg.git
           cd vcpkg
           ./bootstrap-vcpkg.sh
+          ./vcpkg integrate install
           ./vcpkg install --triplet ${{ matrix.triplet }} curl[core,ssl,openssl] opengl
       - name: Checkout submodules
         run: |
@@ -71,7 +72,7 @@ jobs:
           CC: /usr/bin/gcc-9
         run: |
           cd build
-          cmake -DCMAKE_PREFIX_PATH=${{ matrix.torchInstallDir }} -DCMAKE_TOOLCHAIN_FILE=${{ github.workspace }}/vcpkg/scripts/buildsystems/vcpkg.cmake -DVCPKG_TARGET_TRIPLET=${{ matrix.triplet }} ..
+          cmake -DCMAKE_PREFIX_PATH=${{ matrix.torchInstallDir }} -DCMAKE_TOOLCHAIN_FILE=../vcpkg/scripts/buildsystems/vcpkg.cmake -DVCPKG_TARGET_TRIPLET=${{ matrix.triplet }} ..
       - name: Build
         run: |
           cd build
