@@ -25,7 +25,15 @@ jobs:
           sudo add-apt-repository -y ppa:ubuntu-toolchain-r/test
           sudo apt-get install -y libxrandr-dev libxinerama-dev libx11-dev libxcursor-dev libxi-dev freeglut3-dev libasound2-dev g++-9
       - uses: actions/checkout@v2
-      - name: Install vcpkg
+      - uses: actions/cache@v1
+        name: Restore Vcpkg cache
+        id: cache-vcpkg
+        with:
+          path: ${{ github.workspace}}/vcpkg/
+          key: ${{ matrix.os }}-vcpkg-{{ hashFiles('${{ github.workspace }}/requirements.txt') }}
+          restore-keys: ${{ matrix.os }}-vcpkg-
+      - name: Vcpkg
+        if: steps.cache-vcpkg.outputs.cache-hit != 'true'
         env:
           CXX: /usr/bin/g++-9
           CC: /usr/bin/gcc-9

@@ -1,0 +1,2 @@
+curl[core,ssl,openssl]
+opengl
