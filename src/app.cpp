@@ -268,6 +268,7 @@ int App::run(int argc, char *argv[])
     window.init();
     glfwSetErrorCallback(error_callback);
     renderer.init();
+    audio_engine.init(AudioDriver::Auto);
 
     // Create window
     window.set_resize_callback(resize_window_callback);
@@ -380,6 +381,8 @@ int App::run(int argc, char *argv[])
 
 int App::run_tests(int argc, char *argv[], const argh::parser &args)
 {
+    audio_engine.init(AudioDriver::Null);
+
     if (!args["--with-logs"])
     {
         spdlog::set_level(spdlog::level::off);

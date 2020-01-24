@@ -7,15 +7,27 @@
 namespace ai
 {
 AudioEngine::AudioEngine(ResourceManager &resource_manager)
-    : resource_manager(resource_manager),
+    : initialized(false),
+      resource_manager(resource_manager),
       time(0)
 {
+}
+
+void AudioEngine::init(AudioDriver driver)
+{
     soloud = SoLoud::Soloud();
-    if (soloud.init() != 0 &&
-        soloud.init(SoLoud::Soloud::CLIP_ROUNDOFF, SoLoud::Soloud::NULLDRIVER) != 0)
+    const auto soloud_driver = driver == AudioDriver::Null
+                                   ? SoLoud::Soloud::NULLDRIVER
+                                   : SoLoud::Soloud::AUTO;
+
+    if (soloud.init(SoLoud::Soloud::CLIP_ROUNDOFF, soloud_driver) == 0)
     {
         spdlog::error("Could not initialize audio engine");
+        return;
     }
+
+    initialized = true;
+    return;
 }
 
 SoundHandle AudioEngine::play(AudioSource &audio_source)
