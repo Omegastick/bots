@@ -80,6 +80,8 @@ class Renderer
                     TextRenderer &text_renderer,
                     VectorRenderer &vector_renderer);
 
+    void init();
+
     void resize(int width, int height);
 
     void draw(const Line &line);

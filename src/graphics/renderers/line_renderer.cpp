@@ -94,21 +94,7 @@ std::vector<LineData> get_polyline(const Line &line)
 }
 
 LineRenderer::LineRenderer(ResourceManager &resource_manager)
-    : resource_manager(resource_manager)
-{
-    vertex_array = std::make_unique<VertexArray>();
-    vertex_buffer = std::make_unique<VertexBuffer>(nullptr, 0);
-    element_buffer = std::make_unique<ElementBuffer>(nullptr, 0);
-
-    VertexBufferLayout layout;
-    layout.push<float>(2);
-    layout.push<float>(2);
-    layout.push<float>(1);
-    layout.push<float>(4);
-    vertex_array->add_buffer(*vertex_buffer, layout);
-
-    resource_manager.load_shader("line", "shaders/line.vert", "shaders/default.frag");
-}
+    : resource_manager(resource_manager) {}
 
 void LineRenderer::draw(const Line &line, const glm::mat4 &view)
 {
@@ -132,5 +118,21 @@ void LineRenderer::draw(const Line &line, const glm::mat4 &view)
     shader->set_uniform_mat4f("u_mvp", view);
 
     glDrawElements(GL_TRIANGLES, element_buffer->get_count(), GL_UNSIGNED_INT, 0);
+}
+
+void LineRenderer::init()
+{
+    vertex_array = std::make_unique<VertexArray>();
+    vertex_buffer = std::make_unique<VertexBuffer>(nullptr, 0);
+    element_buffer = std::make_unique<ElementBuffer>(nullptr, 0);
+
+    VertexBufferLayout layout;
+    layout.push<float>(2);
+    layout.push<float>(2);
+    layout.push<float>(1);
+    layout.push<float>(4);
+    vertex_array->add_buffer(*vertex_buffer, layout);
+
+    resource_manager.load_shader("line", "shaders/line.vert", "shaders/default.frag");
 }
 }

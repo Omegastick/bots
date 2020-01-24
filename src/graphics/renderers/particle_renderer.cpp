@@ -12,12 +12,68 @@
 namespace ai
 {
 ParticleRenderer::ParticleRenderer(int max_particles, ResourceManager &resource_manager)
-    : resource_manager(&resource_manager),
+    : resource_manager(resource_manager),
       max_particles(max_particles),
       particle_count(0),
       current_particle_index(0),
-      vertex_array(std::make_unique<VertexArray>())
+      vertex_array(nullptr) {}
+
+void ParticleRenderer::add_particles(std::vector<Particle> &particles, double time)
 {
+    float mod_time = static_cast<float>(std::fmod(time, 10000));
+    for (const auto &particle : particles)
+    {
+        particle_positions[current_particle_index] = particle.start_position;
+        particle_velocities[current_particle_index] = particle.velocity;
+        particle_lives[current_particle_index] = particle.lifetime;
+        particle_sizes[current_particle_index] = particle.size;
+        particle_start_times[current_particle_index] = mod_time + particle.start_time_offset;
+        particle_start_colors[current_particle_index] = particle.start_color;
+        particle_end_colors[current_particle_index] = particle.end_color;
+        current_particle_index++;
+        current_particle_index %= max_particles;
+        particle_count = particle_count > current_particle_index ? particle_count : current_particle_index;
+    }
+}
+
+void ParticleRenderer::clear_particles()
+{
+    particle_count = 0;
+    current_particle_index = 0;
+}
+
+void ParticleRenderer::draw(double time, glm::mat4 view)
+{
+    float mod_time = static_cast<float>(std::fmod(time, 10000));
+    position_vertex_buffer->clear();
+    position_vertex_buffer->add_sub_data(&particle_positions[0], 0, particle_count * sizeof(glm::vec2));
+    velocity_vertex_buffer->clear();
+    velocity_vertex_buffer->add_sub_data(&particle_velocities[0], 0, particle_count * sizeof(glm::vec2));
+    start_time_vertex_buffer->clear();
+    start_time_vertex_buffer->add_sub_data(&particle_start_times[0], 0, particle_count * sizeof(float));
+    life_vertex_buffer->clear();
+    life_vertex_buffer->add_sub_data(&particle_lives[0], 0, particle_count * sizeof(float));
+    size_vertex_buffer->clear();
+    size_vertex_buffer->add_sub_data(&particle_sizes[0], 0, particle_count * sizeof(float));
+    start_color_vertex_buffer->clear();
+    start_color_vertex_buffer->add_sub_data(&particle_start_colors[0], 0, particle_count * sizeof(glm::vec4));
+    end_color_vertex_buffer->clear();
+    end_color_vertex_buffer->add_sub_data(&particle_end_colors[0], 0, particle_count * sizeof(glm::vec4));
+
+    auto shader = resource_manager.shader_store.get("particle");
+    shader->bind();
+    shader->set_uniform_mat4f("u_mvp", view);
+    shader->set_uniform_1f("u_time", mod_time);
+
+    // renderer.draw(particle_engine, shader);
+    vertex_array->bind();
+    glDrawArraysInstanced(GL_TRIANGLE_STRIP, 0, 4, particle_count);
+}
+
+void ParticleRenderer::init()
+{
+    vertex_array = std::make_unique<VertexArray>();
+
     resource_manager.load_shader("particle", "shaders/particle.vert", "shaders/default.frag");
     particle_positions.resize(max_particles);
     particle_velocities.resize(max_particles);
@@ -89,57 +145,5 @@ ParticleRenderer::ParticleRenderer(int max_particles, ResourceManager &resource_
     glEnableVertexAttribArray(7);
     glVertexAttribPointer(7, 4, GL_FLOAT, GL_FALSE, 0, (void *)0);
     glVertexAttribDivisor(7, 1);
-}
-
-void ParticleRenderer::add_particles(std::vector<Particle> &particles, double time)
-{
-    float mod_time = static_cast<float>(std::fmod(time, 10000));
-    for (const auto &particle : particles)
-    {
-        particle_positions[current_particle_index] = particle.start_position;
-        particle_velocities[current_particle_index] = particle.velocity;
-        particle_lives[current_particle_index] = particle.lifetime;
-        particle_sizes[current_particle_index] = particle.size;
-        particle_start_times[current_particle_index] = mod_time + particle.start_time_offset;
-        particle_start_colors[current_particle_index] = particle.start_color;
-        particle_end_colors[current_particle_index] = particle.end_color;
-        current_particle_index++;
-        current_particle_index %= max_particles;
-        particle_count = particle_count > current_particle_index ? particle_count : current_particle_index;
-    }
-}
-
-void ParticleRenderer::clear_particles()
-{
-    particle_count = 0;
-    current_particle_index = 0;
-}
-
-void ParticleRenderer::draw(double time, glm::mat4 view)
-{
-    float mod_time = static_cast<float>(std::fmod(time, 10000));
-    position_vertex_buffer->clear();
-    position_vertex_buffer->add_sub_data(&particle_positions[0], 0, particle_count * sizeof(glm::vec2));
-    velocity_vertex_buffer->clear();
-    velocity_vertex_buffer->add_sub_data(&particle_velocities[0], 0, particle_count * sizeof(glm::vec2));
-    start_time_vertex_buffer->clear();
-    start_time_vertex_buffer->add_sub_data(&particle_start_times[0], 0, particle_count * sizeof(float));
-    life_vertex_buffer->clear();
-    life_vertex_buffer->add_sub_data(&particle_lives[0], 0, particle_count * sizeof(float));
-    size_vertex_buffer->clear();
-    size_vertex_buffer->add_sub_data(&particle_sizes[0], 0, particle_count * sizeof(float));
-    start_color_vertex_buffer->clear();
-    start_color_vertex_buffer->add_sub_data(&particle_start_colors[0], 0, particle_count * sizeof(glm::vec4));
-    end_color_vertex_buffer->clear();
-    end_color_vertex_buffer->add_sub_data(&particle_end_colors[0], 0, particle_count * sizeof(glm::vec4));
-
-    auto shader = resource_manager->shader_store.get("particle");
-    shader->bind();
-    shader->set_uniform_mat4f("u_mvp", view);
-    shader->set_uniform_1f("u_time", mod_time);
-
-    // renderer.draw(particle_engine, shader);
-    vertex_array->bind();
-    glDrawArraysInstanced(GL_TRIANGLE_STRIP, 0, 4, particle_count);
 }
 }

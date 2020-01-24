@@ -25,5 +25,6 @@ class LineRenderer
     LineRenderer(ResourceManager &resource_manager);
 
     void draw(const Line &line, const glm::mat4 &view);
+    void init();
 };
 }

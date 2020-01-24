@@ -21,6 +21,8 @@ class Window
   private:
     Renderer *renderer;
     IO *io;
+    int x, y, opengl_major_version, opengl_minor_version;
+    std::string title;
 
   public:
     BOOST_DI_INJECT(Window,
@@ -32,6 +34,7 @@ class Window
     ~Window();
 
     void close();
+    void init();
     void swap_buffers();
     bool should_close();
     void set_cursor_pos_callback(void (*callback)(GLFWwindow *, double, double));

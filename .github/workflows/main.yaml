@@ -65,12 +65,12 @@ jobs:
           cd build
           cmake --build . --parallel
       - name: Test on Linux
-        shell: bash
+        if: matrix.os == 'ubuntu-latest'
         run: |
           cd ${{ github.workspace }}
           build/artificialinsentience -t --http
       - name: Test on Windows
-        shell: bash
+        if: matrix.os == 'windows-latest'
         run: |
           cd ${{ github.workspace }}
           build/Debug/artificialinsentience -t --http

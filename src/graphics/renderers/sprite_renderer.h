@@ -26,11 +26,12 @@ struct SpriteRenderer
     std::unique_ptr<VertexArray> vertex_array;
     std::unique_ptr<VertexBuffer> vertex_buffer;
     std::unique_ptr<ElementBuffer> element_buffer;
-    ResourceManager *resource_manager;
+    ResourceManager &resource_manager;
 
   public:
     SpriteRenderer(ResourceManager &resource_manager);
 
     void draw(const Sprite &sprite, const glm::mat4 &view);
+    void init();
 };
 }
