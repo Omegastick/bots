@@ -7,13 +7,14 @@
 namespace ai
 {
 AudioEngine::AudioEngine(ResourceManager &resource_manager)
-    :      resource_manager(resource_manager),
+    : resource_manager(resource_manager),
       time(0)
 {
     soloud = SoLoud::Soloud();
-    if (soloud.init() != 0)
+    if (soloud.init() != 0 &&
+        soloud.init(SoLoud::Soloud::CLIP_ROUNDOFF, SoLoud::Soloud::NULLDRIVER) != 0)
     {
-        spdlog::warn("Could not initialize audio engine");
+        spdlog::error("Could not initialize audio engine");
     }
 }
 
@@ -29,7 +30,7 @@ SoundHandle AudioEngine::play(const std::string &audio_source)
 }
 
 void AudioEngine::update(double delta_time)
-{    
+{
     time += delta_time;
 }
 }
