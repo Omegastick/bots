@@ -2,7 +2,7 @@
 #include <list>
 #include <string>
 
-#include <curl/>
+#include <curl/curl.h>
 #include <nlohmann/json.hpp>
 
 #include "misc/ihttp_client.h"
