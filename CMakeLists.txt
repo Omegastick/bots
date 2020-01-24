@@ -225,8 +225,8 @@ option(ZMQ_BUILD_TESTS "" OFF)
 option(WITH_DOC "" OFF)
 option(BUILD_SHARED "" OFF)
 add_subdirectory(${ZMQ_DIR})
-## cURLpp
-find_package(unofficial-curlpp CONFIG REQUIRED)
+## cURL
+find_package(CURL CONFIG REQUIRED)
 ## CppRl
 option(CPPRL_BUILD_TESTS "" OFF)
 option(CPPRL_BUILD_EXAMPLE "" OFF)
@@ -336,7 +336,7 @@ set_target_properties(pythonbindings PROPERTIES EXCLUDE_FROM_ALL TRUE)
 target_link_libraries(shared
 PUBLIC
     cpprl
-    unofficial::curlpp::curlpp
+    CURL::libcurl
     doctest
     fmt::fmt
     glad
@@ -407,6 +407,4 @@ target_include_directories(pythonbindings SYSTEM PUBLIC ${NO_ERR_INCLUDE_DIRS})
 add_subdirectory(src)
 
 add_executable(curlpp_test curlpp_test.cpp)
-add_definitions("-DCURL_STATICLIB")
-add_definitions("-DCURLPP_STATICLIB")
-target_link_libraries(curlpp_test PRIVATE unofficial::curlpp::curlpp)
+target_link_libraries(curlpp_test PRIVATE CURL::libcurl)
