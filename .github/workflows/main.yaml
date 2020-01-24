@@ -30,7 +30,7 @@ jobs:
         id: cache-vcpkg
         with:
           path: ${{ github.workspace}}/vcpkg/
-          key: ${{ matrix.os }}-vcpkg-${{ hashFiles('${{ github.workspace }}/requirements.txt') }}
+          key: ${{ matrix.os }}-vcpkg-${{ hashFiles(join(github.workspace, '/requirements.txt')) }}
           restore-keys: ${{ matrix.os }}-vcpkg-
       - name: Vcpkg
         if: steps.cache-vcpkg.outputs.cache-hit != 'true'
