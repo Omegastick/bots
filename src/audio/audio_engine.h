@@ -22,7 +22,6 @@ class IAudioEngine
 class AudioEngine : public IAudioEngine
 {
   private:
-    bool disabled;
     ResourceManager &resource_manager;
     SoLoud::Soloud soloud;
     double time;
