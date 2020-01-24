@@ -63,7 +63,7 @@ jobs:
       - name: Build
         run: |
           cd build
-          cmake --build .
+          cmake --build . --parallel
       - name: Test on Linux
         shell: bash
         run: |
