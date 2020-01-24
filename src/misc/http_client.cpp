@@ -38,7 +38,7 @@ std::future<nlohmann::json> HttpClient::get(const std::string &url,
     return std::async(
         std::launch::async,
         [=]() {
-            const auto *handle = curl_easy_init();
+            auto *handle = curl_easy_init();
             curl_easy_setopt(handle, CURLOPT_URL, url.c_str());
 
             std::ostringstream response;
