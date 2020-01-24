@@ -1,17 +1,15 @@
 #include <list>
 #include <string>
 
-#include <curlpp/cURLpp.hpp>
-#include <curlpp/Easy.hpp>
-#include <curlpp/Options.hpp>
+#include <curl/curl.h>
 
-int main(int /*argc*/, char * /*argv*/ []) {
-    cURLpp::initialize();
-    curlpp::Easy request;
-    request.setOpt(new curlpp::options::Url("http://asd.com"));
-    std::list<std::string> header; 
-    header.push_back("Content-Type: application/octet-stream"); 
-    request.setOpt(new curlpp::options::HttpHeader(header));
-    request.perform();
-    cURLpp::terminate();
+int main(int /*argc*/, char * /*argv*/[])
+{
+    curl_global_init(CURL_GLOBAL_ALL);
+    const auto handle = curl_easy_init();
+    curl_easy_setopt(handle, CURLOPT_URL, "asd.com");
+    curl_slist *headers = nullptr;
+    curl_slist_append(headers, "Content-Type: application/octet-stream");
+    curl_easy_perform(handle);
+    curl_easy_cleanup(handle);
 }
