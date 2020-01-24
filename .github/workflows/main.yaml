@@ -72,5 +72,6 @@ jobs:
       - name: Test on Windows
         if: matrix.os == 'windows-latest'
         run: |
+          tree /F
           cd ${{ github.workspace }}
           build/Debug/artificialinsentience.exe -t --http
