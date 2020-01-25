@@ -70,10 +70,10 @@ jobs:
         env:
           CXX: /usr/bin/g++-9
           CC: /usr/bin/gcc-9
-          VCPKG_INSTALLATION_ROOT: ${{ github.workspace }}/vcpkg
         run: |
           cd build
-          cmake --trace-expand -DCMAKE_PREFIX_PATH=${{ matrix.torchInstallDir }} -DCMAKE_TOOLCHAIN_FILE=../vcpkg/scripts/buildsystems/vcpkg.cmake -DVCPKG_TARGET_TRIPLET=${{ matrix.triplet }} ..
+          rm CmakeCache.txt
+          cmake -DCMAKE_PREFIX_PATH=${{ matrix.torchInstallDir }} -DCMAKE_TOOLCHAIN_FILE=../vcpkg/scripts/buildsystems/vcpkg.cmake -DVCPKG_TARGET_TRIPLET=${{ matrix.triplet }} ..
       - name: Build
         run: |
           cd build
