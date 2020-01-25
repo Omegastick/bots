@@ -73,7 +73,7 @@ jobs:
           VCPKG_INSTALLATION_ROOT: ${{ github.workspace }}/vcpkg
         run: |
           cd build
-          cmake -DCMAKE_PREFIX_PATH=${{ matrix.torchInstallDir }} -DCMAKE_TOOLCHAIN_FILE=../vcpkg/scripts/buildsystems/vcpkg.cmake -DVCPKG_TARGET_TRIPLET=${{ matrix.triplet }} ..
+          cmake --trace-expand -DCMAKE_PREFIX_PATH=${{ matrix.torchInstallDir }} -DCMAKE_TOOLCHAIN_FILE=../vcpkg/scripts/buildsystems/vcpkg.cmake -DVCPKG_TARGET_TRIPLET=${{ matrix.triplet }} ..
       - name: Build
         run: |
           cd build
