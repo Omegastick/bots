@@ -72,7 +72,7 @@ jobs:
           CC: /usr/bin/gcc-9
         run: |
           cd build
-          rm CmakeCache.txt
+          rm CMakeCache.txt
           cmake -DCMAKE_PREFIX_PATH=${{ matrix.torchInstallDir }} -DCMAKE_TOOLCHAIN_FILE=../vcpkg/scripts/buildsystems/vcpkg.cmake -DVCPKG_TARGET_TRIPLET=${{ matrix.triplet }} ..
       - name: Build
         run: |
