@@ -78,11 +78,11 @@ jobs:
         run: |
           cd build
           cmake --build .
-      # - name: Test on Linux
-      #   if: matrix.os == 'ubuntu-latest'
-      #   run: |
-      #     cd ${{ github.workspace }}
-      #     build/artificialinsentience -t
+      - name: Test on Linux
+        if: matrix.os == 'ubuntu-latest'
+        run: |
+          cd ${{ github.workspace }}
+          build/artificialinsentience -t
       # - name: Test on Windows
       #   if: matrix.os == 'windows-latest'
       #   run: |
