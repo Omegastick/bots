@@ -40,8 +40,11 @@ jobs:
         working-directory: ${{ github.workspace }}
         shell: bash
         run: |
-          git clone https://github.com/Microsoft/vcpkg.git
-          cd vcpkg
+          if cd vcpkg; then
+            git fetch
+          else
+            git clone https://github.com/Microsoft/vcpkg.git
+            cd vcpkg
           ./bootstrap-vcpkg.sh
           ./vcpkg integrate install
           ./vcpkg install --triplet ${{ matrix.triplet }} curl[core,ssl,openssl] opengl
@@ -73,7 +76,6 @@ jobs:
           CC: /usr/bin/gcc-9
         run: |
           cd build
-          rm CMakeCache.txt
           cmake -DCMAKE_PREFIX_PATH=${{ matrix.torchInstallDir }} -DCMAKE_TOOLCHAIN_FILE=../vcpkg/scripts/buildsystems/vcpkg.cmake -DVCPKG_TARGET_TRIPLET=${{ matrix.triplet }} ..
       - name: Build
         run: |
