@@ -10,10 +10,10 @@ jobs:
       matrix:
         os: [ubuntu-latest]
         include:
-          # - os: windows-latest
-          #   torchInstallDir: C:/libtorch/
-          #   triplet: x64-windows-static
-          #   vcpkgRoot: C:/vcpkg
+          - os: windows-latest
+            torchInstallDir: C:/libtorch/
+            triplet: x64-windows-static
+            vcpkgRoot: C:/vcpkg
           - os: ubuntu-latest
             torchInstallDir: /tmp/libtorch
             triplet: x64-linux
@@ -38,6 +38,7 @@ jobs:
           CXX: /usr/bin/g++-9
           CC: /usr/bin/gcc-9
         working-directory: ${{ github.workspace }}
+        shell: bash
         run: |
           git clone https://github.com/Microsoft/vcpkg.git
           cd vcpkg
@@ -83,10 +84,9 @@ jobs:
         run: |
           cd ${{ github.workspace }}
           build/artificialinsentience -t
-      # - name: Test on Windows
-      #   if: matrix.os == 'windows-latest'
-      #   run: |
-      #     cd ${{ github.workspace }}
-      #     $env:Path += ";C:\libtorch\lib"
-      #     build\Debug\artificialinsentience.exe -t
-      #
+      - name: Test on Windows
+        if: matrix.os == 'windows-latest'
+        run: |
+          cd ${{ github.workspace }}
+          $env:Path += ";C:\libtorch\lib"
+          build\Debug\artificialinsentience.exe -t
