@@ -52,7 +52,7 @@ jobs:
             ./bootstrap-vcpkg.bat
           fi
           ./vcpkg integrate install
-          ./vcpkg install --triplet ${{ matrix.triplet }} curl[core,ssl,openssl] opengl
+          ./vcpkg install --recurse --triplet ${{ matrix.triplet }} curl[core,ssl,openssl] opengl
       - name: Checkout submodules
         run: |
           git submodule sync --recursive
