@@ -46,8 +46,11 @@ jobs:
             git clone https://github.com/Microsoft/vcpkg.git
             cd vcpkg
           fi
-          ls
-          ./bootstrap-vcpkg.sh
+          if [ "${{ matrix.os }}" == "ubuntu-latest" ]; then
+            ./bootstrap-vcpkg.sh
+          else
+            ./bootstrap-vcpkg.bat
+          fi
           ./vcpkg integrate install
           ./vcpkg install --triplet ${{ matrix.triplet }} curl[core,ssl,openssl] opengl
       - name: Checkout submodules
