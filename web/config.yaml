@@ -35,3 +35,15 @@ menu:
     - identifier: press_kit
       name: Press Kit
       url: /press_kit
+
+deployment:
+  targets:
+    name: ai-website
+    URL: "gs://www.artificialinsentience.com"
+  matchers:
+    - pattern: "^.+\\.(js|css|svg|ttf)$"
+      cacheControl: "max-age=31536000, no-transform, public"
+      gzip: true
+    - pattern: "^.+\\.(png|jpg)$"
+      cacheControl: "max-age=31536000, no-transform, public"
+      gzip: false
