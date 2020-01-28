@@ -7,7 +7,7 @@ toc: false
 tags:
   - "ai: artificial insentience"
 ---
-`ai://artificial_insentience` is a game about training your AI to fight other people's AIs.
+`ai://artificial_insentience` is a game about training your own AI to fight other people's AIs.
 
 This isn't a simulation. You will use the same cutting edge AI techniques used by [OpenAI Five](https://openai.com/blog/openai-five/) and [DeepMind's AlphaStar](https://deepmind.com/blog/article/alphastar-mastering-real-time-strategy-game-starcraft-ii) to train a neural network that battles networks trained by other people. 
 
