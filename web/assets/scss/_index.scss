@@ -1,5 +1,5 @@
 .title {
-    font-family: monospace, monospace;
+    font-family: monospace;
     text-shadow: 0 0 1em transparentize($dark-color, $amount: 0.5);
 
     &__cursor {
@@ -27,7 +27,8 @@ h1.title {
 #call-to-action {
     background: $dark-background;
     border: 1px solid $dark-border-color;
-    font-family: monospace, monospace;
+    font-family: monospace;
+    font-weight: 800;
     font-size: 4em;
     margin-top: 2em;
     padding-top: 0.5em;
