@@ -92,12 +92,12 @@ if(UNIX)
     set(CMAKE_CXX_FLAGS_RELWITHDEBINFO "-O3 -g -rdynamic")
 endif(UNIX)
 if(MSVC)
-    message(STATUS "Static linking CRT")
+    message(STATUS "Dynamic linking CRT")
     add_compile_options(
-        "$<$<CONFIG:Debug>:/MTd>"
-        "$<$<CONFIG:RelWithDebInfo>:/MT>"
-        "$<$<CONFIG:Release>:/MT>"
-        "$<$<CONFIG:MinSizeRel>:/MT>"
+        "$<$<CONFIG:Debug>:/MDd>"
+        "$<$<CONFIG:RelWithDebInfo>:/MD>"
+        "$<$<CONFIG:Release>:/MD>"
+        "$<$<CONFIG:MinSizeRel>:/MD>"
     )
 endif(MSVC)
 

@@ -89,5 +89,5 @@ jobs:
         if: matrix.os == 'windows-latest'
         run: |
           cd ${{ github.workspace }}
-          $env:Path += ";C:\libtorch\lib"
+          cp C:\libtorch\lib\* build\Debug\
           build\Debug\artificialinsentience.exe -t
