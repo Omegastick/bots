@@ -87,8 +87,8 @@ jobs:
           build/artificialinsentience -t
       - name: Test on Windows
         if: matrix.os == 'windows-latest'
+        working-directory: ${{ github.workspace }}
         shell: bash
         run: |
-          cd ${{ github.workspace }}
-          cp C:\libtorch\lib\* build\Debug\
-          build\Debug\artificialinsentience.exe -t
+          cp C:/libtorch/lib/* build/Debug/
+          build/Debug/artificialinsentience.exe -t
