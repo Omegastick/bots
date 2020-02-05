@@ -69,6 +69,7 @@ set(BOX2D_DIR ${LIB_DIR}/Box2D-cmake)
 set(CPPRL_DIR ${LIB_DIR}/pytorch-cpp-rl)
 set(DOCTEST_DIR ${LIB_DIR}/doctest)
 set(EASY_PROFILER_DIR ${LIB_DIR}/easy_profiler)
+set(ENTT_DIR ${LIB_DIR}/entt)
 set(FMT_DIR ${LIB_DIR}/fmt)
 set(GLFW_DIR ${LIB_DIR}/GLFW)
 set(GLAD_DIR ${LIB_DIR}/GLAD)
@@ -241,6 +242,11 @@ if (TARGET profiler_gui)
     set_target_properties(profiler_gui PROPERTIES EXCLUDE_FROM_ALL TRUE)
 endif (TARGET profiler_gui)
 set_target_properties(profiler_converter PROPERTIES EXCLUDE_FROM_ALL TRUE)
+## EnTT
+option(USE_LIBCPP "Use libc++ by adding -stdlib=libc++ flag if availbale." OFF)
+SET(BUILD_TESTING OFF CACHE BOOL "Build EnTT tests")
+set(FIND_GTEST_PACKAGE)
+add_subdirectory(${ENTT_DIR})
 ## GLFW
 option(GLFW_BUILD_EXAMPLES "" OFF)
 option(GLFW_BUILD_TESTS "" OFF)
@@ -340,6 +346,7 @@ PUBLIC
     cpprl
     CURL::libcurl
     doctest
+    EnTT::EnTT
     fmt::fmt
     glad
     glfw
