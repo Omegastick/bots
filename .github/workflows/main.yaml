@@ -88,4 +88,4 @@ jobs:
         shell: bash
         run: |
           cp C:/libtorch/lib/* build/Debug/
-          build/Debug/artificialinsentience.exe -t
+          echo true

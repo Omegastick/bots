@@ -70,4 +70,12 @@ void ResourceManager::load_texture(const std::string &id, const std::string &pat
 
     texture_store.add(id, texture);
 }
+
+void ResourceManager::unload_all()
+{
+    audio_source_store.unload();
+    font_store.unload();
+    shader_store.unload();
+    texture_store.unload();
+}
 }

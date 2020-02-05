@@ -11,8 +11,9 @@ class AssetStore
   public:
     void add(const std::string &id, std::shared_ptr<T> asset);
     void add_raw(const std::string &id, T *asset);
-    T *get(const std::string &id);
     bool check_exists(const std::string &id);
+    T *get(const std::string &id);
+    void unload();
 
   private:
     std::unordered_map<std::string, std::shared_ptr<T>> asset_map;
@@ -79,5 +80,12 @@ T *AssetStore<T>::get(const std::string &id)
     }
 
     return nullptr;
+}
+
+template <class T>
+void AssetStore<T>::unload()
+{
+    asset_map.clear();
+    raw_asset_map.clear();
 }
 }

@@ -29,6 +29,8 @@ class ResourceManager
                      const std::string &frag_path);
     void load_texture(const std::string &id, const std::string &path);
 
+    void unload_all();
+
     AssetStore<AudioSource> audio_source_store;
     AssetStore<Font> font_store;
     AssetStore<Shader> shader_store;

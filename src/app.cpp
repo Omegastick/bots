@@ -376,6 +376,8 @@ int App::run(int argc, char *argv[])
     // Cleanup cURL
     curl_global_cleanup();
 
+    resource_manager.unload_all();
+
     return 0;
 }
 

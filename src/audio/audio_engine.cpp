@@ -20,7 +20,7 @@ void AudioEngine::init(AudioDriver driver)
                                    ? SoLoud::Soloud::NULLDRIVER
                                    : SoLoud::Soloud::AUTO;
 
-    if (soloud.init(SoLoud::Soloud::CLIP_ROUNDOFF, soloud_driver) == 0)
+    if (soloud.init(SoLoud::Soloud::CLIP_ROUNDOFF, soloud_driver) != 0)
     {
         spdlog::error("Could not initialize audio engine");
         return;
