@@ -82,12 +82,10 @@ jobs:
           cmake --build .
       - name: Test on Linux
         if: matrix.os == 'ubuntu-latest'
-        run: |
-          cd ${{ github.workspace }}
-          build/artificialinsentience -t
+        run: build/artificialinsentience -t
       - name: Test on Windows
         if: matrix.os == 'windows-latest'
+        shell: bash
         run: |
-          cd ${{ github.workspace }}
-          $env:Path += ";C:\libtorch\lib"
-          build\Debug\artificialinsentience.exe -t
+          cp C:/libtorch/lib/* build/Debug/
+          build/Debug/artificialinsentience.exe -t

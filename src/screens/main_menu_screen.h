@@ -4,6 +4,7 @@
 #include <string>
 #include <tuple>
 
+#include "environment/test_env.h"
 #include "screens/iscreen.h"
 #include "third_party/di.hpp"
 #include "training/training_program.h"
@@ -36,6 +37,7 @@ class MainMenuScreen : public IScreen
     IScreenFactory &multiplayer_screen_factory;
     TrainingProgram program;
     ScreenManager &screen_manager;
+    TestEnv test_env;
     UserInfo user_info;
     std::future<UserInfo> user_info_future;
     bool user_info_received;

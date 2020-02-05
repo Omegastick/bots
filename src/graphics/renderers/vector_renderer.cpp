@@ -189,5 +189,6 @@ void VectorRenderer::set_view(const glm::mat4 &view)
     nvgScale(vg, view[0][0], view[1][1]);
     nvgScale(vg, resolution.x * 0.5f, resolution.y * 0.5f);
     nvgTranslate(vg, 1.f / view[0][0], 1.f / view[1][1]);
+    nvgTranslate(vg, view[3][0] / view[0][0], view[3][1] / view[1][1]);
 }
 }

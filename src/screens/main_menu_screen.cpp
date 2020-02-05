@@ -51,7 +51,7 @@ MainMenuScreen::MainMenuScreen(IAudioEngine &audio_engine,
       user_info_received(false),
       waiting_for_server(false) {}
 
-void MainMenuScreen::update(double /*delta_time*/)
+void MainMenuScreen::update(double delta_time)
 {
     const auto &imgui_io = ImGui::GetIO();
     ImGui::SetNextWindowPos({imgui_io.DisplaySize.x * 0.5f, imgui_io.DisplaySize.y * 0.5f},
@@ -148,18 +148,22 @@ void MainMenuScreen::update(double /*delta_time*/)
         ImGui::PopStyleColor(5);
     }
 
+    test_env.update(delta_time);
+
     // ImGui::ShowStyleEditor();
     // ImGui::ShowDemoWindow();
 }
 
 void MainMenuScreen::draw(Renderer &renderer, bool /*lightweight*/)
 {
-    const double view_height = 50;
-    auto view_top = view_height * 0.5;
-    glm::vec2 resolution = io.get_resolution();
-    auto view_right = view_top * (resolution.x / resolution.y);
-    const auto view = glm::ortho(-view_right, view_right, -view_top, view_top);
-    renderer.set_view(view);
+    // const double view_height = 50;
+    // auto view_top = view_height * 0.5;
+    // glm::vec2 resolution = io.get_resolution();
+    // auto view_right = view_top * (resolution.x / resolution.y);
+    // const auto view = glm::ortho(-view_right, view_right, -view_top, view_top);
+    // renderer.set_view(view);
+
+    test_env.draw(renderer);
 }
 
 void MainMenuScreen::build_body()

@@ -26,6 +26,7 @@ PRIVATE
 )
 
 add_subdirectory(audio)
+add_subdirectory(environment)
 add_subdirectory(graphics)
 add_subdirectory(misc)
 add_subdirectory(screens)
