@@ -4,7 +4,8 @@
 #include <string>
 #include <tuple>
 
-#include "environment/test_env.h"
+#include "environment/ecs_env.h"
+#include "environment/iecs_env.h"
 #include "screens/iscreen.h"
 #include "third_party/di.hpp"
 #include "training/training_program.h"
@@ -30,6 +31,7 @@ class MainMenuScreen : public IScreen
   private:
     IAudioEngine &audio_engine;
     CredentialsManager &credentials_manager;
+    std::unique_ptr<IEcsEnv> env;
     IHttpClient &http_client;
     IO &io;
     IScreenFactory &build_screen_factory;
@@ -37,7 +39,6 @@ class MainMenuScreen : public IScreen
     IScreenFactory &multiplayer_screen_factory;
     TrainingProgram program;
     ScreenManager &screen_manager;
-    TestEnv test_env;
     UserInfo user_info;
     std::future<UserInfo> user_info_future;
     bool user_info_received;
@@ -47,6 +48,7 @@ class MainMenuScreen : public IScreen
   public:
     MainMenuScreen(IAudioEngine &audio_engine,
                    CredentialsManager &credentials_manager,
+                   std::unique_ptr<IEcsEnv> env,
                    IHttpClient &http_client,
                    IO &io,
                    IScreenFactory &build_screen_factory,
@@ -105,8 +107,10 @@ class MainMenuScreenFactory : public IScreenFactory
 
     virtual std::shared_ptr<IScreen> make()
     {
+        auto env = std::make_unique<EcsEnv>();
         return std::make_shared<MainMenuScreen>(audio_engine,
                                                 credentials_manager,
+                                                std::move(env),
                                                 http_client,
                                                 io,
                                                 build_screen_factory,
