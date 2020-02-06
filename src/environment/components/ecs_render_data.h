@@ -12,33 +12,33 @@ namespace ai
 {
 struct EcsCircle
 {
-    float radius;
-    glm::vec4 fill_color;
-    glm::vec4 stroke_color;
-    float stroke_width;
+    float radius = 0.f;
+    glm::vec4 fill_color = cl_white;
+    glm::vec4 stroke_color = cl_white;
+    float stroke_width = 0.f;
 };
 
 struct EcsRectangle
 {
-    glm::vec4 fill_color;
-    glm::vec4 stroke_color;
-    float stroke_width;
+    glm::vec4 fill_color = cl_white;
+    glm::vec4 stroke_color = cl_white;
+    float stroke_width = 0.f;
 };
 
 struct EcsSemiCircle
 {
-    float radius;
-    glm::vec4 fill_color;
-    glm::vec4 stroke_color;
-    float stroke_width;
+    float radius = 0.f;
+    glm::vec4 fill_color = cl_white;
+    glm::vec4 stroke_color = cl_white;
+    float stroke_width = 0.f;
 };
 
 struct EcsTrapezoid
 {
-    float top_width;
-    float bottom_width;
-    glm::vec4 fill_color;
-    glm::vec4 stroke_color;
-    float stroke_width;
+    float top_width = 0.f;
+    float bottom_width = 0.f;
+    glm::vec4 fill_color = cl_white;
+    glm::vec4 stroke_color = cl_white;
+    float stroke_width = 0.f;
 };
 }

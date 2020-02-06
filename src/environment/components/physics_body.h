@@ -6,6 +6,6 @@ namespace ai
 {
 struct PhysicsBody
 {
-    b2Body *body;
+    b2Body *body = nullptr;
 };
 }

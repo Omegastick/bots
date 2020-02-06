@@ -20,7 +20,7 @@ class EcsEnv : public IEcsEnv
     double get_elapsed_time() const override;
     bool is_audible() const override;
     EcsStepInfo reset() override;
-    void set_audibility(bool visibility) override;
+    void set_audibility(bool audibility) override;
     EcsStepInfo step(std::vector<torch::Tensor> actions, double step_length) override;
 };
 }

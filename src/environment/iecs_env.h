@@ -24,7 +24,7 @@ class IEcsEnv
     virtual double get_elapsed_time() const = 0;
     virtual bool is_audible() const = 0;
     virtual EcsStepInfo reset() = 0;
-    virtual void set_audibility(bool visibility) = 0;
+    virtual void set_audibility(bool audibility) = 0;
     virtual EcsStepInfo step(std::vector<torch::Tensor> actions, double step_length) = 0;
 };
 

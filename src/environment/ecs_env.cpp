@@ -4,10 +4,14 @@
 #include <entt/entt.hpp>
 
 #include "ecs_env.h"
+#include "environment/components/modules/base_module.h"
+#include "environment/components/modules/module.h"
+#include "environment/components/body.h"
 #include "environment/components/ecs_render_data.h"
 #include "environment/components/physics_body.h"
 #include "environment/components/physics_world.h"
 #include "environment/observers/destroy_body.h"
+#include "environment/systems/module_system.h"
 #include "environment/systems/physics_system.h"
 #include "environment/systems/render_system.h"
 #include "graphics/renderers/renderer.h"
@@ -15,24 +19,54 @@
 
 namespace ai
 {
-EcsEnv::EcsEnv()
+entt::entity create_base_module(entt::registry &registry)
 {
-    registry.on_destroy<PhysicsBody>().connect<destroy_body>();
+    const auto entity = registry.create();
+    registry.assign<EcsModule>(entity);
+    registry.assign<EcsBaseModule>(entity);
+    registry.assign<Transform>(entity);
 
-    registry.set<b2World>(b2Vec2{0, -1});
-    auto &world = registry.ctx<b2World>();
+    registry.assign<EcsRectangle>(entity,
+                                  glm::vec4{0.5f, 0.5f, 0.5f, 0.5f},
+                                  cl_white,
+                                  0.1f);
+    registry.assign<EcsCircle>(entity,
+                               0.2f,
+                               glm::vec4{0, 0, 0, 0},
+                               cl_white,
+                               0.1f);
 
-    auto entity = registry.create();
-    auto &body = registry.assign<PhysicsBody>(entity);
+    return entity;
+}
+
+entt::entity create_body(entt::registry &registry)
+{
+    const auto entity = registry.create();
+    auto &body = registry.assign<EcsBody>(entity);
+    registry.assign<Transform>(entity);
+
+    auto &physics_body = registry.assign<PhysicsBody>(entity);
     b2BodyDef body_def;
     body_def.type = b2_dynamicBody;
     body_def.position = {9.6f, 5.4f};
-    body.body = world.CreateBody(&body_def);
-    auto &rectangle = registry.assign<EcsRectangle>(entity);
-    rectangle.fill_color = {1.f, 1.f, 1.f, 1.f};
-    auto &transform = registry.assign<Transform>(entity);
-    transform.set_scale({2, 2});
-    transform.set_position({9.6f, 5.4f});
+    physics_body.body = registry.ctx<b2World>().CreateBody(&body_def);
+
+    const auto base_module_entity = create_base_module(registry);
+    body.base_module = base_module_entity;
+
+    return entity;
+}
+
+EcsEnv::EcsEnv()
+{
+    registry.set<b2World>(b2Vec2{0, -1});
+
+    registry.on_destroy<PhysicsBody>().connect<destroy_body>();
+
+    const auto body_entity = create_body(registry);
+    auto &body = registry.get<EcsBody>(body_entity);
+    body.name = "Steve";
+    body.hp = 10;
 }
 
 EcsEnv::~EcsEnv() {}
@@ -45,6 +79,7 @@ void EcsEnv::draw(Renderer &renderer, bool /*lightweight*/)
 void EcsEnv::forward(double step_length)
 {
     physics_system(registry, step_length);
+    module_system(registry);
 }
 
 double EcsEnv::get_elapsed_time() const
@@ -62,13 +97,13 @@ EcsStepInfo EcsEnv::reset()
     return {};
 }
 
-void EcsEnv::set_audibility(bool /*visibility*/)
+void EcsEnv::set_audibility(bool /*audibility*/)
 {
 }
 
 EcsStepInfo EcsEnv::step(std::vector<torch::Tensor> /*actions*/, double step_length)
 {
-    physics_system(registry, step_length);
+    forward(step_length);
     return {};
 }
 }

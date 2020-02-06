@@ -8,6 +8,6 @@ namespace ai
 {
 struct PhysicsWorld
 {
-    std::unique_ptr<b2World> world;
+    std::unique_ptr<b2World> world = nullptr;
 };
 }

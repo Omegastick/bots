@@ -1,5 +1,6 @@
 target_sources(shared
 PRIVATE
+    ${CMAKE_CURRENT_LIST_DIR}/module_system.cpp
     ${CMAKE_CURRENT_LIST_DIR}/physics_system.cpp
     ${CMAKE_CURRENT_LIST_DIR}/render_system.cpp
 )
