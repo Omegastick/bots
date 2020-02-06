@@ -7,6 +7,7 @@
 #include "environment/components/ecs_render_data.h"
 #include "environment/components/physics_body.h"
 #include "environment/components/physics_world.h"
+#include "environment/observers/destroy_body.h"
 #include "environment/systems/physics_system.h"
 #include "environment/systems/render_system.h"
 #include "graphics/renderers/renderer.h"
@@ -16,16 +17,17 @@ namespace ai
 {
 EcsEnv::EcsEnv()
 {
-    auto world_entity = registry.create();
-    auto &world = registry.assign<PhysicsWorld>(world_entity);
-    world.world = std::make_unique<b2World>(b2Vec2(0, -1));
+    registry.on_destroy<PhysicsBody>().connect<destroy_body>();
+
+    registry.set<b2World>(b2Vec2{0, -1});
+    auto &world = registry.ctx<b2World>();
 
     auto entity = registry.create();
     auto &body = registry.assign<PhysicsBody>(entity);
     b2BodyDef body_def;
     body_def.type = b2_dynamicBody;
     body_def.position = {9.6f, 5.4f};
-    body.body = world.world->CreateBody(&body_def);
+    body.body = world.CreateBody(&body_def);
     auto &rectangle = registry.assign<EcsRectangle>(entity);
     rectangle.fill_color = {1.f, 1.f, 1.f, 1.f};
     auto &transform = registry.assign<Transform>(entity);
