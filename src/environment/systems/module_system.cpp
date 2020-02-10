@@ -10,6 +10,7 @@ namespace ai
 {
 void module_system(entt::registry &registry)
 {
+    // Perform a breadth first search to update all transforms
     registry.view<EcsBody, Transform>().each([&registry](auto &body, auto &transform) {
         std::queue<entt::entity> queue;
         queue.push(body.base_module);

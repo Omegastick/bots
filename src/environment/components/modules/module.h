@@ -12,5 +12,7 @@ struct EcsModule
     entt::entity prev = entt::null;
     entt::entity next = entt::null;
     entt::entity parent = entt::null;
+    unsigned int links = 0;
+    entt::entity first_link = entt::null;
 };
 }

@@ -2,8 +2,10 @@
 
 #include <Box2D/Box2D.h>
 #include <entt/entt.hpp>
+#include <glm/trigonometric.hpp>
 
 #include "ecs_env.h"
+#include "environment/components/module_link.h"
 #include "environment/components/modules/base_module.h"
 #include "environment/components/modules/module.h"
 #include "environment/components/body.h"
@@ -22,7 +24,7 @@ namespace ai
 entt::entity create_base_module(entt::registry &registry)
 {
     const auto entity = registry.create();
-    registry.assign<EcsModule>(entity);
+    auto &module = registry.assign<EcsModule>(entity);
     registry.assign<EcsBaseModule>(entity);
     registry.assign<Transform>(entity);
 
@@ -35,6 +37,35 @@ entt::entity create_base_module(entt::registry &registry)
                                glm::vec4{0, 0, 0, 0},
                                cl_white,
                                0.1f);
+
+    const auto link_entity_1 = registry.create();
+    auto &link_1 = registry.assign<EcsModuleLink>(link_entity_1);
+    auto &transform_1 = registry.assign<Transform>(link_entity_1);
+    transform_1.set_position({0, 0.5f});
+
+    const auto link_entity_2 = registry.create();
+    auto &link_2 = registry.assign<EcsModuleLink>(link_entity_2);
+    auto &transform_2 = registry.assign<Transform>(link_entity_2);
+    transform_2.set_position({-0.5f, 0});
+    transform_2.set_rotation(glm::radians(90.f));
+    link_1.next = link_entity_2;
+
+    const auto link_entity_3 = registry.create();
+    auto &link_3 = registry.assign<EcsModuleLink>(link_entity_3);
+    auto &transform_3 = registry.assign<Transform>(link_entity_3);
+    transform_3.set_position({0, -0.5f});
+    transform_3.set_rotation(glm::radians(180.f));
+    link_2.next = link_entity_3;
+
+    const auto link_entity_4 = registry.create();
+    registry.assign<EcsModuleLink>(link_entity_4);
+    auto &transform_4 = registry.assign<Transform>(link_entity_4);
+    transform_4.set_position({0.5f, 0});
+    transform_4.set_rotation(glm::radians(270.f));
+    link_3.next = link_entity_4;
+
+    module.links = 4;
+    module.first_link = link_entity_1;
 
     return entity;
 }
