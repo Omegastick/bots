@@ -21,6 +21,15 @@
 
 namespace ai
 {
+entt::entity create_module_link(entt::registry &registry, glm::vec2 position, float rotation)
+{
+    const auto entity = registry.create();
+    registry.assign<EcsModuleLink>(entity, position, glm::radians(rotation));
+    registry.assign<EcsSemiCircle>(entity, 0.1f);
+    registry.assign<Transform>(entity);
+    return entity;
+}
+
 entt::entity create_base_module(entt::registry &registry)
 {
     const auto entity = registry.create();
@@ -38,31 +47,16 @@ entt::entity create_base_module(entt::registry &registry)
                                cl_white,
                                0.1f);
 
-    const auto link_entity_1 = registry.create();
-    auto &link_1 = registry.assign<EcsModuleLink>(link_entity_1);
-    auto &transform_1 = registry.assign<Transform>(link_entity_1);
-    transform_1.set_position({0, 0.5f});
+    const auto link_entity_1 = create_module_link(registry, {0.f, 0.5f}, 0.f);
 
-    const auto link_entity_2 = registry.create();
-    auto &link_2 = registry.assign<EcsModuleLink>(link_entity_2);
-    auto &transform_2 = registry.assign<Transform>(link_entity_2);
-    transform_2.set_position({-0.5f, 0});
-    transform_2.set_rotation(glm::radians(90.f));
-    link_1.next = link_entity_2;
+    const auto link_entity_2 = create_module_link(registry, {-0.5f, 0.f}, 90.f);
+    registry.get<EcsModuleLink>(link_entity_1).next = link_entity_2;
 
-    const auto link_entity_3 = registry.create();
-    auto &link_3 = registry.assign<EcsModuleLink>(link_entity_3);
-    auto &transform_3 = registry.assign<Transform>(link_entity_3);
-    transform_3.set_position({0, -0.5f});
-    transform_3.set_rotation(glm::radians(180.f));
-    link_2.next = link_entity_3;
+    const auto link_entity_3 = create_module_link(registry, {0.f, -0.5f}, 180.f);
+    registry.get<EcsModuleLink>(link_entity_2).next = link_entity_3;
 
-    const auto link_entity_4 = registry.create();
-    registry.assign<EcsModuleLink>(link_entity_4);
-    auto &transform_4 = registry.assign<Transform>(link_entity_4);
-    transform_4.set_position({0.5f, 0});
-    transform_4.set_rotation(glm::radians(270.f));
-    link_3.next = link_entity_4;
+    const auto link_entity_4 = create_module_link(registry, {0.5f, 0.f}, 270.f);
+    registry.get<EcsModuleLink>(link_entity_3).next = link_entity_4;
 
     module.links = 4;
     module.first_link = link_entity_1;
