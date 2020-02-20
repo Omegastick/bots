@@ -26,20 +26,20 @@ void module_system(entt::registry &registry)
             if (module.parent != entt::null)
             {
                 transform = registry.get<Transform>(module.parent);
-
-                if (module.children > 0)
-                {
-                    entt::entity child = module.first;
-                    for (unsigned int i = 0; i < module.children; ++i)
-                    {
-                        queue.push(child);
-                        child = module.next;
-                    }
-                }
+                transform.move(module.pos_offset);
+                transform.rotate(module.rot_offset);
             }
             else
             {
                 transform = body_transform;
+            }
+
+            // Add children to queue
+            entt::entity child = module.first;
+            for (unsigned int i = 0; i < module.children; ++i)
+            {
+                queue.push(child);
+                child = module.next;
             }
 
             // Update link transforms
