@@ -141,16 +141,16 @@ void Renderer::begin_subframe()
 
 void Renderer::render(double time)
 {
-    glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
     const auto read_buffer = render_to_buffer(time);
 
-    read_buffer->bind_read();
     glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
+    read_buffer->bind_read();
     glBlitFramebuffer(0, 0, width, height, 0, 0, width, height, GL_COLOR_BUFFER_BIT, GL_LINEAR);
 }
 
 const FrameBuffer *Renderer::render_to_buffer(double time)
 {
+    texture_frame_buffer->bind_draw();
     clear_scissor();
     glViewport(0, 0, width, height);
     clear();
@@ -214,11 +214,6 @@ const FrameBuffer *Renderer::render_to_buffer(double time)
             post_proc_layer->resize(width, height);
         }
     }
-
-    glBindFramebuffer(GL_READ_FRAMEBUFFER, 0);
-    texture_frame_buffer->bind_draw();
-    glViewport(0, 0, width, height);
-    glBlitFramebuffer(0, 0, width, height, 0, 0, width, height, GL_COLOR_BUFFER_BIT, GL_LINEAR);
 
     FrameBuffer *read_buffer = texture_frame_buffer.get();
 

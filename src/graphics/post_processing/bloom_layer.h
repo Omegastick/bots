@@ -10,8 +10,9 @@ class ResourceManager;
 class BloomLayer : public PostProcLayer
 {
   private:
-    FrameBuffer downsampled_fbo_1, downsampled_fbo_2, downsampled_fbo_3;
     FrameBuffer blurred_fbo_1, blurred_fbo_2, blurred_fbo_3;
+    FrameBuffer combined_fbo_1, combined_fbo_2;
+    FrameBuffer downsampled_fbo_1, downsampled_fbo_2, downsampled_fbo_3;
     ResourceManager &resource_manager;
 
   public:
