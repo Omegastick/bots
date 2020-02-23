@@ -1,6 +1,7 @@
 #include <queue>
 
 #include <entt/entt.hpp>
+#include <glm/glm.hpp>
 
 #include "environment/components/body.h"
 #include "environment/components/module_link.h"
@@ -26,7 +27,10 @@ void module_system(entt::registry &registry)
             if (module.parent != entt::null)
             {
                 transform = registry.get<Transform>(module.parent);
-                transform.move(module.pos_offset);
+                transform.move({glm::cos(transform.get_rotation()) * -module.pos_offset.x -
+                                    glm::sin(transform.get_rotation()) * -module.pos_offset.y,
+                                glm::sin(transform.get_rotation()) * -module.pos_offset.x +
+                                    glm::cos(transform.get_rotation()) * -module.pos_offset.y});
                 transform.rotate(module.rot_offset);
             }
             else
@@ -51,7 +55,11 @@ void module_system(entt::registry &registry)
                     const auto &link = registry.get<EcsModuleLink>(link_entity);
                     auto &link_transform = registry.get<Transform>(link_entity);
                     link_transform = transform;
-                    link_transform.move(link.pos_offset);
+                    link_transform.move(
+                        {glm::cos(link_transform.get_rotation()) * -link.pos_offset.x -
+                             glm::sin(link_transform.get_rotation()) * -link.pos_offset.y,
+                         glm::sin(link_transform.get_rotation()) * -link.pos_offset.x +
+                             glm::cos(link_transform.get_rotation()) * -link.pos_offset.y});
                     link_transform.rotate(link.rot_offset);
                     link_entity = link.next;
                 }

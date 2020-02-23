@@ -50,12 +50,10 @@ void link_modules(entt::registry &registry,
     // Calculate new offset
     float inverse_rotation = link_a.rot_offset + glm::pi<float>();
     module_b.rot_offset = inverse_rotation - link_b.rot_offset;
-    module_b.pos_offset = {
-        glm::cos(module_b.rot_offset) * -link_b.pos_offset.x -
-            glm::sin(module_b.rot_offset) * -link_b.pos_offset.y,
-        glm::sin(module_b.rot_offset) * -link_b.pos_offset.x +
-            glm::cos(module_b.rot_offset) * -link_b.pos_offset.y,
-    };
+    module_b.pos_offset = {glm::cos(module_b.rot_offset) * -link_b.pos_offset.x -
+                               glm::sin(module_b.rot_offset) * -link_b.pos_offset.y,
+                           glm::sin(module_b.rot_offset) * -link_b.pos_offset.x +
+                               glm::cos(module_b.rot_offset) * -link_b.pos_offset.y};
     module_b.pos_offset += link_a.pos_offset;
 
     module_b.parent = module_a_entity;
@@ -104,15 +102,15 @@ entt::entity create_base_module(entt::registry &registry)
                                cl_white,
                                0.1f);
 
-    const auto link_entity_1 = create_module_link(registry, {0.f, 0.5f}, 0.f);
+    const auto link_entity_1 = create_module_link(registry, {0.f, 0.5f}, 180.f);
 
-    const auto link_entity_2 = create_module_link(registry, {-0.5f, 0.f}, 90.f);
+    const auto link_entity_2 = create_module_link(registry, {-0.5f, 0.f}, 270.f);
     registry.get<EcsModuleLink>(link_entity_1).next = link_entity_2;
 
-    const auto link_entity_3 = create_module_link(registry, {0.f, -0.5f}, 180.f);
+    const auto link_entity_3 = create_module_link(registry, {0.f, -0.5f}, 0.f);
     registry.get<EcsModuleLink>(link_entity_2).next = link_entity_3;
 
-    const auto link_entity_4 = create_module_link(registry, {0.5f, 0.f}, 270.f);
+    const auto link_entity_4 = create_module_link(registry, {0.5f, 0.f}, 90.f);
     registry.get<EcsModuleLink>(link_entity_3).next = link_entity_4;
 
     module.links = 4;

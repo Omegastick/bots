@@ -20,7 +20,7 @@ void physics_system(entt::registry &registry, double delta_time)
         const auto rotation = body.body->GetAngle();
         transform.set_rotation(rotation);
 
-        body.body->ApplyForce({1.f, 1.f}, {-1.f, 0.f}, true);
+        body.body->ApplyForce({0.1f, 0.1f}, {-1.f, 0.f}, true);
     });
 }
 }
