@@ -1,14 +1,20 @@
+#include <doctest.h>
 #include <entt/entt.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 
 #include "render_system.h"
 #include "environment/components/ecs_render_data.h"
+#include "environment/components/render_shape_container.h"
 #include "graphics/colors.h"
 #include "graphics/render_data.h"
 #include "graphics/renderers/renderer.h"
 
 namespace ai
 {
+void clean_up_orphans(entt::registry &registry)
+{
+}
+
 void render_system(entt::registry &registry, Renderer &renderer)
 {
     renderer.set_view(glm::ortho(0.f, 19.2f, 0.f, 10.8f));
@@ -57,5 +63,46 @@ void render_system(entt::registry &registry, Renderer &renderer)
     registry.view<Text>().each([&renderer](auto &text) {
         renderer.draw(text);
     });
+}
+
+TEST_CASE("Render system")
+{
+    entt::registry registry;
+
+    SUBCASE("clean_up_orphans()")
+    {
+        const auto parent_entity = registry.create();
+        const auto child_entity_1 = registry.create();
+        const auto child_entity_2 = registry.create();
+
+        auto &parent_component = registry.assign<RenderShapes>(parent_entity);
+        auto &child_component_1 = registry.assign<RenderShapeContainer>(child_entity_1);
+        registry.assign<RenderShapeContainer>(child_entity_2);
+
+        parent_component.children = 2;
+        parent_component.first = child_entity_1;
+
+        child_component_1.next = child_entity_2;
+
+        SUBCASE("Leaves non-orphaned entities")
+        {
+            clean_up_orphans(registry);
+
+            DOCTEST_CHECK(registry.valid(child_entity_1));
+            DOCTEST_CHECK(registry.valid(child_entity_2));
+            DOCTEST_CHECK(registry.valid(parent_entity));
+        }
+
+        SUBCASE("Cleans up orphaned entities")
+        {
+            registry.destroy(parent_entity);
+
+            clean_up_orphans(registry);
+
+            DOCTEST_CHECK(!registry.valid(child_entity_1));
+            DOCTEST_CHECK(!registry.valid(child_entity_2));
+            DOCTEST_CHECK(!registry.valid(parent_entity));
+        }
+    }
 }
 }
