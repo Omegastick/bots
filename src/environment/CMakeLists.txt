@@ -5,3 +5,4 @@ PRIVATE
 
 add_subdirectory(observers)
 add_subdirectory(systems)
+add_subdirectory(utils)
