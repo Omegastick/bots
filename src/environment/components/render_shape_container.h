@@ -12,6 +12,7 @@ struct RenderShapes
 
 struct RenderShapeContainer
 {
+    entt::entity parent = entt::null;
     entt::entity next = entt::null;
 };
 }

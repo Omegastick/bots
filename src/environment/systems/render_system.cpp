@@ -13,19 +13,28 @@ namespace ai
 {
 void clean_up_orphans(entt::registry &registry)
 {
+    registry.view<RenderShapeContainer>().each([&](const auto entity, const auto &container) {
+        if (!registry.valid(container.parent))
+        {
+            registry.destroy(entity);
+        }
+    });
 }
 
 void render_system(entt::registry &registry, Renderer &renderer)
 {
     renderer.set_view(glm::ortho(0.f, 19.2f, 0.f, 10.8f));
 
-    registry.view<EcsCircle, Transform>().each([&renderer](auto &circle, auto &transform) {
-        renderer.draw(Circle{circle.radius,
-                             circle.fill_color,
-                             circle.stroke_color,
-                             circle.stroke_width,
-                             transform});
-    });
+    clean_up_orphans(registry);
+
+    registry.view<EcsCircle, Transform>()
+        .each([&renderer](auto &circle, auto &transform) {
+            renderer.draw(Circle{circle.radius,
+                                 circle.fill_color,
+                                 circle.stroke_color,
+                                 circle.stroke_width,
+                                 transform});
+        });
 
     registry.view<EcsRectangle, Transform>().each([&renderer](auto &rectangle, auto &transform) {
         renderer.draw(Rectangle{rectangle.fill_color,
@@ -75,14 +84,9 @@ TEST_CASE("Render system")
         const auto child_entity_1 = registry.create();
         const auto child_entity_2 = registry.create();
 
-        auto &parent_component = registry.assign<RenderShapes>(parent_entity);
-        auto &child_component_1 = registry.assign<RenderShapeContainer>(child_entity_1);
-        registry.assign<RenderShapeContainer>(child_entity_2);
-
-        parent_component.children = 2;
-        parent_component.first = child_entity_1;
-
-        child_component_1.next = child_entity_2;
+        registry.assign<RenderShapes>(parent_entity, 2u, child_entity_1);
+        registry.assign<RenderShapeContainer>(child_entity_1, parent_entity, child_entity_2);
+        registry.assign<RenderShapeContainer>(child_entity_2, parent_entity);
 
         SUBCASE("Leaves non-orphaned entities")
         {
