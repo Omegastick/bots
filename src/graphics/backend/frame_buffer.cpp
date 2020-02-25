@@ -1,5 +1,6 @@
 #include <stdexcept>
 
+#include <fmt/format.h>
 #include <glad/glad.h>
 
 #include "graphics/backend/frame_buffer.h"
@@ -70,14 +71,16 @@ void FrameBuffer::set_render_buffer(int width, int height, int multisampling)
                               GL_RENDERBUFFER,
                               render_buffer);
 
-    if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
+    const auto framebuffer_status = glCheckFramebufferStatus(GL_FRAMEBUFFER);
+    if (framebuffer_status != GL_FRAMEBUFFER_COMPLETE)
     {
-        throw std::runtime_error("Failed to initialize render buffer");
+        throw std::runtime_error(fmt::format("Failed to initialize render buffer: {}",
+                                             framebuffer_status)
+                                     .c_str());
     }
-    unbind();
 }
 
-void FrameBuffer::set_texture(int width, int height)
+void FrameBuffer::set_texture(int width, int height, bool use_stencil_buffer)
 {
     bind();
     texture = std::make_unique<Texture>(width, height);
@@ -87,11 +90,27 @@ void FrameBuffer::set_texture(int width, int height)
                            texture->get_id(),
                            0);
 
-    if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
+    if (use_stencil_buffer)
     {
-        throw std::runtime_error("Failed to initialize frame buffer object");
+        stencil_buffer = std::make_unique<Texture>(width,
+                                                   height,
+                                                   GL_DEPTH24_STENCIL8,
+                                                   GL_DEPTH_STENCIL,
+                                                   GL_UNSIGNED_INT_24_8);
+        glFramebufferTexture2D(GL_FRAMEBUFFER,
+                               GL_DEPTH_STENCIL_ATTACHMENT,
+                               GL_TEXTURE_2D,
+                               stencil_buffer->get_id(),
+                               0);
     }
-    unbind();
+
+    const auto framebuffer_status = glCheckFramebufferStatus(GL_FRAMEBUFFER);
+    if (framebuffer_status != GL_FRAMEBUFFER_COMPLETE)
+    {
+        throw std::runtime_error(fmt::format("Failed to initialize frame buffer object: {}",
+                                             framebuffer_status)
+                                     .c_str());
+    }
 }
 
 glm::vec2 FrameBuffer::get_texture_size() const

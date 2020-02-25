@@ -47,7 +47,7 @@ Renderer::Renderer(int width, int height,
 void Renderer::init()
 {
     texture_frame_buffer = std::make_unique<FrameBuffer>();
-    texture_frame_buffer->set_texture(width, height);
+    texture_frame_buffer->set_texture(width, height, true);
 
     sprite_renderer.init();
     particle_renderer.init();

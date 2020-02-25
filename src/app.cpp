@@ -389,8 +389,8 @@ int App::run_tests(int argc, char *argv[], const argh::parser &args)
     {
         spdlog::set_level(spdlog::level::off);
     }
-    doctest::Context context;
 
+    doctest::Context context;
     context.setOption("order-by", "name");
 
     if (!args["--http"])

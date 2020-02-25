@@ -67,5 +67,5 @@ int main(int argc, char *argv[])
         di::bind<IModuleFactory>.to<ModuleFactory>(),
         di::bind<IBulletFactory>.to<BulletFactory>());
     auto app = injector.create<App>();
-    app.run(argc, argv);
+    return app.run(argc, argv);
 }

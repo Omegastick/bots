@@ -14,7 +14,11 @@ class Texture
     int width, height, bpp;
 
   public:
-    Texture(int width, int height);
+    Texture(int width,
+            int height,
+            unsigned int internal_format = GL_RGBA16F,
+            unsigned int format = GL_RGBA,
+            unsigned int storage_type = GL_UNSIGNED_BYTE);
     Texture(int width, int height, unsigned char *data, unsigned int format = GL_RED);
     Texture(int width, int height, float *data);
     explicit Texture(const std::string &filepath);

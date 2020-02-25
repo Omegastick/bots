@@ -14,6 +14,7 @@ class FrameBuffer
     unsigned int id;
     unsigned int render_buffer;
     std::unique_ptr<Texture> texture;
+    std::unique_ptr<Texture> stencil_buffer;
 
   public:
     explicit FrameBuffer();
@@ -25,7 +26,7 @@ class FrameBuffer
     void bind_draw() const;
     void unbind() const;
     void set_render_buffer(int width, int height, int multisampling);
-    void set_texture(int width, int height);
+    void set_texture(int width, int height, bool use_stencil_buffer = false);
 
     inline Texture &get_texture() const { return *texture; }
     glm::vec2 get_texture_size() const;

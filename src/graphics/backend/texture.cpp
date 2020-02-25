@@ -8,7 +8,11 @@
 
 namespace ai
 {
-Texture::Texture(int width, int height)
+Texture::Texture(int width,
+                 int height,
+                 unsigned int internal_format,
+                 unsigned int format,
+                 unsigned int storage_type)
     : id(0), width(width), height(height), bpp(4)
 {
     glGenTextures(1, &id);
@@ -19,7 +23,16 @@ Texture::Texture(int width, int height)
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA16F, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, nullptr);
+    glTexImage2D(GL_TEXTURE_2D,
+                 0,
+                 internal_format,
+                 width,
+                 height,
+                 0,
+                 format,
+                 storage_type,
+                 nullptr);
+
     unbind();
 }
 
@@ -51,7 +64,15 @@ Texture::Texture(int width, int height, float *data)
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 
     glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA32F, width, height, 0, GL_RG, GL_FLOAT, data);
+    glTexImage2D(GL_TEXTURE_2D,
+                 0,
+                 GL_RGBA32F,
+                 width,
+                 height,
+                 0,
+                 GL_RG,
+                 GL_FLOAT,
+                 data);
     unbind();
 }
 
@@ -69,7 +90,15 @@ Texture::Texture(const std::string &filepath)
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA16F, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, buffer);
+    glTexImage2D(GL_TEXTURE_2D,
+                 0,
+                 GL_RGBA16F,
+                 width,
+                 height,
+                 0,
+                 GL_RGBA,
+                 GL_UNSIGNED_BYTE,
+                 buffer);
     unbind();
 
     if (buffer)
