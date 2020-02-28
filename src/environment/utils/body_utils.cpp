@@ -18,6 +18,7 @@
 #include "environment/components/physics_shape.h"
 #include "environment/components/physics_shapes.h"
 #include "environment/components/physics_world.h"
+#include "environment/components/render_shape_container.h"
 
 namespace ai
 {
@@ -89,38 +90,54 @@ entt::entity create_gun_module(entt::registry &registry)
     registry.assign<EcsGunModule>(entity);
     registry.assign<Transform>(entity);
 
-    registry.assign<EcsRectangle>(entity,
+    // Render shapes
+    const auto shape_1_entity = registry.create();
+    const auto shape_2_entity = registry.create();
+    registry.assign<RenderShapes>(entity, 2u, shape_1_entity);
+    registry.assign<RenderShapeContainer>(shape_1_entity, entity, shape_2_entity);
+    registry.assign<RenderShapeContainer>(shape_2_entity, entity);
+
+    registry.assign<EcsRectangle>(shape_1_entity,
                                   glm::vec4{0.5f, 0.5f, 0.5f, 0.5f},
                                   cl_white,
                                   0.1f);
-    registry.assign<EcsCircle>(entity,
-                               0.2f,
-                               glm::vec4{0, 0, 0, 0},
-                               cl_white,
-                               0.1f);
+    auto &barrel_transform = registry.assign<Transform>(shape_1_entity);
+    barrel_transform.set_scale({0.333f, 0.333});
+    barrel_transform.set_origin({0.f, -0.333f});
 
-    const auto link_entity_1 = create_module_link(registry, {0.f, 0.5f}, 180.f);
+    registry.assign<EcsRectangle>(shape_2_entity,
+                                  glm::vec4{0.5f, 0.5f, 0.5f, 0.5f},
+                                  cl_white,
+                                  0.1f);
+    auto &body_transform = registry.assign<Transform>(shape_2_entity);
+    body_transform.set_scale({1.f, 0.666f});
+    body_transform.set_origin({0.f, 0.167f});
 
-    const auto link_entity_2 = create_module_link(registry, {-0.5f, 0.f}, 270.f);
+    // Links
+    const auto link_entity_1 = create_module_link(registry, {-0.5f, 0.167f}, 270.f);
+
+    const auto link_entity_2 = create_module_link(registry, {0.f, 0.5f}, 0.f);
     registry.get<EcsModuleLink>(link_entity_1).next = link_entity_2;
 
-    const auto link_entity_3 = create_module_link(registry, {0.f, -0.5f}, 0.f);
+    const auto link_entity_3 = create_module_link(registry, {0.5f, 0.167f}, 90.f);
     registry.get<EcsModuleLink>(link_entity_2).next = link_entity_3;
 
-    const auto link_entity_4 = create_module_link(registry, {0.5f, 0.f}, 90.f);
-    registry.get<EcsModuleLink>(link_entity_3).next = link_entity_4;
-
-    module.links = 4;
+    module.links = 3;
     module.first_link = link_entity_1;
 
     // Create physics shapes
     auto &shapes = registry.assign<PhysicsShapes>(entity);
-    shapes.count = 1;
+    shapes.count = 2;
+    const auto body_shape_entity = registry.create();
+    const auto barrel_shape_entity = registry.create();
 
-    const auto shape_entity = registry.create();
-    auto &shape = registry.assign<PhysicsShape>(shape_entity);
-    shape.shape.SetAsBox(0.5f, 0.5f);
-    shapes.first = shape_entity;
+    auto &body_shape = registry.assign<PhysicsShape>(body_shape_entity);
+    body_shape.shape.SetAsBox(0.5f, 0.333f, b2Vec2(0, 0.167f), 0);
+    shapes.first = body_shape_entity;
+    body_shape.next = barrel_shape_entity;
+
+    auto &bareel_shape = registry.assign<PhysicsShape>(barrel_shape_entity);
+    bareel_shape.shape.SetAsBox(0.167f, 0.167f, b2Vec2(0, -0.167f), 0);
 
     return entity;
 }
@@ -256,6 +273,23 @@ void update_body_fixtures(entt::registry &registry, entt::entity body_entity)
             auto fixture = physics_body.body->CreateFixture(&fixture_def);
             fixture->SetUserData(&module);
 
+            shape_entity = shape.next;
+        }
+    }
+}
+
+TEST_CASE("create_gun_module()")
+{
+    entt::registry registry;
+
+    SUBCASE("Physics shapes can be traversed")
+    {
+        const auto gun_module_entity = create_gun_module(registry);
+        auto &shapes = registry.get<PhysicsShapes>(gun_module_entity);
+        entt::entity shape_entity = shapes.first;
+        for (unsigned int i = 0; i < shapes.count; ++i)
+        {
+            auto &shape = registry.get<PhysicsShape>(shape_entity);
             shape_entity = shape.next;
         }
     }
