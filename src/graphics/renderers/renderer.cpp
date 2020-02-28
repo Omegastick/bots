@@ -61,7 +61,7 @@ void Renderer::resize(int width, int height)
     this->width = width;
     this->height = height;
 
-    texture_frame_buffer->set_texture(width, height);
+    texture_frame_buffer->set_texture(width, height, true);
 }
 
 void Renderer::draw(const Line &line)
