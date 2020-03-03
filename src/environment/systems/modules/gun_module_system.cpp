@@ -1,30 +1,99 @@
 #include <Box2D/Box2D.h>
 #include <doctest.h>
 #include <entt/entt.hpp>
+#include <fmt/format.h>
 #include <glm/trigonometric.hpp>
 
 #include "gun_module_system.h"
 #include "environment/components/activatable.h"
 #include "environment/components/bullet.h"
+#include "environment/components/ecs_render_data.h"
+#include "environment/components/modules/gun_module.h"
 #include "environment/components/physics_body.h"
 #include "environment/utils/body_utils.h"
 #include "misc/transform.h"
 
 namespace ai
 {
+entt::entity create_bullet(entt::registry &registry)
+{
+    const auto entity = registry.create();
+    registry.assign<EcsBullet>(entity);
+    registry.assign<Transform>(entity);
+
+    auto &physics_body = registry.assign<PhysicsBody>(entity);
+    b2BodyDef body_def;
+    body_def.type = b2_dynamicBody;
+    body_def.position = {0.f, 0.f};
+    physics_body.body = registry.ctx<b2World>().CreateBody(&body_def);
+
+    b2CircleShape shape;
+    shape.m_radius = 0.1f;
+    b2FixtureDef fixture_def;
+    fixture_def.shape = &shape;
+    fixture_def.density = 1;
+    fixture_def.friction = 1;
+    fixture_def.isSensor = false;
+    physics_body.body->CreateFixture(&fixture_def);
+    physics_body.body->SetBullet(true);
+
+    registry.assign<EcsCircle>(entity, 0.1f);
+
+    return entity;
+}
+
 void gun_module_system(entt::registry &registry)
 {
+    const auto view = registry.view<EcsGunModule, Activatable, Transform>();
+    for (const auto entity : view)
+    {
+        if (!registry.get<Activatable>(entity).active)
+        {
+            return;
+        }
+        const auto bullet_entity = create_bullet(registry);
+
+        auto &bullet_physics_body = registry.get<PhysicsBody>(bullet_entity);
+        auto &transform = registry.get<Transform>(entity);
+        const auto position = transform.get_position();
+        const auto rotation = transform.get_rotation();
+        const b2Vec2 offset_position{position.x - glm::sin(rotation),
+                                     position.y + glm::cos(rotation)};
+        bullet_physics_body.body->SetTransform(offset_position, rotation);
+        bullet_physics_body.body->ApplyForceToCenter({-glm::sin(rotation), glm::cos(rotation)},
+                                                     true);
+
+        registry.get<Activatable>(entity).active = false;
+    }
+}
+
+TEST_CASE("create_bullet()")
+{
+    entt::registry registry;
+    registry.set<b2World>(b2Vec2{0, 0});
+
+    const auto entity = create_bullet(registry);
+
+    SUBCASE("Creates a bullet at {0, 0}")
+    {
+        auto &transform = registry.get<Transform>(entity);
+        DOCTEST_CHECK(transform.get_position() == glm::vec2{0.f, 0.f});
+
+        auto &physics_body = registry.get<PhysicsBody>(entity);
+        const auto b2_transform = physics_body.body->GetTransform();
+        DOCTEST_CHECK(b2_transform.p.x == doctest::Approx(0.f));
+        DOCTEST_CHECK(b2_transform.p.y == doctest::Approx(0.f));
+    }
 }
 
 TEST_CASE("Gun module system")
 {
     entt::registry registry;
-    registry.set<b2World>(b2Vec2{0, -1});
+    registry.set<b2World>(b2Vec2{0, 0});
 
     const auto entity = create_gun_module(registry);
-    auto &physics_body = registry.get<PhysicsBody>(entity);
-    const auto position = physics_body.body->GetTransform().p;
-    physics_body.body->SetTransform(position, glm::radians(90.f));
+    auto &transform = registry.get<Transform>(entity);
+    transform.set_rotation(glm::radians(-90.f));
 
     SUBCASE("When not active")
     {
@@ -49,15 +118,19 @@ TEST_CASE("Gun module system")
 
         SUBCASE("Deactivates module when finished")
         {
-            activatable.active = true;
+            DOCTEST_CHECK(activatable.active == false);
         }
 
         SUBCASE("Spawned bullet travels in the correct direction")
         {
             const auto bullet_entity = registry.view<EcsBullet>().front();
             const auto &bullet_physics_body = registry.get<PhysicsBody>(bullet_entity);
+
+            registry.ctx<b2World>().Step(0.1f, 1, 1);
             const auto velocity = bullet_physics_body.body->GetLinearVelocity();
 
+            const auto info_string = fmt::format("{{x: {}, y: {}}}", velocity.x, velocity.y);
+            INFO(info_string);
             DOCTEST_CHECK(velocity.x > 0.f);
             DOCTEST_CHECK(velocity.y == doctest::Approx(0.f));
         }

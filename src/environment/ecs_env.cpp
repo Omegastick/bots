@@ -7,9 +7,11 @@
 #include <glm/glm.hpp>
 
 #include "ecs_env.h"
+#include "environment/components/activatable.h"
 #include "environment/components/body.h"
 #include "environment/components/physics_body.h"
 #include "environment/observers/destroy_body.h"
+#include "environment/systems/modules/gun_module_system.h"
 #include "environment/systems/module_system.h"
 #include "environment/systems/physics_system.h"
 #include "environment/systems/render_system.h"
@@ -21,7 +23,7 @@ namespace ai
 {
 EcsEnv::EcsEnv()
 {
-    registry.set<b2World>(b2Vec2{0, -1});
+    registry.set<b2World>(b2Vec2{0, 0});
 
     registry.on_destroy<PhysicsBody>().connect<destroy_body>();
 
@@ -33,6 +35,8 @@ EcsEnv::EcsEnv()
     const auto gun_module_entity = create_gun_module(registry);
     link_modules(registry, body.base_module, 0, gun_module_entity, 1);
     update_body_fixtures(registry, body_entity);
+
+    registry.get<Activatable>(gun_module_entity).active = true;
 }
 
 EcsEnv::~EcsEnv() {}
@@ -46,6 +50,7 @@ void EcsEnv::forward(double step_length)
 {
     physics_system(registry, step_length);
     module_system(registry);
+    gun_module_system(registry);
 }
 
 double EcsEnv::get_elapsed_time() const

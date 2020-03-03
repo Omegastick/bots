@@ -8,6 +8,7 @@
 #include <glm/gtc/constants.hpp>
 
 #include "body_utils.h"
+#include "environment/components/activatable.h"
 #include "environment/components/body.h"
 #include "environment/components/ecs_render_data.h"
 #include "environment/components/modules/base_module.h"
@@ -89,6 +90,7 @@ entt::entity create_gun_module(entt::registry &registry)
     auto &module = registry.assign<EcsModule>(entity);
     registry.assign<EcsGunModule>(entity);
     registry.assign<Transform>(entity);
+    registry.assign<Activatable>(entity);
 
     // Render shapes
     const auto shape_1_entity = registry.create();
