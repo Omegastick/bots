@@ -116,7 +116,7 @@ entt::entity create_gun_module(entt::registry &registry)
     // Links
     const auto link_entity_1 = create_module_link(registry, {-0.5f, 0.167f}, 270.f);
 
-    const auto link_entity_2 = create_module_link(registry, {0.f, 0.5f}, 0.f);
+    const auto link_entity_2 = create_module_link(registry, {0.f, 0.5f}, 180.f);
     registry.get<EcsModuleLink>(link_entity_1).next = link_entity_2;
 
     const auto link_entity_3 = create_module_link(registry, {0.5f, 0.167f}, 90.f);

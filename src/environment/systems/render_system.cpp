@@ -150,20 +150,20 @@ TEST_CASE("Render system")
         {
             auto &parent_transform = registry.get<Transform>(parent_entity);
             parent_transform.set_position({2.f, 3.f});
-            parent_transform.set_rotation(glm::pi<float>() * 0.5f);
+            parent_transform.set_rotation(glm::radians(180.f));
             update_container_transforms(registry);
 
             auto &child_transform_1 = registry.get<Transform>(child_entity_1);
             DOCTEST_CHECK(child_transform_1.get_position().x == doctest::Approx(3.f));
             DOCTEST_CHECK(child_transform_1.get_position().y == doctest::Approx(2.f));
             DOCTEST_CHECK(child_transform_1.get_rotation() ==
-                          doctest::Approx(glm::pi<float>() * 0.5f + 0.5f));
+                          doctest::Approx(glm::radians(180.f) + 0.5f));
 
             auto &child_transform_2 = registry.get<Transform>(child_entity_2);
             DOCTEST_CHECK(child_transform_2.get_position().x == doctest::Approx(2.f));
             DOCTEST_CHECK(child_transform_2.get_position().y == doctest::Approx(4.f));
             DOCTEST_CHECK(child_transform_2.get_rotation() ==
-                          doctest::Approx(glm::pi<float>() * 0.5f - 0.3f));
+                          doctest::Approx(glm::radians(180.f) - 0.3f));
         }
     }
 }

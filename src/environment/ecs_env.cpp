@@ -31,7 +31,7 @@ EcsEnv::EcsEnv()
     body.hp = 10;
 
     const auto gun_module_entity = create_gun_module(registry);
-    link_modules(registry, body.base_module, 0, gun_module_entity, 0);
+    link_modules(registry, body.base_module, 0, gun_module_entity, 1);
     update_body_fixtures(registry, body_entity);
 }
 
