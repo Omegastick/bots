@@ -15,6 +15,7 @@
 #include "environment/systems/module_system.h"
 #include "environment/systems/physics_system.h"
 #include "environment/systems/render_system.h"
+#include "environment/systems/trail_system.h"
 #include "environment/utils/body_utils.h"
 #include "environment/utils/wall_utils.h"
 #include "graphics/renderers/renderer.h"
@@ -49,6 +50,7 @@ EcsEnv::~EcsEnv() {}
 
 void EcsEnv::draw(Renderer &renderer, bool /*lightweight*/)
 {
+    trail_system(registry);
     render_system(registry, renderer);
     // debug_render_system(registry, renderer);
 }

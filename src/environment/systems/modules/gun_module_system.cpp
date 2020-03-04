@@ -12,6 +12,7 @@
 #include "environment/components/modules/gun_module.h"
 #include "environment/components/modules/module.h"
 #include "environment/components/physics_body.h"
+#include "environment/components/trail.h"
 #include "environment/utils/body_utils.h"
 #include "misc/transform.h"
 
@@ -22,6 +23,7 @@ entt::entity make_bullet(entt::registry &registry)
     const auto entity = registry.create();
     registry.assign<EcsBullet>(entity);
     registry.assign<Transform>(entity);
+    registry.assign<Trail>(entity, 0.1f);
 
     auto &physics_body = registry.assign<PhysicsBody>(entity);
     b2BodyDef body_def;
@@ -63,6 +65,8 @@ void gun_module_system(entt::registry &registry)
         const b2Vec2 offset_position{position.x - glm::sin(rotation),
                                      position.y + glm::cos(rotation)};
         bullet_physics_body.body->SetTransform(offset_position, rotation);
+        registry.get<Transform>(bullet_entity)
+            .set_position({offset_position.x, offset_position.y});
 
         constexpr float velocity = 50.f;
         bullet_physics_body.body->ApplyForceToCenter({-glm::sin(rotation) * velocity,

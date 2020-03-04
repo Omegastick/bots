@@ -34,6 +34,10 @@ std::vector<LineData> get_polyline(const Line &line)
         auto next_point = i < quad_count - 1 ? line.points[i + 1] : glm::vec2();
 
         auto direction = current_point - last_point;
+        if (direction.x < 0.00001f && direction.y < 0.00001f)
+        {
+            direction = {0.00001f, 0.00001f};
+        }
         direction = glm::normalize(direction);
 
         if (i == 1)
@@ -68,6 +72,10 @@ std::vector<LineData> get_polyline(const Line &line)
         else
         {
             auto next_direction = next_point - current_normal;
+            if (next_direction.x < 0.00001f && next_direction.y < 0.00001f)
+            {
+                next_direction = {0.00001f, 0.00001f};
+            }
             next_direction = glm::normalize(next_direction);
 
             auto tangent = direction + next_direction;
