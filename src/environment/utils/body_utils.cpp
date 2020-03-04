@@ -23,7 +23,7 @@
 
 namespace ai
 {
-entt::entity create_base_module(entt::registry &registry)
+entt::entity make_base_module(entt::registry &registry)
 {
     const auto entity = registry.create();
     auto &module = registry.assign<EcsModule>(entity);
@@ -40,15 +40,15 @@ entt::entity create_base_module(entt::registry &registry)
                                cl_white,
                                0.1f);
 
-    const auto link_entity_1 = create_module_link(registry, {0.f, 0.5f}, 180.f);
+    const auto link_entity_1 = make_module_link(registry, {0.f, 0.5f}, 0.f);
 
-    const auto link_entity_2 = create_module_link(registry, {-0.5f, 0.f}, 270.f);
+    const auto link_entity_2 = make_module_link(registry, {-0.5f, 0.f}, 90.f);
     registry.get<EcsModuleLink>(link_entity_1).next = link_entity_2;
 
-    const auto link_entity_3 = create_module_link(registry, {0.f, -0.5f}, 0.f);
+    const auto link_entity_3 = make_module_link(registry, {0.f, -0.5f}, 180.f);
     registry.get<EcsModuleLink>(link_entity_2).next = link_entity_3;
 
-    const auto link_entity_4 = create_module_link(registry, {0.5f, 0.f}, 90.f);
+    const auto link_entity_4 = make_module_link(registry, {0.5f, 0.f}, 270.f);
     registry.get<EcsModuleLink>(link_entity_3).next = link_entity_4;
 
     module.links = 4;
@@ -66,7 +66,7 @@ entt::entity create_base_module(entt::registry &registry)
     return entity;
 }
 
-entt::entity create_body(entt::registry &registry)
+entt::entity make_body(entt::registry &registry)
 {
     const auto entity = registry.create();
     auto &body = registry.assign<EcsBody>(entity);
@@ -78,7 +78,7 @@ entt::entity create_body(entt::registry &registry)
     body_def.position = {9.6f, 5.4f};
     physics_body.body = registry.ctx<b2World>().CreateBody(&body_def);
 
-    const auto base_module_entity = create_base_module(registry);
+    const auto base_module_entity = make_base_module(registry);
     body.base_module = base_module_entity;
     auto &base_module = registry.get<EcsModule>(base_module_entity);
     base_module.body = entity;
@@ -86,7 +86,7 @@ entt::entity create_body(entt::registry &registry)
     return entity;
 }
 
-entt::entity create_gun_module(entt::registry &registry)
+entt::entity make_gun_module(entt::registry &registry)
 {
     const auto entity = registry.create();
     auto &module = registry.assign<EcsModule>(entity);
@@ -118,12 +118,12 @@ entt::entity create_gun_module(entt::registry &registry)
     body_transform.set_origin({0.f, 0.167f});
 
     // Links
-    const auto link_entity_1 = create_module_link(registry, {-0.5f, 0.167f}, 270.f);
+    const auto link_entity_1 = make_module_link(registry, {-0.5f, -0.167f}, 90.f);
 
-    const auto link_entity_2 = create_module_link(registry, {0.f, 0.5f}, 180.f);
+    const auto link_entity_2 = make_module_link(registry, {0.f, -0.5f}, 180.f);
     registry.get<EcsModuleLink>(link_entity_1).next = link_entity_2;
 
-    const auto link_entity_3 = create_module_link(registry, {0.5f, 0.167f}, 90.f);
+    const auto link_entity_3 = make_module_link(registry, {0.5f, -0.167f}, 270.f);
     registry.get<EcsModuleLink>(link_entity_2).next = link_entity_3;
 
     module.links = 3;
@@ -140,13 +140,13 @@ entt::entity create_gun_module(entt::registry &registry)
     shapes.first = body_shape_entity;
     body_shape.next = barrel_shape_entity;
 
-    auto &bareel_shape = registry.assign<PhysicsShape>(barrel_shape_entity);
-    bareel_shape.shape.SetAsBox(0.167f, 0.167f, b2Vec2(0, -0.167f), 0);
+    auto &barrel_shape = registry.assign<PhysicsShape>(barrel_shape_entity);
+    barrel_shape.shape.SetAsBox(0.167f, 0.167f, b2Vec2(0, -0.167f), 0);
 
     return entity;
 }
 
-entt::entity create_module_link(entt::registry &registry, glm::vec2 position, float rotation)
+entt::entity make_module_link(entt::registry &registry, glm::vec2 position, float rotation)
 {
     const auto entity = registry.create();
     registry.assign<EcsModuleLink>(entity, position, glm::radians(rotation));
@@ -178,8 +178,7 @@ void link_modules(entt::registry &registry,
     auto &link_b = registry.get<EcsModuleLink>(link_b_entity);
 
     // Calculate new offset
-    float inverse_rotation = link_a.rot_offset + glm::pi<float>();
-    module_b.rot_offset = inverse_rotation - link_b.rot_offset;
+    module_b.rot_offset = link_a.rot_offset + link_b.rot_offset + glm::pi<float>();
     module_b.pos_offset = {glm::cos(module_b.rot_offset) * -link_b.pos_offset.x -
                                glm::sin(module_b.rot_offset) * -link_b.pos_offset.y,
                            glm::sin(module_b.rot_offset) * -link_b.pos_offset.x +
@@ -275,6 +274,7 @@ void update_body_fixtures(entt::registry &registry, entt::entity body_entity)
             fixture_def.shape = &shape.shape;
             fixture_def.density = 1;
             fixture_def.friction = 1;
+            fixture_def.restitution = 0.5f;
             auto fixture = physics_body.body->CreateFixture(&fixture_def);
             fixture->SetUserData(&module);
 
@@ -283,13 +283,13 @@ void update_body_fixtures(entt::registry &registry, entt::entity body_entity)
     }
 }
 
-TEST_CASE("create_gun_module()")
+TEST_CASE("make_gun_module()")
 {
     entt::registry registry;
 
     SUBCASE("Physics shapes can be traversed")
     {
-        const auto gun_module_entity = create_gun_module(registry);
+        const auto gun_module_entity = make_gun_module(registry);
         auto &shapes = registry.get<PhysicsShapes>(gun_module_entity);
         entt::entity shape_entity = shapes.first;
         for (unsigned int i = 0; i < shapes.count; ++i)
@@ -307,8 +307,8 @@ TEST_CASE("link_modules()")
 
     SUBCASE("Sets body of linked module to match parent module")
     {
-        const auto body_entity = create_body(registry);
-        const auto gun_module_entity = create_gun_module(registry);
+        const auto body_entity = make_body(registry);
+        const auto gun_module_entity = make_gun_module(registry);
         const auto &body = registry.get<EcsBody>(body_entity);
         link_modules(registry, body.base_module, 0, gun_module_entity, 1);
         const auto &module = registry.get<EcsModule>(gun_module_entity);

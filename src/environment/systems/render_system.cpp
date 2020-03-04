@@ -1,3 +1,4 @@
+#include <Box2D/Box2D.h>
 #include <doctest.h>
 #include <entt/entt.hpp>
 #include <glm/gtc/constants.hpp>
@@ -27,10 +28,10 @@ void update_container_transforms(entt::registry &registry)
     registry.view<RenderShapeContainer, Transform>().each([&](auto &container, auto &transform) {
         const auto parent_transform = registry.get<Transform>(container.parent);
         const auto parent_rot = parent_transform.get_rotation();
-        transform.set_position({glm::cos(parent_rot) * -container.pos_offset.x -
-                                    glm::sin(parent_rot) * -container.pos_offset.y,
-                                glm::sin(parent_rot) * -container.pos_offset.x +
-                                    glm::cos(parent_rot) * -container.pos_offset.y});
+        transform.set_position({glm::cos(parent_rot) * container.pos_offset.x -
+                                    glm::sin(parent_rot) * container.pos_offset.y,
+                                glm::sin(parent_rot) * container.pos_offset.x +
+                                    glm::cos(parent_rot) * container.pos_offset.y});
         transform.move(parent_transform.get_position());
         transform.set_rotation(parent_rot + container.rot_offset);
     });
@@ -88,6 +89,40 @@ void render_system(entt::registry &registry, Renderer &renderer)
     registry.view<Text>().each([&renderer](auto &text) {
         renderer.draw(text);
     });
+}
+
+void debug_render_system(entt::registry &registry, Renderer &renderer)
+{
+    auto &world = registry.ctx<b2World>();
+    b2Body *body = world.GetBodyList();
+    while (body)
+    {
+        const auto body_transform = body->GetTransform();
+        const auto rot = body_transform.q.GetAngle();
+        b2Fixture *fixture = body->GetFixtureList();
+        while (fixture)
+        {
+            if (fixture->GetType() != b2Shape::Type::e_polygon)
+            {
+                fixture = fixture->GetNext();
+                continue;
+            }
+
+            Circle circle{0.1f};
+            auto *shape = static_cast<b2PolygonShape *>(fixture->GetShape());
+            for (int i = 0; i < shape->m_count; i++)
+            {
+                const auto vertex = shape->m_vertices[i];
+                circle.transform.set_position({body_transform.p.x, body_transform.p.y});
+                circle.transform.move({glm::cos(rot) * vertex.x - glm::sin(rot) * vertex.y,
+                                       glm::sin(rot) * vertex.x + glm::cos(rot) * vertex.y});
+                renderer.draw(circle);
+            }
+
+            fixture = fixture->GetNext();
+        }
+        body = body->GetNext();
+    }
 }
 
 TEST_CASE("Render system")
@@ -150,20 +185,20 @@ TEST_CASE("Render system")
         {
             auto &parent_transform = registry.get<Transform>(parent_entity);
             parent_transform.set_position({2.f, 3.f});
-            parent_transform.set_rotation(glm::radians(90.f));
+            parent_transform.set_rotation(glm::radians(270.f));
             update_container_transforms(registry);
 
             auto &child_transform_1 = registry.get<Transform>(child_entity_1);
             DOCTEST_CHECK(child_transform_1.get_position().x == doctest::Approx(3.f));
             DOCTEST_CHECK(child_transform_1.get_position().y == doctest::Approx(2.f));
             DOCTEST_CHECK(child_transform_1.get_rotation() ==
-                          doctest::Approx(glm::radians(90.f) + 0.5f));
+                          doctest::Approx(glm::radians(270.f) + 0.5f));
 
             auto &child_transform_2 = registry.get<Transform>(child_entity_2);
             DOCTEST_CHECK(child_transform_2.get_position().x == doctest::Approx(2.f));
             DOCTEST_CHECK(child_transform_2.get_position().y == doctest::Approx(4.f));
             DOCTEST_CHECK(child_transform_2.get_rotation() ==
-                          doctest::Approx(glm::radians(90.f) - 0.3f));
+                          doctest::Approx(glm::radians(270.f) - 0.3f));
         }
     }
 }

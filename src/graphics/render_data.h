@@ -47,26 +47,26 @@ struct Text
 struct Circle
 {
     float radius;
-    glm::vec4 fill_color;
-    glm::vec4 stroke_color;
-    float stroke_width;
+    glm::vec4 fill_color = cl_white;
+    glm::vec4 stroke_color = cl_white;
+    float stroke_width = 0.f;
     Transform transform = Transform();
 };
 
 struct Rectangle
 {
-    glm::vec4 fill_color;
-    glm::vec4 stroke_color;
-    float stroke_width;
+    glm::vec4 fill_color = cl_white;
+    glm::vec4 stroke_color = cl_white;
+    float stroke_width = 0.f;
     Transform transform = Transform();
 };
 
 struct SemiCircle
 {
     float radius;
-    glm::vec4 fill_color;
-    glm::vec4 stroke_color;
-    float stroke_width;
+    glm::vec4 fill_color = cl_white;
+    glm::vec4 stroke_color = cl_white;
+    float stroke_width = 0.f;
     Transform transform = Transform();
 };
 
@@ -74,9 +74,9 @@ struct Trapezoid
 {
     float top_width;
     float bottom_width;
-    glm::vec4 fill_color;
-    glm::vec4 stroke_color;
-    float stroke_width;
+    glm::vec4 fill_color = cl_white;
+    glm::vec4 stroke_color = cl_white;
+    float stroke_width = 0.f;
     Transform transform = Transform();
 };
 }

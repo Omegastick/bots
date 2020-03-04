@@ -17,7 +17,7 @@
 
 namespace ai
 {
-entt::entity create_bullet(entt::registry &registry)
+entt::entity make_bullet(entt::registry &registry)
 {
     const auto entity = registry.create();
     registry.assign<EcsBullet>(entity);
@@ -33,8 +33,9 @@ entt::entity create_bullet(entt::registry &registry)
     shape.m_radius = 0.1f;
     b2FixtureDef fixture_def;
     fixture_def.shape = &shape;
-    fixture_def.density = 0.5f;
-    fixture_def.friction = 1;
+    fixture_def.density = 1.f;
+    fixture_def.friction = 1.f;
+    fixture_def.restitution = 0.9f;
     fixture_def.isSensor = false;
     physics_body.body->CreateFixture(&fixture_def);
     physics_body.body->SetBullet(true);
@@ -53,7 +54,7 @@ void gun_module_system(entt::registry &registry)
         {
             return;
         }
-        const auto bullet_entity = create_bullet(registry);
+        const auto bullet_entity = make_bullet(registry);
 
         auto &bullet_physics_body = registry.get<PhysicsBody>(bullet_entity);
         auto &transform = registry.get<Transform>(entity);
@@ -75,17 +76,16 @@ void gun_module_system(entt::registry &registry)
                                       offset_position,
                                       true);
 
-        registry.get<Activatable>(entity)
-            .active = false;
+        registry.get<Activatable>(entity).active = false;
     }
 }
 
-TEST_CASE("create_bullet()")
+TEST_CASE("make_bullet()")
 {
     entt::registry registry;
     registry.set<b2World>(b2Vec2{0, 0});
 
-    const auto entity = create_bullet(registry);
+    const auto entity = make_bullet(registry);
 
     SUBCASE("Creates a bullet at {0, 0}")
     {
@@ -104,8 +104,8 @@ TEST_CASE("Gun module system")
     entt::registry registry;
     registry.set<b2World>(b2Vec2{0, 0});
 
-    const auto body_entity = create_body(registry);
-    const auto gun_module_entity = create_gun_module(registry);
+    const auto body_entity = make_body(registry);
+    const auto gun_module_entity = make_gun_module(registry);
     const auto &body = registry.get<EcsBody>(body_entity);
     link_modules(registry, body.base_module, 0, gun_module_entity, 1);
     auto &transform = registry.get<Transform>(gun_module_entity);
