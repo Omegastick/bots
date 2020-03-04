@@ -6,9 +6,11 @@
 
 #include "gun_module_system.h"
 #include "environment/components/activatable.h"
+#include "environment/components/body.h"
 #include "environment/components/bullet.h"
 #include "environment/components/ecs_render_data.h"
 #include "environment/components/modules/gun_module.h"
+#include "environment/components/modules/module.h"
 #include "environment/components/physics_body.h"
 #include "environment/utils/body_utils.h"
 #include "misc/transform.h"
@@ -31,7 +33,7 @@ entt::entity create_bullet(entt::registry &registry)
     shape.m_radius = 0.1f;
     b2FixtureDef fixture_def;
     fixture_def.shape = &shape;
-    fixture_def.density = 1;
+    fixture_def.density = 0.5f;
     fixture_def.friction = 1;
     fixture_def.isSensor = false;
     physics_body.body->CreateFixture(&fixture_def);
@@ -44,7 +46,7 @@ entt::entity create_bullet(entt::registry &registry)
 
 void gun_module_system(entt::registry &registry)
 {
-    const auto view = registry.view<EcsGunModule, Activatable, Transform>();
+    const auto view = registry.view<EcsGunModule>();
     for (const auto entity : view)
     {
         if (!registry.get<Activatable>(entity).active)
@@ -60,10 +62,21 @@ void gun_module_system(entt::registry &registry)
         const b2Vec2 offset_position{position.x - glm::sin(rotation),
                                      position.y + glm::cos(rotation)};
         bullet_physics_body.body->SetTransform(offset_position, rotation);
-        bullet_physics_body.body->ApplyForceToCenter({-glm::sin(rotation), glm::cos(rotation)},
+
+        constexpr float velocity = 50.f;
+        bullet_physics_body.body->ApplyForceToCenter({-glm::sin(rotation) * velocity,
+                                                      glm::cos(rotation) * velocity},
                                                      true);
 
-        registry.get<Activatable>(entity).active = false;
+        const auto &module = registry.get<EcsModule>(entity);
+        auto &physics_body = registry.get<PhysicsBody>(module.body);
+        physics_body.body->ApplyForce({glm::sin(rotation) * velocity,
+                                       -glm::cos(rotation) * velocity},
+                                      offset_position,
+                                      true);
+
+        registry.get<Activatable>(entity)
+            .active = false;
     }
 }
 
@@ -91,8 +104,11 @@ TEST_CASE("Gun module system")
     entt::registry registry;
     registry.set<b2World>(b2Vec2{0, 0});
 
-    const auto entity = create_gun_module(registry);
-    auto &transform = registry.get<Transform>(entity);
+    const auto body_entity = create_body(registry);
+    const auto gun_module_entity = create_gun_module(registry);
+    const auto &body = registry.get<EcsBody>(body_entity);
+    link_modules(registry, body.base_module, 0, gun_module_entity, 1);
+    auto &transform = registry.get<Transform>(gun_module_entity);
     transform.set_rotation(glm::radians(-90.f));
 
     SUBCASE("When not active")
@@ -107,7 +123,7 @@ TEST_CASE("Gun module system")
 
     SUBCASE("When active")
     {
-        auto &activatable = registry.get<Activatable>(entity);
+        auto &activatable = registry.get<Activatable>(gun_module_entity);
         activatable.active = true;
         gun_module_system(registry);
 

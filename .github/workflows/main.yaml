@@ -52,7 +52,7 @@ jobs:
             ./bootstrap-vcpkg.bat
           fi
           ./vcpkg integrate install
-          ./vcpkg install --recurse --triplet ${{ matrix.triplet }} curl[core,ssl,openssl] opengl fmt spdlog
+          ./vcpkg install --recurse --triplet ${{ matrix.triplet }} curl[core,ssl,openssl] opengl fmt spdlog cpp-taskflow
       - name: Checkout submodules
         run: |
           git submodule sync --recursive

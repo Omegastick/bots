@@ -80,6 +80,8 @@ entt::entity create_body(entt::registry &registry)
 
     const auto base_module_entity = create_base_module(registry);
     body.base_module = base_module_entity;
+    auto &base_module = registry.get<EcsModule>(base_module_entity);
+    base_module.body = entity;
 
     return entity;
 }
@@ -184,6 +186,7 @@ void link_modules(entt::registry &registry,
                                glm::cos(module_b.rot_offset) * -link_b.pos_offset.y};
     module_b.pos_offset += link_a.pos_offset;
 
+    module_b.body = module_a.body;
     module_b.parent = module_a_entity;
     module_a.children++;
     if (module_a.first == entt::null)
@@ -294,6 +297,23 @@ TEST_CASE("create_gun_module()")
             auto &shape = registry.get<PhysicsShape>(shape_entity);
             shape_entity = shape.next;
         }
+    }
+}
+
+TEST_CASE("link_modules()")
+{
+    entt::registry registry;
+    registry.set<b2World>(b2Vec2{0, 0});
+
+    SUBCASE("Sets body of linked module to match parent module")
+    {
+        const auto body_entity = create_body(registry);
+        const auto gun_module_entity = create_gun_module(registry);
+        const auto &body = registry.get<EcsBody>(body_entity);
+        link_modules(registry, body.base_module, 0, gun_module_entity, 1);
+        const auto &module = registry.get<EcsModule>(gun_module_entity);
+
+        DOCTEST_CHECK(module.body == body_entity);
     }
 }
 }
