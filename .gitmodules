@@ -25,18 +25,9 @@
 [submodule "lib/tweeny"]
 	path = lib/tweeny
 	url = https://github.com/Omegastick/tweeny.git
-[submodule "lib/spdlog"]
-	path = lib/spdlog
-	url = https://github.com/gabime/spdlog.git
-[submodule "lib/fmt"]
-	path = lib/fmt
-	url = https://github.com/fmtlib/fmt.git
 [submodule "lib/pybind11"]
 	path = lib/pybind11
 	url = https://github.com/pybind/pybind11.git
-[submodule "lib/cpp-taskflow"]
-	path = lib/cpp-taskflow
-	url = https://github.com/cpp-taskflow/cpp-taskflow.git
 [submodule "lib/libzmq"]
 	path = lib/libzmq
 	url = https://github.com/zeromq/libzmq.git

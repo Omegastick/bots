@@ -70,7 +70,6 @@ set(CPPRL_DIR ${LIB_DIR}/pytorch-cpp-rl)
 set(DOCTEST_DIR ${LIB_DIR}/doctest)
 set(EASY_PROFILER_DIR ${LIB_DIR}/easy_profiler)
 set(ENTT_DIR ${LIB_DIR}/entt)
-set(FMT_DIR ${LIB_DIR}/fmt)
 set(GLFW_DIR ${LIB_DIR}/GLFW)
 set(GLAD_DIR ${LIB_DIR}/GLAD)
 set(GLM_DIR ${LIB_DIR}/GLM)
@@ -80,8 +79,6 @@ set(MSGPACK_DIR ${LIB_DIR}/msgpack-c)
 set(NANOVG_DIR ${LIB_DIR}/nanovg)
 set(PYBIND_DIR ${LIB_DIR}/pybind11)
 set(SOLOUD_DIR ${LIB_DIR}/soloud)
-set(SPDLOG_DIR ${LIB_DIR}/spdlog)
-set(TASKFLOW_DIR ${LIB_DIR}/cpp-taskflow)
 set(TROMPELOEIL_DIR ${LIB_DIR}/trompeloeil)
 set(TWEENY_DIR ${LIB_DIR}/tweeny)
 set(ZMQ_DIR ${LIB_DIR}/libzmq)
@@ -165,14 +162,13 @@ set_target_properties(shared PROPERTIES POSITION_INDEPENDENT_CODE TRUE)
 include(CheckIPOSupported)
 check_ipo_supported(RESULT IPO_SUPPORTED OUTPUT IPO_ERROR)
 if(IPO_SUPPORTED)
-    message(STATUS "IPO / LTO enabled")
+    message(STATUS "IPO / LTO supported")
 else(IPO_SUPPORTED)
     message(STATUS "IPO / LTO not supported: <${IPO_ERROR}>")
 endif(IPO_SUPPORTED)
 
 # Options/definitions for all targets
 foreach(target ${ST_TARGETS})
-    target_compile_definitions(${target} PUBLIC SPDLOG_FMT_EXTERNAL)
     if(MSVC)
         target_compile_options(${target} PRIVATE /W0)
         target_compile_definitions(${target} PUBLIC WIN32_LEAN_AND_MEAN)
@@ -201,13 +197,10 @@ foreach(target ${ST_TARGETS})
 endforeach(target ${ST_TARGETS})
 
 # Libraries included in repository
-option(SPDLOG_FMT_EXTERNAL "" ON)
-## Agones
-# find_package(agones CONFIG REQUIRED)
+## Cpp Taskflow
+find_package(Cpp-Taskflow CONFIG REQUIRED)
 ## Fmt
-set(BUILD_SHARED_LIBS FALSE)
-add_subdirectory(${FMT_DIR})
-set_target_properties(fmt PROPERTIES POSITION_INDEPENDENT_CODE TRUE)
+find_package(fmt CONFIG REQUIRED)
 ## PyTorch
 if (NOT TORCH_FOUND)
     find_package(Torch REQUIRED)
@@ -217,10 +210,7 @@ if (NOT TORCH_FOUND)
 endif (NOT TORCH_FOUND)
 message(STATUS "Torch install location: ${TORCH_INSTALL_PREFIX}")
 ## spdlog
-if (NOT TARGET spdlog)
-    option(SPDLOG_BUILD_TESTING "" OFF)
-    add_subdirectory(${SPDLOG_DIR})
-endif(NOT TARGET spdlog)
+find_package(spdlog CONFIG REQUIRED)
 ## ZMQ
 option(ZMQ_BUILD_TESTS "" OFF)
 option(WITH_DOC "" OFF)
@@ -344,6 +334,7 @@ set_target_properties(pythonbindings PROPERTIES EXCLUDE_FROM_ALL TRUE)
 target_link_libraries(shared
 PUBLIC
     cpprl
+    Cpp-Taskflow::Cpp-Taskflow
     CURL::libcurl
     doctest
     EnTT::EnTT
@@ -356,6 +347,7 @@ PUBLIC
     libzmq-static
     nanovg
     soloud
+    spdlog::spdlog_header_only
     tobanteGaming::Box2D
     ${TORCH_LIBRARIES}
 )
@@ -389,8 +381,6 @@ set(NO_ERR_INCLUDE_DIRS
     ${GLFW_DIR}/include 
     ${GLM_DIR} 
     ${SOLOUD_DIR}/include
-    ${SPDLOG_DIR}/include
-    ${TASKFLOW_DIR}
     ${TORCH_INCLUDE_DIRS}
     ${IMGUI_DIR}
     ${IMGUI_DIR}/examples
