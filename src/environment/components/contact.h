@@ -1,18 +1,18 @@
 #pragma once
 
+#include <array>
+
 #include <entt/entity/entity.hpp>
 
 namespace ai
 {
 struct BeginContact
 {
-    entt::entity entity_1 = entt::null;
-    entt::entity entity_2 = entt::null;
+    std::array<entt::entity, 2> entities = {entt::null, entt::null};
 };
 
 struct EndContact
 {
-    entt::entity entity_1 = entt::null;
-    entt::entity entity_2 = entt::null;
+    std::array<entt::entity, 2> entities = {entt::null, entt::null};
 };
 }

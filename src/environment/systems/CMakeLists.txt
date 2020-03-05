@@ -6,4 +6,5 @@ PRIVATE
     ${CMAKE_CURRENT_LIST_DIR}/trail_system.cpp
 )
 
+add_subdirectory(contact_handlers)
 add_subdirectory(modules)

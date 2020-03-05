@@ -8,6 +8,7 @@
 #include "environment/components/physics_type.h"
 #include "environment/components/physics_world.h"
 #include "environment/observers/destroy_body.h"
+#include "environment/systems/contact_handlers/bullet_contact_handler.h"
 #include "misc/transform.h"
 
 namespace ai
@@ -30,7 +31,8 @@ class ContactListener : public b2ContactListener
             reinterpret_cast<uintptr_t>(fixture_b->GetUserData()));
 
         const auto contact_entity = registry.create();
-        registry.assign<ai::BeginContact>(contact_entity, entity_a, entity_b);
+        registry.assign<ai::BeginContact>(contact_entity,
+                                          std::array<entt::entity, 2>{entity_a, entity_b});
     }
 
     void EndContact(b2Contact *contact)
@@ -43,7 +45,8 @@ class ContactListener : public b2ContactListener
             reinterpret_cast<uintptr_t>(fixture_b->GetUserData()));
 
         const auto contact_entity = registry.create();
-        registry.assign<ai::EndContact>(contact_entity, entity_a, entity_b);
+        registry.assign<ai::EndContact>(contact_entity,
+                                        std::array<entt::entity, 2>{entity_a, entity_b});
     }
 };
 
@@ -53,22 +56,6 @@ void init_physics(entt::registry &registry)
     registry.on_destroy<PhysicsBody>().connect<destroy_body>();
     auto &contact_listener = registry.set<ContactListener>(registry);
     world.SetContactListener(&contact_listener);
-}
-
-std::string type_to_string(PhysicsType::Type type)
-{
-    if (type == PhysicsType::Body)
-    {
-        return "Body";
-    }
-    else if (type == PhysicsType::Bullet)
-    {
-        return "Bullet";
-    }
-    else
-    {
-        return "Wall";
-    }
 }
 
 void physics_system(entt::registry &registry, double delta_time)
@@ -86,22 +73,21 @@ void physics_system(entt::registry &registry, double delta_time)
 
     // Handle contacts
     registry.view<BeginContact>().each([&](const auto entity, auto &contact) {
-        spdlog::debug("Begin contact");
-        auto &physics_type_1 = registry.get<PhysicsType>(contact.entity_1);
-        auto &physics_type_2 = registry.get<PhysicsType>(contact.entity_2);
-        spdlog::debug("A: {} - B: {}",
-                      type_to_string(physics_type_1.type),
-                      type_to_string(physics_type_2.type));
-
+        for (int i = 0; i < 2; i++)
+        {
+            const auto entity_1 = contact.entities[i];
+            const auto entity_2 = contact.entities[(i + 1) % 2];
+            const auto type_1 = registry.get<PhysicsType>(entity_1).type;
+            const auto type_2 = registry.get<PhysicsType>(entity_2).type;
+            if (type_1 == PhysicsType::Bullet)
+            {
+                begin_bullet_contact(registry, entity_1, entity_2, type_2);
+            }
+        }
         registry.destroy(entity);
     });
+
     registry.view<EndContact>().each([&](const auto entity, auto &contact) {
-        spdlog::debug("End contact");
-        auto &physics_type_1 = registry.get<PhysicsType>(contact.entity_1);
-        auto &physics_type_2 = registry.get<PhysicsType>(contact.entity_2);
-        spdlog::debug("A: {} - B: {}",
-                      type_to_string(physics_type_1.type),
-                      type_to_string(physics_type_2.type));
         registry.destroy(entity);
     });
 }
