@@ -12,6 +12,7 @@
 #include "environment/components/physics_body.h"
 #include "environment/systems/modules/gun_module_system.h"
 #include "environment/systems/module_system.h"
+#include "environment/systems/particle_system.h"
 #include "environment/systems/physics_system.h"
 #include "environment/systems/render_system.h"
 #include "environment/systems/trail_system.h"
@@ -48,6 +49,7 @@ EcsEnv::~EcsEnv() {}
 void EcsEnv::draw(Renderer &renderer, bool /*lightweight*/)
 {
     trail_system(registry);
+    particle_system(registry, renderer);
     render_system(registry, renderer);
     // debug_render_system(registry, renderer);
 }

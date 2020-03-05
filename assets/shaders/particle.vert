@@ -16,8 +16,7 @@ uniform float u_time;
 
 void main()
  {
-    float time_lived = u_time - particle_start_time;
-    float remaining_life = max(particle_life_time - time_lived, 0);
+    float time_lived = min(u_time - particle_start_time, particle_life_time);
     vec2 position = vertex_position * particle_size;
     position += particle_position;
     position += particle_velocity * time_lived;
