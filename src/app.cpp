@@ -287,6 +287,9 @@ int App::run(int argc, char *argv[])
     resource_manager.load_shader("crt", "shaders/texture.vert", "shaders/crt.frag");
     resource_manager.load_shader("tone_map", "shaders/tone_map.vert", "shaders/tone_map.frag");
     resource_manager.load_shader("texture", "shaders/texture.vert", "shaders/texture.frag");
+    resource_manager.load_shader("distortion",
+                                 "shaders/distortion.vert",
+                                 "shaders/distortion.frag");
     bloom_post_proc_layer = std::make_unique<BloomLayer>(resource_manager,
                                                          io.get_resolution().x,
                                                          io.get_resolution().y);
@@ -298,7 +301,10 @@ int App::run(int argc, char *argv[])
         *resource_manager.shader_store.get("crt"),
         io.get_resolution().x,
         io.get_resolution().y);
-
+    auto resolution = io.get_resolution();
+    auto distortion_layer = std::make_unique<DistortionLayer>(resource_manager,
+                                                              resolution.x,
+                                                              resolution.y);
     // Load sounds
     resource_manager.load_audio_source("hit_wall", "audio/hit_wall.wav");
     resource_manager.load_audio_source("hit_body", "audio/hit_body.wav");
@@ -351,6 +357,7 @@ int App::run(int argc, char *argv[])
          *  Draw
          */
         renderer.begin();
+        renderer.set_distortion_layer(*distortion_layer);
 
         background.draw(renderer);
         screen_manager.draw(renderer);
@@ -361,7 +368,6 @@ int App::run(int argc, char *argv[])
         auto crt_shader = resource_manager.shader_store.get("crt");
         crt_shader->set_uniform_2f("u_resolution",
                                    {renderer.get_width(), renderer.get_height()});
-
         renderer.render(time);
 
         ImGui::Render();

@@ -2,7 +2,6 @@
 #include <doctest.h>
 #include <entt/entt.hpp>
 #include <glm/gtc/constants.hpp>
-#include <glm/gtc/matrix_transform.hpp>
 
 #include "render_system.h"
 #include "environment/components/ecs_render_data.h"
@@ -39,8 +38,6 @@ void update_container_transforms(entt::registry &registry)
 
 void render_system(entt::registry &registry, Renderer &renderer)
 {
-    renderer.set_view(glm::ortho(0.f, 19.2f, 0.f, 10.8f));
-
     clean_up_orphans(registry);
     update_container_transforms(registry);
 

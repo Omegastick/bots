@@ -6,6 +6,7 @@
 
 #include "environment/ecs_env.h"
 #include "environment/iecs_env.h"
+#include "graphics/post_processing/distortion_layer.h"
 #include "screens/iscreen.h"
 #include "third_party/di.hpp"
 #include "training/training_program.h"

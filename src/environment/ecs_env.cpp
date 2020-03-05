@@ -4,12 +4,14 @@
 #include <Box2D/Box2D.h>
 #include <entt/entt.hpp>
 #include <glm/gtc/constants.hpp>
+#include <glm/gtc/matrix_transform.hpp>
 #include <glm/glm.hpp>
 
 #include "ecs_env.h"
 #include "environment/components/activatable.h"
 #include "environment/components/body.h"
 #include "environment/components/physics_body.h"
+#include "environment/systems/distortion_system.h"
 #include "environment/systems/modules/gun_module_system.h"
 #include "environment/systems/module_system.h"
 #include "environment/systems/particle_system.h"
@@ -48,8 +50,11 @@ EcsEnv::~EcsEnv() {}
 
 void EcsEnv::draw(Renderer &renderer, bool /*lightweight*/)
 {
+    renderer.set_view(glm::ortho(0.f, 19.2f, 0.f, 10.8f));
+
     trail_system(registry);
     particle_system(registry, renderer);
+    distortion_system(registry, renderer);
     render_system(registry, renderer);
     // debug_render_system(registry, renderer);
 }

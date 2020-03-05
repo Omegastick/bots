@@ -12,18 +12,16 @@ void particle_system(entt::registry &registry, Renderer &renderer)
 {
     registry.view<ParticleEmitter>().each([&](auto entity, auto &emitter) {
         const float step_subdivision = 1.f / emitter.particle_count / 10.f;
-        std::vector<Particle> particles;
+        std::vector<Particle> particles(emitter.particle_count);
         for (unsigned int i = 0; i < emitter.particle_count; i++)
         {
-            Particle particle{
-                glm::vec2(emitter.position.x, emitter.position.y),
-                glm::diskRand(4.f),
-                -i * step_subdivision,
-                emitter.lifetime,
-                emitter.size,
-                emitter.start_color,
-                emitter.end_color};
-            particles.push_back(particle);
+            particles[i] = {glm::vec2(emitter.position.x, emitter.position.y),
+                            glm::diskRand(4.f),
+                            static_cast<float>(i) * -step_subdivision,
+                            emitter.lifetime,
+                            emitter.size,
+                            emitter.start_color,
+                            emitter.end_color};
         }
         renderer.draw(particles);
 

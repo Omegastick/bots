@@ -280,7 +280,7 @@ void Renderer::apply_explosive_force(glm::vec2 position, float size, float stren
     const glm::vec2 mesh_size = distortion_layer->get_size();
     const glm::vec2 half_mesh_size = mesh_size * 0.5f;
     auto calculated_position = projected_position * half_mesh_size;
-    calculated_position += half_mesh_size;
+    calculated_position += half_mesh_size * glm::vec2{-view[3][0] - 1, -view[3][1] - 1};
 
     distortion_layer->apply_explosive_force(calculated_position, size, strength);
 }
