@@ -1,2 +1,5 @@
 curl[core,ssl,openssl]
 opengl
+fmt
+spdlog
+cpp-taskflow

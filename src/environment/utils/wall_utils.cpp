@@ -5,6 +5,7 @@
 #include "wall_utils.h"
 #include "environment/components/ecs_render_data.h"
 #include "environment/components/physics_body.h"
+#include "environment/components/physics_type.h"
 #include "environment/components/wall.h"
 #include "misc/transform.h"
 
@@ -15,6 +16,7 @@ entt::entity make_wall(entt::registry &registry, glm::vec2 center, glm::vec2 siz
     const auto entity = registry.create();
     registry.assign<EcsWall>(entity);
     registry.assign<EcsRectangle>(entity);
+    registry.assign<PhysicsType>(entity, PhysicsType::Wall);
     auto &transform = registry.assign<Transform>(entity);
     transform.set_scale(size);
     transform.set_position(center);
@@ -25,6 +27,7 @@ entt::entity make_wall(entt::registry &registry, glm::vec2 center, glm::vec2 siz
     body_def.type = b2_staticBody;
     body_def.position = {center.x, center.y};
     body_def.angle = angle;
+    body_def.userData = reinterpret_cast<void *>(entity);
     physics_body.body = registry.ctx<b2World>().CreateBody(&body_def);
 
     b2PolygonShape shape;
@@ -34,6 +37,7 @@ entt::entity make_wall(entt::registry &registry, glm::vec2 center, glm::vec2 siz
     fixture_def.density = 1.f;
     fixture_def.friction = 1.f;
     fixture_def.restitution = 0.1f;
+    fixture_def.userData = reinterpret_cast<void *>(entity);
     physics_body.body->CreateFixture(&fixture_def);
 
     return entity;

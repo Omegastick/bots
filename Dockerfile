@@ -1,7 +1,7 @@
 FROM gcc:9 as builder
 
 # Install PyTorch
-RUN wget -O libtorch.zip https://download.pytorch.org/libtorch/cpu/libtorch-cxx11-abi-shared-with-deps-1.3.0%2Bcpu.zip
+RUN wget -O libtorch.zip https://download.pytorch.org/libtorch/cpu/libtorch-shared-with-deps-1.4.0%2Bcpu.zip
 RUN unzip libtorch.zip -d /opt/
 
 # Install CMake

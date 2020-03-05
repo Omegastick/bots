@@ -18,6 +18,7 @@
 #include "environment/components/physics_body.h"
 #include "environment/components/physics_shape.h"
 #include "environment/components/physics_shapes.h"
+#include "environment/components/physics_type.h"
 #include "environment/components/physics_world.h"
 #include "environment/components/render_shape_container.h"
 
@@ -71,11 +72,13 @@ entt::entity make_body(entt::registry &registry)
     const auto entity = registry.create();
     auto &body = registry.assign<EcsBody>(entity);
     registry.assign<Transform>(entity);
+    registry.assign<PhysicsType>(entity, PhysicsType::Body);
 
     auto &physics_body = registry.assign<PhysicsBody>(entity);
     b2BodyDef body_def;
     body_def.type = b2_dynamicBody;
     body_def.position = {9.6f, 5.4f};
+    body_def.userData = reinterpret_cast<void *>(entity);
     physics_body.body = registry.ctx<b2World>().CreateBody(&body_def);
 
     const auto base_module_entity = make_base_module(registry);
@@ -275,8 +278,8 @@ void update_body_fixtures(entt::registry &registry, entt::entity body_entity)
             fixture_def.density = 1;
             fixture_def.friction = 1;
             fixture_def.restitution = 0.5f;
-            auto fixture = physics_body.body->CreateFixture(&fixture_def);
-            fixture->SetUserData(&module);
+            fixture_def.userData = reinterpret_cast<void *>(body_entity);
+            physics_body.body->CreateFixture(&fixture_def);
 
             shape_entity = shape.next;
         }

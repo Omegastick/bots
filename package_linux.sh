@@ -23,11 +23,11 @@ cp ../build/artificial_insentience .
 cp -r ../assets .
 
 # Copy dependencies
-wget https://download.pytorch.org/libtorch/cpu/libtorch-cxx11-abi-shared-with-deps-1.2.0.zip 
-unzip libtorch-cxx11-abi-shared-with-deps-1.2.0.zip libtorch/lib/*
+wget https://download.pytorch.org/libtorch/cpu/libtorch-shared-with-deps-1.4.0%2Bcpu.zip 
+unzip libtorch-shared-with-deps-1.4.0%2Bcpu.zip  libtorch/lib/*
 mv libtorch/lib/*.so* .
 rm -rf libtorch/
-rm libtorch-cxx11-abi-shared-with-deps-1.2.0.zip
+rm libtorch-shared-with-deps-1.4.0%2Bcpu.zip 
 
 # Create archive
 tar -czvf "${FILENAME}" ./*

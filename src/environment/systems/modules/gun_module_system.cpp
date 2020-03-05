@@ -12,6 +12,7 @@
 #include "environment/components/modules/gun_module.h"
 #include "environment/components/modules/module.h"
 #include "environment/components/physics_body.h"
+#include "environment/components/physics_type.h"
 #include "environment/components/trail.h"
 #include "environment/utils/body_utils.h"
 #include "misc/transform.h"
@@ -24,11 +25,13 @@ entt::entity make_bullet(entt::registry &registry)
     registry.assign<EcsBullet>(entity);
     registry.assign<Transform>(entity);
     registry.assign<Trail>(entity, 0.1f);
+    registry.assign<PhysicsType>(entity, PhysicsType::Bullet);
 
     auto &physics_body = registry.assign<PhysicsBody>(entity);
     b2BodyDef body_def;
     body_def.type = b2_dynamicBody;
     body_def.position = {0.f, 0.f};
+    body_def.userData = reinterpret_cast<void *>(entity);
     physics_body.body = registry.ctx<b2World>().CreateBody(&body_def);
 
     b2CircleShape shape;
@@ -39,6 +42,7 @@ entt::entity make_bullet(entt::registry &registry)
     fixture_def.friction = 1.f;
     fixture_def.restitution = 0.9f;
     fixture_def.isSensor = false;
+    fixture_def.userData = reinterpret_cast<void *>(entity);
     physics_body.body->CreateFixture(&fixture_def);
     physics_body.body->SetBullet(true);
 

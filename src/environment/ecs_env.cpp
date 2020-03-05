@@ -10,7 +10,6 @@
 #include "environment/components/activatable.h"
 #include "environment/components/body.h"
 #include "environment/components/physics_body.h"
-#include "environment/observers/destroy_body.h"
 #include "environment/systems/modules/gun_module_system.h"
 #include "environment/systems/module_system.h"
 #include "environment/systems/physics_system.h"
@@ -25,9 +24,7 @@ namespace ai
 {
 EcsEnv::EcsEnv()
 {
-    registry.set<b2World>(b2Vec2{0, 0});
-
-    registry.on_destroy<PhysicsBody>().connect<destroy_body>();
+    init_physics(registry);
 
     const auto body_entity = make_body(registry);
     auto &body = registry.get<EcsBody>(body_entity);
