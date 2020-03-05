@@ -18,7 +18,6 @@ class ResourceManager;
 class ParticleTestScreen : public IScreen
 {
   private:
-    ParticleRenderer particle_renderer;
     std::vector<std::shared_ptr<IScreen>> *screens;
     std::vector<std::string> *screen_names;
     ScreenManager *screen_manager;
@@ -31,7 +30,6 @@ class ParticleTestScreen : public IScreen
         ResourceManager &resource_manager,
         std::vector<std::shared_ptr<IScreen>> *screens,
         std::vector<std::string> *screen_names);
-    ~ParticleTestScreen();
 
     virtual void update(double delta_time);
     virtual void draw(Renderer &renderer, bool lightweight = false);

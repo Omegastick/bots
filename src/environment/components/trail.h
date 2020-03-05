@@ -9,12 +9,9 @@ namespace ai
 {
 struct Trail
 {
-  private:
+    float width = 1.f;
     static constexpr glm::vec2 vec_min = {-std::numeric_limits<float>::infinity(),
                                           -std::numeric_limits<float>::infinity()};
-
-  public:
-    float width = 1.f;
     std::array<glm::vec2, 3> previous_positions = {vec_min, vec_min, vec_min};
 };
 }

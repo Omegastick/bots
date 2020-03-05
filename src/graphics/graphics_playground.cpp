@@ -15,6 +15,7 @@
 #include <imgui_impl_opengl3.h>
 #include <spdlog/spdlog.h>
 
+#include "audio/audio_engine.h"
 #include "graphics/window.h"
 #include "graphics/renderers/line_renderer.h"
 #include "graphics/renderers/particle_renderer.h"
@@ -32,6 +33,7 @@
 #include "misc/screen_manager.h"
 #include "misc/utilities.h"
 #include "screens/iscreen.h"
+#include "training/entities/bullet.h"
 
 using namespace ai;
 
@@ -177,7 +179,7 @@ void init_imgui(const int opengl_version_major, const int opengl_version_minor, 
     reset_imgui_style();
 }
 
-int main(int /*argc*/, const char * /*argv*/ [])
+int main(int /*argc*/, const char * /*argv*/[])
 {
     // Logging
     spdlog::set_level(spdlog::level::debug);
@@ -190,7 +192,12 @@ int main(int /*argc*/, const char * /*argv*/ [])
 #endif
 
     // Create window
-    Window window = Window(resolution_x, resolution_y, window_title, opengl_version_major, opengl_version_minor);
+    Window window = Window(resolution_x,
+                           resolution_y,
+                           window_title,
+                           opengl_version_major,
+                           opengl_version_minor);
+    window.init();
 
     ResourceManager resource_manager("assets/");
     Animator animator;
@@ -209,11 +216,15 @@ int main(int /*argc*/, const char * /*argv*/ [])
                       line_renderer,
                       text_renderer,
                       vector_renderer);
+    renderer.init();
     window.set_renderer(renderer);
     window.set_resize_callback(resize_window_callback);
 
     Random rng(0);
-    IModuleFactory module_factory(rng);
+    AudioEngine audio_engine(resource_manager);
+    audio_engine.init(AudioDriver::Null);
+    BulletFactory bullet_factory(audio_engine);
+    ModuleFactory module_factory(audio_engine, bullet_factory, rng);
 
     LineRenderer module_line_renderer(resource_manager);
     ParticleRenderer module_particle_renderer(100000, resource_manager);
@@ -223,11 +234,12 @@ int main(int /*argc*/, const char * /*argv*/ [])
     Renderer module_renderer(resolution_x,
                              resolution_y,
                              resource_manager,
-                             sprite_renderer,
-                             particle_renderer,
-                             line_renderer,
-                             text_renderer,
-                             vector_renderer);
+                             module_sprite_renderer,
+                             module_particle_renderer,
+                             module_line_renderer,
+                             module_text_renderer,
+                             module_vector_renderer);
+    module_renderer.init();
     ModuleTextureStore module_texture_store(module_factory, std::move(module_renderer));
 
     // Screens

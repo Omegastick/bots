@@ -27,24 +27,24 @@ ParticleTestScreen::ParticleTestScreen(
     ResourceManager &resource_manager,
     std::vector<std::shared_ptr<IScreen>> *screens,
     std::vector<std::string> *screen_names)
-    : particle_renderer(100000, resource_manager),
-      screens(screens),
+    : screens(screens),
       screen_names(screen_names),
       screen_manager(screen_manager),
+      resource_manager(&resource_manager),
       projection(glm::ortho(0.f, 1920.f, 0.f, 1080.f))
 {
-    this->resource_manager = &resource_manager;
-
     resource_manager.load_shader("particle", "shaders/particle.vert", "shaders/default.frag");
 }
-
-ParticleTestScreen::~ParticleTestScreen() {}
 
 void ParticleTestScreen::update(double delta_time)
 {
     display_test_dialog("Particle test", *screens, *screen_names, delta_time, *screen_manager);
+}
 
-    std::vector<Particle> particles;
+void ParticleTestScreen::draw(Renderer &renderer, bool /*lightweight*/)
+{
+    renderer.set_view(projection);
+    std::vector<Particle> particles(10);
     for (int i = 0; i < 10; ++i)
     {
         Particle particle;
@@ -57,12 +57,6 @@ void ParticleTestScreen::update(double delta_time)
         particle.end_color = glm::vec4(1.0, 1.0, 1.0, 0.0);
         particles.push_back(particle);
     }
-    particle_renderer.add_particles(particles, glfwGetTime());
-}
-
-void ParticleTestScreen::draw(Renderer &renderer, bool /*lightweight*/)
-{
-    renderer.set_view(projection);
-    particle_renderer.draw(glfwGetTime(), projection);
+    renderer.draw(particles);
 }
 }
