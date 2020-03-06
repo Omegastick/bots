@@ -164,7 +164,7 @@ void MainMenuScreen::draw(Renderer &renderer, bool /*lightweight*/)
     // auto view_right = view_top * (resolution.x / resolution.y);
     // const auto view = glm::ortho(-view_right, view_right, -view_top, view_top);
     // renderer.set_view(view);
-    env->draw(renderer);
+    env->draw(renderer, audio_engine);
 }
 
 void MainMenuScreen::build_body()

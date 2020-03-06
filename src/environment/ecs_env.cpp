@@ -8,9 +8,11 @@
 #include <glm/glm.hpp>
 
 #include "ecs_env.h"
+#include "audio/audio_engine.h"
 #include "environment/components/activatable.h"
 #include "environment/components/body.h"
 #include "environment/components/physics_body.h"
+#include "environment/systems/audio_system.h"
 #include "environment/systems/distortion_system.h"
 #include "environment/systems/modules/gun_module_system.h"
 #include "environment/systems/module_system.h"
@@ -46,9 +48,7 @@ EcsEnv::EcsEnv()
     registry.get<Activatable>(gun_module_entity).active = true;
 }
 
-EcsEnv::~EcsEnv() {}
-
-void EcsEnv::draw(Renderer &renderer, bool /*lightweight*/)
+void EcsEnv::draw(Renderer &renderer, IAudioEngine &audio_engine, bool /*lightweight*/)
 {
     renderer.set_view(glm::ortho(0.f, 19.2f, 0.f, 10.8f));
 
@@ -56,6 +56,7 @@ void EcsEnv::draw(Renderer &renderer, bool /*lightweight*/)
     particle_system(registry, renderer);
     distortion_system(registry, renderer);
     render_system(registry, renderer);
+    audio_system(registry, audio_engine);
     // debug_render_system(registry, renderer);
 }
 

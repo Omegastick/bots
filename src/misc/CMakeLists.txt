@@ -3,6 +3,7 @@ PRIVATE
     ${CMAKE_CURRENT_LIST_DIR}/animator.cpp
     ${CMAKE_CURRENT_LIST_DIR}/credentials_manager.cpp
     ${CMAKE_CURRENT_LIST_DIR}/http_client.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/id_map.cpp
     ${CMAKE_CURRENT_LIST_DIR}/imgui_utils.cpp
     ${CMAKE_CURRENT_LIST_DIR}/io.cpp
     ${CMAKE_CURRENT_LIST_DIR}/matchmaker.cpp

@@ -1,6 +1,7 @@
 #include <entt/entt.hpp>
 
 #include "bullet_contact_handler.h"
+#include "environment/components/audio_emitter.h"
 #include "environment/components/distortion_emitter.h"
 #include "environment/components/particle_emitter.h"
 #include "environment/components/physics_type.h"
@@ -31,6 +32,9 @@ void begin_bullet_contact(entt::registry &registry,
                                        transform.get_position(),
                                        2.f,
                                        0.1f);
+
+    const auto audio_entity = registry.create();
+    registry.assign<AudioEmitter>(audio_entity, audio_id_map["hit_wall"]);
 
     registry.destroy(bullet_entity);
 }

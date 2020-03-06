@@ -13,9 +13,8 @@ class EcsEnv : public IEcsEnv
 
   public:
     EcsEnv();
-    ~EcsEnv() override;
 
-    void draw(Renderer &renderer, bool lightweight = false) override;
+    void draw(Renderer &renderer, IAudioEngine &audio_engine, bool lightweight = false) override;
     void forward(double step_length) override;
     double get_elapsed_time() const override;
     bool is_audible() const override;
