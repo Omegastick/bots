@@ -31,26 +31,39 @@ EcsEnv::EcsEnv()
 {
     init_physics(registry);
 
-    const auto body_entity = make_body(registry);
-    auto &body = registry.get<EcsBody>(body_entity);
-    body.name = "Steve";
-    body.hp = 10;
+    const auto body_entity_1 = make_body(registry);
+    auto &body_1 = registry.get<EcsBody>(body_entity_1);
+    body_1.name = "Steve";
+    body_1.hp = 10;
+    const auto gun_module_entity_1 = make_gun_module(registry);
+    link_modules(registry, body_1.base_module, 0, gun_module_entity_1, 1);
+    update_body_fixtures(registry, body_entity_1);
+    auto &physics_body_1 = registry.get<PhysicsBody>(body_entity_1);
+    physics_body_1.body->SetTransform({9.6f, 5.4f}, 0);
 
-    const auto gun_module_entity = make_gun_module(registry);
-    link_modules(registry, body.base_module, 0, gun_module_entity, 1);
-    update_body_fixtures(registry, body_entity);
-    auto &physics_body = registry.get<PhysicsBody>(body_entity);
-    physics_body.body->SetTransform({9.6f, 5.4f}, glm::radians(-55.f));
+    const auto body_entity_2 = make_body(registry);
+    auto &body_2 = registry.get<EcsBody>(body_entity_2);
+    body_2.name = "Steve";
+    body_2.hp = 10;
+    const auto gun_module_entity_2 = make_gun_module(registry);
+    link_modules(registry, body_2.base_module, 0, gun_module_entity_2, 1);
+    update_body_fixtures(registry, body_entity_2);
+    auto &physics_body_2 = registry.get<PhysicsBody>(body_entity_2);
+    physics_body_2.body->SetTransform({0.f, 0.f}, glm::radians(-55.f));
+    registry.get<Activatable>(gun_module_entity_2).active = true;
 
     make_wall(registry, {4.f, 0.f}, {2.f, 2.f}, 0.f);
     make_wall(registry, {17.2, 8.8f}, {4.f, 4.f}, 0.f);
-
-    registry.get<Activatable>(gun_module_entity).active = true;
 }
 
 void EcsEnv::draw(Renderer &renderer, IAudioEngine &audio_engine, bool /*lightweight*/)
 {
-    renderer.set_view(glm::ortho(0.f, 19.2f, 0.f, 10.8f));
+    const double view_height = 50;
+    auto view_top = view_height * 0.5;
+    auto view_right = view_top * (static_cast<float>(renderer.get_width()) /
+                                  static_cast<float>(renderer.get_height()));
+    const auto view = glm::ortho(-view_right, view_right, -view_top, view_top);
+    renderer.set_view(view);
 
     trail_system(registry);
     particle_system(registry, renderer);

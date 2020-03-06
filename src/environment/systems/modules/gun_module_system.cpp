@@ -6,6 +6,7 @@
 
 #include "gun_module_system.h"
 #include "environment/components/activatable.h"
+#include "environment/components/audio_emitter.h"
 #include "environment/components/body.h"
 #include "environment/components/bullet.h"
 #include "environment/components/ecs_render_data.h"
@@ -22,7 +23,7 @@ namespace ai
 entt::entity make_bullet(entt::registry &registry)
 {
     const auto entity = registry.create();
-    registry.assign<EcsBullet>(entity);
+    registry.assign<EcsBullet>(entity, 1.f);
     registry.assign<Transform>(entity);
     registry.assign<Trail>(entity, 0.1f);
     registry.assign<PhysicsType>(entity, PhysicsType::Bullet);
@@ -83,6 +84,9 @@ void gun_module_system(entt::registry &registry)
                                        -glm::cos(rotation) * velocity},
                                       offset_position,
                                       true);
+
+        const auto audio_entity = registry.create();
+        registry.assign<AudioEmitter>(audio_entity, audio_id_map["fire"]);
 
         registry.get<Activatable>(entity).active = false;
     }
