@@ -15,6 +15,9 @@ struct ParticleEmitter
     glm::vec4 end_color = cl_white;
     float lifetime = 0.75f;
     float size = 0.03f;
+    bool directional = false;
+    float direction = 0.f;
+    float spread = 1.f;
     bool loop = false;
 };
 }

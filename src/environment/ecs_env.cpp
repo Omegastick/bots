@@ -11,12 +11,14 @@
 #include "audio/audio_engine.h"
 #include "environment/components/activatable.h"
 #include "environment/components/body.h"
+#include "environment/components/particle_emitter.h"
 #include "environment/components/physics_body.h"
 #include "environment/systems/audio_system.h"
 #include "environment/systems/clean_up_system.h"
 #include "environment/systems/distortion_system.h"
 #include "environment/systems/hill_system.h"
 #include "environment/systems/modules/gun_module_system.h"
+#include "environment/systems/modules/thruster_module_system.h"
 #include "environment/systems/module_system.h"
 #include "environment/systems/particle_system.h"
 #include "environment/systems/physics_system.h"
@@ -40,9 +42,12 @@ EcsEnv::EcsEnv()
     body_1.hp = 10;
     const auto gun_module_entity_1 = make_gun_module(registry);
     link_modules(registry, body_1.base_module, 0, gun_module_entity_1, 1);
+    const auto thruster_module_entity = make_thruster_module(registry);
+    link_modules(registry, body_1.base_module, 1, thruster_module_entity, 0);
     update_body_fixtures(registry, body_entity_1);
     auto &physics_body_1 = registry.get<PhysicsBody>(body_entity_1);
     physics_body_1.body->SetTransform({0.f, -15.f}, 0);
+    registry.get<Activatable>(thruster_module_entity).active = true;
 
     const auto body_entity_2 = make_body(registry);
     auto &body_2 = registry.get<EcsBody>(body_entity_2);
@@ -52,7 +57,7 @@ EcsEnv::EcsEnv()
     link_modules(registry, body_2.base_module, 0, gun_module_entity_2, 1);
     update_body_fixtures(registry, body_entity_2);
     auto &physics_body_2 = registry.get<PhysicsBody>(body_entity_2);
-    physics_body_2.body->SetTransform({0.f, -6.f}, glm::radians(180.f));
+    physics_body_2.body->SetTransform({0.f, 15.f}, glm::radians(180.f));
     registry.get<Activatable>(gun_module_entity_2).active = true;
 
     make_wall(registry, {0.f, -20.f}, {20.f, 0.1f}, 0.f);
@@ -79,7 +84,7 @@ void EcsEnv::draw(Renderer &renderer, IAudioEngine &audio_engine, bool /*lightwe
     distortion_system(registry, renderer);
     render_system(registry, renderer);
     audio_system(registry, audio_engine);
-    // debug_render_system(registry, renderer);
+    debug_render_system(registry, renderer);
 }
 
 void EcsEnv::forward(double step_length)
@@ -112,7 +117,9 @@ EcsStepInfo EcsEnv::step(std::vector<torch::Tensor> /*actions*/, double step_len
 {
     forward(step_length);
     gun_module_system(registry);
+    thruster_module_system(registry);
     hill_system(registry);
+
     return {};
 }
 }

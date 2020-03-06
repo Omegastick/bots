@@ -26,7 +26,9 @@ void module_system(entt::registry &registry)
             // Update module transform
             if (module.parent != entt::null)
             {
-                transform = registry.get<Transform>(module.parent);
+                const auto &parent_transform = registry.get<Transform>(module.parent);
+                transform.set_position(parent_transform.get_position());
+                transform.set_rotation(parent_transform.get_rotation());
                 transform.move({glm::cos(transform.get_rotation()) * module.pos_offset.x -
                                     glm::sin(transform.get_rotation()) * module.pos_offset.y,
                                 glm::sin(transform.get_rotation()) * module.pos_offset.x +
@@ -35,7 +37,8 @@ void module_system(entt::registry &registry)
             }
             else
             {
-                transform = body_transform;
+                transform.set_position(body_transform.get_position());
+                transform.set_rotation(body_transform.get_rotation());
             }
 
             // Add children to queue
@@ -43,7 +46,7 @@ void module_system(entt::registry &registry)
             for (unsigned int i = 0; i < module.children; ++i)
             {
                 queue.push(child);
-                child = module.next;
+                child = registry.get<EcsModule>(child).next;
             }
 
             // Update link transforms

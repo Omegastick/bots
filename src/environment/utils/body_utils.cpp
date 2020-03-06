@@ -14,6 +14,7 @@
 #include "environment/components/modules/base_module.h"
 #include "environment/components/modules/gun_module.h"
 #include "environment/components/modules/module.h"
+#include "environment/components/modules/thruster_module.h"
 #include "environment/components/module_link.h"
 #include "environment/components/physics_body.h"
 #include "environment/components/physics_shape.h"
@@ -160,6 +161,44 @@ entt::entity make_module_link(entt::registry &registry, glm::vec2 position, floa
     return entity;
 }
 
+entt::entity make_thruster_module(entt::registry &registry)
+{
+    const auto entity = registry.create();
+    auto &module = registry.assign<EcsModule>(entity);
+    registry.assign<EcsThrusterModule>(entity);
+    registry.assign<Activatable>(entity);
+
+    auto &transform = registry.assign<Transform>(entity);
+    transform.set_scale({1.f, 0.25f});
+
+    registry.assign<EcsTrapezoid>(entity,
+                                  0.666f,
+                                  1.f,
+                                  glm::vec4{0.5f, 0.5f, 0.5f, 0.5f},
+                                  cl_white,
+                                  0.1f);
+
+    const auto link_entity = make_module_link(registry, {0.f, 0.125f}, 0.f);
+    module.links = 1;
+    module.first_link = link_entity;
+
+    // Create physics shapes
+    auto &shapes = registry.assign<PhysicsShapes>(entity);
+    shapes.count = 1;
+
+    const auto shape_entity = registry.create();
+    auto &shape = registry.assign<PhysicsShape>(shape_entity);
+    b2Vec2 vertices[4];
+    vertices[0] = b2Vec2(-0.333f, -0.125f);
+    vertices[1] = b2Vec2(-0.5f, 0.125f);
+    vertices[2] = b2Vec2(0.5f, 0.125f);
+    vertices[3] = b2Vec2(0.333f, -0.125f);
+    shape.shape.Set(vertices, 4);
+    shapes.first = shape_entity;
+
+    return entity;
+}
+
 void link_modules(entt::registry &registry,
                   entt::entity module_a_entity,
                   unsigned int module_a_link_index,
@@ -236,13 +275,19 @@ void update_body_fixtures(entt::registry &registry, entt::entity body_entity)
         // Update module transform
         if (module.parent != entt::null)
         {
-            transform = registry.get<Transform>(module.parent);
-            transform.move(module.pos_offset);
+            const auto &parent_transform = registry.get<Transform>(module.parent);
+            transform.set_position(parent_transform.get_position());
+            transform.set_rotation(parent_transform.get_rotation());
+            transform.move({glm::cos(transform.get_rotation()) * module.pos_offset.x -
+                                glm::sin(transform.get_rotation()) * module.pos_offset.y,
+                            glm::sin(transform.get_rotation()) * module.pos_offset.x +
+                                glm::cos(transform.get_rotation()) * module.pos_offset.y});
             transform.rotate(module.rot_offset);
         }
         else
         {
-            transform = Transform();
+            transform.set_position({0.f, 0.f});
+            transform.set_rotation(0.f);
         }
 
         // Add children to queue
@@ -250,7 +295,7 @@ void update_body_fixtures(entt::registry &registry, entt::entity body_entity)
         for (unsigned int i = 0; i < module.children; ++i)
         {
             queue.push(child);
-            child = module.next;
+            child = registry.get<EcsModule>(child).next;
         }
 
         // Set up module fixtures

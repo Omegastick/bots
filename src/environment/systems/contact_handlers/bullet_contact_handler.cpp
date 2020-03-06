@@ -58,8 +58,7 @@ void begin_bullet_contact(entt::registry &registry,
                                          cl_white,
                                          set_alpha(cl_white, 0),
                                          0.75f,
-                                         0.03f,
-                                         false);
+                                         0.03f);
         registry.assign<DistortionEmitter>(distortion_entity,
                                            transform.get_position(),
                                            2.f,
