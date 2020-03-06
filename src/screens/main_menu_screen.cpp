@@ -149,8 +149,17 @@ void MainMenuScreen::update(double delta_time)
     //     ImGui::PopFont();
     //     ImGui::PopStyleColor(5);
     // }
-
-    env->step({}, delta_time);
+    static int i = 0;
+    if (i == 5)
+    {
+        env->step({}, delta_time);
+        i = 0;
+    }
+    else
+    {
+        env->forward(delta_time);
+        i++;
+    }
 
     // ImGui::ShowStyleEditor();
     // ImGui::ShowDemoWindow();

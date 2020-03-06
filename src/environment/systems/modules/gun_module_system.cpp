@@ -26,10 +26,14 @@ void gun_module_system(entt::registry &registry)
     const auto view = registry.view<EcsGunModule>();
     for (const auto entity : view)
     {
-        if (!registry.get<Activatable>(entity).active)
+        auto &gun_module = registry.get<EcsGunModule>(entity);
+        if (!registry.get<Activatable>(entity).active || gun_module.cooldown > 0)
         {
+            gun_module.cooldown--;
             return;
         }
+        gun_module.cooldown = gun_module.fire_rate;
+
         const auto bullet_entity = make_bullet(registry);
 
         auto &bullet_physics_body = registry.get<PhysicsBody>(bullet_entity);
@@ -58,25 +62,6 @@ void gun_module_system(entt::registry &registry)
         registry.assign<AudioEmitter>(audio_entity, audio_id_map["fire"]);
 
         registry.get<Activatable>(entity).active = false;
-    }
-}
-
-TEST_CASE("make_bullet()")
-{
-    entt::registry registry;
-    registry.set<b2World>(b2Vec2{0, 0});
-
-    const auto entity = make_bullet(registry);
-
-    SUBCASE("Creates a bullet at {0, 0}")
-    {
-        auto &transform = registry.get<Transform>(entity);
-        DOCTEST_CHECK(transform.get_position() == glm::vec2{0.f, 0.f});
-
-        auto &physics_body = registry.get<PhysicsBody>(entity);
-        const auto b2_transform = physics_body.body->GetTransform();
-        DOCTEST_CHECK(b2_transform.p.x == doctest::Approx(0.f));
-        DOCTEST_CHECK(b2_transform.p.y == doctest::Approx(0.f));
     }
 }
 
@@ -130,6 +115,28 @@ TEST_CASE("Gun module system")
             INFO(info_string);
             DOCTEST_CHECK(velocity.x > 0.f);
             DOCTEST_CHECK(velocity.y == doctest::Approx(0.f));
+        }
+
+        SUBCASE("Cooldown is set to fire rate")
+        {
+            const auto &gun_module = registry.get<EcsGunModule>(gun_module_entity);
+            DOCTEST_CHECK(gun_module.cooldown == gun_module.fire_rate);
+        }
+
+        SUBCASE("Can't fire again until cooldown is finished")
+        {
+            activatable.active = true;
+            gun_module_system(registry);
+            DOCTEST_CHECK(registry.size<EcsBullet>() == 1);
+            activatable.active = true;
+            gun_module_system(registry);
+            DOCTEST_CHECK(registry.size<EcsBullet>() == 1);
+            activatable.active = true;
+            gun_module_system(registry);
+            DOCTEST_CHECK(registry.size<EcsBullet>() == 1);
+            activatable.active = true;
+            gun_module_system(registry);
+            DOCTEST_CHECK(registry.size<EcsBullet>() == 2);
         }
     }
 }

@@ -4,6 +4,7 @@ namespace ai
 {
 struct EcsGunModule
 {
-    float cooldown = 0.f;
+    int cooldown = 0;
+    unsigned int fire_rate = 3;
 };
 }

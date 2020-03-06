@@ -85,6 +85,7 @@ void EcsEnv::draw(Renderer &renderer, IAudioEngine &audio_engine, bool /*lightwe
 void EcsEnv::forward(double step_length)
 {
     physics_system(registry, step_length);
+    module_system(registry);
     clean_up_system(registry);
 }
 
@@ -110,7 +111,6 @@ void EcsEnv::set_audibility(bool /*audibility*/)
 EcsStepInfo EcsEnv::step(std::vector<torch::Tensor> /*actions*/, double step_length)
 {
     forward(step_length);
-    module_system(registry);
     gun_module_system(registry);
     hill_system(registry);
     return {};

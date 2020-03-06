@@ -1,4 +1,5 @@
 #include <Box2D/Box2D.h>
+#include <doctest.h>
 #include <entt/entt.hpp>
 
 #include "environment/components/bullet.h"
@@ -40,5 +41,24 @@ entt::entity make_bullet(entt::registry &registry)
     registry.assign<EcsCircle>(entity, 0.1f);
 
     return entity;
+}
+
+TEST_CASE("make_bullet()")
+{
+    entt::registry registry;
+    registry.set<b2World>(b2Vec2{0, 0});
+
+    const auto entity = make_bullet(registry);
+
+    SUBCASE("Creates a bullet at {0, 0}")
+    {
+        auto &transform = registry.get<Transform>(entity);
+        DOCTEST_CHECK(transform.get_position() == glm::vec2{0.f, 0.f});
+
+        auto &physics_body = registry.get<PhysicsBody>(entity);
+        const auto b2_transform = physics_body.body->GetTransform();
+        DOCTEST_CHECK(b2_transform.p.x == doctest::Approx(0.f));
+        DOCTEST_CHECK(b2_transform.p.y == doctest::Approx(0.f));
+    }
 }
 }
