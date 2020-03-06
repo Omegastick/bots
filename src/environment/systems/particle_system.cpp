@@ -27,7 +27,7 @@ void particle_system(entt::registry &registry, Renderer &renderer)
 
         if (!emitter.loop)
         {
-            registry.destroy(entity);
+            registry.assign<entt::tag<"should_destroy"_hs>>(entity);
         }
     });
 }

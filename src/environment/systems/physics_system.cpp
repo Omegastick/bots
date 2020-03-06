@@ -9,6 +9,7 @@
 #include "environment/components/physics_world.h"
 #include "environment/observers/destroy_body.h"
 #include "environment/systems/contact_handlers/bullet_contact_handler.h"
+#include "environment/systems/contact_handlers/hill_contact_handler.h"
 #include "misc/transform.h"
 
 namespace ai
@@ -79,16 +80,46 @@ void physics_system(entt::registry &registry, double delta_time)
             const auto entity_2 = contact.entities[(i + 1) % 2];
             const auto type_1 = registry.get<PhysicsType>(entity_1).type;
             const auto type_2 = registry.get<PhysicsType>(entity_2).type;
-            if (type_1 == PhysicsType::Bullet)
+            switch (type_1)
             {
+            case PhysicsType::Bullet:
                 begin_bullet_contact(registry, entity_1, entity_2, type_2);
+                break;
+            case PhysicsType::Hill:
+                begin_hill_contact(registry, entity_1, entity_2, type_2);
+                break;
+            default:
+                break;
             }
         }
-        registry.destroy(entity);
+        registry.assign<entt::tag<"should_destroy"_hs>>(entity);
     });
 
     registry.view<EndContact>().each([&](const auto entity, auto &contact) {
-        registry.destroy(entity);
+        for (int i = 0; i < 2; i++)
+        {
+            const auto entity_1 = contact.entities[i];
+            if (!registry.valid(entity_1))
+            {
+                return;
+            }
+            const auto entity_2 = contact.entities[(i + 1) % 2];
+            if (!registry.valid(entity_2))
+            {
+                return;
+            }
+            const auto type_1 = registry.get<PhysicsType>(entity_1).type;
+            const auto type_2 = registry.get<PhysicsType>(entity_2).type;
+            switch (type_1)
+            {
+            case PhysicsType::Hill:
+                end_hill_contact(registry, entity_1, entity_2, type_2);
+                break;
+            default:
+                break;
+            }
+        }
+        registry.assign<entt::tag<"should_destroy"_hs>>(entity);
     });
 }
 }

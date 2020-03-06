@@ -10,7 +10,7 @@ void audio_system(entt::registry &registry, IAudioEngine &audio_engine)
 {
     registry.view<AudioEmitter>().each([&](auto entity, auto &emitter) {
         audio_engine.play(audio_id_map[emitter.audio_id]);
-        registry.destroy(entity);
+        registry.assign<entt::tag<"should_destroy"_hs>>(entity);
     });
 }
 }

@@ -8,6 +8,7 @@ struct PhysicsType
     {
         Body,
         Bullet,
+        Hill,
         Wall
     };
 

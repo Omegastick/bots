@@ -1,5 +1,3 @@
-#pragma once
-
 #include <entt/entt.hpp>
 
 #include "distortion_system.h"
@@ -22,7 +20,7 @@ void distortion_system(entt::registry &registry, Renderer &renderer)
 
         if (!emitter.loop)
         {
-            registry.destroy(entity);
+            registry.assign<entt::tag<"should_destroy"_hs>>(entity);
         }
     });
 }

@@ -21,6 +21,7 @@
 #include "environment/components/physics_type.h"
 #include "environment/components/physics_world.h"
 #include "environment/components/render_shape_container.h"
+#include "environment/components/score.h"
 
 namespace ai
 {
@@ -73,6 +74,7 @@ entt::entity make_body(entt::registry &registry)
     auto &body = registry.assign<EcsBody>(entity);
     registry.assign<Transform>(entity);
     registry.assign<PhysicsType>(entity, PhysicsType::Body);
+    registry.assign<Score>(entity);
 
     auto &physics_body = registry.assign<PhysicsBody>(entity);
     b2BodyDef body_def;
@@ -139,12 +141,12 @@ entt::entity make_gun_module(entt::registry &registry)
     const auto barrel_shape_entity = registry.create();
 
     auto &body_shape = registry.assign<PhysicsShape>(body_shape_entity);
-    body_shape.shape.SetAsBox(0.5f, 0.333f, b2Vec2(0, 0.167f), 0);
+    body_shape.shape.SetAsBox(0.5f, 0.333f, b2Vec2(0, -0.167f), 0);
     shapes.first = body_shape_entity;
     body_shape.next = barrel_shape_entity;
 
     auto &barrel_shape = registry.assign<PhysicsShape>(barrel_shape_entity);
-    barrel_shape.shape.SetAsBox(0.167f, 0.167f, b2Vec2(0, -0.167f), 0);
+    barrel_shape.shape.SetAsBox(0.167f, 0.167f, b2Vec2(0, 0.167f), 0);
 
     return entity;
 }

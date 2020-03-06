@@ -15,9 +15,10 @@ namespace ai
 void clean_up_orphans(entt::registry &registry)
 {
     registry.view<RenderShapeContainer>().each([&](const auto entity, const auto &container) {
-        if (!registry.valid(container.parent))
+        if (!registry.valid(container.parent) ||
+            registry.has<entt::tag<"should_destroy"_hs>>(container.parent))
         {
-            registry.destroy(entity);
+            registry.assign<entt::tag<"should_destroy"_hs>>(entity);
         }
     });
 }
@@ -147,13 +148,13 @@ TEST_CASE("Render system")
 
         SUBCASE("Cleans up orphaned entities")
         {
-            registry.destroy(parent_entity);
+            registry.assign<entt::tag<"should_destroy"_hs>>(parent_entity);
 
             clean_up_orphans(registry);
 
-            DOCTEST_CHECK(!registry.valid(child_entity_1));
-            DOCTEST_CHECK(!registry.valid(child_entity_2));
-            DOCTEST_CHECK(!registry.valid(parent_entity));
+            DOCTEST_CHECK(registry.has<entt::tag<"should_destroy"_hs>>(child_entity_1));
+            DOCTEST_CHECK(registry.has<entt::tag<"should_destroy"_hs>>(child_entity_2));
+            DOCTEST_CHECK(registry.has<entt::tag<"should_destroy"_hs>>(parent_entity));
         }
     }
 
