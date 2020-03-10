@@ -36,11 +36,26 @@ void thruster_module_system(entt::registry &registry)
                                        glm::cos(rotation) * thruster_module.force},
                                       {position.x, position.y},
                                       true);
+    }
+}
 
+void thruster_particle_system(entt::registry &registry)
+{
+    const auto view = registry.view<EcsThrusterModule>();
+    for (const auto entity : view)
+    {
+        if (!registry.get<Activatable>(entity).active)
+        {
+            return;
+        }
+
+        const auto &transform = registry.get<Transform>(entity);
+        const auto position = transform.get_position();
+        const auto rotation = transform.get_rotation();
         const auto particle_emitter = registry.create();
         registry.assign<ParticleEmitter>(particle_emitter,
                                          position,
-                                         100u,
+                                         15u,
                                          glm::vec4{1.23f, 0.53f, 0.28f, 1.f},
                                          glm::vec4{0.f, 0.f, 0.f, -0.f},
                                          0.7f,

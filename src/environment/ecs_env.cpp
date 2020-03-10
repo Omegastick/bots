@@ -91,6 +91,7 @@ void EcsEnv::forward(double step_length)
 {
     physics_system(registry, step_length);
     module_system(registry);
+    thruster_particle_system(registry);
     clean_up_system(registry);
 }
 
