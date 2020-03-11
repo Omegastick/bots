@@ -11,6 +11,7 @@
 #include "audio/audio_engine.h"
 #include "environment/components/activatable.h"
 #include "environment/components/body.h"
+#include "environment/components/ecs_render_data.h"
 #include "environment/components/particle_emitter.h"
 #include "environment/components/physics_body.h"
 #include "environment/systems/audio_system.h"
@@ -71,6 +72,12 @@ EcsEnv::EcsEnv()
     make_wall(registry, {0, 10.f}, {5.f, 0.2f}, 0.f);
 
     make_hill(registry, {0.f, 0.f}, 3.f);
+
+    const auto background_entity = registry.create();
+    registry.assign<EcsRectangle>(background_entity, set_alpha(cl_base03, 0.95f));
+    auto &background_transform = registry.assign<Transform>(background_entity);
+    background_transform.set_scale({20.f, 40.f});
+    background_transform.set_z(-5);
 }
 
 void EcsEnv::draw(Renderer &renderer, IAudioEngine &audio_engine, bool /*lightweight*/)

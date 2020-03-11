@@ -12,9 +12,11 @@ namespace ai
 {
 struct Line
 {
-    std::vector<glm::vec2> points;
-    std::vector<float> widths;
-    std::vector<glm::vec4> colors;
+    glm::vec2 start = {0.f, 0.f};
+    glm::vec2 end = {0.f, 0.f};
+    glm::vec4 color = cl_white;
+    float width = 0.1f;
+    Transform transform = Transform();
 };
 
 struct Particle

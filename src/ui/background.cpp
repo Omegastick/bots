@@ -81,10 +81,13 @@ void Background::draw(Renderer &renderer) const
             }
             const float distance = std::pow(
                 (glm::length(node.position - neighbor->position) * 2.f) + 1.f, 5.f);
-            renderer.draw(Line{{node.position * scale, neighbor->position * scale},
-                               {0.003f * scale, 0.003f * scale},
-                               {set_alpha(cl_white, 1.f / distance),
-                                set_alpha(cl_white, 1.f / distance)}});
+            Transform transform;
+            transform.set_z(-11);
+            renderer.draw(Line{node.position * scale,
+                               neighbor->position * scale,
+                               set_alpha(cl_white, 1.f / distance),
+                               0.006f * scale,
+                               transform});
         }
     }
 }

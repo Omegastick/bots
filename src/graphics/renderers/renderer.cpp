@@ -9,7 +9,6 @@
 #include "graphics/renderers/renderer.h"
 #include "graphics/renderers/batched_sprite_renderer.h"
 #include "graphics/renderers/particle_renderer.h"
-#include "graphics/renderers/line_renderer.h"
 #include "graphics/renderers/text_renderer.h"
 #include "graphics/renderers/vector_renderer.h"
 #include "graphics/backend/vertex_array.h"
@@ -24,31 +23,35 @@
 
 namespace ai
 {
-Renderer::DrawVisitor::DrawVisitor(VectorRenderer &vector_renderer)
-    : vector_renderer(vector_renderer) {}
+struct GetDepthVisitor
+{
+    template <class T>
+    int operator()(const T &shape)
+    {
+        return shape.transform.get_z();
+    }
+};
 
-void Renderer::DrawVisitor::operator()(const Circle &circle)
+class DrawVisitor
 {
-    vector_renderer.draw(circle);
-}
-void Renderer::DrawVisitor::operator()(const Rectangle &rectangle)
-{
-    vector_renderer.draw(rectangle);
-}
-void Renderer::DrawVisitor::operator()(const SemiCircle &semiCircle)
-{
-    vector_renderer.draw(semiCircle);
-}
-void Renderer::DrawVisitor::operator()(const Trapezoid &trapezoid)
-{
-    vector_renderer.draw(trapezoid);
-}
+  private:
+    VectorRenderer &vector_renderer;
+
+  public:
+    DrawVisitor(VectorRenderer &vector_renderer)
+        : vector_renderer(vector_renderer) {}
+
+    template <class T>
+    void operator()(const T &shape)
+    {
+        return vector_renderer.draw(shape);
+    }
+};
 
 Renderer::Renderer(int width, int height,
                    ResourceManager &resource_manager,
                    BatchedSpriteRenderer &sprite_renderer,
                    ParticleRenderer &particle_renderer,
-                   LineRenderer &line_renderer,
                    TextRenderer &text_renderer,
                    VectorRenderer &vector_renderer)
     : width(width),
@@ -57,7 +60,6 @@ Renderer::Renderer(int width, int height,
       resource_manager(resource_manager),
       sprite_renderer(sprite_renderer),
       particle_renderer(particle_renderer),
-      line_renderer(line_renderer),
       text_renderer(text_renderer),
       vector_renderer(vector_renderer),
       distortion_layer(nullptr)
@@ -71,7 +73,6 @@ void Renderer::init()
 
     sprite_renderer.init();
     particle_renderer.init();
-    line_renderer.init();
     text_renderer.init();
     vector_renderer.init();
 }
@@ -86,7 +87,7 @@ void Renderer::resize(int width, int height)
 
 void Renderer::draw(const Line &line)
 {
-    lines.push_back({line, view});
+    draw_list.push_back(line);
 }
 
 void Renderer::draw(const std::vector<Particle> &particles)
@@ -179,12 +180,6 @@ const FrameBuffer *Renderer::render_to_buffer(double time)
     {
         distortion_layer->update_mesh();
     }
-
-    for (const auto &line : lines)
-    {
-        line_renderer.draw(line.line, line.view);
-    }
-    lines.clear();
 
     std::sort(draw_list.begin(), draw_list.end(),
               [](const ShapeVariant &lhs, const ShapeVariant &rhs) {

@@ -14,7 +14,6 @@
 #include "environment/components/modules/module.h"
 #include "environment/components/physics_body.h"
 #include "environment/components/physics_type.h"
-#include "environment/components/trail.h"
 #include "environment/utils/body_utils.h"
 #include "environment/utils/bullet_utils.h"
 #include "misc/transform.h"
@@ -60,8 +59,6 @@ void gun_module_system(entt::registry &registry)
 
         const auto audio_entity = registry.create();
         registry.assign<AudioEmitter>(audio_entity, audio_id_map["fire"]);
-
-        registry.get<Activatable>(entity).active = false;
     }
 }
 
@@ -96,11 +93,6 @@ TEST_CASE("Gun module system")
         SUBCASE("Spawns a bullet")
         {
             DOCTEST_CHECK(registry.size<EcsBullet>() == 1);
-        }
-
-        SUBCASE("Deactivates module when finished")
-        {
-            DOCTEST_CHECK(activatable.active == false);
         }
 
         SUBCASE("Spawned bullet travels in the correct direction")

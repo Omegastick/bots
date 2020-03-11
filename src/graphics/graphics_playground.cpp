@@ -17,7 +17,6 @@
 
 #include "audio/audio_engine.h"
 #include "graphics/window.h"
-#include "graphics/renderers/line_renderer.h"
 #include "graphics/renderers/particle_renderer.h"
 #include "graphics/renderers/renderer.h"
 #include "graphics/renderers/batched_sprite_renderer.h"
@@ -203,7 +202,6 @@ int main(int /*argc*/, const char * /*argv*/[])
     Animator animator;
 
     spdlog::debug("Initializing renderer");
-    LineRenderer line_renderer(resource_manager);
     ParticleRenderer particle_renderer(100000, resource_manager);
     BatchedSpriteRenderer sprite_renderer(resource_manager);
     TextRenderer text_renderer(resource_manager);
@@ -213,7 +211,6 @@ int main(int /*argc*/, const char * /*argv*/[])
                       resource_manager,
                       sprite_renderer,
                       particle_renderer,
-                      line_renderer,
                       text_renderer,
                       vector_renderer);
     renderer.init();
@@ -226,7 +223,6 @@ int main(int /*argc*/, const char * /*argv*/[])
     BulletFactory bullet_factory(audio_engine);
     ModuleFactory module_factory(audio_engine, bullet_factory, rng);
 
-    LineRenderer module_line_renderer(resource_manager);
     ParticleRenderer module_particle_renderer(100000, resource_manager);
     BatchedSpriteRenderer module_sprite_renderer(resource_manager);
     TextRenderer module_text_renderer(resource_manager);
@@ -236,7 +232,6 @@ int main(int /*argc*/, const char * /*argv*/[])
                              resource_manager,
                              module_sprite_renderer,
                              module_particle_renderer,
-                             module_line_renderer,
                              module_text_renderer,
                              module_vector_renderer);
     module_renderer.init();

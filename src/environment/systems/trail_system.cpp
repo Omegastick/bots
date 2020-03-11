@@ -29,12 +29,10 @@ void trail_system(entt::registry &registry)
         }
 
         registry.assign_or_replace<Line>(entity,
-                                         std::vector<glm::vec2>(trail.previous_positions.begin(),
-                                                                trail.previous_positions.end()),
-                                         std::vector<float>{trail.width, trail.width * 0.5f, 0.f},
-                                         std::vector<glm::vec4>{cl_white,
-                                                                set_alpha(cl_white, 0.5f),
-                                                                set_alpha(cl_white, 0.f)});
+                                         trail.previous_positions[0],
+                                         trail.previous_positions[2],
+                                         cl_white,
+                                         trail.width);
     });
 }
 

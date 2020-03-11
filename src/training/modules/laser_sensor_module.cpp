@@ -99,10 +99,6 @@ void LaserSensorModule::draw(Renderer &renderer, bool lightweight)
     b2Transform global_transform = get_global_transform();
     float segment_width = fov / (laser_count - 1);
 
-    Line line;
-    glm::vec4 start_color = cl_white;
-    start_color.a = 0;
-
     for (int i = 0; i < laser_count; ++i)
     {
         if (sensor_reading[i] >= 1)
@@ -116,14 +112,10 @@ void LaserSensorModule::draw(Renderer &renderer, bool lightweight)
         b2Vec2 laser_start = b2Mul(angle, b2Vec2(0, 0.35f));
         b2Vec2 transformed_end = b2Mul(global_transform, laser);
         b2Vec2 transformed_start = b2Mul(global_transform, laser_start);
-        glm::vec4 end_color = start_color;
-        end_color.a = sensor_reading[i];
-        line.points.push_back({transformed_start.x, transformed_start.y});
-        line.colors.push_back(start_color);
-        line.widths.push_back(0.01f);
-        line.points.push_back({transformed_end.x, transformed_end.y});
-        line.colors.push_back(end_color);
-        line.widths.push_back(0.01f);
+        line.start = {transformed_start.x, transformed_start.y};
+        line.end = {transformed_end.x, transformed_end.y};
+        line.color = set_alpha(cl_white, 0.5f);
+        line.width = 0.01f;
         renderer.draw(line);
     }
 }

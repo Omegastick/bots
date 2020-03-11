@@ -4,7 +4,6 @@
 
 #include "app.h"
 #include "audio/audio_engine.h"
-#include "graphics/renderers/line_renderer.h"
 #include "graphics/renderers/particle_renderer.h"
 #include "graphics/renderers/renderer.h"
 #include "graphics/renderers/batched_sprite_renderer.h"

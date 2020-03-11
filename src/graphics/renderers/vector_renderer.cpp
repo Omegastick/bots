@@ -63,6 +63,29 @@ void VectorRenderer::draw(const Circle &circle)
     nvgRestore(vg);
 }
 
+void VectorRenderer::draw(const Line &line)
+{
+    nvgSave(vg);
+
+    const auto position = line.transform.get_position();
+    nvgTranslate(vg, position.x, position.y);
+
+    const auto origin = line.transform.get_origin();
+    nvgTranslate(vg, -origin.x, -origin.y);
+
+    const auto scale = line.transform.get_scale();
+
+    nvgBeginPath(vg);
+    nvgMoveTo(vg, line.start.x * scale.x, line.start.y * scale.y);
+    nvgLineTo(vg, line.end.x * scale.x, line.end.y * scale.y);
+
+    nvgStrokeWidth(vg, line.width);
+    nvgStrokeColor(vg, glm_to_nvg(line.color));
+    nvgStroke(vg);
+
+    nvgRestore(vg);
+}
+
 void VectorRenderer::draw(const Rectangle &rectangle)
 {
     nvgSave(vg);

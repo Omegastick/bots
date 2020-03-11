@@ -41,4 +41,13 @@ struct EcsTrapezoid
     glm::vec4 stroke_color = cl_white;
     float stroke_width = 0.f;
 };
+
+struct EcsLine
+{
+    glm::vec2 start = {0.f, 0.f};
+    glm::vec2 end = {0.f, 0.f};
+    glm::vec4 color = cl_white;
+    float width = 0.1f;
+};
+
 }

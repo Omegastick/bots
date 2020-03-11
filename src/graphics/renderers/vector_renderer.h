@@ -21,6 +21,7 @@ class VectorRenderer
 
     void begin_frame(glm::vec2 resolution);
     void draw(const Circle &circle);
+    void draw(const Line &line);
     void draw(const Rectangle &rectangle);
     void draw(const SemiCircle &semicircle);
     void draw(const Trapezoid &trapezoid);

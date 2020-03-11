@@ -31,7 +31,6 @@ class LineTestScreen : public IScreen
         ResourceManager &resource_manager,
         std::vector<std::shared_ptr<IScreen>> *screens,
         std::vector<std::string> *screen_names);
-    ~LineTestScreen();
 
     virtual void update(double delta_time);
     virtual void draw(Renderer &renderer, bool lightweight = false);

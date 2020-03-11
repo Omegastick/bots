@@ -23,52 +23,22 @@ struct Sprite;
 struct Text;
 class BatchedSpriteRenderer;
 class ParticleRenderer;
-class LineRenderer;
 class TextRenderer;
 class VectorRenderer;
 
 static auto ResolutionX = [] {};
 static auto ResolutionY = [] {};
 
-using ShapeVariant = std::variant<Circle, Rectangle, SemiCircle, Trapezoid>;
+using ShapeVariant = std::variant<Circle, Rectangle, SemiCircle, Trapezoid, Line>;
 
 class Renderer
 {
   private:
-    struct GetDepthVisitor
-    {
-        template <class T>
-        int operator()(const T &shape)
-        {
-            return shape.transform.get_z();
-        }
-    };
-
-    class DrawVisitor
-    {
-      private:
-        VectorRenderer &vector_renderer;
-
-      public:
-        DrawVisitor(VectorRenderer &vector_renderer);
-
-        void operator()(const Circle &circle);
-        void operator()(const Rectangle &rectangle);
-        void operator()(const SemiCircle &semiCircle);
-        void operator()(const Trapezoid &trapezoid);
-    };
-
     struct PackedSprite
     {
         unsigned int texture;
         glm::vec4 color;
         glm::mat4 transform;
-    };
-
-    struct PackedLine
-    {
-        Line line;
-        glm::mat4 view;
     };
 
     int width, height;
@@ -81,7 +51,6 @@ class Renderer
     std::vector<std::string> textures;
 
     std::vector<ShapeVariant> draw_list;
-    std::vector<PackedLine> lines;
     std::vector<Particle> particles;
     std::vector<PackedSprite> sprites;
     std::vector<Text> texts;
@@ -90,7 +59,6 @@ class Renderer
 
     BatchedSpriteRenderer &sprite_renderer;
     ParticleRenderer &particle_renderer;
-    LineRenderer &line_renderer;
     TextRenderer &text_renderer;
     VectorRenderer &vector_renderer;
 
@@ -103,7 +71,6 @@ class Renderer
                     ResourceManager &resource_manager,
                     BatchedSpriteRenderer &sprite_renderer,
                     ParticleRenderer &particle_renderer,
-                    LineRenderer &line_renderer,
                     TextRenderer &text_renderer,
                     VectorRenderer &vector_renderer);
 

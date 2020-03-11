@@ -16,7 +16,7 @@ entt::entity make_bullet(entt::registry &registry)
     const auto entity = registry.create();
     registry.assign<EcsBullet>(entity, 1.f);
     registry.assign<Transform>(entity);
-    registry.assign<Trail>(entity, 0.1f);
+    registry.assign<Trail>(entity, 0.2f);
     registry.assign<PhysicsType>(entity, PhysicsType::Bullet);
 
     auto &physics_body = registry.assign<PhysicsBody>(entity);
