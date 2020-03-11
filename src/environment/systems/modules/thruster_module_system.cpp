@@ -104,7 +104,7 @@ TEST_CASE("Thruster module system")
 
         const auto info_string = fmt::format("{{x: {}, y: {}}}", velocity.x, velocity.y);
         INFO(info_string);
-        DOCTEST_CHECK(velocity.x < 0);
+        DOCTEST_CHECK(velocity.x > 0);
         DOCTEST_CHECK(velocity.y == doctest::Approx(0.f));
     }
 }

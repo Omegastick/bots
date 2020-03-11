@@ -16,6 +16,7 @@
 #include "environment/systems/audio_system.h"
 #include "environment/systems/clean_up_system.h"
 #include "environment/systems/distortion_system.h"
+#include "environment/systems/health_bar_system.h"
 #include "environment/systems/hill_system.h"
 #include "environment/systems/modules/gun_module_system.h"
 #include "environment/systems/modules/thruster_module_system.h"
@@ -40,6 +41,7 @@ EcsEnv::EcsEnv()
     auto &body_1 = registry.get<EcsBody>(body_entity_1);
     body_1.name = "Steve";
     body_1.hp = 10;
+    body_1.max_hp = 10;
     const auto gun_module_entity_1 = make_gun_module(registry);
     link_modules(registry, body_1.base_module, 0, gun_module_entity_1, 1);
     const auto thruster_module_entity = make_thruster_module(registry);
@@ -53,6 +55,7 @@ EcsEnv::EcsEnv()
     auto &body_2 = registry.get<EcsBody>(body_entity_2);
     body_2.name = "Steve";
     body_2.hp = 10;
+    body_2.max_hp = 10;
     const auto gun_module_entity_2 = make_gun_module(registry);
     link_modules(registry, body_2.base_module, 0, gun_module_entity_2, 1);
     update_body_fixtures(registry, body_entity_2);
@@ -79,6 +82,7 @@ void EcsEnv::draw(Renderer &renderer, IAudioEngine &audio_engine, bool /*lightwe
     const auto view = glm::ortho(-view_right, view_right, -view_top, view_top);
     renderer.set_view(view);
 
+    health_bar_system(registry);
     trail_system(registry);
     particle_system(registry, renderer);
     distortion_system(registry, renderer);

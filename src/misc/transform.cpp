@@ -28,6 +28,7 @@ Transform::Transform()
       position(0, 0),
       rotation(0),
       scale(1, 1),
+      z(0),
       transform(),
       transform_needs_update(true) {}
 
@@ -59,6 +60,11 @@ void Transform::set_scale(glm::vec2 scale)
 {
     transform_needs_update = true;
     this->scale = scale;
+}
+
+void Transform::set_z(int z)
+{
+    this->z = z;
 }
 
 void Transform::move(glm::vec2 offset)

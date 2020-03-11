@@ -51,7 +51,6 @@ Background::Background(Random &rng)
 
 void Background::draw(Renderer &renderer) const
 {
-    renderer.set_view(glm::ortho(-960.f, 960.f, -540.f, 540.f));
     const auto view = renderer.get_view();
     float view_x = 1.f / view[0][0] * 1.5f;
     float view_y = 1.f / view[1][1] * 1.5f;
@@ -64,6 +63,7 @@ void Background::draw(Renderer &renderer) const
                       cl_base0,
                       0.005f * scale};
         circle.transform.set_position(node.position * scale);
+        circle.transform.set_z(-10);
         renderer.draw(circle);
 
         for (const auto neighbor : node.neighbors)

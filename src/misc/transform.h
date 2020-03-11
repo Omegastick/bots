@@ -13,6 +13,7 @@ class Transform
     glm::vec2 position;
     float rotation;
     glm::vec2 scale;
+    int z;
     mutable glm::mat4 transform;
     mutable bool transform_needs_update;
 
@@ -28,10 +29,12 @@ class Transform
     void set_position(glm::vec2 position);
     void set_rotation(float angle);
     void set_scale(glm::vec2 scale);
+    void set_z(int z);
 
-    inline glm::vec2 get_position() const { return position; };
-    inline float get_rotation() const { return rotation; };
-    inline glm::vec2 get_scale() const { return scale; };
-    inline glm::vec2 get_origin() const { return origin; };
+    inline glm::vec2 get_position() const { return position; }
+    inline float get_rotation() const { return rotation; }
+    inline glm::vec2 get_scale() const { return scale; }
+    inline glm::vec2 get_origin() const { return origin; }
+    inline int get_z() const { return z; }
 };
 }

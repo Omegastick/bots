@@ -24,6 +24,26 @@
 
 namespace ai
 {
+Renderer::DrawVisitor::DrawVisitor(VectorRenderer &vector_renderer)
+    : vector_renderer(vector_renderer) {}
+
+void Renderer::DrawVisitor::operator()(const Circle &circle)
+{
+    vector_renderer.draw(circle);
+}
+void Renderer::DrawVisitor::operator()(const Rectangle &rectangle)
+{
+    vector_renderer.draw(rectangle);
+}
+void Renderer::DrawVisitor::operator()(const SemiCircle &semiCircle)
+{
+    vector_renderer.draw(semiCircle);
+}
+void Renderer::DrawVisitor::operator()(const Trapezoid &trapezoid)
+{
+    vector_renderer.draw(trapezoid);
+}
+
 Renderer::Renderer(int width, int height,
                    ResourceManager &resource_manager,
                    BatchedSpriteRenderer &sprite_renderer,
@@ -101,22 +121,22 @@ void Renderer::draw(const Text &text)
 
 void Renderer::draw(const Circle &circle)
 {
-    vector_renderer.draw(circle);
+    draw_list.push_back(circle);
 }
 
 void Renderer::draw(const Rectangle &rectangle)
 {
-    vector_renderer.draw(rectangle);
+    draw_list.push_back(rectangle);
 }
 
 void Renderer::draw(const SemiCircle &semicircle)
 {
-    vector_renderer.draw(semicircle);
+    draw_list.push_back(semicircle);
 }
 
 void Renderer::draw(const Trapezoid &trapezoid)
 {
-    vector_renderer.draw(trapezoid);
+    draw_list.push_back(trapezoid);
 }
 
 void Renderer::clear(const glm::vec4 &color)
@@ -166,7 +186,17 @@ const FrameBuffer *Renderer::render_to_buffer(double time)
     }
     lines.clear();
 
+    std::sort(draw_list.begin(), draw_list.end(),
+              [](const ShapeVariant &lhs, const ShapeVariant &rhs) {
+                  return std::visit(GetDepthVisitor{}, lhs) < std::visit(GetDepthVisitor{}, rhs);
+              });
+    DrawVisitor draw_visitor(vector_renderer);
+    for (const auto &shape : draw_list)
+    {
+        std::visit(draw_visitor, shape);
+    }
     vector_renderer.end_frame();
+    draw_list.clear();
 
     std::sort(sprites.begin(), sprites.end(),
               [](PackedSprite &a, PackedSprite &b) { return a.texture < b.texture; });

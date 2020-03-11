@@ -359,8 +359,8 @@ int App::run(int argc, char *argv[])
         renderer.begin();
         renderer.set_distortion_layer(*distortion_layer);
 
-        background.draw(renderer);
         screen_manager.draw(renderer);
+        background.draw(renderer);
 
         renderer.push_post_proc_layer(*crt_post_proc_layer);
         renderer.push_post_proc_layer(*bloom_post_proc_layer);
