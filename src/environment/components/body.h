@@ -10,6 +10,7 @@ struct EcsBody
 {
     entt::entity base_module = entt::null;
     float hp = 0.f;
+    float max_hp = 0.f;
     std::string name = "";
 };
 }

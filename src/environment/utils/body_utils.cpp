@@ -11,6 +11,7 @@
 #include "environment/components/activatable.h"
 #include "environment/components/body.h"
 #include "environment/components/ecs_render_data.h"
+#include "environment/components/health_bar.h"
 #include "environment/components/modules/base_module.h"
 #include "environment/components/modules/gun_module.h"
 #include "environment/components/modules/module.h"
@@ -88,6 +89,18 @@ entt::entity make_body(entt::registry &registry)
     body.base_module = base_module_entity;
     auto &base_module = registry.get<EcsModule>(base_module_entity);
     base_module.body = entity;
+
+    const auto bar_background_entity = registry.create();
+    const auto bar_foreground_entity = registry.create();
+    registry.assign<HealthBar>(entity, bar_background_entity, bar_foreground_entity);
+    auto &bar_background_transform = registry.assign<Transform>(bar_background_entity);
+    bar_background_transform.set_scale({3.f, 0.2f});
+    bar_background_transform.set_z(1);
+    auto &bar_foreground_transform = registry.assign<Transform>(bar_foreground_entity);
+    bar_foreground_transform.set_scale({3.f, 0.2f});
+    bar_foreground_transform.set_z(2);
+    registry.assign<EcsRectangle>(bar_background_entity, set_alpha(cl_base0, 0.5f));
+    registry.assign<EcsRectangle>(bar_foreground_entity, cl_red);
 
     return entity;
 }
