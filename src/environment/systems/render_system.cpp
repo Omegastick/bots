@@ -18,7 +18,7 @@ void clean_up_orphans(entt::registry &registry)
         if (!registry.valid(container.parent) ||
             registry.has<entt::tag<"should_destroy"_hs>>(container.parent))
         {
-            registry.assign<entt::tag<"should_destroy"_hs>>(entity);
+            registry.assign_or_replace<entt::tag<"should_destroy"_hs>>(entity);
         }
     });
 }

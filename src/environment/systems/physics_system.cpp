@@ -7,7 +7,7 @@
 #include "environment/components/physics_body.h"
 #include "environment/components/physics_type.h"
 #include "environment/components/physics_world.h"
-#include "environment/observers/destroy_body.h"
+#include "environment/observers/destroy_physics_body.h"
 #include "environment/systems/contact_handlers/bullet_contact_handler.h"
 #include "environment/systems/contact_handlers/hill_contact_handler.h"
 #include "misc/transform.h"
@@ -54,7 +54,7 @@ class ContactListener : public b2ContactListener
 void init_physics(entt::registry &registry)
 {
     auto &world = registry.set<b2World>(b2Vec2{0, 0});
-    registry.on_destroy<PhysicsBody>().connect<destroy_body>();
+    registry.on_destroy<PhysicsBody>().connect<destroy_physics_body>();
     auto &contact_listener = registry.set<ContactListener>(registry);
     world.SetContactListener(&contact_listener);
 }

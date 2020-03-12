@@ -6,6 +6,7 @@
 #include <glm/gtc/constants.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/glm.hpp>
+#include <nlohmann/json.hpp>
 
 #include "ecs_env.h"
 #include "audio/audio_engine.h"
@@ -35,10 +36,13 @@
 namespace ai
 {
 EcsEnv::EcsEnv()
+    : audible(true),
+      bodies{entt::null, entt::null}
 {
     init_physics(registry);
 
     const auto body_entity_1 = make_body(registry);
+    bodies[0] = body_entity_1;
     auto &body_1 = registry.get<EcsBody>(body_entity_1);
     body_1.name = "Steve";
     body_1.hp = 10;
@@ -53,6 +57,7 @@ EcsEnv::EcsEnv()
     registry.get<Activatable>(thruster_module_entity).active = true;
 
     const auto body_entity_2 = make_body(registry);
+    bodies[1] = body_entity_2;
     auto &body_2 = registry.get<EcsBody>(body_entity_2);
     body_2.name = "Steve";
     body_2.hp = 10;
@@ -104,16 +109,17 @@ void EcsEnv::forward(double step_length)
     module_system(registry);
     thruster_particle_system(registry);
     clean_up_system(registry);
+    elapsed_time += step_length;
 }
 
 double EcsEnv::get_elapsed_time() const
 {
-    return 0;
+    return elapsed_time;
 }
 
 bool EcsEnv::is_audible() const
 {
-    return true;
+    return audible;
 }
 
 EcsStepInfo EcsEnv::reset()
@@ -121,8 +127,21 @@ EcsStepInfo EcsEnv::reset()
     return {};
 }
 
-void EcsEnv::set_audibility(bool /*audibility*/)
+void EcsEnv::set_audibility(bool audibility)
 {
+    audible = audibility;
+}
+
+void EcsEnv::set_body(std::size_t index, nlohmann::json body_def)
+{
+    if (bodies[index] != entt::null)
+    {
+        destroy_body(registry, bodies[index]);
+        clean_up_system(registry);
+    }
+
+    const auto body_entity = make_body(registry);
+    bodies[index] = body_entity;
 }
 
 EcsStepInfo EcsEnv::step(std::vector<torch::Tensor> /*actions*/, double step_length)

@@ -14,6 +14,7 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <imgui.h>
 #include <misc/cpp/imgui_stdlib.h>
+#include <nlohmann/json.hpp>
 #include <spdlog/spdlog.h>
 
 #include "screens/main_menu_screen.h"
@@ -51,7 +52,10 @@ MainMenuScreen::MainMenuScreen(IAudioEngine &audio_engine,
       multiplayer_screen_factory(multiplayer_screen_factory),
       screen_manager(screen_manager),
       user_info_received(false),
-      waiting_for_server(false) {}
+      waiting_for_server(false)
+{
+    this->env->set_body(0, {});
+}
 
 void MainMenuScreen::update(double delta_time)
 {

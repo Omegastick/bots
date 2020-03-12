@@ -24,9 +24,78 @@
 #include "environment/components/physics_world.h"
 #include "environment/components/render_shape_container.h"
 #include "environment/components/score.h"
+#include "environment/systems/clean_up_system.h"
 
 namespace ai
 {
+void destroy_body(entt::registry &registry, entt::entity body_entity)
+{
+    registry.assign<entt::tag<"should_destroy"_hs>>(body_entity);
+    auto &body = registry.get<EcsBody>(body_entity);
+
+    // Destroy modules
+    std::queue<entt::entity> queue;
+    queue.push(body.base_module);
+    while (!queue.empty())
+    {
+        auto module_entity = queue.front();
+        queue.pop();
+        registry.assign<entt::tag<"should_destroy"_hs>>(module_entity);
+        auto &module = registry.get<EcsModule>(module_entity);
+
+        // Add children to queue
+        if (module.first != entt::null)
+        {
+            entt::entity child = module.first;
+            for (unsigned int i = 0; i < module.children; i++)
+            {
+                queue.push(child);
+                child = registry.get<EcsModule>(child).next;
+            }
+        }
+
+        // Destroy links
+        if (module.first_link != entt::null)
+        {
+            entt::entity link = module.first_link;
+            for (unsigned int i = 0; i < module.links; i++)
+            {
+                registry.assign<entt::tag<"should_destroy"_hs>>(link);
+                link = registry.get<EcsModuleLink>(link).next;
+            }
+        }
+
+        // Destroy physics shapes
+        auto &physics_shapes = registry.get<PhysicsShapes>(module_entity);
+        if (physics_shapes.count > 0)
+        {
+            entt::entity shape = physics_shapes.first;
+            for (unsigned int i = 0; i < physics_shapes.count; i++)
+            {
+                registry.assign<entt::tag<"should_destroy"_hs>>(shape);
+                shape = registry.get<PhysicsShape>(shape).next;
+            }
+        }
+
+        // Destroy render shape containers
+        if (registry.has<RenderShapes>(module_entity))
+        {
+            auto &shape_container = registry.get<RenderShapes>(module_entity);
+            entt::entity shape = shape_container.first;
+            for (unsigned int i = 0; i < shape_container.children; i++)
+            {
+                registry.assign<entt::tag<"should_destroy"_hs>>(shape);
+                shape = registry.get<RenderShapeContainer>(shape).next;
+            }
+        }
+    }
+
+    // Destroy health bar
+    const auto &health_bar = registry.get<HealthBar>(body_entity);
+    registry.assign<entt::tag<"should_destroy"_hs>>(health_bar.background);
+    registry.assign<entt::tag<"should_destroy"_hs>>(health_bar.foreground);
+}
+
 entt::entity make_base_module(entt::registry &registry)
 {
     const auto entity = registry.create();
@@ -343,6 +412,27 @@ void update_body_fixtures(entt::registry &registry, entt::entity body_entity)
 
             shape_entity = shape.next;
         }
+    }
+}
+
+TEST_CASE("destroy_body()")
+{
+    entt::registry registry;
+    registry.set<b2World>(b2Vec2{0, 0});
+
+    const auto body_entity = make_body(registry);
+    const auto gun_module_entity_1 = make_gun_module(registry);
+    const auto gun_module_entity_2 = make_gun_module(registry);
+    auto &body = registry.get<EcsBody>(body_entity);
+    link_modules(registry, body.base_module, 0, gun_module_entity_1, 1);
+    link_modules(registry, gun_module_entity_1, 0, gun_module_entity_2, 1);
+
+    SUBCASE("Destroys all entities used in a body")
+    {
+        destroy_body(registry, body_entity);
+        clean_up_system(registry);
+
+        DOCTEST_CHECK(registry.alive() == 0);
     }
 }
 

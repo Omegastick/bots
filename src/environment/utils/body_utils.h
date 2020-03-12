@@ -1,10 +1,12 @@
 #pragma once
 
-#include <entt/fwd.hpp>
+#include <entt/entity/entity.hpp>
+#include <entt/entity/registry.hpp>
 #include <glm/vec2.hpp>
 
 namespace ai
 {
+void destroy_body(entt::registry &registry, entt::entity body_entity);
 entt::entity make_base_module(entt::registry &registry);
 entt::entity make_body(entt::registry &registry);
 entt::entity make_gun_module(entt::registry &registry);
