@@ -132,7 +132,7 @@ void EcsEnv::set_audibility(bool audibility)
     audible = audibility;
 }
 
-void EcsEnv::set_body(std::size_t index, nlohmann::json body_def)
+void EcsEnv::set_body(std::size_t index, const nlohmann::json &body_def)
 {
     if (bodies[index] != entt::null)
     {

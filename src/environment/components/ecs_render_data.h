@@ -49,5 +49,4 @@ struct EcsLine
     glm::vec4 color = cl_white;
     float width = 0.1f;
 };
-
 }
