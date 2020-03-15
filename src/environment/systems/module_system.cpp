@@ -1,11 +1,10 @@
-#include <queue>
-
 #include <entt/entt.hpp>
 #include <glm/glm.hpp>
 
 #include "environment/components/body.h"
 #include "environment/components/module_link.h"
 #include "environment/components/modules/module.h"
+#include "environment/utils/body_utils.h"
 #include "misc/transform.h"
 
 namespace ai
@@ -13,15 +12,14 @@ namespace ai
 void module_system(entt::registry &registry)
 {
     // Perform a breadth first search to update all transforms
-    registry.view<EcsBody, Transform>().each([&registry](auto &body, auto &body_transform) {
-        std::queue<entt::entity> queue;
-        queue.push(body.base_module);
-        while (!queue.empty())
-        {
-            auto entity = queue.front();
-            queue.pop();
-            auto &module = registry.get<EcsModule>(entity);
-            auto &transform = registry.get<Transform>(entity);
+    const auto view = registry.view<EcsBody, Transform>();
+    for (const auto body_entity : view)
+    {
+        auto &body_transform = registry.get<Transform>(body_entity);
+
+        traverse_modules(registry, body_entity, [&](entt::entity module_entity) {
+            auto &module = registry.get<EcsModule>(module_entity);
+            auto &transform = registry.get<Transform>(module_entity);
 
             // Update module transform
             if (module.parent != entt::null)
@@ -39,14 +37,6 @@ void module_system(entt::registry &registry)
             {
                 transform.set_position(body_transform.get_position());
                 transform.set_rotation(body_transform.get_rotation());
-            }
-
-            // Add children to queue
-            entt::entity child = module.first;
-            for (unsigned int i = 0; i < module.children; ++i)
-            {
-                queue.push(child);
-                child = registry.get<EcsModule>(child).next;
             }
 
             // Update link transforms
@@ -67,7 +57,7 @@ void module_system(entt::registry &registry)
                     link_entity = link.next;
                 }
             }
-        }
-    });
+        });
+    }
 }
 }

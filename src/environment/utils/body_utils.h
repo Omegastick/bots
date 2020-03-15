@@ -1,5 +1,7 @@
 #pragma once
 
+#include <functional>
+
 #include <entt/entity/entity.hpp>
 #include <entt/entity/registry.hpp>
 #include <glm/vec2.hpp>
@@ -17,5 +19,8 @@ void link_modules(entt::registry &registry,
                   unsigned int module_a_link_index,
                   entt::entity module_b_entity,
                   unsigned int module_b_link_index);
+void traverse_modules(entt::registry &registry,
+                      entt::entity body_entity,
+                      std::function<void(entt::entity)> callback);
 void update_body_fixtures(entt::registry &registry, entt::entity body_entity);
 }

@@ -4,5 +4,6 @@ PRIVATE
 )
 
 add_subdirectory(observers)
+add_subdirectory(serialization)
 add_subdirectory(systems)
 add_subdirectory(utils)

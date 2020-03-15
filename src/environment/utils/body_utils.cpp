@@ -1,3 +1,4 @@
+#include <functional>
 #include <queue>
 #include <vector>
 
@@ -30,29 +31,13 @@ namespace ai
 {
 void destroy_body(entt::registry &registry, entt::entity body_entity)
 {
+    // Destroy body
     registry.assign<entt::tag<"should_destroy"_hs>>(body_entity);
-    auto &body = registry.get<EcsBody>(body_entity);
 
     // Destroy modules
-    std::queue<entt::entity> queue;
-    queue.push(body.base_module);
-    while (!queue.empty())
-    {
-        auto module_entity = queue.front();
-        queue.pop();
+    traverse_modules(registry, body_entity, [&](entt::entity module_entity) {
         registry.assign<entt::tag<"should_destroy"_hs>>(module_entity);
         auto &module = registry.get<EcsModule>(module_entity);
-
-        // Add children to queue
-        if (module.first != entt::null)
-        {
-            entt::entity child = module.first;
-            for (unsigned int i = 0; i < module.children; i++)
-            {
-                queue.push(child);
-                child = registry.get<EcsModule>(child).next;
-            }
-        }
 
         // Destroy links
         if (module.first_link != entt::null)
@@ -88,7 +73,7 @@ void destroy_body(entt::registry &registry, entt::entity body_entity)
                 shape = registry.get<RenderShapeContainer>(shape).next;
             }
         }
-    }
+    });
 
     // Destroy health bar
     const auto &health_bar = registry.get<HealthBar>(body_entity);
@@ -150,7 +135,7 @@ entt::entity make_body(entt::registry &registry)
     auto &physics_body = registry.assign<PhysicsBody>(entity);
     b2BodyDef body_def;
     body_def.type = b2_dynamicBody;
-    body_def.position = {9.6f, 5.4f};
+    body_def.position = {0.f, 0.f};
     body_def.userData = reinterpret_cast<void *>(entity);
     physics_body.body = registry.ctx<b2World>().CreateBody(&body_def);
 
@@ -294,6 +279,7 @@ void link_modules(entt::registry &registry,
         link_a_entity = registry.get<EcsModuleLink>(link_a_entity).next;
     }
     auto &link_a = registry.get<EcsModuleLink>(link_a_entity);
+    link_a.parent = true;
 
     auto &module_b = registry.get<EcsModule>(module_b_entity);
     entt::entity link_b_entity = module_b.first_link;
@@ -332,9 +318,33 @@ void link_modules(entt::registry &registry,
     }
 }
 
+void traverse_modules(entt::registry &registry,
+                      entt::entity body_entity,
+                      std::function<void(entt::entity)> callback)
+{
+    const auto &body = registry.get<EcsBody>(body_entity);
+    std::queue<entt::entity> queue;
+    queue.push(body.base_module);
+    while (!queue.empty())
+    {
+        const auto module_entity = queue.front();
+        queue.pop();
+
+        // Add children to queue
+        const auto &module = registry.get<EcsModule>(module_entity);
+        entt::entity child = module.first;
+        for (unsigned int i = 0; i < module.children; ++i)
+        {
+            queue.push(child);
+            child = registry.get<EcsModule>(child).next;
+        }
+
+        callback(module_entity);
+    }
+}
+
 void update_body_fixtures(entt::registry &registry, entt::entity body_entity)
 {
-    auto &body = registry.get<EcsBody>(body_entity);
     auto &physics_body = registry.get<PhysicsBody>(body_entity);
 
     auto fixture = physics_body.body->GetFixtureList();
@@ -345,12 +355,7 @@ void update_body_fixtures(entt::registry &registry, entt::entity body_entity)
         fixture = next_fixture;
     }
 
-    std::queue<entt::entity> queue;
-    queue.push(body.base_module);
-    while (!queue.empty())
-    {
-        auto module_entity = queue.front();
-        queue.pop();
+    traverse_modules(registry, body_entity, [&](entt::entity module_entity) {
         auto &module = registry.get<EcsModule>(module_entity);
         auto &transform = registry.get<Transform>(module_entity);
 
@@ -370,14 +375,6 @@ void update_body_fixtures(entt::registry &registry, entt::entity body_entity)
         {
             transform.set_position({0.f, 0.f});
             transform.set_rotation(0.f);
-        }
-
-        // Add children to queue
-        entt::entity child = module.first;
-        for (unsigned int i = 0; i < module.children; ++i)
-        {
-            queue.push(child);
-            child = registry.get<EcsModule>(child).next;
         }
 
         // Set up module fixtures
@@ -412,7 +409,7 @@ void update_body_fixtures(entt::registry &registry, entt::entity body_entity)
 
             shape_entity = shape.next;
         }
-    }
+    });
 }
 
 TEST_CASE("destroy_body()")
@@ -458,15 +455,22 @@ TEST_CASE("link_modules()")
     entt::registry registry;
     registry.set<b2World>(b2Vec2{0, 0});
 
+    const auto body_entity = make_body(registry);
+    const auto gun_module_entity = make_gun_module(registry);
+    const auto &body = registry.get<EcsBody>(body_entity);
+    link_modules(registry, body.base_module, 0, gun_module_entity, 1);
+
     SUBCASE("Sets body of linked module to match parent module")
     {
-        const auto body_entity = make_body(registry);
-        const auto gun_module_entity = make_gun_module(registry);
-        const auto &body = registry.get<EcsBody>(body_entity);
-        link_modules(registry, body.base_module, 0, gun_module_entity, 1);
         const auto &module = registry.get<EcsModule>(gun_module_entity);
-
         DOCTEST_CHECK(module.body == body_entity);
+    }
+
+    SUBCASE("Sets parent status correctly")
+    {
+        const auto &module = registry.get<EcsModule>(body.base_module);
+        const auto parent_link = registry.get<EcsModuleLink>(module.first_link);
+        DOCTEST_CHECK(parent_link.parent);
     }
 }
 }
