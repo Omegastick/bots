@@ -11,6 +11,7 @@
 #include "environment/components/modules/thruster_module.h"
 #include "environment/components/particle_emitter.h"
 #include "environment/components/physics_body.h"
+#include "environment/utils/body_factories.h"
 #include "environment/utils/body_utils.h"
 #include "misc/transform.h"
 

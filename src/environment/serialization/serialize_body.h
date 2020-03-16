@@ -8,7 +8,7 @@
 
 namespace ai
 {
-void deserialize_body(entt::registry &registry, const nlohmann::json &json);
+entt::entity deserialize_body(entt::registry &registry, const nlohmann::json &json);
 nlohmann::json serialize_body(entt::registry &registry,
                               entt::entity body_entity,
                               const std::string &name = "");

@@ -14,6 +14,7 @@
 #include "environment/components/modules/module.h"
 #include "environment/components/physics_body.h"
 #include "environment/components/physics_type.h"
+#include "environment/utils/body_factories.h"
 #include "environment/utils/body_utils.h"
 #include "environment/utils/bullet_utils.h"
 #include "misc/transform.h"

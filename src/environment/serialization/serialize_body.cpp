@@ -15,6 +15,7 @@
 #include "environment/components/modules/module.h"
 #include "environment/components/modules/thruster_module.h"
 #include "environment/systems/clean_up_system.h"
+#include "environment/utils/body_factories.h"
 #include "environment/utils/body_utils.h"
 
 namespace ai
@@ -63,7 +64,7 @@ void deserialize_children(entt::registry &registry,
     }
 }
 
-void deserialize_body(entt::registry &registry, const nlohmann::json &json)
+entt::entity deserialize_body(entt::registry &registry, const nlohmann::json &json)
 {
     if (json["schema"] != schema_version)
     {
@@ -75,6 +76,8 @@ void deserialize_body(entt::registry &registry, const nlohmann::json &json)
     const auto body_entity = make_body(registry);
     const auto &body = registry.get<EcsBody>(body_entity);
     deserialize_children(registry, body.base_module, json["modules"]["links"]);
+
+    return body_entity;
 }
 
 nlohmann::json serialize_module(entt::registry &registry, entt::entity module_entity)

@@ -4,8 +4,6 @@
 #include <string>
 #include <tuple>
 
-#include "environment/ecs_env.h"
-#include "environment/iecs_env.h"
 #include "graphics/post_processing/distortion_layer.h"
 #include "screens/iscreen.h"
 #include "third_party/di.hpp"
@@ -32,7 +30,6 @@ class MainMenuScreen : public IScreen
   private:
     IAudioEngine &audio_engine;
     CredentialsManager &credentials_manager;
-    std::unique_ptr<IEcsEnv> env;
     IHttpClient &http_client;
     IO &io;
     IScreenFactory &build_screen_factory;
@@ -49,7 +46,6 @@ class MainMenuScreen : public IScreen
   public:
     MainMenuScreen(IAudioEngine &audio_engine,
                    CredentialsManager &credentials_manager,
-                   std::unique_ptr<IEcsEnv> env,
                    IHttpClient &http_client,
                    IO &io,
                    IScreenFactory &build_screen_factory,
@@ -108,10 +104,8 @@ class MainMenuScreenFactory : public IScreenFactory
 
     virtual std::shared_ptr<IScreen> make()
     {
-        auto env = std::make_unique<EcsEnv>();
         return std::make_shared<MainMenuScreen>(audio_engine,
                                                 credentials_manager,
-                                                std::move(env),
                                                 http_client,
                                                 io,
                                                 build_screen_factory,

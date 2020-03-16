@@ -35,7 +35,6 @@ namespace ai
 {
 MainMenuScreen::MainMenuScreen(IAudioEngine &audio_engine,
                                CredentialsManager &credentials_manager,
-                               std::unique_ptr<IEcsEnv> env,
                                IHttpClient &http_client,
                                IO &io,
                                IScreenFactory &build_screen_factory,
@@ -44,7 +43,6 @@ MainMenuScreen::MainMenuScreen(IAudioEngine &audio_engine,
                                ScreenManager &screen_manager)
     : audio_engine(audio_engine),
       credentials_manager(credentials_manager),
-      env(std::move(env)),
       http_client(http_client),
       io(io),
       build_screen_factory(build_screen_factory),
@@ -52,117 +50,103 @@ MainMenuScreen::MainMenuScreen(IAudioEngine &audio_engine,
       multiplayer_screen_factory(multiplayer_screen_factory),
       screen_manager(screen_manager),
       user_info_received(false),
-      waiting_for_server(false)
+      waiting_for_server(false) {}
+
+void MainMenuScreen::update(double /*delta_time*/)
 {
-    this->env->set_body(0, {});
-}
-
-void MainMenuScreen::update(double delta_time)
-{
-    // const auto &imgui_io = ImGui::GetIO();
-    // ImGui::SetNextWindowPos({imgui_io.DisplaySize.x * 0.5f, imgui_io.DisplaySize.y * 0.5f},
-    //                         ImGuiCond_Always,
-    //                         {0.5, 0.5f});
-    // if (credentials_manager.get_token().empty())
-    // {
-    //     // Show login window
-    //     ImGui::Begin("Login", NULL, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_AlwaysAutoResize);
-    //     ImGui::InputText("Username", &username);
-    //     if (ImGui::Button("Login"))
-    //     {
-    //         std::thread([&] {
-    //             credentials_manager.login(username);
-    //             spdlog::debug("Logged in as: {}", username);
-    //             user_info_future = get_user_info(st_cloud_base_url);
-    //         })
-    //             .detach();
-    //         audio_engine.play("note");
-    //         waiting_for_server = true;
-    //     }
-    //     if (waiting_for_server)
-    //     {
-    //         ImGui::SameLine();
-    //         ImGui::Text("Please wait...");
-    //     }
-    //     ImGui::End();
-
-    //     if (io.get_key_pressed(GLFW_KEY_LEFT_CONTROL) && io.get_key_pressed(GLFW_KEY_SPACE))
-    //     {
-    //         audio_engine.play("note");
-    //         credentials_manager.set_token("No token");
-    //     }
-    // }
-    // else
-    // {
-    //     // Show main menu
-    //     ImGui::PushStyleColor(ImGuiCol_WindowBg, {0, 0, 0, 0});
-    //     ImGui::PushStyleColor(ImGuiCol_Button, {0, 0, 0, 0});
-    //     ImGui::PushStyleColor(ImGuiCol_ButtonHovered, {1, 1, 1, 0.1f});
-    //     ImGui::PushStyleColor(ImGuiCol_ButtonActive, {1, 1, 1, 0.05f});
-    //     ImGui::PushStyleColor(ImGuiCol_Text, {cl_base3.r, cl_base3.g, cl_base3.b, 1});
-    //     auto imgui_io = ImGui::GetIO();
-    //     ImGui::PushFont(imgui_io.Fonts->Fonts[2]);
-    //     ImGui::Begin("Main menu",
-    //                  NULL,
-    //                  (ImGuiWindowFlags_NoResize |
-    //                   ImGuiWindowFlags_AlwaysAutoResize |
-    //                   ImGuiWindowFlags_NoTitleBar));
-    //     if (ImGui::Button("Train Agent"))
-    //     {
-    //         audio_engine.play("note");
-    //         train_agent();
-    //     }
-    //     if (ImGui::Button("Build Body"))
-    //     {
-    //         audio_engine.play("note");
-    //         build_body();
-    //     }
-    //     if (ImGui::Button("Multiplayer"))
-    //     {
-    //         audio_engine.play("note");
-    //         multiplayer();
-    //     }
-    //     if (ImGui::Button("Quit"))
-    //     {
-    //         audio_engine.play("note");
-    //         quit();
-    //     }
-
-    //     if (user_info_received)
-    //     {
-    //         ImGui::Text("Credits: %ld", user_info.credits);
-    //         ImGui::Text("Elo: %ld", user_info.elo);
-    //     }
-    //     else if (user_info_future.valid())
-    //     {
-    //         auto future_status = user_info_future.wait_for(std::chrono::seconds(0));
-    //         if (future_status == std::future_status::ready)
-    //         {
-    //             try
-    //             {
-    //                 user_info = user_info_future.get();
-    //                 user_info_received = true;
-    //             }
-    //             catch (std::exception &exception)
-    //             {
-    //                 spdlog::error(exception.what());
-    //             }
-    //         }
-    //     }
-    //     ImGui::End();
-    //     ImGui::PopFont();
-    //     ImGui::PopStyleColor(5);
-    // }
-    static int i = 0;
-    if (i == 5)
+    const auto &imgui_io = ImGui::GetIO();
+    ImGui::SetNextWindowPos({imgui_io.DisplaySize.x * 0.5f, imgui_io.DisplaySize.y * 0.5f},
+                            ImGuiCond_Always,
+                            {0.5, 0.5f});
+    if (credentials_manager.get_token().empty())
     {
-        env->step({}, delta_time);
-        i = 0;
+        // Show login window
+        ImGui::Begin("Login", NULL, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_AlwaysAutoResize);
+        ImGui::InputText("Username", &username);
+        if (ImGui::Button("Login"))
+        {
+            std::thread([&] {
+                credentials_manager.login(username);
+                spdlog::debug("Logged in as: {}", username);
+                user_info_future = get_user_info(st_cloud_base_url);
+            })
+                .detach();
+            audio_engine.play("note");
+            waiting_for_server = true;
+        }
+        if (waiting_for_server)
+        {
+            ImGui::SameLine();
+            ImGui::Text("Please wait...");
+        }
+        ImGui::End();
+
+        if (io.get_key_pressed(GLFW_KEY_LEFT_CONTROL) && io.get_key_pressed(GLFW_KEY_SPACE))
+        {
+            audio_engine.play("note");
+            credentials_manager.set_token("No token");
+        }
     }
     else
     {
-        env->forward(delta_time);
-        i++;
+        // Show main menu
+        ImGui::PushStyleColor(ImGuiCol_WindowBg, {0, 0, 0, 0});
+        ImGui::PushStyleColor(ImGuiCol_Button, {0, 0, 0, 0});
+        ImGui::PushStyleColor(ImGuiCol_ButtonHovered, {1, 1, 1, 0.1f});
+        ImGui::PushStyleColor(ImGuiCol_ButtonActive, {1, 1, 1, 0.05f});
+        ImGui::PushStyleColor(ImGuiCol_Text, {cl_base3.r, cl_base3.g, cl_base3.b, 1});
+        auto imgui_io = ImGui::GetIO();
+        ImGui::PushFont(imgui_io.Fonts->Fonts[2]);
+        ImGui::Begin("Main menu",
+                     NULL,
+                     (ImGuiWindowFlags_NoResize |
+                      ImGuiWindowFlags_AlwaysAutoResize |
+                      ImGuiWindowFlags_NoTitleBar));
+        if (ImGui::Button("Train Agent"))
+        {
+            audio_engine.play("note");
+            train_agent();
+        }
+        if (ImGui::Button("Build Body"))
+        {
+            audio_engine.play("note");
+            build_body();
+        }
+        if (ImGui::Button("Multiplayer"))
+        {
+            audio_engine.play("note");
+            multiplayer();
+        }
+        if (ImGui::Button("Quit"))
+        {
+            audio_engine.play("note");
+            quit();
+        }
+
+        if (user_info_received)
+        {
+            ImGui::Text("Credits: %ld", user_info.credits);
+            ImGui::Text("Elo: %ld", user_info.elo);
+        }
+        else if (user_info_future.valid())
+        {
+            auto future_status = user_info_future.wait_for(std::chrono::seconds(0));
+            if (future_status == std::future_status::ready)
+            {
+                try
+                {
+                    user_info = user_info_future.get();
+                    user_info_received = true;
+                }
+                catch (std::exception &exception)
+                {
+                    spdlog::error(exception.what());
+                }
+            }
+        }
+        ImGui::End();
+        ImGui::PopFont();
+        ImGui::PopStyleColor(5);
     }
 
     // ImGui::ShowStyleEditor();
@@ -171,13 +155,12 @@ void MainMenuScreen::update(double delta_time)
 
 void MainMenuScreen::draw(Renderer &renderer, bool /*lightweight*/)
 {
-    // const double view_height = 50;
-    // auto view_top = view_height * 0.5;
-    // glm::vec2 resolution = io.get_resolution();
-    // auto view_right = view_top * (resolution.x / resolution.y);
-    // const auto view = glm::ortho(-view_right, view_right, -view_top, view_top);
-    // renderer.set_view(view);
-    env->draw(renderer, audio_engine);
+    const double view_height = 50;
+    auto view_top = view_height * 0.5;
+    glm::vec2 resolution = io.get_resolution();
+    auto view_right = view_top * (resolution.x / resolution.y);
+    const auto view = glm::ortho(-view_right, view_right, -view_top, view_top);
+    renderer.set_view(view);
 }
 
 void MainMenuScreen::build_body()
@@ -255,10 +238,8 @@ TEST_CASE("MainMenuScreen")
     MockScreenFactory create_program_screen_factory;
     MockScreenFactory multiplayer_screen_factory;
     ScreenManager screen_manager;
-    auto env = std::make_unique<EcsEnv>();
     auto main_menu_screen = std::make_shared<MainMenuScreen>(audio_engine,
                                                              credentials_manager,
-                                                             std::move(env),
                                                              http_client,
                                                              io,
                                                              build_screen_factory,
