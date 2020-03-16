@@ -6,7 +6,6 @@
 #include <entt/entt.hpp>
 #include <fmt/format.h>
 #include <nlohmann/json.hpp>
-#include <spdlog/spdlog.h>
 
 #include "serialize_body.h"
 #include "environment/components/body.h"
@@ -115,7 +114,6 @@ nlohmann::json serialize_module(entt::registry &registry, entt::entity module_en
         {
             json["links"][i] = nullptr;
         }
-        spdlog::debug(json.dump(2));
         link_entity = link.next;
     }
 
