@@ -48,15 +48,19 @@ entt::entity make_base_module(entt::registry &registry)
                                0.1f);
 
     const auto link_entity_1 = make_module_link(registry, {0.f, 0.5f}, 0.f);
+    registry.get<EcsModuleLink>(link_entity_1).parent = entity;
 
     const auto link_entity_2 = make_module_link(registry, {-0.5f, 0.f}, 90.f);
     registry.get<EcsModuleLink>(link_entity_1).next = link_entity_2;
+    registry.get<EcsModuleLink>(link_entity_2).parent = entity;
 
     const auto link_entity_3 = make_module_link(registry, {0.f, -0.5f}, 180.f);
     registry.get<EcsModuleLink>(link_entity_2).next = link_entity_3;
+    registry.get<EcsModuleLink>(link_entity_3).parent = entity;
 
     const auto link_entity_4 = make_module_link(registry, {0.5f, 0.f}, 270.f);
     registry.get<EcsModuleLink>(link_entity_3).next = link_entity_4;
+    registry.get<EcsModuleLink>(link_entity_4).parent = entity;
 
     module.links = 4;
     module.first_link = link_entity_1;
@@ -141,12 +145,15 @@ entt::entity make_gun_module(entt::registry &registry)
 
     // Links
     const auto link_entity_1 = make_module_link(registry, {-0.5f, -0.167f}, 90.f);
+    registry.get<EcsModuleLink>(link_entity_1).parent = entity;
 
     const auto link_entity_2 = make_module_link(registry, {0.f, -0.5f}, 180.f);
     registry.get<EcsModuleLink>(link_entity_1).next = link_entity_2;
+    registry.get<EcsModuleLink>(link_entity_2).parent = entity;
 
     const auto link_entity_3 = make_module_link(registry, {0.5f, -0.167f}, 270.f);
     registry.get<EcsModuleLink>(link_entity_2).next = link_entity_3;
+    registry.get<EcsModuleLink>(link_entity_3).parent = entity;
 
     module.links = 3;
     module.first_link = link_entity_1;

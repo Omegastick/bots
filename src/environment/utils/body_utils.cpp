@@ -1,4 +1,5 @@
 #include <functional>
+#include <limits>
 #include <queue>
 #include <vector>
 
@@ -26,6 +27,7 @@
 #include "environment/components/render_shape_container.h"
 #include "environment/components/score.h"
 #include "environment/systems/clean_up_system.h"
+#include "environment/systems/module_system.h"
 #include "environment/utils/body_factories.h"
 
 namespace ai
@@ -36,7 +38,7 @@ void destroy_body(entt::registry &registry, entt::entity body_entity)
     registry.assign<entt::tag<"should_destroy"_hs>>(body_entity);
 
     // Destroy modules
-    traverse_modules(registry, body_entity, [&](entt::entity module_entity) {
+    traverse_modules(registry, body_entity, [&](auto module_entity) {
         registry.assign<entt::tag<"should_destroy"_hs>>(module_entity);
         auto &module = registry.get<EcsModule>(module_entity);
 
@@ -80,6 +82,43 @@ void destroy_body(entt::registry &registry, entt::entity body_entity)
     const auto &health_bar = registry.get<HealthBar>(body_entity);
     registry.assign<entt::tag<"should_destroy"_hs>>(health_bar.background);
     registry.assign<entt::tag<"should_destroy"_hs>>(health_bar.foreground);
+}
+
+NearestLinkResult find_nearest_link(entt::registry &registry, entt::entity module_entity)
+{
+    double closest_distance = std::numeric_limits<float>::infinity();
+    entt::entity closest_link = entt::null;
+    entt::entity closest_other_link = entt::null;
+
+    const auto &module = registry.get<EcsModule>(module_entity);
+
+    const auto view = registry.view<EcsModuleLink>();
+    for (const auto &other_entity : view)
+    {
+        if (registry.get<EcsModuleLink>(other_entity).parent == module_entity)
+        {
+            continue;
+        }
+
+        const auto &other_transform = registry.get<Transform>(other_entity);
+        entt::entity link = module.first_link;
+        for (unsigned int i = 0; i < module.links; i++)
+        {
+            const auto &link_transform = registry.get<Transform>(link);
+            const auto distance = glm::distance(link_transform.get_position(),
+                                                other_transform.get_position());
+            if (distance < closest_distance)
+            {
+                closest_distance = distance;
+                closest_link = link;
+                closest_other_link = other_entity;
+            }
+
+            link = registry.get<EcsModuleLink>(link).next;
+        }
+    }
+
+    return {closest_other_link, closest_link, static_cast<float>(closest_distance)};
 }
 
 void link_modules(entt::registry &registry,
@@ -194,7 +233,7 @@ void update_body_fixtures(entt::registry &registry, entt::entity body_entity)
         fixture = next_fixture;
     }
 
-    traverse_modules(registry, body_entity, [&](entt::entity module_entity) {
+    traverse_modules(registry, body_entity, [&](auto module_entity) {
         auto &module = registry.get<EcsModule>(module_entity);
         auto &transform = registry.get<Transform>(module_entity);
 
@@ -270,6 +309,37 @@ TEST_CASE("destroy_body()")
 
         DOCTEST_CHECK(registry.alive() == 0);
     }
+}
+
+TEST_CASE("find_nearest_link()")
+{
+    entt::registry registry;
+    registry.set<b2World>(b2Vec2{0, 0});
+
+    const auto body_entity = make_body(registry);
+    const auto module_entity = make_gun_module(registry);
+    module_system(registry);
+
+    auto &module_transform = registry.get<Transform>(module_entity);
+    module_transform.set_position({3.5f, 0.f});
+    module_transform.set_rotation(glm::radians(270.f));
+
+    update_link_transforms(registry, module_entity);
+
+    const auto result = find_nearest_link(registry, module_entity);
+
+    const auto &body = registry.get<EcsBody>(body_entity);
+    auto expected_body_link = registry.get<EcsModule>(body.base_module).first_link;
+    expected_body_link = registry.get<EcsModuleLink>(expected_body_link).next;
+    expected_body_link = registry.get<EcsModuleLink>(expected_body_link).next;
+    expected_body_link = registry.get<EcsModuleLink>(expected_body_link).next;
+    DOCTEST_CHECK(result.link_a == expected_body_link);
+
+    auto expected_module_link = registry.get<EcsModule>(module_entity).first_link;
+    expected_module_link = registry.get<EcsModuleLink>(expected_module_link).next;
+    DOCTEST_CHECK(result.link_b == expected_module_link);
+
+    DOCTEST_CHECK(result.distance == doctest::Approx(2.5f));
 }
 
 TEST_CASE("link_modules()")

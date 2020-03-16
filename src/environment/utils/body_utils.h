@@ -8,7 +8,19 @@
 
 namespace ai
 {
+struct NearestLinkResult
+{
+    // Link attached to body
+    entt::entity link_a = entt::null;
+
+    // Link attached to free module
+    entt::entity link_b = entt::null;
+
+    float distance = 0.f;
+};
+
 void destroy_body(entt::registry &registry, entt::entity body_entity);
+NearestLinkResult find_nearest_link(entt::registry &registry, entt::entity module_entity);
 void link_modules(entt::registry &registry,
                   entt::entity module_a_entity,
                   unsigned int module_a_link_index,

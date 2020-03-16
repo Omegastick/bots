@@ -9,6 +9,27 @@
 
 namespace ai
 {
+void update_link_transforms(entt::registry &registry, entt::entity module_entity)
+{
+    auto &module = registry.get<EcsModule>(module_entity);
+    auto &transform = registry.get<Transform>(module_entity);
+
+    entt::entity link_entity = module.first_link;
+    for (unsigned int i = 0; i < module.links; ++i)
+    {
+        const auto &link = registry.get<EcsModuleLink>(link_entity);
+        auto &link_transform = registry.get<Transform>(link_entity);
+        link_transform = transform;
+        link_transform.move(
+            {glm::cos(link_transform.get_rotation()) * link.pos_offset.x -
+                 glm::sin(link_transform.get_rotation()) * link.pos_offset.y,
+             glm::sin(link_transform.get_rotation()) * link.pos_offset.x +
+                 glm::cos(link_transform.get_rotation()) * link.pos_offset.y});
+        link_transform.rotate(link.rot_offset);
+        link_entity = link.next;
+    }
+}
+
 void module_system(entt::registry &registry)
 {
     // Perform a breadth first search to update all transforms
@@ -17,7 +38,7 @@ void module_system(entt::registry &registry)
     {
         auto &body_transform = registry.get<Transform>(body_entity);
 
-        traverse_modules(registry, body_entity, [&](entt::entity module_entity) {
+        traverse_modules(registry, body_entity, [&](auto module_entity) {
             auto &module = registry.get<EcsModule>(module_entity);
             auto &transform = registry.get<Transform>(module_entity);
 
@@ -42,20 +63,7 @@ void module_system(entt::registry &registry)
             // Update link transforms
             if (module.links > 0)
             {
-                entt::entity link_entity = module.first_link;
-                for (unsigned int i = 0; i < module.links; ++i)
-                {
-                    const auto &link = registry.get<EcsModuleLink>(link_entity);
-                    auto &link_transform = registry.get<Transform>(link_entity);
-                    link_transform = transform;
-                    link_transform.move(
-                        {glm::cos(link_transform.get_rotation()) * link.pos_offset.x -
-                             glm::sin(link_transform.get_rotation()) * link.pos_offset.y,
-                         glm::sin(link_transform.get_rotation()) * link.pos_offset.x +
-                             glm::cos(link_transform.get_rotation()) * link.pos_offset.y});
-                    link_transform.rotate(link.rot_offset);
-                    link_entity = link.next;
-                }
+                update_link_transforms(registry, module_entity);
             }
         });
     }

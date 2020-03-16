@@ -9,6 +9,7 @@ struct EcsModuleLink
 {
     glm::vec2 pos_offset = {0.f, 0.f};
     float rot_offset = 0.f;
+    entt::entity parent = entt::null;
     entt::entity next = entt::null;
     int child_link_index = -1;
 };
