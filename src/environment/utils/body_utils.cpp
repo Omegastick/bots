@@ -279,7 +279,7 @@ void link_modules(entt::registry &registry,
         link_a_entity = registry.get<EcsModuleLink>(link_a_entity).next;
     }
     auto &link_a = registry.get<EcsModuleLink>(link_a_entity);
-    link_a.parent = true;
+    link_a.child_link_index = module_b_link_index;
 
     auto &module_b = registry.get<EcsModule>(module_b_entity);
     entt::entity link_b_entity = module_b.first_link;
@@ -466,11 +466,11 @@ TEST_CASE("link_modules()")
         DOCTEST_CHECK(module.body == body_entity);
     }
 
-    SUBCASE("Sets parent status correctly")
+    SUBCASE("Sets child link index correctly")
     {
         const auto &module = registry.get<EcsModule>(body.base_module);
         const auto parent_link = registry.get<EcsModuleLink>(module.first_link);
-        DOCTEST_CHECK(parent_link.parent);
+        DOCTEST_CHECK(parent_link.child_link_index == 1);
     }
 }
 }

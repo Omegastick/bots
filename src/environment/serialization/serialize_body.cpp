@@ -4,7 +4,9 @@
 #include <Box2D/Box2D.h>
 #include <doctest/doctest.h>
 #include <entt/entt.hpp>
+#include <fmt/format.h>
 #include <nlohmann/json.hpp>
+#include <spdlog/spdlog.h>
 
 #include "serialize_body.h"
 #include "environment/components/body.h"
@@ -20,56 +22,60 @@ namespace ai
 {
 static const std::string schema_version = "v1alpha7";
 
-const entt::entity deserialize_module(entt::registry &registry, const nlohmann::json &json)
+void deserialize_children(entt::registry &registry,
+                          entt::entity module_entity,
+                          const nlohmann::json &children_json)
 {
-    entt::entity module_entity;
-    if (json["type"] == "gun_module")
-    {
-        module_entity = make_gun_module(registry);
-    }
-    else if (json["type"] == "thruster_module")
-    {
-        module_entity = make_thruster_module(registry);
-    }
-
     auto &module = registry.get<EcsModule>(module_entity);
-    if (module.children == 0)
-    {
-        return module_entity;
-    }
-
     for (unsigned int i = 0; i < module.links; i++)
     {
-        const auto &link_json = json["links"][i];
-        if (!link_json.is_null())
+        if (children_json[i].is_null())
         {
+            continue;
         }
+
+        entt::entity child_entity;
+        const std::string child_type = children_json[i]["type"];
+        if (child_type == "base_module")
+        {
+            child_entity = make_base_module(registry);
+        }
+        else if (child_type == "gun_module")
+        {
+            child_entity = make_gun_module(registry);
+        }
+        else if (child_type == "thruster_module")
+        {
+            child_entity = make_thruster_module(registry);
+        }
+        else
+        {
+            const auto error_message = fmt::format(
+                "Trying to deserialize unsupported module type: {}", child_type);
+            throw std::runtime_error(error_message.c_str());
+        }
+
+        link_modules(registry,
+                     module_entity,
+                     i,
+                     child_entity,
+                     children_json[i]["parent_link_idx"]);
+        deserialize_children(registry, child_entity, children_json[i]["links"]);
     }
 }
 
 void deserialize_body(entt::registry &registry, const nlohmann::json &json)
 {
+    if (json["schema"] != schema_version)
+    {
+        const auto error_message = fmt::format("Bad schema version: {}. Expected: {}",
+                                               json["schema"].get<std::string>(),
+                                               schema_version);
+        throw std::runtime_error(error_message.c_str());
+    }
     const auto body_entity = make_body(registry);
     const auto &body = registry.get<EcsBody>(body_entity);
-
-    std::queue<std::reference_wrapper<nlohmann::json>> queue;
-    queue.push(json["modules"]);
-    while (!queue.empty())
-    {
-        const auto module_entity = queue.front();
-        queue.pop();
-
-        // Add children to queue
-        const auto &module = registry.get<EcsModule>(module_entity);
-        entt::entity child = module.first;
-        for (unsigned int i = 0; i < module.children; ++i)
-        {
-            queue.push(child);
-            child = registry.get<EcsModule>(child).next;
-        }
-
-        callback(module_entity);
-    }
+    deserialize_children(registry, body.base_module, json["modules"]["links"]);
 }
 
 nlohmann::json serialize_module(entt::registry &registry, entt::entity module_entity)
@@ -99,17 +105,21 @@ nlohmann::json serialize_module(entt::registry &registry, entt::entity module_en
     for (unsigned int i = 0; i < module.links; i++)
     {
         const auto &link = registry.get<EcsModuleLink>(link_entity);
-        if (link.parent)
+        if (link.child_link_index >= 0)
         {
             json["links"][i] = serialize_module(registry, child_entity);
             child_entity = registry.get<EcsModule>(child_entity).next;
+            json["links"][i]["parent_link_idx"] = link.child_link_index;
         }
         else
         {
             json["links"][i] = nullptr;
         }
+        spdlog::debug(json.dump(2));
         link_entity = link.next;
     }
+
+    return json;
 }
 
 nlohmann::json serialize_body(entt::registry &registry,
@@ -122,6 +132,8 @@ nlohmann::json serialize_body(entt::registry &registry,
 
     const auto &body = registry.get<EcsBody>(body_entity);
     json["modules"] = serialize_module(registry, body.base_module);
+
+    return json;
 }
 
 TEST_CASE("Body serialization")
@@ -129,7 +141,14 @@ TEST_CASE("Body serialization")
     entt::registry registry;
     registry.set<b2World>(b2Vec2{0, 0});
 
-    SUBCASE("Can be saved to Json and loaded back")
+    SUBCASE("deserialize_children() throws when given a bad module type")
+    {
+        const auto json = "{\"type\": \"bad_type\", \"links\": []}";
+        const auto module_entity = make_base_module(registry);
+        DOCTEST_CHECK_THROWS(deserialize_children(registry, module_entity, json));
+    }
+
+    SUBCASE("Bodies can be saved to Json and loaded back")
     {
         const auto body_entity = make_body(registry);
         const auto gun_module_entity = make_gun_module(registry);
@@ -147,13 +166,13 @@ TEST_CASE("Body serialization")
 
         deserialize_body(registry, json);
 
-        SUBCASE("Loaded Bodys have the same number of modules")
+        SUBCASE("Loaded Bodies have the same number of modules")
         {
             DOCTEST_CHECK(registry.view<EcsModule>().size() == 3);
         }
     }
 
-    SUBCASE("With no modules are converted to Json correctly")
+    SUBCASE("Bodies with no modules are converted to Json correctly")
     {
         const auto body_entity = make_body(registry);
 
@@ -161,7 +180,7 @@ TEST_CASE("Body serialization")
         const auto pretty_json = json.dump(2);
         INFO("Json: " << pretty_json);
 
-        for (const auto &link : json["base_module"]["links"])
+        for (const auto &link : json["modules"]["links"])
         {
             DOCTEST_CHECK(link.is_null());
         }
