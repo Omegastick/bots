@@ -54,12 +54,12 @@ std::future<std::string> Matchmaker::find_game(int timeout, int frequency)
                 auto json = response.get();
                 if (json["status"] == "in_game")
                 {
-                    spdlog::debug("Game found: {}", json["gameserver"]);
+                    spdlog::debug("Game found: {}", json["gameserver"].get<std::string>());
                     gameserver_url = json["gameserver"];
                 }
                 else
                 {
-                    spdlog::debug("No game found: {}", json["status"]);
+                    spdlog::debug("No game found: {}", json["status"].get<std::string>());
                     std::this_thread::sleep_for(std::chrono::seconds(frequency));
                 }
             }

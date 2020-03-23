@@ -338,7 +338,7 @@ PUBLIC
     CURL::libcurl
     doctest
     EnTT::EnTT
-    fmt::fmt
+    fmt::fmt-header-only
     glad
     glfw
     ${GLFW_LIBRARIES}
@@ -392,7 +392,6 @@ set(NO_ERR_INCLUDE_DIRS
     ${TWEENY_DIR}/include
     ${PYBIND_DIR}/include
     ${PYTHON_INCLUDE_DIRS}
-    ${FMT_DIR}/include
     ${ZMQ_DIR}/include
 )
 
