@@ -3,7 +3,7 @@
 #include <vector>
 
 #include <Box2D/Box2D.h>
-#include <doctest/doctest.h>
+#include <doctest.h>
 #include <entt/entt.hpp>
 #include <glm/glm.hpp>
 #include <glm/gtc/constants.hpp>
@@ -96,6 +96,7 @@ entt::entity make_body(entt::registry &registry)
     body.base_module = base_module_entity;
     auto &base_module = registry.get<EcsModule>(base_module_entity);
     base_module.body = entity;
+    update_body_fixtures(registry, entity);
 
     const auto bar_background_entity = registry.create();
     const auto bar_foreground_entity = registry.create();
@@ -204,6 +205,7 @@ entt::entity make_thruster_module(entt::registry &registry)
     const auto link_entity = make_module_link(registry, {0.f, 0.125f}, 0.f);
     module.links = 1;
     module.first_link = link_entity;
+    registry.get<EcsModuleLink>(link_entity).parent = entity;
 
     // Create physics shapes
     auto &shapes = registry.assign<PhysicsShapes>(entity);

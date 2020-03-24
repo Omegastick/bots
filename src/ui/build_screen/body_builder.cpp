@@ -1,7 +1,7 @@
 #include <memory>
 
 #include <Box2D/Box2D.h>
-#include <doctest/doctest.h>
+#include <doctest.h>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/glm.hpp>
 #include <nlohmann/json.hpp>

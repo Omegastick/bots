@@ -4,7 +4,7 @@
 #include <vector>
 
 #include <Box2D/Box2D.h>
-#include <doctest/doctest.h>
+#include <doctest.h>
 #include <entt/entt.hpp>
 #include <glm/glm.hpp>
 #include <glm/gtc/constants.hpp>
@@ -88,6 +88,7 @@ NearestLinkResult find_nearest_link(entt::registry &registry, entt::entity modul
 {
     double closest_distance = std::numeric_limits<float>::infinity();
     entt::entity closest_link = entt::null;
+    entt::entity closest_other_module = entt::null;
     entt::entity closest_other_link = entt::null;
 
     const auto &module = registry.get<EcsModule>(module_entity);
@@ -111,6 +112,7 @@ NearestLinkResult find_nearest_link(entt::registry &registry, entt::entity modul
             {
                 closest_distance = distance;
                 closest_link = link;
+                closest_other_module = registry.get<EcsModuleLink>(other_entity).parent;
                 closest_other_link = other_entity;
             }
 
@@ -118,7 +120,81 @@ NearestLinkResult find_nearest_link(entt::registry &registry, entt::entity modul
         }
     }
 
-    return {closest_other_link, closest_link, static_cast<float>(closest_distance)};
+    return {closest_other_module,
+            closest_other_link,
+            closest_link,
+            static_cast<float>(closest_distance)};
+}
+
+class GetFirstQueryCallback : public b2QueryCallback
+{
+  private:
+    b2Fixture *fixture = nullptr;
+
+  public:
+    bool ReportFixture(b2Fixture *fixture) override
+    {
+        this->fixture = fixture;
+        return false;
+    }
+
+    b2Fixture *get() { return fixture; }
+};
+
+entt::entity get_module_at_point(entt::registry &registry, glm::vec2 point)
+{
+    GetFirstQueryCallback query_callback;
+    registry.ctx<b2World>().QueryAABB(&query_callback, {{point.x, point.y},
+                                                        {point.x, point.y}});
+    const b2Fixture *fixture = query_callback.get();
+    if (!fixture)
+    {
+        return entt::null;
+    }
+
+    const auto entity = static_cast<entt::registry::entity_type>(
+        reinterpret_cast<uintptr_t>(fixture->GetUserData()));
+    return entity;
+}
+
+void link_modules(entt::registry &registry, entt::entity link_a_entity, entt::entity link_b_entity)
+{
+    auto &link_a = registry.get<EcsModuleLink>(link_a_entity);
+    auto &link_b = registry.get<EcsModuleLink>(link_b_entity);
+    auto &module_a = registry.get<EcsModule>(link_a.parent);
+    auto &module_b = registry.get<EcsModule>(link_b.parent);
+
+    // Calculate new offset
+    snap_modules(registry, link_a.parent, link_a_entity, link_b.parent, link_b_entity);
+
+    entt::entity temp_link_entity = module_b.first_link;
+    unsigned int module_b_link_index = 0;
+    while (temp_link_entity != link_b_entity)
+    {
+        temp_link_entity = registry.get<EcsModuleLink>(temp_link_entity).next;
+        module_b_link_index++;
+    }
+    link_a.child_link_index = module_b_link_index;
+
+    module_b.body = module_a.body;
+    module_b.parent = link_a.parent;
+    module_a.children++;
+    if (module_a.first == entt::null)
+    {
+        module_a.first = link_b.parent;
+    }
+    else
+    {
+        entt::entity previous_entity = module_a.first;
+        auto &previous_module = registry.get<EcsModule>(previous_entity);
+        while (previous_module.next != entt::null)
+        {
+            previous_module = registry.get<EcsModule>(previous_entity);
+            previous_entity = previous_module.next;
+        }
+        registry.get<EcsModule>(previous_entity).next = link_b.parent;
+        module_b.prev = previous_entity;
+    }
 }
 
 void link_modules(entt::registry &registry,
@@ -141,31 +217,7 @@ void link_modules(entt::registry &registry,
         link_b_entity = registry.get<EcsModuleLink>(link_b_entity).next;
     }
 
-    // Calculate new offset
-    snap_modules(registry, module_a_entity, link_a_entity, module_b_entity, link_b_entity);
-
-    auto &link_a = registry.get<EcsModuleLink>(link_a_entity);
-    link_a.child_link_index = module_b_link_index;
-
-    module_b.body = module_a.body;
-    module_b.parent = module_a_entity;
-    module_a.children++;
-    if (module_a.first == entt::null)
-    {
-        module_a.first = module_b_entity;
-    }
-    else
-    {
-        entt::entity previous_entity = module_a.first;
-        auto &previous_module = registry.get<EcsModule>(previous_entity);
-        while (previous_module.next != entt::null)
-        {
-            previous_module = registry.get<EcsModule>(previous_entity);
-            previous_entity = previous_module.next;
-        }
-        registry.get<EcsModule>(previous_entity).next = module_b_entity;
-        module_b.prev = previous_entity;
-    }
+    link_modules(registry, link_a_entity, link_b_entity);
 }
 
 void snap_modules(entt::registry &registry,
@@ -282,7 +334,7 @@ void update_body_fixtures(entt::registry &registry, entt::entity body_entity)
             fixture_def.density = 1;
             fixture_def.friction = 1;
             fixture_def.restitution = 0.5f;
-            fixture_def.userData = reinterpret_cast<void *>(body_entity);
+            fixture_def.userData = reinterpret_cast<void *>(module_entity);
             physics_body.body->CreateFixture(&fixture_def);
 
             shape_entity = shape.next;
@@ -334,12 +386,28 @@ TEST_CASE("find_nearest_link()")
     expected_body_link = registry.get<EcsModuleLink>(expected_body_link).next;
     expected_body_link = registry.get<EcsModuleLink>(expected_body_link).next;
     DOCTEST_CHECK(result.link_a == expected_body_link);
+    DOCTEST_CHECK(result.module_a == body.base_module);
 
     auto expected_module_link = registry.get<EcsModule>(module_entity).first_link;
     expected_module_link = registry.get<EcsModuleLink>(expected_module_link).next;
     DOCTEST_CHECK(result.link_b == expected_module_link);
 
     DOCTEST_CHECK(result.distance == doctest::Approx(2.5f));
+}
+
+TEST_CASE("get_module_at_point()")
+{
+    entt::registry registry;
+    registry.set<b2World>(b2Vec2{0, 0});
+
+    const auto body_entity = make_body(registry);
+    const auto &body = registry.get<EcsBody>(body_entity);
+    const auto physics_body = registry.get<PhysicsBody>(body_entity);
+    physics_body.body->SetTransform({5.f, 3.f}, 0.f);
+
+    const entt::entity null_entity = entt::null;
+    DOCTEST_CHECK(get_module_at_point(registry, {0.f, 0.f}) == null_entity);
+    DOCTEST_CHECK(get_module_at_point(registry, {5.f, 3.f}) == body.base_module);
 }
 
 TEST_CASE("link_modules()")

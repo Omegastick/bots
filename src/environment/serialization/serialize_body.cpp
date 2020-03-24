@@ -2,7 +2,7 @@
 #include <queue>
 
 #include <Box2D/Box2D.h>
-#include <doctest/doctest.h>
+#include <doctest.h>
 #include <entt/entt.hpp>
 #include <fmt/format.h>
 #include <nlohmann/json.hpp>
@@ -22,6 +22,31 @@ namespace ai
 {
 static const std::string schema_version = "v1alpha7";
 
+entt::entity deserialize_module(entt::registry &registry, const nlohmann::json &json)
+{
+    entt::entity entity;
+    const std::string type = json["type"];
+    if (type == "base_module")
+    {
+        entity = make_base_module(registry);
+    }
+    else if (type == "gun_module")
+    {
+        entity = make_gun_module(registry);
+    }
+    else if (type == "thruster_module")
+    {
+        entity = make_thruster_module(registry);
+    }
+    else
+    {
+        const auto error_message = fmt::format(
+            "Trying to deserialize unsupported module type: {}", type);
+        throw std::runtime_error(error_message.c_str());
+    }
+    return entity;
+}
+
 void deserialize_children(entt::registry &registry,
                           entt::entity module_entity,
                           const nlohmann::json &children_json)
@@ -34,26 +59,7 @@ void deserialize_children(entt::registry &registry,
             continue;
         }
 
-        entt::entity child_entity;
-        const std::string child_type = children_json[i]["type"];
-        if (child_type == "base_module")
-        {
-            child_entity = make_base_module(registry);
-        }
-        else if (child_type == "gun_module")
-        {
-            child_entity = make_gun_module(registry);
-        }
-        else if (child_type == "thruster_module")
-        {
-            child_entity = make_thruster_module(registry);
-        }
-        else
-        {
-            const auto error_message = fmt::format(
-                "Trying to deserialize unsupported module type: {}", child_type);
-            throw std::runtime_error(error_message.c_str());
-        }
+        const auto child_entity = deserialize_module(registry, children_json[i]);
 
         link_modules(registry,
                      module_entity,
