@@ -9,7 +9,9 @@
 #include <imgui.h>
 #include <spdlog/spdlog.h>
 
-#include "screens/build_screen.h"
+#include "build_screen.h"
+#include "audio/audio_engine.h"
+#include "environment/build_env.h"
 #include "graphics/renderers/renderer.h"
 #include "graphics/render_data.h"
 #include "graphics/render_data.h"
@@ -21,21 +23,23 @@
 #include "misc/utilities.h"
 #include "ui/back_button.h"
 #include "ui/build_screen/part_selector_window.h"
-#include "ui/build_screen/body_builder.h"
 #include "ui/build_screen/unlock_parts_window.h"
 
 namespace ai
 {
-BuildScreen::BuildScreen(BodyBuilder &&body_builder,
+BuildScreen::BuildScreen(BuildEnv &&build_env,
                          std::unique_ptr<ColorSchemeWindow> color_scheme_window,
                          std::unique_ptr<PartSelectorWindow> part_selector_window,
                          std::unique_ptr<SaveBodyWindow> save_body_window,
                          std::unique_ptr<UnlockPartsWindow> unlock_parts_window,
+                         IAudioEngine &audio_engine,
                          IModuleFactory &module_factory,
                          ResourceManager &resource_manager,
                          ScreenManager &screen_manager,
                          IO &io)
-    : color_scheme_window(std::move(color_scheme_window)),
+    : audio_engine(audio_engine),
+      build_env(std::move(build_env)),
+      color_scheme_window(std::move(color_scheme_window)),
       current_rotation(0),
       module_factory(module_factory),
       screen_manager(screen_manager),
@@ -45,8 +49,8 @@ BuildScreen::BuildScreen(BodyBuilder &&body_builder,
       part_selector_window(std::move(part_selector_window)),
       b2_world(b2Vec2(0, 0)),
       save_body_window(std::move(save_body_window)),
-      body_builder(std::move(body_builder)),
-      module_to_place(nullptr),
+      module_to_place(entt::null),
+      selected_module(entt::null),
       unlock_parts_window(std::move(unlock_parts_window))
 
 {
@@ -56,68 +60,70 @@ BuildScreen::BuildScreen(BodyBuilder &&body_builder,
     resource_manager.load_font("roboto-16", "fonts/Roboto-Regular.ttf", 16);
 }
 
-void BuildScreen::update(double /*delta_time*/)
+void BuildScreen::update(double delta_time)
 {
     const auto part_selector_output = part_selector_window->update(selected_module_name,
                                                                    show_unlock_parts_window);
     if (part_selector_output != "")
     {
-        module_to_place = module_factory.make(part_selector_output);
-        selected_module_name = part_selector_output;
+        selected_module = build_env.create_module(part_selector_output);
+        selected_module_name = selected_module_name;
     }
 
-    if (io.get_left_click())
-    {
-        if (module_to_place == nullptr)
-        {
-            selected_module = body_builder.get_module_at_screen_position(io.get_cursor_position());
-            selected_module_name = "";
-        }
-        else
-        {
-            selected_module = body_builder.place_module(module_to_place);
-            selected_module_name = "";
-        }
+    // if (io.get_left_click())
+    // {
+    //     if (module_to_place == nullptr)
+    //     {
+    //         selected_module = body_builder.get_module_at_screen_position(io.get_cursor_position());
+    //         selected_module_name = "";
+    //     }
+    //     else
+    //     {
+    //         selected_module = body_builder.place_module(module_to_place);
+    //         selected_module_name = "";
+    //     }
 
-        if (selected_module != nullptr)
-        {
-            module_to_place = nullptr;
-        }
-    }
+    //     if (selected_module != nullptr)
+    //     {
+    //         module_to_place = nullptr;
+    //     }
+    // }
 
-    if (io.get_key_pressed_this_frame(GLFW_KEY_Q))
-    {
-        current_rotation += 1;
-    }
-    else if (io.get_key_pressed_this_frame(GLFW_KEY_E))
-    {
-        current_rotation -= 1;
-    }
+    // if (io.get_key_pressed_this_frame(GLFW_KEY_Q))
+    // {
+    //     current_rotation += 1;
+    // }
+    // else if (io.get_key_pressed_this_frame(GLFW_KEY_E))
+    // {
+    //     current_rotation -= 1;
+    // }
 
-    if (selected_module != nullptr && io.get_key_pressed_this_frame(GLFW_KEY_DELETE))
-    {
-        try
-        {
-            body_builder.delete_module(selected_module.get());
-        }
-        catch (std::runtime_error &error)
-        {
-            spdlog::error(error.what());
-        }
-        selected_module = nullptr;
-    }
+    // if (selected_module != nullptr && io.get_key_pressed_this_frame(GLFW_KEY_DELETE))
+    // {
+    //     try
+    //     {
+    //         body_builder.delete_module(selected_module.get());
+    //     }
+    //     catch (std::runtime_error &error)
+    //     {
+    //         spdlog::error(error.what());
+    //     }
+    //     selected_module = nullptr;
+    // }
 
-    body_builder.select_module(selected_module.get());
-    part_detail_window.select_part(selected_module.get());
+    // body_builder.select_module(selected_module.get());
+    // part_detail_window.select_part(selected_module.get());
 
-    color_scheme_window->update(body_builder.get_body());
-    part_detail_window.update();
-    save_body_window->update(body_builder.get_body());
-    const auto part_bought = unlock_parts_window->update(show_unlock_parts_window);
-    if (part_bought)
-    {
-        part_selector_window->refresh_parts();
-    }
+    // color_scheme_window->update(body_builder.get_body());
+    // part_detail_window.update();
+    // save_body_window->update(body_builder.get_body());
+    // const auto part_bought = unlock_parts_window->update(show_unlock_parts_window);
+    // if (part_bought)
+    // {
+    //     part_selector_window->refresh_parts();
+    // }
+
+    build_env.forward(delta_time);
 
     auto resolution = io.get_resolution();
     back_button(screen_manager, resolution);
@@ -131,25 +137,71 @@ void BuildScreen::draw(Renderer &renderer, bool /*lightweight*/)
     auto view_right = view_top * (resolution.x / resolution.y);
     const auto projection = glm::ortho(-view_right, view_right, -view_top, view_top);
     renderer.set_view(projection);
-    body_builder.set_view(projection);
 
-    if (module_to_place != nullptr)
-    {
-        auto cursor_world_position = screen_to_world_space(io.get_cursor_position(),
-                                                           io.get_resolution(),
-                                                           body_builder.get_projection());
-        module_to_place->get_transform().p = {cursor_world_position.x, cursor_world_position.y};
-        module_to_place->get_transform().q = b2Rot(glm::radians(current_rotation * 90.f));
+    build_env.draw(renderer, audio_engine);
 
-        auto nearest_link_result = body_builder.get_nearest_module_link_to_module(*module_to_place);
-        if (nearest_link_result.nearest_link != nullptr && nearest_link_result.distance < 1)
-        {
-            nearest_link_result.origin_link->snap_to_other(*nearest_link_result.nearest_link);
-        }
+    // body_builder.set_view(projection);
 
-        module_to_place->draw(renderer);
-    }
+    // if (module_to_place != nullptr)
+    // {
+    //     auto cursor_world_position = screen_to_world_space(io.get_cursor_position(),
+    //                                                        io.get_resolution(),
+    //                                                        body_builder.get_projection());
+    //     module_to_place->get_transform().p = {cursor_world_position.x, cursor_world_position.y};
+    //     module_to_place->get_transform().q = b2Rot(glm::radians(current_rotation * 90.f));
 
-    body_builder.draw(renderer);
+    //     auto nearest_link_result = body_builder.get_nearest_module_link_to_module(*module_to_place);
+    //     if (nearest_link_result.nearest_link != nullptr && nearest_link_result.distance < 1)
+    //     {
+    //         nearest_link_result.origin_link->snap_to_other(*nearest_link_result.nearest_link);
+    //     }
+
+    //     module_to_place->draw(renderer);
+    // }
+
+    // body_builder.draw(renderer);
+}
+
+BuildScreenFactory::BuildScreenFactory(Animator &animator,
+                                       IAudioEngine &audio_engine,
+                                       CredentialsManager &credentials_manager,
+                                       IHttpClient &http_client,
+                                       IModuleFactory &module_factory,
+                                       ModuleTextureStore &module_texture_store,
+                                       ResourceManager &resource_manager,
+                                       ScreenManager &screen_manager,
+                                       IO &io)
+    : animator(animator),
+      audio_engine(audio_engine),
+      credentials_manager(credentials_manager),
+      http_client(http_client),
+      module_factory(module_factory),
+      module_texture_store(module_texture_store),
+      resource_manager(resource_manager),
+      screen_manager(screen_manager),
+      io(io) {}
+
+std::shared_ptr<IScreen> BuildScreenFactory::make()
+{
+    return std::make_shared<BuildScreen>(BuildEnv(),
+                                         std::make_unique<ColorSchemeWindow>(io),
+                                         std::make_unique<PartSelectorWindow>(
+                                             credentials_manager,
+                                             http_client,
+                                             io,
+                                             module_texture_store,
+                                             resource_manager),
+                                         std::make_unique<SaveBodyWindow>(animator, io),
+                                         std::make_unique<UnlockPartsWindow>(
+                                             credentials_manager,
+                                             http_client,
+                                             io,
+                                             module_texture_store,
+                                             resource_manager),
+                                         audio_engine,
+                                         module_factory,
+                                         resource_manager,
+                                         screen_manager,
+                                         io);
 }
 }

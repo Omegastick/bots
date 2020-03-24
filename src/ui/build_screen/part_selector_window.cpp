@@ -5,7 +5,7 @@
 #include <thread>
 #include <vector>
 
-#include <doctest/doctest.h>
+#include <doctest.h>
 #include <doctest/trompeloeil.hpp>
 #include <fmt/format.h>
 #include <imgui.h>

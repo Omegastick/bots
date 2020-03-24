@@ -54,7 +54,8 @@ Renderer::Renderer(int width, int height,
                    ParticleRenderer &particle_renderer,
                    TextRenderer &text_renderer,
                    VectorRenderer &vector_renderer)
-    : width(width),
+    : initialized(false),
+      width(width),
       height(height),
       view(glm::ortho(0, width, 0, height)),
       resource_manager(resource_manager),
@@ -62,9 +63,7 @@ Renderer::Renderer(int width, int height,
       particle_renderer(particle_renderer),
       text_renderer(text_renderer),
       vector_renderer(vector_renderer),
-      distortion_layer(nullptr)
-{
-}
+      distortion_layer(nullptr) {}
 
 void Renderer::init()
 {
@@ -75,6 +74,13 @@ void Renderer::init()
     particle_renderer.init();
     text_renderer.init();
     vector_renderer.init();
+
+    initialized = true;
+}
+
+bool Renderer::is_initialized()
+{
+    return initialized;
 }
 
 void Renderer::resize(int width, int height)

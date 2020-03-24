@@ -41,6 +41,7 @@ class Renderer
         glm::mat4 transform;
     };
 
+    bool initialized;
     int width, height;
 
     glm::mat4 view;
@@ -75,6 +76,7 @@ class Renderer
                     VectorRenderer &vector_renderer);
 
     void init();
+    bool is_initialized();
 
     void resize(int width, int height);
 

@@ -22,6 +22,11 @@ ModuleTextureStore::ModuleTextureStore(IModuleFactory &module_factory, Renderer 
 
 Texture &ModuleTextureStore::get(const std::string &module)
 {
+    if (!renderer.is_initialized())
+    {
+        renderer.init();
+    }
+
     const auto found_texture = cache.find(module);
     if (found_texture != cache.end())
     {

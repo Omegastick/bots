@@ -7,6 +7,7 @@
 
 #include "build_env.h"
 #include "audio/audio_engine.h"
+#include "environment/components/health_bar.h"
 #include "environment/components/physics_body.h"
 #include "environment/serialization/serialize_body.h"
 #include "environment/systems/audio_system.h"
@@ -35,17 +36,13 @@ BuildEnv::BuildEnv()
     init_physics(registry);
 
     body_entity = make_body(registry);
+    const auto &health_bar = registry.get<HealthBar>(body_entity);
+    registry.destroy(health_bar.background);
+    registry.destroy(health_bar.foreground);
 }
 
 void BuildEnv::draw(Renderer &renderer, IAudioEngine &audio_engine)
 {
-    const double view_height = 50;
-    auto view_top = view_height * 0.5;
-    auto view_right = view_top * (static_cast<float>(renderer.get_width()) /
-                                  static_cast<float>(renderer.get_height()));
-    view = glm::ortho(-view_right, view_right, -view_top, view_top);
-    renderer.set_view(view);
-
     trail_system(registry);
     particle_system(registry, renderer);
     render_system(registry, renderer);
@@ -64,8 +61,10 @@ void BuildEnv::forward(double step_length)
     clean_up_system(registry);
 }
 
-entt::entity BuildEnv::create_module(const nlohmann::json &json)
+entt::entity BuildEnv::create_module(const std::string &type)
 {
+    nlohmann::json json;
+    json["type"] = type;
     return deserialize_module(registry, json);
 }
 
