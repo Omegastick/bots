@@ -27,6 +27,7 @@
 #include "environment/components/score.h"
 #include "environment/systems/clean_up_system.h"
 #include "environment/utils/body_utils.h"
+#include "graphics/colors.h"
 
 namespace ai
 {
@@ -78,6 +79,7 @@ entt::entity make_body(entt::registry &registry)
     registry.assign<Transform>(entity);
     registry.assign<PhysicsType>(entity, PhysicsType::Body);
     registry.assign<Score>(entity);
+    registry.assign<ColorScheme>(entity);
 
     auto &physics_body = registry.assign<PhysicsBody>(entity);
     b2BodyDef body_def;

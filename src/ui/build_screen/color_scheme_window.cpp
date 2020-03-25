@@ -10,7 +10,7 @@ namespace ai
 {
 ColorSchemeWindow::ColorSchemeWindow(IO &io) : io(&io), selected_swatch(0) {}
 
-void ColorSchemeWindow::update(Body &body)
+bool ColorSchemeWindow::update(ColorScheme &color_scheme)
 {
     auto resolution = static_cast<glm::vec2>(io->get_resolution());
     ImGui::SetNextWindowSize({0, resolution.y * 0.225f}, ImGuiCond_Once);
@@ -27,13 +27,14 @@ void ColorSchemeWindow::update(Body &body)
         selected_swatch = 1;
     }
 
-    auto color_scheme = body.get_color_scheme();
     auto &color = selected_swatch == 0 ? color_scheme.primary : color_scheme.secondary;
+    auto old_color = color;
     ImGui::ColorPicker4("##color_scheme_picker", glm::value_ptr(color),
                         ImGuiColorEditFlags_NoAlpha | ImGuiColorEditFlags_NoSidePreview |
                             ImGuiColorEditFlags_RGB);
-    body.set_color(color_scheme);
 
     ImGui::End();
+
+    return color != old_color;
 }
 }

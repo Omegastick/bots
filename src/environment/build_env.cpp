@@ -24,6 +24,7 @@
 #include "environment/systems/trail_system.h"
 #include "environment/utils/body_factories.h"
 #include "environment/utils/body_utils.h"
+#include "graphics/colors.h"
 #include "graphics/renderers/renderer.h"
 #include "misc/transform.h"
 
@@ -111,9 +112,20 @@ bool BuildEnv::link_module(entt::entity module_entity)
         link_modules(registry,
                      nearest_links.link_a,
                      nearest_links.link_b);
+        apply_color_scheme(registry, body_entity);
         return true;
     }
     return false;
 }
 
+ColorScheme BuildEnv::get_color_scheme() const
+{
+    return registry.get<ColorScheme>(body_entity);
+}
+
+void BuildEnv::set_color_scheme(const ColorScheme &color_scheme)
+{
+    registry.assign_or_replace<ColorScheme>(body_entity, color_scheme);
+    apply_color_scheme(registry, body_entity);
+}
 }

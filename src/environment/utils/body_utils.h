@@ -20,6 +20,7 @@ struct NearestLinkResult
     float distance = 0.f;
 };
 
+void apply_color_scheme(entt::registry &registry, entt::entity body_entity);
 void destroy_body(entt::registry &registry, entt::entity body_entity);
 void destroy_module(entt::registry &registry, entt::entity module_entity);
 NearestLinkResult find_nearest_link(entt::registry &registry, entt::entity module_entity);

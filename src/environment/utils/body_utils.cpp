@@ -31,8 +31,41 @@
 #include "environment/systems/module_system.h"
 #include "environment/utils/body_factories.h"
 
+namespace glm
+{
+std::ostream &operator<<(std::ostream &os, const vec4 &value)
+{
+    os << "{" << value.x << ", " << value.y << ", " << value.z << ", " << value.w << "}";
+    return os;
+}
+}
+
 namespace ai
 {
+void apply_color_scheme(entt::registry &registry, entt::entity body_entity)
+{
+    const auto &color_scheme = registry.get<ColorScheme>(body_entity);
+
+    traverse_modules(registry, body_entity, [&](auto entity) {
+        registry.assign_or_replace<Color>(entity,
+                                          color_scheme.secondary,
+                                          color_scheme.primary);
+
+        if (registry.has<RenderShapes>(entity))
+        {
+            const auto &render_shapes = registry.get<RenderShapes>(entity);
+            entt::entity container_entity = render_shapes.first;
+            for (unsigned int i = 0; i < render_shapes.children; i++)
+            {
+                registry.assign_or_replace<Color>(container_entity,
+                                                  color_scheme.secondary,
+                                                  color_scheme.primary);
+                container_entity = registry.get<RenderShapeContainer>(container_entity).next;
+            }
+        }
+    });
+}
+
 void destroy_body(entt::registry &registry, entt::entity body_entity)
 {
     // Destroy body
@@ -404,6 +437,46 @@ void update_body_fixtures(entt::registry &registry, entt::entity body_entity)
             physics_body.body->CreateFixture(&fixture_def);
 
             shape_entity = registry.get<PhysicsShape>(shape_entity).next;
+        }
+    });
+}
+
+TEST_CASE("apply_color_scheme()")
+{
+    entt::registry registry;
+    registry.set<b2World>(b2Vec2{0, 0});
+
+    const auto body_entity = make_body(registry);
+    const auto gun_module_entity_1 = make_gun_module(registry);
+    const auto gun_module_entity_2 = make_gun_module(registry);
+    auto &body = registry.get<EcsBody>(body_entity);
+    link_modules(registry, body.base_module, 0, gun_module_entity_1, 1);
+    link_modules(registry, gun_module_entity_1, 0, gun_module_entity_2, 1);
+
+    registry.get<ColorScheme>(body_entity).primary = {1.f, 0.5f, 0.f, 0.3f};
+    registry.get<ColorScheme>(body_entity).secondary = {0.f, 0.1f, 0.5f, 1.f};
+
+    apply_color_scheme(registry, body_entity);
+
+    traverse_modules(registry, body_entity, [&](auto entity) {
+        if (registry.has<Color>(entity))
+        {
+            const auto &color = registry.get<Color>(entity);
+            DOCTEST_CHECK(color.fill_color == glm::vec4{0.f, 0.1f, 0.5f, 1.f});
+            DOCTEST_CHECK(color.stroke_color == glm::vec4{1.f, 0.5f, 0.f, 0.3f});
+        }
+
+        if (registry.has<RenderShapes>(entity))
+        {
+            const auto &render_shapes = registry.get<RenderShapes>(entity);
+            entt::entity container_entity = render_shapes.first;
+            for (unsigned int i = 0; i < render_shapes.children; i++)
+            {
+                const auto &color = registry.get<Color>(container_entity);
+                DOCTEST_CHECK(color.fill_color == glm::vec4{0.f, 0.1f, 0.5f, 1.f});
+                DOCTEST_CHECK(color.stroke_color == glm::vec4{1.f, 0.5f, 0.f, 0.3f});
+                container_entity = registry.get<RenderShapeContainer>(container_entity).next;
+            }
         }
     });
 }

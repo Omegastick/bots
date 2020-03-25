@@ -10,6 +10,7 @@
 
 namespace ai
 {
+class ColorScheme;
 class IAudioEngine;
 class Renderer;
 
@@ -31,6 +32,9 @@ class BuildEnv
     void move_module(entt::entity module_entity, glm::vec2 position, float rotation);
     void snap_module(entt::entity module_entity);
     bool link_module(entt::entity module_entity);
+
+    ColorScheme get_color_scheme() const;
+    void set_color_scheme(const ColorScheme &color_scheme);
 
     nlohmann::json serialize_body();
 };

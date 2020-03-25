@@ -4,7 +4,6 @@
 
 namespace ai
 {
-class Body;
 class IO;
 
 class ColorSchemeWindow
@@ -16,6 +15,6 @@ class ColorSchemeWindow
   public:
     ColorSchemeWindow(IO &io);
 
-    void update(Body &body);
+    bool update(ColorScheme &color_scheme);
 };
 }
