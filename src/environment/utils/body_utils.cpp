@@ -8,6 +8,7 @@
 #include <entt/entt.hpp>
 #include <glm/glm.hpp>
 #include <glm/gtc/constants.hpp>
+#include <spdlog/spdlog.h>
 
 #include "body_utils.h"
 #include "environment/components/activatable.h"
@@ -35,57 +36,104 @@ namespace ai
 void destroy_body(entt::registry &registry, entt::entity body_entity)
 {
     // Destroy body
-    registry.assign<entt::tag<"should_destroy"_hs>>(body_entity);
+    registry.assign_or_replace<entt::tag<"should_destroy"_hs>>(body_entity);
 
     // Destroy modules
     traverse_modules(registry, body_entity, [&](auto module_entity) {
-        registry.assign<entt::tag<"should_destroy"_hs>>(module_entity);
-        auto &module = registry.get<EcsModule>(module_entity);
-
-        // Destroy links
-        if (module.first_link != entt::null)
-        {
-            entt::entity link = module.first_link;
-            for (unsigned int i = 0; i < module.links; i++)
-            {
-                registry.assign<entt::tag<"should_destroy"_hs>>(link);
-                link = registry.get<EcsModuleLink>(link).next;
-            }
-        }
-
-        // Destroy physics shapes
-        auto &physics_shapes = registry.get<PhysicsShapes>(module_entity);
-        if (physics_shapes.count > 0)
-        {
-            entt::entity shape = physics_shapes.first;
-            for (unsigned int i = 0; i < physics_shapes.count; i++)
-            {
-                registry.assign<entt::tag<"should_destroy"_hs>>(shape);
-                shape = registry.get<PhysicsShape>(shape).next;
-            }
-        }
-
-        // Destroy render shape containers
-        if (registry.has<RenderShapes>(module_entity))
-        {
-            auto &shape_container = registry.get<RenderShapes>(module_entity);
-            entt::entity shape = shape_container.first;
-            for (unsigned int i = 0; i < shape_container.children; i++)
-            {
-                registry.assign<entt::tag<"should_destroy"_hs>>(shape);
-                shape = registry.get<RenderShapeContainer>(shape).next;
-            }
-        }
+        destroy_module(registry, module_entity);
     });
 
     // Destroy health bar
     const auto &health_bar = registry.get<HealthBar>(body_entity);
-    registry.assign<entt::tag<"should_destroy"_hs>>(health_bar.background);
-    registry.assign<entt::tag<"should_destroy"_hs>>(health_bar.foreground);
+    registry.assign_or_replace<entt::tag<"should_destroy"_hs>>(health_bar.background);
+    registry.assign_or_replace<entt::tag<"should_destroy"_hs>>(health_bar.foreground);
+}
+
+void destroy_module(entt::registry &registry, entt::entity module_entity)
+{
+    registry.assign_or_replace<entt::tag<"should_destroy"_hs>>(module_entity);
+    auto &module = registry.get<EcsModule>(module_entity);
+    if (module.prev != entt::null)
+    {
+        registry.get<EcsModule>(module.prev).next = module.next;
+    }
+
+    // Destroy links
+    if (module.first_link != entt::null)
+    {
+        entt::entity link_entity = module.first_link;
+        for (unsigned int i = 0; i < module.links; i++)
+        {
+            registry.assign_or_replace<entt::tag<"should_destroy"_hs>>(link_entity);
+            const auto &link = registry.get<EcsModuleLink>(link_entity);
+            if (link.linked)
+            {
+                if (link.child_link_index == -1)
+                {
+                    auto &parent = registry.get<EcsModule>(module.parent);
+                    parent.children--;
+                    entt::entity parent_link = parent.first_link;
+                    for (int j = 0; j < module.parent_link_index; j++)
+                    {
+                        parent_link = registry.get<EcsModuleLink>(parent_link).next;
+                    }
+                    registry.get<EcsModuleLink>(parent_link).linked = false;
+                    registry.get<EcsModuleLink>(parent_link).child_link_index = -1;
+                }
+                else
+                {
+                    entt::entity child_entity = module.first;
+                    auto *child = &registry.get<EcsModule>(child_entity);
+                    while (child->parent_link_index != static_cast<int>(i))
+                    {
+                        child_entity = child->next;
+                        child = &registry.get<EcsModule>(child_entity);
+                    }
+                    destroy_module(registry, child_entity);
+                    // auto &child = registry.get<EcsModule>(child_entity);
+                    // child.parent_link_index = -1;
+
+                    // entt::entity child_link = child.first_link;
+                    // for (int j = 0; j < link.child_link_index; j++)
+                    // {
+                    //     child_link = registry.get<EcsModuleLink>(child_link).next;
+                    // }
+                    // registry.get<EcsModuleLink>(child_link).linked = false;
+                }
+            }
+            link_entity = link.next;
+        }
+    }
+
+    // Destroy physics shapes
+    auto &physics_shapes = registry.get<PhysicsShapes>(module_entity);
+    if (physics_shapes.count > 0)
+    {
+        entt::entity shape = physics_shapes.first;
+        for (unsigned int i = 0; i < physics_shapes.count; i++)
+        {
+            registry.assign_or_replace<entt::tag<"should_destroy"_hs>>(shape);
+            shape = registry.get<PhysicsShape>(shape).next;
+        }
+    }
+
+    // Destroy render shape containers
+    if (registry.has<RenderShapes>(module_entity))
+    {
+        auto &shape_container = registry.get<RenderShapes>(module_entity);
+        entt::entity shape = shape_container.first;
+        for (unsigned int i = 0; i < shape_container.children; i++)
+        {
+            registry.assign_or_replace<entt::tag<"should_destroy"_hs>>(shape);
+            shape = registry.get<RenderShapeContainer>(shape).next;
+        }
+    }
 }
 
 NearestLinkResult find_nearest_link(entt::registry &registry, entt::entity module_entity)
 {
+    update_link_transforms(registry, module_entity);
+
     double closest_distance = std::numeric_limits<float>::infinity();
     entt::entity closest_link = entt::null;
     entt::entity closest_other_module = entt::null;
@@ -96,7 +144,8 @@ NearestLinkResult find_nearest_link(entt::registry &registry, entt::entity modul
     const auto view = registry.view<EcsModuleLink>();
     for (const auto &other_entity : view)
     {
-        if (registry.get<EcsModuleLink>(other_entity).parent == module_entity)
+        const auto &other_link = registry.get<EcsModuleLink>(other_entity);
+        if (other_link.parent == module_entity || other_link.linked)
         {
             continue;
         }
@@ -112,7 +161,7 @@ NearestLinkResult find_nearest_link(entt::registry &registry, entt::entity modul
             {
                 closest_distance = distance;
                 closest_link = link;
-                closest_other_module = registry.get<EcsModuleLink>(other_entity).parent;
+                closest_other_module = other_link.parent;
                 closest_other_link = other_entity;
             }
 
@@ -164,10 +213,22 @@ void link_modules(entt::registry &registry, entt::entity link_a_entity, entt::en
     auto &module_a = registry.get<EcsModule>(link_a.parent);
     auto &module_b = registry.get<EcsModule>(link_b.parent);
 
+    link_a.linked = true;
+    link_b.linked = true;
+
     // Calculate new offset
     snap_modules(registry, link_a.parent, link_a_entity, link_b.parent, link_b_entity);
 
-    entt::entity temp_link_entity = module_b.first_link;
+    entt::entity temp_link_entity = module_a.first_link;
+    unsigned int module_a_link_index = 0;
+    while (temp_link_entity != link_a_entity)
+    {
+        temp_link_entity = registry.get<EcsModuleLink>(temp_link_entity).next;
+        module_a_link_index++;
+    }
+    module_b.parent_link_index = module_a_link_index;
+
+    temp_link_entity = module_b.first_link;
     unsigned int module_b_link_index = 0;
     while (temp_link_entity != link_b_entity)
     {
@@ -179,22 +240,24 @@ void link_modules(entt::registry &registry, entt::entity link_a_entity, entt::en
     module_b.body = module_a.body;
     module_b.parent = link_a.parent;
     module_a.children++;
-    if (module_a.first == entt::null)
+    if (!registry.valid(module_a.first))
     {
         module_a.first = link_b.parent;
     }
     else
     {
         entt::entity previous_entity = module_a.first;
-        auto &previous_module = registry.get<EcsModule>(previous_entity);
-        while (previous_module.next != entt::null)
+        auto *previous_module = &registry.get<EcsModule>(previous_entity);
+        while (previous_module->next != entt::null)
         {
-            previous_module = registry.get<EcsModule>(previous_entity);
-            previous_entity = previous_module.next;
+            previous_entity = previous_module->next;
+            previous_module = &registry.get<EcsModule>(previous_entity);
         }
-        registry.get<EcsModule>(previous_entity).next = link_b.parent;
+        previous_module->next = link_b.parent;
         module_b.prev = previous_entity;
     }
+
+    update_body_fixtures(registry, module_a.body);
 }
 
 void link_modules(entt::registry &registry,
@@ -230,11 +293,11 @@ void snap_modules(entt::registry &registry,
     auto &module_b = registry.get<EcsModule>(module_b_entity);
     auto &link_b = registry.get<EcsModuleLink>(link_b_entity);
 
-    module_b.rot_offset = link_a.rot_offset + link_b.rot_offset + glm::pi<float>();
-    module_b.pos_offset = {glm::cos(module_b.rot_offset) * -link_b.pos_offset.x -
-                               glm::sin(module_b.rot_offset) * -link_b.pos_offset.y,
-                           glm::sin(module_b.rot_offset) * -link_b.pos_offset.x +
-                               glm::cos(module_b.rot_offset) * -link_b.pos_offset.y};
+    module_b.rot_offset = glm::radians(180.f) + link_a.rot_offset - link_b.rot_offset;
+    module_b.pos_offset = {glm::cos(module_b.rot_offset) * -link_b.pos_offset.x +
+                               glm::sin(module_b.rot_offset) * link_b.pos_offset.y,
+                           glm::sin(module_b.rot_offset) * -link_b.pos_offset.x -
+                               glm::cos(module_b.rot_offset) * link_b.pos_offset.y};
     module_b.pos_offset += link_a.pos_offset;
 
     const auto &transform_a = registry.get<Transform>(module_a_entity);
@@ -262,11 +325,14 @@ void traverse_modules(entt::registry &registry,
 
         // Add children to queue
         const auto &module = registry.get<EcsModule>(module_entity);
-        entt::entity child = module.first;
-        for (unsigned int i = 0; i < module.children; ++i)
+        if (module.children > 0)
         {
-            queue.push(child);
-            child = registry.get<EcsModule>(child).next;
+            entt::entity child = module.first;
+            for (unsigned int i = 0; i < module.children; ++i)
+            {
+                queue.push(child);
+                child = registry.get<EcsModule>(child).next;
+            }
         }
 
         callback(module_entity);
@@ -314,30 +380,30 @@ void update_body_fixtures(entt::registry &registry, entt::entity body_entity)
         {
             // Copy the module's shape
             // It's important we leave the original intact in case we need to do this again
-            auto &shape = registry.get<PhysicsShape>(shape_entity);
+            auto shape = registry.get<PhysicsShape>(shape_entity).shape;
 
-            std::vector<b2Vec2> points;
-            points.resize(shape.shape.m_count);
+            std::vector<b2Vec2> points(shape.m_count);
 
             // Apply transform to all points in the shape
-            for (int i = 0; i < shape.shape.m_count; ++i)
+            for (int i = 0; i < shape.m_count; ++i)
             {
+
                 b2Transform b2_transform({transform.get_position().x, transform.get_position().y},
                                          b2Rot(transform.get_rotation()));
-                points[i] = b2Mul(b2_transform, shape.shape.m_vertices[i]);
+                points[i] = b2Mul(b2_transform, shape.m_vertices[i]);
             }
-            shape.shape.Set(points.data(), shape.shape.m_count);
+            shape.Set(points.data(), shape.m_count);
 
             // Create the fixture
             b2FixtureDef fixture_def;
-            fixture_def.shape = &shape.shape;
+            fixture_def.shape = &shape;
             fixture_def.density = 1;
             fixture_def.friction = 1;
             fixture_def.restitution = 0.5f;
             fixture_def.userData = reinterpret_cast<void *>(module_entity);
             physics_body.body->CreateFixture(&fixture_def);
 
-            shape_entity = shape.next;
+            shape_entity = registry.get<PhysicsShape>(shape_entity).next;
         }
     });
 }
@@ -426,11 +492,34 @@ TEST_CASE("link_modules()")
         DOCTEST_CHECK(module.body == body_entity);
     }
 
+    SUBCASE("Sets both links as linked")
+    {
+        const auto &parent_module = registry.get<EcsModule>(body.base_module);
+        const auto &parent_link = registry.get<EcsModuleLink>(parent_module.first_link);
+        DOCTEST_CHECK(parent_link.linked);
+
+        const auto &module = registry.get<EcsModule>(gun_module_entity);
+        auto link_entity = module.first_link;
+        link_entity = registry.get<EcsModuleLink>(link_entity).next;
+        auto &link = registry.get<EcsModuleLink>(link_entity);
+        DOCTEST_CHECK(link.linked);
+    }
+
     SUBCASE("Sets child link index correctly")
     {
         const auto &module = registry.get<EcsModule>(body.base_module);
-        const auto parent_link = registry.get<EcsModuleLink>(module.first_link);
+        const auto &parent_link = registry.get<EcsModuleLink>(module.first_link);
         DOCTEST_CHECK(parent_link.child_link_index == 1);
+    }
+
+    SUBCASE("Works multiple times")
+    {
+        const auto gun_module_entity_2 = make_gun_module(registry);
+        link_modules(registry, body.base_module, 1, gun_module_entity_2, 1);
+        const auto gun_module_entity_3 = make_gun_module(registry);
+        link_modules(registry, body.base_module, 2, gun_module_entity_3, 1);
+        const auto gun_module_entity_4 = make_gun_module(registry);
+        link_modules(registry, body.base_module, 3, gun_module_entity_4, 1);
     }
 }
 
@@ -450,20 +539,62 @@ TEST_CASE("snap_modules() correctly places snapped modules")
     const auto base_module_entity = make_base_module(registry);
     const auto gun_module_entity = make_gun_module(registry);
 
-    auto &base_module = registry.get<EcsModule>(base_module_entity);
-    entt::entity link_a_entity = base_module.first_link;
-    link_a_entity = registry.get<EcsModuleLink>(link_a_entity).next;
-    link_a_entity = registry.get<EcsModuleLink>(link_a_entity).next;
-    auto &gun_module = registry.get<EcsModule>(gun_module_entity);
-    entt::entity link_b_entity = gun_module.first_link;
-    link_b_entity = registry.get<EcsModuleLink>(link_b_entity).next;
+    SUBCASE("On the Y axis")
+    {
+        auto &base_module = registry.get<EcsModule>(base_module_entity);
+        entt::entity link_a_entity = base_module.first_link;
+        link_a_entity = registry.get<EcsModuleLink>(link_a_entity).next;
+        link_a_entity = registry.get<EcsModuleLink>(link_a_entity).next;
+        auto &gun_module = registry.get<EcsModule>(gun_module_entity);
+        entt::entity link_b_entity = gun_module.first_link;
+        link_b_entity = registry.get<EcsModuleLink>(link_b_entity).next;
 
-    snap_modules(registry, base_module_entity, link_a_entity, gun_module_entity, link_b_entity);
+        snap_modules(registry, base_module_entity, link_a_entity, gun_module_entity, link_b_entity);
 
-    const auto &gun_transform = registry.get<Transform>(gun_module_entity);
+        const auto &gun_transform = registry.get<Transform>(gun_module_entity);
 
-    DOCTEST_CHECK(gun_transform.get_position().x == doctest::Approx(0.f));
-    DOCTEST_CHECK(gun_transform.get_position().y == doctest::Approx(-1.f));
-    DOCTEST_CHECK(angular_distance(gun_transform.get_rotation(), glm::radians(180.f)) < 0.001);
+        DOCTEST_CHECK(gun_transform.get_position().x == doctest::Approx(0.f));
+        DOCTEST_CHECK(gun_transform.get_position().y == doctest::Approx(-1.f));
+        DOCTEST_CHECK(angular_distance(gun_transform.get_rotation(), glm::radians(180.f)) < 0.001);
+    }
+
+    SUBCASE("On the X axis")
+    {
+        auto &base_module = registry.get<EcsModule>(base_module_entity);
+        entt::entity link_a_entity = base_module.first_link;
+        link_a_entity = registry.get<EcsModuleLink>(link_a_entity).next;
+        link_a_entity = registry.get<EcsModuleLink>(link_a_entity).next;
+        link_a_entity = registry.get<EcsModuleLink>(link_a_entity).next;
+        auto &gun_module = registry.get<EcsModule>(gun_module_entity);
+        entt::entity link_b_entity = gun_module.first_link;
+
+        snap_modules(registry, base_module_entity, link_a_entity, gun_module_entity, link_b_entity);
+
+        const auto &gun_transform = registry.get<Transform>(gun_module_entity);
+
+        DOCTEST_CHECK(gun_transform.get_position().x == doctest::Approx(1.f));
+        DOCTEST_CHECK(gun_transform.get_position().y == doctest::Approx(0.167));
+        DOCTEST_CHECK(angular_distance(gun_transform.get_rotation(), 0.f) < 0.001);
+    }
+
+    SUBCASE("With a rotated module")
+    {
+        auto &base_module = registry.get<EcsModule>(base_module_entity);
+        entt::entity link_a_entity = base_module.first_link;
+        link_a_entity = registry.get<EcsModuleLink>(link_a_entity).next;
+        link_a_entity = registry.get<EcsModuleLink>(link_a_entity).next;
+        link_a_entity = registry.get<EcsModuleLink>(link_a_entity).next;
+        auto &gun_module = registry.get<EcsModule>(gun_module_entity);
+        entt::entity link_b_entity = gun_module.first_link;
+        link_b_entity = registry.get<EcsModuleLink>(link_b_entity).next;
+
+        snap_modules(registry, base_module_entity, link_a_entity, gun_module_entity, link_b_entity);
+
+        const auto &gun_transform = registry.get<Transform>(gun_module_entity);
+
+        DOCTEST_CHECK(gun_transform.get_position().x == doctest::Approx(1.f));
+        DOCTEST_CHECK(gun_transform.get_position().y == doctest::Approx(0.f));
+        DOCTEST_CHECK(angular_distance(gun_transform.get_rotation(), glm::radians(270.f)) < 0.001);
+    }
 }
 }

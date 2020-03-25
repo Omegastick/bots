@@ -20,7 +20,7 @@ void distortion_system(entt::registry &registry, Renderer &renderer)
 
         if (!emitter.loop)
         {
-            registry.assign<entt::tag<"should_destroy"_hs>>(entity);
+            registry.assign_or_replace<entt::tag<"should_destroy"_hs>>(entity);
         }
     });
 }

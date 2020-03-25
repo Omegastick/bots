@@ -62,54 +62,66 @@ BuildScreen::BuildScreen(BuildEnv &&build_env,
 
 void BuildScreen::update(double delta_time)
 {
-    const auto part_selector_output = part_selector_window->update(selected_module_name,
+    const auto part_selector_output = part_selector_window->update(module_to_place_name,
                                                                    show_unlock_parts_window);
     if (part_selector_output != "")
     {
-        selected_module = build_env.create_module(part_selector_output);
-        selected_module_name = selected_module_name;
+        if (module_to_place != entt::null)
+        {
+            build_env.delete_module(module_to_place);
+        }
+        module_to_place = build_env.create_module(part_selector_output);
+        selected_module = module_to_place;
+        module_to_place_name = module_to_place_name;
+        ImGui::SetWindowFocus(nullptr);
     }
 
-    // if (io.get_left_click())
-    // {
-    //     if (module_to_place == nullptr)
-    //     {
-    //         selected_module = body_builder.get_module_at_screen_position(io.get_cursor_position());
-    //         selected_module_name = "";
-    //     }
-    //     else
-    //     {
-    //         selected_module = body_builder.place_module(module_to_place);
-    //         selected_module_name = "";
-    //     }
+    if (module_to_place != entt::null)
+    {
+        const auto cursor_world_position = screen_to_world_space(io.get_cursor_position(),
+                                                                 io.get_resolution(),
+                                                                 view);
+        build_env.move_module(module_to_place, cursor_world_position, current_rotation);
+        build_env.snap_module(module_to_place);
+    }
 
-    //     if (selected_module != nullptr)
-    //     {
-    //         module_to_place = nullptr;
-    //     }
-    // }
+    if (io.get_left_click())
+    {
+        if (module_to_place == entt::null)
+        {
+            const auto cursor_world_position = screen_to_world_space(io.get_cursor_position(),
+                                                                     io.get_resolution(),
+                                                                     view);
+            selected_module = build_env.select_module(cursor_world_position);
+            module_to_place_name = "";
+        }
+        else
+        {
+            if (!build_env.link_module(module_to_place))
+            {
+                build_env.delete_module(module_to_place);
+                selected_module = entt::null;
+            }
+            module_to_place_name = "";
+        }
+        module_to_place = entt::null;
+    }
 
-    // if (io.get_key_pressed_this_frame(GLFW_KEY_Q))
-    // {
-    //     current_rotation += 1;
-    // }
-    // else if (io.get_key_pressed_this_frame(GLFW_KEY_E))
-    // {
-    //     current_rotation -= 1;
-    // }
+    if (io.get_key_pressed_this_frame(GLFW_KEY_Q))
+    {
+        current_rotation += glm::radians(90.f);
+    }
+    else if (io.get_key_pressed_this_frame(GLFW_KEY_E))
+    {
+        current_rotation -= glm::radians(90.f);
+    }
 
-    // if (selected_module != nullptr && io.get_key_pressed_this_frame(GLFW_KEY_DELETE))
-    // {
-    //     try
-    //     {
-    //         body_builder.delete_module(selected_module.get());
-    //     }
-    //     catch (std::runtime_error &error)
-    //     {
-    //         spdlog::error(error.what());
-    //     }
-    //     selected_module = nullptr;
-    // }
+    if (selected_module != entt::null && io.get_key_pressed_this_frame(GLFW_KEY_DELETE))
+    {
+        build_env.delete_module(selected_module);
+        selected_module = entt::null;
+        module_to_place = entt::null;
+    }
 
     // body_builder.select_module(selected_module.get());
     // part_detail_window.select_part(selected_module.get());
@@ -117,11 +129,11 @@ void BuildScreen::update(double delta_time)
     // color_scheme_window->update(body_builder.get_body());
     // part_detail_window.update();
     // save_body_window->update(body_builder.get_body());
-    // const auto part_bought = unlock_parts_window->update(show_unlock_parts_window);
-    // if (part_bought)
-    // {
-    //     part_selector_window->refresh_parts();
-    // }
+    const auto part_bought = unlock_parts_window->update(show_unlock_parts_window);
+    if (part_bought)
+    {
+        part_selector_window->refresh_parts();
+    }
 
     build_env.forward(delta_time);
 
@@ -135,8 +147,8 @@ void BuildScreen::draw(Renderer &renderer, bool /*lightweight*/)
     auto view_top = view_height * 0.5;
     glm::vec2 resolution = io.get_resolutionf();
     auto view_right = view_top * (resolution.x / resolution.y);
-    const auto projection = glm::ortho(-view_right, view_right, -view_top, view_top);
-    renderer.set_view(projection);
+    view = glm::ortho(-view_right, view_right, -view_top, view_top);
+    renderer.set_view(view);
 
     build_env.draw(renderer, audio_engine);
 
@@ -144,9 +156,6 @@ void BuildScreen::draw(Renderer &renderer, bool /*lightweight*/)
 
     // if (module_to_place != nullptr)
     // {
-    //     auto cursor_world_position = screen_to_world_space(io.get_cursor_position(),
-    //                                                        io.get_resolution(),
-    //                                                        body_builder.get_projection());
     //     module_to_place->get_transform().p = {cursor_world_position.x, cursor_world_position.y};
     //     module_to_place->get_transform().q = b2Rot(glm::radians(current_rotation * 90.f));
 

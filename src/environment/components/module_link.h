@@ -11,6 +11,7 @@ struct EcsModuleLink
     float rot_offset = 0.f;
     entt::entity parent = entt::null;
     entt::entity next = entt::null;
+    bool linked = false;
     int child_link_index = -1;
 };
 }

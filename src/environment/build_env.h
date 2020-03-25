@@ -30,7 +30,7 @@ class BuildEnv
     void delete_module(entt::entity module_entity);
     void move_module(entt::entity module_entity, glm::vec2 position, float rotation);
     void snap_module(entt::entity module_entity);
-    void link_module(entt::entity module_entity);
+    bool link_module(entt::entity module_entity);
 
     nlohmann::json serialize_body();
 };

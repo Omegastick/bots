@@ -92,7 +92,7 @@ void physics_system(entt::registry &registry, double delta_time)
                 break;
             }
         }
-        registry.assign<entt::tag<"should_destroy"_hs>>(entity);
+        registry.assign_or_replace<entt::tag<"should_destroy"_hs>>(entity);
     });
 
     registry.view<EndContact>().each([&](const auto entity, auto &contact) {
@@ -119,7 +119,7 @@ void physics_system(entt::registry &registry, double delta_time)
                 break;
             }
         }
-        registry.assign<entt::tag<"should_destroy"_hs>>(entity);
+        registry.assign_or_replace<entt::tag<"should_destroy"_hs>>(entity);
     });
 }
 }

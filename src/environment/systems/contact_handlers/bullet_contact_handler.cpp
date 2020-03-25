@@ -66,7 +66,7 @@ void begin_bullet_contact(entt::registry &registry,
         registry.assign<AudioEmitter>(audio_entity, audio_id_map["hit_wall"]);
     }
 
-    registry.assign<entt::tag<"should_destroy"_hs>>(bullet_entity);
+    registry.assign_or_replace<entt::tag<"should_destroy"_hs>>(bullet_entity);
 }
 
 TEST_CASE("Bullet contact handler")

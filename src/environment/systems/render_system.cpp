@@ -148,7 +148,7 @@ TEST_CASE("Render system")
 
         SUBCASE("Cleans up orphaned entities")
         {
-            registry.assign<entt::tag<"should_destroy"_hs>>(parent_entity);
+            registry.assign_or_replace<entt::tag<"should_destroy"_hs>>(parent_entity);
 
             clean_up_orphans(registry);
 

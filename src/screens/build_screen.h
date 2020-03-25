@@ -6,6 +6,7 @@
 
 #include <Box2D/Box2D.h>
 #include <entt/entity/entity.hpp>
+#include <glm/mat4x4.hpp>
 
 #include "environment/build_env.h"
 #include "graphics/render_data.h"
@@ -41,7 +42,6 @@ class BuildScreen : public IScreen
     float current_rotation;
     IModuleFactory &module_factory;
     ScreenManager &screen_manager;
-    std::string selected_module_name;
     bool show_unlock_parts_window;
     IO &io;
     PartDetailWindow part_detail_window;
@@ -49,8 +49,10 @@ class BuildScreen : public IScreen
     b2World b2_world;
     std::unique_ptr<SaveBodyWindow> save_body_window;
     entt::entity module_to_place;
+    std::string module_to_place_name;
     entt::entity selected_module;
     std::unique_ptr<UnlockPartsWindow> unlock_parts_window;
+    glm::mat4 view;
 
   public:
     BuildScreen(BuildEnv &&build_env,

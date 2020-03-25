@@ -8,7 +8,7 @@
 #include "build_env.h"
 #include "audio/audio_engine.h"
 #include "environment/components/health_bar.h"
-#include "environment/components/physics_body.h"
+#include "environment/components/modules/module.h"
 #include "environment/serialization/serialize_body.h"
 #include "environment/systems/audio_system.h"
 #include "environment/systems/clean_up_system.h"
@@ -73,15 +73,21 @@ entt::entity BuildEnv::select_module(glm::vec2 position)
     return get_module_at_point(registry, position);
 }
 
-void BuildEnv::delete_module(entt::entity /*module_entity*/)
+void BuildEnv::delete_module(entt::entity module_entity)
 {
-    throw std::runtime_error("BuildEnv::delete_module() not implemented");
+    destroy_module(registry, module_entity);
+    auto &module = registry.get<EcsModule>(module_entity);
+    if (module.body != entt::null)
+    {
+        update_body_fixtures(registry, body_entity);
+    }
 }
 
 void BuildEnv::move_module(entt::entity module_entity, glm::vec2 position, float rotation)
 {
-    auto &physics_body = registry.get<PhysicsBody>(module_entity);
-    physics_body.body->SetTransform({position.x, position.y}, rotation);
+    auto &transform = registry.get<Transform>(module_entity);
+    transform.set_position(position);
+    transform.set_rotation(rotation);
 }
 
 void BuildEnv::snap_module(entt::entity module_entity)
@@ -97,7 +103,7 @@ void BuildEnv::snap_module(entt::entity module_entity)
     }
 }
 
-void BuildEnv::link_module(entt::entity module_entity)
+bool BuildEnv::link_module(entt::entity module_entity)
 {
     const auto nearest_links = find_nearest_link(registry, module_entity);
     if (nearest_links.distance < snap_distance)
@@ -105,7 +111,9 @@ void BuildEnv::link_module(entt::entity module_entity)
         link_modules(registry,
                      nearest_links.link_a,
                      nearest_links.link_b);
+        return true;
     }
+    return false;
 }
 
 }

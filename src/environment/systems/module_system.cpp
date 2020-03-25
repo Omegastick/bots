@@ -59,13 +59,13 @@ void module_system(entt::registry &registry)
                 transform.set_position(body_transform.get_position());
                 transform.set_rotation(body_transform.get_rotation());
             }
-
-            // Update link transforms
-            if (module.links > 0)
-            {
-                update_link_transforms(registry, module_entity);
-            }
         });
+    }
+
+    const auto modules_view = registry.view<EcsModule>();
+    for (const auto &entity : modules_view)
+    {
+        update_link_transforms(registry, entity);
     }
 }
 }

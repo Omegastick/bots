@@ -21,6 +21,7 @@ struct NearestLinkResult
 };
 
 void destroy_body(entt::registry &registry, entt::entity body_entity);
+void destroy_module(entt::registry &registry, entt::entity module_entity);
 NearestLinkResult find_nearest_link(entt::registry &registry, entt::entity module_entity);
 entt::entity get_module_at_point(entt::registry &registry, glm::vec2 point);
 void link_modules(entt::registry &registry,
