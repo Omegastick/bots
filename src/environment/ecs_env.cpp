@@ -51,7 +51,8 @@ EcsEnv::EcsEnv()
     make_hill(registry, {0.f, 0.f}, 3.f);
 
     const auto background_entity = registry.create();
-    registry.assign<EcsRectangle>(background_entity, set_alpha(cl_base03, 0.95f));
+    registry.assign<EcsRectangle>(background_entity);
+    registry.assign<Color>(background_entity, set_alpha(cl_base03, 0.95f), glm::vec4{0, 0, 0, 0});
     auto &background_transform = registry.assign<Transform>(background_entity);
     background_transform.set_scale({20.f, 40.f});
     background_transform.set_z(-5);

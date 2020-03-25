@@ -42,36 +42,42 @@ void render_system(entt::registry &registry, Renderer &renderer)
     clean_up_orphans(registry);
     update_container_transforms(registry);
 
-    registry.view<EcsCircle, Transform>()
-        .each([&renderer](auto &circle, auto &transform) {
-            renderer.draw(Circle{circle.radius,
-                                 circle.fill_color,
-                                 circle.stroke_color,
-                                 circle.stroke_width,
-                                 transform});
-        });
+    registry.view<EcsCircle, Transform, Color>().each([&renderer](auto &circle,
+                                                                  auto &transform,
+                                                                  auto &color) {
+        renderer.draw(Circle{circle.radius,
+                             color.fill_color,
+                             color.stroke_color,
+                             circle.stroke_width,
+                             transform});
+    });
 
-    registry.view<EcsRectangle, Transform>().each([&renderer](auto &rectangle, auto &transform) {
-        renderer.draw(Rectangle{rectangle.fill_color,
-                                rectangle.stroke_color,
+    registry.view<EcsRectangle, Transform, Color>().each([&renderer](auto &rectangle,
+                                                                     auto &transform,
+                                                                     auto &color) {
+        renderer.draw(Rectangle{color.fill_color,
+                                color.stroke_color,
                                 rectangle.stroke_width,
                                 transform});
     });
 
-    registry.view<EcsSemiCircle, Transform>().each([&renderer](auto &semi_circle,
-                                                               auto &transform) {
+    registry.view<EcsSemiCircle, Transform, Color>().each([&renderer](auto &semi_circle,
+                                                                      auto &transform,
+                                                                      auto &color) {
         renderer.draw(SemiCircle{semi_circle.radius,
-                                 semi_circle.fill_color,
-                                 semi_circle.stroke_color,
+                                 color.fill_color,
+                                 color.stroke_color,
                                  semi_circle.stroke_width,
                                  transform});
     });
 
-    registry.view<EcsTrapezoid, Transform>().each([&renderer](auto &trapezoid, auto &transform) {
+    registry.view<EcsTrapezoid, Transform, Color>().each([&renderer](auto &trapezoid,
+                                                                     auto &transform,
+                                                                     auto &color) {
         renderer.draw(Trapezoid{trapezoid.top_width,
                                 trapezoid.bottom_width,
-                                trapezoid.fill_color,
-                                trapezoid.stroke_color,
+                                color.fill_color,
+                                color.stroke_color,
                                 trapezoid.stroke_width,
                                 transform});
     });

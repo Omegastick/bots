@@ -39,6 +39,7 @@ entt::entity make_bullet(entt::registry &registry)
     physics_body.body->SetBullet(true);
 
     registry.assign<EcsCircle>(entity, 0.1f);
+    registry.assign<Color>(entity);
 
     return entity;
 }

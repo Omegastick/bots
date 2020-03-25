@@ -37,15 +37,9 @@ entt::entity make_base_module(entt::registry &registry)
     registry.assign<EcsBaseModule>(entity);
     registry.assign<Transform>(entity);
 
-    registry.assign<EcsRectangle>(entity,
-                                  glm::vec4{0.5f, 0.5f, 0.5f, 0.5f},
-                                  cl_white,
-                                  0.1f);
-    registry.assign<EcsCircle>(entity,
-                               0.2f,
-                               glm::vec4{0, 0, 0, 0},
-                               cl_white,
-                               0.1f);
+    registry.assign<EcsRectangle>(entity, 0.1f);
+    registry.assign<EcsCircle>(entity, 0.2f, 0.1f);
+    registry.assign<Color>(entity);
 
     const auto link_entity_1 = make_module_link(registry, {0.f, 0.5f}, 0.f);
     registry.get<EcsModuleLink>(link_entity_1).parent = entity;
@@ -107,8 +101,10 @@ entt::entity make_body(entt::registry &registry)
     auto &bar_foreground_transform = registry.assign<Transform>(bar_foreground_entity);
     bar_foreground_transform.set_scale({3.f, 0.2f});
     bar_foreground_transform.set_z(2);
-    registry.assign<EcsRectangle>(bar_background_entity, set_alpha(cl_base0, 0.5f));
-    registry.assign<EcsRectangle>(bar_foreground_entity, cl_red);
+    registry.assign<EcsRectangle>(bar_background_entity);
+    registry.assign<Color>(bar_background_entity, set_alpha(cl_base0, 0.5f), glm::vec4{0, 0, 0, 0});
+    registry.assign<EcsRectangle>(bar_foreground_entity);
+    registry.assign<Color>(bar_foreground_entity, cl_red, glm::vec4{0, 0, 0, 0});
 
     return entity;
 }
@@ -128,18 +124,14 @@ entt::entity make_gun_module(entt::registry &registry)
     registry.assign<RenderShapeContainer>(shape_1_entity, entity, shape_2_entity);
     registry.assign<RenderShapeContainer>(shape_2_entity, entity);
 
-    registry.assign<EcsRectangle>(shape_1_entity,
-                                  glm::vec4{0.5f, 0.5f, 0.5f, 0.5f},
-                                  cl_white,
-                                  0.1f);
+    registry.assign<EcsRectangle>(shape_1_entity, 0.1f);
+    registry.assign<Color>(shape_1_entity);
     auto &barrel_transform = registry.assign<Transform>(shape_1_entity);
     barrel_transform.set_scale({0.333f, 0.333});
     barrel_transform.set_origin({0.f, -0.333f});
 
-    registry.assign<EcsRectangle>(shape_2_entity,
-                                  glm::vec4{0.5f, 0.5f, 0.5f, 0.5f},
-                                  cl_white,
-                                  0.1f);
+    registry.assign<EcsRectangle>(shape_2_entity, 0.1f);
+    registry.assign<Color>(shape_2_entity);
     auto &body_transform = registry.assign<Transform>(shape_2_entity);
     body_transform.set_scale({1.f, 0.666f});
     body_transform.set_origin({0.f, 0.167f});
@@ -181,6 +173,7 @@ entt::entity make_module_link(entt::registry &registry, glm::vec2 position, floa
     const auto entity = registry.create();
     registry.assign<EcsModuleLink>(entity, position, glm::radians(rotation));
     registry.assign<EcsSemiCircle>(entity, 0.1f);
+    registry.assign<Color>(entity);
     registry.assign<Transform>(entity);
     return entity;
 }
@@ -195,12 +188,8 @@ entt::entity make_thruster_module(entt::registry &registry)
     auto &transform = registry.assign<Transform>(entity);
     transform.set_scale({1.f, 0.25f});
 
-    registry.assign<EcsTrapezoid>(entity,
-                                  0.666f,
-                                  1.f,
-                                  glm::vec4{0.5f, 0.5f, 0.5f, 0.5f},
-                                  cl_white,
-                                  0.1f);
+    registry.assign<EcsTrapezoid>(entity, 0.666f, 1.f, 0.1f);
+    registry.assign<Color>(entity);
 
     const auto link_entity = make_module_link(registry, {0.f, 0.125f}, 0.f);
     module.links = 1;

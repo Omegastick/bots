@@ -31,8 +31,8 @@ void trail_system(entt::registry &registry)
         registry.assign_or_replace<EcsLine>(entity,
                                             trail.previous_positions[0],
                                             trail.previous_positions[2],
-                                            cl_white,
                                             trail.width);
+        registry.assign_or_replace<Color>(entity);
     });
 }
 
