@@ -5,6 +5,7 @@
 #include <doctest.h>
 #include <entt/entt.hpp>
 #include <fmt/format.h>
+#include <glm/gtc/type_ptr.hpp>
 #include <nlohmann/json.hpp>
 
 #include "serialize_body.h"
@@ -14,13 +15,15 @@
 #include "environment/components/modules/gun_module.h"
 #include "environment/components/modules/module.h"
 #include "environment/components/modules/thruster_module.h"
+#include "environment/components/name.h"
 #include "environment/systems/clean_up_system.h"
 #include "environment/utils/body_factories.h"
 #include "environment/utils/body_utils.h"
+#include "graphics/colors.h"
 
 namespace ai
 {
-static const std::string schema_version = "v1alpha7";
+static const std::string schema_version = "v1alpha8";
 
 entt::entity deserialize_module(entt::registry &registry, const nlohmann::json &json)
 {
@@ -83,10 +86,21 @@ entt::entity deserialize_body(entt::registry &registry, const nlohmann::json &js
     const auto &body = registry.get<EcsBody>(body_entity);
     deserialize_children(registry, body.base_module, json["modules"]["links"]);
 
+    registry.get<Name>(body_entity).name = json["name"];
+
+    registry.get<ColorScheme>(body_entity).primary = {json["color_scheme"]["primary"][0],
+                                                      json["color_scheme"]["primary"][1],
+                                                      json["color_scheme"]["primary"][2],
+                                                      json["color_scheme"]["primary"][3]};
+    registry.get<ColorScheme>(body_entity).secondary = {json["color_scheme"]["secondary"][0],
+                                                        json["color_scheme"]["secondary"][1],
+                                                        json["color_scheme"]["secondary"][2],
+                                                        json["color_scheme"]["secondary"][3]};
+
     return body_entity;
 }
 
-nlohmann::json serialize_module(entt::registry &registry, entt::entity module_entity)
+nlohmann::json serialize_module(const entt::registry &registry, entt::entity module_entity)
 {
     nlohmann::json json;
 
@@ -129,16 +143,22 @@ nlohmann::json serialize_module(entt::registry &registry, entt::entity module_en
     return json;
 }
 
-nlohmann::json serialize_body(entt::registry &registry,
-                              entt::entity body_entity,
-                              const std::string &name)
+nlohmann::json serialize_body(const entt::registry &registry, entt::entity body_entity)
 {
     nlohmann::json json;
     json["schema"] = schema_version;
-    json["name"] = name;
+    json["name"] = registry.get<Name>(body_entity).name;
 
     const auto &body = registry.get<EcsBody>(body_entity);
     json["modules"] = serialize_module(registry, body.base_module);
+
+    const auto color_scheme = registry.get<ColorScheme>(body_entity);
+    json["color_scheme"]["primary"] =
+        std::vector<float>(glm::value_ptr(color_scheme.primary),
+                           glm::value_ptr(color_scheme.primary) + 4);
+    json["color_scheme"]["secondary"] =
+        std::vector<float>(glm::value_ptr(color_scheme.secondary),
+                           glm::value_ptr(color_scheme.secondary) + 4);
 
     return json;
 }

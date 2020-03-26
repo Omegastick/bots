@@ -18,6 +18,7 @@
 #include "environment/components/modules/module.h"
 #include "environment/components/modules/thruster_module.h"
 #include "environment/components/module_link.h"
+#include "environment/components/name.h"
 #include "environment/components/physics_body.h"
 #include "environment/components/physics_shape.h"
 #include "environment/components/physics_shapes.h"
@@ -80,6 +81,7 @@ entt::entity make_body(entt::registry &registry)
     registry.assign<PhysicsType>(entity, PhysicsType::Body);
     registry.assign<Score>(entity);
     registry.assign<ColorScheme>(entity);
+    registry.assign<Name>(entity);
 
     auto &physics_body = registry.assign<PhysicsBody>(entity);
     b2BodyDef body_def;

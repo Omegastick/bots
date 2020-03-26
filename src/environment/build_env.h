@@ -36,6 +36,9 @@ class BuildEnv
     ColorScheme get_color_scheme() const;
     void set_color_scheme(const ColorScheme &color_scheme);
 
-    nlohmann::json serialize_body();
+    std::string get_name() const;
+    void set_name(const std::string &name);
+
+    nlohmann::json serialize_body() const;
 };
 }

@@ -9,9 +9,9 @@
 #include <spdlog/spdlog.h>
 
 #include "save_body_window.h"
+#include "environment/build_env.h"
 #include "misc/animator.h"
 #include "misc/io.h"
-#include "training/bodies/body.h"
 
 namespace fs = std::filesystem;
 
@@ -29,7 +29,7 @@ SaveBodyWindow::~SaveBodyWindow()
     animator.delete_animation(animation_id);
 }
 
-bool SaveBodyWindow::update(Body &body)
+bool SaveBodyWindow::update(BuildEnv &build_env)
 {
     const auto resolution = io.get_resolutionf();
     ImGui::SetNextWindowPos({resolution.x * 0.85f, resolution.y * 0.85f}, ImGuiCond_Once);
@@ -54,8 +54,8 @@ bool SaveBodyWindow::update(Body &body)
         file_name += "/" + name + ".json";
         spdlog::debug("Saving body to {}", file_name.string());
 
-        body.set_name(name);
-        auto json = body.to_json().dump();
+        build_env.set_name(name);
+        const auto json = build_env.serialize_body();
         std::ofstream file(file_name);
         file << json;
         saved = true;

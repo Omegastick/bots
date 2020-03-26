@@ -5,7 +5,7 @@
 namespace ai
 {
 class Animator;
-class Body;
+class BuildEnv;
 class IO;
 
 class SaveBodyWindow
@@ -21,6 +21,6 @@ class SaveBodyWindow
     SaveBodyWindow(Animator &animator, IO &io);
     ~SaveBodyWindow();
 
-    bool update(Body &body);
+    bool update(BuildEnv &build_env);
 };
 }

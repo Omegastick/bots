@@ -9,6 +9,7 @@
 #include "audio/audio_engine.h"
 #include "environment/components/health_bar.h"
 #include "environment/components/modules/module.h"
+#include "environment/components/name.h"
 #include "environment/serialization/serialize_body.h"
 #include "environment/systems/audio_system.h"
 #include "environment/systems/clean_up_system.h"
@@ -128,4 +129,20 @@ void BuildEnv::set_color_scheme(const ColorScheme &color_scheme)
     registry.assign_or_replace<ColorScheme>(body_entity, color_scheme);
     apply_color_scheme(registry, body_entity);
 }
+
+std::string BuildEnv::get_name() const
+{
+    return registry.get<Name>(body_entity).name;
+}
+
+void BuildEnv::set_name(const std::string &name)
+{
+    registry.get<Name>(body_entity).name = name;
+}
+
+nlohmann::json BuildEnv::serialize_body() const
+{
+    return ai::serialize_body(registry, body_entity);
+}
+
 }

@@ -123,7 +123,6 @@ void BuildScreen::update(double delta_time)
         module_to_place = entt::null;
     }
 
-    // body_builder.select_module(selected_module.get());
     // part_detail_window.select_part(selected_module.get());
 
     auto color_scheme = build_env.get_color_scheme();
@@ -133,7 +132,7 @@ void BuildScreen::update(double delta_time)
     }
 
     // part_detail_window.update();
-    // save_body_window->update(body_builder.get_body());
+    save_body_window->update(build_env);
     const auto part_bought = unlock_parts_window->update(show_unlock_parts_window);
     if (part_bought)
     {
