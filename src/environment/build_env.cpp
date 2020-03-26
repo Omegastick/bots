@@ -7,6 +7,7 @@
 
 #include "build_env.h"
 #include "audio/audio_engine.h"
+#include "environment/components/ecs_render_data.h"
 #include "environment/components/health_bar.h"
 #include "environment/components/modules/module.h"
 #include "environment/components/name.h"
@@ -34,6 +35,7 @@ namespace ai
 constexpr float snap_distance = 1.f;
 
 BuildEnv::BuildEnv()
+    : cursor_entity(entt::null)
 {
     init_physics(registry);
 
@@ -72,7 +74,33 @@ entt::entity BuildEnv::create_module(const std::string &type)
 
 entt::entity BuildEnv::select_module(glm::vec2 position)
 {
-    return get_module_at_point(registry, position);
+    const auto entity = get_module_at_point(registry, position);
+    select_module(entity);
+    return entity;
+}
+
+void BuildEnv::select_module(entt::entity module_entity)
+{
+    if (cursor_entity == entt::null)
+    {
+        cursor_entity = registry.create();
+        auto &transform = registry.assign<Transform>(cursor_entity);
+        transform.set_z(-1.f);
+        registry.assign<EcsRectangle>(cursor_entity, 0.1f);
+        registry.assign<Color>(cursor_entity);
+    }
+
+    auto &cursor_transform = registry.get<Transform>(cursor_entity);
+    if (!registry.valid(module_entity))
+    {
+        cursor_transform.set_position({100000.f, 100000.f});
+        return;
+    }
+
+    auto &module_transform = registry.get<Transform>(module_entity);
+    cursor_transform.set_position(module_transform.get_position());
+    cursor_transform.set_scale(module_transform.get_scale() + glm::vec2{0.2f, 0.2f});
+    cursor_transform.set_rotation(module_transform.get_rotation());
 }
 
 void BuildEnv::delete_module(entt::entity module_entity)
@@ -144,5 +172,4 @@ nlohmann::json BuildEnv::serialize_body() const
 {
     return ai::serialize_body(registry, body_entity);
 }
-
 }

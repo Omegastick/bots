@@ -103,6 +103,7 @@ void BuildScreen::update(double delta_time)
                 selected_module = entt::null;
             }
             module_to_place_name = "";
+            build_env.select_module(selected_module);
         }
         module_to_place = entt::null;
     }
