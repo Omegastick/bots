@@ -85,7 +85,7 @@ void BuildEnv::select_module(entt::entity module_entity)
     {
         cursor_entity = registry.create();
         auto &transform = registry.assign<Transform>(cursor_entity);
-        transform.set_z(-1.f);
+        transform.set_z(-2);
         registry.assign<EcsRectangle>(cursor_entity, 0.1f);
         registry.assign<Color>(cursor_entity);
     }

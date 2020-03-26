@@ -62,8 +62,14 @@ void MainMenuScreen::update(double /*delta_time*/)
     {
         // Show login window
         ImGui::Begin("Login", NULL, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_AlwaysAutoResize);
-        ImGui::InputText("Username", &username);
-        if (ImGui::Button("Login"))
+        if (ImGui::IsWindowAppearing())
+        {
+            ImGui::SetKeyboardFocusHere();
+        }
+        const auto enter_pressed = ImGui::InputText("Username",
+                                                    &username,
+                                                    ImGuiInputTextFlags_EnterReturnsTrue);
+        if (ImGui::Button("Login") || enter_pressed)
         {
             std::thread([&] {
                 credentials_manager.login(username);

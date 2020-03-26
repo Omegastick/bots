@@ -15,6 +15,7 @@
 #include "environment/components/health_bar.h"
 #include "environment/components/modules/base_module.h"
 #include "environment/components/modules/gun_module.h"
+#include "environment/components/modules/laser_sensor_module.h"
 #include "environment/components/modules/module.h"
 #include "environment/components/modules/thruster_module.h"
 #include "environment/components/module_link.h"
@@ -51,7 +52,7 @@ entt::entity make_base_module(entt::registry &registry)
     registry.assign<Color>(circle_entity);
     registry.assign<Transform>(rectangle_entity);
     auto &circle_transform = registry.assign<Transform>(circle_entity);
-    circle_transform.set_scale({0.2f, 0.2f});
+    circle_transform.set_scale({0.4f, 0.4f});
     circle_transform.set_z(1.f);
 
     const auto link_entity_1 = make_module_link(registry, {0.f, 0.5f}, 0.f);
@@ -183,6 +184,35 @@ entt::entity make_gun_module(entt::registry &registry)
     return entity;
 }
 
+entt::entity make_laser_sensor_module(entt::registry &registry)
+{
+    const auto entity = registry.create();
+    auto &module = registry.assign<EcsModule>(entity);
+    registry.assign<EcsLaserSensorModule>(entity);
+    auto &transform = registry.assign<Transform>(entity);
+    transform.set_scale({1.f, 0.5f});
+    transform.set_origin({0.f, 0.25f});
+    registry.assign<EcsSemiCircle>(entity, 0.1f);
+    registry.assign<Color>(entity);
+
+    const auto link_entity = make_module_link(registry, {0.f, -0.25f}, 180.f);
+    registry.get<EcsModuleLink>(link_entity).parent = entity;
+    module.links = 1;
+    module.first_link = link_entity;
+
+    // Create physics shapes
+    auto &shapes = registry.assign<PhysicsShapes>(entity);
+    shapes.count = 1;
+
+    const auto shape_entity = registry.create();
+    auto &shape = registry.assign<PhysicsShape>(shape_entity);
+    shape.shape.SetAsBox(0.5f, 0.25f);
+
+    shapes.first = shape_entity;
+
+    return entity;
+}
+
 entt::entity make_module_link(entt::registry &registry, glm::vec2 position, float rotation)
 {
     const auto entity = registry.create();
@@ -190,7 +220,8 @@ entt::entity make_module_link(entt::registry &registry, glm::vec2 position, floa
     registry.assign<EcsSemiCircle>(entity);
     registry.assign<Color>(entity, cl_white, glm::vec4{0, 0, 0, 0});
     auto &transform = registry.assign<Transform>(entity);
-    transform.set_scale({0.1f, 0.1f});
+    transform.set_scale({0.2f, 0.2f});
+    transform.set_z(-1);
     return entity;
 }
 

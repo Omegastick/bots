@@ -41,6 +41,10 @@ entt::entity deserialize_module(entt::registry &registry, const nlohmann::json &
     {
         entity = make_thruster_module(registry);
     }
+    else if (type == "laser_sensor_module")
+    {
+        entity = make_laser_sensor_module(registry);
+    }
     else
     {
         const auto error_message = fmt::format(
