@@ -16,9 +16,7 @@ entt::entity make_hill(entt::registry &registry, glm::vec2 center, float size)
 {
     const auto entity = registry.create();
     registry.assign<EcsHill>(entity);
-    registry.assign<EcsCircle>(entity,
-                               size,
-                               0.5f);
+    registry.assign<EcsCircle>(entity, 0.5f);
     registry.assign<Color>(entity, glm::vec4{0, 0, 0, 0}, cl_white);
     registry.assign<PhysicsType>(entity, PhysicsType::Hill);
     auto &transform = registry.assign<Transform>(entity);

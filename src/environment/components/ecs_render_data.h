@@ -18,7 +18,6 @@ struct Color
 
 struct EcsCircle
 {
-    float radius = 0.f;
     float stroke_width = 0.f;
 };
 
@@ -29,7 +28,6 @@ struct EcsRectangle
 
 struct EcsSemiCircle
 {
-    float radius = 0.f;
     float stroke_width = 0.f;
 };
 

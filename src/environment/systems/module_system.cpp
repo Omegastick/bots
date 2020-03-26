@@ -19,7 +19,8 @@ void update_link_transforms(entt::registry &registry, entt::entity module_entity
     {
         const auto &link = registry.get<EcsModuleLink>(link_entity);
         auto &link_transform = registry.get<Transform>(link_entity);
-        link_transform = transform;
+        link_transform.set_position(transform.get_position());
+        link_transform.set_rotation(transform.get_rotation());
         link_transform.move(
             {glm::cos(link_transform.get_rotation()) * link.pos_offset.x -
                  glm::sin(link_transform.get_rotation()) * link.pos_offset.y,

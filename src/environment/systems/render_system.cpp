@@ -45,7 +45,7 @@ void render_system(entt::registry &registry, Renderer &renderer)
     registry.view<EcsCircle, Transform, Color>().each([&renderer](auto &circle,
                                                                   auto &transform,
                                                                   auto &color) {
-        renderer.draw(Circle{circle.radius,
+        renderer.draw(Circle{transform.get_scale().x,
                              color.fill_color,
                              color.stroke_color,
                              circle.stroke_width,
@@ -64,7 +64,7 @@ void render_system(entt::registry &registry, Renderer &renderer)
     registry.view<EcsSemiCircle, Transform, Color>().each([&renderer](auto &semi_circle,
                                                                       auto &transform,
                                                                       auto &color) {
-        renderer.draw(SemiCircle{semi_circle.radius,
+        renderer.draw(SemiCircle{transform.get_scale().x,
                                  color.fill_color,
                                  color.stroke_color,
                                  semi_circle.stroke_width,

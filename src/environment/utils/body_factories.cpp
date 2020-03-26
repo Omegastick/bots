@@ -39,9 +39,20 @@ entt::entity make_base_module(entt::registry &registry)
     registry.assign<EcsBaseModule>(entity);
     registry.assign<Transform>(entity);
 
-    registry.assign<EcsRectangle>(entity, 0.1f);
-    registry.assign<EcsCircle>(entity, 0.2f, 0.1f);
-    registry.assign<Color>(entity);
+    // Render shapes
+    const auto rectangle_entity = registry.create();
+    const auto circle_entity = registry.create();
+    registry.assign<RenderShapes>(entity, 2u, rectangle_entity);
+    registry.assign<RenderShapeContainer>(rectangle_entity, entity, circle_entity);
+    registry.assign<RenderShapeContainer>(circle_entity, entity);
+    registry.assign<EcsRectangle>(rectangle_entity, 0.1f);
+    registry.assign<EcsCircle>(circle_entity, 0.1f);
+    registry.assign<Color>(rectangle_entity);
+    registry.assign<Color>(circle_entity);
+    registry.assign<Transform>(rectangle_entity);
+    auto &circle_transform = registry.assign<Transform>(circle_entity);
+    circle_transform.set_scale({0.2f, 0.2f});
+    circle_transform.set_z(1.f);
 
     const auto link_entity_1 = make_module_link(registry, {0.f, 0.5f}, 0.f);
     registry.get<EcsModuleLink>(link_entity_1).parent = entity;
@@ -176,9 +187,10 @@ entt::entity make_module_link(entt::registry &registry, glm::vec2 position, floa
 {
     const auto entity = registry.create();
     registry.assign<EcsModuleLink>(entity, position, glm::radians(rotation));
-    registry.assign<EcsSemiCircle>(entity, 0.1f);
-    registry.assign<Color>(entity);
-    registry.assign<Transform>(entity);
+    registry.assign<EcsSemiCircle>(entity);
+    registry.assign<Color>(entity, cl_white, glm::vec4{0, 0, 0, 0});
+    auto &transform = registry.assign<Transform>(entity);
+    transform.set_scale({0.1f, 0.1f});
     return entity;
 }
 
