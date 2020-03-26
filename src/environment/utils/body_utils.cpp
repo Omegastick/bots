@@ -63,6 +63,16 @@ void apply_color_scheme(entt::registry &registry, entt::entity body_entity)
                 container_entity = registry.get<RenderShapeContainer>(container_entity).next;
             }
         }
+
+        const auto &module = registry.get<EcsModule>(entity);
+        entt::entity link_entity = module.first_link;
+        for (unsigned int i = 0; i < module.links; i++)
+        {
+            registry.assign_or_replace<Color>(link_entity,
+                                              color_scheme.primary,
+                                              glm::vec4{0, 0, 0, 0});
+            link_entity = registry.get<EcsModuleLink>(link_entity).next;
+        }
     });
 }
 
@@ -453,17 +463,20 @@ TEST_CASE("apply_color_scheme()")
     link_modules(registry, body.base_module, 0, gun_module_entity_1, 1);
     link_modules(registry, gun_module_entity_1, 0, gun_module_entity_2, 1);
 
-    registry.get<ColorScheme>(body_entity).primary = {1.f, 0.5f, 0.f, 0.3f};
-    registry.get<ColorScheme>(body_entity).secondary = {0.f, 0.1f, 0.5f, 1.f};
+    const glm::vec4 primary{1.f, 0.5f, 0.f, 0.3f};
+    const glm::vec4 secondary{0.f, 0.1f, 0.5f, 1.f};
+    registry.get<ColorScheme>(body_entity).primary = primary;
+    registry.get<ColorScheme>(body_entity).secondary = secondary;
 
     apply_color_scheme(registry, body_entity);
 
+    // Modules
     traverse_modules(registry, body_entity, [&](auto entity) {
         if (registry.has<Color>(entity))
         {
             const auto &color = registry.get<Color>(entity);
-            DOCTEST_CHECK(color.fill_color == glm::vec4{0.f, 0.1f, 0.5f, 1.f});
-            DOCTEST_CHECK(color.stroke_color == glm::vec4{1.f, 0.5f, 0.f, 0.3f});
+            DOCTEST_CHECK(color.fill_color == secondary);
+            DOCTEST_CHECK(color.stroke_color == primary);
         }
 
         if (registry.has<RenderShapes>(entity))
@@ -473,12 +486,20 @@ TEST_CASE("apply_color_scheme()")
             for (unsigned int i = 0; i < render_shapes.children; i++)
             {
                 const auto &color = registry.get<Color>(container_entity);
-                DOCTEST_CHECK(color.fill_color == glm::vec4{0.f, 0.1f, 0.5f, 1.f});
-                DOCTEST_CHECK(color.stroke_color == glm::vec4{1.f, 0.5f, 0.f, 0.3f});
+                DOCTEST_CHECK(color.fill_color == secondary);
+                DOCTEST_CHECK(color.stroke_color == primary);
                 container_entity = registry.get<RenderShapeContainer>(container_entity).next;
             }
         }
     });
+
+    // Module links
+    const auto module_links_view = registry.view<EcsModuleLink>();
+    for (const auto &entity : module_links_view)
+    {
+        const auto &color = registry.get<Color>(entity);
+        DOCTEST_CHECK(color.fill_color == primary);
+    }
 }
 
 TEST_CASE("destroy_body()")
