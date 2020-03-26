@@ -27,8 +27,10 @@
 #include "environment/components/physics_world.h"
 #include "environment/components/render_shape_container.h"
 #include "environment/components/score.h"
+#include "environment/components/sensor_reading.h"
 #include "environment/systems/clean_up_system.h"
 #include "environment/utils/body_utils.h"
+#include "environment/utils/sensor_utils.h"
 #include "graphics/colors.h"
 
 namespace ai
@@ -195,6 +197,10 @@ entt::entity make_laser_sensor_module(entt::registry &registry)
     registry.assign<EcsSemiCircle>(entity, 0.1f);
     registry.assign<Color>(entity);
 
+    // Sensor readings
+    registry.assign<Sensor>(entity);
+    resize_sensor(registry, entity, 11);
+
     const auto link_entity = make_module_link(registry, {0.f, -0.25f}, 180.f);
     registry.get<EcsModuleLink>(link_entity).parent = entity;
     module.links = 1;
@@ -274,6 +280,19 @@ TEST_CASE("make_gun_module()")
             auto &shape = registry.get<PhysicsShape>(shape_entity);
             shape_entity = shape.next;
         }
+    }
+}
+
+TEST_CASE("make_laser_sensor_module()")
+{
+    entt::registry registry;
+
+    SUBCASE("Creates 11 sensor readings")
+    {
+        make_laser_sensor_module(registry);
+
+        const auto view = registry.view<SensorReading>();
+        DOCTEST_CHECK(view.size() == 11);
     }
 }
 }

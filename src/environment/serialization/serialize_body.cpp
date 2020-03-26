@@ -13,6 +13,7 @@
 #include "environment/components/module_link.h"
 #include "environment/components/modules/base_module.h"
 #include "environment/components/modules/gun_module.h"
+#include "environment/components/modules/laser_sensor_module.h"
 #include "environment/components/modules/module.h"
 #include "environment/components/modules/thruster_module.h"
 #include "environment/components/name.h"
@@ -44,6 +45,7 @@ entt::entity deserialize_module(entt::registry &registry, const nlohmann::json &
     else if (type == "laser_sensor_module")
     {
         entity = make_laser_sensor_module(registry);
+        registry.get<EcsLaserSensorModule>(entity).laser_count = json["laser_count"];
     }
     else
     {
@@ -120,6 +122,11 @@ nlohmann::json serialize_module(const entt::registry &registry, entt::entity mod
     else if (registry.has<EcsThrusterModule>(module_entity))
     {
         json["type"] = "thruster_module";
+    }
+    else if (registry.has<EcsLaserSensorModule>(module_entity))
+    {
+        json["type"] = "laser_sensor_module";
+        json["laser_count"] = registry.get<EcsLaserSensorModule>(module_entity).laser_count;
     }
     else
     {

@@ -26,10 +26,12 @@
 #include "environment/components/physics_type.h"
 #include "environment/components/physics_world.h"
 #include "environment/components/render_shape_container.h"
+#include "environment/components/sensor_reading.h"
 #include "environment/components/score.h"
 #include "environment/systems/clean_up_system.h"
 #include "environment/systems/module_system.h"
 #include "environment/utils/body_factories.h"
+#include "environment/utils/sensor_utils.h"
 
 namespace glm
 {
@@ -170,6 +172,12 @@ void destroy_module(entt::registry &registry, entt::entity module_entity)
             registry.assign_or_replace<entt::tag<"should_destroy"_hs>>(shape);
             shape = registry.get<RenderShapeContainer>(shape).next;
         }
+    }
+
+    // Destroy sensor readings
+    if (registry.has<Sensor>(module_entity))
+    {
+        resize_sensor(registry, module_entity, 0);
     }
 }
 
@@ -508,11 +516,11 @@ TEST_CASE("destroy_body()")
     registry.set<b2World>(b2Vec2{0, 0});
 
     const auto body_entity = make_body(registry);
-    const auto gun_module_entity_1 = make_gun_module(registry);
-    const auto gun_module_entity_2 = make_gun_module(registry);
+    const auto module_entity_1 = make_gun_module(registry);
+    const auto module_entity_2 = make_laser_sensor_module(registry);
     auto &body = registry.get<EcsBody>(body_entity);
-    link_modules(registry, body.base_module, 0, gun_module_entity_1, 1);
-    link_modules(registry, gun_module_entity_1, 0, gun_module_entity_2, 1);
+    link_modules(registry, body.base_module, 0, module_entity_1, 1);
+    link_modules(registry, module_entity_1, 0, module_entity_2, 0);
 
     SUBCASE("Destroys all entities used in a body")
     {
