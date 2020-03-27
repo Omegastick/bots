@@ -4,11 +4,14 @@
 #include <Box2D/Box2D.h>
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtc/type_ptr.hpp>
 #include <imgui.h>
 #include <spdlog/spdlog.h>
 
 #include "create_program_screen.h"
 #include "audio/audio_engine.h"
+#include "environment/ecs_env.h"
+#include "environment/iecs_env.h"
 #include "graphics/backend/shader.h"
 #include "graphics/colors.h"
 #include "graphics/renderers/renderer.h"
@@ -18,10 +21,7 @@
 #include "misc/resource_manager.h"
 #include "misc/screen_manager.h"
 #include "screens/train_screen.h"
-#include "training/bodies/body.h"
 #include "training/checkpointer.h"
-#include "training/environments/ienvironment.h"
-#include "training/environments/koth_env.h"
 #include "training/training_program.h"
 #include "ui/back_button.h"
 #include "ui/create_program_screen/create_program_screen_ui.h"
@@ -30,7 +30,7 @@ namespace ai
 {
 
 CreateProgramScreen::CreateProgramScreen(std::unique_ptr<CreateProgramScreenUI> ui,
-                                         std::unique_ptr<IEnvironment> environment,
+                                         std::unique_ptr<IEcsEnv> environment,
                                          std::unique_ptr<TrainingProgram> program,
                                          AudioEngine &audio_engine,
                                          IO &io,
@@ -63,19 +63,25 @@ void CreateProgramScreen::algorithm()
 
 void CreateProgramScreen::body()
 {
-    auto json = ui->body_selector_window.update();
+    const auto json = ui->body_selector_window.update();
     if (!json.empty())
     {
-        auto bodies = environment->get_bodies();
         try
         {
-            bodies[0]->load_json(json);
-            bodies[1]->load_json(json);
-            bodies[1]->set_color({cl_red, set_alpha(cl_red, 0.2f)});
+            environment->set_body(0, json);
+
+            auto opponent_json = json;
+            opponent_json["color_scheme"]["primary"] = {cl_red.r, cl_red.g, cl_red.b, cl_red.a};
+            const auto transparent_red = set_alpha(cl_red, 0.2f);
+            opponent_json["color_scheme"]["secondary"] = {transparent_red.r,
+                                                          transparent_red.g,
+                                                          transparent_red.b,
+                                                          transparent_red.a};
+            environment->set_body(1, opponent_json);
         }
-        catch (std::runtime_error &ex)
+        catch (const std::runtime_error &ex)
         {
-            spdlog::error("Can't load JSON");
+            spdlog::error("Could not load Json: {}", ex.what());
         }
 
         environment->reset();
@@ -90,16 +96,23 @@ void CreateProgramScreen::brain()
 
 void CreateProgramScreen::rewards()
 {
-    ui->reward_windows.update(*environment, projection, program->reward_config);
+    ui->reward_windows.update(projection, program->reward_config);
 }
 
 void CreateProgramScreen::save_load()
 {
     if (ui->save_load_window.update(*program))
     {
-        auto bodies = environment->get_bodies();
-        bodies[0]->load_json(program->body);
-        bodies[1]->load_json(program->body);
+        environment->set_body(0, program->body);
+
+        auto opponent_json = program->body;
+        opponent_json["color_scheme"]["primary"] = {cl_red.r, cl_red.g, cl_red.b, cl_red.a};
+        const auto transparent_red = set_alpha(cl_red, 0.2f);
+        opponent_json["color_scheme"]["secondary"] = {transparent_red.r,
+                                                      transparent_red.g,
+                                                      transparent_red.b,
+                                                      transparent_red.a};
+        environment->set_body(1, opponent_json);
         environment->reset();
     }
 }
@@ -108,10 +121,10 @@ void CreateProgramScreen::draw(Renderer &renderer, bool lightweight)
 {
     renderer.set_view(projection);
 
-    environment->draw(renderer, lightweight);
+    environment->draw(renderer, audio_engine, lightweight);
 }
 
-void CreateProgramScreen::update(double /*delta_time*/)
+void CreateProgramScreen::update(double delta_time)
 {
     const double view_height = 50;
     auto view_top = view_height * 0.5;
@@ -160,6 +173,8 @@ void CreateProgramScreen::update(double /*delta_time*/)
     ImGui::PopStyleColor();
 
     back_button(screen_manager, resolution);
+
+    environment->forward(delta_time);
 }
 
 void CreateProgramScreen::run_training()
@@ -172,15 +187,8 @@ std::shared_ptr<IScreen> CreateProgramScreenFactory::make()
 {
     auto world = std::make_unique<b2World>(b2Vec2_zero);
     auto rng = std::make_unique<Random>(0);
-    std::vector<std::unique_ptr<Body>> bodies;
-    bodies.push_back(body_factory.make(*world, *rng));
-    bodies.push_back(body_factory.make(*world, *rng));
-    auto environment = env_factory.make(std::move(rng),
-                                        std::move(world),
-                                        std::move(bodies),
-                                        RewardConfig());
     return std::make_shared<CreateProgramScreen>(ui_factory.make(),
-                                                 std::move(environment),
+                                                 std::make_unique<EcsEnv>(),
                                                  std::make_unique<TrainingProgram>(),
                                                  audio_engine,
                                                  io,

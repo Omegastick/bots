@@ -123,6 +123,7 @@ void destroy_module(entt::registry &registry, entt::entity module_entity)
                         parent_link = registry.get<EcsModuleLink>(parent_link).next;
                     }
                     registry.get<EcsModuleLink>(parent_link).linked = false;
+                    registry.get<EcsModuleLink>(parent_link).linked_module = entt::null;
                     registry.get<EcsModuleLink>(parent_link).child_link_index = -1;
                 }
                 else
@@ -135,15 +136,6 @@ void destroy_module(entt::registry &registry, entt::entity module_entity)
                         child = &registry.get<EcsModule>(child_entity);
                     }
                     destroy_module(registry, child_entity);
-                    // auto &child = registry.get<EcsModule>(child_entity);
-                    // child.parent_link_index = -1;
-
-                    // entt::entity child_link = child.first_link;
-                    // for (int j = 0; j < link.child_link_index; j++)
-                    // {
-                    //     child_link = registry.get<EcsModuleLink>(child_link).next;
-                    // }
-                    // registry.get<EcsModuleLink>(child_link).linked = false;
                 }
             }
             link_entity = link.next;
@@ -265,7 +257,9 @@ void link_modules(entt::registry &registry, entt::entity link_a_entity, entt::en
     auto &module_b = registry.get<EcsModule>(link_b.parent);
 
     link_a.linked = true;
+    link_a.linked_module = link_b.parent;
     link_b.linked = true;
+    link_b.linked_module = link_a.parent;
 
     // Calculate new offset
     snap_modules(registry, link_a.parent, link_a_entity, link_b.parent, link_b_entity);
@@ -605,6 +599,9 @@ TEST_CASE("link_modules()")
         link_entity = registry.get<EcsModuleLink>(link_entity).next;
         auto &link = registry.get<EcsModuleLink>(link_entity);
         DOCTEST_CHECK(link.linked);
+
+        DOCTEST_CHECK(parent_link.linked_module == gun_module_entity);
+        DOCTEST_CHECK(link.linked_module == body.base_module);
     }
 
     SUBCASE("Sets child link index correctly")

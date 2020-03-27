@@ -99,6 +99,21 @@ bool EcsEnv::is_audible() const
 
 EcsStepInfo EcsEnv::reset()
 {
+    if (bodies[0] != entt::null)
+    {
+        auto &physics_body = registry.get<PhysicsBody>(bodies[0]);
+        physics_body.body->SetTransform({0.f, -15.f}, 0.f);
+        physics_body.body->SetLinearVelocity(b2Vec2_zero);
+        physics_body.body->SetAngularVelocity(0.f);
+    }
+    if (bodies[1] != entt::null)
+    {
+        auto &physics_body = registry.get<PhysicsBody>(bodies[1]);
+        physics_body.body->SetTransform({0.f, 15.f}, glm::radians(180.f));
+        physics_body.body->SetLinearVelocity(b2Vec2_zero);
+        physics_body.body->SetAngularVelocity(0.f);
+    }
+
     return {};
 }
 

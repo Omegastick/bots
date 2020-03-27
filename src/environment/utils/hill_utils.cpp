@@ -20,7 +20,7 @@ entt::entity make_hill(entt::registry &registry, glm::vec2 center, float size)
     registry.assign<Color>(entity, glm::vec4{0, 0, 0, 0}, cl_white);
     registry.assign<PhysicsType>(entity, PhysicsType::Hill);
     auto &transform = registry.assign<Transform>(entity);
-    transform.set_scale({size, size});
+    transform.set_scale({size * 2.f, size * 2.f});
     transform.set_position(center);
 
     auto &physics_body = registry.assign<PhysicsBody>(entity);

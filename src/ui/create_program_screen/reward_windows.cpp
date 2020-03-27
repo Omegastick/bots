@@ -9,8 +9,6 @@
 #include "reward_windows.h"
 #include "misc/io.h"
 #include "misc/utilities.h"
-#include "training/bodies/body.h"
-#include "training/environments/ienvironment.h"
 #include "training/training_program.h"
 
 namespace ai
@@ -22,13 +20,15 @@ void draw_line_to_point(const ImVec2 &point)
     ImRect window_bb(window_pos + ImVec2(2, 2), window_pos + window_size - ImVec2(2, 2));
     ImVec2 origin = {std::clamp(point.x, window_bb.Min.x, window_bb.Max.x),
                      std::clamp(point.y, window_bb.Min.y, window_bb.Max.y)};
-    ImGui::GetBackgroundDrawList()->AddLine(origin, point, ImGui::GetColorU32(ImGuiCol_FrameBg), 3);
+    ImGui::GetBackgroundDrawList()->AddLine(origin,
+                                            point,
+                                            ImGui::GetColorU32(ImGuiCol_FrameBg), 3);
 }
 
 RewardWindows::RewardWindows(IO &io)
     : io(io) {}
 
-void RewardWindows::update(IEnvironment &environment, glm::mat4 &projection, RewardConfig &reward_config)
+void RewardWindows::update(glm::mat4 &projection, RewardConfig &reward_config)
 {
     auto resolution = io.get_resolutionf();
 
@@ -92,8 +92,7 @@ void RewardWindows::update(IEnvironment &environment, glm::mat4 &projection, Rew
     }
 
     // Draw line to enemy
-    auto enemy_position = environment.get_bodies()[0]->get_rigid_body().body->GetPosition();
-    auto enemy_position_screen = world_to_screen_space({enemy_position.x, enemy_position.y}, resolution, projection);
+    auto enemy_position_screen = world_to_screen_space({0.f, 15.f}, resolution, projection);
     draw_line_to_point({enemy_position_screen.x, enemy_position_screen.y});
 
     ImGui::End();
@@ -120,8 +119,7 @@ void RewardWindows::update(IEnvironment &environment, glm::mat4 &projection, Rew
     }
 
     // Draw line to body
-    auto body_position = environment.get_bodies()[1]->get_rigid_body().body->GetPosition();
-    auto body_position_screen = world_to_screen_space({body_position.x, body_position.y}, resolution, projection);
+    auto body_position_screen = world_to_screen_space({0.f, -15.f}, resolution, projection);
     draw_line_to_point({body_position_screen.x, body_position_screen.y});
 
     ImGui::End();

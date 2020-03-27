@@ -46,8 +46,15 @@ void deserialize_children(entt::registry &registry,
                           entt::entity module_entity,
                           const nlohmann::json &children_json)
 {
-    auto &module = registry.get<EcsModule>(module_entity);
-    for (unsigned int i = 0; i < module.links; i++)
+    const auto link_count = registry.get<EcsModule>(module_entity).links;
+    if (link_count != children_json.size())
+    {
+        const auto error_message = fmt::format("Incorrect number of links: {}. Should be {}",
+                                               children_json.size(),
+                                               link_count);
+        throw std::runtime_error(error_message.c_str());
+    }
+    for (unsigned int i = 0; i < link_count; i++)
     {
         if (children_json[i].is_null())
         {
@@ -88,6 +95,7 @@ entt::entity deserialize_body(entt::registry &registry, const nlohmann::json &js
                                                         json["color_scheme"]["secondary"][1],
                                                         json["color_scheme"]["secondary"][2],
                                                         json["color_scheme"]["secondary"][3]};
+    apply_color_scheme(registry, body_entity);
 
     return body_entity;
 }
@@ -123,15 +131,13 @@ nlohmann::json serialize_module(const entt::registry &registry, entt::entity mod
         throw std::runtime_error("Trying to serialize invalid module");
     }
 
-    entt::entity child_entity = module.first;
     entt::entity link_entity = module.first_link;
     for (unsigned int i = 0; i < module.links; i++)
     {
         const auto &link = registry.get<EcsModuleLink>(link_entity);
         if (link.child_link_index >= 0)
         {
-            json["links"][i] = serialize_module(registry, child_entity);
-            child_entity = registry.get<EcsModule>(child_entity).next;
+            json["links"][i] = serialize_module(registry, link.linked_module);
             json["links"][i]["parent_link_idx"] = link.child_link_index;
         }
         else

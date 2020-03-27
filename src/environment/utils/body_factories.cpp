@@ -122,9 +122,13 @@ entt::entity make_body(entt::registry &registry)
     bar_foreground_transform.set_scale({3.f, 0.2f});
     bar_foreground_transform.set_z(2);
     registry.assign<EcsRectangle>(bar_background_entity);
-    registry.assign<Color>(bar_background_entity, set_alpha(cl_base0, 0.5f), glm::vec4{0, 0, 0, 0});
+    registry.assign<Color>(bar_background_entity,
+                           set_alpha(cl_base0, 0.5f),
+                           glm::vec4{0, 0, 0, 0});
     registry.assign<EcsRectangle>(bar_foreground_entity);
-    registry.assign<Color>(bar_foreground_entity, cl_red, glm::vec4{0, 0, 0, 0});
+    registry.assign<Color>(bar_foreground_entity,
+                           cl_red,
+                           glm::vec4{0, 0, 0, 0});
 
     return entity;
 }

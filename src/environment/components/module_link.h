@@ -12,6 +12,7 @@ struct EcsModuleLink
     entt::entity parent = entt::null;
     entt::entity next = entt::null;
     bool linked = false;
+    entt::entity linked_module = entt::null;
     int child_link_index = -1;
 };
 }

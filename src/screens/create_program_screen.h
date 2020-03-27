@@ -5,6 +5,7 @@
 #include <glm/mat4x4.hpp>
 
 #include "graphics/post_processing/post_proc_layer.h"
+#include "environment/iecs_env.h"
 #include "screens/iscreen.h"
 #include "training/training_program.h"
 #include "ui/create_program_screen/create_program_screen_state.h"
@@ -13,13 +14,10 @@
 namespace ai
 {
 class AudioEngine;
-class BodyFactory;
 class AlgorithmWindow;
 class BodySelectorWindow;
 class BrainWindow;
 class Checkpointer;
-class IEnvironment;
-class IEnvironmentFactory;
 class IO;
 class Renderer;
 class ResourceManager;
@@ -39,7 +37,7 @@ class CreateProgramScreen : public IScreen
     void save_load();
 
     AudioEngine &audio_engine;
-    std::unique_ptr<IEnvironment> environment;
+    std::unique_ptr<IEcsEnv> environment;
     IO &io;
     std::unique_ptr<TrainingProgram> program;
     glm::mat4 projection;
@@ -51,7 +49,7 @@ class CreateProgramScreen : public IScreen
 
   public:
     CreateProgramScreen(std::unique_ptr<CreateProgramScreenUI> ui,
-                        std::unique_ptr<IEnvironment> environment,
+                        std::unique_ptr<IEcsEnv> environment,
                         std::unique_ptr<TrainingProgram> program,
                         AudioEngine &audio_engine,
                         IO &io,
@@ -71,10 +69,8 @@ class CreateProgramScreenFactory : public IScreenFactory
 {
   private:
     AudioEngine &audio_engine;
-    BodyFactory &body_factory;
     Checkpointer &checkpointer;
     CreateProgramScreenUIFactory &ui_factory;
-    IEnvironmentFactory &env_factory;
     IO &io;
     ResourceManager &resource_manager;
     ScreenManager &screen_manager;
@@ -82,19 +78,15 @@ class CreateProgramScreenFactory : public IScreenFactory
 
   public:
     CreateProgramScreenFactory(AudioEngine &audio_engine,
-                               BodyFactory &body_factory,
                                Checkpointer &checkpointer,
                                CreateProgramScreenUIFactory &ui_factory,
-                               IEnvironmentFactory &env_factory,
                                IO &io,
                                ResourceManager &resource_manager,
                                ScreenManager &screen_manager,
                                TrainScreenFactory &train_screen_factory)
         : audio_engine(audio_engine),
-          body_factory(body_factory),
           checkpointer(checkpointer),
           ui_factory(ui_factory),
-          env_factory(env_factory),
           io(io),
           resource_manager(resource_manager),
           screen_manager(screen_manager),

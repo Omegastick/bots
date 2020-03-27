@@ -6,7 +6,6 @@
 
 namespace ai
 {
-class IEnvironment;
 class IO;
 struct RewardConfig;
 
@@ -18,6 +17,6 @@ class RewardWindows
   public:
     RewardWindows(IO &io);
 
-    void update(IEnvironment &environment, glm::mat4 &projection, RewardConfig &reward_config);
+    void update(glm::mat4 &projection, RewardConfig &reward_config);
 };
 }

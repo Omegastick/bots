@@ -16,7 +16,7 @@ entt::entity make_wall(entt::registry &registry, glm::vec2 center, glm::vec2 siz
     const auto entity = registry.create();
     registry.assign<EcsWall>(entity);
     registry.assign<EcsRectangle>(entity);
-    registry.assign<Color>(entity);
+    registry.assign<Color>(entity, cl_white);
     registry.assign<PhysicsType>(entity, PhysicsType::Wall);
     auto &transform = registry.assign<Transform>(entity);
     transform.set_scale(size);
