@@ -53,7 +53,7 @@ void BuildEnv::draw(Renderer &renderer, IAudioEngine &audio_engine)
     draw_lasers_system(registry);
     render_system(registry, renderer);
     audio_system(registry, audio_engine);
-    debug_render_system(registry, renderer);
+    // debug_render_system(registry, renderer);
 }
 
 void BuildEnv::forward(double step_length)

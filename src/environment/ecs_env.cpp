@@ -75,7 +75,7 @@ void EcsEnv::draw(Renderer &renderer, IAudioEngine &audio_engine, bool /*lightwe
     distortion_system(registry, renderer);
     render_system(registry, renderer);
     audio_system(registry, audio_engine);
-    debug_render_system(registry, renderer);
+    // debug_render_system(registry, renderer);
 }
 
 void EcsEnv::forward(double step_length)

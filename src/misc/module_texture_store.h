@@ -2,21 +2,21 @@
 
 #include <unordered_map>
 
+#include <entt/entity/registry.hpp>
+
 #include "graphics/backend/texture.h"
 #include "graphics/renderers/renderer.h"
 
 namespace ai
 {
-class IModuleFactory;
-
 class ModuleTextureStore
 {
     std::unordered_map<std::string, Texture> cache;
-    IModuleFactory &module_factory;
+    entt::registry registry;
     Renderer renderer;
 
   public:
-    ModuleTextureStore(IModuleFactory &module_factory, Renderer &&renderer);
+    ModuleTextureStore(Renderer &&renderer);
 
     Texture &get(const std::string &module);
 };

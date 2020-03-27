@@ -106,6 +106,7 @@ void draw_lasers_system(entt::registry &registry)
         cast_lasers(registry, module_entity, [&](float distance) {
             if (distance >= 1)
             {
+                i++;
                 return;
             }
 
