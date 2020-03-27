@@ -37,11 +37,4 @@ struct EcsTrapezoid
     float bottom_width = 0.f;
     float stroke_width = 0.f;
 };
-
-struct EcsLine
-{
-    glm::vec2 start = {0.f, 0.f};
-    glm::vec2 end = {0.f, 0.f};
-    float width = 0.1f;
-};
 }

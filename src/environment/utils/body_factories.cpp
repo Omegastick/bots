@@ -18,6 +18,7 @@
 #include "environment/components/modules/gun_module.h"
 #include "environment/components/modules/laser_sensor_module.h"
 #include "environment/components/modules/module.h"
+#include "environment/components/modules/square_hull.h"
 #include "environment/components/modules/thruster_module.h"
 #include "environment/components/module_link.h"
 #include "environment/components/name.h"
@@ -239,6 +240,10 @@ entt::entity make_module(entt::registry &registry, const std::string &type)
     {
         entity = make_laser_sensor_module(registry);
     }
+    else if (type == "square_hull")
+    {
+        entity = make_square_hull(registry);
+    }
     else
     {
         const auto error_message = fmt::format(
@@ -258,6 +263,46 @@ entt::entity make_module_link(entt::registry &registry, glm::vec2 position, floa
     auto &transform = registry.assign<Transform>(entity);
     transform.set_scale({0.2f, 0.2f});
     transform.set_z(-1);
+    return entity;
+}
+
+entt::entity make_square_hull(entt::registry &registry)
+{
+    const auto entity = registry.create();
+    auto &module = registry.assign<EcsModule>(entity);
+    registry.assign<EcsSquareHull>(entity);
+    registry.assign<Transform>(entity);
+
+    registry.assign<EcsRectangle>(entity, 0.1f);
+    registry.assign<Color>(entity);
+
+    const auto link_entity_1 = make_module_link(registry, {0.f, 0.5f}, 0.f);
+    registry.get<EcsModuleLink>(link_entity_1).parent = entity;
+
+    const auto link_entity_2 = make_module_link(registry, {-0.5f, 0.f}, 90.f);
+    registry.get<EcsModuleLink>(link_entity_1).next = link_entity_2;
+    registry.get<EcsModuleLink>(link_entity_2).parent = entity;
+
+    const auto link_entity_3 = make_module_link(registry, {0.f, -0.5f}, 180.f);
+    registry.get<EcsModuleLink>(link_entity_2).next = link_entity_3;
+    registry.get<EcsModuleLink>(link_entity_3).parent = entity;
+
+    const auto link_entity_4 = make_module_link(registry, {0.5f, 0.f}, 270.f);
+    registry.get<EcsModuleLink>(link_entity_3).next = link_entity_4;
+    registry.get<EcsModuleLink>(link_entity_4).parent = entity;
+
+    module.links = 4;
+    module.first_link = link_entity_1;
+
+    // Create physics shapes
+    auto &shapes = registry.assign<PhysicsShapes>(entity);
+    shapes.count = 1;
+
+    const auto shape_entity = registry.create();
+    auto &shape = registry.assign<PhysicsShape>(shape_entity);
+    shape.shape.SetAsBox(0.5f, 0.5f);
+    shapes.first = shape_entity;
+
     return entity;
 }
 

@@ -9,6 +9,7 @@
 #include "environment/components/ecs_render_data.h"
 #include "environment/components/trail.h"
 #include "graphics/colors.h"
+#include "graphics/render_data.h"
 #include "misc/transform.h"
 
 namespace ai
@@ -28,11 +29,11 @@ void trail_system(entt::registry &registry)
             trail.previous_positions[0] = current_position;
         }
 
-        registry.assign_or_replace<EcsLine>(entity,
-                                            trail.previous_positions[0],
-                                            trail.previous_positions[2],
-                                            trail.width);
-        registry.assign_or_replace<Color>(entity);
+        registry.assign_or_replace<Line>(entity,
+                                         trail.previous_positions[0],
+                                         trail.previous_positions[2],
+                                         cl_white,
+                                         trail.width);
     });
 }
 
@@ -48,7 +49,7 @@ TEST_CASE("trail_system")
     {
         trail_system(registry);
 
-        DOCTEST_CHECK(registry.has<EcsLine>(entity));
+        DOCTEST_CHECK(registry.has<Line>(entity));
     }
 
     SUBCASE("When a trail is first created, previous positions are set to the entities current position")

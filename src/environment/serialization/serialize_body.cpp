@@ -15,6 +15,7 @@
 #include "environment/components/modules/gun_module.h"
 #include "environment/components/modules/laser_sensor_module.h"
 #include "environment/components/modules/module.h"
+#include "environment/components/modules/square_hull.h"
 #include "environment/components/modules/thruster_module.h"
 #include "environment/components/name.h"
 #include "environment/components/sensor_reading.h"
@@ -112,6 +113,10 @@ nlohmann::json serialize_module(const entt::registry &registry, entt::entity mod
     {
         json["type"] = "laser_sensor_module";
         json["laser_count"] = registry.get<EcsLaserSensorModule>(module_entity).laser_count;
+    }
+    else if (registry.has<EcsSquareHull>(module_entity))
+    {
+        json["type"] == "square_hull";
     }
     else
     {
