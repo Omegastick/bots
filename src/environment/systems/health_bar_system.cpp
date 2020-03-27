@@ -1,5 +1,4 @@
 #include <entt/entt.hpp>
-
 #include <glm/vec2.hpp>
 
 #include "health_bar_system.h"

@@ -82,7 +82,10 @@ entt::entity deserialize_body(entt::registry &registry, const nlohmann::json &js
         throw std::runtime_error(error_message.c_str());
     }
     const auto body_entity = make_body(registry);
-    const auto &body = registry.get<EcsBody>(body_entity);
+    auto &body = registry.get<EcsBody>(body_entity);
+    body.max_hp = 10;
+    body.hp = 10;
+
     deserialize_children(registry, body.base_module, json["modules"]["links"]);
 
     registry.get<Name>(body_entity).name = json["name"];
