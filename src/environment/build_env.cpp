@@ -18,6 +18,7 @@
 #include "environment/systems/health_bar_system.h"
 #include "environment/systems/hill_system.h"
 #include "environment/systems/modules/gun_module_system.h"
+#include "environment/systems/modules/laser_sensor_module_system.h"
 #include "environment/systems/modules/thruster_module_system.h"
 #include "environment/systems/module_system.h"
 #include "environment/systems/particle_system.h"
@@ -49,6 +50,7 @@ void BuildEnv::draw(Renderer &renderer, IAudioEngine &audio_engine)
 {
     trail_system(registry);
     particle_system(registry, renderer);
+    draw_lasers_system(registry);
     render_system(registry, renderer);
     audio_system(registry, audio_engine);
     debug_render_system(registry, renderer);

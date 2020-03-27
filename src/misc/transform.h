@@ -4,6 +4,8 @@
 #include <glm/mat4x4.hpp>
 #include <msgpack.hpp>
 
+class b2Transform;
+
 namespace ai
 {
 class Transform
@@ -20,6 +22,9 @@ class Transform
   public:
     Transform();
     Transform(float x, float y, float rotation);
+    Transform(const b2Transform &b2_transform);
+
+    explicit operator b2Transform();
 
     glm::mat4 get() const;
     void move(glm::vec2 offset);

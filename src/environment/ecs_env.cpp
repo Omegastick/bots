@@ -21,6 +21,7 @@
 #include "environment/systems/health_bar_system.h"
 #include "environment/systems/hill_system.h"
 #include "environment/systems/modules/gun_module_system.h"
+#include "environment/systems/modules/laser_sensor_module_system.h"
 #include "environment/systems/modules/thruster_module_system.h"
 #include "environment/systems/module_system.h"
 #include "environment/systems/particle_system.h"
@@ -69,6 +70,7 @@ void EcsEnv::draw(Renderer &renderer, IAudioEngine &audio_engine, bool /*lightwe
 
     health_bar_system(registry);
     trail_system(registry);
+    draw_lasers_system(registry);
     particle_system(registry, renderer);
     distortion_system(registry, renderer);
     render_system(registry, renderer);
@@ -121,6 +123,7 @@ EcsStepInfo EcsEnv::step(std::vector<torch::Tensor> /*actions*/, double step_len
     forward(step_length);
     gun_module_system(registry);
     thruster_module_system(registry);
+    laser_sensor_module_system(registry);
     hill_system(registry);
 
     return {};

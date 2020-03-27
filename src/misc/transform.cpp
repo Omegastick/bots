@@ -1,3 +1,4 @@
+#include <Box2D/Common/b2Math.h>
 #include <doctest.h>
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
@@ -36,6 +37,20 @@ Transform::Transform(float x, float y, float rot) : Transform()
 {
     set_position({x, y});
     set_rotation(rot);
+}
+
+Transform::Transform(const b2Transform &b2_transform)
+    : origin(0, 0),
+      position(b2_transform.p.x, b2_transform.p.y),
+      rotation(b2_transform.q.GetAngle()),
+      scale(1, 1),
+      z(0),
+      transform(),
+      transform_needs_update(true) {}
+
+Transform::operator b2Transform()
+{
+    return b2Transform(b2Vec2{position.x, position.y}, b2Rot(rotation));
 }
 
 void Transform::set_origin(glm::vec2 origin)

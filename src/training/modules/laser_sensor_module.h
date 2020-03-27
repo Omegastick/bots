@@ -12,11 +12,11 @@ namespace ai
 {
 class Renderer;
 
-class ClosestRaycastCallback : public b2RayCastCallback
+class OldClosestRaycastCallback : public b2RayCastCallback
 {
   public:
-    ClosestRaycastCallback();
-    ~ClosestRaycastCallback();
+    OldClosestRaycastCallback();
+    ~OldClosestRaycastCallback();
 
     virtual float32 ReportFixture(b2Fixture *fixture,
                                   const b2Vec2 &point,

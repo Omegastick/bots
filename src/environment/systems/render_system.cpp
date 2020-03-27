@@ -6,6 +6,7 @@
 #include "render_system.h"
 #include "environment/components/ecs_render_data.h"
 #include "environment/components/render_shape_container.h"
+#include "environment/systems/clean_up_system.h"
 #include "graphics/colors.h"
 #include "graphics/render_data.h"
 #include "graphics/renderers/renderer.h"
@@ -41,6 +42,7 @@ void render_system(entt::registry &registry, Renderer &renderer)
 {
     clean_up_orphans(registry);
     update_container_transforms(registry);
+    clean_up_system(registry);
 
     registry.view<EcsCircle, Transform, Color>().each([&renderer](auto &circle,
                                                                   auto &transform,

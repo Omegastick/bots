@@ -50,7 +50,7 @@ std::vector<float> LaserSensorModule::cast_lasers() const
 
     for (int i = 0; i < laser_count; ++i)
     {
-        ClosestRaycastCallback raycast_callback;
+        OldClosestRaycastCallback raycast_callback;
 
         b2Rot angle(glm::radians((segment_width * i) - (fov / 2)));
         b2Vec2 laser = b2Mul(angle, b2Vec2(0, laser_length));
@@ -156,13 +156,13 @@ nlohmann::json LaserSensorModule::to_json() const
     return json;
 }
 
-ClosestRaycastCallback::ClosestRaycastCallback() : distance(-1) {}
-ClosestRaycastCallback::~ClosestRaycastCallback() {}
+OldClosestRaycastCallback::OldClosestRaycastCallback() : distance(-1) {}
+OldClosestRaycastCallback::~OldClosestRaycastCallback() {}
 
-float32 ClosestRaycastCallback::ReportFixture(b2Fixture *fixture,
-                                              const b2Vec2 & /*point*/,
-                                              const b2Vec2 & /*normal*/,
-                                              float32 fraction)
+float32 OldClosestRaycastCallback::ReportFixture(b2Fixture *fixture,
+                                                 const b2Vec2 & /*point*/,
+                                                 const b2Vec2 & /*normal*/,
+                                                 float32 fraction)
 {
     auto fixture_type = static_cast<RigidBody *>(fixture->GetBody()->GetUserData())->parent_type;
     if (fixture_type == RigidBody::ParentTypes::Bullet || fixture_type == RigidBody::ParentTypes::Hill)
