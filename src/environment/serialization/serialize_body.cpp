@@ -17,9 +17,11 @@
 #include "environment/components/modules/module.h"
 #include "environment/components/modules/thruster_module.h"
 #include "environment/components/name.h"
+#include "environment/components/sensor_reading.h"
 #include "environment/systems/clean_up_system.h"
 #include "environment/utils/body_factories.h"
 #include "environment/utils/body_utils.h"
+#include "environment/utils/sensor_utils.h"
 #include "graphics/colors.h"
 
 namespace ai
@@ -28,31 +30,14 @@ static const std::string schema_version = "v1alpha8";
 
 entt::entity deserialize_module(entt::registry &registry, const nlohmann::json &json)
 {
-    entt::entity entity;
-    const std::string type = json["type"];
-    if (type == "base_module")
+    const auto entity = make_module(registry, json["type"]);
+
+    if (json["type"] == "laser_sensor_module")
     {
-        entity = make_base_module(registry);
-    }
-    else if (type == "gun_module")
-    {
-        entity = make_gun_module(registry);
-    }
-    else if (type == "thruster_module")
-    {
-        entity = make_thruster_module(registry);
-    }
-    else if (type == "laser_sensor_module")
-    {
-        entity = make_laser_sensor_module(registry);
         registry.get<EcsLaserSensorModule>(entity).laser_count = json["laser_count"];
+        resize_sensor(registry, entity, json["laser_count"]);
     }
-    else
-    {
-        const auto error_message = fmt::format(
-            "Trying to deserialize unsupported module type: {}", type);
-        throw std::runtime_error(error_message.c_str());
-    }
+
     return entity;
 }
 
@@ -228,6 +213,24 @@ TEST_CASE("Body serialization")
     {
         auto json = "{\"schema\": \"bad_schema\"}"_json;
         CHECK_THROWS(deserialize_body(registry, json));
+    }
+}
+
+TEST_CASE("deserialize_module()")
+{
+    entt::registry registry;
+
+    SUBCASE("Creates the right amount of lasers on a laser sensor module")
+    {
+        nlohmann::json json;
+        json["type"] = "laser_sensor_module";
+        json["laser_count"] = 5;
+        const auto entity = deserialize_module(registry, json);
+
+        clean_up_system(registry);
+        DOCTEST_CHECK(registry.view<SensorReading>().size() == 5);
+        DOCTEST_CHECK(registry.get<EcsLaserSensorModule>(entity).laser_count == 5);
+        DOCTEST_CHECK(registry.get<Sensor>(entity).count == 5);
     }
 }
 }

@@ -67,9 +67,7 @@ void BuildEnv::forward(double step_length)
 
 entt::entity BuildEnv::create_module(const std::string &type)
 {
-    nlohmann::json json;
-    json["type"] = type;
-    return deserialize_module(registry, json);
+    return make_module(registry, type);
 }
 
 entt::entity BuildEnv::select_module(glm::vec2 position)

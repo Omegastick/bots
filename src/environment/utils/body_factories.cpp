@@ -5,6 +5,7 @@
 #include <Box2D/Box2D.h>
 #include <doctest.h>
 #include <entt/entt.hpp>
+#include <fmt/format.h>
 #include <glm/glm.hpp>
 #include <glm/gtc/constants.hpp>
 
@@ -181,7 +182,7 @@ entt::entity make_gun_module(entt::registry &registry)
     body_shape.next = barrel_shape_entity;
 
     auto &barrel_shape = registry.assign<PhysicsShape>(barrel_shape_entity);
-    barrel_shape.shape.SetAsBox(0.167f, 0.167f, b2Vec2(0, 0.167f), 0);
+    barrel_shape.shape.SetAsBox(0.167f, 0.167f, b2Vec2(0, 0.333f), 0);
 
     return entity;
 }
@@ -215,6 +216,35 @@ entt::entity make_laser_sensor_module(entt::registry &registry)
     shape.shape.SetAsBox(0.5f, 0.25f);
 
     shapes.first = shape_entity;
+
+    return entity;
+}
+
+entt::entity make_module(entt::registry &registry, const std::string &type)
+{
+    entt::entity entity;
+    if (type == "base_module")
+    {
+        entity = make_base_module(registry);
+    }
+    else if (type == "gun_module")
+    {
+        entity = make_gun_module(registry);
+    }
+    else if (type == "thruster_module")
+    {
+        entity = make_thruster_module(registry);
+    }
+    else if (type == "laser_sensor_module")
+    {
+        entity = make_laser_sensor_module(registry);
+    }
+    else
+    {
+        const auto error_message = fmt::format(
+            "Trying to create unsupported module type: {}", type);
+        throw std::runtime_error(error_message.c_str());
+    }
 
     return entity;
 }
@@ -293,6 +323,18 @@ TEST_CASE("make_laser_sensor_module()")
 
         const auto view = registry.view<SensorReading>();
         DOCTEST_CHECK(view.size() == 11);
+    }
+}
+
+TEST_CASE("make_module()")
+{
+    entt::registry registry;
+
+    SUBCASE("Correctly creates a laser sensor module")
+    {
+        const auto entity = make_module(registry, "laser_sensor_module");
+
+        DOCTEST_CHECK(registry.has<EcsLaserSensorModule>(entity));
     }
 }
 }

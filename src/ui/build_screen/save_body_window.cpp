@@ -33,7 +33,7 @@ bool SaveBodyWindow::update(BuildEnv &build_env)
 {
     const auto resolution = io.get_resolutionf();
     ImGui::SetNextWindowPos({resolution.x * 0.85f, resolution.y * 0.85f}, ImGuiCond_Once);
-    ImGui::SetNextWindowSize({resolution.x * 0.125f, resolution.y * 0.15f}, ImGuiCond_Once);
+    ImGui::SetNextWindowSize({resolution.x * 0.125f, resolution.y * 0.11f}, ImGuiCond_Once);
     ImGui::Begin("Save body");
 
     ImGui::InputText("##name", &name);
