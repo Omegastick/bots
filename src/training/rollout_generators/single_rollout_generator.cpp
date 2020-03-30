@@ -236,14 +236,16 @@ TEST_CASE("SingleRolloutGenerator")
     RandomAgent agent(default_body(), rng, "Player");
     auto environment = std::make_unique<MockEcsEnv>();
     ALLOW_CALL(*environment, step(_, _))
-        .RETURN(EcsStepInfo{torch::zeros({2, agent.get_body_spec()["num_observations"]}),
+        .RETURN(EcsStepInfo{{torch::zeros({1, agent.get_body_spec()["num_observations"]}),
+                             torch::zeros({1, agent.get_body_spec()["num_observations"]})},
                             torch::zeros({2, 1}),
                             torch::zeros({2, 1}),
                             -1});
     ALLOW_CALL(*environment, forward(_));
     ALLOW_CALL(*environment, set_body(_, _));
     ALLOW_CALL(*environment, reset())
-        .RETURN(EcsStepInfo{torch::zeros({2, agent.get_body_spec()["num_observations"]}),
+        .RETURN(EcsStepInfo{{torch::zeros({1, agent.get_body_spec()["num_observations"]}),
+                             torch::zeros({1, agent.get_body_spec()["num_observations"]})},
                             torch::zeros({2, 1}),
                             torch::zeros({2, 1}),
                             -1});

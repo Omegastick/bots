@@ -117,6 +117,7 @@ void TrainScreen::update(const double /*delta_time*/)
     const auto scores = trainer->get_scores();
     ImGui::Text("%.1f", scores[0].first);
     ImGui::Text("%.1f", scores[0].second);
+    ImGui::End();
 
     ImGui::SetNextWindowSize({resolution.x * 0.15f, resolution.y * 0.075f}, ImGuiCond_Once);
     ImGui::SetNextWindowPos({resolution.x * 0.7f, resolution.y * 0.5f}, ImGuiCond_Once);

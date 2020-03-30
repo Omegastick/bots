@@ -14,7 +14,8 @@ namespace ai
 {
 struct EcsStepInfo
 {
-    torch::Tensor observations, reward, done;
+    std::vector<torch::Tensor> observations;
+    torch::Tensor reward, done;
     int victor = -1;
 };
 

@@ -25,6 +25,7 @@
 #include "environment/systems/modules/laser_sensor_module_system.h"
 #include "environment/systems/modules/thruster_module_system.h"
 #include "environment/systems/module_system.h"
+#include "environment/systems/observation_system.h"
 #include "environment/systems/particle_system.h"
 #include "environment/systems/physics_system.h"
 #include "environment/systems/render_system.h"
@@ -122,7 +123,7 @@ EcsStepInfo EcsEnv::reset()
         registry.get<Score>(bodies[1]).score = 0.f;
     }
 
-    return {};
+    return {observation_system(registry), torch::zeros({2, 1}), torch::zeros({2, 1})};
 }
 
 void EcsEnv::set_audibility(bool audibility)
@@ -151,6 +152,6 @@ EcsStepInfo EcsEnv::step(std::vector<torch::Tensor> /*actions*/, double step_len
     hill_system(registry);
     laser_sensor_module_system(registry);
 
-    return {};
+    return {observation_system(registry), torch::zeros({2, 1}), torch::zeros({2, 1})};
 }
 }
