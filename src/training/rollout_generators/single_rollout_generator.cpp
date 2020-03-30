@@ -8,22 +8,25 @@
 
 #include "single_rollout_generator.h"
 #include "audio/audio_engine.h"
+#include "environment/iecs_env.h"
+#include "environment/serialization/serialize_body.h"
+#include "graphics/colors.h"
 #include "misc/module_factory.h"
+#include "misc/random.h"
 #include "training/agents/iagent.h"
 #include "training/agents/random_agent.h"
-#include "training/bodies/test_body.h"
-#include "training/entities/bullet.h"
-#include "training/environments/ienvironment.h"
 
 namespace ai
 {
 SingleRolloutGenerator::SingleRolloutGenerator(
     const IAgent &agent,
-    std::unique_ptr<IEnvironment> environment,
+    std::unique_ptr<IEcsEnv> environment,
     const std::vector<std::unique_ptr<IAgent>> &opponent_pool,
+    IAudioEngine &audio_engine,
     Random &rng,
     std::atomic<unsigned long long> *timestep)
     : agent(agent),
+      audio_engine(audio_engine),
       environment(std::move(environment)),
       hidden_state(torch::zeros({agent.get_hidden_state_size(), 1})),
       last_observation(torch::zeros({agent.get_observation_size()})),
@@ -42,19 +45,25 @@ SingleRolloutGenerator::SingleRolloutGenerator(
     opponent_hidden_state = torch::zeros({opponent->get_hidden_state_size(), 1}),
     opponent_last_observation = torch::zeros({1, opponent->get_observation_size()});
 
-    auto bodies = this->environment->get_bodies();
-    bodies[0]->load_json(agent.get_body_spec());
-    bodies[1]->load_json(opponent->get_body_spec());
-    bodies[1]->set_color({cl_red, set_alpha(cl_red, 0.2f)});
+    this->environment->set_body(0, agent.get_body_spec());
+
+    auto opponent_json = opponent->get_body_spec();
+    opponent_json["color_scheme"]["primary"] = {cl_red.r, cl_red.g, cl_red.b, cl_red.a};
+    const auto transparent_red = set_alpha(cl_red, 0.2f);
+    opponent_json["color_scheme"]["secondary"] = {transparent_red.r,
+                                                  transparent_red.g,
+                                                  transparent_red.b,
+                                                  transparent_red.a};
+    this->environment->set_body(1, opponent_json);
 
     this->environment->reset();
 }
 
 void SingleRolloutGenerator::fast_forward(unsigned int steps)
 {
-    auto env_observation = environment->reset().observation;
-    last_observation = env_observation[0];
-    opponent_last_observation = env_observation[1];
+    auto observations = environment->reset().observations;
+    last_observation = observations[0];
+    opponent_last_observation = observations[1];
 
     for (unsigned int current_step = 0; current_step < steps; current_step++)
     {
@@ -63,11 +72,11 @@ void SingleRolloutGenerator::fast_forward(unsigned int steps)
         auto opponent_actions = torch::rand({1, opponent->get_action_size()}).round();
         actions = std::vector<torch::Tensor>{player_actions, opponent_actions};
 
-        env_observation = environment->step(actions, 1.f / 10.f).observation;
+        observations = environment->step(actions, 1.f / 10.f).observations;
         if (current_step == steps - 1)
         {
-            last_observation = env_observation[0];
-            opponent_last_observation = env_observation[1];
+            last_observation = observations[0];
+            opponent_last_observation = observations[1];
         }
     }
 }
@@ -110,7 +119,7 @@ cpprl::RolloutStorage SingleRolloutGenerator::generate(unsigned long length)
         torch::Tensor opponent_dones = torch::zeros({1, 1});
         torch::Tensor rewards = torch::zeros({1, 1});
 
-        StepInfo step_info;
+        EcsStepInfo step_info;
         {
             std::lock_guard lock_guard(mutex);
             auto &player_actions = act_result.action;
@@ -145,7 +154,7 @@ cpprl::RolloutStorage SingleRolloutGenerator::generate(unsigned long length)
         int opponent_index = start_position ? 1 : 0;
         dones = step_info.done[player_index];
         rewards = step_info.reward[player_index];
-        opponent_last_observation = step_info.observation[opponent_index];
+        opponent_last_observation = step_info.observations[opponent_index];
         opponent_dones = step_info.done[opponent_index];
         score = score + step_info.reward[player_index].item().toFloat();
         if (step_info.done[player_index].item().toBool())
@@ -158,22 +167,26 @@ cpprl::RolloutStorage SingleRolloutGenerator::generate(unsigned long length)
             opponent = opponent_pool[selected_opponent].get();
             opponent_hidden_state = torch::zeros({opponent->get_hidden_state_size(), 1});
             start_position = rng.next_bool(0.5);
-            auto bodies = environment->get_bodies();
+            auto opponent_json = opponent->get_body_spec();
+            opponent_json["color_scheme"]["primary"] = {cl_red.r, cl_red.g, cl_red.b, cl_red.a};
+            const auto transparent_red = set_alpha(cl_red, 0.2f);
+            opponent_json["color_scheme"]["secondary"] = {transparent_red.r,
+                                                          transparent_red.g,
+                                                          transparent_red.b,
+                                                          transparent_red.a};
             if (start_position)
             {
-                bodies[0]->load_json(agent.get_body_spec());
-                bodies[1]->load_json(opponent->get_body_spec());
-                bodies[1]->set_color({cl_red, set_alpha(cl_red, 0.2f)});
+                environment->set_body(0, agent.get_body_spec());
+                environment->set_body(1, opponent_json);
             }
             else
             {
-                bodies[0]->load_json(opponent->get_body_spec());
-                bodies[0]->set_color({cl_red, set_alpha(cl_red, 0.2f)});
-                bodies[1]->load_json(agent.get_body_spec());
+                environment->set_body(1, agent.get_body_spec());
+                environment->set_body(0, opponent_json);
             }
         }
         opponent_mask = 1 - dones;
-        storage.insert(step_info.observation[player_index],
+        storage.insert(step_info.observations[player_index],
                        act_result.hidden_state,
                        act_result.action,
                        act_result.log_probs,
@@ -192,12 +205,26 @@ cpprl::RolloutStorage SingleRolloutGenerator::generate(unsigned long length)
 void SingleRolloutGenerator::draw(Renderer &renderer, bool /*lightweight*/)
 {
     std::lock_guard lock_guard(mutex);
-    environment->draw(renderer, !slow);
+    environment->draw(renderer, audio_engine, !slow);
 }
 
 void SingleRolloutGenerator::stop()
 {
     should_stop = true;
+}
+
+std::unique_ptr<ISingleRolloutGenerator> SingleRolloutGeneratorFactory::make(
+    const IAgent &agent,
+    std::unique_ptr<IEcsEnv> environment,
+    const std::vector<std::unique_ptr<IAgent>> &opponent_pool,
+    std::atomic<unsigned long long> *timestep)
+{
+    return std::make_unique<SingleRolloutGenerator>(agent,
+                                                    std::move(environment),
+                                                    opponent_pool,
+                                                    audio_engine,
+                                                    rng,
+                                                    timestep);
 }
 
 using trompeloeil::_;
@@ -206,31 +233,28 @@ TEST_CASE("SingleRolloutGenerator")
 {
     Random rng(0);
     MockAudioEngine audio_engine;
-    MockBulletFactory bullet_factory;
-    ModuleFactory module_factory(audio_engine, bullet_factory, rng);
-    TestBody body(module_factory, rng);
-    const auto body_json = body.to_json();
-    RandomAgent agent(body_json, rng, "Player");
-    auto environment = std::make_unique<MockEnvironment>();
+    RandomAgent agent(default_body(), rng, "Player");
+    auto environment = std::make_unique<MockEcsEnv>();
     ALLOW_CALL(*environment, step(_, _))
-        .RETURN(StepInfo{{},
-                         {torch::zeros({1, 23}), torch::zeros({1, 23})},
-                         torch::zeros({2, 1}),
-                         torch::zeros({2, 1}),
-                         -1});
+        .RETURN(EcsStepInfo{torch::zeros({2, agent.get_body_spec()["num_observations"]}),
+                            torch::zeros({2, 1}),
+                            torch::zeros({2, 1}),
+                            -1});
     ALLOW_CALL(*environment, forward(_));
-    ALLOW_CALL(*environment, get_bodies())
-        .LR_RETURN(std::vector<Body *>{&body, &body});
+    ALLOW_CALL(*environment, set_body(_, _));
     ALLOW_CALL(*environment, reset())
-        .RETURN(StepInfo{{},
-                         {torch::zeros({1, 23}), torch::zeros({1, 23})},
-                         torch::zeros({2, 1}),
-                         torch::zeros({2, 1}),
-                         -1});
+        .RETURN(EcsStepInfo{torch::zeros({2, agent.get_body_spec()["num_observations"]}),
+                            torch::zeros({2, 1}),
+                            torch::zeros({2, 1}),
+                            -1});
     std::vector<std::unique_ptr<IAgent>> opponent_pool;
-    opponent_pool.emplace_back(std::make_unique<RandomAgent>(body_json, rng, "Opponent 1"));
-    opponent_pool.emplace_back(std::make_unique<RandomAgent>(body_json, rng, "Opponent 2"));
-    SingleRolloutGenerator generator(agent, std::move(environment), opponent_pool, rng);
+    opponent_pool.emplace_back(std::make_unique<RandomAgent>(default_body(), rng, "Opponent 1"));
+    opponent_pool.emplace_back(std::make_unique<RandomAgent>(default_body(), rng, "Opponent 2"));
+    SingleRolloutGenerator generator(agent,
+                                     std::move(environment),
+                                     opponent_pool,
+                                     audio_engine,
+                                     rng);
 
     SUBCASE("Generates the correct amount of frames")
     {

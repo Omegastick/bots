@@ -2,6 +2,7 @@
 
 #include <atomic>
 #include <memory>
+#include <tuple>
 #include <vector>
 
 #include "training/rollout_generators/single_rollout_generator.h"
@@ -33,7 +34,7 @@ class MultiRolloutGenerator
     {
         return sub_generators[environment]->get_current_opponent();
     }
-    std::vector<std::vector<float>> get_scores() const;
+    std::vector<std::pair<float, float>> get_scores() const;
 
     inline unsigned long long get_timestep() { return timestep; }
 };

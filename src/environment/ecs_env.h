@@ -23,6 +23,7 @@ class EcsEnv : public IEcsEnv
     void draw(Renderer &renderer, IAudioEngine &audio_engine, bool lightweight = false) override;
     void forward(double step_length) override;
     double get_elapsed_time() const override;
+    std::pair<double, double> get_scores() const override;
     bool is_audible() const override;
     EcsStepInfo reset() override;
     void set_audibility(bool audibility) override;

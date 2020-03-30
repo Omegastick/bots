@@ -20,6 +20,7 @@
 #include "environment/components/name.h"
 #include "environment/components/sensor_reading.h"
 #include "environment/systems/clean_up_system.h"
+#include "environment/systems/physics_system.h"
 #include "environment/utils/body_factories.h"
 #include "environment/utils/body_utils.h"
 #include "environment/utils/sensor_utils.h"
@@ -170,6 +171,38 @@ nlohmann::json serialize_body(const entt::registry &registry, entt::entity body_
         std::vector<float>(glm::value_ptr(color_scheme.secondary),
                            glm::value_ptr(color_scheme.secondary) + 4);
 
+    json["num_actions"] = get_action_count(registry, body_entity);
+    json["num_observations"] = get_observation_count(registry, body_entity);
+
+    return json;
+}
+
+nlohmann::json default_body()
+{
+    static nlohmann::json json;
+    if (!json.is_null())
+    {
+        return json;
+    }
+
+    entt::registry registry;
+    init_physics(registry);
+
+    const auto body_entity = make_body(registry);
+    const auto gun_entity_left = make_gun_module(registry);
+    const auto gun_entity_right = make_gun_module(registry);
+    const auto thruster_entity_left = make_thruster_module(registry);
+    const auto thruster_entity_right = make_thruster_module(registry);
+    const auto sensor_entity = make_laser_sensor_module(registry);
+
+    const auto &body = registry.get<EcsBody>(body_entity);
+    link_modules(registry, body.base_module, 1, gun_entity_left, 2);
+    link_modules(registry, body.base_module, 3, gun_entity_right, 0);
+    link_modules(registry, gun_entity_left, 1, thruster_entity_left, 0);
+    link_modules(registry, gun_entity_right, 1, thruster_entity_right, 0);
+    link_modules(registry, body.base_module, 0, sensor_entity, 0);
+
+    json = serialize_body(registry, body_entity);
     return json;
 }
 

@@ -5,6 +5,7 @@
 #include <filesystem>
 #include <mutex>
 #include <string>
+#include <tuple>
 #include <vector>
 
 #include <cpprl/algorithms/algorithm.h>
@@ -26,6 +27,7 @@ class Checkpointer;
 class EloEvaluator;
 class IEnvironmentFactory;
 class Random;
+class SingleRolloutGeneratorFactory;
 
 class Trainer
 {
@@ -43,7 +45,6 @@ class Trainer
     TrainingProgram program;
     bool reset_recently;
     cpprl::RunningMeanStd returns_rms;
-    Random &rng;
     std::unique_ptr<MultiRolloutGenerator> rollout_generator;
     std::atomic<bool> skip_update;
 
@@ -56,8 +57,7 @@ class Trainer
             TrainingProgram program,
             std::unique_ptr<MultiRolloutGenerator> rollout_generator,
             Checkpointer &checkpointer,
-            EloEvaluator &evaluator,
-            Random &rng);
+            EloEvaluator &evaluator);
 
     void draw(Renderer &renderer, bool lightweight = false);
     double evaluate();
@@ -71,7 +71,7 @@ class Trainer
     {
         return rollout_generator->get_current_opponent(0);
     }
-    inline std::vector<std::vector<float>> get_scores() const
+    inline std::vector<std::pair<float, float>> get_scores() const
     {
         return rollout_generator->get_scores();
     }
@@ -84,23 +84,20 @@ class Trainer
 class TrainerFactory
 {
   private:
-    BodyFactory &body_factory;
     Checkpointer &checkpointer;
-    IEnvironmentFactory &env_factory;
     EloEvaluator &evaluator;
     Random &rng;
+    SingleRolloutGeneratorFactory &single_rollout_generator_factory;
 
   public:
-    TrainerFactory(BodyFactory &body_factory,
-                   Checkpointer &checkpointer,
-                   IEnvironmentFactory &env_factory,
+    TrainerFactory(Checkpointer &checkpointer,
                    EloEvaluator &evaluator,
-                   Random &rng)
-        : body_factory(body_factory),
-          checkpointer(checkpointer),
-          env_factory(env_factory),
+                   Random &rng,
+                   SingleRolloutGeneratorFactory &single_rollout_generator_factory)
+        : checkpointer(checkpointer),
           evaluator(evaluator),
-          rng(rng) {}
+          rng(rng),
+          single_rollout_generator_factory(single_rollout_generator_factory) {}
 
     std::unique_ptr<Trainer> make(TrainingProgram &program) const;
 };

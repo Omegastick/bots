@@ -1,15 +1,17 @@
 #pragma once
 
+#include <tuple>
 #include <vector>
 
 #include <nlohmann/json_fwd.hpp>
 #include <torch/types.h>
+#include <trompeloeil.hpp>
+
+#include "audio/audio_engine.h"
+#include "graphics/renderers/renderer.h"
 
 namespace ai
 {
-class IAudioEngine;
-class Renderer;
-
 struct EcsStepInfo
 {
     torch::Tensor observations, reward, done;
@@ -26,6 +28,7 @@ class IEcsEnv
                       bool lightweight = false) = 0;
     virtual void forward(double step_length) = 0;
     virtual double get_elapsed_time() const = 0;
+    virtual std::pair<double, double> get_scores() const = 0;
     virtual bool is_audible() const = 0;
     virtual EcsStepInfo reset() = 0;
     virtual void set_audibility(bool audibility) = 0;
@@ -34,4 +37,18 @@ class IEcsEnv
 };
 
 inline IEcsEnv::~IEcsEnv() {}
+
+class MockEcsEnv : public trompeloeil::mock_interface<IEcsEnv>
+{
+  public:
+    IMPLEMENT_MOCK3(draw);
+    IMPLEMENT_MOCK1(forward);
+    IMPLEMENT_CONST_MOCK0(get_elapsed_time);
+    IMPLEMENT_CONST_MOCK0(get_scores);
+    IMPLEMENT_CONST_MOCK0(is_audible);
+    IMPLEMENT_MOCK0(reset);
+    IMPLEMENT_MOCK1(set_audibility);
+    IMPLEMENT_MOCK2(set_body);
+    IMPLEMENT_MOCK2(step);
+};
 }

@@ -34,6 +34,7 @@
 #include "training/environments/playback_env.h"
 #include "training/evaluators/elo_evaluator.h"
 #include "training/saver.h"
+#include "training/trainer.h"
 #include "third_party/di.hpp"
 #include "ui/background.h"
 

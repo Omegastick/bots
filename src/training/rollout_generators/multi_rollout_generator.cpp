@@ -1,6 +1,7 @@
 #include <algorithm>
 #include <future>
 #include <vector>
+#include <tuple>
 
 #include <cpprl/cpprl.h>
 #include <doctest.h>
@@ -68,9 +69,9 @@ cpprl::RolloutStorage MultiRolloutGenerator::generate()
     return cpprl::RolloutStorage(storage_ptrs, torch::kCPU);
 }
 
-std::vector<std::vector<float>> MultiRolloutGenerator::get_scores() const
+std::vector<std::pair<float, float>> MultiRolloutGenerator::get_scores() const
 {
-    std::vector<std::vector<float>> scores;
+    std::vector<std::pair<float, float>> scores;
     for (const auto &sub_generator : sub_generators)
     {
         scores.push_back(sub_generator->get_environment().get_scores());

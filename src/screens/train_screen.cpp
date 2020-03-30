@@ -18,7 +18,7 @@
 #include "misc/io.h"
 #include "misc/resource_manager.h"
 #include "screens/iscreen.h"
-#include "training/environments/koth_env.h"
+#include "training/trainer.h"
 #include "ui/back_button.h"
 
 namespace ai
@@ -115,11 +115,8 @@ void TrainScreen::update(const double /*delta_time*/)
     ImGui::SetNextWindowPos({resolution.x * 0.07f, resolution.y * 0.5f}, ImGuiCond_Once);
     ImGui::Begin("Scores");
     const auto scores = trainer->get_scores();
-    for (const auto &score : scores[0])
-    {
-        ImGui::Text("%.1f", score);
-    }
-    ImGui::End();
+    ImGui::Text("%.1f", scores[0].first);
+    ImGui::Text("%.1f", scores[0].second);
 
     ImGui::SetNextWindowSize({resolution.x * 0.15f, resolution.y * 0.075f}, ImGuiCond_Once);
     ImGui::SetNextWindowPos({resolution.x * 0.7f, resolution.y * 0.5f}, ImGuiCond_Once);
@@ -154,5 +151,15 @@ void TrainScreen::draw(Renderer &renderer, bool /*lightweight*/)
     renderer.scissor(-10, -20, 10, 20, projection);
     renderer.set_view(projection);
     trainer->draw(renderer, lightweight_rendering);
+}
+
+std::shared_ptr<IScreen> TrainScreenFactory::make(TrainingProgram program)
+{
+    auto trainer = trainer_factory.make(program);
+    return std::make_unique<TrainScreen>(std::make_unique<TrainInfoWindow>(io),
+                                         std::move(trainer),
+                                         io,
+                                         resource_manager,
+                                         screen_manager);
 }
 }

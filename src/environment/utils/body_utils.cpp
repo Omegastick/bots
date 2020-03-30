@@ -233,6 +233,30 @@ class GetFirstQueryCallback : public b2QueryCallback
     b2Fixture *get() { return fixture; }
 };
 
+unsigned int get_action_count(const entt::registry &registry, entt::entity body_entity)
+{
+    unsigned int action_count = 0;
+    traverse_modules(registry, body_entity, [&](auto module_entity) {
+        if (registry.has<Activatable>(module_entity))
+        {
+            action_count++;
+        }
+    });
+    return action_count;
+}
+
+unsigned int get_observation_count(const entt::registry &registry, entt::entity body_entity)
+{
+    unsigned int observation_count = 0;
+    traverse_modules(registry, body_entity, [&](auto module_entity) {
+        if (registry.has<Sensor>(module_entity))
+        {
+            observation_count += registry.get<Sensor>(module_entity).count;
+        }
+    });
+    return observation_count;
+}
+
 entt::entity get_module_at_point(entt::registry &registry, glm::vec2 point)
 {
     GetFirstQueryCallback query_callback;
@@ -356,7 +380,7 @@ void snap_modules(entt::registry &registry,
     transform_b.rotate(module_b.rot_offset);
 }
 
-void traverse_modules(entt::registry &registry,
+void traverse_modules(const entt::registry &registry,
                       entt::entity body_entity,
                       std::function<void(entt::entity)> callback)
 {

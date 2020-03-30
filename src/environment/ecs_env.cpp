@@ -14,6 +14,7 @@
 #include "environment/components/ecs_render_data.h"
 #include "environment/components/particle_emitter.h"
 #include "environment/components/physics_body.h"
+#include "environment/components/score.h"
 #include "environment/serialization/serialize_body.h"
 #include "environment/systems/audio_system.h"
 #include "environment/systems/clean_up_system.h"
@@ -92,6 +93,11 @@ double EcsEnv::get_elapsed_time() const
     return elapsed_time;
 }
 
+std::pair<double, double> EcsEnv::get_scores() const
+{
+    return {registry.get<Score>(bodies[0]).score, registry.get<Score>(bodies[1]).score};
+}
+
 bool EcsEnv::is_audible() const
 {
     return audible;
@@ -105,6 +111,7 @@ EcsStepInfo EcsEnv::reset()
         physics_body.body->SetTransform({0.f, -15.f}, 0.f);
         physics_body.body->SetLinearVelocity(b2Vec2_zero);
         physics_body.body->SetAngularVelocity(0.f);
+        registry.get<Score>(bodies[0]).score = 0.f;
     }
     if (bodies[1] != entt::null)
     {
@@ -112,6 +119,7 @@ EcsStepInfo EcsEnv::reset()
         physics_body.body->SetTransform({0.f, 15.f}, glm::radians(180.f));
         physics_body.body->SetLinearVelocity(b2Vec2_zero);
         physics_body.body->SetAngularVelocity(0.f);
+        registry.get<Score>(bodies[1]).score = 0.f;
     }
 
     return {};
@@ -135,11 +143,13 @@ void EcsEnv::set_body(std::size_t index, const nlohmann::json &body_def)
 
 EcsStepInfo EcsEnv::step(std::vector<torch::Tensor> /*actions*/, double step_length)
 {
-    forward(step_length);
     gun_module_system(registry);
     thruster_module_system(registry);
-    laser_sensor_module_system(registry);
+
+    forward(step_length);
+
     hill_system(registry);
+    laser_sensor_module_system(registry);
 
     return {};
 }

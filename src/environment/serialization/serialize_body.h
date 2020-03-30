@@ -13,4 +13,5 @@ entt::entity deserialize_module(entt::registry &registry, const nlohmann::json &
 nlohmann::json serialize_body(const entt::registry &registry, entt::entity body_entity);
 nlohmann::json serialize_module(const entt::registry &registry,
                                 entt::entity module_entity);
+nlohmann::json default_body();
 }

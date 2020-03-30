@@ -12,6 +12,8 @@
 #include <torch/torch.h>
 
 #include "trainer.h"
+#include "environment/iecs_env.h"
+#include "environment/ecs_env.h"
 #include "graphics/colors.h"
 #include "misc/random.h"
 #include "misc/resource_manager.h"
@@ -42,8 +44,7 @@ Trainer::Trainer(std::unique_ptr<NNAgent> agent,
                  TrainingProgram program,
                  std::unique_ptr<MultiRolloutGenerator> rollout_generator,
                  Checkpointer &checkpointer,
-                 EloEvaluator &evaluator,
-                 Random &rng)
+                 EloEvaluator &evaluator)
     : agent(std::move(agent)),
       algorithm(std::move(algorithm)),
       checkpointer(checkpointer),
@@ -57,7 +58,6 @@ Trainer::Trainer(std::unique_ptr<NNAgent> agent,
       program(program),
       reset_recently(true),
       returns_rms(1),
-      rng(rng),
       rollout_generator(std::move(rollout_generator)),
       skip_update(false) {}
 
@@ -207,18 +207,10 @@ std::unique_ptr<Trainer> TrainerFactory::make(TrainingProgram &program) const
     }
 
     // Initialize environments
-    std::vector<std::unique_ptr<IEnvironment>> environments;
-    for (const auto i : range(0, program.hyper_parameters.num_env))
+    std::vector<std::unique_ptr<IEcsEnv>> environments;
+    for (int i = 0; i < program.hyper_parameters.num_env; i++)
     {
-        auto world = std::make_unique<b2World>(b2Vec2_zero);
-        auto rng = std::make_unique<Random>(i);
-        std::vector<std::unique_ptr<Body>> bodies;
-        bodies.push_back(body_factory.make(*world, *rng));
-        bodies.push_back(body_factory.make(*world, *rng));
-        environments.push_back(env_factory.make(std::move(rng),
-                                                std::move(world),
-                                                std::move(bodies),
-                                                program.reward_config));
+        environments.push_back(std::make_unique<EcsEnv>());
     }
 
     cpprl::Policy policy(nullptr);
@@ -238,13 +230,12 @@ std::unique_ptr<Trainer> TrainerFactory::make(TrainingProgram &program) const
     auto agent = std::make_unique<NNAgent>(policy, program.body, "Agent");
 
     std::vector<std::unique_ptr<ISingleRolloutGenerator>> sub_generators;
-    for (const auto i : range(0, program.hyper_parameters.num_env))
+    for (int i = 0; i < program.hyper_parameters.num_env; i++)
     {
-        sub_generators.push_back(std::make_unique<SingleRolloutGenerator>(
+        sub_generators.push_back(single_rollout_generator_factory.make(
             *agent,
             std::move(environments[i]),
-            *opponent_pool,
-            rng));
+            *opponent_pool));
     }
 
     auto rollout_generator = std::make_unique<MultiRolloutGenerator>(
@@ -282,7 +273,6 @@ std::unique_ptr<Trainer> TrainerFactory::make(TrainingProgram &program) const
                                      program,
                                      std::move(rollout_generator),
                                      checkpointer,
-                                     evaluator,
-                                     rng);
+                                     evaluator);
 }
 }

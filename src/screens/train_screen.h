@@ -10,7 +10,6 @@
 #include "graphics/post_processing/distortion_layer.h"
 #include "screens/iscreen.h"
 #include "training/training_program.h"
-#include "training/trainer.h"
 #include "ui/train_screen/train_info_window.h"
 
 namespace ai
@@ -22,6 +21,7 @@ class Renderer;
 class ResourceManager;
 class ScreenManager;
 class Trainer;
+class TrainerFactory;
 
 class TrainScreen : public IScreen
 {
@@ -76,14 +76,6 @@ class TrainScreenFactory
           screen_manager(screen_manager) {}
     virtual ~TrainScreenFactory() {}
 
-    virtual std::shared_ptr<IScreen> make(TrainingProgram program)
-    {
-        auto trainer = trainer_factory.make(program);
-        return std::make_unique<TrainScreen>(std::make_unique<TrainInfoWindow>(io),
-                                             std::move(trainer),
-                                             io,
-                                             resource_manager,
-                                             screen_manager);
-    }
+    virtual std::shared_ptr<IScreen> make(TrainingProgram program);
 };
 }
