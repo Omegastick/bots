@@ -31,9 +31,18 @@ class ContactListener : public b2ContactListener
         const auto entity_b = static_cast<entt::registry::entity_type>(
             reinterpret_cast<uintptr_t>(fixture_b->GetUserData()));
 
+        if (!registry.has<PhysicsBody>(entity_a))
+        {
+            spdlog::warn("Entity A no PhysicsBody");
+        }
+        if (!registry.has<PhysicsBody>(entity_b))
+        {
+            spdlog::warn("Entity B no PhysicsBody");
+        }
+
         const auto contact_entity = registry.create();
-        registry.assign<ai::BeginContact>(contact_entity,
-                                          std::array<entt::entity, 2>{entity_a, entity_b});
+        registry.emplace<ai::BeginContact>(contact_entity,
+                                           std::array<entt::entity, 2>{entity_a, entity_b});
     }
 
     void EndContact(b2Contact *contact)
@@ -46,8 +55,8 @@ class ContactListener : public b2ContactListener
             reinterpret_cast<uintptr_t>(fixture_b->GetUserData()));
 
         const auto contact_entity = registry.create();
-        registry.assign<ai::EndContact>(contact_entity,
-                                        std::array<entt::entity, 2>{entity_a, entity_b});
+        registry.emplace<ai::EndContact>(contact_entity,
+                                         std::array<entt::entity, 2>{entity_a, entity_b});
     }
 };
 
@@ -73,11 +82,19 @@ void physics_system(entt::registry &registry, double delta_time)
     });
 
     // Handle contacts
-    registry.view<BeginContact>().each([&](const auto entity, auto &contact) {
+    registry.view<BeginContact>().each([&](auto entity, auto &contact) {
         for (int i = 0; i < 2; i++)
         {
             const auto entity_1 = contact.entities[i];
+            if (!registry.valid(entity_1))
+            {
+                return;
+            }
             const auto entity_2 = contact.entities[(i + 1) % 2];
+            if (!registry.valid(entity_2))
+            {
+                return;
+            }
             const auto type_1 = registry.get<PhysicsType>(entity_1).type;
             const auto type_2 = registry.get<PhysicsType>(entity_2).type;
             switch (type_1)
@@ -92,10 +109,10 @@ void physics_system(entt::registry &registry, double delta_time)
                 break;
             }
         }
-        registry.assign_or_replace<entt::tag<"should_destroy"_hs>>(entity);
+        registry.emplace_or_replace<entt::tag<"should_destroy"_hs>>(entity);
     });
 
-    registry.view<EndContact>().each([&](const auto entity, auto &contact) {
+    registry.view<EndContact>().each([&](auto entity, auto &contact) {
         for (int i = 0; i < 2; i++)
         {
             const auto entity_1 = contact.entities[i];
@@ -119,7 +136,7 @@ void physics_system(entt::registry &registry, double delta_time)
                 break;
             }
         }
-        registry.assign_or_replace<entt::tag<"should_destroy"_hs>>(entity);
+        registry.emplace_or_replace<entt::tag<"should_destroy"_hs>>(entity);
     });
 }
 }

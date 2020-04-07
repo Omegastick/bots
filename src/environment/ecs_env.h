@@ -19,6 +19,8 @@ class EcsEnv : public IEcsEnv
 
   public:
     EcsEnv();
+    EcsEnv(const EcsEnv &) = delete;
+    EcsEnv(EcsEnv &&) = delete;
 
     void draw(Renderer &renderer, IAudioEngine &audio_engine, bool lightweight = false) override;
     void forward(double step_length) override;

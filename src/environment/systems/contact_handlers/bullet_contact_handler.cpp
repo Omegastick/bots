@@ -34,39 +34,39 @@ void begin_bullet_contact(entt::registry &registry,
     const auto audio_entity = registry.create();
     if (other_type == PhysicsType::Body)
     {
-        registry.assign<ParticleEmitter>(explosion_entity,
-                                         transform.get_position(),
-                                         200u,
-                                         cl_white,
-                                         set_alpha(cl_white, 0),
-                                         0.75f,
-                                         0.03f,
-                                         false);
-        registry.assign<DistortionEmitter>(distortion_entity,
-                                           transform.get_position(),
-                                           2.f,
-                                           0.8f);
-        registry.assign<AudioEmitter>(audio_entity, audio_id_map["hit_body"]);
+        registry.emplace<ParticleEmitter>(explosion_entity,
+                                          transform.get_position(),
+                                          200u,
+                                          cl_white,
+                                          set_alpha(cl_white, 0),
+                                          0.75f,
+                                          0.03f,
+                                          false);
+        registry.emplace<DistortionEmitter>(distortion_entity,
+                                            transform.get_position(),
+                                            2.f,
+                                            0.8f);
+        registry.emplace<AudioEmitter>(audio_entity, audio_id_map["hit_body"]);
 
         registry.get<EcsBody>(other_entity).hp -= registry.get<EcsBullet>(bullet_entity).damage;
     }
     else
     {
-        registry.assign<ParticleEmitter>(explosion_entity,
-                                         transform.get_position(),
-                                         100u,
-                                         cl_white,
-                                         set_alpha(cl_white, 0),
-                                         0.75f,
-                                         0.03f);
-        registry.assign<DistortionEmitter>(distortion_entity,
-                                           transform.get_position(),
-                                           2.f,
-                                           0.1f);
-        registry.assign<AudioEmitter>(audio_entity, audio_id_map["hit_wall"]);
+        registry.emplace<ParticleEmitter>(explosion_entity,
+                                          transform.get_position(),
+                                          100u,
+                                          cl_white,
+                                          set_alpha(cl_white, 0),
+                                          0.75f,
+                                          0.03f);
+        registry.emplace<DistortionEmitter>(distortion_entity,
+                                            transform.get_position(),
+                                            2.f,
+                                            0.1f);
+        registry.emplace<AudioEmitter>(audio_entity, audio_id_map["hit_wall"]);
     }
 
-    registry.assign_or_replace<entt::tag<"should_destroy"_hs>>(bullet_entity);
+    registry.emplace_or_replace<entt::tag<"should_destroy"_hs>>(bullet_entity);
 }
 
 TEST_CASE("Bullet contact handler")

@@ -29,11 +29,11 @@ void trail_system(entt::registry &registry)
             trail.previous_positions[0] = current_position;
         }
 
-        registry.assign_or_replace<Line>(entity,
-                                         trail.previous_positions[0],
-                                         trail.previous_positions[2],
-                                         cl_white,
-                                         trail.width);
+        registry.emplace_or_replace<Line>(entity,
+                                          trail.previous_positions[0],
+                                          trail.previous_positions[2],
+                                          cl_white,
+                                          trail.width);
     });
 }
 
@@ -42,8 +42,8 @@ TEST_CASE("trail_system")
     entt::registry registry;
 
     const auto entity = registry.create();
-    registry.assign<Trail>(entity);
-    registry.assign<Transform>(entity);
+    registry.emplace<Trail>(entity);
+    registry.emplace<Transform>(entity);
 
     SUBCASE("Creates a Line component")
     {

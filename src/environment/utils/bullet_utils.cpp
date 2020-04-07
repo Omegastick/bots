@@ -14,13 +14,13 @@ namespace ai
 entt::entity make_bullet(entt::registry &registry)
 {
     const auto entity = registry.create();
-    registry.assign<EcsBullet>(entity, 1.f);
-    auto &transform = registry.assign<Transform>(entity);
+    registry.emplace<EcsBullet>(entity, 1.f);
+    auto &transform = registry.emplace<Transform>(entity);
     transform.set_scale({0.4f, 0.4f});
-    registry.assign<Trail>(entity, 0.2f);
-    registry.assign<PhysicsType>(entity, PhysicsType::Bullet);
+    registry.emplace<Trail>(entity, 0.2f);
 
-    auto &physics_body = registry.assign<PhysicsBody>(entity);
+    registry.emplace<PhysicsType>(entity, PhysicsType::Bullet);
+    auto &physics_body = registry.emplace<PhysicsBody>(entity);
     b2BodyDef body_def;
     body_def.type = b2_dynamicBody;
     body_def.position = {0.f, 0.f};
@@ -39,8 +39,8 @@ entt::entity make_bullet(entt::registry &registry)
     physics_body.body->CreateFixture(&fixture_def);
     physics_body.body->SetBullet(true);
 
-    registry.assign<EcsCircle>(entity, 0.1f);
-    registry.assign<Color>(entity);
+    registry.emplace<EcsCircle>(entity, 0.1f);
+    registry.emplace<Color>(entity);
 
     return entity;
 }

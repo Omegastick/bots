@@ -19,7 +19,7 @@ void clean_up_orphans(entt::registry &registry)
         if (!registry.valid(container.parent) ||
             registry.has<entt::tag<"should_destroy"_hs>>(container.parent))
         {
-            registry.assign_or_replace<entt::tag<"should_destroy"_hs>>(entity);
+            registry.emplace_or_replace<entt::tag<"should_destroy"_hs>>(entity);
         }
     });
 }
@@ -141,9 +141,9 @@ TEST_CASE("Render system")
         const auto child_entity_1 = registry.create();
         const auto child_entity_2 = registry.create();
 
-        registry.assign<RenderShapes>(parent_entity, 2u, child_entity_1);
-        registry.assign<RenderShapeContainer>(child_entity_1, parent_entity, child_entity_2);
-        registry.assign<RenderShapeContainer>(child_entity_2, parent_entity);
+        registry.emplace<RenderShapes>(parent_entity, 2u, child_entity_1);
+        registry.emplace<RenderShapeContainer>(child_entity_1, parent_entity, child_entity_2);
+        registry.emplace<RenderShapeContainer>(child_entity_2, parent_entity);
 
         SUBCASE("Leaves non-orphaned entities")
         {
@@ -156,7 +156,7 @@ TEST_CASE("Render system")
 
         SUBCASE("Cleans up orphaned entities")
         {
-            registry.assign_or_replace<entt::tag<"should_destroy"_hs>>(parent_entity);
+            registry.emplace_or_replace<entt::tag<"should_destroy"_hs>>(parent_entity);
 
             clean_up_orphans(registry);
 
@@ -172,20 +172,20 @@ TEST_CASE("Render system")
         const auto child_entity_1 = registry.create();
         const auto child_entity_2 = registry.create();
 
-        registry.assign<RenderShapes>(parent_entity, 2u, child_entity_1);
-        registry.assign<Transform>(parent_entity);
-        registry.assign<Transform>(child_entity_1);
-        registry.assign<Transform>(child_entity_2);
-        registry.assign<RenderShapeContainer>(child_entity_1,
-                                              parent_entity,
-                                              child_entity_2,
-                                              glm::vec2{1.f, 1.f},
-                                              0.5f);
-        registry.assign<RenderShapeContainer>(child_entity_2,
-                                              parent_entity,
-                                              entt::null,
-                                              glm::vec2{-1.f, 0.f},
-                                              -0.3f);
+        registry.emplace<RenderShapes>(parent_entity, 2u, child_entity_1);
+        registry.emplace<Transform>(parent_entity);
+        registry.emplace<Transform>(child_entity_1);
+        registry.emplace<Transform>(child_entity_2);
+        registry.emplace<RenderShapeContainer>(child_entity_1,
+                                               parent_entity,
+                                               child_entity_2,
+                                               glm::vec2{1.f, 1.f},
+                                               0.5f);
+        registry.emplace<RenderShapeContainer>(child_entity_2,
+                                               parent_entity,
+                                               entt::null,
+                                               glm::vec2{-1.f, 0.f},
+                                               -0.3f);
 
         SUBCASE("Correctly calculates child transforms")
         {

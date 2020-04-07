@@ -14,16 +14,16 @@ namespace ai
 entt::entity make_wall(entt::registry &registry, glm::vec2 center, glm::vec2 size, float angle)
 {
     const auto entity = registry.create();
-    registry.assign<EcsWall>(entity);
-    registry.assign<EcsRectangle>(entity);
-    registry.assign<Color>(entity, cl_white);
-    registry.assign<PhysicsType>(entity, PhysicsType::Wall);
-    auto &transform = registry.assign<Transform>(entity);
+    registry.emplace<EcsWall>(entity);
+    registry.emplace<EcsRectangle>(entity);
+    registry.emplace<Color>(entity, cl_white);
+    auto &transform = registry.emplace<Transform>(entity);
     transform.set_scale(size);
     transform.set_position(center);
     transform.set_rotation(angle);
 
-    auto &physics_body = registry.assign<PhysicsBody>(entity);
+    registry.emplace<PhysicsType>(entity, PhysicsType::Wall);
+    auto &physics_body = registry.emplace<PhysicsBody>(entity);
     b2BodyDef body_def;
     body_def.type = b2_staticBody;
     body_def.position = {center.x, center.y};

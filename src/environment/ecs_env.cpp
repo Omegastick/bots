@@ -1,20 +1,26 @@
+#include <future>
 #include <memory>
+#include <vector>
 
 #include <Box2D/Box2D.h>
+#include <doctest.h>
 #include <entt/entt.hpp>
 #include <glm/gtc/constants.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/glm.hpp>
 #include <nlohmann/json.hpp>
+#include <spdlog/spdlog.h>
 
 #include "ecs_env.h"
 #include "audio/audio_engine.h"
 #include "environment/components/activatable.h"
 #include "environment/components/body.h"
+#include "environment/components/contact.h"
 #include "environment/components/ecs_render_data.h"
 #include "environment/components/particle_emitter.h"
 #include "environment/components/physics_body.h"
 #include "environment/components/score.h"
+#include "environment/observers/destroy_physics_body.h"
 #include "environment/serialization/serialize_body.h"
 #include "environment/systems/audio_system.h"
 #include "environment/systems/clean_up_system.h"
@@ -54,9 +60,9 @@ EcsEnv::EcsEnv()
     make_hill(registry, {0.f, 0.f}, 3.f);
 
     const auto background_entity = registry.create();
-    registry.assign<EcsRectangle>(background_entity);
-    registry.assign<Color>(background_entity, set_alpha(cl_base03, 0.95f), glm::vec4{0, 0, 0, 0});
-    auto &background_transform = registry.assign<Transform>(background_entity);
+    registry.emplace<EcsRectangle>(background_entity);
+    registry.emplace<Color>(background_entity, set_alpha(cl_base03, 0.95f), glm::vec4{0, 0, 0, 0});
+    auto &background_transform = registry.emplace<Transform>(background_entity);
     background_transform.set_scale({20.f, 40.f});
     background_transform.set_z(-5);
 }
@@ -123,6 +129,8 @@ EcsStepInfo EcsEnv::reset()
         registry.get<Score>(bodies[1]).score = 0.f;
     }
 
+    elapsed_time = 0;
+
     return {observation_system(registry), torch::zeros({2, 1}), torch::zeros({2, 1})};
 }
 
@@ -152,6 +160,97 @@ EcsStepInfo EcsEnv::step(std::vector<torch::Tensor> /*actions*/, double step_len
     hill_system(registry);
     laser_sensor_module_system(registry);
 
-    return {observation_system(registry), torch::zeros({2, 1}), torch::zeros({2, 1})};
+    const auto dones = elapsed_time >= 60.f ? torch::ones({2, 1}) : torch::zeros({2, 1});
+
+    return {observation_system(registry), torch::zeros({2, 1}), dones};
+}
+class ContactListener : public b2ContactListener
+{
+  private:
+    entt::registry &registry;
+
+  public:
+    ContactListener(entt::registry &registry) : registry(registry) {}
+
+    void BeginContact(b2Contact *contact)
+    {
+        auto fixture_a = contact->GetFixtureA();
+        auto fixture_b = contact->GetFixtureB();
+        const auto entity_a = static_cast<entt::registry::entity_type>(
+            reinterpret_cast<uintptr_t>(fixture_a->GetUserData()));
+        const auto entity_b = static_cast<entt::registry::entity_type>(
+            reinterpret_cast<uintptr_t>(fixture_b->GetUserData()));
+
+        const auto contact_entity = registry.create();
+        registry.emplace<ai::BeginContact>(contact_entity,
+                                           std::array<entt::entity, 2>{entity_a, entity_b});
+    }
+
+    void EndContact(b2Contact *contact)
+    {
+        auto fixture_a = contact->GetFixtureA();
+        auto fixture_b = contact->GetFixtureB();
+        const auto entity_a = static_cast<entt::registry::entity_type>(
+            reinterpret_cast<uintptr_t>(fixture_a->GetUserData()));
+        const auto entity_b = static_cast<entt::registry::entity_type>(
+            reinterpret_cast<uintptr_t>(fixture_b->GetUserData()));
+
+        const auto contact_entity = registry.create();
+        registry.emplace<ai::EndContact>(contact_entity,
+                                         std::array<entt::entity, 2>{entity_a, entity_b});
+    }
+};
+
+TEST_CASE("EcsEnv")
+{
+    SUBCASE("Runs a game without errors")
+    {
+        EcsEnv env;
+
+        env.set_body(0, default_body());
+        env.set_body(1, default_body());
+
+        auto step_info = env.reset();
+
+        while (!step_info.done[0].item().toBool())
+        {
+            step_info = env.step({torch::rand({1, 4}), torch::rand({1, 4})}, 1.f / 60.f);
+            for (int i = 0; i < 5; i++)
+            {
+                env.forward(1.f / 60.f);
+            }
+        }
+    }
+
+    SUBCASE("Runs multiple games in parallel")
+    {
+        std::vector<std::future<void>> futures;
+
+        for (int i = 0; i < 8; i++)
+        {
+            futures.emplace_back(std::async(std::launch::async, [] {
+                EcsEnv env;
+
+                env.set_body(0, default_body());
+                env.set_body(1, default_body());
+
+                auto step_info = env.reset();
+
+                while (!step_info.done[0].item().toBool())
+                {
+                    step_info = env.step({torch::rand({1, 4}), torch::rand({1, 4})}, 1.f / 60.f);
+                    for (int i = 0; i < 5; i++)
+                    {
+                        env.forward(1.f / 60.f);
+                    }
+                }
+            }));
+        }
+
+        for (auto &future : futures)
+        {
+            future.get();
+        }
+    }
 }
 }

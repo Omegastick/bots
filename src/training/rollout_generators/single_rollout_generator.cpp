@@ -162,7 +162,6 @@ cpprl::RolloutStorage SingleRolloutGenerator::generate(unsigned long length)
             std::lock_guard lock_guard(mutex);
             reset_recently = true;
             score = 0;
-            environment->reset();
             int selected_opponent = rng.next_int(0, opponent_pool.size());
             opponent = opponent_pool[selected_opponent].get();
             opponent_hidden_state = torch::zeros({opponent->get_hidden_state_size(), 1});
@@ -184,6 +183,8 @@ cpprl::RolloutStorage SingleRolloutGenerator::generate(unsigned long length)
                 environment->set_body(1, agent.get_body_spec());
                 environment->set_body(0, opponent_json);
             }
+
+            environment->reset();
         }
         opponent_mask = 1 - dones;
         storage.insert(step_info.observations[player_index],

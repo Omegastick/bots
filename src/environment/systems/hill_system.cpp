@@ -30,9 +30,9 @@ TEST_CASE("Hill system")
     const auto hill_entity = make_hill(registry, {0.f, 0.f}, 1.f);
 
     const auto body_1 = registry.create();
-    registry.assign<Score>(body_1);
+    registry.emplace<Score>(body_1);
     const auto body_2 = registry.create();
-    registry.assign<Score>(body_2);
+    registry.emplace<Score>(body_2);
 
     auto &hill = registry.get<EcsHill>(hill_entity);
 

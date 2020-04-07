@@ -40,22 +40,22 @@ namespace ai
 entt::entity make_base_module(entt::registry &registry)
 {
     const auto entity = registry.create();
-    auto &module = registry.assign<EcsModule>(entity);
-    registry.assign<EcsBaseModule>(entity);
-    registry.assign<Transform>(entity);
+    auto &module = registry.emplace<EcsModule>(entity);
+    registry.emplace<EcsBaseModule>(entity);
+    registry.emplace<Transform>(entity);
 
     // Render shapes
     const auto rectangle_entity = registry.create();
     const auto circle_entity = registry.create();
-    registry.assign<RenderShapes>(entity, 2u, rectangle_entity);
-    registry.assign<RenderShapeContainer>(rectangle_entity, entity, circle_entity);
-    registry.assign<RenderShapeContainer>(circle_entity, entity);
-    registry.assign<EcsRectangle>(rectangle_entity, 0.1f);
-    registry.assign<EcsCircle>(circle_entity, 0.1f);
-    registry.assign<Color>(rectangle_entity);
-    registry.assign<Color>(circle_entity);
-    registry.assign<Transform>(rectangle_entity);
-    auto &circle_transform = registry.assign<Transform>(circle_entity);
+    registry.emplace<RenderShapes>(entity, 2u, rectangle_entity);
+    registry.emplace<RenderShapeContainer>(rectangle_entity, entity, circle_entity);
+    registry.emplace<RenderShapeContainer>(circle_entity, entity);
+    registry.emplace<EcsRectangle>(rectangle_entity, 0.1f);
+    registry.emplace<EcsCircle>(circle_entity, 0.1f);
+    registry.emplace<Color>(rectangle_entity);
+    registry.emplace<Color>(circle_entity);
+    registry.emplace<Transform>(rectangle_entity);
+    auto &circle_transform = registry.emplace<Transform>(circle_entity);
     circle_transform.set_scale({0.4f, 0.4f});
     circle_transform.set_z(1.f);
 
@@ -78,11 +78,11 @@ entt::entity make_base_module(entt::registry &registry)
     module.first_link = link_entity_1;
 
     // Create physics shapes
-    auto &shapes = registry.assign<PhysicsShapes>(entity);
+    auto &shapes = registry.emplace<PhysicsShapes>(entity);
     shapes.count = 1;
 
     const auto shape_entity = registry.create();
-    auto &shape = registry.assign<PhysicsShape>(shape_entity);
+    auto &shape = registry.emplace<PhysicsShape>(shape_entity);
     shape.shape.SetAsBox(0.5f, 0.5f);
     shapes.first = shape_entity;
 
@@ -92,14 +92,14 @@ entt::entity make_base_module(entt::registry &registry)
 entt::entity make_body(entt::registry &registry)
 {
     const auto entity = registry.create();
-    auto &body = registry.assign<EcsBody>(entity);
-    registry.assign<Transform>(entity);
-    registry.assign<PhysicsType>(entity, PhysicsType::Body);
-    registry.assign<Score>(entity);
-    registry.assign<ColorScheme>(entity);
-    registry.assign<Name>(entity);
+    auto &body = registry.emplace<EcsBody>(entity);
+    registry.emplace<Transform>(entity);
+    registry.emplace<Score>(entity);
+    registry.emplace<ColorScheme>(entity);
+    registry.emplace<Name>(entity);
 
-    auto &physics_body = registry.assign<PhysicsBody>(entity);
+    registry.emplace<PhysicsType>(entity, PhysicsType::Body);
+    auto &physics_body = registry.emplace<PhysicsBody>(entity);
     b2BodyDef body_def;
     body_def.type = b2_dynamicBody;
     body_def.position = {0.f, 0.f};
@@ -114,21 +114,21 @@ entt::entity make_body(entt::registry &registry)
 
     const auto bar_background_entity = registry.create();
     const auto bar_foreground_entity = registry.create();
-    registry.assign<HealthBar>(entity, bar_background_entity, bar_foreground_entity);
-    auto &bar_background_transform = registry.assign<Transform>(bar_background_entity);
+    registry.emplace<HealthBar>(entity, bar_background_entity, bar_foreground_entity);
+    auto &bar_background_transform = registry.emplace<Transform>(bar_background_entity);
     bar_background_transform.set_scale({3.f, 0.2f});
     bar_background_transform.set_z(1);
-    auto &bar_foreground_transform = registry.assign<Transform>(bar_foreground_entity);
+    auto &bar_foreground_transform = registry.emplace<Transform>(bar_foreground_entity);
     bar_foreground_transform.set_scale({3.f, 0.2f});
     bar_foreground_transform.set_z(2);
-    registry.assign<EcsRectangle>(bar_background_entity);
-    registry.assign<Color>(bar_background_entity,
-                           set_alpha(cl_base0, 0.5f),
-                           glm::vec4{0, 0, 0, 0});
-    registry.assign<EcsRectangle>(bar_foreground_entity);
-    registry.assign<Color>(bar_foreground_entity,
-                           cl_red,
-                           glm::vec4{0, 0, 0, 0});
+    registry.emplace<EcsRectangle>(bar_background_entity);
+    registry.emplace<Color>(bar_background_entity,
+                            set_alpha(cl_base0, 0.5f),
+                            glm::vec4{0, 0, 0, 0});
+    registry.emplace<EcsRectangle>(bar_foreground_entity);
+    registry.emplace<Color>(bar_foreground_entity,
+                            cl_red,
+                            glm::vec4{0, 0, 0, 0});
 
     return entity;
 }
@@ -136,27 +136,27 @@ entt::entity make_body(entt::registry &registry)
 entt::entity make_gun_module(entt::registry &registry)
 {
     const auto entity = registry.create();
-    auto &module = registry.assign<EcsModule>(entity);
-    registry.assign<EcsGunModule>(entity);
-    registry.assign<Transform>(entity);
-    registry.assign<Activatable>(entity);
+    auto &module = registry.emplace<EcsModule>(entity);
+    registry.emplace<EcsGunModule>(entity);
+    registry.emplace<Transform>(entity);
+    registry.emplace<Activatable>(entity);
 
     // Render shapes
     const auto shape_1_entity = registry.create();
     const auto shape_2_entity = registry.create();
-    registry.assign<RenderShapes>(entity, 2u, shape_1_entity);
-    registry.assign<RenderShapeContainer>(shape_1_entity, entity, shape_2_entity);
-    registry.assign<RenderShapeContainer>(shape_2_entity, entity);
+    registry.emplace<RenderShapes>(entity, 2u, shape_1_entity);
+    registry.emplace<RenderShapeContainer>(shape_1_entity, entity, shape_2_entity);
+    registry.emplace<RenderShapeContainer>(shape_2_entity, entity);
 
-    registry.assign<EcsRectangle>(shape_1_entity, 0.1f);
-    registry.assign<Color>(shape_1_entity);
-    auto &barrel_transform = registry.assign<Transform>(shape_1_entity);
+    registry.emplace<EcsRectangle>(shape_1_entity, 0.1f);
+    registry.emplace<Color>(shape_1_entity);
+    auto &barrel_transform = registry.emplace<Transform>(shape_1_entity);
     barrel_transform.set_scale({0.333f, 0.333});
     barrel_transform.set_origin({0.f, -0.333f});
 
-    registry.assign<EcsRectangle>(shape_2_entity, 0.1f);
-    registry.assign<Color>(shape_2_entity);
-    auto &body_transform = registry.assign<Transform>(shape_2_entity);
+    registry.emplace<EcsRectangle>(shape_2_entity, 0.1f);
+    registry.emplace<Color>(shape_2_entity);
+    auto &body_transform = registry.emplace<Transform>(shape_2_entity);
     body_transform.set_scale({1.f, 0.666f});
     body_transform.set_origin({0.f, 0.167f});
 
@@ -176,17 +176,17 @@ entt::entity make_gun_module(entt::registry &registry)
     module.first_link = link_entity_1;
 
     // Create physics shapes
-    auto &shapes = registry.assign<PhysicsShapes>(entity);
+    auto &shapes = registry.emplace<PhysicsShapes>(entity);
     shapes.count = 2;
     const auto body_shape_entity = registry.create();
     const auto barrel_shape_entity = registry.create();
 
-    auto &body_shape = registry.assign<PhysicsShape>(body_shape_entity);
+    auto &body_shape = registry.emplace<PhysicsShape>(body_shape_entity);
     body_shape.shape.SetAsBox(0.5f, 0.333f, b2Vec2(0, -0.167f), 0);
     shapes.first = body_shape_entity;
     body_shape.next = barrel_shape_entity;
 
-    auto &barrel_shape = registry.assign<PhysicsShape>(barrel_shape_entity);
+    auto &barrel_shape = registry.emplace<PhysicsShape>(barrel_shape_entity);
     barrel_shape.shape.SetAsBox(0.167f, 0.167f, b2Vec2(0, 0.333f), 0);
 
     return entity;
@@ -195,16 +195,16 @@ entt::entity make_gun_module(entt::registry &registry)
 entt::entity make_laser_sensor_module(entt::registry &registry)
 {
     const auto entity = registry.create();
-    auto &module = registry.assign<EcsModule>(entity);
-    registry.assign<EcsLaserSensorModule>(entity);
-    auto &transform = registry.assign<Transform>(entity);
+    auto &module = registry.emplace<EcsModule>(entity);
+    registry.emplace<EcsLaserSensorModule>(entity);
+    auto &transform = registry.emplace<Transform>(entity);
     transform.set_scale({1.f, 0.5f});
     transform.set_origin({0.f, 0.25f});
-    registry.assign<EcsSemiCircle>(entity, 0.1f);
-    registry.assign<Color>(entity);
+    registry.emplace<EcsSemiCircle>(entity, 0.1f);
+    registry.emplace<Color>(entity);
 
     // Sensor readings
-    registry.assign<Sensor>(entity);
+    registry.emplace<Sensor>(entity);
     resize_sensor(registry, entity, 11);
 
     const auto link_entity = make_module_link(registry, {0.f, -0.25f}, 180.f);
@@ -213,11 +213,11 @@ entt::entity make_laser_sensor_module(entt::registry &registry)
     module.first_link = link_entity;
 
     // Create physics shapes
-    auto &shapes = registry.assign<PhysicsShapes>(entity);
+    auto &shapes = registry.emplace<PhysicsShapes>(entity);
     shapes.count = 1;
 
     const auto shape_entity = registry.create();
-    auto &shape = registry.assign<PhysicsShape>(shape_entity);
+    auto &shape = registry.emplace<PhysicsShape>(shape_entity);
     shape.shape.SetAsBox(0.5f, 0.25f);
 
     shapes.first = shape_entity;
@@ -261,10 +261,10 @@ entt::entity make_module(entt::registry &registry, const std::string &type)
 entt::entity make_module_link(entt::registry &registry, glm::vec2 position, float rotation)
 {
     const auto entity = registry.create();
-    registry.assign<EcsModuleLink>(entity, position, glm::radians(rotation));
-    registry.assign<EcsSemiCircle>(entity);
-    registry.assign<Color>(entity, cl_white, glm::vec4{0, 0, 0, 0});
-    auto &transform = registry.assign<Transform>(entity);
+    registry.emplace<EcsModuleLink>(entity, position, glm::radians(rotation));
+    registry.emplace<EcsSemiCircle>(entity);
+    registry.emplace<Color>(entity, cl_white, glm::vec4{0, 0, 0, 0});
+    auto &transform = registry.emplace<Transform>(entity);
     transform.set_scale({0.2f, 0.2f});
     transform.set_z(-1);
     return entity;
@@ -273,12 +273,12 @@ entt::entity make_module_link(entt::registry &registry, glm::vec2 position, floa
 entt::entity make_square_hull(entt::registry &registry)
 {
     const auto entity = registry.create();
-    auto &module = registry.assign<EcsModule>(entity);
-    registry.assign<EcsSquareHull>(entity);
-    registry.assign<Transform>(entity);
+    auto &module = registry.emplace<EcsModule>(entity);
+    registry.emplace<EcsSquareHull>(entity);
+    registry.emplace<Transform>(entity);
 
-    registry.assign<EcsRectangle>(entity, 0.1f);
-    registry.assign<Color>(entity);
+    registry.emplace<EcsRectangle>(entity, 0.1f);
+    registry.emplace<Color>(entity);
 
     const auto link_entity_1 = make_module_link(registry, {0.f, 0.5f}, 0.f);
     registry.get<EcsModuleLink>(link_entity_1).parent = entity;
@@ -299,11 +299,11 @@ entt::entity make_square_hull(entt::registry &registry)
     module.first_link = link_entity_1;
 
     // Create physics shapes
-    auto &shapes = registry.assign<PhysicsShapes>(entity);
+    auto &shapes = registry.emplace<PhysicsShapes>(entity);
     shapes.count = 1;
 
     const auto shape_entity = registry.create();
-    auto &shape = registry.assign<PhysicsShape>(shape_entity);
+    auto &shape = registry.emplace<PhysicsShape>(shape_entity);
     shape.shape.SetAsBox(0.5f, 0.5f);
     shapes.first = shape_entity;
 
@@ -313,15 +313,15 @@ entt::entity make_square_hull(entt::registry &registry)
 entt::entity make_thruster_module(entt::registry &registry)
 {
     const auto entity = registry.create();
-    auto &module = registry.assign<EcsModule>(entity);
-    registry.assign<EcsThrusterModule>(entity);
-    registry.assign<Activatable>(entity);
+    auto &module = registry.emplace<EcsModule>(entity);
+    registry.emplace<EcsThrusterModule>(entity);
+    registry.emplace<Activatable>(entity);
 
-    auto &transform = registry.assign<Transform>(entity);
+    auto &transform = registry.emplace<Transform>(entity);
     transform.set_scale({1.f, 0.25f});
 
-    registry.assign<EcsTrapezoid>(entity, 0.666f, 1.f, 0.1f);
-    registry.assign<Color>(entity);
+    registry.emplace<EcsTrapezoid>(entity, 0.666f, 1.f, 0.1f);
+    registry.emplace<Color>(entity);
 
     const auto link_entity = make_module_link(registry, {0.f, 0.125f}, 0.f);
     module.links = 1;
@@ -329,11 +329,11 @@ entt::entity make_thruster_module(entt::registry &registry)
     registry.get<EcsModuleLink>(link_entity).parent = entity;
 
     // Create physics shapes
-    auto &shapes = registry.assign<PhysicsShapes>(entity);
+    auto &shapes = registry.emplace<PhysicsShapes>(entity);
     shapes.count = 1;
 
     const auto shape_entity = registry.create();
-    auto &shape = registry.assign<PhysicsShape>(shape_entity);
+    auto &shape = registry.emplace<PhysicsShape>(shape_entity);
     b2Vec2 vertices[4];
     vertices[0] = b2Vec2(-0.333f, -0.125f);
     vertices[1] = b2Vec2(-0.5f, 0.125f);

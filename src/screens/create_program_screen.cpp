@@ -78,6 +78,7 @@ void CreateProgramScreen::body()
                                                           transparent_red.b,
                                                           transparent_red.a};
             environment->set_body(1, opponent_json);
+            program->body = json;
         }
         catch (const std::runtime_error &ex)
         {
@@ -85,7 +86,6 @@ void CreateProgramScreen::body()
         }
 
         environment->reset();
-        program->body = json;
     }
 }
 

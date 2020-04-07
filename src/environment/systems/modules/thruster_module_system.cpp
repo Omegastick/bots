@@ -54,15 +54,15 @@ void thruster_particle_system(entt::registry &registry)
         const auto position = transform.get_position();
         const auto rotation = transform.get_rotation();
         const auto particle_emitter = registry.create();
-        registry.assign<ParticleEmitter>(particle_emitter,
-                                         position,
-                                         15u,
-                                         glm::vec4{1.23f, 0.53f, 0.28f, 1.f},
-                                         glm::vec4{0.f, 0.f, 0.f, -0.f},
-                                         0.7f,
-                                         0.05f,
-                                         true,
-                                         rotation + glm::radians(180.f));
+        registry.emplace<ParticleEmitter>(particle_emitter,
+                                          position,
+                                          15u,
+                                          glm::vec4{1.23f, 0.53f, 0.28f, 1.f},
+                                          glm::vec4{0.f, 0.f, 0.f, -0.f},
+                                          0.7f,
+                                          0.05f,
+                                          true,
+                                          rotation + glm::radians(180.f));
     }
 }
 

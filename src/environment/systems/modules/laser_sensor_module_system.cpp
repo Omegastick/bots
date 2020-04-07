@@ -93,7 +93,7 @@ void draw_lasers_system(entt::registry &registry)
     const auto laser_view = registry.view<entt::tag<"laser"_hs>>();
     for (const auto &entity : laser_view)
     {
-        registry.assign_or_replace<entt::tag<"should_destroy"_hs>>(entity);
+        registry.emplace_or_replace<entt::tag<"should_destroy"_hs>>(entity);
     }
 
     const auto view = registry.view<EcsLaserSensorModule>();
@@ -111,7 +111,7 @@ void draw_lasers_system(entt::registry &registry)
             }
 
             const auto laser_entity = registry.create();
-            registry.assign<entt::tag<"laser"_hs>>(laser_entity);
+            registry.emplace<entt::tag<"laser"_hs>>(laser_entity);
 
             auto transform = static_cast<b2Transform>(registry.get<Transform>(module_entity));
 
@@ -120,11 +120,11 @@ void draw_lasers_system(entt::registry &registry)
             b2Vec2 laser_start = b2Mul(angle, b2Vec2(0, 0.35f));
             b2Vec2 transformed_end = b2Mul(transform, laser);
             b2Vec2 transformed_start = b2Mul(transform, laser_start);
-            registry.assign<Line>(laser_entity,
-                                  glm::vec2{transformed_start.x, transformed_start.y},
-                                  glm::vec2{transformed_end.x, transformed_end.y},
-                                  set_alpha(cl_white, 0.5f),
-                                  0.02f);
+            registry.emplace<Line>(laser_entity,
+                                   glm::vec2{transformed_start.x, transformed_start.y},
+                                   glm::vec2{transformed_end.x, transformed_end.y},
+                                   set_alpha(cl_white, 0.5f),
+                                   0.02f);
         });
     }
 }

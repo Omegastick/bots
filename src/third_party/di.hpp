@@ -434,13 +434,13 @@ namespace aux
 template <class T>
 T &&declval();
 template <class T, T V>
-struct integral_constant
+struct tag
 {
-    using type = integral_constant;
+    using type = tag;
     static constexpr T value = V;
 };
-using true_type = integral_constant<bool, true>;
-using false_type = integral_constant<bool, false>;
+using true_type = tag<bool, true>;
+using false_type = tag<bool, false>;
 template <bool B, class T, class F>
 struct conditional
 {
@@ -645,30 +645,30 @@ struct is_same<T, T> : true_type
 {
 };
 template <class T, class U>
-struct is_base_of : integral_constant<bool, __is_base_of(T, U)>
+struct is_base_of : tag<bool, __is_base_of(T, U)>
 {
 };
 template <class T>
-struct is_class : integral_constant<bool, __is_class(T)>
+struct is_class : tag<bool, __is_class(T)>
 {
 };
 template <class T>
-struct is_abstract : integral_constant<bool, __is_abstract(T)>
+struct is_abstract : tag<bool, __is_abstract(T)>
 {
 };
 template <class T>
-struct is_polymorphic : integral_constant<bool, __is_polymorphic(T)>
+struct is_polymorphic : tag<bool, __is_polymorphic(T)>
 {
 };
 template <class T>
-struct is_final : integral_constant<bool, __is_final(T)>
+struct is_final : tag<bool, __is_final(T)>
 {
 };
 template <class...>
 using is_valid_expr = true_type;
 #if __has_extension(is_constructible) && !((__clang_major__ == 3) && (__clang_minor__ == 5))
 template <class T, class... TArgs>
-using is_constructible = integral_constant<bool, __is_constructible(T, TArgs...)>;
+using is_constructible = tag<bool, __is_constructible(T, TArgs...)>;
 #else
 template <class T, class... TArgs>
 decltype(void(T(declval<TArgs>()...)), true_type{}) test_is_constructible(int);
@@ -691,11 +691,11 @@ template <class T, class... TArgs>
 using is_braces_constructible_t = typename is_braces_constructible<T, TArgs...>::type;
 #if defined(__MSVC__)
 template <class T>
-struct is_copy_constructible : integral_constant<bool, __is_constructible(T, const T &)>
+struct is_copy_constructible : tag<bool, __is_constructible(T, const T &)>
 {
 };
 template <class T>
-struct is_default_constructible : integral_constant<bool, __is_constructible(T)>
+struct is_default_constructible : tag<bool, __is_constructible(T)>
 {
 };
 #else
@@ -706,7 +706,7 @@ using is_default_constructible = is_constructible<T>;
 #endif
 #if defined(__CLANG__) || defined(__MSVC__)
 template <class T, class U>
-struct is_convertible : integral_constant<bool, __is_convertible_to(T, U)>
+struct is_convertible : tag<bool, __is_convertible_to(T, U)>
 {
 };
 #else
@@ -723,7 +723,7 @@ template <class T, class U>
 using is_convertible = decltype(test_is_convertible<T, U>(0));
 #endif
 template <class TSrc, class TDst, class U = remove_qualifiers_t<TDst>>
-using is_narrowed = integral_constant<bool, !is_class<TSrc>::value && !is_class<U>::value && !is_same<TSrc, U>::value>;
+using is_narrowed = tag<bool, !is_class<TSrc>::value && !is_class<U>::value && !is_same<TSrc, U>::value>;
 template <class, class...>
 struct is_array : false_type
 {
@@ -821,7 +821,7 @@ struct is_empty_expr : false_type
 };
 template <class TExpr>
 #if defined(__MSVC__)
-struct is_empty_expr<TExpr, valid_t<decltype(declval<TExpr>()())>> : integral_constant<bool, sizeof(TExpr) == 1>
+struct is_empty_expr<TExpr, valid_t<decltype(declval<TExpr>()())>> : tag<bool, sizeof(TExpr) == 1>
 {
 };
 #else
@@ -1623,11 +1623,11 @@ struct type
 template <class>
 struct ctor_size;
 template <class TInit, class... TCtor>
-struct ctor_size<aux::pair<TInit, aux::type_list<TCtor...>>> : aux::integral_constant<int, sizeof...(TCtor)>
+struct ctor_size<aux::pair<TInit, aux::type_list<TCtor...>>> : aux::tag<int, sizeof...(TCtor)>
 {
 };
 template <class... TCtor>
-struct ctor_size<aux::type_list<TCtor...>> : aux::integral_constant<int, sizeof...(TCtor)>
+struct ctor_size<aux::type_list<TCtor...>> : aux::tag<int, sizeof...(TCtor)>
 {
 };
 template <class T>
@@ -1820,7 +1820,7 @@ struct has_result_type<T, ::boost::di::v1_1_0::aux::valid_t<typename T::result_t
 };
 template <class TGiven, class TProvider, class... Ts>
 struct is_expr
-    : aux::integral_constant<
+    : aux::tag<
           bool, aux::is_invocable<TGiven, typename TProvider::injector, Ts...>::value && !has_result_type<TGiven>::value>
 {
 };
@@ -1899,7 +1899,7 @@ class instance
     {
         template <class...>
         using is_referable =
-            aux::integral_constant<bool, !aux::is_callable<TExpected>::value || !detail::has_result_type<TExpected>::value>;
+            aux::tag<bool, !aux::is_callable<TExpected>::value || !detail::has_result_type<TExpected>::value>;
         explicit scope(const TGiven &object) : object_(object) {}
 #if defined(__MSVC__)
         template <class T, class, class TProvider>
@@ -2013,12 +2013,12 @@ class instance
                 }
             };
             template <class T>
-            struct is_creatable : aux::integral_constant<bool, core::injector__<TInjector>::template is_creatable<T>::value>
+            struct is_creatable : aux::tag<bool, core::injector__<TInjector>::template is_creatable<T>::value>
             {
             };
             template <class TName, class T>
             struct is_creatable<named<TName, T>>
-                : aux::integral_constant<bool, core::injector__<TInjector>::template is_creatable<T, TName>::value>
+                : aux::tag<bool, core::injector__<TInjector>::template is_creatable<T, TName>::value>
             {
             };
 
@@ -2106,7 +2106,7 @@ class dependency : dependency_base,
     friend class dependency;
     using scope_t = typename TScope::template scope<TExpected, TGiven>;
     template <class T>
-    using externable = aux::integral_constant<
+    using externable = aux::tag<
         bool, aux::always<T>::value && aux::is_same<TScope, scopes::deduce>::value && aux::is_same<TExpected, TGiven>::value>;
     template <class T>
     struct ref_traits
@@ -2282,7 +2282,7 @@ struct arg_wrapper
     using expected = _;
     using given = _;
     using name = no_name;
-    using arity = aux::integral_constant<int, 0>;
+    using arity = aux::tag<int, 0>;
     using scope = scopes::deduce;
     using is_root = aux::false_type;
     template <class, class, class>
@@ -2946,7 +2946,7 @@ struct arg_wrapper<T, TName, TIsRoot, TList<TCtor...>, TDependency, TDeps>
     using expected __BOOST_DI_UNUSED = typename TDependency::expected;
     using given __BOOST_DI_UNUSED = typename TDependency::given;
     using name __BOOST_DI_UNUSED = TName;
-    using arity __BOOST_DI_UNUSED = aux::integral_constant<int, sizeof...(TCtor)>;
+    using arity __BOOST_DI_UNUSED = aux::tag<int, sizeof...(TCtor)>;
     using scope __BOOST_DI_UNUSED = typename TDependency::scope;
     using is_root __BOOST_DI_UNUSED = TIsRoot;
     template <class T_, class TName_, class TDefault_>
@@ -3739,7 +3739,7 @@ struct injector<TConfig, int, core::dependency<scopes::instance, T, aux::type_li
                 // clang-format off
             (detail::
 create<T> (
-     aux::integral_constant<bool, is_creatable_impl<injector_t, TGivens>::value>{}),
+     aux::tag<bool, is_creatable_impl<injector_t, TGivens>::value>{}),
              0)...};
         // clang-format on
         (void)_;
@@ -3846,7 +3846,7 @@ template <class T>
 struct not_ : detail::type_op
 {
     template <class TArg>
-    struct apply : aux::integral_constant<bool, !detail::apply_impl<T>::template apply<TArg>::value>
+    struct apply : aux::tag<bool, !detail::apply_impl<T>::template apply<TArg>::value>
     {
     };
 };
@@ -3863,9 +3863,9 @@ template <class... Ts>
 struct or_ : detail::type_op
 {
     template <class TArg>
-    struct apply : aux::integral_constant<bool,
-                                          !aux::is_same<aux::bool_list<detail::apply_impl<Ts>::template apply<TArg>::value...>,
-                                                        aux::bool_list<aux::never<Ts>::value...>>::value>
+    struct apply : aux::tag<bool,
+                            !aux::is_same<aux::bool_list<detail::apply_impl<Ts>::template apply<TArg>::value...>,
+                                          aux::bool_list<aux::never<Ts>::value...>>::value>
     {
     };
 };
@@ -3903,7 +3903,7 @@ struct is_bound : detail::type_op
     };
     template <class TArg>
     struct apply
-        : aux::integral_constant<
+        : aux::tag<
               bool,
               !aux::is_same<typename TArg::template resolve<aux::conditional_t<aux::is_same<T, _>::value, typename TArg::type, T>,
                                                             typename TArg::name, not_resolved>,

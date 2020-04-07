@@ -15,15 +15,15 @@ namespace ai
 entt::entity make_hill(entt::registry &registry, glm::vec2 center, float size)
 {
     const auto entity = registry.create();
-    registry.assign<EcsHill>(entity);
-    registry.assign<EcsCircle>(entity, 0.5f);
-    registry.assign<Color>(entity, glm::vec4{0, 0, 0, 0}, cl_white);
-    registry.assign<PhysicsType>(entity, PhysicsType::Hill);
-    auto &transform = registry.assign<Transform>(entity);
+    registry.emplace<EcsHill>(entity);
+    registry.emplace<EcsCircle>(entity, 0.5f);
+    registry.emplace<Color>(entity, glm::vec4{0, 0, 0, 0}, cl_white);
+    auto &transform = registry.emplace<Transform>(entity);
     transform.set_scale({size * 2.f, size * 2.f});
     transform.set_position(center);
 
-    auto &physics_body = registry.assign<PhysicsBody>(entity);
+    registry.emplace<PhysicsType>(entity, PhysicsType::Hill);
+    auto &physics_body = registry.emplace<PhysicsBody>(entity);
     b2BodyDef body_def;
     body_def.type = b2_staticBody;
     body_def.position = {center.x, center.y};

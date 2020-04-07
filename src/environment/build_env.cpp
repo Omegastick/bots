@@ -84,10 +84,10 @@ void BuildEnv::select_module(entt::entity module_entity)
     if (cursor_entity == entt::null)
     {
         cursor_entity = registry.create();
-        auto &transform = registry.assign<Transform>(cursor_entity);
+        auto &transform = registry.emplace<Transform>(cursor_entity);
         transform.set_z(-2);
-        registry.assign<EcsRectangle>(cursor_entity, 0.1f);
-        registry.assign<Color>(cursor_entity);
+        registry.emplace<EcsRectangle>(cursor_entity, 0.1f);
+        registry.emplace<Color>(cursor_entity);
     }
 
     auto &cursor_transform = registry.get<Transform>(cursor_entity);
@@ -154,7 +154,7 @@ ColorScheme BuildEnv::get_color_scheme() const
 
 void BuildEnv::set_color_scheme(const ColorScheme &color_scheme)
 {
-    registry.assign_or_replace<ColorScheme>(body_entity, color_scheme);
+    registry.emplace_or_replace<ColorScheme>(body_entity, color_scheme);
     apply_color_scheme(registry, body_entity);
 }
 

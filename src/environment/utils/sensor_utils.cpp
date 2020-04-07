@@ -12,7 +12,7 @@ void resize_sensor(entt::registry &registry, entt::entity sensor_entity, unsigne
     entt::entity sensor_reading_entity = sensor.first;
     for (unsigned int i = 0; i < sensor.count; i++)
     {
-        registry.assign_or_replace<entt::tag<"should_destroy"_hs>>(sensor_reading_entity);
+        registry.emplace_or_replace<entt::tag<"should_destroy"_hs>>(sensor_reading_entity);
         sensor_reading_entity = registry.get<SensorReading>(sensor_reading_entity).next;
     }
 
@@ -24,11 +24,11 @@ void resize_sensor(entt::registry &registry, entt::entity sensor_entity, unsigne
     sensor_reading_entity = registry.create();
     sensor.count = size;
     sensor.first = sensor_reading_entity;
-    registry.assign<SensorReading>(sensor_reading_entity);
+    registry.emplace<SensorReading>(sensor_reading_entity);
     for (unsigned int i = 0; i < sensor.count - 1; i++)
     {
         const auto temp_entity = registry.create();
-        registry.assign<SensorReading>(temp_entity);
+        registry.emplace<SensorReading>(temp_entity);
         registry.get<SensorReading>(sensor_reading_entity).next = temp_entity;
         sensor_reading_entity = temp_entity;
     }
@@ -39,7 +39,7 @@ TEST_CASE("resize_sensor()")
     entt::registry registry;
 
     const auto sensor_entity = registry.create();
-    registry.assign<Sensor>(sensor_entity);
+    registry.emplace<Sensor>(sensor_entity);
 
     SUBCASE("Correctly initializes sensors")
     {

@@ -59,7 +59,7 @@ void gun_module_system(entt::registry &registry)
                                       true);
 
         const auto audio_entity = registry.create();
-        registry.assign<AudioEmitter>(audio_entity, audio_id_map["fire"]);
+        registry.emplace<AudioEmitter>(audio_entity, audio_id_map["fire"]);
     }
 }
 

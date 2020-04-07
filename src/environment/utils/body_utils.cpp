@@ -49,9 +49,9 @@ void apply_color_scheme(entt::registry &registry, entt::entity body_entity)
     const auto &color_scheme = registry.get<ColorScheme>(body_entity);
 
     traverse_modules(registry, body_entity, [&](auto entity) {
-        registry.assign_or_replace<Color>(entity,
-                                          color_scheme.secondary,
-                                          color_scheme.primary);
+        registry.emplace_or_replace<Color>(entity,
+                                           color_scheme.secondary,
+                                           color_scheme.primary);
 
         if (registry.has<RenderShapes>(entity))
         {
@@ -59,9 +59,9 @@ void apply_color_scheme(entt::registry &registry, entt::entity body_entity)
             entt::entity container_entity = render_shapes.first;
             for (unsigned int i = 0; i < render_shapes.children; i++)
             {
-                registry.assign_or_replace<Color>(container_entity,
-                                                  color_scheme.secondary,
-                                                  color_scheme.primary);
+                registry.emplace_or_replace<Color>(container_entity,
+                                                   color_scheme.secondary,
+                                                   color_scheme.primary);
                 container_entity = registry.get<RenderShapeContainer>(container_entity).next;
             }
         }
@@ -70,9 +70,9 @@ void apply_color_scheme(entt::registry &registry, entt::entity body_entity)
         entt::entity link_entity = module.first_link;
         for (unsigned int i = 0; i < module.links; i++)
         {
-            registry.assign_or_replace<Color>(link_entity,
-                                              color_scheme.primary,
-                                              glm::vec4{0, 0, 0, 0});
+            registry.emplace_or_replace<Color>(link_entity,
+                                               color_scheme.primary,
+                                               glm::vec4{0, 0, 0, 0});
             link_entity = registry.get<EcsModuleLink>(link_entity).next;
         }
     });
@@ -81,7 +81,7 @@ void apply_color_scheme(entt::registry &registry, entt::entity body_entity)
 void destroy_body(entt::registry &registry, entt::entity body_entity)
 {
     // Destroy body
-    registry.assign_or_replace<entt::tag<"should_destroy"_hs>>(body_entity);
+    registry.emplace_or_replace<entt::tag<"should_destroy"_hs>>(body_entity);
 
     // Destroy modules
     traverse_modules(registry, body_entity, [&](auto module_entity) {
@@ -90,13 +90,13 @@ void destroy_body(entt::registry &registry, entt::entity body_entity)
 
     // Destroy health bar
     const auto &health_bar = registry.get<HealthBar>(body_entity);
-    registry.assign_or_replace<entt::tag<"should_destroy"_hs>>(health_bar.background);
-    registry.assign_or_replace<entt::tag<"should_destroy"_hs>>(health_bar.foreground);
+    registry.emplace_or_replace<entt::tag<"should_destroy"_hs>>(health_bar.background);
+    registry.emplace_or_replace<entt::tag<"should_destroy"_hs>>(health_bar.foreground);
 }
 
 void destroy_module(entt::registry &registry, entt::entity module_entity)
 {
-    registry.assign_or_replace<entt::tag<"should_destroy"_hs>>(module_entity);
+    registry.emplace_or_replace<entt::tag<"should_destroy"_hs>>(module_entity);
     auto &module = registry.get<EcsModule>(module_entity);
     if (module.prev != entt::null)
     {
@@ -109,7 +109,7 @@ void destroy_module(entt::registry &registry, entt::entity module_entity)
         entt::entity link_entity = module.first_link;
         for (unsigned int i = 0; i < module.links; i++)
         {
-            registry.assign_or_replace<entt::tag<"should_destroy"_hs>>(link_entity);
+            registry.emplace_or_replace<entt::tag<"should_destroy"_hs>>(link_entity);
             const auto &link = registry.get<EcsModuleLink>(link_entity);
             if (link.linked)
             {
@@ -149,7 +149,7 @@ void destroy_module(entt::registry &registry, entt::entity module_entity)
         entt::entity shape = physics_shapes.first;
         for (unsigned int i = 0; i < physics_shapes.count; i++)
         {
-            registry.assign_or_replace<entt::tag<"should_destroy"_hs>>(shape);
+            registry.emplace_or_replace<entt::tag<"should_destroy"_hs>>(shape);
             shape = registry.get<PhysicsShape>(shape).next;
         }
     }
@@ -161,7 +161,7 @@ void destroy_module(entt::registry &registry, entt::entity module_entity)
         entt::entity shape = shape_container.first;
         for (unsigned int i = 0; i < shape_container.children; i++)
         {
-            registry.assign_or_replace<entt::tag<"should_destroy"_hs>>(shape);
+            registry.emplace_or_replace<entt::tag<"should_destroy"_hs>>(shape);
             shape = registry.get<RenderShapeContainer>(shape).next;
         }
     }
