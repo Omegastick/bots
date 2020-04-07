@@ -22,6 +22,7 @@
 #include "environment/components/score.h"
 #include "environment/observers/destroy_physics_body.h"
 #include "environment/serialization/serialize_body.h"
+#include "environment/systems/action_system.h"
 #include "environment/systems/audio_system.h"
 #include "environment/systems/clean_up_system.h"
 #include "environment/systems/distortion_system.h"
@@ -67,7 +68,7 @@ EcsEnv::EcsEnv()
     background_transform.set_z(-5);
 }
 
-void EcsEnv::draw(Renderer &renderer, IAudioEngine &audio_engine, bool /*lightweight*/)
+void EcsEnv::draw(Renderer &renderer, IAudioEngine &audio_engine, bool lightweight)
 {
     const double view_height = 50;
     auto view_top = view_height * 0.5;
@@ -76,13 +77,17 @@ void EcsEnv::draw(Renderer &renderer, IAudioEngine &audio_engine, bool /*lightwe
     const auto view = glm::ortho(-view_right, view_right, -view_top, view_top);
     renderer.set_view(view);
 
+    if (!lightweight)
+    {
+        trail_system(registry);
+        draw_lasers_system(registry);
+        particle_system(registry, renderer);
+        distortion_system(registry, renderer);
+        audio_system(registry, audio_engine);
+    }
+
     health_bar_system(registry);
-    trail_system(registry);
-    draw_lasers_system(registry);
-    particle_system(registry, renderer);
-    distortion_system(registry, renderer);
     render_system(registry, renderer);
-    audio_system(registry, audio_engine);
     // debug_render_system(registry, renderer);
 }
 
@@ -131,6 +136,9 @@ EcsStepInfo EcsEnv::reset()
 
     elapsed_time = 0;
 
+    reset_hill(registry);
+    clean_up_system(registry);
+
     return {observation_system(registry), torch::zeros({2, 1}), torch::zeros({2, 1})};
 }
 
@@ -150,8 +158,9 @@ void EcsEnv::set_body(std::size_t index, const nlohmann::json &body_def)
     bodies[index] = deserialize_body(registry, body_def);
 }
 
-EcsStepInfo EcsEnv::step(std::vector<torch::Tensor> /*actions*/, double step_length)
+EcsStepInfo EcsEnv::step(const std::vector<torch::Tensor> &actions, double step_length)
 {
+    action_system(registry, actions, bodies.data(), bodies.size());
     gun_module_system(registry);
     thruster_module_system(registry);
 

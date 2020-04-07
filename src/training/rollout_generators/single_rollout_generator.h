@@ -31,6 +31,7 @@ class ISingleRolloutGenerator
     virtual cpprl::RolloutStorage generate(unsigned long length) = 0;
     virtual std::string get_current_opponent() const = 0;
     virtual const IEcsEnv &get_environment() const = 0;
+    virtual std::pair<float, float> get_scores() const = 0;
     virtual void set_fast() = 0;
     virtual void set_slow() = 0;
     virtual void set_timestep_pointer(std::atomic<unsigned long long> *timestep) = 0;
@@ -48,7 +49,7 @@ class SingleRolloutGenerator : public ISingleRolloutGenerator
     std::unique_ptr<IEcsEnv> environment;
     torch::Tensor hidden_state;
     torch::Tensor last_observation;
-    std::mutex mutex;
+    mutable std::mutex mutex;
     const IAgent *opponent;
     torch::Tensor opponent_hidden_state;
     torch::Tensor opponent_last_observation;
@@ -73,6 +74,7 @@ class SingleRolloutGenerator : public ISingleRolloutGenerator
     void draw(Renderer &renderer, bool lightweight = false) override;
     void fast_forward(unsigned int steps) override;
     cpprl::RolloutStorage generate(unsigned long length) override;
+    std::pair<float, float> get_scores() const override;
 
     inline std::string get_current_opponent() const override
     {
@@ -100,6 +102,7 @@ class MockSingleRolloutGenerator : public trompeloeil::mock_interface<ISingleRol
     IMPLEMENT_MOCK1(generate);
     IMPLEMENT_CONST_MOCK0(get_current_opponent);
     IMPLEMENT_CONST_MOCK0(get_environment);
+    IMPLEMENT_CONST_MOCK0(get_scores);
     IMPLEMENT_MOCK0(set_fast);
     IMPLEMENT_MOCK0(set_slow);
     IMPLEMENT_MOCK1(set_timestep_pointer);

@@ -17,8 +17,14 @@ void hill_system(entt::registry &registry)
         {
             auto &score = registry.get<Score>(hill.occupants[0]);
             score.score += 1.f;
-            spdlog::debug(score.score);
         }
+    });
+}
+
+void reset_hill(entt::registry &registry)
+{
+    registry.view<EcsHill>().each([&](auto &hill) {
+        hill.occupant_count = 0;
     });
 }
 

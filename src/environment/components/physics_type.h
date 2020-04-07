@@ -6,9 +6,9 @@ struct PhysicsType
 {
     enum Type
     {
-        Body,
         Bullet,
         Hill,
+        Module,
         Wall
     };
 

@@ -209,6 +209,12 @@ void SingleRolloutGenerator::draw(Renderer &renderer, bool /*lightweight*/)
     environment->draw(renderer, audio_engine, !slow);
 }
 
+std::pair<float, float> SingleRolloutGenerator::get_scores() const
+{
+    std::lock_guard lock_guard(mutex);
+    return environment->get_scores();
+}
+
 void SingleRolloutGenerator::stop()
 {
     should_stop = true;

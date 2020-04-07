@@ -74,7 +74,7 @@ std::vector<std::pair<float, float>> MultiRolloutGenerator::get_scores() const
     std::vector<std::pair<float, float>> scores;
     for (const auto &sub_generator : sub_generators)
     {
-        scores.push_back(sub_generator->get_environment().get_scores());
+        scores.push_back(sub_generator->get_scores());
     }
     return scores;
 }

@@ -30,6 +30,6 @@ class EcsEnv : public IEcsEnv
     EcsStepInfo reset() override;
     void set_audibility(bool audibility) override;
     virtual void set_body(std::size_t index, const nlohmann::json &body_def) override;
-    EcsStepInfo step(std::vector<torch::Tensor> actions, double step_length) override;
+    EcsStepInfo step(const std::vector<torch::Tensor> &actions, double step_length) override;
 };
 }

@@ -43,6 +43,7 @@ entt::entity make_base_module(entt::registry &registry)
     auto &module = registry.emplace<EcsModule>(entity);
     registry.emplace<EcsBaseModule>(entity);
     registry.emplace<Transform>(entity);
+    registry.emplace<PhysicsType>(entity, PhysicsType::Module);
 
     // Render shapes
     const auto rectangle_entity = registry.create();
@@ -98,7 +99,6 @@ entt::entity make_body(entt::registry &registry)
     registry.emplace<ColorScheme>(entity);
     registry.emplace<Name>(entity);
 
-    registry.emplace<PhysicsType>(entity, PhysicsType::Body);
     auto &physics_body = registry.emplace<PhysicsBody>(entity);
     b2BodyDef body_def;
     body_def.type = b2_dynamicBody;
@@ -140,6 +140,7 @@ entt::entity make_gun_module(entt::registry &registry)
     registry.emplace<EcsGunModule>(entity);
     registry.emplace<Transform>(entity);
     registry.emplace<Activatable>(entity);
+    registry.emplace<PhysicsType>(entity, PhysicsType::Module);
 
     // Render shapes
     const auto shape_1_entity = registry.create();
@@ -202,6 +203,7 @@ entt::entity make_laser_sensor_module(entt::registry &registry)
     transform.set_origin({0.f, 0.25f});
     registry.emplace<EcsSemiCircle>(entity, 0.1f);
     registry.emplace<Color>(entity);
+    registry.emplace<PhysicsType>(entity, PhysicsType::Module);
 
     // Sensor readings
     registry.emplace<Sensor>(entity);
@@ -276,6 +278,7 @@ entt::entity make_square_hull(entt::registry &registry)
     auto &module = registry.emplace<EcsModule>(entity);
     registry.emplace<EcsSquareHull>(entity);
     registry.emplace<Transform>(entity);
+    registry.emplace<PhysicsType>(entity, PhysicsType::Module);
 
     registry.emplace<EcsRectangle>(entity, 0.1f);
     registry.emplace<Color>(entity);
@@ -316,6 +319,7 @@ entt::entity make_thruster_module(entt::registry &registry)
     auto &module = registry.emplace<EcsModule>(entity);
     registry.emplace<EcsThrusterModule>(entity);
     registry.emplace<Activatable>(entity);
+    registry.emplace<PhysicsType>(entity, PhysicsType::Module);
 
     auto &transform = registry.emplace<Transform>(entity);
     transform.set_scale({1.f, 0.25f});

@@ -34,7 +34,7 @@ class IEcsEnv
     virtual EcsStepInfo reset() = 0;
     virtual void set_audibility(bool audibility) = 0;
     virtual void set_body(std::size_t index, const nlohmann::json &body_def) = 0;
-    virtual EcsStepInfo step(std::vector<torch::Tensor> actions, double step_length) = 0;
+    virtual EcsStepInfo step(const std::vector<torch::Tensor> &actions, double step_length) = 0;
 };
 
 inline IEcsEnv::~IEcsEnv() {}

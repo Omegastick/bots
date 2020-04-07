@@ -7,6 +7,7 @@
 #include "environment/components/body.h"
 #include "environment/components/bullet.h"
 #include "environment/components/distortion_emitter.h"
+#include "environment/components/modules/module.h"
 #include "environment/components/particle_emitter.h"
 #include "environment/components/physics_type.h"
 #include "environment/utils/bullet_utils.h"
@@ -32,7 +33,7 @@ void begin_bullet_contact(entt::registry &registry,
     const auto explosion_entity = registry.create();
     const auto distortion_entity = registry.create();
     const auto audio_entity = registry.create();
-    if (other_type == PhysicsType::Body)
+    if (other_type == PhysicsType::Module)
     {
         registry.emplace<ParticleEmitter>(explosion_entity,
                                           transform.get_position(),
@@ -48,7 +49,8 @@ void begin_bullet_contact(entt::registry &registry,
                                             0.8f);
         registry.emplace<AudioEmitter>(audio_entity, audio_id_map["hit_body"]);
 
-        registry.get<EcsBody>(other_entity).hp -= registry.get<EcsBullet>(bullet_entity).damage;
+        const auto body_entity = registry.get<EcsModule>(other_entity).body;
+        registry.get<EcsBody>(body_entity).hp -= registry.get<EcsBullet>(bullet_entity).damage;
     }
     else
     {

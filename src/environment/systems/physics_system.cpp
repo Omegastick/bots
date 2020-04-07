@@ -31,13 +31,13 @@ class ContactListener : public b2ContactListener
         const auto entity_b = static_cast<entt::registry::entity_type>(
             reinterpret_cast<uintptr_t>(fixture_b->GetUserData()));
 
-        if (!registry.has<PhysicsBody>(entity_a))
+        if (!registry.has<PhysicsType>(entity_a))
         {
-            spdlog::warn("Entity A no PhysicsBody");
+            spdlog::warn("Entity A no PhysicsType");
         }
-        if (!registry.has<PhysicsBody>(entity_b))
+        if (!registry.has<PhysicsType>(entity_b))
         {
-            spdlog::warn("Entity B no PhysicsBody");
+            spdlog::warn("Entity B no PhysicsType");
         }
 
         const auto contact_entity = registry.create();
