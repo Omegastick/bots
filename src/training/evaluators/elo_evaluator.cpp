@@ -10,16 +10,11 @@
 #include <taskflow/taskflow.hpp>
 
 #include "elo_evaluator.h"
-#include "audio/audio_engine.h"
-#include "misc/module_factory.h"
+#include "environment/serialization/serialize_body.h"
 #include "misc/random.h"
 #include "training/agents/iagent.h"
 #include "training/agents/nn_agent.h"
 #include "training/agents/random_agent.h"
-#include "training/entities/bullet.h"
-#include "training/environments/koth_env.h"
-#include "training/bodies/body.h"
-#include "training/bodies/test_body.h"
 
 namespace ai
 {
@@ -60,11 +55,7 @@ std::tuple<double, double> calculate_elos(double a_rating,
     return {new_a_rating, new_b_rating};
 }
 
-EloEvaluator::EloEvaluator(BodyFactory &body_factory,
-                           IEnvironmentFactory &env_factory,
-                           Random &rng)
-    : Evaluator(body_factory, env_factory),
-      rng(rng) {}
+EloEvaluator::EloEvaluator(Random &rng) : rng(rng) {}
 
 double EloEvaluator::evaluate(IAgent &agent,
                               const std::vector<IAgent *> &new_opponents,
@@ -181,19 +172,12 @@ TEST_CASE("EloEvaluator")
     SUBCASE("Calculates elos within expected boundaries when evaluating random agents")
     {
         Random rng(0);
-        MockAudioEngine audio_engine;
-        BulletFactory bullet_factory(audio_engine);
-        ModuleFactory module_factory(audio_engine, bullet_factory, rng);
-        BodyFactory body_factory(module_factory, rng);
-        KothEnvFactory env_factory(100, audio_engine, body_factory, bullet_factory);
-        EloEvaluator evaluator(body_factory, env_factory, rng);
+        EloEvaluator evaluator(rng);
 
-        auto body_spec = TestBody(module_factory, rng).to_json();
-
-        RandomAgent agent_1(body_spec, rng, "Agent 1");
-        RandomAgent agent_2(body_spec, rng, "Agent 2");
-        RandomAgent agent_3(body_spec, rng, "Agent 3");
-        RandomAgent agent_4(body_spec, rng, "Agent 4");
+        RandomAgent agent_1(default_body(), rng, "Agent 1");
+        RandomAgent agent_2(default_body(), rng, "Agent 2");
+        RandomAgent agent_3(default_body(), rng, "Agent 3");
+        RandomAgent agent_4(default_body(), rng, "Agent 4");
 
         std::vector<IAgent *> new_opponents;
 

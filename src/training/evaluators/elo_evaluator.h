@@ -24,7 +24,7 @@ class EloEvaluator : protected Evaluator
     Random &rng;
 
   public:
-    EloEvaluator(BodyFactory &body_factory, IEnvironmentFactory &env_factory, Random &rng);
+    EloEvaluator(Random &rng);
 
     double evaluate(IAgent &agent,
                     const std::vector<IAgent *> &new_opponents,

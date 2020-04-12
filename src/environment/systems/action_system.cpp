@@ -21,6 +21,7 @@ void action_system(entt::registry &registry,
     for (std::size_t i = 0; i < body_count; i++)
     {
         const auto &body_entity = bodies[i];
+        auto flattened_actions = actions[i].flatten();
 
         unsigned int action_index = 0;
         traverse_modules(registry, body_entity, [&](auto module_entity) {
@@ -30,7 +31,7 @@ void action_system(entt::registry &registry,
             }
 
             auto &activatable = registry.get<Activatable>(module_entity);
-            activatable.active = actions[i].flatten()[action_index++].item().toBool();
+            activatable.active = flattened_actions[action_index++].item().toBool();
         });
     }
 }

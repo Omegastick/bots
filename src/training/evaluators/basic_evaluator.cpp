@@ -6,34 +6,18 @@
 #include <taskflow/taskflow.hpp>
 
 #include "basic_evaluator.h"
-#include "audio/audio_engine.h"
-#include "misc/module_factory.h"
+#include "environment/serialization/serialize_body.h"
 #include "misc/random.h"
 #include "training/agents/nn_agent.h"
 #include "training/agents/random_agent.h"
-#include "training/bodies/test_body.h"
-#include "training/entities/bullet.h"
-#include "training/environments/koth_env.h"
 
 namespace ai
 {
-BasicEvaluator::BasicEvaluator(BodyFactory &body_factory,
-                               IEnvironmentFactory &env_factory,
-                               Random &rng)
-    : Evaluator(body_factory, env_factory),
-      rng(rng) {}
+BasicEvaluator::BasicEvaluator(Random &rng) : rng(rng) {}
 
-double BasicEvaluator::evaluate(const IAgent &agent,
-                                int number_of_trials)
+double BasicEvaluator::evaluate(const IAgent &agent, int number_of_trials)
 {
-    MockAudioEngine audio_engine;
-    ALLOW_CALL(audio_engine, play(ANY(std::string)))
-        .LR_RETURN(SoundHandle(audio_engine, 0));
-    MockBulletFactory bullet_factory;
-    ModuleFactory module_factory(audio_engine, bullet_factory, rng);
-    TestBody test_body(module_factory, rng);
-    auto test_body_json = test_body.to_json();
-    RandomAgent random_agent(test_body_json, rng, "Random Agent");
+    RandomAgent random_agent(default_body(), rng, "Random Agent");
 
     std::vector<EvaluationResult> results;
     std::mutex results_mutex;
@@ -77,16 +61,9 @@ TEST_CASE("BasicEvaluator")
     SUBCASE("evaluate() runs the correct number of trials")
     {
         Random rng(0);
-        MockAudioEngine audio_engine;
-        BulletFactory bullet_factory(audio_engine);
-        ModuleFactory module_factory(audio_engine, bullet_factory, rng);
-        BodyFactory body_factory(module_factory, rng);
-        KothEnvFactory env_factory(10, audio_engine, body_factory, bullet_factory);
-        BasicEvaluator evaluator(body_factory, env_factory, rng);
+        BasicEvaluator evaluator(rng);
 
-        TestBody body(module_factory, rng);
-        auto body_spec = body.to_json();
-        RandomAgent agent(body_spec, rng, "Agent");
+        RandomAgent agent(default_body(), rng, "Agent");
 
         auto result = evaluator.evaluate(agent, 10);
 

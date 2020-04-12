@@ -22,12 +22,12 @@ ActResult RandomAgent::act(torch::Tensor observations,
     if (observations.dim() == 1)
     {
         return {torch::zeros({1}),
-                torch::zeros({1, num_outputs}).random_(2),
+                torch::rand({1, num_outputs}).to(torch::kBool),
                 torch::zeros({1}),
                 torch::zeros({1})};
     }
     return {torch::zeros({1}),
-            torch::zeros({observations.size(0), num_outputs}).random_(2),
+            torch::rand({observations.size(0), num_outputs}).to(torch::kBool),
             torch::zeros({1}),
             torch::zeros({1})};
 }

@@ -7,6 +7,7 @@ PRIVATE
     ${CMAKE_CURRENT_LIST_DIR}/health_bar_system.cpp
     ${CMAKE_CURRENT_LIST_DIR}/hill_system.cpp
     ${CMAKE_CURRENT_LIST_DIR}/module_system.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/new_frame_system.cpp
     ${CMAKE_CURRENT_LIST_DIR}/observation_system.cpp
     ${CMAKE_CURRENT_LIST_DIR}/particle_system.cpp
     ${CMAKE_CURRENT_LIST_DIR}/physics_system.cpp

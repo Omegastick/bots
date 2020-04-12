@@ -4,9 +4,7 @@
 
 namespace ai
 {
-class BodyFactory;
 class IAgent;
-class IEnvironmentFactory;
 
 enum class EvaluationResult
 {
@@ -17,12 +15,8 @@ enum class EvaluationResult
 
 class Evaluator
 {
-  private:
-    BodyFactory &body_factory;
-    IEnvironmentFactory &env_factory;
-
   public:
-    Evaluator(BodyFactory &body_factory, IEnvironmentFactory &env_factory);
+    Evaluator();
 
     EvaluationResult evaluate(const IAgent &agent_1, const IAgent &agent_2);
 };

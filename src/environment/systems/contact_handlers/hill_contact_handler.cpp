@@ -48,10 +48,12 @@ void end_hill_contact(entt::registry &registry,
     if (hill.occupants[1] == body)
     {
         hill.occupant_count--;
+        hill.occupants[1] = entt::null;
     }
     else if (hill.occupants[0] == body)
     {
         hill.occupants[0] = hill.occupants[1];
+        hill.occupants[1] = entt::null;
         hill.occupant_count--;
     }
 }
@@ -122,6 +124,32 @@ TEST_CASE("Hill contact handler")
 
         begin_hill_contact(registry, hill_entity, module_2, PhysicsType::Module);
         end_hill_contact(registry, hill_entity, module_1, PhysicsType::Module);
+        DOCTEST_CHECK(registry.get<EcsHill>(hill_entity).occupants[0] == body_2);
+    }
+
+    SUBCASE("A body leaving the hill when it is not currently on the hill does nothing")
+    {
+        begin_hill_contact(registry, hill_entity, module_1, PhysicsType::Module);
+        end_hill_contact(registry, hill_entity, module_2, PhysicsType::Module);
+        DOCTEST_CHECK(registry.get<EcsHill>(hill_entity).occupants[0] == body_1);
+        DOCTEST_CHECK(registry.get<EcsHill>(hill_entity).occupant_count == 1);
+
+        end_hill_contact(registry, hill_entity, module_1, PhysicsType::Module);
+        end_hill_contact(registry, hill_entity, module_1, PhysicsType::Module);
+        DOCTEST_CHECK(registry.get<EcsHill>(hill_entity).occupant_count == 0);
+
+        begin_hill_contact(registry, hill_entity, module_1, PhysicsType::Module);
+        begin_hill_contact(registry, hill_entity, module_2, PhysicsType::Module);
+        end_hill_contact(registry, hill_entity, module_1, PhysicsType::Module);
+        end_hill_contact(registry, hill_entity, module_2, PhysicsType::Module);
+        end_hill_contact(registry, hill_entity, module_2, PhysicsType::Module);
+        DOCTEST_CHECK(registry.get<EcsHill>(hill_entity).occupant_count == 0);
+
+        begin_hill_contact(registry, hill_entity, module_1, PhysicsType::Module);
+        begin_hill_contact(registry, hill_entity, module_2, PhysicsType::Module);
+        end_hill_contact(registry, hill_entity, module_1, PhysicsType::Module);
+        end_hill_contact(registry, hill_entity, module_1, PhysicsType::Module);
+        DOCTEST_CHECK(registry.get<EcsHill>(hill_entity).occupant_count == 1);
         DOCTEST_CHECK(registry.get<EcsHill>(hill_entity).occupants[0] == body_2);
     }
 }

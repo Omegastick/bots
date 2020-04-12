@@ -17,7 +17,7 @@ class BasicEvaluator : protected Evaluator
     Random &rng;
 
   public:
-    BasicEvaluator(BodyFactory &body_factory, IEnvironmentFactory &env_factory, Random &rng);
+    BasicEvaluator(Random &rng);
 
     double evaluate(const IAgent &agent, int number_of_trials);
 };

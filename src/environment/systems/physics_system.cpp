@@ -31,15 +31,6 @@ class ContactListener : public b2ContactListener
         const auto entity_b = static_cast<entt::registry::entity_type>(
             reinterpret_cast<uintptr_t>(fixture_b->GetUserData()));
 
-        if (!registry.has<PhysicsType>(entity_a))
-        {
-            spdlog::warn("Entity A no PhysicsType");
-        }
-        if (!registry.has<PhysicsType>(entity_b))
-        {
-            spdlog::warn("Entity B no PhysicsType");
-        }
-
         const auto contact_entity = registry.create();
         registry.emplace<ai::BeginContact>(contact_entity,
                                            std::array<entt::entity, 2>{entity_a, entity_b});

@@ -15,6 +15,7 @@
 #include "audio/audio_engine.h"
 #include "environment/components/activatable.h"
 #include "environment/components/body.h"
+#include "environment/components/bullet.h"
 #include "environment/components/contact.h"
 #include "environment/components/ecs_render_data.h"
 #include "environment/components/particle_emitter.h"
@@ -32,6 +33,7 @@
 #include "environment/systems/modules/laser_sensor_module_system.h"
 #include "environment/systems/modules/thruster_module_system.h"
 #include "environment/systems/module_system.h"
+#include "environment/systems/new_frame_system.h"
 #include "environment/systems/observation_system.h"
 #include "environment/systems/particle_system.h"
 #include "environment/systems/physics_system.h"
@@ -107,7 +109,11 @@ double EcsEnv::get_elapsed_time() const
 
 std::pair<double, double> EcsEnv::get_scores() const
 {
-    return {registry.get<Score>(bodies[0]).score, registry.get<Score>(bodies[1]).score};
+    if (registry.valid(bodies[0]) && registry.valid(bodies[1]))
+    {
+        return {registry.get<Score>(bodies[0]).score, registry.get<Score>(bodies[1]).score};
+    }
+    return {0, 0};
 }
 
 bool EcsEnv::is_audible() const
@@ -136,6 +142,9 @@ EcsStepInfo EcsEnv::reset()
 
     elapsed_time = 0;
 
+    const auto bullets = registry.view<EcsBullet>();
+    registry.destroy(bullets.begin(), bullets.end());
+
     reset_hill(registry);
     clean_up_system(registry);
 
@@ -160,6 +169,8 @@ void EcsEnv::set_body(std::size_t index, const nlohmann::json &body_def)
 
 EcsStepInfo EcsEnv::step(const std::vector<torch::Tensor> &actions, double step_length)
 {
+    new_frame_system(registry);
+
     action_system(registry, actions, bodies.data(), bodies.size());
     gun_module_system(registry);
     thruster_module_system(registry);
@@ -173,42 +184,6 @@ EcsStepInfo EcsEnv::step(const std::vector<torch::Tensor> &actions, double step_
 
     return {observation_system(registry), torch::zeros({2, 1}), dones};
 }
-class ContactListener : public b2ContactListener
-{
-  private:
-    entt::registry &registry;
-
-  public:
-    ContactListener(entt::registry &registry) : registry(registry) {}
-
-    void BeginContact(b2Contact *contact)
-    {
-        auto fixture_a = contact->GetFixtureA();
-        auto fixture_b = contact->GetFixtureB();
-        const auto entity_a = static_cast<entt::registry::entity_type>(
-            reinterpret_cast<uintptr_t>(fixture_a->GetUserData()));
-        const auto entity_b = static_cast<entt::registry::entity_type>(
-            reinterpret_cast<uintptr_t>(fixture_b->GetUserData()));
-
-        const auto contact_entity = registry.create();
-        registry.emplace<ai::BeginContact>(contact_entity,
-                                           std::array<entt::entity, 2>{entity_a, entity_b});
-    }
-
-    void EndContact(b2Contact *contact)
-    {
-        auto fixture_a = contact->GetFixtureA();
-        auto fixture_b = contact->GetFixtureB();
-        const auto entity_a = static_cast<entt::registry::entity_type>(
-            reinterpret_cast<uintptr_t>(fixture_a->GetUserData()));
-        const auto entity_b = static_cast<entt::registry::entity_type>(
-            reinterpret_cast<uintptr_t>(fixture_b->GetUserData()));
-
-        const auto contact_entity = registry.create();
-        registry.emplace<ai::EndContact>(contact_entity,
-                                         std::array<entt::entity, 2>{entity_a, entity_b});
-    }
-};
 
 TEST_CASE("EcsEnv")
 {
