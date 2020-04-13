@@ -8,7 +8,8 @@ namespace ai
 {
 struct EcsHill
 {
-    std::array<entt::entity, 2> occupants = {entt::null, entt::null};
-    std::size_t occupant_count = 0;
+    std::array<std::pair<entt::entity, unsigned int>, 2> occupants = {
+        std::pair<entt::entity, unsigned int>{entt::null, 0},
+        std::pair<entt::entity, unsigned int>{entt::null, 0}};
 };
 }

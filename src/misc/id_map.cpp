@@ -6,17 +6,21 @@
 
 namespace ai
 {
-IdMap::IdMap() {}
-
 std::size_t IdMap::operator[](const std::string &audio_name)
 {
+    mutex.lock_shared();
     if (!map.has_value(audio_name))
     {
+        mutex.unlock_shared();
+        mutex.lock();
         const auto map_size = map.size();
         map.insert(map_size, audio_name);
+        mutex.unlock();
         return map_size;
     }
-    return map.get_key(audio_name);
+    auto key = map.get_key(audio_name);
+    mutex.unlock_shared();
+    return key;
 }
 
 const std::string IdMap::operator[](const std::size_t audio_id)

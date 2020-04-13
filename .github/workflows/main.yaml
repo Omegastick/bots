@@ -25,34 +25,17 @@ jobs:
           sudo add-apt-repository -y ppa:ubuntu-toolchain-r/test
           sudo apt-get install -y libxrandr-dev libxinerama-dev libx11-dev libxcursor-dev libxi-dev freeglut3-dev libasound2-dev g++-9
       - uses: actions/checkout@v2
-      - uses: actions/cache@v1
-        name: Restore Vcpkg cache
-        id: cache-vcpkg
+      - name: Set vcpkg's response file path used as part of cache's key.
+        uses: lukka/set-shell-env@master
         with:
-          path: ${{ github.workspace}}/vcpkg/
-          key: ${{ matrix.os }}-vcpkg-${{ hashFiles('**/requirements.txt') }}
-          restore-keys: ${{ matrix.os }}-vcpkg-
-      - name: Vcpkg
-        if: steps.cache-vcpkg.outputs.cache-hit != 'true'
-        env:
-          CXX: /usr/bin/g++-9
-          CC: /usr/bin/gcc-9
-        working-directory: ${{ github.workspace }}
-        shell: bash
-        run: |
-          if cd vcpkg; then
-            git fetch
-          else
-            git clone https://github.com/Microsoft/vcpkg.git
-            cd vcpkg
-          fi
-          if [ "${{ matrix.os }}" == "ubuntu-latest" ]; then
-            ./bootstrap-vcpkg.sh
-          else
-            ./bootstrap-vcpkg.bat
-          fi
-          ./vcpkg integrate install
-          ./vcpkg install --recurse --triplet ${{ matrix.triplet }} curl[core,ssl,openssl] opengl fmt spdlog cpp-taskflow
+          VCPKGRESPONSEFILE: ${{ github.workspace }}/reponse_files/vcpkg_${{ matrix.triplet }}.txt
+      - name: Restore from cache and run vcpkg
+        id: runvcpkg
+        uses: lukka/run-vcpkg@v2
+        with:
+          vcpkgArguments: "@${{ env.VCPKGRESPONSEFILE }}"
+          vcpkgDirectory: "${{ github.workspace }}/vcpkg"
+          appendedCacheKey: ${{ hashFile(env.VCPKGRESPONSEFILE) }}
       - name: Checkout submodules
         run: |
           git submodule sync --recursive
@@ -75,7 +58,10 @@ jobs:
         run: |
           mkdir build
           cd build
-          cmake -DCMAKE_PREFIX_PATH=${{ matrix.torchInstallDir }} -DCMAKE_TOOLCHAIN_FILE=../vcpkg/scripts/buildsystems/vcpkg.cmake -DVCPKG_TARGET_TRIPLET=${{ matrix.triplet }} ..
+          cmake \
+            -DCMAKE_PREFIX_PATH=${{ matrix.torchInstallDir }} \
+            -DCMAKE_TOOLCHAIN_FILE=${{ steps.runvcpkg.outputs.RUNVCPKG_VCPKG_ROOT_OUT }}/scripts/buildsystems/vcpkg.cmake \
+            -DVCPKG_TARGET_TRIPLET=${{ matrix.triplet }} ..
       - name: Build
         run: |
           cd build

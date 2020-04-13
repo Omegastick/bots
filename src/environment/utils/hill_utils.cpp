@@ -43,4 +43,17 @@ entt::entity make_hill(entt::registry &registry, glm::vec2 center, float size)
 
     return entity;
 }
+
+unsigned int hill_occupant_count(const EcsHill &hill)
+{
+    unsigned int result = 0;
+    for (const auto &occupant : hill.occupants)
+    {
+        if (occupant.second > 0)
+        {
+            result++;
+        }
+    }
+    return result;
+}
 }

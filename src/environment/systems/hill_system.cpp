@@ -13,9 +13,9 @@ namespace ai
 void hill_system(entt::registry &registry)
 {
     registry.view<EcsHill>().each([&](auto &hill) {
-        if (hill.occupant_count == 1)
+        if (hill_occupant_count(hill) == 1)
         {
-            auto &score = registry.get<Score>(hill.occupants[0]);
+            auto &score = registry.get<Score>(hill.occupants[0].first);
             score.score += 1.f;
         }
     });
@@ -24,7 +24,8 @@ void hill_system(entt::registry &registry)
 void reset_hill(entt::registry &registry)
 {
     registry.view<EcsHill>().each([&](auto &hill) {
-        hill.occupant_count = 0;
+        hill.occupants = {std::pair<entt::entity, unsigned int>{entt::null, 0},
+                          std::pair<entt::entity, unsigned int>{entt::null, 0}};
     });
 }
 
@@ -52,8 +53,7 @@ TEST_CASE("Hill system")
 
     SUBCASE("If one body is on the hill, that body is awarded 1 point")
     {
-        hill.occupants[0] = body_1;
-        hill.occupant_count = 1;
+        hill.occupants[0] = {body_1, 1};
 
         hill_system(registry);
 
@@ -63,9 +63,8 @@ TEST_CASE("Hill system")
 
     SUBCASE("If two bodies are on the hill, nothing happens")
     {
-        hill.occupants[0] = body_1;
-        hill.occupants[1] = body_2;
-        hill.occupant_count = 2;
+        hill.occupants[0] = {body_1, 1};
+        hill.occupants[1] = {body_2, 1};
 
         hill_system(registry);
 
