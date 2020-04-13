@@ -16,8 +16,8 @@ entt::entity make_bullet(entt::registry &registry)
     const auto entity = registry.create();
     registry.emplace<EcsBullet>(entity, 1.f);
     auto &transform = registry.emplace<Transform>(entity);
-    transform.set_scale({0.4f, 0.4f});
-    registry.emplace<Trail>(entity, 0.2f);
+    transform.set_scale({0.15f, 0.15f});
+    registry.emplace<Trail>(entity, 0.15f);
 
     registry.emplace<PhysicsType>(entity, PhysicsType::Bullet);
     auto &physics_body = registry.emplace<PhysicsBody>(entity);
@@ -39,8 +39,8 @@ entt::entity make_bullet(entt::registry &registry)
     physics_body.body->CreateFixture(&fixture_def);
     physics_body.body->SetBullet(true);
 
-    registry.emplace<EcsCircle>(entity, 0.1f);
-    registry.emplace<Color>(entity);
+    registry.emplace<EcsCircle>(entity, 0.f);
+    registry.emplace<Color>(entity, cl_white, glm::vec4{0.f, 0.f, 0.f, 0.f});
 
     return entity;
 }
