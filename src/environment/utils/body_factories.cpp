@@ -88,6 +88,10 @@ entt::entity make_base_module(entt::registry &registry)
     shape.shape.SetAsBox(0.5f, 0.5f);
     shapes.first = shape_entity;
 
+    // Sensor readings
+    registry.emplace<Sensor>(entity);
+    resize_sensor(registry, entity, 3);
+
     return entity;
 }
 

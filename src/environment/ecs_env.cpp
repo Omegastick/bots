@@ -30,6 +30,7 @@
 #include "environment/systems/distortion_system.h"
 #include "environment/systems/health_bar_system.h"
 #include "environment/systems/hill_system.h"
+#include "environment/systems/modules/base_module_system.h"
 #include "environment/systems/modules/gun_module_system.h"
 #include "environment/systems/modules/laser_sensor_module_system.h"
 #include "environment/systems/modules/thruster_module_system.h"
@@ -190,6 +191,8 @@ EcsStepInfo EcsEnv::step(const std::vector<torch::Tensor> &actions, double step_
     forward(step_length);
 
     hill_system(registry);
+
+    base_module_system(registry);
     laser_sensor_module_system(registry);
 
     body_death_system(registry, bodies.data(), bodies.size());
