@@ -55,7 +55,8 @@ std::tuple<double, double> calculate_elos(double a_rating,
     return {new_a_rating, new_b_rating};
 }
 
-EloEvaluator::EloEvaluator(Random &rng) : rng(rng) {}
+EloEvaluator::EloEvaluator(Random &rng, double game_length)
+    : Evaluator(game_length), rng(rng) {}
 
 double EloEvaluator::evaluate(IAgent &agent,
                               const std::vector<IAgent *> &new_opponents,
@@ -172,7 +173,7 @@ TEST_CASE("EloEvaluator")
     SUBCASE("Calculates elos within expected boundaries when evaluating random agents")
     {
         Random rng(0);
-        EloEvaluator evaluator(rng);
+        EloEvaluator evaluator(rng, 1);
 
         RandomAgent agent_1(default_body(), rng, "Agent 1");
         RandomAgent agent_2(default_body(), rng, "Agent 2");
@@ -182,11 +183,11 @@ TEST_CASE("EloEvaluator")
         std::vector<IAgent *> new_opponents;
 
         new_opponents.push_back(&agent_2);
-        evaluator.evaluate(agent_1, new_opponents, 16);
+        evaluator.evaluate(agent_1, new_opponents, 2);
         new_opponents[0] = &agent_3;
-        evaluator.evaluate(agent_1, new_opponents, 16);
+        evaluator.evaluate(agent_1, new_opponents, 2);
         new_opponents[0] = &agent_4;
-        auto elo = evaluator.evaluate(agent_1, new_opponents, 16);
+        auto elo = evaluator.evaluate(agent_1, new_opponents, 2);
 
         DOCTEST_CHECK(elo < 40);
         DOCTEST_CHECK(elo > -40);

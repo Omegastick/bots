@@ -47,9 +47,11 @@
 
 namespace ai
 {
-EcsEnv::EcsEnv()
+EcsEnv::EcsEnv(double game_length)
     : audible(true),
-      bodies{entt::null, entt::null}
+      bodies{entt::null, entt::null},
+      elapsed_time(0),
+      game_length(game_length)
 {
     init_physics(registry);
 
@@ -180,7 +182,7 @@ EcsStepInfo EcsEnv::step(const std::vector<torch::Tensor> &actions, double step_
     hill_system(registry);
     laser_sensor_module_system(registry);
 
-    const auto dones = elapsed_time >= 60.f ? torch::ones({2, 1}) : torch::zeros({2, 1});
+    const auto dones = elapsed_time >= game_length ? torch::ones({2, 1}) : torch::zeros({2, 1});
 
     return {observation_system(registry), torch::zeros({2, 1}), dones};
 }
@@ -189,7 +191,7 @@ TEST_CASE("EcsEnv")
 {
     SUBCASE("Runs a game without errors")
     {
-        EcsEnv env;
+        EcsEnv env(1);
 
         env.set_body(0, default_body());
         env.set_body(1, default_body());
@@ -213,7 +215,7 @@ TEST_CASE("EcsEnv")
         for (int i = 0; i < 8; i++)
         {
             futures.emplace_back(std::async(std::launch::async, [] {
-                EcsEnv env;
+                EcsEnv env(1);
 
                 env.set_body(0, default_body());
                 env.set_body(1, default_body());

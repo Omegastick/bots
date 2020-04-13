@@ -16,12 +16,12 @@
 
 namespace ai
 {
-Evaluator::Evaluator() {}
+Evaluator::Evaluator(double game_length) : game_length(game_length) {}
 
 EvaluationResult Evaluator::evaluate(const IAgent &agent_1, const IAgent &agent_2)
 {
     // Initialize environment
-    EcsEnv environment;
+    EcsEnv environment(game_length);
     environment.set_audibility(false);
     environment.set_body(0, agent_1.get_body_spec());
     environment.set_body(1, agent_2.get_body_spec());
@@ -85,7 +85,7 @@ TEST_CASE("Evaluator")
     SUBCASE("evaluate() returns a draw if the length of the game is too short for a win")
     {
         Random rng(0);
-        Evaluator evaluator;
+        Evaluator evaluator(0.2);
 
         RandomAgent agent(default_body(), rng, "Random Agent");
 

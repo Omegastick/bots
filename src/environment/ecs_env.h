@@ -15,10 +15,11 @@ class EcsEnv : public IEcsEnv
     bool audible;
     std::array<entt::entity, 2> bodies;
     double elapsed_time;
+    double game_length;
     entt::registry registry;
 
   public:
-    EcsEnv();
+    EcsEnv(double game_length = 60.f);
     EcsEnv(const EcsEnv &) = delete;
     EcsEnv(EcsEnv &&) = delete;
 

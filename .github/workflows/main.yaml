@@ -35,7 +35,7 @@ jobs:
         with:
           vcpkgArguments: "@${{ env.VCPKGRESPONSEFILE }}"
           vcpkgDirectory: "${{ github.workspace }}/vcpkg"
-          appendedCacheKey: ${{ hashFile(env.VCPKGRESPONSEFILE) }}
+          appendedCacheKey: ${{ hashFiles(env.VCPKGRESPONSEFILE) }}
       - name: Checkout submodules
         run: |
           git submodule sync --recursive

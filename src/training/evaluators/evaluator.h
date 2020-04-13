@@ -1,7 +1,5 @@
 #pragma once
 
-#include <nlohmann/json_fwd.hpp>
-
 namespace ai
 {
 class IAgent;
@@ -15,8 +13,11 @@ enum class EvaluationResult
 
 class Evaluator
 {
+  private:
+    double game_length;
+
   public:
-    Evaluator();
+    Evaluator(double game_length = 60.f);
 
     EvaluationResult evaluate(const IAgent &agent_1, const IAgent &agent_2);
 };

@@ -17,7 +17,7 @@ class BasicEvaluator : protected Evaluator
     Random &rng;
 
   public:
-    BasicEvaluator(Random &rng);
+    BasicEvaluator(Random &rng, double game_length = 60.f);
 
     double evaluate(const IAgent &agent, int number_of_trials);
 };

@@ -13,7 +13,8 @@
 
 namespace ai
 {
-BasicEvaluator::BasicEvaluator(Random &rng) : rng(rng) {}
+BasicEvaluator::BasicEvaluator(Random &rng, double game_length)
+    : Evaluator(game_length), rng(rng) {}
 
 double BasicEvaluator::evaluate(const IAgent &agent, int number_of_trials)
 {
@@ -61,7 +62,7 @@ TEST_CASE("BasicEvaluator")
     SUBCASE("evaluate() runs the correct number of trials")
     {
         Random rng(0);
-        BasicEvaluator evaluator(rng);
+        BasicEvaluator evaluator(rng, 0.2);
 
         RandomAgent agent(default_body(), rng, "Agent");
 

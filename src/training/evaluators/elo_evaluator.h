@@ -24,7 +24,7 @@ class EloEvaluator : protected Evaluator
     Random &rng;
 
   public:
-    EloEvaluator(Random &rng);
+    EloEvaluator(Random &rng, double game_length = 60.f);
 
     double evaluate(IAgent &agent,
                     const std::vector<IAgent *> &new_opponents,
