@@ -19,6 +19,7 @@
 #include "environment/components/done.h"
 #include "environment/components/ecs_render_data.h"
 #include "environment/components/physics_body.h"
+#include "environment/components/reward.h"
 #include "environment/components/score.h"
 #include "environment/observers/destroy_physics_body.h"
 #include "environment/serialization/serialize_body.h"
@@ -44,6 +45,7 @@
 #include "environment/utils/wall_utils.h"
 #include "graphics/renderers/renderer.h"
 #include "misc/transform.h"
+#include "training/training_program.h"
 
 namespace ai
 {
@@ -172,6 +174,11 @@ void EcsEnv::set_body(std::size_t index, const nlohmann::json &body_def)
     bodies[index] = deserialize_body(registry, body_def);
 }
 
+void EcsEnv::set_reward_config(const RewardConfig &reward_config)
+{
+    registry.set<RewardConfig>(reward_config);
+}
+
 EcsStepInfo EcsEnv::step(const std::vector<torch::Tensor> &actions, double step_length)
 {
     new_frame_system(registry);
@@ -188,6 +195,12 @@ EcsStepInfo EcsEnv::step(const std::vector<torch::Tensor> &actions, double step_
     body_death_system(registry, bodies.data(), bodies.size());
 
     registry.set<Done>(registry.ctx<Done>().done || elapsed_time >= game_length);
+
+    std::array<float, 2> rewards{registry.get<Reward>(bodies[0]).reward,
+                                 registry.get<Reward>(bodies[1]).reward};
+    auto rewards_tensor = torch::from_blob(rewards.data(), {2}, torch::kFloat).clone();
+    registry.get<Reward>(bodies[0]).reward = 0.f;
+    registry.get<Reward>(bodies[1]).reward = 0.f;
 
     if (registry.ctx<Done>().done)
     {
@@ -206,9 +219,9 @@ EcsStepInfo EcsEnv::step(const std::vector<torch::Tensor> &actions, double step_
         {
             winner = 1;
         }
-        return {observation_system(registry), torch::zeros({2, 1}), torch::ones({2, 1}), winner};
+        return {observation_system(registry), rewards_tensor, torch::ones({2, 1}), winner};
     }
-    return {observation_system(registry), torch::zeros({2, 1}), torch::zeros({2, 1})};
+    return {observation_system(registry), rewards_tensor, torch::zeros({2, 1})};
 }
 
 TEST_CASE("EcsEnv")

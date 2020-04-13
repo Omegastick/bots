@@ -10,11 +10,13 @@
 #include "environment/components/modules/module.h"
 #include "environment/components/particle_emitter.h"
 #include "environment/components/physics_type.h"
+#include "environment/components/reward.h"
 #include "environment/utils/bullet_utils.h"
 #include "environment/utils/hill_utils.h"
 #include "environment/utils/wall_utils.h"
 #include "graphics/colors.h"
 #include "misc/transform.h"
+#include "training/training_program.h"
 
 namespace ai
 {
@@ -50,7 +52,30 @@ void begin_bullet_contact(entt::registry &registry,
         registry.emplace<AudioEmitter>(audio_entity, audio_id_map["hit_body"]);
 
         const auto body_entity = registry.get<EcsModule>(other_entity).body;
-        registry.get<EcsBody>(body_entity).hp -= registry.get<EcsBullet>(bullet_entity).damage;
+        const auto &bullet = registry.get<EcsBullet>(bullet_entity);
+        registry.get<EcsBody>(body_entity).hp -= bullet.damage;
+        const auto *reward_config = registry.try_ctx<RewardConfig>();
+        if (reward_config)
+        {
+            if (reward_config->hit_self_type == HpOrHit::Hit)
+            {
+                registry.get<Reward>(body_entity).reward += reward_config->hit_self_punishment;
+            }
+            else
+            {
+                registry.get<Reward>(body_entity).reward += reward_config->hit_self_punishment *
+                                                            bullet.damage;
+            }
+            if (reward_config->hit_enemy_type == HpOrHit::Hit)
+            {
+                registry.get<Reward>(body_entity).reward += reward_config->hit_enemy_reward;
+            }
+            else
+            {
+                registry.get<Reward>(body_entity).reward += reward_config->hit_enemy_reward *
+                                                            bullet.damage;
+            }
+        }
     }
     else
     {

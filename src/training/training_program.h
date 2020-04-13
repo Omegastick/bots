@@ -22,7 +22,9 @@ enum class HpOrHit
 struct RewardConfig
 {
     RewardConfig();
+    RewardConfig(const RewardConfig &other) = default;
     RewardConfig(nlohmann::json &json);
+    RewardConfig &operator=(const RewardConfig &other) = default;
 
     float victory_reward = 100;
     float loss_punishment = -100;
@@ -43,7 +45,7 @@ struct HyperParameters
     HyperParameters();
     HyperParameters(nlohmann::json &json);
 
-    Algorithm algorithm = Algorithm::A2C;
+    Algorithm algorithm = Algorithm::PPO;
     int batch_size = 128;
     float discount_factor = 0.99f;
     float entropy_coef = 0.001f;

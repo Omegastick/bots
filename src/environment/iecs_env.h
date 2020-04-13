@@ -9,6 +9,7 @@
 
 #include "audio/audio_engine.h"
 #include "graphics/renderers/renderer.h"
+#include "training/training_program.h"
 
 namespace ai
 {
@@ -34,6 +35,7 @@ class IEcsEnv
     virtual EcsStepInfo reset() = 0;
     virtual void set_audibility(bool audibility) = 0;
     virtual void set_body(std::size_t index, const nlohmann::json &body_def) = 0;
+    virtual void set_reward_config(const RewardConfig &reward_config) = 0;
     virtual EcsStepInfo step(const std::vector<torch::Tensor> &actions, double step_length) = 0;
 };
 
@@ -50,6 +52,7 @@ class MockEcsEnv : public trompeloeil::mock_interface<IEcsEnv>
     IMPLEMENT_MOCK0(reset);
     IMPLEMENT_MOCK1(set_audibility);
     IMPLEMENT_MOCK2(set_body);
+    IMPLEMENT_MOCK1(set_reward_config);
     IMPLEMENT_MOCK2(step);
 };
 }

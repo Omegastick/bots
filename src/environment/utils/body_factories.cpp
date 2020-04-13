@@ -28,6 +28,7 @@
 #include "environment/components/physics_type.h"
 #include "environment/components/physics_world.h"
 #include "environment/components/render_shape_container.h"
+#include "environment/components/reward.h"
 #include "environment/components/score.h"
 #include "environment/components/sensor_reading.h"
 #include "environment/systems/clean_up_system.h"
@@ -95,6 +96,7 @@ entt::entity make_body(entt::registry &registry)
     const auto entity = registry.create();
     auto &body = registry.emplace<EcsBody>(entity);
     registry.emplace<Transform>(entity);
+    registry.emplace<Reward>(entity);
     registry.emplace<Score>(entity);
     registry.emplace<ColorScheme>(entity);
     registry.emplace<Name>(entity);

@@ -34,7 +34,9 @@ void gun_module_system(entt::registry &registry)
         }
         gun_module.cooldown = gun_module.fire_rate;
 
+        const auto &module = registry.get<EcsModule>(entity);
         const auto bullet_entity = make_bullet(registry);
+        registry.get<EcsBullet>(bullet_entity).owner = module.body;
 
         auto &bullet_physics_body = registry.get<PhysicsBody>(bullet_entity);
         auto &transform = registry.get<Transform>(entity);
@@ -51,7 +53,6 @@ void gun_module_system(entt::registry &registry)
                                                       glm::cos(rotation) * velocity},
                                                      true);
 
-        const auto &module = registry.get<EcsModule>(entity);
         auto &physics_body = registry.get<PhysicsBody>(module.body);
         physics_body.body->ApplyForce({glm::sin(rotation) * velocity,
                                        -glm::cos(rotation) * velocity},

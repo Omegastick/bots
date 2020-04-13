@@ -4,9 +4,11 @@
 #include <spdlog/spdlog.h>
 
 #include "hill_system.h"
+#include "environment/components/body.h"
 #include "environment/components/hill.h"
 #include "environment/components/score.h"
 #include "environment/utils/hill_utils.h"
+#include "training/training_program.h"
 
 namespace ai
 {
@@ -17,6 +19,24 @@ void hill_system(entt::registry &registry)
         {
             auto &score = registry.get<Score>(hill.occupants[0].first);
             score.score += 1.f;
+
+            const auto *reward_config = registry.try_ctx<RewardConfig>();
+            if (reward_config)
+            {
+                const auto body_view = registry.view<EcsBody>();
+                for (const auto body : body_view)
+                {
+                    auto &score = registry.get<Score>(hill.occupants[0].first);
+                    if (body == hill.occupants[0].first)
+                    {
+                        score.score += reward_config->hill_tick_reward;
+                    }
+                    else
+                    {
+                        score.score += reward_config->enemy_hill_tick_punishment;
+                    }
+                }
+            }
         }
     });
 }
