@@ -16,15 +16,15 @@
 #include "environment/components/activatable.h"
 #include "environment/components/body.h"
 #include "environment/components/bullet.h"
-#include "environment/components/contact.h"
+#include "environment/components/done.h"
 #include "environment/components/ecs_render_data.h"
-#include "environment/components/particle_emitter.h"
 #include "environment/components/physics_body.h"
 #include "environment/components/score.h"
 #include "environment/observers/destroy_physics_body.h"
 #include "environment/serialization/serialize_body.h"
 #include "environment/systems/action_system.h"
 #include "environment/systems/audio_system.h"
+#include "environment/systems/body_death_system.h"
 #include "environment/systems/clean_up_system.h"
 #include "environment/systems/distortion_system.h"
 #include "environment/systems/health_bar_system.h"
@@ -53,6 +53,8 @@ EcsEnv::EcsEnv(double game_length)
       elapsed_time(0),
       game_length(game_length)
 {
+    registry.set<Done>(false);
+
     init_physics(registry);
 
     make_wall(registry, {0.f, -20.f}, {20.f, 0.1f}, 0.f);
@@ -143,6 +145,7 @@ EcsStepInfo EcsEnv::reset()
     }
 
     elapsed_time = 0;
+    registry.set<Done>(false);
 
     const auto bullets = registry.view<EcsBullet>();
     registry.destroy(bullets.begin(), bullets.end());
@@ -182,9 +185,30 @@ EcsStepInfo EcsEnv::step(const std::vector<torch::Tensor> &actions, double step_
     hill_system(registry);
     laser_sensor_module_system(registry);
 
-    const auto dones = elapsed_time >= game_length ? torch::ones({2, 1}) : torch::zeros({2, 1});
+    body_death_system(registry, bodies.data(), bodies.size());
 
-    return {observation_system(registry), torch::zeros({2, 1}), dones};
+    registry.set<Done>(registry.ctx<Done>().done || elapsed_time >= game_length);
+
+    if (registry.ctx<Done>().done)
+    {
+        int winner;
+        const auto &score_0 = registry.get<Score>(bodies[0]).score;
+        const auto &score_1 = registry.get<Score>(bodies[1]).score;
+        if (score_0 == score_1)
+        {
+            winner = -1;
+        }
+        else if (score_0 > score_1)
+        {
+            winner = 0;
+        }
+        else
+        {
+            winner = 1;
+        }
+        return {observation_system(registry), torch::zeros({2, 1}), torch::ones({2, 1}), winner};
+    }
+    return {observation_system(registry), torch::zeros({2, 1}), torch::zeros({2, 1})};
 }
 
 TEST_CASE("EcsEnv")
