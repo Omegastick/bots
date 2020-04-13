@@ -17,6 +17,10 @@ jobs:
             torchInstallDir: /tmp/libtorch
             triplet: x64-linux
     steps:
+      - name: Checkout submodules
+        run: |
+          git submodule sync --recursive
+          git submodule update --init --recursive
       - name: Install apt dependencies
         if: matrix.os == 'ubuntu-latest'
         run: |
@@ -34,10 +38,6 @@ jobs:
           vcpkgArguments: "@${{ env.VCPKGRESPONSEFILE }}"
           vcpkgDirectory: "${{ github.workspace }}/vcpkg"
           appendedCacheKey: ${{ hashFiles(env.VCPKGRESPONSEFILE) }}
-      - name: Checkout submodules
-        run: |
-          git submodule sync --recursive
-          git submodule update --init --recursive
       - name: Install PyTorch on Linux
         if: matrix.os == 'ubuntu-latest'
         run: |
