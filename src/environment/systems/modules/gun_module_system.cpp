@@ -30,7 +30,7 @@ void gun_module_system(entt::registry &registry)
         if (!registry.get<Activatable>(entity).active || gun_module.cooldown > 0)
         {
             gun_module.cooldown--;
-            return;
+            continue;
         }
         gun_module.cooldown = gun_module.fire_rate;
 
