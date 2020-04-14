@@ -1,7 +1,9 @@
 --triplet
 x64-linux
+box2d
+cpp-taskflow
 curl[core,ssl,openssl]
 opengl
 fmt
+glm
 spdlog
-cpp-taskflow

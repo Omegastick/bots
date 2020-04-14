@@ -65,14 +65,12 @@ set(CMAKE_CXX_FLAGS_UBSAN
 # Configuration
 set(LIB_DIR lib)
 set(ARGH_DIR ${LIB_DIR}/argh)
-set(BOX2D_DIR ${LIB_DIR}/Box2D-cmake)
 set(CPPRL_DIR ${LIB_DIR}/pytorch-cpp-rl)
 set(DOCTEST_DIR ${LIB_DIR}/doctest)
 set(EASY_PROFILER_DIR ${LIB_DIR}/easy_profiler)
 set(ENTT_DIR ${LIB_DIR}/entt)
 set(GLFW_DIR ${LIB_DIR}/GLFW)
 set(GLAD_DIR ${LIB_DIR}/GLAD)
-set(GLM_DIR ${LIB_DIR}/GLM)
 set(IMGUI_DIR ${LIB_DIR}/imgui)
 set(JSON_DIR ${LIB_DIR}/json)
 set(MSGPACK_DIR ${LIB_DIR}/msgpack-c)
@@ -252,8 +250,7 @@ target_sources(glad PRIVATE ${GLAD_DIR}/src/glad.c)
 target_include_directories(glad PUBLIC ${GLAD_DIR}/include)
 set_target_properties(glad PROPERTIES POSITION_INDEPENDENT_CODE TRUE)
 ## GLM
-option(GLM_TEST_ENABLE "" OFF)
-add_subdirectory(${GLM_DIR})
+find_package(glm CONFIG REQUIRED)
 ## imgui
 add_library(imgui STATIC)
 target_include_directories(imgui 
@@ -316,8 +313,7 @@ else (UNIX)
     target_sources(soloud PRIVATE ${SOLOUD_DIR}/src/backend/winmm/soloud_winmm.cpp)
 endif (UNIX)
 ## Box2D
-add_subdirectory(${BOX2D_DIR})
-set_target_properties(Box2D-cmake PROPERTIES POSITION_INDEPENDENT_CODE TRUE)
+find_package(unofficial-box2d CONFIG REQUIRED)
 ## Doctest
 add_subdirectory(${DOCTEST_DIR})
 ## Json
@@ -348,7 +344,7 @@ PUBLIC
     nanovg
     soloud
     spdlog::spdlog_header_only
-    tobanteGaming::Box2D
+    unofficial::box2d::box2d
     ${TORCH_LIBRARIES}
 )
 # UNIX systems sometimes need to explicitly link the threading library
@@ -379,12 +375,10 @@ set(NO_ERR_INCLUDE_DIRS
     ${EASY_PROFILER_DIR}/easy_profiler_core/include
     ${GLAD_DIR}/include 
     ${GLFW_DIR}/include 
-    ${GLM_DIR} 
     ${SOLOUD_DIR}/include
     ${TORCH_INCLUDE_DIRS}
     ${IMGUI_DIR}
     ${IMGUI_DIR}/examples
-    ${BOX2D_DIR}/Box2D
     ${MSGPACK_DIR}/include
     ${ARGH_DIR}
     ${JSON_DIR}/include
