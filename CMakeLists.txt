@@ -403,6 +403,3 @@ target_include_directories(shared SYSTEM PUBLIC ${NO_ERR_INCLUDE_DIRS})
 target_include_directories(pythonbindings SYSTEM PUBLIC ${NO_ERR_INCLUDE_DIRS})
 
 add_subdirectory(src)
-
-add_executable(entt_test entt_test.cpp)
-target_link_libraries(entt_test pthread EnTT::EnTT)
